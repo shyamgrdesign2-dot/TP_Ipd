@@ -17,6 +17,7 @@ import Investigationicon from "../assets/images/Lab.svg";
 import notesicon from "../assets/images/notes.svg";
 import calenderBlank from "../assets/images/calenderBlank.svg";
 import followUp from "../assets/images/followup.svg";
+import smartPadGrey from "../assets/images/smartPadGrey.svg";
 
 import { FETCH_SMART_RX } from "../utils/constants";
 
@@ -42,6 +43,7 @@ function Cardiology(props) {
   const [filteredInfo, setFilteredInfo] = useState({});
   const [setSortedInfo] = useState({});
   const [smartRxFile, setSmartRxFile] = useState([]);
+  const [isSmartRxFile, setIsSmartRxFile] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -53,6 +55,11 @@ function Cardiology(props) {
     if (viewCaseManagerData?.tcm_id) {
       fetchData();
     }
+    if(viewCaseManagerData?.smart_prescription_filename !== null) {
+      setIsSmartRxFile(true)
+    }else {
+      setIsSmartRxFile(false)
+    }
   }, [viewCaseManagerData]);
 
   const fetchData = async () => {
@@ -60,16 +67,18 @@ function Cardiology(props) {
       tcm_id: viewCaseManagerData?.tcm_id,
     };
     try {
-      if (viewCaseManagerData?.smart_prescription_filename?.length) {
-        const response = await api.post(
-          FETCH_SMART_RX,
-          payload,
-          baseUrl
-        );
-        if (response?.data?.length) {
-          setSmartRxFile(response?.data);
+        if(viewCaseManagerData?.smart_prescription_filename?.length){
+          const response = await api.post(
+            FETCH_SMART_RX,
+            payload,
+            baseUrl
+          );
+          if (response?.data?.length) {
+            setSmartRxFile(response?.data);
+          } else{
+            setSmartRxFile(null);
+          }
         }
-      }
     } catch (error) {
       console.error("Error:", error);
     }
@@ -93,14 +102,14 @@ function Cardiology(props) {
 
   const items = [
     {
-      label: <div onClick={() => !isChrome && !isSafari ? printRxInAppContent() : printRxContent()}>Print Medicines Only</div>,
-      key: 'printrx',
+        label: <div onClick={() => !isChrome && !isSafari ? printRxInAppContent() : printRxContent()}>Print Medicines Only</div>,
+        key: 'printrx',
     },
     // {
     //     label: 'Saved as a Template',
     //     key: 'SavedasTemplate',
     // }
-  ];
+];
   const columns = [
     {
       title: "S.NO",
@@ -232,8 +241,8 @@ function Cardiology(props) {
       patient_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
       rx_date: viewCaseManagerData?.consultation_date,
     });
-
-    if (smartRxFile.length > 0) {
+  
+    if (isSmartRxFile) {
       navigate("/smart-prescription", {
         state: {
           patient_data: patient_data,
@@ -270,8 +279,8 @@ function Cardiology(props) {
                     onClick={nextPress}
                     disabled={
                       !loading &&
-                        tcmData.page > 1 &&
-                        viewCaseManagerData?.next_tcm_id
+                      tcmData.page > 1 &&
+                      viewCaseManagerData?.next_tcm_id
                         ? false
                         : true
                     }
@@ -284,8 +293,8 @@ function Cardiology(props) {
                     onClick={prevPress}
                     disabled={
                       !loading &&
-                        tcmData.page < viewCaseManagerData?.total_consultation &&
-                        viewCaseManagerData?.prev_tcm_id
+                      tcmData.page < viewCaseManagerData?.total_consultation &&
+                      viewCaseManagerData?.prev_tcm_id
                         ? false
                         : true
                     }
@@ -316,7 +325,7 @@ function Cardiology(props) {
                   >
                     <i className="icon-Print"></i>
                   </button>
-                  {!smartRxFile.length > 0 &&
+                  { !isSmartRxFile &&
                     <Dropdown
                       className="btn btn-outline btn-more ms-1"
                       menu={{ items }}
@@ -340,45 +349,51 @@ function Cardiology(props) {
                 </div>
               </div>
             ) : //smart image
-              smartRxFile.length > 0 ?
-                (
-                  <>
-                    {smartRxFile?.map(({ smart_prescription_file }) =>
-                      <div style={{ padding: "5px" }}>
-                        {smart_prescription_file && (
-                          <img
-                            src={smart_prescription_file}
-                            alt="Smart Rx"
-                            width="100%"
-                            height="660px"
-                          />
-                        )}
-                      </div>
+            isSmartRxFile ?
+            (
+            <>
+              {smartRxFile.length > 0 ? smartRxFile?.map(({smart_prescription_file}) =>
+                  <div style={{ padding: "5px" }}>
+                    {smart_prescription_file && (
+                      <img
+                        src={smart_prescription_file}
+                        alt="Smart Rx"
+                        width="100%"
+                        height="660px"
+                      />
                     )}
-                    <div className="d-flex align-items-center mb-14 follow-up-detailsPage">
-                      {viewCaseManagerData?.follow_up_date &&
-                        <>
-                          <img className='me-3' src={followUp} alt="Symptoms" />
-                          <div className="title-common">Follow-up:</div>
-                          <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
-                        </>
-                      }
-                    </div>
-                  </>
-                ) : (
-                  <Card.Body className="p-0 cardbody-data">
-                    <div>
-                      <div className="p-3 pb-0">
-                        {viewCaseManagerData.symptoms.length > 0 && (
-                          <div className="d-flex align-items-start mb-4">
-                            <img
-                              className="me-2"
-                              src={Symptomsicon}
-                              alt="Symptoms"
-                            />
-                            <div>
-                              <div className="title">Symptoms</div>
-                              {viewCaseManagerData.symptoms.map((item, i) => {
+                  </div>
+              ) : (<div className='smart-rx-no-data'>
+                      <img src={smartPadGrey} width={60} height={60} alt="No prescriptions saved for the patient!" />
+                      <p className='mt-2 fontroboto'>
+                          No smart prescriptions available for the patient!
+                      </p>
+                  </div>
+              )}
+              <div className="d-flex align-items-center mb-14 follow-up-detailsPage">
+              { viewCaseManagerData?.follow_up_date &&
+                <>
+                  <img className='me-3' src={followUp} alt="Symptoms" />
+                  <div className="title-common">Follow-up:</div>
+                  <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
+                </>
+              }
+              </div>
+              </>
+            ) : (
+              <Card.Body className="p-0 cardbody-data">
+                <div>
+                  <div className="p-3 pb-0">
+                    {viewCaseManagerData.symptoms.length > 0 && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img
+                          className="me-2"
+                          src={Symptomsicon}
+                          alt="Symptoms"
+                        />
+                        <div>
+                          <div className="title">Symptoms</div>
+                          {viewCaseManagerData.symptoms.map((item, i) => {
                                 return (
                                   <span key={i}>
                                     <span>{item.symptom_name}</span> :{" "}
@@ -393,41 +408,41 @@ function Cardiology(props) {
                                   </span>
                                 );
                               })}
-                            </div>
-                          </div>
-                        )}
-                        {viewCaseManagerData.examination.length > 0 && (
-                          <div className="d-flex align-items-start mb-4">
-                            <img
-                              className="me-2"
-                              src={Examinationsicon}
-                              alt="Examinations"
-                            />
-                            <div>
-                              <div className="title">Examinations</div>
-                              {viewCaseManagerData.examination.map((item, i) => {
-                                return (
-                                  <span key={i}>
-                                    <span>{item.examination_name}</span> :{" "}
-                                    <label>{item.note}</label>
-                                    {viewCaseManagerData.examination.length - 1 !=
-                                      i && " | "}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-                        {viewCaseManagerData.diagnosis.length > 0 && (
-                          <div className="d-flex align-items-start mb-4">
-                            <img
-                              className="me-2"
-                              src={Diagnosisicon}
-                              alt="Diagnosis"
-                            />
-                            <div>
-                              <div className="title">Diagnosis</div>
-                              {viewCaseManagerData.diagnosis.map((item, i) => {
+                        </div>
+                      </div>
+                    )}
+                    {viewCaseManagerData.examination.length > 0 && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img
+                          className="me-2"
+                          src={Examinationsicon}
+                          alt="Examinations"
+                        />
+                        <div>
+                          <div className="title">Examinations</div>
+                          {viewCaseManagerData.examination.map((item, i) => {
+                            return (
+                              <span key={i}>
+                                <span>{item.examination_name}</span> :{" "}
+                                <label>{item.note}</label>
+                                {viewCaseManagerData.examination.length - 1 !=
+                                  i && " | "}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {viewCaseManagerData.diagnosis.length > 0 && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img
+                          className="me-2"
+                          src={Diagnosisicon}
+                          alt="Diagnosis"
+                        />
+                        <div>
+                          <div className="title">Diagnosis</div>
+                          {viewCaseManagerData.diagnosis.map((item, i) => {
                                 return (
                                   <span key={i}>
                                     <span>{item.tds_name}</span> :{" "}
@@ -441,87 +456,87 @@ function Cardiology(props) {
                                   </span>
                                 );
                               })}
-                            </div>
-                          </div>
-                        )}
-                        {viewCaseManagerData.medicine.length > 0 && (
-                          <div className="d-flex align-items-center">
-                            <img
-                              className="me-2"
-                              src={Medicationicon}
-                              alt="Medication"
-                            />
-                            <div>
-                              <div className="title">Medication (Rx)</div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      {viewCaseManagerData.medicine.length > 0 && (
-                        <div>
-                          <div className="border-top border-bottom mt-2">
-                            <Table
-                              className="table-border patient-medication"
-                              columns={columns}
-                              dataSource={viewCaseManagerData.medicine}
-                              onChange={handleChange}
-                              pagination={false}
-                            />
-                          </div>
                         </div>
-                      )}
-                      <div className="p-3">
-                        {viewCaseManagerData.advice.length > 0 && (
-                          <div className="d-flex align-items-start mb-4">
-                            <img className="me-2" src={Frameicon} alt="Advice" />
-                            <div>
-                              <div className="title">Advice</div>
+                      </div>
+                    )}
+                    {viewCaseManagerData.medicine.length > 0 && (
+                      <div className="d-flex align-items-center">
+                        <img
+                          className="me-2"
+                          src={Medicationicon}
+                          alt="Medication"
+                        />
+                        <div>
+                          <div className="title">Medication (Rx)</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {viewCaseManagerData.medicine.length > 0 && (
+                    <div>
+                      <div className="border-top border-bottom mt-2">
+                        <Table
+                          className="table-border patient-medication"
+                          columns={columns}
+                          dataSource={viewCaseManagerData.medicine}
+                          onChange={handleChange}
+                          pagination={false}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div className="p-3">
+                    {viewCaseManagerData.advice.length > 0 && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img className="me-2" src={Frameicon} alt="Advice" />
+                        <div>
+                          <div className="title">Advice</div>
 
-                              {viewCaseManagerData.advice.map((item, i) => {
+                          {viewCaseManagerData.advice.map((item, i) => {
                                 return (
                                   <label key={i}>{`${i != 0 ? ", " : ""}${item.advice_name
                                     }`}</label>
                                 );
                               })}
-                            </div>
-                          </div>
-                        )}
-                        {viewCaseManagerData.investigation.length > 0 && (
-                          <div className="d-flex align-items-start mb-4">
-                            <img
-                              className="me-2"
-                              src={Investigationicon}
-                              alt="Advice"
-                            />
-                            <div>
-                              <div className="title">Lab Investigation</div>
-                              {viewCaseManagerData.investigation.map((item, i) => {
-                                return (
-                                  <span key={i}>
-                                    <span key={i}>{item.investigation_name}</span> :{" "}
-                                    <label>{item.note}</label>
-                                    {viewCaseManagerData.investigation.length - 1 !=
-                                      i && " | "}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-                        {viewCaseManagerData.visit_advice && (
-                          <div className="d-flex align-items-start mb-4">
-                            <img
-                              className="me-2"
-                              src={notesicon}
-                              alt="Doctor Note"
-                            />
-                            <div>
-                              <div className="title">Doctor Note</div>
-                              <label>{viewCaseManagerData.visit_advice}</label>
-                            </div>
-                          </div>
-                        )}
-                        {viewCaseManagerData.treatment && (
+                        </div>
+                      </div>
+                    )}
+                    {viewCaseManagerData.investigation.length > 0 && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img
+                          className="me-2"
+                          src={Investigationicon}
+                          alt="Advice"
+                        />
+                        <div>
+                          <div className="title">Lab Investigation</div>
+                          {viewCaseManagerData.investigation.map((item, i) => {
+                            return (
+                              <span key={i}>
+                                <span key={i}>{item.investigation_name}</span> :{" "}
+                                <label>{item.note}</label>
+                                {viewCaseManagerData.investigation.length - 1 !=
+                                  i && " | "}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {viewCaseManagerData.visit_advice && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img
+                          className="me-2"
+                          src={notesicon}
+                          alt="Doctor Note"
+                        />
+                        <div>
+                          <div className="title">Doctor Note</div>
+                          <label>{viewCaseManagerData.visit_advice}</label>
+                        </div>
+                      </div>
+                    )}
+                    {viewCaseManagerData.treatment && (
                           <div className="d-flex align-items-start mb-4">
                             <img
                               className="me-2"
@@ -534,10 +549,10 @@ function Cardiology(props) {
                             </div>
                           </div>
                         )}
-                      </div>
-                    </div>
-                  </Card.Body>
-                )}
+                  </div>
+                </div>
+              </Card.Body>
+            )}
           </>
         ) : (
           <div
