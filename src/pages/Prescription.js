@@ -252,7 +252,7 @@ function Prescription() {
                   : "0 -"
                 }${e.tcm_tmm_freq_evening
                   ? e.tcm_tmm_freq_evening + " - "
-                  : "0 -"
+                  : ""
                 }${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
                 : frequencyObj !== undefined
                   ? frequencyObj.tmf_title

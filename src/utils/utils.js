@@ -156,6 +156,20 @@ export const frequencyCombination = (text) => {
   return makeArray;
 }
 
+export const medicine_freq_format = (freq) => {
+  var value = ''
+  if (freq == '0.5') {
+    value = `1/2`
+  } else if (freq == '0.25') {
+    value = `1/4`
+  } else if (freq == '0.75') {
+    value = `3/4`
+  } else {
+    value = freq
+  }
+  return value
+}
+
 export const dataUrlToFile = (url, fileName) => {
   const [mediaType, data] = url.split(",");
 
