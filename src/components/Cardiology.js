@@ -20,7 +20,7 @@ import followUp from "../assets/images/followup.svg";
 
 import { FETCH_SMART_RX } from "../utils/constants";
 
-import { isNumeric } from "../utils/utils";
+import { isNumeric, medicine_freq_format } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
 
 function Cardiology(props) {
@@ -156,15 +156,17 @@ function Cardiology(props) {
               record.tcm_tmm_freq_evening ||
               record.tcm_tmm_freq_night
               ? `${record.tcm_tmm_freq_morning
-                ? record.tcm_tmm_freq_morning
+                ? medicine_freq_format(record.tcm_tmm_freq_morning)
                 : 0
               }-${record.tcm_tmm_freq_afternoon
-                ? record.tcm_tmm_freq_afternoon
+                ? medicine_freq_format(record.tcm_tmm_freq_afternoon)
                 : 0
               }${record.tcm_tmm_freq_evening
-                ? "-" + record.tcm_tmm_freq_evening
+                ? "-" + medicine_freq_format(record.tcm_tmm_freq_evening)
                 : ""
-              }-${record.tcm_tmm_freq_night ? record.tcm_tmm_freq_night : 0
+              }-${record.tcm_tmm_freq_night ?
+                medicine_freq_format(record.tcm_tmm_freq_night)
+                : 0
               }`
               : `-`
             }`

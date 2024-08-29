@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Routes, Route, useSearchParams } from "react-router-dom";
+import { Routes, Route, useSearchParams, useNavigate } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { isMobile } from "react-device-detect";
@@ -26,6 +26,7 @@ import { useLocalStorage } from "./utils/localStorage";
 
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
+import TalkativeWidget from "./components/TalkativeWidget";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -41,6 +42,8 @@ function App() {
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Load features asynchronously when the app renders
@@ -63,6 +66,8 @@ function App() {
     const pathname = window.location.pathname;
     if (pathname == "/" && authToken) {
       setToken(authToken);
+      navigate('/', { replace: true });
+      navigate(0, { replace: true });
     }
   }, [window.location.pathname, authToken]);
 
@@ -81,6 +86,7 @@ function App() {
             console.error(details);
           }}
         >
+          {process.env.REACT_APP_ENV !== "prod" && <TalkativeWidget region="au" configUuid="3f5d31d7-aae5-43f2-903a-2dc2d90a36f3" />}
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
               <Routes>

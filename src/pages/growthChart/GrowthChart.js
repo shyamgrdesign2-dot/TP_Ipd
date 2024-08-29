@@ -213,10 +213,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
       setDisplay("block");
       setTimeout(() => {
         handleGenerateImages();
-      }, 800);
+      }, 1800);
       setTimeout(() => {
         handleDrawerVaccination();
-      }, 1000);
+      }, 2000);
     } else {
       handleDrawerVaccination();
     }
@@ -312,6 +312,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             const labelName = item.key;
             return {
               ...item,
+              borderColor:
+                display === "block" ? item.backgroundColor : item.borderColor,
               data:
                 showTimelineInYear && key !== "HeightVsWeight"
                   ? objectName[labelName]?.filter((item, index) => {
@@ -342,7 +344,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
             borderColor: "#19BB7A",
             backgroundColor: "rgba(0, 0, 0, 0)", // Make the line background transparent
             borderDash: [4, 4], // Make the line dotted
-            pointRadius: 3, // Show points
+            pointRadius: display === "block" ? 6 : 3, // Show points
             pointHoverRadius: 6, // Show points on hover
             pointBorderColor: modifiedData.map((item) =>
               item.isMalnutrition ? "#FF0000" : "#19BB7A"
@@ -392,6 +394,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
                 }`}
                 style={{
                   height: display === "block" ? "430px" : "505px",
+                  borderColor: display === "block" ? "#000" : "",
                 }}
                 ref={(el) => (graphImgRefs.current[graphIndex] = el)}
               >
