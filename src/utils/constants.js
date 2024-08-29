@@ -22,6 +22,7 @@ export const NORMAL = 'NORMAL'
 export const WHATSAPP = 'WHATSAPP'
 
 export const WEBSOCKET_ADDRESS = "ws://localhost:5001/iScribeSocket"
+export const WS_CONTROL_URL = 'ws://localhost:3002/iScribeControlSocket';
 export const WEBSOCKET_ERROR_MESSAGE = "Error connecting the server, Please check device connectivity"
 export const WHATS_APP_API = "/api/v1/casemanager/smart-rx/send"
 export const SMART_RX_UPLOAD = "/api/v1/casemanager/smart-rx/upload"
