@@ -1488,7 +1488,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
               <div className="medicine-templates h-100 p-3">
                 <Input className="popinput" placeholder="Search Generic Name" onChange={onSearchGeneric} prefix={<i className='icon-search me-2'></i>} allowClear />
                 <div className="mt-3">
-                  {genericList.length > 0 ? (
+                  {/* {genericList.length > 0 ? (
                     genericList.map((item, i) => {
                       return (
                         <Button
@@ -1508,7 +1508,19 @@ function TabMedicationSearch({ passIndex, onClose }) {
                       <div className="title-common fontroboto mb-3">Sorry ! No results found</div>
                       <div className="fontroboto text-greycolor">The generic name is currently not listed in our database <br /> We will add it soon. </div>
                     </div>
-                  )}
+                  )} */}
+                  {[...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).map((item, i) => {
+                    return (
+                      <Button
+                        key={i}
+                        type="text"
+                        style={{ width: item.tmm_generic.length > 26 && "250px" }}
+                        className={`${item.tmm_generic.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
+                        onClick={() => onSelectGeneric(item)}>
+                        {item.tmm_generic}
+                      </Button>
+                    )
+                  })}
                 </div>
               </div>
             </Drawer>
