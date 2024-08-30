@@ -8,6 +8,7 @@ import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
 import { getDecodedToken } from "./localStorage.js";
+import imageCompression from 'browser-image-compression';
 
 // export const validateEmail = (email) => {
 //   return String(email)
@@ -610,4 +611,31 @@ export const getTokenData = () => {
   const decodedToken = getDecodedToken();
   const result = decodedToken?.result;
   return result;
+}
+
+export const getCompressedFile = async (file) => {
+  if (file.size > 2101546) {                       // If file size is greater than 2MB
+    try {
+      const options = {
+        maxSizeMB: 2,                        // Target size: 2MB, the limit you want to enforce
+        maxWidthOrHeight: 1920,              // Max dimension, but we aim to maintain original dimensions - 1280, 2560
+        useWebWorker: true,                  // Use a web worker for performance
+        alwaysKeepResolution: true           // Ensure original height and width are maintained
+      };
+
+      const compress = await imageCompression(file, options);
+
+      // Preserve original file extension
+      const fileExtension = file.name.split('.').pop(); // Get the original extension
+      const newFileName = `${file.name.split('.')[0]}.${fileExtension}`;
+      const renamedCompress = new File([compress], newFileName, { type: compress.type });
+
+      return renamedCompress;
+
+    } catch (error) {
+      console.error("Error compressing the image:", error);
+      return null;
+    }
+  }
+  return file;
 }
