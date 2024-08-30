@@ -21,7 +21,7 @@ import VideoModal from './VideoModal';
 
 import { errorMessage, getClinicName, removeBeforeWhiteSpace } from "../utils/utils";
 
-import { MESSAGE_KEY } from "../utils/constants";
+import { EXTRA_OPTIONS, MESSAGE_KEY } from "../utils/constants";
 
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
@@ -219,13 +219,27 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             return {
                                 ...e,
                                 tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-                                tmm_freq_type_name: e.tmf_block == 0 ?
-                                    `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : ""}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-                                    : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+                                tmm_freq_type_name:
+                                    e.tmf_block == 0
+                                        ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
+                                            ? e.tcm_tmm_freq_morning + " - "
+                                            : "0 -"
+                                        }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
+                                            ? e.tcm_tmm_freq_afternoon + " - "
+                                            : "0 -"
+                                        }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
+                                            ? e.tcm_tmm_freq_evening + " - "
+                                            : ""
+                                        }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
+                                            ? e.tcm_tmm_freq_night
+                                            : "0"}`
+                                        : frequencyObj !== undefined
+                                            ? frequencyObj.tmf_title
+                                            : "",
                                 tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
                                 tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
                                 tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
-                                tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+                                tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
                                 unique_id: uuidv4(),
                             };
                         });
@@ -260,7 +274,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                                     frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
                                 tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
                                 medicineUnit: medicineUnit,
-                                tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+                                tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
                                 unique_id: uuidv4(),
                             };
                         });

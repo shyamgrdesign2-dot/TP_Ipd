@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export const PERSISTANT_STORAGE_KEY_AUTH_TOKEN = 'persistant.storage.key.auth-token';
 export const MESSAGE_KEY = 'message_key';
 export const IS_DEV = true;
@@ -36,3 +38,21 @@ export const GB_GYNEC_HISTORY = "obs-gynec-history"
 
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
+
+export const EXTRA_OPTIONS = [
+    {
+        key: JSON.stringify({ value: "STAT", label: "stat", tmm_days: parseInt(0), unique_id: uuidv4() }),
+        value: 'STAT',
+        label: 'stat',
+    },
+    {
+        key: JSON.stringify({ value: "to be continued", label: "to be continued", tmm_days: parseInt(0), unique_id: uuidv4() }),
+        value: 'to be continued',
+        label: 'to be continued',
+    },
+    {
+        key: JSON.stringify({ value: "till required", label: "till required", tmm_days: parseInt(0), unique_id: uuidv4() }),
+        value: 'till required',
+        label: 'till required',
+    }
+]

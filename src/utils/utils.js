@@ -51,6 +51,10 @@ export const removeSpecialCharectorWithoutDotSpace = (text) => {
   return text.replace(/[^\w. ]/g, "");
 }
 
+export const replaceCommasAndSemicolons = (text) => {
+  return text.replace(/[;,]/g, '');
+}
+
 export const blockedEmoji = (text) => {
   return text.replace(/[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1F980}-\u{1FAFF}]/gu, '');
 }

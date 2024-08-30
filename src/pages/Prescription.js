@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, GB_GYNEC_HISTORY, GYNAECOLOGY } from "../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, GB_GYNEC_HISTORY, GYNAECOLOGY } from "../utils/constants";
 
 import { getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../redux/medicalhistorySlice";
@@ -244,16 +244,18 @@ function Prescription() {
               unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
             tmm_freq_type_name:
               e.tmf_block == 0
-                ? `${e.tcm_tmm_freq_morning
+                ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
                   ? e.tcm_tmm_freq_morning + " - "
                   : "0 -"
-                }${e.tcm_tmm_freq_afternoon
+                }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
                   ? e.tcm_tmm_freq_afternoon + " - "
                   : "0 -"
-                }${e.tcm_tmm_freq_evening
+                }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
                   ? e.tcm_tmm_freq_evening + " - "
                   : ""
-                }${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
+                }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
+                  ? e.tcm_tmm_freq_night
+                  : "0"}`
                 : frequencyObj !== undefined
                   ? frequencyObj.tmf_title
                   : "",
@@ -265,8 +267,7 @@ function Prescription() {
               }`
               : ""
               }`,
-            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
-              }`,
+            tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
             unique_id: uuidv4(),
           };
         });

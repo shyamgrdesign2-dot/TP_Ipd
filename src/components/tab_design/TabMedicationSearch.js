@@ -25,7 +25,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
-import { errorMessage, onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/utils";
+import { errorMessage, onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace, capitalizeAfterSentence, replaceCommasAndSemicolons } from "../../utils/utils";
 
 import CashManagerContext from "../../context/CashManagerContext";
 import {
@@ -39,6 +39,7 @@ import TabSearchHeader from "./TabSearchHeader";
 import TabMedicationMoreModal from "./TabMedicationMoreModal";
 
 import noRecordFound from '../../assets/images/no-record-round.svg';
+import { EXTRA_OPTIONS } from "../../utils/constants";
 
 function TabMedicationSearch({ passIndex, onClose }) {
 
@@ -66,6 +67,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const [selectedTab, setSelectedTab] = useState(null);
   const [timingMoreOptionsVisible, setTimingMoreOptionsVisible] = useState(false);
   const [frequencyMoreOptionsVisible, setFrequencyMoreOptionsVisible] = useState(false);
+  const [durationMoreOptionsVisible, setDurationMoreOptionsVisible] = useState(false);
 
   //Add Custom
   const [addCustom, setAddCustom] = useState(null);
@@ -172,7 +174,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
               frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             medicineUnit: medicineUnit,
-            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+            tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
             unique_id: uuidv4(),
           };
         });
@@ -564,6 +566,29 @@ function TabMedicationSearch({ passIndex, onClose }) {
     [selectedIndex, medicationData]
   );
 
+  const onChangeDurationChild = useCallback(
+    (item) => {
+      if (item.value != medicationData[selectedIndex].tmm_days_duration_type) {
+        medicationData[selectedIndex].tmm_days_duration_type = item.value;
+        medicationData[selectedIndex].tmm_days = 0;
+        medicationData[selectedIndex].tmm_duration_type = item.value;
+      } else {
+        medicationData[selectedIndex].tmm_days_duration_type = "";
+        medicationData[selectedIndex].tmm_days = 0;
+        medicationData[selectedIndex].tmm_duration_type = "";
+      }
+      setMedicationData((prev) => [...prev]);
+    },
+    [selectedIndex, medicationData]
+  );
+
+  const handleDurationMoreOptionsVisible = useCallback(
+    () => {
+      setDurationMoreOptionsVisible(!durationMoreOptionsVisible)
+    },
+    [durationMoreOptionsVisible]
+  );
+
   const onChangeInputNoteChild = useCallback(
     (e) => {
       medicationData[selectedIndex].tmm_remarks = capitalizeAfterSentence(e.target.value);
@@ -571,7 +596,6 @@ function TabMedicationSearch({ passIndex, onClose }) {
     },
     [selectedIndex, medicationData]
   );
-
   //Child Componet
   const CHILD_DRAWER_DATA = useMemo(() => {
     return (
@@ -1245,15 +1269,48 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 <div className="segement-static d-flex">
                   {sinceOptions.map((item, i) => {
                     return (
-                      <button key={i}
-                        type="button"
-                        className={`btn w-100 ${selectedIndex != null && medicationData[selectedIndex].tmm_days_duration_type == item.value && 'btn-segement'}`}
-                        onClick={() => onChangeSinceChild(item.value)}>
-                        {item.label}
-                      </button>
+                      <>
+                        <button key={i}
+                          type="button"
+                          className={`btn ${selectedIndex != null && medicationData[selectedIndex].tmm_days_duration_type == item.value && 'btn-segement'}`}
+                          onClick={() => onChangeSinceChild(item.value)}>
+                          {item.label}
+                        </button>
+                        {i == sinceOptions.length - 1 && (
+                          <button
+                            key={-1}
+                            type="button"
+                            className={`btn text-truncate px-1 segment-more ${selectedIndex != null && EXTRA_OPTIONS.some((e) => e.value == medicationData[selectedIndex].tmm_days_duration_type) && "btn-segement"}`}
+                            onClick={handleDurationMoreOptionsVisible}
+                          >
+                            {selectedIndex != null && EXTRA_OPTIONS.some((e) => e.value == medicationData[selectedIndex].tmm_days_duration_type) ? (
+                              <span id="selected">
+                                <i className="icon-Edit me-2 fs-21"></i>
+                                {medicationData[selectedIndex].tmm_days_duration_type}
+                              </span>
+                            ) : (
+                              "More"
+                            )}
+                          </button>
+                        )}
+                      </>
                     )
                   })}
                 </div>
+                {durationMoreOptionsVisible && (
+                  <TabMedicationMoreModal
+                    width='41.5%'
+                    title={'Duration'}
+                    onClose={handleDurationMoreOptionsVisible}
+                    onClick={(item) => {
+                      setDurationMoreOptionsVisible(false);
+                      onChangeDurationChild(item);
+                    }}
+                    label={'label'}
+                    value={'value'}
+                    selectedValue={medicationData[selectedIndex].tmm_days_duration_type}
+                    array={EXTRA_OPTIONS} />
+                )}
                 {/* <Segmented
                   value={
                     medicationData[selectedIndex].tmm_duration_type !==
@@ -1292,6 +1349,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
     selectedTab,
     timingMoreOptionsVisible,
     frequencyMoreOptionsVisible,
+    durationMoreOptionsVisible
   ]);
 
   //Add Custom
@@ -1340,7 +1398,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onSearchGeneric = useCallback(
     (e) => {
-      setGenericQuery(removeBeforeWhiteSpace(e.target.value))
+      setGenericQuery(replaceCommasAndSemicolons(removeBeforeWhiteSpace(e.target.value)))
     },
     [genericQuery]
   );
@@ -1388,7 +1446,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           medicineUnit: medicineUnit,
-          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+          tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
           unique_id: uuidv4(),
         };
       });
@@ -1486,7 +1544,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             </div>
             <Drawer title="Select Generic Name" placement="right" onClose={handleDrawerGeneric} open={genericDrawer} className="modalWidth-563" width="auto">
               <div className="medicine-templates h-100 p-3">
-                <Input className="popinput" placeholder="Search Generic Name" onChange={onSearchGeneric} prefix={<i className='icon-search me-2'></i>} allowClear />
+                <Input className="popinput" placeholder="Search Generic Name" onChange={onSearchGeneric} value={genericQuery} prefix={<i className='icon-search me-2'></i>} allowClear />
                 <div className="mt-3">
                   {/* {genericList.length > 0 ? (
                     genericList.map((item, i) => {
