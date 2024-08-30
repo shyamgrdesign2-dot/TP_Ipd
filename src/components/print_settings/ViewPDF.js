@@ -1,7 +1,7 @@
 import React from 'react';
 import { Font, Page, Text, View, Image, Document, StyleSheet } from '@react-pdf/renderer';
 import { isNumeric, medicine_freq_format, chunkArray } from '../../utils/utils'
-import { NORMAL, WHATSAPP } from '../../utils/constants';
+import { EXTRA_OPTIONS, NORMAL, WHATSAPP } from '../../utils/constants';
 import moment from 'moment';
 import ObsHistoryInlineView from './obsHistory/inline';
 import ObsHistoryListView from './obsHistory/list';
@@ -635,7 +635,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                                                                             modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
 
-                                                                            modiDuration: option?.medicine_option?.includes('duration') ? isNumeric(tmm_days) ? `${tmm_days} ${tmm_duration_type}` : '-' : '',
+                                                                            modiDuration: option?.medicine_option?.includes('duration') ?
+                                                                                EXTRA_OPTIONS.some((x) => x.value == tmm_duration_type) ? tmm_duration_type :
+                                                                                    isNumeric(tmm_days) ?
+                                                                                        `${tmm_days} ${tmm_duration_type}`
+                                                                                        : '-'
+                                                                                : '',
 
                                                                             // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
                                                                             modiDisplayQty: option?.medicine_option?.includes('quantity') ? display_qty ? display_qty : '' : '',
@@ -685,7 +690,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                                                                             modiTiming: timingList.find((x) => x.tmt_id === tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === tmm_time).tmt_title : '',
 
-                                                                            modiDuration: option?.medicine_option?.includes('duration') ? isNumeric(tmm_days) ? `${tmm_days} ${tmm_duration_type}` : '-' : '',
+                                                                            modiDuration: option?.medicine_option?.includes('duration') ?
+                                                                                EXTRA_OPTIONS.some((x) => x.value == tmm_duration_type) ? tmm_duration_type :
+                                                                                    isNumeric(tmm_days) ?
+                                                                                        `${tmm_days} ${tmm_duration_type}`
+                                                                                        : '-'
+                                                                                : '',
 
                                                                             modiDisplayQty: option?.medicine_option?.includes('quantity') ? display_qty ? display_qty : '' : '',
 
@@ -736,7 +746,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             </Text>
                                                             {option?.medicine_option?.includes('duration') && (
                                                                 <Text style={[styles.cell, { flex: 0.53, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                    {isNumeric(item.tmm_days) ? `${item.tmm_days} ${item.tmm_duration_type}` : '-'}
+                                                                    {EXTRA_OPTIONS.some((x) => x.value == item.tmm_duration_type) ? item.tmm_duration_type :
+                                                                        isNumeric(item.tmm_days) ?
+                                                                            `${item.tmm_days} ${item.tmm_duration_type}`
+                                                                            : '-'}
                                                                 </Text>
                                                             )}
                                                             {option?.medicine_option?.includes('quantity') && (

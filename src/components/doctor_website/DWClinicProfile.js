@@ -10,8 +10,7 @@ import AddPhotos from "../../../src/assets/images/add-photos.svg";
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 import { TAB_ADDRESS, TAB_TIMINGS, TAB_PHOTOS } from "../../utils/constants";
-import { blockedEmoji, errorMessage, onlyNumberFormat, removeSpecialCharectorWithoutDotSpace, getCompressedFile} from '../../utils/utils';
-
+import { blockedEmoji, errorMessage, onlyNumberFormat, removeSpecialCharectorWithoutDotSpace, compressedFile} from '../../utils/utils';
 
 const dateFormat = 'HH:mm:ss'
 const showDateFormat = 'h:mm A'
@@ -354,11 +353,6 @@ function DWClinicProfile() {
 
     // }
 
-    const compressedFile = (file) => {
-        var result = getCompressedFile(file);
-        return result
-    }
-    
     const handleImageChange = async (el, e) => {
         const checkFiles = e?.clinic_photos?.filter(x => x.uploadFile)?.length
         if (checkFiles === 0 || checkFiles < 5) {

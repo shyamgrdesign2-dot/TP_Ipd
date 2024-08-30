@@ -613,7 +613,7 @@ export const getTokenData = () => {
   return result;
 }
 
-export const getCompressedFile = async (file) => {
+export const compressedFile = async (file) => {
   if (file.size > 2101546) {                       // If file size is greater than 2MB
     try {
       const options = {
