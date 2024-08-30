@@ -10,7 +10,8 @@ import AddPhotos from "../../../src/assets/images/add-photos.svg";
 import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsContext';
 
 import { TAB_ADDRESS, TAB_TIMINGS, TAB_PHOTOS } from "../../utils/constants";
-import { blockedEmoji, errorMessage, onlyNumberFormat, removeSpecialCharectorWithoutDotSpace } from '../../utils/utils';
+import { blockedEmoji, errorMessage, onlyNumberFormat, removeSpecialCharectorWithoutDotSpace, getCompressedFile} from '../../utils/utils';
+
 
 const dateFormat = 'HH:mm:ss'
 const showDateFormat = 'h:mm A'
@@ -319,27 +320,72 @@ function DWClinicProfile() {
         }
     };
 
-    const handleImageChange = (el, e) => {
+    // const handleImageChange = (el, e) => {
+    //     const checkFiles = e?.clinic_photos?.filter(x => x.uploadFile)?.length
+    //     if (checkFiles === 0 || checkFiles < 5) {
+    //         if (el.target.files?.length > 0) {
+    //             const files = Array.from(el.target.files);
+    //             const selectedImages = files.filter(file => file.type.startsWith('image/')).slice(0, 5 - checkFiles);
+    //             const fileUrls = selectedImages;
+    //             const updatedData = Object.entries(fileUrls).reduce((acc, [key, fileUrl]) => {
+    //                 if (fileUrl.size <= 2101546 && ['image/png', 'image/jpeg', 'image/jpg'].includes(fileUrl.type)) {
+    //                     acc.push({
+    //                         clinic_image_id: Math.floor(1000000000 + Math.random() * 9999999999),
+    //                         clinic_image_delete: 0,
+    //                         clinic_image_name: fileUrl.name,
+    //                         clinic_image_link: URL.createObjectURL(fileUrl),
+    //                         uploadFile: fileUrl
+    //                     });
+    //                 } else {
+    //                     errorMessage('Some files were removed because only JPG, JPEG, or PNG files with a maximum size of 2MB are allowed for upload.');
+    //                 }
+    //                 return acc;
+    //             }, []);
+
+    //             const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
+    //             if (index !== -1) {
+    //                 clinicProfile[index]['clinic_photos'] = [...clinicProfile[index]['clinic_photos'], ...updatedData]
+    //                 setClinicProfile((prev) => { return [...prev] });
+    //             }
+    //         }
+    //     } else {
+    //         errorMessage('Maximum 5 images upload');
+    //     }
+
+    // }
+
+    const compressedFile = (file) => {
+        var result = getCompressedFile(file);
+        return result
+    }
+    
+    const handleImageChange = async (el, e) => {
         const checkFiles = e?.clinic_photos?.filter(x => x.uploadFile)?.length
         if (checkFiles === 0 || checkFiles < 5) {
             if (el.target.files?.length > 0) {
                 const files = Array.from(el.target.files);
+                console.log(files)
+                if (files.filter(file => !file.type.startsWith('image/'))?.length > 0) {
+                    errorMessage('Some files were removed because only JPG, JPEG, or PNG files are allowed for upload.');
+                }
                 const selectedImages = files.filter(file => file.type.startsWith('image/')).slice(0, 5 - checkFiles);
                 const fileUrls = selectedImages;
-                const updatedData = Object.entries(fileUrls).reduce((acc, [key, fileUrl]) => {
-                    if (fileUrl.size <= 2101546 && ['image/png', 'image/jpeg', 'image/jpg'].includes(fileUrl.type)) {
-                        acc.push({
+                const updatedData = await Object.entries(fileUrls).reduce(async (acc, [key, fileUrl]) => {
+                    let collection = await acc;
+                    if (['image/png', 'image/jpeg', 'image/jpg'].includes(fileUrl.type)) {
+                        const compress = await compressedFile(fileUrl)
+                        collection.push({
                             clinic_image_id: Math.floor(1000000000 + Math.random() * 9999999999),
                             clinic_image_delete: 0,
-                            clinic_image_name: fileUrl.name,
-                            clinic_image_link: URL.createObjectURL(fileUrl),
-                            uploadFile: fileUrl
+                            clinic_image_name: compress.name,
+                            clinic_image_link: URL.createObjectURL(compress),
+                            uploadFile: compress
                         });
                     } else {
-                        errorMessage('Some files were removed because only JPG, JPEG, or PNG files with a maximum size of 2MB are allowed for upload.');
+                        errorMessage('Some files were removed because only JPG, JPEG, or PNG files are allowed for upload.');
                     }
-                    return acc;
-                }, []);
+                    return collection;
+                }, Promise.resolve([]));
 
                 const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
                 if (index !== -1) {
@@ -352,7 +398,6 @@ function DWClinicProfile() {
         }
 
     }
-
 
     const onRemoveRow = (e) => {
         const index = clinicProfile.findIndex(el => el.random_id === e.random_id)
