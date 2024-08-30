@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence } from "../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
@@ -24,6 +24,7 @@ import {
   searchGeneric,
   addMedicine
 } from "../redux/medicationSlice";
+import { EXTRA_OPTIONS } from "../utils/constants";
 
 const { TextArea } = Input;
 
@@ -52,7 +53,7 @@ function MedicationsBox() {
 
   const [unitPerDoseOptions, setUnitPerDoseOptions] = useState([]);
   const [frequencyOptions, setFrequencyOptions] = useState([]);
-  const [sinceOptions, setSinceOptions] = useState([]);
+  const [sinceOptions, setSinceOptions] = useState(EXTRA_OPTIONS);
   const SINCE_OPTIONS = [
     { value: "Day(s)", label: "Days" },
     { value: "Week(s)", label: "Weeks" },
@@ -165,13 +166,27 @@ function MedicationsBox() {
             ...e,
             objectID: JSON.parse(item.key).objectID,
             tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-            tmm_freq_type_name: e.tmf_block == 0 ?
-              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-              : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+            tmm_freq_type_name:
+              e.tmf_block == 0
+                ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
+                  ? e.tcm_tmm_freq_morning + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
+                  ? e.tcm_tmm_freq_afternoon + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
+                  ? e.tcm_tmm_freq_evening + " - "
+                  : ""
+                }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
+                  ? e.tcm_tmm_freq_night
+                  : "0"}`
+                : frequencyObj !== undefined
+                  ? frequencyObj.tmf_title
+                  : "",
             tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
-            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+            tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
             unique_id: uuidv4(),
           };
         });
@@ -402,9 +417,9 @@ function MedicationsBox() {
             label: <>{`${updateQuery} ${option.label}`}</>,
           };
         });
-        setSinceOptions(options);
+        setSinceOptions([...options, ...EXTRA_OPTIONS]);
       } else {
-        setSinceOptions([]);
+        setSinceOptions(EXTRA_OPTIONS);
       }
     },
     [sinceOptions, medicationData]
@@ -469,13 +484,27 @@ function MedicationsBox() {
         return {
           ...e,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-          tmm_freq_type_name: e.tmf_block == 0 ?
-            `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-            : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmm_freq_type_name:
+            e.tmf_block == 0
+              ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
+                ? e.tcm_tmm_freq_morning + " - "
+                : "0 -"
+              }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
+                ? e.tcm_tmm_freq_afternoon + " - "
+                : "0 -"
+              }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
+                ? e.tcm_tmm_freq_evening + " - "
+                : ""
+              }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
+                ? e.tcm_tmm_freq_night
+                : "0"}`
+              : frequencyObj !== undefined
+                ? frequencyObj.tmf_title
+                : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
-          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+          tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
           unique_id: uuidv4(),
         };
       });
@@ -500,13 +529,27 @@ function MedicationsBox() {
         return {
           ...e,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-          tmm_freq_type_name: e.tmf_block == 0 ?
-            `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-            : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmm_freq_type_name:
+            e.tmf_block == 0
+              ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
+                ? e.tcm_tmm_freq_morning + " - "
+                : "0 -"
+              }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
+                ? e.tcm_tmm_freq_afternoon + " - "
+                : "0 -"
+              }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
+                ? e.tcm_tmm_freq_evening + " - "
+                : ""
+              }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
+                ? e.tcm_tmm_freq_night
+                : "0"}`
+              : frequencyObj !== undefined
+                ? frequencyObj.tmf_title
+                : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
-          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+          tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
           unique_id: uuidv4(),
         };
       });
@@ -1018,7 +1061,7 @@ function MedicationsBox() {
 
   const onSearchGeneric = useCallback(
     (query) => {
-      setGenericQuery(removeBeforeWhiteSpace(query));
+      setGenericQuery(replaceCommasAndSemicolons(removeBeforeWhiteSpace(query)));
     },
     [genericQuery]
   );
@@ -1053,14 +1096,27 @@ function MedicationsBox() {
         return {
           ...e,
           tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-          tmm_freq_type_name: e.tmf_block == 0 ?
-            (e.tcm_tmm_freq_morning == 0 && e.tcm_tmm_freq_afternoon == 0 && e.tcm_tmm_freq_evening == 0 && e.tcm_tmm_freq_night == 0) ? "" :
-              `${e.tcm_tmm_freq_morning ? e.tcm_tmm_freq_morning + " - " : "0 -"}${e.tcm_tmm_freq_afternoon ? e.tcm_tmm_freq_afternoon + " - " : "0 -"}${e.tcm_tmm_freq_evening ? e.tcm_tmm_freq_evening + " - " : "0 -"}${e.tcm_tmm_freq_night ? e.tcm_tmm_freq_night : "0"}`
-            : frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+          tmm_freq_type_name:
+            e.tmf_block == 0
+              ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
+                ? e.tcm_tmm_freq_morning + " - "
+                : "0 -"
+              }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
+                ? e.tcm_tmm_freq_afternoon + " - "
+                : "0 -"
+              }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
+                ? e.tcm_tmm_freq_evening + " - "
+                : ""
+              }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
+                ? e.tcm_tmm_freq_night
+                : "0"}`
+              : frequencyObj !== undefined
+                ? frequencyObj.tmf_title
+                : "",
           tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
-          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+          tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
           unique_id: uuidv4(),
         };
       });
@@ -1139,14 +1195,15 @@ function MedicationsBox() {
                   value={addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : null}
                   onSearch={onSearchGeneric}
                   onSelect={onSelectGeneric}
-                  options={genericList.map((e) => {
+                  options={[...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).map((e) => {
                     return {
                       value: JSON.stringify({ ...e }),
                       label: e.tmm_generic,
                     };
                   })}
                   onClear={() => onSelectGeneric("")}
-                  notFoundContent={emptyText}
+                  // notFoundContent={emptyText}
+                  notFoundContent={null}
                   allowClear
                 />
               </Form.Item>

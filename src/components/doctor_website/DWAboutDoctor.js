@@ -9,7 +9,7 @@ import { blockedEmoji, errorMessage, onlyNumberFormat } from '../../utils/utils'
 
 function DWAboutDoctor() {
 
-    const { personalDetails,aboutDoctor, setAboutDoctor } = useContext(DoctorWebsiteSettingsContext);
+    const { personalDetails, clinicProfile, aboutDoctor, doctorExperience, services, educationTraining, rewardRecognition, setAboutDoctor } = useContext(DoctorWebsiteSettingsContext);
 
     const dispatch = useDispatch();
     const { languageList, ai_loading } = useSelector((state) => state.doctorWebsite);
@@ -73,8 +73,26 @@ function DWAboutDoctor() {
     );
 
     const getAIdata = async () => {
+        var contain = `You are a marketing expert tasked with writing an “About Me” profile section for a doctor. Use the following details to create a comprehensive and engaging profile. Ensure that you stay within the bounds of the provided information and maintain a professional yet approachable tone. Dr. ${personalDetails?.first_name} is a highly skilled ${personalDetails?.specialty} with over ${aboutDoctor?.years_experience} years of experience in the medical field.`
+
+        if (educationTraining?.length > 0) {
+            contain = contain + ` Graduating from ${educationTraining[0].title} in ${educationTraining[0].start_year} to ${educationTraining[0].end_year},`
+        }
+        if (rewardRecognition?.length > 0) {
+            contain = contain + ` Dr. ${personalDetails?.first_name} has earned numerous certifications, including (${rewardRecognition?.map(e => e.title).join(", ")}).`
+        }
+        if (rewardRecognition?.length > 0) {
+            contain = contain + ` Dr. ${personalDetails?.first_name} has earned numerous certifications, including (${rewardRecognition?.map(e => e.title).join(", ")}).`
+        }
+        if (doctorExperience?.filter(e => e.currently_working)?.length > 0) {
+            contain = contain + ` Currently, Dr. ${personalDetails?.first_name} serves as ${doctorExperience?.filter(e => e.currently_working)[0].title} at ${doctorExperience?.filter(e => e.currently_working)[0].hospital}, where they specialize in [Areas of Expertise].`
+        }
+        if (services?.length > 0) {
+            contain = contain + ` Outside of the clinic, Dr. ${personalDetails?.first_name} enjoys (${services?.map(e => e.title).join(", ")}), which helps them maintain a well-rounded and balanced life.`
+        }
+
         var sendData = {
-            search:`About for Dr. ${personalDetails?.first_name}(${personalDetails?.specialty})`
+            search: contain,
         }
 
         const action = await dispatch(doctorOpenAI(sendData));
