@@ -9,7 +9,7 @@ import { blockedEmoji, errorMessage, onlyNumberFormat } from '../../utils/utils'
 
 function DWAboutDoctor() {
 
-    const { personalDetails,aboutDoctor, setAboutDoctor } = useContext(DoctorWebsiteSettingsContext);
+    const { personalDetails, clinicProfile, rewardRecognition, doctorExperience, aboutDoctor, setAboutDoctor } = useContext(DoctorWebsiteSettingsContext);
 
     const dispatch = useDispatch();
     const { languageList, ai_loading } = useSelector((state) => state.doctorWebsite);
@@ -74,7 +74,7 @@ function DWAboutDoctor() {
 
     const getAIdata = async () => {
         var sendData = {
-            search:`About for Dr. ${personalDetails?.first_name}(${personalDetails?.specialty})`
+            search: `About for Dr. ${personalDetails?.first_name}(${personalDetails?.specialty})(${aboutDoctor?.years_experience})(${personalDetails?.education})(${clinicProfile?.map(e => e.name).join(", ")})(${rewardRecognition?.map(e => e.title).join(", ")})(${doctorExperience?.filter(e => e.currently_working)?.map(e => e.title).join(", ")})`
         }
 
         const action = await dispatch(doctorOpenAI(sendData));
