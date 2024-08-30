@@ -19,10 +19,11 @@ import calenderBlank from "../assets/images/calenderBlank.svg";
 import followUp from "../assets/images/followup.svg";
 import smartPadGrey from "../assets/images/smartPadGrey.svg";
 
-import { FETCH_SMART_RX } from "../utils/constants";
+import { FETCH_SMART_RX, GB_ISCRIBE } from "../utils/constants";
 
 import { isNumeric } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 function Cardiology(props) {
   const navigate = useNavigate();
@@ -47,6 +48,10 @@ function Cardiology(props) {
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const isSmartSyncAccessableFromGB = useFeatureIsOn(
+    GB_ISCRIBE
+  );
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
@@ -242,7 +247,7 @@ function Cardiology(props) {
       rx_date: viewCaseManagerData?.consultation_date,
     });
   
-    if (isSmartRxFile) {
+    if (isSmartRxFile && isSmartSyncAccessableFromGB) {
       navigate("/smart-prescription", {
         state: {
           patient_data: patient_data,
@@ -309,7 +314,7 @@ function Cardiology(props) {
                   <button
                     className="btn p-0 ms-3"
                     style={{
-                      visibility: viewCaseManagerData?.doctor_data?.editCase && !(smartRxFile.length > 0 && isMobile) ? "visible" : "hidden",
+                      visibility: viewCaseManagerData?.doctor_data?.editCase && !(isSmartRxFile && isMobile) ? "visible" : "hidden",
                     }}
                     onClick={handleEditRxClick}
                   >
@@ -352,7 +357,7 @@ function Cardiology(props) {
             isSmartRxFile ?
             (
             <>
-              {smartRxFile.length > 0 ? smartRxFile?.map(({smart_prescription_file}) =>
+              {smartRxFile.length > 0 && smartRxFile?.map(({smart_prescription_file}) =>
                   <div style={{ padding: "5px" }}>
                     {smart_prescription_file && (
                       <img
@@ -363,7 +368,8 @@ function Cardiology(props) {
                       />
                     )}
                   </div>
-              ) : (<div className='smart-rx-no-data'>
+              )} 
+              { !(smartRxFile?.length > 0 || viewCaseManagerData?.follow_up_date || viewCaseManagerData.vitals?.length > 0) && (<div className='smart-rx-no-data'>
                       <img src={smartPadGrey} width={60} height={60} alt="No prescriptions saved for the patient!" />
                       <p className='mt-2 fontroboto'>
                           No smart prescriptions available for the patient!
