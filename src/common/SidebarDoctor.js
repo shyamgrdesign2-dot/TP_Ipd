@@ -61,7 +61,10 @@ function SidebarDoctor() {
         try {
             const sendData = {
                 doctor_unique_id: tokenData.doctor_unique_id,
-                mobile_no: tokenData.mobile_no
+                mobile_no: tokenData.mobile_no,
+                clinic_id: tokenData.clinic_id,
+                hm_business_id: tokenData.hospital_business_id,
+                from: 'app'
             };
 
             const formData = new FormData();

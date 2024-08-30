@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Routes, Route, useSearchParams } from "react-router-dom";
+import { Routes, Route, useSearchParams, useNavigate } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { isMobile } from "react-device-detect";
@@ -42,7 +42,9 @@ function App() {
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
-  
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     // Load features asynchronously when the app renders
     growthbook?.init({ streaming: true });
@@ -64,6 +66,8 @@ function App() {
     const pathname = window.location.pathname;
     if (pathname == "/" && authToken) {
       setToken(authToken);
+      navigate('/', { replace: true });
+      navigate(0, { replace: true });
     }
   }, [window.location.pathname, authToken]);
 
