@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Routes, Route, useSearchParams, useNavigate } from "react-router-dom";
+import { Routes, Route, useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { isMobile } from "react-device-detect";
@@ -38,6 +38,7 @@ function App() {
   const [searchParams, setSearchParams] = useSearchParams();
   // this param needs to be changed as needed
   const authToken = searchParams.get("authToken");
+  const location = useLocation();
 
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
@@ -62,14 +63,29 @@ function App() {
     }
   }, []);
 
+  // useEffect(() => {
+  //   const pathname = window.location.pathname;
+  //   if (pathname == "/" && authToken) {
+  //     setToken(authToken);
+  //     navigate('/', { replace: true });
+  //     navigate(0, { replace: true });
+  //   }
+  // }, [window.location.pathname, authToken]);
+
   useEffect(() => {
-    const pathname = window.location.pathname;
-    if (pathname == "/" && authToken) {
+    if (authToken) {
+      // Set the token in local storage
       setToken(authToken);
-      navigate('/', { replace: true });
-      navigate(0, { replace: true });
+
+      // Remove the authToken from the URL
+      const params = new URLSearchParams(location.search);
+      params.delete("authToken");
+      navigate({
+        pathname: location.pathname,
+        search: params.toString(),
+      }, { replace: true });
     }
-  }, [window.location.pathname, authToken]);
+  }, [authToken, setToken, navigate, location]);
 
   return (
     <>
