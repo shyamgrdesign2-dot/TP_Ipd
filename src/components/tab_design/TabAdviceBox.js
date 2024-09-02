@@ -391,7 +391,7 @@ function TabAdviceBox() {
 
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            const updateQuery = capitalizeAfterSentence(removeBeforeWhiteSpace(e.target.value?.replace(/,/g, '')))
+            const updateQuery = capitalizeAfterSentence(removeBeforeWhiteSpace(e.target.value))
             setChildDrawerData({ ...childDrawerData, advice_name: updateQuery })
         },
         [childDrawerData]

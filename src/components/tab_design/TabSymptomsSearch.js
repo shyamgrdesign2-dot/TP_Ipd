@@ -77,7 +77,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
 
     const onSearchParent = useCallback(
         (query) => {
-            setSearchChildQuery(query?.replace(/,/g, ''));
+            setSearchChildQuery(query);
         },
         [searchChildQuery]
     );
@@ -247,7 +247,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
     );
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            symptomsData[selectedIndex].note = capitalizeAfterSentence(e.target.value?.replace(/,/g, ''));
+            symptomsData[selectedIndex].note = capitalizeAfterSentence(e.target.value);
             setSymptomsData((prev) => [...prev]);
         },
         [selectedIndex, symptomsData]

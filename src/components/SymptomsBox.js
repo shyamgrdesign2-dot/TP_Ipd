@@ -153,7 +153,7 @@ function SymptomsBox() {
 
   const onSearchParent = useCallback(
     (query) => {
-      setSearchParentQuery(removeBeforeWhiteSpace(query?.replace(/,/g, '')));
+      setSearchParentQuery(removeBeforeWhiteSpace(query));
     },
     [searchParentQuery]
   );
@@ -229,7 +229,7 @@ function SymptomsBox() {
 
   const onSearchChild = useCallback(
     (query, i) => {
-      const updateQuery = removeBeforeWhiteSpace(query?.replace(/,/g, ''))
+      const updateQuery = removeBeforeWhiteSpace(query)
       symptomsData[i] = {
         ...symptomsData[i],
         change: 1,
@@ -301,7 +301,7 @@ function SymptomsBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      symptomsData[i].note = capitalizeAfterSentence(e.target.value?.replace(/,/g, ''));
+      symptomsData[i].note = capitalizeAfterSentence(e.target.value);
       setSymptomsData((prev) => [...prev]);
     },
     [symptomsData]
