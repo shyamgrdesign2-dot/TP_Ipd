@@ -66,6 +66,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
     const onSearchParent = useCallback(
         (query) => {
             setSearchChildQuery(capitalizeAfterSentence(query));
+            // ?.replace(/,/g, '')
         },
         [searchChildQuery]
     );
@@ -104,6 +105,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
     const onChangeInputNoteChild = useCallback(
         (e) => {
             const updateQuery = capitalizeAfterSentence(removeBeforeWhiteSpace(e.target.value))
+            // ?.replace(/,/g, '')
             setChildDrawerData({ ...childDrawerData, advice_name: updateQuery })
         },
         [childDrawerData]
