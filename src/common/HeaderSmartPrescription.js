@@ -469,7 +469,6 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                   className="btn align-items-center d-flex btn-device-connect rounded-5 pe-3 bg-white shadow2"
                   onClick={isConnected ? handleDisconnectPopup : handleConnectButtonClick}
                   disabled={connectLoading}
-                  // style={{backgroundColor: isConnected ?  "rgb(209, 241, 228)" : "rgb(252, 218, 218)"}}
                 >
                 <span>
                   {connectLoading
@@ -481,22 +480,15 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
 
                 <div
                   style={{
-                    width: "48px", // Width of the container
-                    height: "26px", // Height of the container
-                    borderRadius: "32px", // Rounded edges for the toggle container
-                    // backgroundColor: connectLoading
-                    // border:isConnected ? "1px solid grey" : "1px solid grey",
+                    width: "48px",
+                    height: "26px",
+                    borderRadius: "32px",
                     backgroundColor: isConnected ? "rgb(109 225 178)" : "white",
                     boxShadow: "rgba(0, 0, 0, 0.3) 0px 0px 3px inset",
-                    // backgroundColor: connectLoading
-                    //   ? "#888" // Neutral color during loading
-                    //   : isConnected
-                    //   ? "rgb(209, 241, 228)" // Green background when connected
-                    //   : "rgb(252, 218, 218)", // Red background when disconnected
                     display: "flex",
                     alignItems: "center",
-                    padding: "4px", // Inner padding to create space around the sliding div
-                    transition: "background-color 0.3s ease", // Smooth transition for background color
+                    padding: "4px",
+                    transition: "background-color 0.3s ease",
                   }}
                 >
                   <div
@@ -512,8 +504,8 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                         : isConnected
                         ? "#fff" 
                         : "rgb(255 181 181)",
-                      transform: isConnected ? "translateX(21px)" : "translateX(0)", // Fixed slide distance within the container
-                      transition: "transform 0.3s ease, background-color 0.3s ease", // Smooth transition for movement and background color
+                      transform: isConnected ? "translateX(21px)" : "translateX(0)",
+                      transition: "transform 0.3s ease, background-color 0.3s ease",
                     }}
                   >
                     <img
@@ -526,9 +518,9 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                       }
                       alt="devicePad"
                       style={{
-                        transition: "opacity 0.3s ease", // Optional: add a transition for the image opacity
-                        opacity: connectLoading ? 0.5 : 1, // Example of fading effect during loading
-                        width: "16px", // Adjust the size of the image to fit within the sliding div
+                        transition: "opacity 0.3s ease",
+                        opacity: connectLoading ? 0.5 : 1,
+                        width: "16px",
                         height: "16px",
                       }}
                     />
