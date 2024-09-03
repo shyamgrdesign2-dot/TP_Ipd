@@ -63,27 +63,21 @@ function App() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   const pathname = window.location.pathname;
-  //   if (pathname == "/" && authToken) {
-  //     setToken(authToken);
-  //     navigate('/', { replace: true });
-  //     navigate(0, { replace: true });
-  //   }
-  // }, [window.location.pathname, authToken]);
-
   useEffect(() => {
-    if (authToken) {
+    const pathname = window.location.pathname;
+
+    if (pathname == "/" && authToken) {
       // Set the token in local storage
       setToken(authToken);
 
       // Remove the authToken from the URL
       const params = new URLSearchParams(location.search);
       params.delete("authToken");
+
       navigate({
         pathname: location.pathname,
         search: params.toString(),
-      }, { replace: true });
+      }, { replace: true }); // Ensure the URL is cleaned up, removing authToken
     }
   }, [authToken, setToken, navigate, location]);
 

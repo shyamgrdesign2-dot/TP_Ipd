@@ -60,11 +60,22 @@ function Cardiology(props) {
     if (viewCaseManagerData?.tcm_id) {
       fetchData();
     }
-    if(viewCaseManagerData?.smart_prescription_filename !== null) {
-      setIsSmartRxFile(true)
-    }else {
-      setIsSmartRxFile(false)
+    if (
+      viewCaseManagerData?.smart_prescription_filename !== null
+      // viewCaseManagerData.medicine?.length === 0 &&
+      // viewCaseManagerData.symptoms?.length === 0 &&
+      // viewCaseManagerData.examination?.length === 0 &&
+      // viewCaseManagerData.diagnosis?.length === 0 &&
+      // viewCaseManagerData.advice?.length === 0 &&
+      // viewCaseManagerData.investigation?.length === 0 &&
+      // viewCaseManagerData.visit_advice &&
+      // viewCaseManagerData.treatment
+    ) {
+      setIsSmartRxFile(true);
+    } else {
+      setIsSmartRxFile(false);
     }
+    
   }, [viewCaseManagerData]);
 
   const fetchData = async () => {
@@ -379,14 +390,14 @@ function Cardiology(props) {
                       </p>
                   </div>
               )}
-              <div className="d-flex align-items-center mb-14 follow-up-detailsPage">
-              { viewCaseManagerData?.follow_up_date &&
-                <>
-                  <img className='me-3' src={followUp} alt="Symptoms" />
-                  <div className="title-common">Follow-up:</div>
-                  <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
-                </>
-              }
+              <div className={`d-flex align-items-center mb-14 ${viewCaseManagerData?.follow_up_date ? 'follow-up-detailsPage' : ""}`}>
+                { viewCaseManagerData?.follow_up_date &&
+                  <>
+                    <img className='me-3' src={followUp} alt="Symptoms" />
+                    <div className="title-common">Follow-up:</div>
+                    <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
+                  </>
+                }
               </div>
               </>
             ) : (

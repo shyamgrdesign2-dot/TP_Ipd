@@ -1200,7 +1200,7 @@ function MedicationsBox() {
                   options={[...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).map((e, i) => {
                     return {
                       value: JSON.stringify({ ...e }),
-                      label: i === [...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).length - 1 ?
+                      label: i === [...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).length - 1 && genericQuery.length > 0 ?
                         <>
                           <div>{e.tmm_generic}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
                         </>
@@ -1241,7 +1241,7 @@ function MedicationsBox() {
         }
       />
     );
-  }, [isAddMedicineOpen, addCustom, genericList, loading]);
+  }, [isAddMedicineOpen, addCustom, genericList, genericQuery, loading]);
 
   return (
     <>

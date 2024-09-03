@@ -1569,7 +1569,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                   )} */}
                   {[...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).map((item, i) => {
                     return (
-                      i === [...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).length - 1 ? (
+                      i === [...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).length - 1 && genericQuery.length > 0 ? (
                         <Button
                           key={i}
                           type="text"
