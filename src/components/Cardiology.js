@@ -61,6 +61,7 @@ function Cardiology(props) {
       fetchData();
     }
     if (
+      isSmartSyncAccessableFromGB &&
       viewCaseManagerData?.smart_prescription_filename !== null
       // viewCaseManagerData.medicine?.length === 0 &&
       // viewCaseManagerData.symptoms?.length === 0 &&
@@ -260,7 +261,7 @@ function Cardiology(props) {
       rx_date: viewCaseManagerData?.consultation_date,
     });
   
-    if (isSmartRxFile && isSmartSyncAccessableFromGB) {
+    if (isSmartRxFile) {
       navigate("/smart-prescription", {
         state: {
           patient_data: patient_data,
@@ -382,13 +383,13 @@ function Cardiology(props) {
                     )}
                   </div>
               )} 
-              { !(smartRxFile?.length > 0 || viewCaseManagerData?.follow_up_date || viewCaseManagerData.vitals?.length > 0) && (<div className='smart-rx-no-data'>
+              {/* { !(smartRxFile?.length > 0 || viewCaseManagerData?.follow_up_date || viewCaseManagerData.vitals?.length > 0) && (<div className='smart-rx-no-data'>
                       <img src={smartPadGrey} width={60} height={60} alt="No prescriptions saved for the patient!" />
                       <p className='mt-2 fontroboto'>
                           No smart prescriptions available for the patient!
                       </p>
                   </div>
-              )}
+              )} */}
               <div className={`d-flex align-items-center mb-14 ${viewCaseManagerData?.follow_up_date ? 'follow-up-detailsPage' : ""}`}>
                 { viewCaseManagerData?.follow_up_date &&
                   <>
