@@ -936,3 +936,18 @@ body {
     height: 19px;
     line-height: 1.4;
 }
+
+.truncate-autocomplete {
+    .ant-select-selection-search-input {
+        overflow: hidden !important;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+.option-truncate {
+    .ant-select-item-option-content {
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+}
