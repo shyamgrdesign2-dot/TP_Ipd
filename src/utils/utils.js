@@ -95,6 +95,12 @@ export const capitalizeAfterSentence = (text) => {
   return text.replace(regex, (match, p1, p2) => p1 + p2.toUpperCase());
 }
 
+export const capitalizeFirstLetter = (text) => {
+  if (!text) return ''; // Handle empty string case
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+};
+export const capitalize = (str, lower = false) => (lower ? str.toLowerCase() : str).replace(/(?:^|\s|["'([{])+\S/g, match => match.toUpperCase());
+
 export const makeDefaultLogo = (text) => {
   var fullName = text !== undefined ? text.trim() : ''
   if (!fullName) {

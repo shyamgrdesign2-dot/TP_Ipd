@@ -40,7 +40,8 @@ import {
   removeBeforeWhiteSpace,
   isNumeric,
   hasNumber,
-  capitalizeAfterSentence
+  capitalizeAfterSentence,
+  capitalize
 } from "../../utils/utils";
 import Medicationicon from "../../assets/images/Medication.svg";
 import {
@@ -1740,7 +1741,7 @@ function TabMedicationBox() {
                           {EXTRA_OPTIONS.some((e) => e.value == childDrawerData.tmm_days_duration_type) ? (
                             <span id="selected">
                               <i className="icon-Edit me-2 fs-21"></i>
-                              {childDrawerData.tmm_days_duration_type}
+                              {hasNumber(childDrawerData.tmm_days_duration_type) ? childDrawerData.tmm_days_duration_type : capitalize(childDrawerData.tmm_days_duration_type, true)}
                             </span>
                           ) : (
                             "More"

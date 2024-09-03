@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons } from "../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
@@ -417,7 +417,7 @@ function MedicationsBox() {
             label: <>{`${updateQuery} ${option.label}`}</>,
           };
         });
-        setSinceOptions([...options, ...EXTRA_OPTIONS]);
+        setSinceOptions(options);
       } else {
         setSinceOptions(EXTRA_OPTIONS);
       }
@@ -427,7 +427,7 @@ function MedicationsBox() {
 
   const onSelectSinceChild = useCallback(
     (data, e, i) => {
-      setSinceOptions([]);
+      setSinceOptions(EXTRA_OPTIONS);
       const objParse = JSON.parse(e.key);
       medicationData[i].tmm_days_duration_type = data;
       medicationData[i].tmm_days = objParse.tmm_days;
@@ -822,13 +822,14 @@ function MedicationsBox() {
                 <Col lg={3} md={3} sm={3} xs={3} className="border-end">
                   <AutoComplete
                     defaultValue={item.tmm_days_duration_type}
-                    value={item.tmm_days_duration_type}
+                    value={hasNumber(item.tmm_days_duration_type) ? item.tmm_days_duration_type : capitalize(item.tmm_days_duration_type, true)}
                     placeholder="e.g 1 Day"
                     bordered={false}
                     defaultOpen={false}
                     onSearch={(query) => onSearchSinceChid(query, index)}
                     options={sinceOptions}
-                    className="autocomplete-custom h-100 w-100 inputborder"
+                    className="autocomplete-custom h-100 w-100 inputborder truncate-autocomplete"
+                    popupClassName="option-truncate"
                     defaultActiveFirstOption={true}
                     onSelect={(data, e) => onSelectSinceChild(data, e, index)}
                     onClear={() => onSearchSinceChid("", index)}
@@ -1195,10 +1196,15 @@ function MedicationsBox() {
                   value={addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : null}
                   onSearch={onSearchGeneric}
                   onSelect={onSelectGeneric}
-                  options={[...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).map((e) => {
+                  options={[...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).map((e, i) => {
                     return {
                       value: JSON.stringify({ ...e }),
-                      label: e.tmm_generic,
+                      label: i === [...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).length - 1 ?
+                        <>
+                          <div>{e.tmm_generic}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
+                        </>
+                        :
+                        <>{e.tmm_generic}</>,
                     };
                   })}
                   onClear={() => onSelectGeneric("")}

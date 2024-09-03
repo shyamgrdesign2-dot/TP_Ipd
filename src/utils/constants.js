@@ -24,6 +24,7 @@ export const NORMAL = 'NORMAL'
 export const WHATSAPP = 'WHATSAPP'
 
 export const WEBSOCKET_ADDRESS = "ws://localhost:5001/iScribeSocket"
+export const WS_CONTROL_URL = 'ws://localhost:3002/iScribeControlSocket';
 export const WEBSOCKET_ERROR_MESSAGE = "Error connecting the server, Please check device connectivity"
 export const WHATS_APP_API = "/api/v1/casemanager/smart-rx/send"
 export const SMART_RX_UPLOAD = "/api/v1/casemanager/smart-rx/upload"
@@ -41,18 +42,18 @@ export const PAEDIATRICS = "Paediatrics";
 
 export const EXTRA_OPTIONS = [
     {
-        key: JSON.stringify({ value: "STAT", label: "stat", tmm_days: parseInt(0), unique_id: uuidv4() }),
+        key: JSON.stringify({ value: "STAT", label: "Stat", tmm_days: parseInt(0), unique_id: uuidv4() }),
         value: 'STAT',
-        label: 'stat',
+        label: 'Stat',
     },
     {
-        key: JSON.stringify({ value: "to be continued", label: "to be continued", tmm_days: parseInt(0), unique_id: uuidv4() }),
+        key: JSON.stringify({ value: "to be continued", label: "To Be Continued", tmm_days: parseInt(0), unique_id: uuidv4() }),
         value: 'to be continued',
-        label: 'to be continued',
+        label: 'To Be Continued',
     },
     {
-        key: JSON.stringify({ value: "till required", label: "till required", tmm_days: parseInt(0), unique_id: uuidv4() }),
+        key: JSON.stringify({ value: "till required", label: "Till Required", tmm_days: parseInt(0), unique_id: uuidv4() }),
         value: 'till required',
-        label: 'till required',
+        label: 'Till Required',
     }
 ]

@@ -25,7 +25,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
-import { errorMessage, onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace, capitalizeAfterSentence, replaceCommasAndSemicolons } from "../../utils/utils";
+import { errorMessage, onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize } from "../../utils/utils";
 
 import CashManagerContext from "../../context/CashManagerContext";
 import {
@@ -1286,7 +1286,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                             {selectedIndex != null && EXTRA_OPTIONS.some((e) => e.value == medicationData[selectedIndex].tmm_days_duration_type) ? (
                               <span id="selected">
                                 <i className="icon-Edit me-2 fs-21"></i>
-                                {medicationData[selectedIndex].tmm_days_duration_type}
+                                {hasNumber(medicationData[selectedIndex].tmm_days_duration_type) ? medicationData[selectedIndex].tmm_days_duration_type : capitalize(medicationData[selectedIndex].tmm_days_duration_type, true)}
                               </span>
                             ) : (
                               "More"
@@ -1569,14 +1569,24 @@ function TabMedicationSearch({ passIndex, onClose }) {
                   )} */}
                   {[...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).map((item, i) => {
                     return (
-                      <Button
-                        key={i}
-                        type="text"
-                        style={{ width: item.tmm_generic.length > 26 && "250px" }}
-                        className={`${item.tmm_generic.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
-                        onClick={() => onSelectGeneric(item)}>
-                        {item.tmm_generic}
-                      </Button>
+                      i === [...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).length - 1 ? (
+                        <Button
+                          key={i}
+                          type="text"
+                          className="btn btn-primary2 chips-custom mb-14 me-14 d-flex align-items-center chips-addCustom"
+                          onClick={() => onSelectGeneric(item)}>
+                          {item.tmm_generic} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
+                        </Button>
+                      ) : (
+                        <Button
+                          key={i}
+                          type="text"
+                          style={{ width: item.tmm_generic.length > 26 && "250px" }}
+                          className={`${item.tmm_generic.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
+                          onClick={() => onSelectGeneric(item)}>
+                          {item.tmm_generic}
+                        </Button>
+                      )
                     )
                   })}
                 </div>
@@ -1641,7 +1651,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                               type="text"
                               className="btn btn-primary2 chips-custom mb-14 me-14 d-flex align-items-center chips-addCustom"
                               onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                              {item.value} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
+                              {JSON.parse(item.key).tmm_medicine_name} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
                             </Button>
                           ) : (
                             <Button
