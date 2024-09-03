@@ -40,7 +40,8 @@ import {
   removeBeforeWhiteSpace,
   isNumeric,
   hasNumber,
-  capitalizeAfterSentence
+  capitalizeAfterSentence,
+  capitalize
 } from "../../utils/utils";
 import Medicationicon from "../../assets/images/Medication.svg";
 import {
@@ -56,6 +57,7 @@ import {
 
 import TabMedicationSearch from "./TabMedicationSearch";
 import TabMedicationMoreModal from "./TabMedicationMoreModal";
+import { EXTRA_OPTIONS } from "../../utils/constants";
 
 function TabMedicationBox() {
 
@@ -105,6 +107,7 @@ function TabMedicationBox() {
   const [selectedTab, setSelectedTab] = useState(null);
   const [timingMoreOptionsVisible, setTimingMoreOptionsVisible] = useState(false);
   const [frequencyMoreOptionsVisible, setFrequencyMoreOptionsVisible] = useState(false);
+  const [durationMoreOptionsVisible, setDurationMoreOptionsVisible] = useState(false);
 
   const filteredTitles = frequencyList.filter((item) => item.tmf_block !== 0);
 
@@ -137,7 +140,7 @@ function TabMedicationBox() {
   //           frequencyObj !== undefined ? frequencyObj.tmf_title : "",
   //         tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
   //         medicineUnit: medicineUnit,
-  //         tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+  //         tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
   //         unique_id: uuidv4(),
   //       };
   //     });
@@ -203,7 +206,7 @@ function TabMedicationBox() {
             frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           medicineUnit: medicineUnit,
-          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+          tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
           unique_id: uuidv4(),
         };
       });
@@ -308,7 +311,7 @@ function TabMedicationBox() {
             frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           medicineUnit: medicineUnit,
-          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+          tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
           unique_id: uuidv4(),
         };
       });
@@ -351,7 +354,7 @@ function TabMedicationBox() {
             frequencyObj !== undefined ? frequencyObj.tmf_title : "",
           tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
           medicineUnit: medicineUnit,
-          tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""}`,
+          tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
           unique_id: uuidv4(),
         };
       });
@@ -1010,6 +1013,34 @@ function TabMedicationBox() {
       }
     },
     [childDrawerData]
+  );
+
+  const onChangeDurationChild = useCallback(
+    (item) => {
+      if (item.value != childDrawerData.tmm_days_duration_type) {
+        setChildDrawerData({
+          ...childDrawerData,
+          tmm_days_duration_type: item.value,
+          tmm_days: 0,
+          tmm_duration_type: item.value
+        });
+      } else {
+        setChildDrawerData({
+          ...childDrawerData,
+          tmm_days_duration_type: "",
+          tmm_days: 0,
+          tmm_duration_type: ""
+        });
+      }
+    },
+    [childDrawerData]
+  );
+
+  const handleDurationMoreOptionsVisible = useCallback(
+    () => {
+      setDurationMoreOptionsVisible(!durationMoreOptionsVisible)
+    },
+    [durationMoreOptionsVisible]
   );
 
   const onChangeInputNoteChild = useCallback(
@@ -1693,15 +1724,48 @@ function TabMedicationBox() {
               <div className="segement-static d-flex">
                 {sinceOptions.map((item, i) => {
                   return (
-                    <button key={i}
-                      type="button"
-                      className={`btn w-100 ${childDrawerData.tmm_days_duration_type !== undefined && childDrawerData.tmm_days_duration_type == item.value && 'btn-segement'}`}
-                      onClick={() => onChangeSinceChild(item.value)}>
-                      {item.label}
-                    </button>
+                    <>
+                      <button key={i}
+                        type="button"
+                        className={`btn ${childDrawerData.tmm_days_duration_type == item.value && 'btn-segement'}`}
+                        onClick={() => onChangeSinceChild(item.value)}>
+                        {item.label}
+                      </button>
+                      {i == sinceOptions.length - 1 && (
+                        <button
+                          key={-1}
+                          type="button"
+                          className={`btn text-truncate px-1 segment-more ${EXTRA_OPTIONS.some((e) => e.value == childDrawerData.tmm_days_duration_type) && "btn-segement"}`}
+                          onClick={handleDurationMoreOptionsVisible}
+                        >
+                          {EXTRA_OPTIONS.some((e) => e.value == childDrawerData.tmm_days_duration_type) ? (
+                            <span id="selected">
+                              <i className="icon-Edit me-2 fs-21"></i>
+                              {hasNumber(childDrawerData.tmm_days_duration_type) ? childDrawerData.tmm_days_duration_type : capitalize(childDrawerData.tmm_days_duration_type, true)}
+                            </span>
+                          ) : (
+                            "More"
+                          )}
+                        </button>
+                      )}
+                    </>
                   )
                 })}
               </div>
+              {durationMoreOptionsVisible && (
+                <TabMedicationMoreModal
+                  width='563px'
+                  title={'Duration'}
+                  onClose={handleDurationMoreOptionsVisible}
+                  onClick={(item) => {
+                    setDurationMoreOptionsVisible(false);
+                    onChangeDurationChild(item);
+                  }}
+                  label={'label'}
+                  value={'value'}
+                  selectedValue={childDrawerData.tmm_days_duration_type}
+                  array={EXTRA_OPTIONS} />
+              )}
               {/* <Segmented
                 value={
                   childDrawerData.tmm_duration_type !== undefined && childDrawerData.tmm_days !== undefined &&
@@ -1734,7 +1798,8 @@ function TabMedicationBox() {
     sinceOptions,
     selectedTab,
     timingMoreOptionsVisible,
-    frequencyMoreOptionsVisible
+    frequencyMoreOptionsVisible,
+    durationMoreOptionsVisible
   ]);
 
   return (

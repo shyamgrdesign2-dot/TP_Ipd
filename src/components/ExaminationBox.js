@@ -139,7 +139,8 @@ function ExaminationBox() {
 
   const onSearchParent = useCallback(
     (query) => {
-      setSearchParentQuery(removeBeforeWhiteSpace(query?.replace(/,/g, '')));
+      setSearchParentQuery(removeBeforeWhiteSpace(query));
+      // ?.replace(/,/g, '')
     },
     [searchParentQuery]
   );
@@ -210,7 +211,8 @@ function ExaminationBox() {
 
   const onSearchChild = useCallback(
     (query, i) => {
-      const updateQuery = removeBeforeWhiteSpace(query?.replace(/,/g, ''))
+      const updateQuery = removeBeforeWhiteSpace(query)
+      // ?.replace(/,/g, '')
       examinationData[i] = {
         ...examinationData[i],
         change: 1,
@@ -233,7 +235,8 @@ function ExaminationBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      examinationData[i].note = capitalizeAfterSentence(e.target.value?.replace(/,/g, ''));
+      examinationData[i].note = capitalizeAfterSentence(e.target.value);
+      // ?.replace(/,/g, '')
       setExaminationData((prev) => [...prev]);
     },
     [examinationData]

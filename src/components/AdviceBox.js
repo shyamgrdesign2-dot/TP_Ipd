@@ -160,7 +160,8 @@ function AdviceBox() {
 
   const onSearchParent = useCallback(
     (query) => {
-      setSearchQuery(capitalizeAfterSentence(removeBeforeWhiteSpace(query?.replace(/,/g, ''))));
+      setSearchQuery(capitalizeAfterSentence(removeBeforeWhiteSpace(query)));
+      // ?.replace(/,/g, '')
     },
     [searchQuery]
   );
@@ -547,7 +548,8 @@ function AdviceBox() {
 
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      const updateQuery = capitalizeAfterSentence(removeBeforeWhiteSpace(e.target.value?.replace(/,/g, '')))
+      const updateQuery = capitalizeAfterSentence(removeBeforeWhiteSpace(e.target.value))
+      // ?.replace(/,/g, '')
       setChildDrawerData({ ...childDrawerData, advice_name: updateQuery })
     },
     [childDrawerData]

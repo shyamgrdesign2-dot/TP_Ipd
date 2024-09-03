@@ -8,6 +8,7 @@ import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
 import { getDecodedToken } from "./localStorage.js";
+import imageCompression from 'browser-image-compression';
 
 // export const validateEmail = (email) => {
 //   return String(email)
@@ -51,6 +52,10 @@ export const removeSpecialCharectorWithoutDotSpace = (text) => {
   return text.replace(/[^\w. ]/g, "");
 }
 
+export const replaceCommasAndSemicolons = (text) => {
+  return text.replace(/[;,]/g, '');
+}
+
 export const blockedEmoji = (text) => {
   return text.replace(/[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1F980}-\u{1FAFF}]/gu, '');
 }
@@ -89,6 +94,12 @@ export const capitalizeAfterSentence = (text) => {
   const regex = /([.?!]\s*|^)([a-z])/g;
   return text.replace(regex, (match, p1, p2) => p1 + p2.toUpperCase());
 }
+
+export const capitalizeFirstLetter = (text) => {
+  if (!text) return ''; // Handle empty string case
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+};
+export const capitalize = (str, lower = false) => (lower ? str.toLowerCase() : str).replace(/(?:^|\s|["'([{])+\S/g, match => match.toUpperCase());
 
 export const makeDefaultLogo = (text) => {
   var fullName = text !== undefined ? text.trim() : ''
@@ -154,6 +165,20 @@ export const frequencyCombination = (text) => {
     makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${results.split("-")[2]}-${results.split("-")[3]}`);
   }
   return makeArray;
+}
+
+export const medicine_freq_format = (freq) => {
+  var value = ''
+  if (freq == '0.5') {
+    value = `1/2`
+  } else if (freq == '0.25') {
+    value = `1/4`
+  } else if (freq == '0.75') {
+    value = `3/4`
+  } else {
+    value = freq
+  }
+  return value
 }
 
 export const dataUrlToFile = (url, fileName) => {
@@ -592,4 +617,31 @@ export const getTokenData = () => {
   const decodedToken = getDecodedToken();
   const result = decodedToken?.result;
   return result;
+}
+
+export const compressedFile = async (file) => {
+  if (file.size > 2101546) {                       // If file size is greater than 2MB
+    try {
+      const options = {
+        maxSizeMB: 2,                        // Target size: 2MB, the limit you want to enforce
+        maxWidthOrHeight: 1920,              // Max dimension, but we aim to maintain original dimensions - 1280, 2560
+        useWebWorker: true,                  // Use a web worker for performance
+        alwaysKeepResolution: true           // Ensure original height and width are maintained
+      };
+
+      const compress = await imageCompression(file, options);
+
+      // Preserve original file extension
+      const fileExtension = file.name.split('.').pop(); // Get the original extension
+      const newFileName = `${file.name.split('.')[0]}.${fileExtension}`;
+      const renamedCompress = new File([compress], newFileName, { type: compress.type });
+
+      return renamedCompress;
+
+    } catch (error) {
+      console.error("Error compressing the image:", error);
+      return null;
+    }
+  }
+  return file;
 }

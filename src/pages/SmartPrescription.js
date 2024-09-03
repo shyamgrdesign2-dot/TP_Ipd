@@ -89,6 +89,7 @@ function SmartPrescription() {
   const [imageRefs, setImageRefs] = useState({});
   const [loading, setLoading] = useState(false); // State to track loading
   const drawRef = useRef(null);
+  const [dataPresentInCanvas, setDataPresentInCanvas] = useState([]);
 
   const contextApi = {
     patient_data,
@@ -320,7 +321,7 @@ function SmartPrescription() {
   }, []);
 
   useEffect(() => {
-    if (pages.length === 0) {
+    if (pages.length === 0 || smartRxFilesData?.length === 0 ) {
       handleAddPage();
     }
     if(smartRxFilesData?.length > 0){
@@ -419,9 +420,10 @@ function SmartPrescription() {
   const handleAddPage = () => {
     const newPageId = uuidv4();
     setPages([...pages, newPageId]);
-    if(pages.length === 0){
-      setSelectedPage(0)  
-    } else{
+    setDataPresentInCanvas([...dataPresentInCanvas, false]);
+    if (pages.length === 0) {
+      setSelectedPage(0);
+    } else {
       setSelectedPage(pages.length);
       setTimeout(() => {
         newPageRef?.current?.scrollIntoView({
@@ -437,6 +439,7 @@ function SmartPrescription() {
       setSmartRxFiles(smartRxFiles.filter((_,fileIndex)=> fileIndex !== index))
     }
     const newPages = pages.filter((_, pageIndex) => pageIndex !== index);
+    setDataPresentInCanvas(dataPresentInCanvas.filter((_, pageIndex) => pageIndex !== index));
     setPages(newPages);
     setRefreshTrigger(!refreshTrigger)
     if (selectedPage >= newPages.length) {
@@ -469,6 +472,7 @@ function SmartPrescription() {
 
   const handleClearAllPages = () => {
     setPages([pages[0]]);
+    setDataPresentInCanvas([false]);
     setSelectedPage(0);
     const canvas = canvasRefs.current[pages[0]];
     if (canvas) {
@@ -495,6 +499,11 @@ function SmartPrescription() {
     ctx.lineTo(a * scaleFactor, c * scaleFactor);
     ctx.lineJoin = ctx.lineCap = "round";
     ctx.stroke();
+    if (!dataPresentInCanvas[selectedPage]) {
+      let newDataPresentInCanvas = [...dataPresentInCanvas];
+      newDataPresentInCanvas[selectedPage] = true;
+      setDataPresentInCanvas(newDataPresentInCanvas);
+    }
   }
 
   function editDraw(t, n, a, c,pageIndex) {
@@ -507,6 +516,11 @@ function SmartPrescription() {
     ctxGlobalRefs.current[pageIndex].lineTo(a * scaleFactor, c * scaleFactor);
     ctxGlobalRefs.current[pageIndex].lineJoin = ctxGlobalRefs.current[pageIndex].lineCap = "round";
     ctxGlobalRefs.current[pageIndex].stroke();
+    if (!dataPresentInCanvas[selectedPage]) {
+      let newDataPresentInCanvas = [...dataPresentInCanvas];
+      newDataPresentInCanvas[selectedPage] = true;
+      setDataPresentInCanvas(newDataPresentInCanvas);
+    }
   }
 
   const convertCanvasToJPEG = (canvas) => {
@@ -522,10 +536,6 @@ function SmartPrescription() {
   };
 
   const handleSubmit = async () => {
-    if (socketRef.current) {
-      socketRef.current.close();
-      socketRef.current = null;
-    }
 
     const canvasArray = Object.values(canvasRefs.current).filter(canvas => canvas !== null);
     let blobs = [];
@@ -538,13 +548,19 @@ function SmartPrescription() {
         if (!canvas) continue;
         const blob = await convertCanvasToJPEG(canvas);
         const name = smartRxFiles && smartRxFiles[i] ? smartRxFiles[i].smart_prescription_filename : `${uuidv4()}.jpeg`;
-        blobs.push(blob);
-        files.push(new File([blob], name, { type: 'image/jpeg' }));
+        // Create the File object
+        const file = new File([blob], name, { type: 'image/jpeg' });
+
+        if (file.size < 5 * 1000 && vitalsData.length === 0 && !followUpDate){
+          errorMessage("Please fill your prescription to submit")
+        } else if(file.size > 5 * 1000 ) { 
+          blobs.push(blob);
+          files.push(new File([blob], name, { type: 'image/jpeg' }));
+        }
       }
     } catch (error) {
       console.error('Error converting canvas to JPEG:', error);
       errorMessage("Failed to generate image, Please Submit again");
-      return;
     }
 
     // FormData to handle file upload
@@ -557,12 +573,12 @@ function SmartPrescription() {
     formData.append('patient_unique_id', patient_data?.patient_unique_id);
 
     try {
-      const response = await api.post(SMART_RX_UPLOAD, formData, baseUrl);
-      const data = response?.message;
-
-      if (data) {
-        setSmartRxDetails(files);
+      if(files.length > 0){
+        const response = await api.post(SMART_RX_UPLOAD, formData, baseUrl);
+        const data = response?.message;
       }
+      setSmartRxDetails(files || []);
+
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");
       console.error('Error Submitting the prescription:', error);
@@ -580,7 +596,7 @@ function SmartPrescription() {
     // this is to remove the click from the right container.
     handleWrite();
 
-    if (smartRxFilesData) {
+    if (smartRxFilesData?.length > 0) {
       imageLoad();
     }
 
@@ -645,7 +661,7 @@ const imageLoad = () => {
 
   const newPageIds = smartRxFilesData.map(() => uuidv4());
   setPages(newPageIds);
-
+  setDataPresentInCanvas(Array(smartRxFilesData.length).fill(true));
   smartRxFilesData.forEach((imageObj, index) => {
     const { smart_prescription_file: imageUrl } = imageObj;
     const img = new Image();

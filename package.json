@@ -1,6 +1,6 @@
 {
   "name": "react-thyrocare",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "private": true,
   "homepage": "/",
   "dependencies": {
@@ -16,6 +16,7 @@
     "antd": "^5.16.4",
     "axios": "^1.6.0",
     "bootstrap": "^5.3.2",
+    "browser-image-compression": "^2.0.2",
     "chart.js": "^4.4.3",
     "dayjs": "^1.11.10",
     "env-cmd": "^10.1.0",

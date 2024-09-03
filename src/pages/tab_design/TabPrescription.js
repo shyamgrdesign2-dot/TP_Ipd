@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT } from "../../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS } from "../../utils/constants";
 
 import { getVitals } from "../../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../../redux/medicalhistorySlice";
@@ -249,8 +249,7 @@ function TabPrescription() {
               frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             medicineUnit: medicineUnit,
-            tmm_days_duration_type: `${e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : ""
-              }`,
+            tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
             unique_id: uuidv4(),
           };
         });
@@ -612,7 +611,7 @@ function TabPrescription() {
                         <button
                           type="button"
                           className="mb-3 text-center btn btn-action"
-                          style={{padding: "0px"}}
+                          style={{ padding: "0px" }}
                           onClick={() => examinationHistory.length === 0 && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies ? handleDrawerObstetric() : openCollapsed(6)}
                         >
                           <div

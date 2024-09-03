@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Routes, Route, useSearchParams } from "react-router-dom";
+import { Routes, Route, useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { isMobile } from "react-device-detect";
@@ -38,11 +38,14 @@ function App() {
   const [searchParams, setSearchParams] = useSearchParams();
   // this param needs to be changed as needed
   const authToken = searchParams.get("authToken");
+  const location = useLocation();
 
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
-  
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     // Load features asynchronously when the app renders
     growthbook?.init({ streaming: true });
@@ -62,10 +65,21 @@ function App() {
 
   useEffect(() => {
     const pathname = window.location.pathname;
+
     if (pathname == "/" && authToken) {
+      // Set the token in local storage
       setToken(authToken);
+
+      // Remove the authToken from the URL
+      const params = new URLSearchParams(location.search);
+      params.delete("authToken");
+
+      navigate({
+        pathname: location.pathname,
+        search: params.toString(),
+      }, { replace: true }); // Ensure the URL is cleaned up, removing authToken
     }
-  }, [window.location.pathname, authToken]);
+  }, [authToken, setToken, navigate, location]);
 
   return (
     <>
@@ -82,7 +96,7 @@ function App() {
             console.error(details);
           }}
         >
-          {process.env.REACT_APP_ENV !== "prod" && <TalkativeWidget region="au" configUuid="3f5d31d7-aae5-43f2-903a-2dc2d90a36f3" />}
+          <TalkativeWidget region="au" configUuid="3f5d31d7-aae5-43f2-903a-2dc2d90a36f3" />
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
               <Routes>

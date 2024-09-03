@@ -406,7 +406,8 @@ function TabExaminationBox() {
 
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            setChildDrawerData({ ...childDrawerData, note: capitalizeAfterSentence(e.target.value?.replace(/,/g, '')) })
+            setChildDrawerData({ ...childDrawerData, note: capitalizeAfterSentence(e.target.value) })
+            // ?.replace(/,/g, '')
         },
         [childDrawerData]
     );

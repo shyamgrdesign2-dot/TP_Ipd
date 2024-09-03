@@ -263,6 +263,9 @@ function Header({ locationPath }) {
 
       if (flag === 1) {
         sendData['mobile_no'] = tokenData.mobile_no
+        sendData['clinic_id'] = tokenData.clinic_id
+        sendData['hm_business_id'] = tokenData.hospital_business_id
+        sendData['from'] = 'app'
         URL = config.sso_to_pm_url
       } else if (flag === 2) {
         sendData['hospital_business_id'] = tokenData.hospital_business_id

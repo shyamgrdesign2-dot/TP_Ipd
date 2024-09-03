@@ -12,8 +12,9 @@ body {
         background-color: var(--White-Gradient, linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #E2E2EA 100%));
         padding: 4px 6px;
         text-align: center;
-        &:focus {
+        &:hover, &:focus, &:focus-within {
             color: $white;
+            background-color: $theme;
             &::placeholder {
                 color: rgba(255, 255, 255, 0.7);
             }
@@ -187,6 +188,9 @@ body {
                 background: $theme;
                 color: $white !important;
                 border-color: $theme;
+                .custom-segment-input {
+                    color: $white;
+                }
                 span {
                     color: $white !important;
                 }
