@@ -18,6 +18,7 @@ import {
   Tabs,
   Select,
   Drawer,
+  message,
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -44,8 +45,10 @@ import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
 import VideoModal from './VideoModal';
 import { getDecodedToken } from "../utils/localStorage";
 import { env } from "../EnvironmentConfig";
-import { RX_DIGITIZATION, IS_RX_DIGI_API_CALL, WS_CONTROL_URL } from "../utils/constants";
+import { RX_DIGITIZATION, IS_RX_DIGI_API_CALL, WS_CONTROL_URL, MESSAGE_KEY } from "../utils/constants";
 import ReconnectingWebSocket from "reconnectingwebsocket";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { GB_SMARTSYNC_CONNECT } from '../utils/constants';
 
 function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
 
@@ -84,10 +87,14 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
   const [socket, setSocket] = useState(null);
   const [error, setError] = useState(null);
   const [isDisconnect, setIsDisconnect] = useState(null);
+  const [showDiconnectPopup, setShowDiconnectPopup] = useState(false);
   const [status, setStatus] = useState(null);
   const intervalRef = useRef(null);
 
   const baseUrl = { customBaseUrl: env.rx_digitization };
+  const isSmartSyncConnectAccessableFromGB = useFeatureIsOn(
+    GB_SMARTSYNC_CONNECT
+  );
 
   const items = [
       {
@@ -174,52 +181,82 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
   }, [popOverVideo]);
 
   useEffect(() => {
-    const ws = new ReconnectingWebSocket(WS_CONTROL_URL, null, {debug: true, reconnectInterval: 3000});
+    if(isSmartSyncConnectAccessableFromGB){
+      const ws = new ReconnectingWebSocket(WS_CONTROL_URL, null, {debug: true, reconnectInterval: 3000});
 
-    ws.onopen = () => {
-      console.log('WebSocket connection opened');
-      setSocket(ws);
-      checkDeviceStatus(ws);
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-      setSocket(null);
-    };
-
-    ws.onmessage = (event) => {
-      handleSocketMessage(event.data);
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error', error);
-      // this will be handle once all the user get migrated to new build(with 2 WS connection)
-      setError('WebSocket connection error');
-    };
-
-    // Check device status every 5 seconds
-    const intervalId = setInterval(() => {
-      if (ws.readyState === WebSocket.OPEN) {
+      ws.onopen = () => {
+        console.log('WebSocket connection opened');
+        setSocket(ws);
         checkDeviceStatus(ws);
-      }
-    }, 5000);
+      };
 
-  return () => {
-    ws.close();
-    clearInterval(intervalId); // Clear the interval on cleanup
-  };
-  }, []);
+      ws.onclose = () => {
+        console.log('WebSocket connection closed');
+        setSocket(null);
+      };
+
+      ws.onmessage = (event) => {
+        handleSocketMessage(event.data);
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error', error);
+        // this will be handle once all the user get migrated to new build(with 2 WS connection)
+        setError('WebSocket connection error');
+      };
+
+      // Check device status every 5 seconds
+      const intervalId = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          checkDeviceStatus(ws);
+        }
+      }, 5000);
+
+      return () => {
+        ws.close();
+        clearInterval(intervalId); // Clear the interval on cleanup
+      };
+    }
+  }, [isSmartSyncConnectAccessableFromGB]);
 
   const checkDeviceStatus = (ws) => {
     ws.send('DeviceStatus');
   };
 
+  const wsError = (error) => {
+    message.open({
+      key: MESSAGE_KEY,
+      type: 'error',
+      className: 'error-red',
+      content: (
+          <div className='d-flex align-items-center'>
+              <div>
+                  <div className='title-common text-start fontroboto'>{error}</div>
+              </div>
+          </div>
+      ),
+      duration: 3,
+  });
+}
+
   const handleSocketMessage = (message) => {
     if (message.startsWith('DeviceStatus:')) {
-      const statusMessage = message.split(':')[1] === 'True';
-      setIsConnected(statusMessage);
-      setConnectLoading(false);
-      if (!statusMessage) setError('Device is not connected. Please click the button to reconnect.');
+      const statusMessage = message.split(':')[1];
+    
+      if (statusMessage === 'True') {
+        setIsConnected(true);
+        setConnectLoading(false);
+      } else {
+        // Handle the case where additional information is provided in the message
+        if(isDisconnect === true || isDisconnect === null){
+          setShowDiconnectPopup(false)
+        }else{
+          setShowDiconnectPopup(true)
+        }
+        setIsConnected(false);
+        setConnectLoading(false);
+        // wsError(`${statusMessage}`);
+      }
     } else if (message.startsWith('DeviceConnect:')) {
       const statusMessage = message.split(':')[1] === 'True';
       setIsConnected(statusMessage);
@@ -247,6 +284,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
 
     setConnectLoading(true);
     setError(null);
+    setShowDiconnectPopup(false)
     const action = 'DeviceConnect';
     socket.send(action);
   };
@@ -258,10 +296,11 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
     }
 
     setConnectLoading(true);
+    setShowDiconnectPopup(false)
     setError(null);
     const action = 'DeviceDisconnect';
     socket.send(action);
-    setIsDisconnect(false);
+    setIsDisconnect(null);
   };
 
   const handleDisconnectPopup = () => {
@@ -269,7 +308,8 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
   }
 
   const showHideDisconnectModal = () => {
-    setIsDisconnect(!isDisconnect);
+    setIsDisconnect(null);
+    showDiconnectPopup(false)
   };
 
   // Effect to handle updated data from parent
@@ -386,6 +426,36 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                     </>
                   }
                 />
+                <CommonModal
+                  isModalOpen={showDiconnectPopup}
+                  // onCancel={showHideBackModal}
+                  modalWidth={500}
+                  title={"Please click on connect button"}
+                  modalBody={
+                    <>
+                      <div className="alert-warning rounded-10px p-2 patient-details">
+                        <div className="d-flex align-items-center">
+                          <img className="me-3" src={alertIcon} alt="Warning" />
+                          <span>
+                            Device is not connected. This can be due to: <br />
+                            1. Cable not connected <br />
+                            2. Cable damaged / loose connection
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <div className="d-flex align-items-center mt-2 justify-content-end">
+                          <Button
+                            onClick={handleConnectButtonClick}
+                            className="lh-lg btn btn-primary3 btn-41 px-4"
+                          >
+                            <span>Connect</span>
+                          </Button>
+                        </div>
+                      </div>
+                    </>
+                  }
+                />
               </div>
               <div className="p-4">Write Smart Prescription</div>
             </div>
@@ -393,79 +463,80 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
           <Col lg="auto">
             <div className="align-items-center d-flex h-100">
               {/*Will be utilising this code in future, once the video is available */}
-              <Button
-                type="button"
-                className="btn align-items-center d-flex btn-device-connect rounded-5 pe-3 bg-white shadow2"
-                onClick={isConnected ? handleDisconnectPopup : handleConnectButtonClick}
-                disabled={connectLoading}
-                // style={{backgroundColor: isConnected ?  "rgb(209, 241, 228)" : "rgb(252, 218, 218)"}}
-              >
-              <span>
-                {connectLoading
-                  ? "SmartSync Connecting..."
-                  : isConnected
-                  ? "SmartSync Connected"
-                  : "SmartSync Disconnected"}
-              </span>
+              { isSmartSyncConnectAccessableFromGB &&
+                <Button
+                  type="button"
+                  className="btn align-items-center d-flex btn-device-connect rounded-5 pe-3 bg-white shadow2"
+                  onClick={isConnected ? handleDisconnectPopup : handleConnectButtonClick}
+                  disabled={connectLoading}
+                  // style={{backgroundColor: isConnected ?  "rgb(209, 241, 228)" : "rgb(252, 218, 218)"}}
+                >
+                <span>
+                  {connectLoading
+                    ? "SmartSync Connecting..."
+                    : isConnected
+                    ? "SmartSync Connected"
+                    : "SmartSync Disconnected"}
+                </span>
 
-              <div
-                style={{
-                  width: "48px", // Width of the container
-                  height: "26px", // Height of the container
-                  borderRadius: "32px", // Rounded edges for the toggle container
-                  // backgroundColor: connectLoading
-                  // border:isConnected ? "1px solid grey" : "1px solid grey",
-                  backgroundColor: isConnected ? "rgb(209, 241, 228)" : "white",
-                  boxShadow: "rgba(0, 0, 0, 0.3) 1px 0px 5px inset",
-                  // backgroundColor: connectLoading
-                  //   ? "#888" // Neutral color during loading
-                  //   : isConnected
-                  //   ? "rgb(209, 241, 228)" // Green background when connected
-                  //   : "rgb(252, 218, 218)", // Red background when disconnected
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "4px", // Inner padding to create space around the sliding div
-                  transition: "background-color 0.3s ease", // Smooth transition for background color
-                }}
-              >
                 <div
                   style={{
-                    display:"flex",
-                    justifyContent:"center",
-                    alignItems:"center",
-                    borderRadius: "50%",
-                    width: "20px",
-                    height: "20px",
-                    backgroundColor: connectLoading
-                      ? "#4B4AD5"
-                      : isConnected
-                      ? "#fff" 
-                      : "#fff",
-                    transform: isConnected ? "translateX(21px)" : "translateX(0)", // Fixed slide distance within the container
-                    transition: "transform 0.3s ease, background-color 0.3s ease", // Smooth transition for movement and background color
+                    width: "48px", // Width of the container
+                    height: "26px", // Height of the container
+                    borderRadius: "32px", // Rounded edges for the toggle container
+                    // backgroundColor: connectLoading
+                    // border:isConnected ? "1px solid grey" : "1px solid grey",
+                    backgroundColor: isConnected ? "rgb(109 225 178)" : "white",
+                    boxShadow: "rgba(0, 0, 0, 0.3) 0px 0px 3px inset",
+                    // backgroundColor: connectLoading
+                    //   ? "#888" // Neutral color during loading
+                    //   : isConnected
+                    //   ? "rgb(209, 241, 228)" // Green background when connected
+                    //   : "rgb(252, 218, 218)", // Red background when disconnected
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "4px", // Inner padding to create space around the sliding div
+                    transition: "background-color 0.3s ease", // Smooth transition for background color
                   }}
                 >
-                  <img
-                    src={
-                      connectLoading
-                        ? devicePad
-                        : isConnected
-                        ? smartSyncConnected
-                        : smartSyncDisconnected
-                    }
-                    alt="devicePad"
+                  <div
                     style={{
-                      transition: "opacity 0.3s ease", // Optional: add a transition for the image opacity
-                      opacity: connectLoading ? 0.5 : 1, // Example of fading effect during loading
-                      width: "16px", // Adjust the size of the image to fit within the sliding div
-                      height: "16px",
+                      display:"flex",
+                      justifyContent:"center",
+                      alignItems:"center",
+                      borderRadius: "50%",
+                      width: "20px",
+                      height: "20px",
+                      backgroundColor: connectLoading
+                        ? "#4B4AD5"
+                        : isConnected
+                        ? "#fff" 
+                        : "rgb(255 181 181)",
+                      transform: isConnected ? "translateX(21px)" : "translateX(0)", // Fixed slide distance within the container
+                      transition: "transform 0.3s ease, background-color 0.3s ease", // Smooth transition for movement and background color
                     }}
-                  />
+                  >
+                    <img
+                      src={
+                        connectLoading
+                          ? devicePad
+                          : isConnected
+                          ? smartSyncConnected
+                          : smartSyncDisconnected
+                      }
+                      alt="devicePad"
+                      style={{
+                        transition: "opacity 0.3s ease", // Optional: add a transition for the image opacity
+                        opacity: connectLoading ? 0.5 : 1, // Example of fading effect during loading
+                        width: "16px", // Adjust the size of the image to fit within the sliding div
+                        height: "16px",
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              </Button>
-
+                </Button>
+              }
               <CommonModal
                 isModalOpen={isDisconnect}
                 onCancel={showHideDisconnectModal}
