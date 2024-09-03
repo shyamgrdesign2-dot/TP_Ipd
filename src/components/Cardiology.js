@@ -19,9 +19,9 @@ import calenderBlank from "../assets/images/calenderBlank.svg";
 import followUp from "../assets/images/followup.svg";
 import smartPadGrey from "../assets/images/smartPadGrey.svg";
 
-import { FETCH_SMART_RX, GB_ISCRIBE } from "../utils/constants";
+import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE } from "../utils/constants";
 
-import { isNumeric, medicine_freq_format } from "../utils/utils";
+import { capitalize, isNumeric, medicine_freq_format } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
@@ -205,9 +205,10 @@ function Cardiology(props) {
       width: "82px",
       render: (text, record) => (
         <div>
-          {isNumeric(record.tmm_days)
-            ? `${record.tmm_days} - ${record.tmm_duration_type}`
-            : `-`}
+          {EXTRA_OPTIONS.some((x) => x.value == record.tmm_duration_type) ? capitalize(record.tmm_duration_type, true) :
+            isNumeric(record.tmm_days) ?
+              `${record.tmm_days} ${record.tmm_duration_type}`
+              : '-'}
         </div>
       ),
     },

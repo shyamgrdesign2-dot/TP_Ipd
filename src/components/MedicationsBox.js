@@ -1127,6 +1127,7 @@ function MedicationsBox() {
       setMedicationData((prev) => [...prev]);
       setSearchParentQuery("");
       showHideAddMedicineModal()
+      setGenericQuery('');
       setAddCustom(null);
     } else {
       errorMessage(action.error)
