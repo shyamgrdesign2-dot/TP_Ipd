@@ -61,16 +61,16 @@ function Cardiology(props) {
       fetchData();
     }
     if (
-      isSmartSyncAccessableFromGB &&
-      viewCaseManagerData?.smart_prescription_filename !== null
-      // viewCaseManagerData.medicine?.length === 0 &&
-      // viewCaseManagerData.symptoms?.length === 0 &&
-      // viewCaseManagerData.examination?.length === 0 &&
-      // viewCaseManagerData.diagnosis?.length === 0 &&
-      // viewCaseManagerData.advice?.length === 0 &&
-      // viewCaseManagerData.investigation?.length === 0 &&
-      // viewCaseManagerData.visit_advice &&
-      // viewCaseManagerData.treatment
+        isSmartSyncAccessableFromGB &&
+        viewCaseManagerData?.smart_prescription_filename !== null
+        // viewCaseManagerData.medicine?.length === 0 &&
+        // viewCaseManagerData.symptoms?.length === 0 &&
+        // viewCaseManagerData.examination?.length === 0 &&
+        // viewCaseManagerData.diagnosis?.length === 0 &&
+        // viewCaseManagerData.advice?.length === 0 &&
+        // viewCaseManagerData.investigation?.length === 0 &&
+        // viewCaseManagerData.visit_advice &&
+        // viewCaseManagerData.treatment
     ) {
       setIsSmartRxFile(true);
     } else {
