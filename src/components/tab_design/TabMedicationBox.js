@@ -692,12 +692,14 @@ function TabMedicationBox() {
   );
 
   const morningDecrement = useCallback(() => {
-    setChildDrawerData((prev) => {
-      return {
-        ...prev,
-        tcm_tmm_freq_morning: parseInt(prev.tcm_tmm_freq_morning) - 1,
-      };
-    });
+    if (parseInt(childDrawerData.tcm_tmm_freq_morning) > 0) {
+      setChildDrawerData((prev) => {
+        return {
+          ...prev,
+          tcm_tmm_freq_morning: parseInt(prev.tcm_tmm_freq_morning) - 1,
+        };
+      });
+    }
   }, [childDrawerData]);
 
   const morningClick = useCallback(() => {
@@ -727,12 +729,14 @@ function TabMedicationBox() {
   }, [childDrawerData]);
 
   const afternoonDecrement = useCallback(() => {
-    setChildDrawerData((prev) => {
-      return {
-        ...prev,
-        tcm_tmm_freq_afternoon: parseInt(prev.tcm_tmm_freq_afternoon) - 1,
-      };
-    });
+    if (parseInt(childDrawerData.tcm_tmm_freq_afternoon) > 0) {
+      setChildDrawerData((prev) => {
+        return {
+          ...prev,
+          tcm_tmm_freq_afternoon: parseInt(prev.tcm_tmm_freq_afternoon) - 1,
+        };
+      });
+    }
   }, [childDrawerData]);
 
   const afternoonClick = useCallback(() => {
@@ -762,12 +766,14 @@ function TabMedicationBox() {
   }, [childDrawerData]);
 
   const eveningDecrement = useCallback(() => {
-    setChildDrawerData((prev) => {
-      return {
-        ...prev,
-        tcm_tmm_freq_evening: parseInt(prev.tcm_tmm_freq_evening) - 1,
-      };
-    });
+    if (parseInt(childDrawerData.tcm_tmm_freq_evening) > 0) {
+      setChildDrawerData((prev) => {
+        return {
+          ...prev,
+          tcm_tmm_freq_evening: parseInt(prev.tcm_tmm_freq_evening) - 1,
+        };
+      });
+    }
   }, [childDrawerData]);
 
   const eveningClick = useCallback(() => {
@@ -797,12 +803,14 @@ function TabMedicationBox() {
   }, [childDrawerData]);
 
   const nightDecrement = useCallback(() => {
-    setChildDrawerData((prev) => {
-      return {
-        ...prev,
-        tcm_tmm_freq_night: parseInt(prev.tcm_tmm_freq_night) - 1,
-      };
-    });
+    if (parseInt(childDrawerData.tcm_tmm_freq_night) > 0) {
+      setChildDrawerData((prev) => {
+        return {
+          ...prev,
+          tcm_tmm_freq_night: parseInt(prev.tcm_tmm_freq_night) - 1,
+        };
+      });
+    }
   }, [childDrawerData]);
 
   const nightClick = useCallback(() => {

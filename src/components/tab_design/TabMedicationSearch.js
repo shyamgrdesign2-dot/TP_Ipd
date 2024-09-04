@@ -290,9 +290,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
   );
 
   const morningDecrement = useCallback(() => {
-    medicationData[selectedIndex].tcm_tmm_freq_morning =
-      parseInt(medicationData[selectedIndex].tcm_tmm_freq_morning) - 1;
-    setMedicationData((prev) => [...prev]);
+    if (parseInt(medicationData[selectedIndex].tcm_tmm_freq_morning) > 0) {
+      medicationData[selectedIndex].tcm_tmm_freq_morning =
+        parseInt(medicationData[selectedIndex].tcm_tmm_freq_morning) - 1;
+      setMedicationData((prev) => [...prev]);
+    }
   }, [selectedIndex, medicationData]);
 
   const morningClick = useCallback(() => {
@@ -316,9 +318,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
   }, [selectedIndex, medicationData]);
 
   const afternoonDecrement = useCallback(() => {
-    medicationData[selectedIndex].tcm_tmm_freq_afternoon =
-      parseInt(medicationData[selectedIndex].tcm_tmm_freq_afternoon) - 1;
-    setMedicationData((prev) => [...prev]);
+    if (parseInt(medicationData[selectedIndex].tcm_tmm_freq_afternoon) > 0) {
+      medicationData[selectedIndex].tcm_tmm_freq_afternoon =
+        parseInt(medicationData[selectedIndex].tcm_tmm_freq_afternoon) - 1;
+      setMedicationData((prev) => [...prev]);
+    }
   }, [selectedIndex, medicationData]);
 
   const afternoonClick = useCallback(() => {
@@ -342,9 +346,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
   }, [selectedIndex, medicationData]);
 
   const eveningDecrement = useCallback(() => {
-    medicationData[selectedIndex].tcm_tmm_freq_evening =
-      parseInt(medicationData[selectedIndex].tcm_tmm_freq_evening) - 1;
-    setMedicationData((prev) => [...prev]);
+    if (parseInt(medicationData[selectedIndex].tcm_tmm_freq_evening) > 0) {
+      medicationData[selectedIndex].tcm_tmm_freq_evening =
+        parseInt(medicationData[selectedIndex].tcm_tmm_freq_evening) - 1;
+      setMedicationData((prev) => [...prev]);
+    }
   }, [selectedIndex, medicationData]);
 
   const eveningClick = useCallback(() => {
@@ -368,9 +374,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
   }, [selectedIndex, medicationData]);
 
   const nightDecrement = useCallback(() => {
-    medicationData[selectedIndex].tcm_tmm_freq_night =
-      parseInt(medicationData[selectedIndex].tcm_tmm_freq_night) - 1;
-    setMedicationData((prev) => [...prev]);
+    if (parseInt(medicationData[selectedIndex].tcm_tmm_freq_night) > 0) {
+      medicationData[selectedIndex].tcm_tmm_freq_night =
+        parseInt(medicationData[selectedIndex].tcm_tmm_freq_night) - 1;
+      setMedicationData((prev) => [...prev]);
+    }
   }, [selectedIndex, medicationData]);
 
   const nightClick = useCallback(() => {
