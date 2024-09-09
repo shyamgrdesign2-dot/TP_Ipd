@@ -128,7 +128,7 @@ function AdviceBox() {
       ),
     });
 
-    searchQuery &&
+    searchQuery && parentOptionsList.findIndex(e => e.advice_name?.toLowerCase()?.trim() == searchQuery?.toLowerCase()?.trim()) === -1 &&
       data.push({
         key: JSON.stringify({
           unique_id: uuidv4(),
