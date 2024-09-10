@@ -147,8 +147,6 @@ const prod = {
 };
 
 const getEnv = () => {
-  // console.log("process.env",process.env);
-  // console.log("process.env.REACT_APP_ENV",process.env.REACT_APP_ENV);
   switch (process.env.REACT_APP_ENV) {
     case "dev":
       return dev;
