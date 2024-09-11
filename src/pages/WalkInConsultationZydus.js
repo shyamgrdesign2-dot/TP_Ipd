@@ -41,6 +41,35 @@ function WalkInConsultationZydus() {
         GB_ISCRIBE
     );
 
+    const [keyboardOpen, setKeyboardOpen] = useState(false);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const currentHeight = window.innerHeight;
+
+            // Compare new height with the original one to detect if the keyboard is open
+            if (currentHeight < window.initialHeight) {
+                setKeyboardOpen(true);
+                // setKeyboardHeight(window.initialHeight - currentHeight);
+            } else {
+                setKeyboardOpen(false);
+                // setKeyboardHeight(0);
+            }
+        };
+
+        // Save the initial window height
+        window.initialHeight = window.innerHeight;
+
+        // Add event listener for resize
+        window.addEventListener('resize', handleResize);
+
+        // Cleanup the event listener
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
     const BoldWordInName = ({ name, boldWord }) => {
         // Split the name into parts based on the bold word
         const parts = name.split(new RegExp(`(${removeSpecialCharectorWithoutDotSpace(boldWord)})`, "i"));
@@ -418,7 +447,7 @@ function WalkInConsultationZydus() {
                         open={autoCompleteFlag}
                         // defaultActiveFirstOption={true}
                         defaultOpen
-                        listHeight={isMobile ? window.innerHeight - 180 : 320}
+                        listHeight={isMobile ? keyboardOpen ? window.innerHeight - 180 : window.innerHeight - 180 : 320}
                         autoFocus
                         popupClassName={`walkincomplete ${isMobile && "walkincomplete-mobile"
                             }`}

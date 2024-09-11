@@ -53,11 +53,9 @@ function WalkInConsultation() {
       if (currentHeight < window.initialHeight) {
         setKeyboardOpen(true);
         // setKeyboardHeight(window.initialHeight - currentHeight);
-        setKeyboardHeight(currentHeight)
       } else {
         setKeyboardOpen(false);
         // setKeyboardHeight(0);
-        setKeyboardHeight(currentHeight)
       }
     };
 
