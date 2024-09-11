@@ -47,13 +47,21 @@ function WalkInConsultation() {
 
   useEffect(() => {
     const handleResize = () => {
+      console.log("aa",window.innerHeight)
+      console.log("aa1",document.documentElement.clientHeight)
+      console.log("aa2",window.innerHeight - document.documentElement.clientHeight)
+
       const currentHeight = window.innerHeight;
 
       // Compare new height with the original one to detect if the keyboard is open
       if (currentHeight < window.initialHeight) {
+        console.log("kk", currentHeight)
+        console.log("kk1", window.initialHeight - currentHeight)
         setKeyboardOpen(true);
         setKeyboardHeight(window.initialHeight - currentHeight);
       } else {
+        console.log("kk", currentHeight)
+        console.log("kk1", 0)
         setKeyboardOpen(false);
         setKeyboardHeight(0);
       }
@@ -555,7 +563,7 @@ function WalkInConsultation() {
             open={autoCompleteFlag}
             // defaultActiveFirstOption={true}
             defaultOpen
-            listHeight={isMobile ? keyboardOpen ?104 : window.innerHeight - 180 : 320}
+            listHeight={isMobile ? keyboardOpen ? 104 : window.innerHeight - 180 : 320}
             autoFocus
             popupClassName={`walkincomplete ${isMobile && "walkincomplete-mobile"
               }`}
