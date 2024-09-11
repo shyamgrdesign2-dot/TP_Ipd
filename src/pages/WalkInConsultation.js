@@ -557,7 +557,7 @@ function WalkInConsultation() {
             open={autoCompleteFlag}
             // defaultActiveFirstOption={true}
             defaultOpen
-            listHeight={isMobile ? keyboardOpen ? keyboardHeight - 160 : window.innerHeight - 180 : 320}
+            listHeight={isMobile ? keyboardHeight - 160 : 320}
             autoFocus
             popupClassName={`walkincomplete ${isMobile && "walkincomplete-mobile"
               }`}
