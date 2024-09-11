@@ -42,17 +42,6 @@ function WalkInConsultation() {
     GB_ISCRIBE
   );
 
-  const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsPortrait(window.innerHeight > window.innerWidth);
-    };
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   const BoldWordInName = ({ name, boldWord }) => {
     // Split the name into parts based on the bold word
     const parts = name.split(new RegExp(`(${boldWord})`, "i"));
@@ -537,7 +526,7 @@ function WalkInConsultation() {
             open={autoCompleteFlag}
             // defaultActiveFirstOption={true}
             defaultOpen
-            listHeight={isMobile ? window.innerHeight - 180 : 320}
+            // listHeight={isMobile ? window.innerHeight - 180 : 320}
             autoFocus
             popupClassName={`walkincomplete ${isMobile && "walkincomplete-mobile"
               }`}
