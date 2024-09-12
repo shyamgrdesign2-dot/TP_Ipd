@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Popover } from 'antd';
 import { makeDefaultLogo } from "../utils/utils";
 import { Link } from 'react-router-dom';
 
 import { useSelector } from "react-redux";
 import moment from 'moment';
+import { getDecodedToken } from '../utils/localStorage';
+import config from '../config';
 
 export const genderAge = (patient_data, profile, shouldShowGender = true) => {
     var value = shouldShowGender
@@ -34,6 +36,7 @@ export const genderAge = (patient_data, profile, shouldShowGender = true) => {
 
 function ProfilePopover(props) {
     const [open, setOpen] = useState(false);
+    const [tokenData, setTokenData] = useState(null);
 
     const { profile } = useSelector((state) => state.doctors);
 
@@ -50,20 +53,28 @@ function ProfilePopover(props) {
         patientDOB = moment(patient_data?.pm_dob).format("DD-MM-YYYY");
     }
 
+    useEffect(() => {
+        const decodedToken = getDecodedToken();
+        const decoded = decodedToken?.result;
+        setTokenData(decoded)
+    }, []);
+
     const handleOpenChange = (newOpen) => {
         setOpen(newOpen);
     };
 
     const content = (
         <>
-            <div className="align-items-center d-flex medicine-templates border-top-0 without-hover px-0 pt-0 pb-3">
-                <div className="round-box bg-body-secondary"><i className="icon-Id fs-21"></i></div>
-                <div className="text-truncate">
-                    <div className="fontroboto letterspacing">Patient Id</div>
-                    <div className="fontroboto letterspacing fw-medium">{patient_data !== undefined ? patient_data?.pm_pid : "000000"}</div>
+            {tokenData?.hospital_business_id != config.zydus_business_id && (
+                <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0 pb-3">
+                    <div className="round-box bg-body-secondary"><i className="icon-Id fs-21"></i></div>
+                    <div className="text-truncate">
+                        <div className="fontroboto letterspacing">Patient Id</div>
+                        <div className="fontroboto letterspacing fw-medium">{patient_data !== undefined ? patient_data?.pm_pid : "000000"}</div>
+                    </div>
                 </div>
-            </div>
-            <div className="align-items-center d-flex medicine-templates border-top-0 without-hover px-0 pt-0">
+            )}
+            <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0">
                 <div className="round-box bg-body-secondary"><i className="icon-phone fs-21"></i></div>
                 <div className="text-truncate">
                     <div className="fontroboto letterspacing">Mobile Number</div>
@@ -71,12 +82,14 @@ function ProfilePopover(props) {
                 </div>
             </div>
             <div>
-                <Link to="/edit_patient" replace={true} state={{ patient_data: patient_data }}>
-                    <Button className='btn btn-primary2 d-flex justify-content-center align-items-center w-100 mt-3 btn-41'>
-                        <i className='icon-Edit me-2 fs-21'></i>
-                        Edit Profile
-                    </Button>
-                </Link>
+                {tokenData?.hospital_business_id != config.zydus_business_id && (
+                    <Link to="/edit_patient" replace={true} state={{ patient_data: patient_data }}>
+                        <Button className='btn btn-primary2 d-flex justify-content-center align-items-center w-100 mt-3 btn-41'>
+                            <i className='icon-Edit me-2 fs-21'></i>
+                            Edit Profile
+                        </Button>
+                    </Link>
+                )}
                 {locationPath == '/patient_details' ? '' :
                     <Link to="/patient_details" state={{ patient_data: patient_data }}>
                         <Button className='btn btn-primary2 align-items-center d-flex justify-content-center w-100 mt-3 btn-41'>
