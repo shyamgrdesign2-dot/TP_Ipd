@@ -115,7 +115,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
         setInvestigationData([])
         setMedicationData([])
         setVitalsData([])
-        setMedicalHistoryData([])
+        // setMedicalHistoryData([])
         setPrivateNotesData(null)
         setFollowUpDate(null)
         setAdditionalNote('')
