@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Nav from 'react-bootstrap/Nav';
 import { Button, Popover } from 'antd';
 import { isMobile } from 'react-device-detect';
@@ -7,10 +7,13 @@ import { Link } from 'react-router-dom';
 import { useSelector } from "react-redux";
 
 import { getClinicName, makeDefaultLogo } from "../utils/utils";
+import { getDecodedToken } from '../utils/localStorage';
+import config from '../config';
 
 function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHandle }) {
 
     const { profile } = useSelector((state) => state.doctors);
+    const [tokenData, setTokenData] = useState(null);
 
     const menu = [
         { key: 1, icon_name: 'icon-Visit-Summary-Fill', short_title: 'Visit', long_title: 'Visit Summary' },
@@ -22,16 +25,24 @@ function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHan
         // { icon_name: 'icon-More', short_title: '', long_title: 'More Options' }
     ]
 
+    useEffect(() => {
+        const decodedToken = getDecodedToken();
+        const decoded = decodedToken?.result;
+        setTokenData(decoded)
+    }, []);
+
     const content = (
         <>
-            <div className="align-items-center d-flex medicine-templates border-top-0 without-hover px-0 pt-0 pb-3">
-                <div className="round-box bg-body-secondary"><i className="icon-Id fs-21"></i></div>
-                <div className="text-truncate">
-                    <div className="fontroboto letterspacing">Patient Id</div>
-                    <div className="fontroboto letterspacing fw-medium">{patient_data !== undefined ? patient_data.pm_pid : "000000"}</div>
+            {tokenData?.hospital_business_id != config.zydus_business_id && (
+                <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0 pb-3">
+                    <div className="round-box bg-body-secondary"><i className="icon-Id fs-21"></i></div>
+                    <div className="text-truncate">
+                        <div className="fontroboto letterspacing">Patient Id</div>
+                        <div className="fontroboto letterspacing fw-medium">{patient_data !== undefined ? patient_data.pm_pid : "000000"}</div>
+                    </div>
                 </div>
-            </div>
-            <div className="align-items-center d-flex medicine-templates border-top-0 without-hover px-0 pt-0">
+            )}
+            <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0">
                 <div className="round-box bg-body-secondary"><i className="icon-phone fs-21"></i></div>
                 <div className="text-truncate">
                     <div className="fontroboto letterspacing">Mobile Number</div>
@@ -39,21 +50,23 @@ function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHan
                 </div>
             </div>
             <div>
-                <Link to="/edit_patient" replace={true} state={{ patient_data: patient_data }}>
-                    <Button className='btn btn-primary2 d-flex justify-content-center align-items-center w-100 mt-3 btn-41'
-                        onClick={() => {
-                            const clinic_name = getClinicName(profile?.hospital_data);
-                            window.Moengage.track_event("TP_patient_details_updated", {
-                                clinic_name,
-                                "patient_number": patient_data?.pm_contact_no,
-                                "patient_id": patient_data?.patient_unique_id
-                            });
-                        }}
-                    >
-                        <i className='icon-Edit me-2 fs-21'></i>
-                        Edit Profile
-                    </Button>
-                </Link>
+                {tokenData?.hospital_business_id != config.zydus_business_id && (
+                    <Link to="/edit_patient" replace={true} state={{ patient_data: patient_data }}>
+                        <Button className='btn btn-primary2 d-flex justify-content-center align-items-center w-100 mt-3 btn-41'
+                            onClick={() => {
+                                const clinic_name = getClinicName(profile?.hospital_data);
+                                window.Moengage.track_event("TP_patient_details_updated", {
+                                    clinic_name,
+                                    "patient_number": patient_data?.pm_contact_no,
+                                    "patient_id": patient_data?.patient_unique_id
+                                });
+                            }}
+                        >
+                            <i className='icon-Edit me-2 fs-21'></i>
+                            Edit Profile
+                        </Button>
+                    </Link>
+                )}
             </div>
         </>
     )
