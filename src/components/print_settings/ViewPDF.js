@@ -597,7 +597,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         )
                                     )}
                                 </>
-                            ) : option?.id === 4 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                            ) : option?.id === 4 && option?.enable === 'Y' && option?.custom_status === 'Y' ? ( 
                                 <>
                                     {caseManagerData.medicine.length > 0 && (
                                         option?.format === 'inline' ? (
