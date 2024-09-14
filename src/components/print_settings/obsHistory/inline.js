@@ -2005,11 +2005,11 @@ function ObsHistoryInlineView({
                                     fontWeight: 400,
                                   }}
                                 >
-                                  {item?.diastolic}
+                                  {item?.systolic}
                                   {"diastolic" in item && "systolic" in item
                                     ? `/`
                                     : ``}
-                                  {item?.systolic}
+                                  {item?.diastolic}
                                   {` mmHg`}
                                 </Text>
                                 {("heightOfFundus" in item ||

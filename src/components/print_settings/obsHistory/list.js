@@ -1942,12 +1942,14 @@ function ObsHistoryListView({
                                 fontWeight: 400,
                               }}
                             >
-                              {item?.diastolic}
-                              {"diastolic" in item && "systolic" in item
+                              {"systolic" in item ? item?.systolic : ``}
+                              {"systolic" in item && "diastolic" in item
                                 ? `/`
+                                : `-`}
+                              {"diastolic" in item ? item?.diastolic : ``}
+                              {"systolic" in item || "diastolic" in item
+                                ? ` mmHg`
                                 : ``}
-                              {item?.systolic}
-                              {` mmHg`}
                             </Text>
                           </>
                         )}
