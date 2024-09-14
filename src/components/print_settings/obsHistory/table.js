@@ -169,7 +169,7 @@ function ObsHistoryTableView({
                     ]}
                   >
                     {"gravidity" in obsHistoryData
-                      ? (obsHistoryData?.gravidity).toString().padStart(2, "0")
+                      ? (obsHistoryData?.gravidity)?.toString()?.padStart(2, "0")
                       : `-`}
                   </Text>
                   <Text
@@ -186,7 +186,7 @@ function ObsHistoryTableView({
                     ]}
                   >
                     {"parity" in obsHistoryData
-                      ? (obsHistoryData?.parity).toString().padStart(2, "0")
+                      ? (obsHistoryData?.parity)?.toString()?.padStart(2, "0")
                       : `-`}
                   </Text>
                   <Text
@@ -204,8 +204,8 @@ function ObsHistoryTableView({
                   >
                     {"livingChildren" in obsHistoryData
                       ? (obsHistoryData?.livingChildren)
-                          .toString()
-                          .padStart(2, "0")
+                          ?.toString()
+                          ?.padStart(2, "0")
                       : `-`}
                   </Text>
                   <Text
@@ -222,7 +222,7 @@ function ObsHistoryTableView({
                     ]}
                   >
                     {"abortion" in obsHistoryData
-                      ? (obsHistoryData?.abortion).toString().padStart(2, "0")
+                      ? (obsHistoryData?.abortion)?.toString()?.padStart(2, "0")
                       : `-`}
                   </Text>
                   <Text
@@ -240,8 +240,8 @@ function ObsHistoryTableView({
                   >
                     {"ectopicPregnancies" in obsHistoryData
                       ? (obsHistoryData?.ectopicPregnancies)
-                          .toString()
-                          .padStart(2, "0")
+                          ?.toString()
+                          ?.padStart(2, "0")
                       : `-`}
                   </Text>
                 </View>
@@ -914,7 +914,7 @@ function ObsHistoryTableView({
                       ]}
                     >
                       {"gravidaNumber" in item
-                        ? (item?.gravidaNumber).toString().padStart(2, "0")
+                        ? (item?.gravidaNumber)?.toString()?.padStart(2, "0")
                         : `-`}
                     </Text>
                     <Text
@@ -1433,10 +1433,10 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {"diastolic" in item ? item?.diastolic : ``}
-                    {"diastolic" in item && "systolic" in item ? `/` : `-`}
                     {"systolic" in item ? item?.systolic : ``}
-                    {"diastolic" in item || "systolic" in item ? ` mmHg` : ``}
+                    {"systolic" in item && "diastolic" in item ? `/` : `-`}
+                    {"diastolic" in item ? item?.diastolic : ``}
+                    {"systolic" in item || "diastolic" in item ? ` mmHg` : ``}
                   </Text>
                   <Text
                     style={[
