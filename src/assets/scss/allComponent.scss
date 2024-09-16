@@ -1335,3 +1335,230 @@ body {
     width: 2%;
 }
 
+// Rx Digitisation style
+
+.digitise-container{
+    display: flex;
+    flex-direction: column;
+    border-radius: 21.046px;
+    border: 3.508px solid #9C68C4;
+    background: #222;
+}
+
+.digitise-box-top{
+    display: flex;
+    width: 270px;
+    align-items: flex-start;
+    gap: 10px;
+}
+.digitise-header{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff !important;
+    margin: 0;
+}
+
+.digitise-info{
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 18px;
+    margin: 0;
+    margin-bottom: 1.5rem;
+}               
+
+.digitise-btn{
+    display: flex;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid #fff;
+    border-radius: 7.665px;
+    background: #FFF;
+}
+
+.digitised-container{
+    padding: 20px;
+    gap: 10px;
+    flex: 1 0 0;
+}
+
+.title-digitise-section{
+    font-family: Poppins;
+    color: black !important;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px; /* 150% */
+    letter-spacing: 0.1px;
+}
+
+.digitised-section{
+    display: flex;
+    padding: 16px;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    border-radius: 10px;
+    border: 1px solid var(--T-Text-10, #E2E2EA);
+    background: #FCFCFC;
+    margin-bottom: 1.5rem;
+
+    .no-bullets{
+        padding: 0.3rem 0 0 0;
+
+        .btn-outline-digitise {
+            background-color: white;
+            color: #4B4AD5;
+            border-radius: 0.5rem;
+            padding: 0.4rem 1rem;
+            font-size: 14px;
+            border: 1px solid #4B4AD5;
+            margin: 0.5rem 1rem 0.3rem 1rem;
+        }
+    }
+
+    ul {
+        padding-left: 1rem;
+        margin: 0;
+
+        &.no-bullets li {
+            list-style-type: none;
+            padding: 0.2rem 1rem;
+            font-size: 15px;
+            font-weight: 600;
+            li:hover{
+                color: #BA7DE9;
+            }
+        }
+
+        &.no-bullets li:hover{
+            color: #BA7DE9 !important;
+        }
+
+        li{
+            cursor: pointer;
+            font-size: 16px !important;
+            margin: 6px 0px; 
+            color: #454551 !important;
+            span{
+                color: #454551 !important;
+            }
+        }
+        li:hover{
+            color: #BA7DE9;
+            background: #f5f5f5;
+        }
+    }
+}
+
+.medicine-item {
+    position: relative;
+    margin-bottom: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.title-digitise-card{
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.editable-digitised-item {
+    display: flex;
+    padding: 0px 6px;
+    align-items: center;
+    border-radius: 6px;
+    border: 1px solid #EDDFF7;
+    background: #FAFAFB;
+}
+
+/* Style for active editable state */
+.editable-active {
+    color: #BA7DE9;
+    border: 1px solid #e7e7e7 !important; /* Important will work in CSS */
+    background-color: #fff;
+    outline: none;
+}
+
+/* Change the cursor to indicate the input is focused and editable */
+.editable-digitised-item:focus {
+    border-color: blue;
+    caret-color:#BA7DE9;
+}
+
+/* General hover effect for non-editable span */
+.editable-medicine:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+.digitised-item{
+    font-size: 1rem !important;
+}
+.digitised-item:hover {
+    cursor: pointer;
+    color:  #BA7DE9 !important;
+    background: #FAFAFB !important;
+    // border: 0.3px solid #EDDFF7;
+}
+
+.title-common{
+    color: black;
+    cursor: default;
+    padding: 0 1rem;
+}
+
+/* Suggestion card styles */
+.suggestion-card {
+    position: absolute;
+    top: 100%; /* Position the card just below the medicine */
+    left: 0;
+    background-color: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    z-index: 1000; /* Ensure it appears above other content */
+    padding: 10px 0;
+    width: 300px;
+    margin-top: 4px;
+}
+  
+.suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+.digital-btn{
+    padding: 0.35rem 0.8rem;
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
+}
+.written-btn{
+    padding: 0.35rem 0.8rem;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+}
+.digitise-toggle-btn{
+    border: 1px solid #E2E2EA;
+    background: white;
+}
+
+.active-digitise-toggle-btn{
+    border: 1px solid #6766FA;
+    color: #fff;
+    background: linear-gradient(180deg, #6A69FF 0%, #3A39B2 100%);
+}
+
+.scrollable-body {
+    max-height: 100vh; /* Set a fixed height as per your requirement */
+    overflow-y: auto;  /* Enable vertical scrolling */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+}
+
