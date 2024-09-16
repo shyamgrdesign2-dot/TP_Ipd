@@ -710,13 +710,49 @@ function SymptomsBox() {
     );
   }, [tabChange, popOver2, inputTemplateName, loading, allTemplates]);
 
-  const showHideModal1 = useCallback(() => {
+  const showHideClearData = useCallback(() => {
     setIsModalOpen1(!isModalOpen1);
   }, [isModalOpen1]);
-  
-  function onRemoveSymptoms() {
+
+  const onRemoveRows = () => {
     setSymptomsData([])
-  }
+    showHideClearData()
+  };
+
+  //Remove All Rows
+  const REMOVE_ALL_ROWS = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={isModalOpen1}
+        onCancel={showHideClearData}
+        modalWidth={500}
+        title={"You may lose your data"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className='me-3' src={alertIcon} alt="Warning" />
+                <span>
+                  Are you sure you want to Clear Selected <b>Symptoms</b>?
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div onClick={onRemoveRows}
+                  className="me-4 text-decoration-underline btn p-0 text-main">
+                  <span>Yes, Clear</span>
+                </div>
+                <Button onClick={showHideClearData} className="lh-lg btn btn-primary3 btn-41 px-4">
+                  <span>No</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [isModalOpen1]);
 
   return (
     <>
@@ -757,42 +793,14 @@ function SymptomsBox() {
 
               </Popover>
             </Tooltip>
-            <button onClick={showHideModal1} className="btn btn-text px-1">
+            <button onClick={showHideClearData} className="btn btn-text px-1">
               <i className="icon-eraser1"></i>
             </button>
-            <CommonModal
-              isModalOpen={isModalOpen1}
-              onCancel={showHideModal1}
-              modalWidth={500}
-              title={"You may lose your data"}
-              modalBody={
-                <>
-                  <div className="alert-warning rounded-10px p-2 patient-details">
-                    <div className="d-flex align-items-center">
-                      <img className='me-3' src={alertIcon} alt="Warning" />
-                      <span>
-                        Are you sure you want to Clear Selected <b>Symptoms</b>?
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <div className="d-flex align-items-center mt-2 justify-content-end">
-                      <div onClick={() => onRemoveSymptoms()}
-                        className="me-4 text-decoration-underline btn p-0 text-main">
-                        <span onClick={showHideModal1}>Yes, Clear</span>
-                      </div>
-                      <Button onClick={showHideModal1} className="lh-lg btn btn-primary3 btn-41 px-4">
-                        <span>No</span>
-                      </Button>
-                    </div>
-                  </div>
-                </>
-              }
-            />
           </div>
         </div>
 
         {DELETE_MODAL}
+        {REMOVE_ALL_ROWS}
         {TABLE_SYMPTOMS}
 
         <div className="p-14">
