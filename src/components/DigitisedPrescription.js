@@ -109,7 +109,7 @@ const handleInputBlur = (type, index) => {
                   </Button>
                 </div>
                 <ul className="no-bullets">
-                  {item.suggestions.map((suggestion, suggestionIndex) => (
+                  {item.suggestions?.map((suggestion, suggestionIndex) => (
                     <li
                       key={suggestionIndex}
                       onClick={() => handleSuggestionClick(type, index, suggestion)}
@@ -135,17 +135,33 @@ const handleInputBlur = (type, index) => {
 
   return (
     <div className='digitised-container'>
-      <div className="title-digitise-section mb-2">Medicine</div>
-      {renderItems('medications')}
+      {data?.medications && data.medications.length > 0 && (
+        <>
+          <div className="title-digitise-section mb-2">Medicine</div>
+          {renderItems('medications')}
+        </>
+      )}
 
-      <div className="title-digitise-section mb-2">Tests</div>
-      {renderItems('tests')}
+      {data?.tests && data.tests.length > 0 && (
+        <>
+          <div className="title-digitise-section mb-2">Tests</div>
+          {renderItems('tests')}
+        </>
+      )}
 
-      <div className="title-digitise-section mb-2">Symptoms</div>
-      {renderItems('symptoms')}
+      {data?.symptoms && data.symptoms.length > 0 && (
+        <>
+          <div className="title-digitise-section mb-2">Symptoms</div>
+          {renderItems('symptoms')}
+        </>
+      )}
 
-      <div className="title-digitise-section mb-2">Advices</div>
-      {renderItems('advice')}
+      {data?.advice && data.advice.length > 0 && (
+        <>
+          <div className="title-digitise-section mb-2">Advices</div>
+          {renderItems('advice')}
+        </>
+      )}
     </div>
   );
 };

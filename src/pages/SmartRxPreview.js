@@ -478,7 +478,7 @@ function SmartRxPreview() {
                                         <div style={containerStyle}>
                                             <div ref={progressRef} style={progressStyle}></div>
                                         </div>
-                                        <p className="digitise-header" style={{padding: "16px 0"}}>{`${patient_data?.patient_name}'s Rx is getting Digitised!`}</p>
+                                        <p className="digitise-header" style={{padding: "16px 0"}}>{`${patient_data?.pm_fullname}'s Rx is getting Digitised!`}</p>
                                         <p className="digitise-info">Our AI engine is converting handwritten Rx into digital Rx. This may take upto 30 sec</p>
                                     </div>
                                 ) : (
@@ -486,7 +486,7 @@ function SmartRxPreview() {
                                         <div className="digitise-box-top">
                                             <img src={successIcon} alt="success" width="40px" height="40px"/>
                                             <div>
-                                                <p className="digitise-header" style={{marginLeft:"-17px"}}>{`${patient_data?.patient_name}'s Digital Rx is ready!`}</p>
+                                                <p className="digitise-header" style={{marginLeft:"-17px"}}>{`${patient_data?.pm_fullname}'s Digital Rx is ready!`}</p>
                                                 <p className="digitise-info">Digitise Rx to enhances patient care, streamline workflow, and unlock new revenue. Know More</p>
                                             </div>
                                         </div>

@@ -33,14 +33,12 @@ function SmartRxDigitise() {
     const [token, setToken] = useState(null);
     const [tokenData, setTokenData] = useState(null);
     const [divWidth, setDivWidth] = useState(0);
-    const [numPages, setNumPages] = useState();
-    const [printBlob, setPrintBlob] = useState(null);
     const [data, setData] = useState(digitisedData?.data[0].refinedData);
     const [isDigitiseRxSubmit, setIsDigitiseRxSubmit] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [smartRxFile, setSmartRxFile] = useState(smartRxFilesData);
 
-    const baseUrl = { customBaseUrl: env.casemanager_api_url };
+    const baseUrlRxDigitise = env.rx_digitization ;
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -59,13 +57,6 @@ function SmartRxDigitise() {
         }
     }, []);
 
-    async function onDocumentLoadSuccess(successEvent) {
-        setNumPages(successEvent?.numPages);
-        const data = await successEvent.getData()
-        const blob = new Blob([data], { type: 'application/pdf' })
-        setPrintBlob(blob)
-    }
-
     const handleSave = async () => {
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
@@ -77,7 +68,7 @@ function SmartRxDigitise() {
             }
 
             // API call to save the data
-            const response = await axios.patch(`${baseUrl}/api/v1/rxdigitize/rx/${tcm_id}`, payload, {
+            const response = await axios.patch(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${tcm_id}`, payload, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${cleanedToken}`,

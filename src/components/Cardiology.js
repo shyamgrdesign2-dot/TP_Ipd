@@ -76,11 +76,13 @@ function Cardiology(props) {
         // viewCaseManagerData.treatment
     ) {
       setIsSmartRxFile(true);
-      const digitisedData = fetchRxDigitisedData(viewCaseManagerData?.tcm_id)
-      if(digitisedData?.data?.editedData) {
-        setIsRxdigitised(true);
-      } else {
-        setIsRxdigitised(false);
+      if(viewCaseManagerData?.tcm_id){
+        const digitisedData = fetchRxDigitisedData(viewCaseManagerData?.tcm_id)
+        if(digitisedData?.data?.editedData) {
+          setIsRxdigitised(true);
+        } else {
+          setIsRxdigitised(false);
+        }
       }
     }
   }, [viewCaseManagerData]);
