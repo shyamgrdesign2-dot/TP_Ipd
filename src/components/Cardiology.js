@@ -19,7 +19,7 @@ import calenderBlank from "../assets/images/calenderBlank.svg";
 import followUp from "../assets/images/followup.svg";
 import smartPadGrey from "../assets/images/smartPadGrey.svg";
 
-import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { capitalize, isNumeric, medicine_freq_format } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
@@ -55,6 +55,9 @@ function Cardiology(props) {
   const isSmartSyncAccessableFromGB = useFeatureIsOn(
     GB_ISCRIBE
   );
+  const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
+    GB_SMARTSYNC_CVT
+);
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
@@ -76,7 +79,7 @@ function Cardiology(props) {
         // viewCaseManagerData.treatment
     ) {
       setIsSmartRxFile(true);
-      if(viewCaseManagerData?.tcm_id){
+      if(viewCaseManagerData?.tcm_id && isSmartSyncCVTAccessableFromGB){
         const digitisedData = fetchRxDigitisedData(viewCaseManagerData?.tcm_id)
         if(digitisedData?.data?.editedData) {
           setIsRxdigitised(true);
@@ -407,7 +410,7 @@ function Cardiology(props) {
                 </div>
               </div>
             </Card.Header>
-            { isRxdigitised &&
+            { isRxdigitised && isSmartSyncCVTAccessableFromGB &&
               <div className="p-2 mb-2">
                 <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
                 <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>

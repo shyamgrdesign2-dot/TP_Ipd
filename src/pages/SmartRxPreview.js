@@ -17,9 +17,10 @@ import loadingImg from '../assets/images/loading.png';
 import successIcon from '../assets/images/success-icon.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
-import { FETCH_SMART_RX, MESSAGE_KEY, RX_DIGITIZATION, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
+import { FETCH_SMART_RX, GB_SMARTSYNC_CVT, MESSAGE_KEY, RX_DIGITIZATION, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import config from "../../src/config";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -70,6 +71,9 @@ function SmartRxPreview() {
 
     const baseUrl = { customBaseUrl: env.casemanager_api_url };
     const baseUrlRxDigitise = env.rx_digitization ;
+    const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
+        GB_SMARTSYNC_CVT
+    );
 
     const containerStyle = {
         width: '100%',
@@ -129,14 +133,14 @@ function SmartRxPreview() {
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
     
-            // API call for Rx Digitisation
-            const response = await axios.get(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${state.tcm_id}`, {
-                headers: {
-                    'Authorization': `Bearer ${cleanedToken}`,
-                },
-            });
-            return response.data; // return the data after it's fetched
-        } catch (error) {
+                // API call for Rx Digitisation
+                const response = await axios.get(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${state.tcm_id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${cleanedToken}`,
+                    },
+                });
+                return response.data; // return the data after it's fetched
+        }catch (error) {
             console.error('Error digitizing the prescription:', error);
             return null;
         }
@@ -261,22 +265,22 @@ function SmartRxPreview() {
     
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
-    
-            // API call for Rx Digitisation
-            const response = await axios.post(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${cleanedToken}`,
-                },
-            });
-    
-            // Clear the interval when the upload is done
-            clearInterval(interval);
-    
-            // Set the response to state (this will trigger the success message)
-            setRxDigitiseApiResponse(response.data);
-            setRxDigitiseComplete(true); // Mark the digitisation as complete
-        } catch (error) {
+
+                // API call for Rx Digitisation
+                const response = await axios.post(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${cleanedToken}`,
+                    },
+                });
+        
+                // Clear the interval when the upload is done
+                clearInterval(interval);
+        
+                // Set the response to state (this will trigger the success message)
+                setRxDigitiseApiResponse(response.data);
+                setRxDigitiseComplete(true); // Mark the digitisation as complete
+        }catch (error) {
             console.error('Error uploading files:', error);
             clearInterval(interval);
         }
@@ -306,7 +310,7 @@ function SmartRxPreview() {
             }
         };
     
-        if (smartRxFile?.length > 0 && token && state?.tcm_id) {
+        if (smartRxFile?.length > 0 && token && state?.tcm_id && isSmartSyncCVTAccessableFromGB) {
             fetchDataAndUpload();
         }
     }, [smartRxFile, token, state?.tcm_id]);
@@ -472,7 +476,7 @@ function SmartRxPreview() {
                                     buttonText
                                 )}
                             </button>
-                            { !rxDigitisedData &&
+                            { !rxDigitisedData && isSmartSyncCVTAccessableFromGB &&
                                (!isRxDigitiseComplete  ? (
                                     <div className="digitise-container d-flex p-3 rounded-10px">
                                         <div style={containerStyle}>
@@ -502,7 +506,7 @@ function SmartRxPreview() {
                         <div className={isMobile ? 'p-20' : ''}>
                             <div className="d-flex align-itms-center justify-content-between">
                                 <div className="titleprint">Preview</div>
-                               { viewCaseManagerData?.isRxDigitize && 
+                               { viewCaseManagerData?.isRxDigitize && isSmartSyncCVTAccessableFromGB &&
                                     <div>
                                         <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
                                         <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>
