@@ -19,7 +19,7 @@ import calenderBlank from "../assets/images/calenderBlank.svg";
 import followUp from "../assets/images/followup.svg";
 import smartPadGrey from "../assets/images/smartPadGrey.svg";
 
-import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE } from "../utils/constants";
+import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { capitalize, isNumeric, medicine_freq_format } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
@@ -45,6 +45,9 @@ function Cardiology(props) {
   const [setSortedInfo] = useState({});
   const [smartRxFile, setSmartRxFile] = useState([]);
   const [isSmartRxFile, setIsSmartRxFile] = useState(false);
+  const [showDigitalRx, setShowDigitalRx] = useState(null);
+  const [rxDigitisedData, setRxDigitisedData] = useState(null);
+  const [isRxdigitised, setIsRxdigitised] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -73,10 +76,13 @@ function Cardiology(props) {
         // viewCaseManagerData.treatment
     ) {
       setIsSmartRxFile(true);
-    } else {
-      setIsSmartRxFile(false);
+      const digitisedData = fetchRxDigitisedData(viewCaseManagerData?.tcm_id)
+      if(digitisedData?.data?.editedData) {
+        setIsRxdigitised(true);
+      } else {
+        setIsRxdigitised(false);
+      }
     }
-    
   }, [viewCaseManagerData]);
 
   const fetchData = async () => {
@@ -126,7 +132,7 @@ function Cardiology(props) {
     //     label: 'Saved as a Template',
     //     key: 'SavedasTemplate',
     // }
-];
+  ];
   const columns = [
     {
       title: "S.NO",
@@ -280,6 +286,46 @@ function Cardiology(props) {
     }
   };
 
+  const fetchRxDigitisedData = async (caseId) => {
+      try {
+          const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+          const cleanedToken = token.replace(/['"]+/g, '');
+
+          // API call for Rx Digitisation
+          const response = await axios.get(`https://pm-rxdigitization-uat.tatvacare.in/api/v1/rxdigitize/rx/${caseId}`, {
+              headers: {
+                  'Authorization': `Bearer ${cleanedToken}`,
+              },
+          });
+
+          return response.data; // return the data after it's fetched
+      } catch (error) {
+          console.error('Error digitizing the prescription:', error);
+          return null;
+      }
+  };
+
+  // Render items for each type (medications, tests, etc.)
+  const renderItems = (type) => (
+    <div className='digitised-section'>
+      <ul>
+        {rxDigitisedData?.editedData[type].map((item, index) => (
+          <li key={index} className='medicine-item'>
+            <span className='digitised-item'>
+              {type === "advice" ?  rxDigitisedData?.editedData[type][index] : type === "symptoms" ? item.name : item.refinedName}
+            </span>
+
+            {type === "medications" && item.lineItem &&
+                <span className='digitised-item'> 
+                  {` (${item.lineItem})`}
+                </span>
+            }
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
   return (
     <div className="appointment-wrap PatientDetailswrap m-0">
       <Card className="">
@@ -359,7 +405,13 @@ function Cardiology(props) {
                 </div>
               </div>
             </Card.Header>
-            {loading ? (
+            { isRxdigitised &&
+              <div className="p-2 mb-2">
+                <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
+                <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>
+              </div>
+            }
+            { loading ? (
               <div
                 className="d-flex flex-column justify-content-center"
                 style={{ height: "calc(100vh - 218px)" }}
@@ -368,41 +420,54 @@ function Cardiology(props) {
                   <Spin />
                 </div>
               </div>
-            ) : //smart image
-            isSmartRxFile ?
-            (
-            <>
-              {smartRxFile.length > 0 && smartRxFile?.map(({smart_prescription_file}) =>
-                  <div style={{ padding: "5px" }}>
-                    {smart_prescription_file && (
-                      <img
-                        src={smart_prescription_file}
-                        alt="Smart Rx"
-                        width="100%"
-                        height="660px"
-                      />
+              ) : 
+              isSmartRxFile ? (
+                <div>
+                  {/* { !isRxdigitised && !showDigitalRx ? ( */}
+                    <>
+                      {smartRxFile.length > 0 &&
+                        smartRxFile?.map(({ smart_prescription_file }) => (
+                          <div style={{ padding: "5px" }}>
+                            {smart_prescription_file && (
+                              <img
+                                src={smart_prescription_file}
+                                alt="Smart Rx"
+                                width="100%"
+                                height="660px"
+                              />
+                            )}
+                          </div>
+                      ))}
+                    </>
+                  {/* ) : (
+                    <div className="m-4"> 
+                      <div className="title-digitise-section mb-2">Medication</div>
+                      {renderItems('medications')}
+
+                      <div className="title-digitise-section mb-2">Tests</div>
+                      {renderItems('tests')}
+
+                      <div className="title-digitise-section mb-2">Symptoms</div>
+                      {renderItems('symptoms')}
+
+                      <div className="title-digitise-section mb-2">Advices</div>
+                      {renderItems('advice')}
+                    </div>
+                  )} */}
+                  <div className={`d-flex align-items-center mb-14 ${viewCaseManagerData?.follow_up_date ? "follow-up-detailsPage" : "" }`}>
+                    {viewCaseManagerData?.follow_up_date && (
+                      <>
+                        <img className="me-3" src={followUp} alt="Symptoms" />
+                        <div className="title-common">Follow-up:</div>
+                        <div className="follow-up-date-text">
+                          {viewCaseManagerData?.follow_up_date}
+                        </div>
+                      </>
                     )}
                   </div>
-              )} 
-              {/* { !(smartRxFile?.length > 0 || viewCaseManagerData?.follow_up_date || viewCaseManagerData.vitals?.length > 0) && (<div className='smart-rx-no-data'>
-                      <img src={smartPadGrey} width={60} height={60} alt="No prescriptions saved for the patient!" />
-                      <p className='mt-2 fontroboto'>
-                          No smart prescriptions available for the patient!
-                      </p>
-                  </div>
-              )} */}
-              <div className={`d-flex align-items-center mb-14 ${viewCaseManagerData?.follow_up_date ? 'follow-up-detailsPage' : ""}`}>
-                { viewCaseManagerData?.follow_up_date &&
-                  <>
-                    <img className='me-3' src={followUp} alt="Symptoms" />
-                    <div className="title-common">Follow-up:</div>
-                    <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
-                  </>
-                }
-              </div>
-              </>
-            ) : (
-              <Card.Body className="p-0 cardbody-data">
+                </div>
+              ) : (
+                <Card.Body className="p-0 cardbody-data">
                 <div>
                   <div className="p-3 pb-0">
                     {viewCaseManagerData.symptoms.length > 0 && (
