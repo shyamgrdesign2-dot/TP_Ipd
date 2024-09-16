@@ -355,23 +355,6 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
         : await dispatch(editCaseManager(sendData));
 
     if (action.meta.requestStatus === "fulfilled") {
-      if(IS_RX_DIGI_API_CALL){
-        const data = getDecodedToken();
-        // FormData for rx_digitizing api
-        const formData = new FormData();
-        files.forEach((file) => {
-          formData.append('files', file);
-        });
-        formData.append('doctorId', data.result.user_id);
-        formData.append('patientId', action.meta.arg.patient_unique_id);
-        formData.append('caseId', action.payload.tcm_id);
-        formData.append('ocrModel', 'docx');
-        try {
-          const response = api.post(RX_DIGITIZATION, formData, baseUrl);
-        } catch (error) {
-          console.error('Error DIGITIZING the prescription:', error);
-        }
-      }
       navigate('/print-smart-rx', { replace: true, state: { ...action.payload, patient_data: patient_data, smartRxFile: smartRxFiles } })
     } else {
       errorMessage(action.error);
