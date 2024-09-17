@@ -1368,7 +1368,8 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {i + 1}
+                    {/* {i + 1} */}
+                    {obsHistoryData?.examinationHistory.length - i}
                   </Text>
                   <Text
                     style={[
