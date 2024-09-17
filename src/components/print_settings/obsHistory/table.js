@@ -1368,7 +1368,8 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {i + 1}
+                    {/* {i + 1} */}
+                    {obsHistoryData?.examinationHistory.length - i}
                   </Text>
                   <Text
                     style={[
@@ -1433,10 +1434,10 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {"diastolic" in item ? item?.diastolic : ``}
-                    {"diastolic" in item && "systolic" in item ? `/` : `-`}
                     {"systolic" in item ? item?.systolic : ``}
-                    {"diastolic" in item || "systolic" in item ? ` mmHg` : ``}
+                    {"systolic" in item && "diastolic" in item ? `/` : `-`}
+                    {"diastolic" in item ? item?.diastolic : ``}
+                    {"systolic" in item || "diastolic" in item ? ` mmHg` : ``}
                   </Text>
                   <Text
                     style={[
