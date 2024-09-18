@@ -2,7 +2,7 @@ import moment from "moment";
 
 import config from "../config";
 import { message } from "antd";
-import { ABORTION, MESSAGE_KEY, MISCARRIAGE } from "../utils/constants";
+import { MESSAGE_KEY } from "../utils/constants";
 import { isBrowser } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
@@ -645,7 +645,3 @@ export const compressedFile = async (file) => {
   }
   return file;
 }
-
-export const getPregnancyOutcome = (outcome) => {
-  return outcome === ABORTION ? MISCARRIAGE : outcome;
-};

@@ -10,6 +10,7 @@ import {
   LiveColumns,
   OutcomeOptions,
 } from "../../utils/constants";
+import { getTypeOfAbortion } from "../../utils/helper";
 
 const PregnancyHistory = ({
   continueExaminationHandler,
@@ -103,7 +104,9 @@ const PregnancyHistory = ({
             <td className="obstetricTcell pregnancyTcell">
               {gestationPeriod ? gestationPeriod + " weeks" : "-"}
             </td>
-            <td className="obstetricTcell pregnancyTcell">{typeOfAbortion}</td>
+            <td className="obstetricTcell pregnancyTcell">
+              {getTypeOfAbortion(typeOfAbortion)}
+            </td>
             <td className="obstetricTcell pregnancyTcell">{modeOfAbortion}</td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
           </tr>

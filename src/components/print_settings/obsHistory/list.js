@@ -1,7 +1,10 @@
 import React from "react";
 import moment from "moment";
 import { Text, View } from "@react-pdf/renderer";
-import { getPregnancyOutcome } from "../../../utils/utils";
+import {
+  getPregnancyOutcome,
+  getTypeOfAbortion,
+} from "../../../pages/obstetric/utils/helper";
 
 function ObsHistoryListView({
   PX_TO_PT,
@@ -1351,7 +1354,7 @@ function ObsHistoryListView({
                                   fontWeight: 500,
                                 }}
                               >
-                                Type of abortion&nbsp;:&nbsp;
+                                Type of Miscarriage&nbsp;:&nbsp;
                               </Text>
                               <Text
                                 style={{
@@ -1364,7 +1367,7 @@ function ObsHistoryListView({
                                   fontWeight: 400,
                                 }}
                               >
-                                {item?.typeOfAbortion}
+                                {getTypeOfAbortion(item?.typeOfAbortion)}
                               </Text>
                               {("modeOfAbortion" in item ||
                                 "typOfDelivery" in item ||
@@ -1403,7 +1406,7 @@ function ObsHistoryListView({
                                   fontWeight: 500,
                                 }}
                               >
-                                Mode of abortion&nbsp;:&nbsp;
+                                Mode of Miscarriage&nbsp;:&nbsp;
                               </Text>
                               <Text
                                 style={{
