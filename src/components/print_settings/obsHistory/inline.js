@@ -1,6 +1,7 @@
 import React from "react";
 import moment from "moment";
 import { Text, View } from "@react-pdf/renderer";
+import { getPregnancyOutcome } from "../../../utils/utils";
 
 function ObsHistoryInlineView({
   PX_TO_PT,
@@ -1067,7 +1068,7 @@ function ObsHistoryInlineView({
                                 fontWeight: 400,
                               }}
                             >
-                              {item?.outcome}
+                              {getPregnancyOutcome(item?.outcome)}
                             </Text>
                             {("termLength" in item ||
                               "deliveryMode" in item ||
@@ -1760,19 +1761,19 @@ function ObsHistoryInlineView({
                             fontWeight: 500,
                           }}
                         >
-                          {("pallor" in item ||
+                          {/* {("pallor" in item ||
                             "oedema" in item ||
-                            "mothersBMI" in item) && (
-                            <>
-                              {i > 0 ? (
-                                <Text style={{ marginTop: 15 }}>
-                                  &nbsp;{`\n`}(
-                                </Text>
-                              ) : (
-                                <Text>&nbsp;(</Text>
-                              )}
-                            </>
-                          )}
+                            "mothersBMI" in item) && ( */}
+                          <>
+                            {i > 0 ? (
+                              <Text style={{ marginTop: 15 }}>
+                                &nbsp;{`\n`}(
+                              </Text>
+                            ) : (
+                              <Text>&nbsp;(</Text>
+                            )}
+                          </>
+                          {/* )} */}
                         </Text>
 
                         <Text
@@ -1795,11 +1796,14 @@ function ObsHistoryInlineView({
                             fontWeight: 400,
                           }}
                         >
-                          {(i + 1).toString().padStart(2, "0")}
+                          {/* {(i + 1).toString().padStart(2, "0")} */}
+                          {(obsHistoryData?.examinationHistory.length - i)
+                            .toString()
+                            .padStart(2, "0")}
                         </Text>
-                        {("pallor" in item ||
-                          "oedema" in item ||
-                          "mothersBMI" in item) && (
+                        {"pallor" in item ||
+                        "oedema" in item ||
+                        "mothersBMI" in item ? (
                           <Text
                             style={{
                               color: "#171725",
@@ -1812,6 +1816,20 @@ function ObsHistoryInlineView({
                             }}
                           >
                             &nbsp;|&nbsp;
+                          </Text>
+                        ) : (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            )
                           </Text>
                         )}
 
@@ -1976,7 +1994,7 @@ function ObsHistoryInlineView({
                                 fontWeight: 500,
                               }}
                             >
-                              ,&nbsp;(
+                              &nbsp;(
                             </Text>
 
                             {("diastolic" in item || "systolic" in item) && (
@@ -2005,11 +2023,11 @@ function ObsHistoryInlineView({
                                     fontWeight: 400,
                                   }}
                                 >
-                                  {item?.diastolic}
-                                  {"diastolic" in item && "systolic" in item
+                                  {item?.systolic}
+                                  {"systolic" in item && "diastolic" in item
                                     ? `/`
                                     : ``}
-                                  {item?.systolic}
+                                  {item?.diastolic}
                                   {` mmHg`}
                                 </Text>
                                 {("heightOfFundus" in item ||
