@@ -204,10 +204,10 @@ function MedicalHistoryBox(props) {
         )
     });
 
-    const customMenoPause = gynecHistory?.ageAtMenopause > 34 ? gynecHistory.ageAtMenopause : inputMenopause;
+    const customMenoPause = (gynecHistory?.ageAtMenopause > 49 || gynecHistory?.ageAtMenopause < 45) ? gynecHistory.ageAtMenopause : inputMenopause;
     const MENOPAUSE_LIST = Array.from({ length: 5 }, (_, i) => ({
-        value: 30 + i,
-        label: (30 + i).toString()
+        value: 45 + i,
+        label: (45 + i).toString()
     })).concat({
         value: 'custom',
         label: (
