@@ -243,7 +243,7 @@ function PastPregnancy({
               { value: "Live", label: "Live" },
               { value: "Still birth", label: "Still birth" },
               { value: "Ectopic", label: "Ectopic" },
-              { value: "Abortion", label: "Abortion" },
+              { value: "Abortion", label: "Miscarriage" },
             ]}
             placeholder="Select"
             className="custom-select"

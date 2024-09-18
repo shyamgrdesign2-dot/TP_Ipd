@@ -1,6 +1,7 @@
 import React from "react";
 import moment from "moment";
 import { Text, View } from "@react-pdf/renderer";
+import { getPregnancyOutcome } from "../../../utils/utils";
 
 function ObsHistoryTableView({
   PX_TO_PT,
@@ -930,7 +931,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {"outcome" in item ? item?.outcome : `-`}
+                      {"outcome" in item ? getPregnancyOutcome(item?.outcome) : `-`}
                     </Text>
                     <Text
                       style={[
