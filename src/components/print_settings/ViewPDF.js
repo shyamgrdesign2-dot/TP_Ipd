@@ -644,7 +644,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 : '',
 
                                                                             // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
-                                                                            modiDisplayQty: option?.medicine_option?.includes('quantity') ? display_qty ? display_qty : '' : '',
+                                                                            modiDisplayQty: option?.medicine_option?.includes('quantity') ? display_qty ? `${display_qty} qty` : '' : '',
 
                                                                             modiRemarks: option?.medicine_option?.includes('note') ? tmm_remarks : ''
                                                                         })
@@ -699,7 +699,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                         : '-'
                                                                                 : '',
 
-                                                                            modiDisplayQty: option?.medicine_option?.includes('quantity') ? display_qty ? display_qty : '' : '',
+                                                                            modiDisplayQty: option?.medicine_option?.includes('quantity') ? display_qty ? `${display_qty} qty` : '' : '',
 
                                                                             modiRemarks: option?.medicine_option?.includes('note') ? tmm_remarks : ''
                                                                         })

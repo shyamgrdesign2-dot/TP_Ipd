@@ -146,7 +146,7 @@ function TabInvestigationBox() {
             "template_name": template.tit_template_name
         });
         const updatedData = template.investigation.map(e => {
-            return { ...e, unique_id: uuidv4(), note: "" }
+            return { ...e, unique_id: uuidv4(), note: e.note ? e.note : "" }
         })
         setInvestigationData([...investigationData, ...updatedData]);
         handleDrawerTemplate();
