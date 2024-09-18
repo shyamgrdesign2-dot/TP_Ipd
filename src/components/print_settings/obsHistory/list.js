@@ -1,6 +1,7 @@
 import React from "react";
 import moment from "moment";
 import { Text, View } from "@react-pdf/renderer";
+import { getPregnancyOutcome } from "../../../utils/utils";
 
 function ObsHistoryListView({
   PX_TO_PT,
@@ -1027,7 +1028,7 @@ function ObsHistoryListView({
                                   fontWeight: 400,
                                 }}
                               >
-                                {item?.outcome}
+                                {getPregnancyOutcome(item?.outcome)}
                               </Text>
                               {("termLength" in item ||
                                 "deliveryMode" in item ||

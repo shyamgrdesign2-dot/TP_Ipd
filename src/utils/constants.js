@@ -58,3 +58,6 @@ export const EXTRA_OPTIONS = [
         label: 'Till Required',
     }
 ]
+
+export const ABORTION = "Abortion";
+export const MISCARRIAGE = "Miscarriage";
