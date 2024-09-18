@@ -701,8 +701,8 @@ function TabSymptomsBox() {
                         <Tooltip placement="bottom" title={(symptomsData.length > 0) ? "" : "Please enter some Symptoms to save a template"}>
                             <button className='btn d-flex align-items-center btn-text' onClick={() => (symptomsData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
                         </Tooltip>
-                        <button onClick={showHideClearData} className="btn btn-text px-1">
-                            <i className="icon-eraser1"></i>
+                        <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={symptomsData.length > 0 ? false : true}>
+                            <i className="icon-eraser1 me-2"></i> <span>Clear</span>
                         </button>
                     </div>
                     <Drawer title="Symptoms Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
