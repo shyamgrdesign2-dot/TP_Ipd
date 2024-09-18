@@ -17,9 +17,10 @@ import loadingImg from '../assets/images/loading.png';
 import successIcon from '../assets/images/success-icon.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
-import { FETCH_SMART_RX, MESSAGE_KEY, RX_DIGITIZATION, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
+import { FETCH_SMART_RX, GB_SMARTSYNC_CVT, MESSAGE_KEY, RX_DIGITIZATION, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import config from "../../src/config";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -63,6 +64,7 @@ function SmartRxPreview() {
 
     const [isRxDigitiseComplete, setRxDigitiseComplete] = useState(false);
     const [rxDigitiseApiResponse, setRxDigitiseApiResponse] = useState(null);
+    const [isEditedData, setIsEditedData] = useState(null);
     const [rxDigitisedData, setRxDigitisedData] = useState(null);
     const [showDigitalRx, setShowDigitalRx] = useState(false);
     const progressRef = useRef(null);
@@ -70,6 +72,9 @@ function SmartRxPreview() {
 
     const baseUrl = { customBaseUrl: env.casemanager_api_url };
     const baseUrlRxDigitise = env.rx_digitization ;
+    const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
+        GB_SMARTSYNC_CVT
+    );
 
     const containerStyle = {
         width: '100%',
@@ -100,7 +105,7 @@ function SmartRxPreview() {
                 <div className='d-flex align-items-center'>
                     <img src={visitEnd} className='me-3' />
                     <div>
-                        <div className='title-common text-start fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
+                        <div className='title-common-digitised text-start fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
                         <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
                     </div>
                     <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
@@ -129,14 +134,14 @@ function SmartRxPreview() {
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
     
-            // API call for Rx Digitisation
-            const response = await axios.get(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${state.tcm_id}`, {
-                headers: {
-                    'Authorization': `Bearer ${cleanedToken}`,
-                },
-            });
-            return response.data; // return the data after it's fetched
-        } catch (error) {
+                // API call for Rx Digitisation
+                const response = await axios.get(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${state.tcm_id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${cleanedToken}`,
+                    },
+                });
+                return response.data; // return the data after it's fetched
+        }catch (error) {
             console.error('Error digitizing the prescription:', error);
             return null;
         }
@@ -261,22 +266,22 @@ function SmartRxPreview() {
     
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
-    
-            // API call for Rx Digitisation
-            const response = await axios.post(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${cleanedToken}`,
-                },
-            });
-    
-            // Clear the interval when the upload is done
-            clearInterval(interval);
-    
-            // Set the response to state (this will trigger the success message)
-            setRxDigitiseApiResponse(response.data);
-            setRxDigitiseComplete(true); // Mark the digitisation as complete
-        } catch (error) {
+
+                // API call for Rx Digitisation
+                const response = await axios.post(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${cleanedToken}`,
+                    },
+                });
+        
+                // Clear the interval when the upload is done
+                clearInterval(interval);
+        
+                // Set the response to state (this will trigger the success message)
+                setRxDigitiseApiResponse(response.data.data[0]);
+                setRxDigitiseComplete(true); // Mark the digitisation as complete
+        }catch (error) {
             console.error('Error uploading files:', error);
             clearInterval(interval);
         }
@@ -292,6 +297,8 @@ function SmartRxPreview() {
                 const digitisedData = await fetchRxDigitisedData();
                 if (digitisedData.data) {
                     setRxDigitisedData(true);
+                    setRxDigitiseApiResponse(digitisedData.data)
+                    setIsEditedData(digitisedData.data)
                 } else {
                     setRxDigitisedData(false);
                 }
@@ -306,7 +313,7 @@ function SmartRxPreview() {
             }
         };
     
-        if (smartRxFile?.length > 0 && token && state?.tcm_id) {
+        if (smartRxFile?.length > 0 && token && state?.tcm_id && isSmartSyncCVTAccessableFromGB) {
             fetchDataAndUpload();
         }
     }, [smartRxFile, token, state?.tcm_id]);
@@ -472,37 +479,48 @@ function SmartRxPreview() {
                                     buttonText
                                 )}
                             </button>
-                            { !rxDigitisedData &&
-                               (!isRxDigitiseComplete  ? (
-                                    <div className="digitise-container d-flex p-3 rounded-10px">
-                                        <div style={containerStyle}>
-                                            <div ref={progressRef} style={progressStyle}></div>
-                                        </div>
-                                        <p className="digitise-header" style={{padding: "16px 0"}}>{`${patient_data?.pm_fullname}'s Rx is getting Digitised!`}</p>
-                                        <p className="digitise-info">Our AI engine is converting handwritten Rx into digital Rx. This may take upto 30 sec</p>
-                                    </div>
-                                ) : (
-                                    <div className="digitise-container p-3 rounded-10px">
-                                        <div className="digitise-box-top">
-                                            <img src={successIcon} alt="success" width="40px" height="40px"/>
-                                            <div>
-                                                <p className="digitise-header" style={{marginLeft:"-17px"}}>{`${patient_data?.pm_fullname}'s Digital Rx is ready!`}</p>
-                                                <p className="digitise-info">Digitise Rx to enhances patient care, streamline workflow, and unlock new revenue. Know More</p>
+                            { isSmartSyncCVTAccessableFromGB && (
+                                <>
+                                    {!isRxDigitiseComplete && !rxDigitisedData && (
+                                        <div className="digitise-container d-flex p-3 rounded-10px">
+                                            <div style={containerStyle}>
+                                                <div ref={progressRef} style={progressStyle}></div>
                                             </div>
+                                            <p className="digitise-header" style={{ padding: "16px 0" }}>
+                                                {`${patient_data?.pm_fullname}'s Rx is getting Digitised!`}
+                                            </p>
+                                            <p className="digitise-info">
+                                                Our AI engine is converting handwritten Rx into digital Rx. This may take up to 30 sec
+                                            </p>
                                         </div>
-                                        <button onClick={handleDigitiseRx} className="digitise-btn" >
-                                            Digitise Rx Now
-                                        </button>
-                                    </div>
-                                ))
-                            }                         
+                                    )}
+                                    {rxDigitisedData && !isEditedData?.editedData &&  (
+                                        <div className="digitise-container p-3 rounded-10px">
+                                            <div className="digitise-box-top">
+                                                <img src={successIcon} alt="success" width="40px" height="40px" />
+                                                <div>
+                                                    <p className="digitise-header" style={{ marginLeft: "-17px" }}>
+                                                        {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
+                                                    </p>
+                                                    <p className="digitise-info">
+                                                        Digitise Rx to enhances patient care, streamline workflow, and unlock new revenue. Know More
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button onClick={handleDigitiseRx} className="digitise-btn">
+                                                Digitise Rx Now
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
                     </Col>
                     <Col md={17} lg={17} xl={12}>
                         <div className={isMobile ? 'p-20' : ''}>
                             <div className="d-flex align-itms-center justify-content-between">
                                 <div className="titleprint">Preview</div>
-                               { viewCaseManagerData?.isRxDigitize && 
+                               { viewCaseManagerData?.isRxDigitize && isSmartSyncCVTAccessableFromGB &&
                                     <div>
                                         <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
                                         <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>
