@@ -491,7 +491,7 @@ function PastPregnancy({
                     handlePastPregnancyDataChange("typeOfAbortion", value)
                   }
                   options={[
-                    { value: "Missed abortion", label: "Missed abortion" },
+                    { value: "Missed abortion", label: "Missed Miscarriage" },
                     { value: "Spontaneous", label: "Spontaneous" },
                     { value: "Induce", label: "Induce" },
                     { value: "Recurrent", label: "Recurrent" },
@@ -643,7 +643,7 @@ function PastPregnancy({
               )}
               {pastPregnancyData.outcome === "Abortion" && (
                 <div className="past-pregnancy-row past-pregnancy-row-40 d-flex align-items-center px-2 py-5">
-                  Type of abortion
+                  Type of Miscarriage
                 </div>
               )}
               {["Ectopic", "Abortion"].includes(pastPregnancyData.outcome) && (
@@ -651,7 +651,7 @@ function PastPregnancy({
                   Mode of{" "}
                   {pastPregnancyData.outcome === "Ectopic"
                     ? "Management"
-                    : "abortion"}
+                    : "Miscarriage"}
                 </div>
               )}
             </div>
