@@ -78,7 +78,7 @@ function HeaderSmartRxDigitise({onSave}) {
         <>
             <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
                 <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
-                    <div className="title-common lh-base">Video Tutorial</div>
+                    <div className="title-common-digitised lh-base">Video Tutorial</div>
                     <Button className="btn btn-videoClose p-0"
                         onClick={showHideVideoListPopover}>
                         <i className="icon-Cross" />
@@ -92,7 +92,7 @@ function HeaderSmartRxDigitise({onSave}) {
                                 <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
                             </div>
                             <div>
-                                <h3 className="title-common text-welcome">{item1?.tmv_title}</h3>
+                                <h3 className="title-common-digitised text-welcome">{item1?.tmv_title}</h3>
                                 <div className="fs-12 fontroboto fw-normal text-main">{item1?.tmv_description}</div>
                             </div>
                         </div>

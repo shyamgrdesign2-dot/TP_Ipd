@@ -182,12 +182,13 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
 
   useEffect(() => {
     if(isSmartSyncConnectAccessableFromGB){
-      const ws = new ReconnectingWebSocket(WS_CONTROL_URL, null, {debug: true, reconnectInterval: 3000});
+      const ws = new ReconnectingWebSocket(WS_CONTROL_URL, null, {debug: true, reconnectInterval: 2000});
 
       ws.onopen = () => {
         console.log('WebSocket connection opened');
         setSocket(ws);
         checkDeviceStatus(ws);
+        checkAppVersion(ws)
       };
 
       ws.onclose = () => {
@@ -222,6 +223,10 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
   const checkDeviceStatus = (ws) => {
     ws.send('DeviceStatus');
   };
+
+  const checkAppVersion = (ws) => {
+    ws.send("AppVersion")
+  }
 
   const wsError = (error) => {
     message.open({
