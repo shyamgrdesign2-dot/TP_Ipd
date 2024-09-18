@@ -153,7 +153,7 @@ const FONTS_SIZE_LIST = [
     }
 ]
 
-function HeaderFooterLayout({todayVaccines, growthChartDetails}) {
+function HeaderFooterLayout({ todayVaccines, growthChartDetails }) {
 
     const inputHeaderFile = React.createRef();
     const cropperHeaderRef = React.createRef();
@@ -652,7 +652,26 @@ function HeaderFooterLayout({todayVaccines, growthChartDetails}) {
 
     const onSignatureImageSubmit = () => {
         setFileSignature({ ...fileSignature, imageShow: true })
+        printSettings['signature_image_delete'] = 0
+        setPrintSettings((prev) => {
+            return {
+                ...prev
+            };
+        });
         showHideSignatureModal()
+    };
+
+    const onRemoveSignature = () => {
+        if (signatureRef.current) {
+            signatureRef.current?.clear();
+        }
+        setFileSignature(null)
+        printSettings['signature_image_delete'] = 1
+        setPrintSettings((prev) => {
+            return {
+                ...prev
+            };
+        });
     };
 
     const onResetSignature = () => {
@@ -1307,7 +1326,8 @@ function HeaderFooterLayout({todayVaccines, growthChartDetails}) {
                                                     <img
                                                         style={{ width: '100%', objectFit: 'contain', overflow: 'hidden' }}
                                                         src={fileSignature?.showFile} />
-                                                    <Button className="btn btn-headfoot" onClick={showHideSignatureModal}><i className="icon-Edit me-1"></i>Edit</Button>
+                                                    <Button className="btn btn-headfoot btn-headfoot2 px-2" onClick={onRemoveSignature}><i className="icon-delete"></i></Button>
+                                                    <Button className="btn btn-headfoot px-2" onClick={showHideSignatureModal}><i className="icon-Edit"></i></Button>
                                                 </>
                                             ) : (
                                                 <div className="fw-medium text-decoration-underline cursor-pointer" onClick={showHideSignatureModal}>Draw or Upload Signature</div>

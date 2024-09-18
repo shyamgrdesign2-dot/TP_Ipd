@@ -597,7 +597,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         )
                                     )}
                                 </>
-                            ) : option?.id === 4 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                            ) : option?.id === 4 && option?.enable === 'Y' && option?.custom_status === 'Y' ? ( 
                                 <>
                                     {caseManagerData.medicine.length > 0 && (
                                         option?.format === 'inline' ? (
@@ -625,11 +625,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             tmm_days,
                                                                             tmm_duration_type,
                                                                             display_qty,
-                                                                            tmm_remarks
+                                                                            tmm_remarks,
+                                                                            default_tmm_unit
                                                                         }) => ({
                                                                             modiGeneric: option?.medicine_with_generic ? tmm_generic : '',
 
-                                                                            modiUnitPerDose: option?.medicine_option?.includes('dose') ? tmm_dosage ? `${tmm_dosage} ${medicineUnit && medicineUnit.find((x) => x.tmu_id == tmm_unit) !== undefined ? medicineUnit.find((x) => x.tmu_id == tmm_unit).tmu_title : ""}` : "" : "",
+                                                                            modiUnitPerDose: option?.medicine_option?.includes('dose') ? tmm_dosage && tmm_unit ? `${tmm_dosage} ${medicineUnit && medicineUnit.find((x) => x.tmu_id == tmm_unit) !== undefined ? medicineUnit.find((x) => x.tmu_id == tmm_unit).tmu_title : ""}` : `${medicineUnit && medicineUnit.find((x) => x.tmu_id == default_tmm_unit) !== undefined ? medicineUnit.find((x) => x.tmu_id == default_tmm_unit).tmu_title : ""}` : "",
 
                                                                             modiFrequency: tmf_block === 0 || tmf_block === "" ? `${(tcm_tmm_freq_morning || tcm_tmm_freq_afternoon || tcm_tmm_freq_evening || tcm_tmm_freq_night) ? `${tcm_tmm_freq_morning ? medicine_freq_format(tcm_tmm_freq_morning) : 0}-${tcm_tmm_freq_afternoon ? medicine_freq_format(tcm_tmm_freq_afternoon) : 0}${tcm_tmm_freq_evening ? '-' + medicine_freq_format(tcm_tmm_freq_evening) : ''}-${tcm_tmm_freq_night ? medicine_freq_format(tcm_tmm_freq_night) : 0}` : ``}` : `(${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
 
@@ -643,7 +644,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 : '',
 
                                                                             // modiDisplayQty: display_qty ? display_qty.toFixed(2).replace(/\.00$/, '') : '',
-                                                                            modiDisplayQty: option?.medicine_option?.includes('quantity') ? display_qty ? display_qty : '' : '',
+                                                                            modiDisplayQty: option?.medicine_option?.includes('quantity') ? display_qty ? `${display_qty} qty` : '' : '',
 
                                                                             modiRemarks: option?.medicine_option?.includes('note') ? tmm_remarks : ''
                                                                         })
@@ -680,11 +681,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             tmm_days,
                                                                             tmm_duration_type,
                                                                             display_qty,
-                                                                            tmm_remarks
+                                                                            tmm_remarks,
+                                                                            default_tmm_unit
                                                                         }) => ({
                                                                             modiGeneric: option?.medicine_with_generic ? tmm_generic : '',
 
-                                                                            modiUnitPerDose: option?.medicine_option?.includes('dose') ? tmm_dosage ? `${tmm_dosage} ${medicineUnit && medicineUnit.find((x) => x.tmu_id == tmm_unit) !== undefined ? medicineUnit.find((x) => x.tmu_id == tmm_unit).tmu_title : ""}` : "" : "",
+                                                                            modiUnitPerDose: option?.medicine_option?.includes('dose') ? tmm_dosage && tmm_unit ? `${tmm_dosage} ${medicineUnit && medicineUnit.find((x) => x.tmu_id == tmm_unit) !== undefined ? medicineUnit.find((x) => x.tmu_id == tmm_unit).tmu_title : ""}` : `${medicineUnit && medicineUnit.find((x) => x.tmu_id == default_tmm_unit) !== undefined ? medicineUnit.find((x) => x.tmu_id == default_tmm_unit).tmu_title : ""}` : "",
 
                                                                             modiFrequency: tmf_block === 0 || tmf_block === "" ? `${(tcm_tmm_freq_morning || tcm_tmm_freq_afternoon || tcm_tmm_freq_evening || tcm_tmm_freq_night) ? `${tcm_tmm_freq_morning ? medicine_freq_format(tcm_tmm_freq_morning) : 0}-${tcm_tmm_freq_afternoon ? medicine_freq_format(tcm_tmm_freq_afternoon) : 0}${tcm_tmm_freq_evening ? '-' + medicine_freq_format(tcm_tmm_freq_evening) : ''}-${tcm_tmm_freq_night ? medicine_freq_format(tcm_tmm_freq_night) : 0}` : ``}` : `(${frequencyList.find((x) => x.tmf_id === tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === tmm_freq_type).tmf_title : ''})`,
 
@@ -697,7 +699,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                         : '-'
                                                                                 : '',
 
-                                                                            modiDisplayQty: option?.medicine_option?.includes('quantity') ? display_qty ? display_qty : '' : '',
+                                                                            modiDisplayQty: option?.medicine_option?.includes('quantity') ? display_qty ? `${display_qty} qty` : '' : '',
 
                                                                             modiRemarks: option?.medicine_option?.includes('note') ? tmm_remarks : ''
                                                                         })
@@ -739,7 +741,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 )}
                                                             </View>
                                                             {option?.medicine_option?.includes('dose') && (
-                                                                <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage ? `${item.tmm_dosage} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : ""}`}</Text>
+                                                                <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage && item.tmm_unit? `${item.tmm_dosage} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : `${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit).tmu_title : ""}`}`}</Text>
                                                             )}
                                                             <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                 {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? `${item.tcm_tmm_freq_morning ? medicine_freq_format(item.tcm_tmm_freq_morning) : 0}-${item.tcm_tmm_freq_afternoon ? medicine_freq_format(item.tcm_tmm_freq_afternoon) : 0}${item.tcm_tmm_freq_evening ? '-' + medicine_freq_format(item.tcm_tmm_freq_evening) : ''}-${item.tcm_tmm_freq_night ? medicine_freq_format(item.tcm_tmm_freq_night) : 0}` : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}

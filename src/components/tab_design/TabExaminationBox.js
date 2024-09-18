@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
-import {errorMessage, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/utils";
+import { errorMessage, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/utils";
 import Examinationicon from "../../assets/images/Examination.svg";
 import {
     addTemplate,
@@ -40,6 +40,7 @@ function TabExaminationBox() {
     const [allTemplates, setAllTemplates] = useState([]);
     const [matchedTemplates, setMatchedTemplates] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen1, setIsModalOpen1] = useState(false);
     const [removeTemplateId, setRemoveTemplateId] = useState(null);
     const [saveDrawer, setSaveDrawer] = useState(false);
 
@@ -448,6 +449,50 @@ function TabExaminationBox() {
         );
     }, [childDrawer, childDrawerData]);
 
+    const showHideClearData = useCallback(() => {
+        setIsModalOpen1(!isModalOpen1);
+    }, [isModalOpen1]);
+
+    const onRemoveRows = () => {
+        setExaminationData([])
+        showHideClearData()
+    };
+
+    //Remove All Rows
+    const REMOVE_ALL_ROWS = useMemo(() => {
+        return (
+            <CommonModal
+                isModalOpen={isModalOpen1}
+                onCancel={showHideClearData}
+                modalWidth={500}
+                title={"You may lose your data"}
+                modalBody={
+                    <>
+                        <div className="alert-warning rounded-10px p-2 patient-details">
+                            <div className="d-flex align-items-center">
+                                <img className='me-3' src={alertIcon} alt="Warning" />
+                                <span>
+                                    Are you sure you want to Clear Selected <b>Examinations</b>?
+                                </span>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <div className="d-flex align-items-center mt-2 justify-content-end">
+                                <div onClick={onRemoveRows}
+                                    className="me-4 text-decoration-underline btn p-0 text-main">
+                                    <span>Yes, Clear</span>
+                                </div>
+                                <Button onClick={showHideClearData} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                    <span>No</span>
+                                </Button>
+                            </div>
+                        </div>
+                    </>
+                }
+            />
+        );
+    }, [isModalOpen1]);
+
     return (
         <>
             <div>
@@ -459,10 +504,12 @@ function TabExaminationBox() {
 
                     <div className="d-flex align-items-center">
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}> <i className="icon-template me-2"></i> <span>Templates</span></button>
-
                         <Tooltip placement="bottom" title={(examinationData.length > 0) ? "" : "Please enter some Examination to save a template"}>
                             <button className='btn d-flex align-items-center btn-text' onClick={() => (examinationData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
                         </Tooltip>
+                        <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={examinationData.length > 0 ? false : true}>
+                            <i className="icon-eraser1 me-2"></i> <span>Clear</span>
+                        </button>
                     </div>
                     <Drawer title="Examination Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
                         {TEMPLATE_CONTENT}
@@ -496,6 +543,7 @@ function TabExaminationBox() {
                         })}
                 </div>
                 {DELETE_MODAL}
+                {REMOVE_ALL_ROWS}
             </div>
         </>
     );
