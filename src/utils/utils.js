@@ -90,6 +90,10 @@ export const isAlphabet = (str) => {
   return /^[a-zA-z\s]*$/.test(str);
 }
 
+export const isAlphabetExit = (str) => {
+  return /[a-zA-Z]/.test(str);
+}
+
 export const capitalizeAfterSentence = (text) => {
   const regex = /([.?!]\s*|^)([a-z])/g;
   return text.replace(regex, (match, p1, p2) => p1 + p2.toUpperCase());
