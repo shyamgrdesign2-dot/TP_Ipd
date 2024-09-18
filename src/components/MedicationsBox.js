@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber } from "../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber, isAlphabetExit } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
@@ -223,6 +223,21 @@ function MedicationsBox() {
         setUnitPerDoseOptions(options);
       } else {
         setUnitPerDoseOptions([]);
+      }
+    },
+    [unitPerDoseOptions, medicationData]
+  );
+
+  const onBlurUnitPerDoseChid = useCallback(
+    async (i) => {
+      if (!isAlphabetExit(medicationData[i].tmm_dosage_unit_name)) {
+        setUnitPerDoseOptions([]);
+        medicationData[i].tmm_dosage_unit_name = "";
+        medicationData[i].tmm_dosage = '';
+        medicationData[i].tmm_unit = 0;
+        medicationData[i].tmm_unit_name = '';
+        medicationData[i].tmu_id = 0;
+        setMedicationData((prev) => [...prev]);
       }
     },
     [unitPerDoseOptions, medicationData]
@@ -778,6 +793,7 @@ function MedicationsBox() {
                     bordered={false}
                     defaultOpen={false}
                     onSearch={(query) => onSearchUnitPerDoseChid(query, index)}
+                    onBlur={() => onBlurUnitPerDoseChid(index)}
                     options={unitPerDoseOptions}
                     // backfill={true}
                     className="autocomplete-custom w-100 h-100 inputborder"
@@ -1334,8 +1350,8 @@ function MedicationsBox() {
 
               </Popover>
             </Tooltip>
-            <button onClick={showHideClearData} className="btn btn-text px-1">
-              <i className="icon-eraser1"></i>
+            <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={medicationData.length > 0 ? false : true}>
+              <i className="icon-eraser1 me-2"></i> <span>Clear</span>
             </button>
           </div>
         </div>

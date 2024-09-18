@@ -1895,8 +1895,8 @@ function TabMedicationBox() {
                 <i className="icon-save me-2"></i> <span>Save</span>
               </button>
             </Tooltip>
-            <button onClick={showHideClearData} className="btn btn-text px-1">
-              <i className="icon-eraser1"></i>
+            <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={medicationData.length > 0 ? false : true}>
+              <i className="icon-eraser1 me-2"></i> <span>Clear</span>
             </button>
           </div>
           <Drawer
