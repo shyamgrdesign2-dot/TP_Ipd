@@ -18,6 +18,7 @@ import {
     deleteTemplate,
     getDiagnosisTemplates,
     getFrequentlySearchedDiagnosis,
+    getLoadPreviousDiagnosis,
 } from "../../redux/diagnosisSlice";
 
 import TabDiagnosisSearch from "../../components/tab_design/TabDiagnosisSearch";
@@ -31,7 +32,7 @@ function TabDiagnosisBox() {
     } = useSelector((state) => state.diagnosis);
     const dispatch = useDispatch();
 
-    const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
+    const { patient_data, diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
     // const [ diagnosisData, setDiagnosisData] = useState([]);
 
     const [parentDrawer, setParentDrawer] = useState(false);
@@ -152,6 +153,22 @@ function TabDiagnosisBox() {
             setMatchedTemplates(templates);
         }
     };
+
+    const loadPreviousClick = async () => {
+        var sendData = {
+          patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+        };
+        const action = await dispatch(getLoadPreviousDiagnosis(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+          const updatedData = action.payload.map(e => {
+            return { ...e, unique_id: uuidv4()}
+          })
+          setDiagnosisData([...diagnosisData, ...updatedData]);
+    
+        } else {
+          errorMessage(action.error)
+        }
+      };
 
     const onTemplateSelected = (template) => {
         const updatedData = template.diagnosis.map(e => {
@@ -692,6 +709,13 @@ function TabDiagnosisBox() {
                     </div>
 
                     <div className="d-flex align-items-center">
+                        <button
+                            className="btn d-flex align-items-center btn-text"
+                            onClick={loadPreviousClick}
+                        >
+                            {" "}
+                            <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span>
+                        </button>
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}> <i className="icon-template me-2"></i> <span>Templates</span></button>
                         <Tooltip placement="bottom" title={(diagnosisData.length > 0) ? "" : "Please enter some Diagnosis to save a template"}>
                             <button className='btn d-flex align-items-center btn-text' onClick={() => (diagnosisData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>

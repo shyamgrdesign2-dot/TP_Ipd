@@ -22,7 +22,7 @@ ApiDiagnosis.getDiagnosisTemplates = function (query) {
 };
 
 ApiDiagnosis.getFrequentlySearchedDiagnosis = function () {
-  return api.get(`/api/v1/diagnosis/frequentlyDiagnosis`, baseUrl);
+    return api.get(`/api/v1/diagnosis/frequentlyDiagnosis`, baseUrl);
 };
 
 // ApiDiagnosis.getFrequentlySearchedDiagnosis = function () {
@@ -35,6 +35,10 @@ ApiDiagnosis.searchDiagnosis = function (query) {
     return api.post(`/api/v1/diagnosis/searchDiagnosis`, {
         search: query
     }, baseUrl);
+};
+
+ApiDiagnosis.getLoadPreviousDiagnosis = function (data) {
+    return api.post(`/api/v1/diagnosis/getLoadPreviousDiagnosis`, data, baseUrl);
 };
 
 export default ApiDiagnosis;
