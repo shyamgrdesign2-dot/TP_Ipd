@@ -714,7 +714,7 @@ function TabDiagnosisBox() {
                             onClick={loadPreviousClick}
                         >
                             {" "}
-                            <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span>
+                            <i className="icon-reload me-2"></i> <span>Load Prev. Diagnosis</span>
                         </button>
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}> <i className="icon-template me-2"></i> <span>Templates</span></button>
                         <Tooltip placement="bottom" title={(diagnosisData.length > 0) ? "" : "Please enter some Diagnosis to save a template"}>
