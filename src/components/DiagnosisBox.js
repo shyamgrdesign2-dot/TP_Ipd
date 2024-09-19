@@ -33,6 +33,7 @@ import {
   getDiagnosisTemplates,
   getFrequentlySearchedDiagnosis,
   searchDiagnosis,
+  getLoadPreviousDiagnosis,
 } from "../redux/diagnosisSlice";
 
 function DiagnosisBox() {
@@ -45,7 +46,7 @@ function DiagnosisBox() {
   } = useSelector((state) => state.diagnosis);
   const dispatch = useDispatch();
 
-  const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
+  const { patient_data, diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
   // const [diagnosisData, setDiagnosisData] = useState([]);
 
   const STATUS_LIST = [
@@ -336,6 +337,22 @@ function DiagnosisBox() {
       setMatchedTemplates(filteredTemplates);
     } else {
       setMatchedTemplates(templates);
+    }
+  };
+
+  const loadPreviousClick = async () => {
+    var sendData = {
+      patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+    };
+    const action = await dispatch(getLoadPreviousDiagnosis(sendData));
+    if (action.meta.requestStatus === "fulfilled") {
+      const updatedData = action.payload.map(e => {
+        return { ...e, unique_id: uuidv4()}
+      })
+      setDiagnosisData([...diagnosisData, ...updatedData]);
+
+    } else {
+      errorMessage(action.error)
     }
   };
 
@@ -765,6 +782,13 @@ function DiagnosisBox() {
             <div className="title-common">Diagnosis</div>
           </div>
           <div className="d-flex align-items-center">
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={loadPreviousClick}
+            >
+              {" "}
+              <i className="icon-reload me-2"></i> <span>Load Prev. Diagnosis</span>
+            </button>
             <Popover
               open={popOver1}
               onOpenChange={showHideTemplatesListPopover}
