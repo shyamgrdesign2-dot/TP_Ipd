@@ -37,4 +37,8 @@ ApiDiagnosis.searchDiagnosis = function (query) {
     }, baseUrl);
 };
 
+ApiDiagnosis.getLoadPreviousDiagnosis = function (data) {
+    return api.post(`/api/v1/diagnosis/getLoadPreviousDiagnosis`, data, baseUrl);
+};
+
 export default ApiDiagnosis;
