@@ -22,7 +22,9 @@ import dayjs from "dayjs";
 
 import { errorMessage } from "../utils/utils";
 
-import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE } from "../utils/constants";
+import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import api from "../api/services/axiosService";
+import { env } from "../EnvironmentConfig";
 import noData from "../assets/images/nodata-found.svg";
 import visitEnd from '../assets/images/end-visit.svg';
 import ImgcancelEnd from '../assets/images/cancel-visit.svg';
@@ -52,6 +54,7 @@ import CreateCertificate from "./medical_certificate/CreateCertificate";
 import { resetVaccineState } from "../redux/vaccineSlice";
 import { resetGrowthChartState } from "../redux/growthChartSlice";
 import { resetObstetricState } from "../redux/obstetricSlice";
+import axios from "axios";
 
 const { TextArea } = Input;
 
@@ -84,6 +87,8 @@ function AppointmentData({ locationPath }) {
         GB_ISCRIBE
     );
 
+    const baseUrl = env.casemanager_api_url ;
+
     const handleClickOutside = (event) => {
         if (!consultButtonRef?.current?.contains(event.target)) {
             setOpenRowIndex(null);
@@ -96,6 +101,31 @@ function AppointmentData({ locationPath }) {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+
+    const fetchPendingDigitisationRx = async () => {
+        const data = {
+            count: 10
+        };
+
+         try {
+            const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+            const cleanedToken = token.replace(/['"]+/g, '');
+
+            // API call for Rx Digitisation
+            const response = await axios.get(`${baseUrl}//api/v1/casemanager/unfinished-digitize-rx/${profile?.doctor_unique_id}`, data, {
+                headers: {
+                    'Authorization': `Bearer ${cleanedToken}`,
+                },
+            });
+            const pendingDigitisationRx = response?.data;
+      
+            if (pendingDigitisationRx) {
+            //   setSmartRxDetails(files);
+            }
+          } catch (error) {
+            console.error('Error fetching the pending Digitisation prescriptions:', error);
+          }
+    }
 
     const items = [
         {
@@ -125,8 +155,18 @@ function AppointmentData({ locationPath }) {
                 </div>
             ),
         },
+        {
+            key: 2,
+            label: (
+                <div className="d-flex align-items-center">
+                    <i className="icon-Medical-Certificate"></i>
+                    Pending Digitisation ({cancelledCount})
+                </div>
+            ),
+        },
     ];
     const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
+    const [isDigitisationTab, setIsDigitisationTab] = useState(false);
 
     const calanderOptions = [
         { value: 1, label: "Today" },
@@ -212,6 +252,10 @@ function AppointmentData({ locationPath }) {
             })
             setSelectedCalanderOptions(1)
             setSelectedTab(key);
+
+            if (key === 2){
+                setIsDigitisationTab(true)
+            }
         },
         [selectedTab]
     );
