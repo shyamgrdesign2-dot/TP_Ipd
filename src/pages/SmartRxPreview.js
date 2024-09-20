@@ -280,7 +280,6 @@ function SmartRxPreview() {
         
                 // Set the response to state (this will trigger the success message)
                 setRxDigitiseApiResponse(response.data.data[0]);
-                setRxDigitisedData(true);
                 setRxDigitiseComplete(true); // Mark the digitisation as complete
         }catch (error) {
             console.error('Error uploading files:', error);
