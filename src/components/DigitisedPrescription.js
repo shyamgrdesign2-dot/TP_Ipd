@@ -93,24 +93,41 @@ const DigitisedPrescription = ({ data, setData}) => {
   };
 
   const renderItems = (type) => (
-      <div className='digitised-section'>
-        <ul>
-          {data[type].map((item, index) => {
-            // Measure the width of the editable text
-            let textWidth = 0;
-            if (activeIndex === index && activeType === type) {
-              const tempSpan = document.createElement('span');
-              tempSpan.style.visibility = 'hidden';
-              tempSpan.style.position = 'absolute';
-              tempSpan.style.whiteSpace = 'nowrap';
-              tempSpan.innerText = editableText || '';
-              document.body.appendChild(tempSpan);
-              textWidth = tempSpan.offsetWidth;
-              document.body.removeChild(tempSpan);
-            }
-
-            return (
-              <li key={index} className='medicine-item'>
+    <div className='digitised-section'>
+      <ul>
+        {data[type].map((item, index) => {
+          // Measure the width of the editable text
+          let textWidth = 0;
+          let lineItemWidth = 0;
+  
+          // For refinedName or other primary data (editableText)
+          if (activeIndex === index && activeType === type) {
+            const tempSpan = document.createElement('span');
+            tempSpan.style.visibility = 'hidden';
+            tempSpan.style.position = 'absolute';
+            tempSpan.style.whiteSpace = 'nowrap';
+            tempSpan.innerText = editableText || '';
+            document.body.appendChild(tempSpan);
+            textWidth = tempSpan.offsetWidth;
+            document.body.removeChild(tempSpan);
+          }
+  
+          // For lineItem (editableLineItem)
+          if (activeIndex === index && activeType === `${type}-lineItem`) {
+            const tempSpanLineItem = document.createElement('span');
+            tempSpanLineItem.style.visibility = 'hidden';
+            tempSpanLineItem.style.position = 'absolute';
+            tempSpanLineItem.style.whiteSpace = 'nowrap';
+            tempSpanLineItem.innerText = editableLineItem || '';
+            document.body.appendChild(tempSpanLineItem);
+            lineItemWidth = tempSpanLineItem.offsetWidth;
+            document.body.removeChild(tempSpanLineItem);
+          }
+  
+          return (
+            <li key={index}>
+              <div className='medicine-item'>
+                {/* Editable input for refinedName or primary field */}
                 {activeIndex === index && activeType === type ? (
                   <input
                     type="text"
@@ -129,7 +146,8 @@ const DigitisedPrescription = ({ data, setData}) => {
                     {type === 'advice' ? item : type === 'symptoms' ? item.name : item.refinedName}
                   </span>
                 )}
-
+  
+                {/* Editable input for lineItem */}
                 {type === "medications" && item.lineItem && (
                   activeIndex === index && activeType === `${type}-lineItem` ? (
                     <input
@@ -139,18 +157,18 @@ const DigitisedPrescription = ({ data, setData}) => {
                       onChange={handleLineItemChange}
                       onBlur={() => handleLineItemBlur(type, index)}
                       autoFocus
-                      style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
+                      style={{ width: `${lineItemWidth + 5}px` }} // Add padding for better UX
                     />
                   ) : (
                     <span
                       onClick={() => handleLineItemClick(type, index)}
                       className='digitised-item'
                     >
-                      {` (${item.lineItem})`}
+                      {`(${item.lineItem})`}
                     </span>
                   )
                 )}
-
+  
                 {/* Suggestions dropdown */}
                 {showSuggestions && activeIndex === index && activeType === type && (
                   <div
@@ -185,11 +203,12 @@ const DigitisedPrescription = ({ data, setData}) => {
                     </ul>
                   </div>
                 )}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 
   return (

@@ -8,6 +8,7 @@ import Card from "react-bootstrap/Card";
 import api from "../api/services/axiosService";
 import writtenRxIcon from '../assets/images/written-rx.svg';
 import digitiseRxIcon from '../assets/images/digitise-rx.svg';
+import cvtInfoIcon from '../assets/images/cvt-info.svg';
 import { FETCH_SMART_RX } from "../utils/constants";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { useSelector, useDispatch } from "react-redux";
@@ -95,6 +96,11 @@ function SmartRxDigitise() {
                 smartRxData={smartRxFilesData} 
                 digitisedData={digitisedData}
             />
+            <div className="cvt-info">
+                <img src={cvtInfoIcon} alt="cvt-info-icon" />
+                <span className="cvt-info-text"><span className="title-common">Disclaimer:</span> Our AI model aims to be accurate, but sometimes it might make mistakes. Please double-check all details to ensure they are correct and complete.</span>
+                <i className='icon-Cross ms-1 fs-18' style={{color:"#A2A2A8"}}></i>
+            </div>
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={17} lg={17} xl={12}>
