@@ -35,6 +35,7 @@ export const WTSAP_ERR_MESSAGE = "Error sending the prescription, Please try aga
 
 export const GB_ISCRIBE = "iscribe"
 export const GB_SMARTSYNC_CONNECT = "smartsync-connect"
+export const GB_SMARTSYNC_CVT = "smartsync-cvt"
 export const GB_TALKATIVE = "Talkative"
 export const GB_GYNEC_HISTORY = "obs-gynec-history"
 

@@ -1,7 +1,10 @@
 import React from "react";
 import moment from "moment";
 import { Text, View } from "@react-pdf/renderer";
-import { getPregnancyOutcome } from "../../../utils/utils";
+import {
+  getPregnancyOutcome,
+  getTypeOfAbortion,
+} from "../../../pages/obstetric/utils/helper";
 
 function ObsHistoryTableView({
   PX_TO_PT,
@@ -800,7 +803,7 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        Type of abortion
+                        Type of Miscarriage
                       </Text>
                     )}
 
@@ -818,7 +821,7 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        Mode of abortion
+                        Mode of Miscarriage
                       </Text>
                     )}
 
@@ -931,7 +934,9 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {"outcome" in item ? getPregnancyOutcome(item?.outcome) : `-`}
+                      {"outcome" in item
+                        ? getPregnancyOutcome(item?.outcome)
+                        : `-`}
                     </Text>
                     <Text
                       style={[
@@ -1043,7 +1048,9 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        {"typeOfAbortion" in item ? item?.typeOfAbortion : `-`}
+                        {"typeOfAbortion" in item
+                          ? getTypeOfAbortion(item?.typeOfAbortion)
+                          : `-`}
                       </Text>
                     )}
 

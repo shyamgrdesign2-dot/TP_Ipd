@@ -167,12 +167,12 @@ export const AbortionColumns = [
     width: "22%",
   },
   {
-    title: "Type of abortion",
+    title: "Type of Miscarriage",
     key: "typeOfAbortion",
     width: "18%",
   },
   {
-    title: "Mode of abortion",
+    title: "Mode of Miscarriage",
     key: "modeOfAbortion",
     width: "18%",
   },

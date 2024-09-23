@@ -33,7 +33,7 @@ function SmartRxDigitise() {
     const [token, setToken] = useState(null);
     const [tokenData, setTokenData] = useState(null);
     const [divWidth, setDivWidth] = useState(0);
-    const [data, setData] = useState(digitisedData?.data[0].refinedData);
+    const [data, setData] = useState(digitisedData?.refinedData);
     const [isDigitiseRxSubmit, setIsDigitiseRxSubmit] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [smartRxFile, setSmartRxFile] = useState(smartRxFilesData);

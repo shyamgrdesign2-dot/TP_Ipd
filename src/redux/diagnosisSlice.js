@@ -87,6 +87,19 @@ export const searchDiagnosis = createAsyncThunk(
   }
 );
 
+export const getLoadPreviousDiagnosis = createAsyncThunk(
+  "diagnosis/getLoadPreviousDiagnosis",
+  async (data) => {
+    let result = {};
+    result = await ApiDiagnosis.getLoadPreviousDiagnosis(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const diagnosisSlice = createSlice({
   name: "diagnosis",
   initialState,

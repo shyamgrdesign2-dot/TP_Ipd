@@ -1397,16 +1397,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         )}
                                     </>
                                 </>
-                            ) : option?.id === 11 && option?.enable === 'Y' && option?.custom_status === 'Y' && caseManagerData?.smart_prescription_filename?.length ? (
+                            ) : option?.id === 11 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     {isSmartSyncPrescription && (
-                                        smartRxData?.data?.map((item, i) => (
+                                        smartRxData?.map((item, i) => (
                                             <View key={i}>
                                                 <View style={{ marginTop: PX_TO_PT * 15, width: '100%', height: '800' }}>
                                                     <Image
                                                         style={{ width: '100%', height: '100%' }}
-                                                        source={{ uri: item.smart_prescription_file }}
-                                                        resizeMode="contain"
+                                                        src={item.smart_prescription_file}
+                                                        objectFit="contain"
                                                     />
                                                 </View>
                                             </View>
