@@ -711,11 +711,21 @@ useEffect(() => {
               className="col-lg-4 col-md-12 col-12"
               style={{
                 marginLeft: "4rem",
-                position: "fixed",
-                height: "100%",
-                overflow: "hidden",
+                height: "100vh", /* Full height for independent scrolling */
               }}
             >
+              <div className="know-more-cvt p-14">
+                <div className="sparkle"></div>
+                <div className="title-common">
+                  <div>
+                    <span className="me-2">
+                      AI-Powered Smart Rx Digitisation
+                    </span>
+                    <span className="new-btn">New</span>
+                  </div>
+                  <button className="know-more-btn">Know More</button>
+                </div>
+              </div>
               <div className="prescription-box-sm p-14">
                 <div className="d-flex align-items-center justify-content-between">
                   <div className="d-flex align-items-center">
@@ -752,8 +762,7 @@ useEffect(() => {
               style={{
                 width: "61%",
                 height: "100%",
-                position: "relative",
-                left: "39%",
+                marginLeft: "10px", 
               }}
             >
               <div>

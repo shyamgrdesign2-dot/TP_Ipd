@@ -60,6 +60,7 @@ function Cardiology(props) {
 );
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
+  const baseUrlRxDigitise = env.rx_digitization ;
 
   useEffect(() => {
     setSmartRxFile([]);
@@ -294,7 +295,7 @@ function Cardiology(props) {
           const cleanedToken = token.replace(/['"]+/g, '');
 
           // API call for Rx Digitisation
-          const response = await axios.get(`https://pm-rxdigitization-uat.tatvacare.in/api/v1/rxdigitize/rx/${caseId}`, {
+          const response = await axios.get(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${caseId}`, {
               headers: {
                   'Authorization': `Bearer ${cleanedToken}`,
               },
@@ -318,16 +319,18 @@ function Cardiology(props) {
     <div className='digitised-data-section'>
       <ol>
         {rxDigitisedData?.[type].map((item, index) => (
-          <li key={index} className='medicine-item'>
-            <span>
-              {type === "advice" ?  rxDigitisedData?.[type][index] : type === "symptoms" ? item.name : item.refinedName}
-            </span>
-
-            {type === "medications" && item.lineItem &&
-              <span> 
-                {` (${item.lineItem})`}
+          <li key={index} >
+            <div className='medicine-item'>
+              <span>
+                {type === "advice" ?  rxDigitisedData?.[type][index] : type === "symptoms" ? item.name : item.refinedName}
               </span>
-            }
+
+              {type === "medications" && item.lineItem &&
+                <span> 
+                  {` (${item.lineItem})`}
+                </span>
+              }
+            </div>
           </li>
         ))}
       </ol>

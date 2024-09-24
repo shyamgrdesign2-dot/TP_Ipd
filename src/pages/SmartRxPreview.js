@@ -33,8 +33,6 @@ import { getDecodedToken } from "../utils/localStorage";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
-const baseUrl = config.rx_digitization ;
-
 function SmartRxPreview() {
 
     const divRef = useRef(null);
@@ -280,6 +278,7 @@ function SmartRxPreview() {
         
                 // Set the response to state (this will trigger the success message)
                 setRxDigitiseApiResponse(response.data.data[0]);
+                setRxDigitisedData(true);
                 setRxDigitiseComplete(true); // Mark the digitisation as complete
         }catch (error) {
             console.error('Error uploading files:', error);
@@ -528,7 +527,7 @@ function SmartRxPreview() {
                                 }
                             </div>
                             <div className="rounded-20px bg-white mt-20 overflow-hidden">
-                                { !showDigitalRx ? 
+                                {/* { !showDigitalRx ? 
                                     (<div ref={divRef} className="printheight">
                                         <div ref={printRef} className="position-relative h-100">
                                             <Document
@@ -577,7 +576,31 @@ function SmartRxPreview() {
                                             </Document>
                                         </div>
                                     </div> )
-                                }
+                                } */}
+                                <div ref={divRef} className="printheight">
+                                    <div ref={printRef} className="position-relative h-100">
+                                        <Document
+                                        loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
+                                        error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
+                                        noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
+                                        file={!showDigitalRx ? printUrl : previewUrl }
+                                        onLoadSuccess={onDocumentLoadSuccess}>
+                                        {Array.apply(null, Array(numPages))
+                                            .map((x, i) => i + 1)
+                                            .map((page) => (
+                                            <Page
+                                                key={Math.random()}
+                                                className={printBlob ? 'react-pdf__Page_afterload' : null}
+                                                loading={null}
+                                                width={divWidth}
+                                                pageNumber={page}
+                                                renderTextLayer={false}
+                                                renderAnnotationLayer={false}
+                                            />
+                                            ))}
+                                        </Document>
+                                    </div>
+                                </div> 
                             </div>
                         </div>
                     </Col>
