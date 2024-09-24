@@ -1,3 +1,5 @@
+import { ABORTION, MISCARRIAGE } from "../../../utils/constants";
+
 export const isNumberCheck = (e) => {
   const { value } = e.target;
   const reg = /^[0-9]*$/;
@@ -28,4 +30,14 @@ export const isPrimigravida = (pastPregnancyData) => {
   });
 
   return gravidityValue == 1 && otherValuesEmpty;
+};
+
+export const getPregnancyOutcome = (outcome) => {
+  return outcome === ABORTION ? MISCARRIAGE : outcome;
+};
+
+export const getTypeOfAbortion = (typeOfAbortion) => {
+  return typeOfAbortion === "Missed abortion"
+    ? "Missed Miscarriage"
+    : typeOfAbortion;
 };

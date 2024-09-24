@@ -316,4 +316,3 @@ const DigitisedPrescription = ({ data, setData}) => {
 };
 
 export default DigitisedPrescription;
-

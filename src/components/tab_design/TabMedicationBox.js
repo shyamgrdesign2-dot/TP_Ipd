@@ -81,6 +81,7 @@ function TabMedicationBox() {
   const [allTemplates, setAllTemplates] = useState([]);
   const [matchedTemplates, setMatchedTemplates] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen1, setIsModalOpen1] = useState(false);
   const [removeTemplateId, setRemoveTemplateId] = useState(null);
   const [saveDrawer, setSaveDrawer] = useState(false);
 
@@ -692,12 +693,14 @@ function TabMedicationBox() {
   );
 
   const morningDecrement = useCallback(() => {
-    setChildDrawerData((prev) => {
-      return {
-        ...prev,
-        tcm_tmm_freq_morning: parseInt(prev.tcm_tmm_freq_morning) - 1,
-      };
-    });
+    if (parseInt(childDrawerData.tcm_tmm_freq_morning) > 0) {
+      setChildDrawerData((prev) => {
+        return {
+          ...prev,
+          tcm_tmm_freq_morning: parseInt(prev.tcm_tmm_freq_morning) - 1,
+        };
+      });
+    }
   }, [childDrawerData]);
 
   const morningClick = useCallback(() => {
@@ -727,12 +730,14 @@ function TabMedicationBox() {
   }, [childDrawerData]);
 
   const afternoonDecrement = useCallback(() => {
-    setChildDrawerData((prev) => {
-      return {
-        ...prev,
-        tcm_tmm_freq_afternoon: parseInt(prev.tcm_tmm_freq_afternoon) - 1,
-      };
-    });
+    if (parseInt(childDrawerData.tcm_tmm_freq_afternoon) > 0) {
+      setChildDrawerData((prev) => {
+        return {
+          ...prev,
+          tcm_tmm_freq_afternoon: parseInt(prev.tcm_tmm_freq_afternoon) - 1,
+        };
+      });
+    }
   }, [childDrawerData]);
 
   const afternoonClick = useCallback(() => {
@@ -762,12 +767,14 @@ function TabMedicationBox() {
   }, [childDrawerData]);
 
   const eveningDecrement = useCallback(() => {
-    setChildDrawerData((prev) => {
-      return {
-        ...prev,
-        tcm_tmm_freq_evening: parseInt(prev.tcm_tmm_freq_evening) - 1,
-      };
-    });
+    if (parseInt(childDrawerData.tcm_tmm_freq_evening) > 0) {
+      setChildDrawerData((prev) => {
+        return {
+          ...prev,
+          tcm_tmm_freq_evening: parseInt(prev.tcm_tmm_freq_evening) - 1,
+        };
+      });
+    }
   }, [childDrawerData]);
 
   const eveningClick = useCallback(() => {
@@ -797,12 +804,14 @@ function TabMedicationBox() {
   }, [childDrawerData]);
 
   const nightDecrement = useCallback(() => {
-    setChildDrawerData((prev) => {
-      return {
-        ...prev,
-        tcm_tmm_freq_night: parseInt(prev.tcm_tmm_freq_night) - 1,
-      };
-    });
+    if (parseInt(childDrawerData.tcm_tmm_freq_night) > 0) {
+      setChildDrawerData((prev) => {
+        return {
+          ...prev,
+          tcm_tmm_freq_night: parseInt(prev.tcm_tmm_freq_night) - 1,
+        };
+      });
+    }
   }, [childDrawerData]);
 
   const nightClick = useCallback(() => {
@@ -1802,6 +1811,50 @@ function TabMedicationBox() {
     durationMoreOptionsVisible
   ]);
 
+  const showHideClearData = useCallback(() => {
+    setIsModalOpen1(!isModalOpen1);
+  }, [isModalOpen1]);
+
+  const onRemoveRows = () => {
+    setMedicationData([])
+    showHideClearData()
+  };
+
+  //Remove All Rows
+  const REMOVE_ALL_ROWS = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={isModalOpen1}
+        onCancel={showHideClearData}
+        modalWidth={500}
+        title={"You may lose your data"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className='me-3' src={alertIcon} alt="Warning" />
+                <span>
+                  Are you sure you want to Clear Selected <b>Medications (Rx)</b>?
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div onClick={onRemoveRows}
+                  className="me-4 text-decoration-underline btn p-0 text-main">
+                  <span>Yes, Clear</span>
+                </div>
+                <Button onClick={showHideClearData} className="lh-lg btn btn-primary3 btn-41 px-4">
+                  <span>No</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [isModalOpen1]);
+
   return (
     <>
       <div>
@@ -1842,6 +1895,9 @@ function TabMedicationBox() {
                 <i className="icon-save me-2"></i> <span>Save</span>
               </button>
             </Tooltip>
+            <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={medicationData.length > 0 ? false : true}>
+              <i className="icon-eraser1 me-2"></i> <span>Clear</span>
+            </button>
           </div>
           <Drawer
             title="Medication Templates"
@@ -1931,6 +1987,7 @@ function TabMedicationBox() {
               })}
         </div>
         {DELETE_MODAL}
+        {REMOVE_ALL_ROWS}
       </div>
     </>
   );
