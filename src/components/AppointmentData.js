@@ -155,15 +155,6 @@ function AppointmentData({ locationPath }) {
                 </div>
             ),
         },
-        {
-            key: 2,
-            label: (
-                <div className="d-flex align-items-center">
-                    <i className="icon-Medical-Certificate"></i>
-                    Pending Digitisation ({cancelledCount})
-                </div>
-            ),
-        },
     ];
     const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
     const [isDigitisationTab, setIsDigitisationTab] = useState(false);
