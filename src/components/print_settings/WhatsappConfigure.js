@@ -63,7 +63,11 @@ function WhatsappConfigure(props) {
     const [isFooterModalOpen, setIsFooterModalOpen] = useState(false);
 
     useEffect(() => {
-        setPrintSettingsCopy(JSON.parse(JSON.stringify(printSettings)));
+        const copyData = JSON.parse(JSON.stringify(printSettings));
+        copyData?.logo_enable == 'Y' && copyData.logo_image && setFileLogoCopy({ imageShow: true, showFile: copyData.logo_image });
+        copyData?.header_image && setFileHeaderCopy({ imageShow: true, showFile: copyData.header_image });
+        copyData?.footer_image && setFileFooterCopy({ imageShow: true, showFile: copyData.footer_image });
+        setPrintSettingsCopy(copyData);
     }, [printSettings]);
 
     //TAB_HEADER_FOOTER

@@ -18,6 +18,7 @@ import {
     deleteTemplate,
     getDiagnosisTemplates,
     getFrequentlySearchedDiagnosis,
+    getLoadPreviousDiagnosis
 } from "../../redux/diagnosisSlice";
 
 import TabDiagnosisSearch from "../../components/tab_design/TabDiagnosisSearch";
@@ -31,7 +32,7 @@ function TabDiagnosisBox() {
     } = useSelector((state) => state.diagnosis);
     const dispatch = useDispatch();
 
-    const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
+    const { patient_data, diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
     // const [ diagnosisData, setDiagnosisData] = useState([]);
 
     const [parentDrawer, setParentDrawer] = useState(false);
@@ -42,6 +43,7 @@ function TabDiagnosisBox() {
     const [allTemplates, setAllTemplates] = useState([]);
     const [matchedTemplates, setMatchedTemplates] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen1, setIsModalOpen1] = useState(false);
     const [removeTemplateId, setRemoveTemplateId] = useState(null);
     const [saveDrawer, setSaveDrawer] = useState(false);
 
@@ -149,6 +151,22 @@ function TabDiagnosisBox() {
             setMatchedTemplates(filteredTemplates);
         } else {
             setMatchedTemplates(templates);
+        }
+    };
+
+    const loadPreviousClick = async () => {
+        var sendData = {
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+        };
+        const action = await dispatch(getLoadPreviousDiagnosis(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            const updatedData = action.payload.map(e => {
+                return { ...e, unique_id: uuidv4() }
+            })
+            setDiagnosisData([...diagnosisData, ...updatedData]);
+
+        } else {
+            errorMessage(action.error)
         }
     };
 
@@ -637,6 +655,50 @@ function TabDiagnosisBox() {
         );
     }, [childDrawer, childDrawerData, sinceValue, inputSince, sinceOptions]);
 
+    const showHideClearData = useCallback(() => {
+        setIsModalOpen1(!isModalOpen1);
+    }, [isModalOpen1]);
+
+    const onRemoveRows = () => {
+        setDiagnosisData([])
+        showHideClearData()
+    };
+
+    //Remove All Rows
+    const REMOVE_ALL_ROWS = useMemo(() => {
+        return (
+            <CommonModal
+                isModalOpen={isModalOpen1}
+                onCancel={showHideClearData}
+                modalWidth={500}
+                title={"You may lose your data"}
+                modalBody={
+                    <>
+                        <div className="alert-warning rounded-10px p-2 patient-details">
+                            <div className="d-flex align-items-center">
+                                <img className='me-3' src={alertIcon} alt="Warning" />
+                                <span>
+                                    Are you sure you want to Clear Selected <b>Diagnosis</b>?
+                                </span>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <div className="d-flex align-items-center mt-2 justify-content-end">
+                                <div onClick={onRemoveRows}
+                                    className="me-4 text-decoration-underline btn p-0 text-main">
+                                    <span>Yes, Clear</span>
+                                </div>
+                                <Button onClick={showHideClearData} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                    <span>No</span>
+                                </Button>
+                            </div>
+                        </div>
+                    </>
+                }
+            />
+        );
+    }, [isModalOpen1]);
+
     return (
         <>
             <div>
@@ -647,10 +709,20 @@ function TabDiagnosisBox() {
                     </div>
 
                     <div className="d-flex align-items-center">
+                        <button
+                            className="btn d-flex align-items-center btn-text"
+                            onClick={loadPreviousClick}
+                        >
+                            {" "}
+                            <i className="icon-reload me-2"></i> <span>Load Prev. Diagnosis</span>
+                        </button>
                         <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}> <i className="icon-template me-2"></i> <span>Templates</span></button>
                         <Tooltip placement="bottom" title={(diagnosisData.length > 0) ? "" : "Please enter some Diagnosis to save a template"}>
                             <button className='btn d-flex align-items-center btn-text' onClick={() => (diagnosisData.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
                         </Tooltip>
+                        <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={diagnosisData.length > 0 ? false : true}>
+                            <i className="icon-eraser1 me-2"></i> <span>Clear</span>
+                        </button>
                     </div>
                     <Drawer title="Diagnosis Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
                         {TEMPLATE_CONTENT}
@@ -684,6 +756,7 @@ function TabDiagnosisBox() {
                         })}
                 </div>
                 {DELETE_MODAL}
+                {REMOVE_ALL_ROWS}
             </div>
         </>
     );

@@ -126,6 +126,8 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
 
                 signature_enable: printSettings?.signature_enable,
                 signature_image: fileSignature ? fileSignature?.uploadFile : '',
+                
+                signature_image_delete: printSettings?.signature_image_delete !== undefined ? printSettings?.signature_image_delete : 0
             }
 
             console.log(sendData)
