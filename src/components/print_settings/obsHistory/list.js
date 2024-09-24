@@ -1,6 +1,10 @@
 import React from "react";
 import moment from "moment";
 import { Text, View } from "@react-pdf/renderer";
+import {
+  getPregnancyOutcome,
+  getTypeOfAbortion,
+} from "../../../pages/obstetric/utils/helper";
 
 function ObsHistoryListView({
   PX_TO_PT,
@@ -1027,7 +1031,7 @@ function ObsHistoryListView({
                                   fontWeight: 400,
                                 }}
                               >
-                                {item?.outcome}
+                                {getPregnancyOutcome(item?.outcome)}
                               </Text>
                               {("termLength" in item ||
                                 "deliveryMode" in item ||
@@ -1350,7 +1354,7 @@ function ObsHistoryListView({
                                   fontWeight: 500,
                                 }}
                               >
-                                Type of abortion&nbsp;:&nbsp;
+                                Type of Miscarriage&nbsp;:&nbsp;
                               </Text>
                               <Text
                                 style={{
@@ -1363,7 +1367,7 @@ function ObsHistoryListView({
                                   fontWeight: 400,
                                 }}
                               >
-                                {item?.typeOfAbortion}
+                                {getTypeOfAbortion(item?.typeOfAbortion)}
                               </Text>
                               {("modeOfAbortion" in item ||
                                 "typOfDelivery" in item ||
@@ -1402,7 +1406,7 @@ function ObsHistoryListView({
                                   fontWeight: 500,
                                 }}
                               >
-                                Mode of abortion&nbsp;:&nbsp;
+                                Mode of Miscarriage&nbsp;:&nbsp;
                               </Text>
                               <Text
                                 style={{
@@ -1749,7 +1753,8 @@ function ObsHistoryListView({
                         fontWeight: 400,
                       }}
                     >
-                      {i + 1}
+                      {/* {i + 1} */}
+                      {obsHistoryData?.examinationHistory.length - i}
                     </Text>
 
                     {("pallor" in item ||
@@ -1913,7 +1918,7 @@ function ObsHistoryListView({
                             fontWeight: 500,
                           }}
                         >
-                          ,&nbsp;(
+                          &nbsp;(
                         </Text>
 
                         {("diastolic" in item || "systolic" in item) && (
@@ -1942,7 +1947,7 @@ function ObsHistoryListView({
                                 fontWeight: 400,
                               }}
                             >
-                              {"systolic" in item ? item?.systolic : ``}
+                              {item?.systolic}
                               {"systolic" in item && "diastolic" in item
                                 ? `/`
                                 : `-`}
@@ -1950,6 +1955,8 @@ function ObsHistoryListView({
                               {"systolic" in item || "diastolic" in item
                                 ? ` mmHg`
                                 : ``}
+                              {item?.diastolic}
+                              {` mmHg`}
                             </Text>
                           </>
                         )}

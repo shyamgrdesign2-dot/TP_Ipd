@@ -10,6 +10,8 @@ import {
   LiveColumns,
   OutcomeOptions,
 } from "../../utils/constants";
+import { getTypeOfAbortion } from "../../utils/helper";
+import { ABORTION, MISCARRIAGE } from "../../../../utils/constants";
 
 const PregnancyHistory = ({
   continueExaminationHandler,
@@ -26,9 +28,9 @@ const PregnancyHistory = ({
     };
     return (
       <div className="tcell theaderCellStyle tableTitle">
-        <div>{`G ${gravidaItem.gravidaNumber}, ${gravidaItem.outcome}${
-          gravidaItem.termLength ? `, ${gravidaItem.termLength}` : ""
-        }`}</div>
+        <div>{`G ${gravidaItem.gravidaNumber}, ${
+          gravidaItem.outcome === ABORTION ? MISCARRIAGE : gravidaItem.outcome
+        }${gravidaItem.termLength ? `, ${gravidaItem.termLength}` : ""}`}</div>
         <div className="editIcon" onClick={onEdit}>
           <i className={"icon-Edit me-1 fs-5"} />
           <span className="editText">Edit</span>
@@ -103,7 +105,9 @@ const PregnancyHistory = ({
             <td className="obstetricTcell pregnancyTcell">
               {gestationPeriod ? gestationPeriod + " weeks" : "-"}
             </td>
-            <td className="obstetricTcell pregnancyTcell">{typeOfAbortion}</td>
+            <td className="obstetricTcell pregnancyTcell">
+              {getTypeOfAbortion(typeOfAbortion)}
+            </td>
             <td className="obstetricTcell pregnancyTcell">{modeOfAbortion}</td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
           </tr>
