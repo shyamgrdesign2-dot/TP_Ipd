@@ -21,6 +21,7 @@ import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 
 import { errorMessage } from "../utils/utils";
+import { getDecodedToken } from "../utils/localStorage";
 
 import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import api from "../api/services/axiosService";
@@ -82,6 +83,7 @@ function AppointmentData({ locationPath }) {
     const [pageNo, setPageNo] = useState(0);
     const [visitTypeFilters, setVisitTypeFilters] = useState('');
     const [openRowIndex, setOpenRowIndex] = useState(null);
+    const [pendingDigitisation, setPendingDigitisation] = useState(null);
     const consultButtonRef = useRef(null);
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
@@ -102,69 +104,116 @@ function AppointmentData({ locationPath }) {
         };
     }, []);
 
-    // const fetchPendingDigitisationRx = async () => {
-    //     const data = {
-    //         count: 10
-    //     };
+    const fetchPendingDigitisationRx = async () => {
 
-    //      try {
-    //         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    //         const cleanedToken = token.replace(/['"]+/g, '');
+        try {
+        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+        const cleanedToken = token.replace(/['"]+/g, '');
+        const decodedToken = getDecodedToken();
+        const doctorId = decodedToken?.result?.user_id;
 
-    //         // API call for Rx Digitisation
-    //         const response = await axios.get(`${baseUrl}//api/v1/casemanager/unfinished-digitize-rx/${profile?.doctor_unique_id}`, data, {
-    //             headers: {
-    //                 'Authorization': `Bearer ${cleanedToken}`,
-    //             },
-    //         });
-    //         const pendingDigitisationRx = response?.data;
-      
-    //         if (pendingDigitisationRx) {
-    //         //   setSmartRxDetails(files);
-    //         }
-    //       } catch (error) {
-    //         console.error('Error fetching the pending Digitisation prescriptions:', error);
-    //       }
-    // }
+        // API call for Rx Digitisation
+        const response = await axios.get(
+            `${baseUrl}/api/v1/casemanager/unfinished-digitize-rx/${doctorId}`, 
+            {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${cleanedToken}`,
+            },
+            }
+        );
+  
+        const pendingDigitisationRx = response?.data;
+    
+        if (pendingDigitisationRx) {
+            setPendingDigitisation(pendingDigitisationRx);
+        }
+        } catch (error) {
+        console.error('Error fetching the pending Digitisation prescriptions:', error);
+        }
+    }
 
-    const items = [
+    // Initialize items in state
+    const [items, setItems] = useState([
+        {
+        key: TAB_QUEUE,
+        label: (
+            <div className="d-flex align-items-center">
+            <i className="icon-Queue"></i>
+            Queue ({queueCount})
+            </div>
+        ),
+        },
+        {
+        key: TAB_FINISHED,
+        label: (
+            <div className="d-flex align-items-center">
+            <i className="icon-Finished"></i>
+            Finished ({finishedCount})
+            </div>
+        ),
+        },
+        {
+        key: TAB_CANCELLED,
+        label: (
+            <div className="d-flex align-items-center">
+            <i className="icon-Cancelled"></i>
+            Cancelled ({cancelledCount})
+            </div>
+        ),
+        },
+    ]);
+
+    // UseEffect to update items when pendingDigitisation changes
+    useEffect(() => {
+        const updatedItems = [
         {
             key: TAB_QUEUE,
             label: (
-                <div className="d-flex align-items-center">
-                    <i className="icon-Queue"></i>
-                    Queue ({queueCount})
-                </div>
+            <div className="d-flex align-items-center">
+                <i className="icon-Queue"></i>
+                Queue ({queueCount})
+            </div>
             ),
         },
         {
             key: TAB_FINISHED,
             label: (
-                <div className="d-flex align-items-center">
-                    <i className="icon-Finished"></i>
-                    Finished ({finishedCount})
-                </div>
+            <div className="d-flex align-items-center">
+                <i className="icon-Finished"></i>
+                Finished ({finishedCount})
+            </div>
             ),
         },
         {
             key: TAB_CANCELLED,
             label: (
-                <div className="d-flex align-items-center">
-                    <i className="icon-Cancelled"></i>
-                    Cancelled ({cancelledCount})
-                </div>
-            ),
-        },
-        {
-            key: 2,
-            label: (
-                <div className="d-flex align-items-center">
-                    <i className="icon-Medical-Certificate"></i>
-                    Pending Digitisation ({cancelledCount})
-                </div>
+            <div className="d-flex align-items-center">
+                <i className="icon-Cancelled"></i>
+                Cancelled ({cancelledCount})
+            </div>
             ),
         },
     ];
+
+    // Conditionally add the Pending Digitisation tab
+    if (pendingDigitisation?.data?.length > 0) {
+      updatedItems.push({
+        key: 2,
+        label: (
+          <div className="d-flex align-items-center">
+            <i className="icon-Medical-Certificate"></i>
+            Pending Digitisation ({pendingDigitisation?.data?.length})
+          </div>
+        ),
+      });
+    }
+
+    // Update the items state with new data
+    setItems(updatedItems);
+
+    }, [pendingDigitisation, queueCount, finishedCount, cancelledCount]);
+
     const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
     const [isDigitisationTab, setIsDigitisationTab] = useState(false);
 
@@ -233,6 +282,12 @@ function AppointmentData({ locationPath }) {
     }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order]);
 
     useEffect(() => {
+        if(isSmartSyncAccessableFromGB){
+            fetchPendingDigitisationRx();
+        }
+    }, [isDigitisationTab]);
+
+    useEffect(() => {
         if (date.startDate === date.endDate) {
             if (moment(moment(date.startDate).format(dateFormat)).isSame(moment().format(dateFormat), 'day')) {
                 setSelectedCalanderOptions(1)
@@ -255,6 +310,9 @@ function AppointmentData({ locationPath }) {
 
             if (key === 2){
                 setIsDigitisationTab(true)
+            }
+            else{
+                setIsDigitisationTab(false)
             }
         },
         [selectedTab]
