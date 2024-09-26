@@ -272,6 +272,8 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
       setIsConnected(!statusMessage);
       setConnectLoading(false);
       if (!statusMessage) setError('Failed to disconnect device');
+    } else if (message.startsWith("AppVersion")) {
+      const versionMessage = message.split(':')[1];
     }
   };
 
@@ -312,10 +314,11 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
     setIsDisconnect(true)
   }
 
+  //Disconnect Modal function
   const showHideDisconnectModal = () => {
     setIsDisconnect(null);
-    showDiconnectPopup(false)
-  };
+    setShowDiconnectPopup(false)
+  }
 
   // Effect to handle updated data from parent
   useEffect(() => {
