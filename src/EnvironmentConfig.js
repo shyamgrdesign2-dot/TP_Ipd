@@ -32,7 +32,8 @@ const dev = {
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: '754811713438773',
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
-  visit_api_url: "https://pm-visit-integration-uat.tatvacare.in"
+  visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
+  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
 };
 
 const qa = {
@@ -69,7 +70,8 @@ const qa = {
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: '754811713438773',
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
-  visit_api_url: "https://pm-visit-integration-uat.tatvacare.in"
+  visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
+  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
 };
 
 const uat = {
@@ -106,7 +108,8 @@ const uat = {
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: '754811713438773',
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
-  visit_api_url: "https://pm-visit-integration-uat.tatvacare.in"
+  visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
+  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
 };
 
 const prod = {
@@ -143,7 +146,8 @@ const prod = {
   zydus_api_url: `https://pm-ingest-webhook-prod.tatvacare.in`,
   zydus_business_id: '368451724046474',
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
-  visit_api_url: "https://pm-visit-integration-prod.tatvacare.in"
+  visit_api_url: "https://pm-visit-integration-prod.tatvacare.in",
+  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
 };
 
 const getEnv = () => {

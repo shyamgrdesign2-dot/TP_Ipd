@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getDecodedToken } from "../utils/localStorage";
 import config from "../config";
+import { env } from "../EnvironmentConfig";
+import { OPD_API_KEY } from "../utils/constants";
+import axios from "axios";
 
 function Welcome(props) {
 
@@ -12,9 +15,10 @@ function Welcome(props) {
   const { locationPath, backVisible } = props;
 
   const { profile } = useSelector((state) => state.doctors);
+  const decodedToken = getDecodedToken();
+  const apiUrl = env.opd_encryption_url;
 
   const clickWalkInConsultation = () => {
-    const decodedToken = getDecodedToken();
     const businessId = decodedToken?.result?.hospital_business_id;
     window.Moengage.track_event("walk_in_consultation_click", {
       "doctor_id": profile?.doctor_unique_id,
@@ -25,6 +29,37 @@ function Welcome(props) {
     } else {
       navigate("/walk_in_consultation")
     }
+  }
+
+  const opdEncryptionApiCall = async (data) => {
+    const headers = {
+      'api-key': OPD_API_KEY,
+      'tatvapractice': 'true',
+      'Content-Type': 'application/json'
+    };
+    try {
+        const response = await axios.post(apiUrl, data, { headers });
+        console.log(response.data)
+        return response.data
+    } catch (error) {
+        console.error('Error:', error);
+    }
+  };
+
+  const clickOpdPlans = async() => {
+    const clinic_Id = decodedToken?.result?.clinic_id;
+    const doc_Id = decodedToken?.result?.doctor_unique_id;
+    const clinic_Data = {
+      c_id:clinic_Id
+    }
+    const doc_Data = {
+      d_id:doc_Id
+    }
+  
+    const c_id = await opdEncryptionApiCall(clinic_Data)
+    const d_id = await opdEncryptionApiCall(doc_Data)
+    const opdPlansUrl = `https://visit-enrolment-tatva.getvisitapp.net/tatva-care?d_id=${d_id}&c_id=${c_id}`
+    console.log(opdPlansUrl,"opdPlansUrl")
   }
 
   return (
@@ -55,18 +90,34 @@ function Welcome(props) {
               alt="Welcome"
             />
           </div>
-          <div>
-            {locationPath == "/" && (
-              <div className="d-lg-flex d-block">
-                {/* <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => alert('Comming Soon')}> <i className={'icon-Add me-2'}></i> {'Add New Appointment'}</Button> */}
-                <Button
-                  variant="primary"
-                  className="px-3 btn-41"
-                  onClick={clickWalkInConsultation}>
-                  {"Start Walk-in Consultation"}
-                </Button>
-              </div>
-            )}
+          <div className="d-flex gap-1">
+            <div>
+              {locationPath == "/" && (
+                <div className="d-lg-flex d-block">
+                  {/* <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => alert('Comming Soon')}> <i className={'icon-Add me-2'}></i> {'Add New Appointment'}</Button> */}
+                  <Button
+                    variant="primary"
+                    className="px-3 btn-41"
+                    onClick={clickOpdPlans}
+                  >
+                    {"OPD Plans"}
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div>
+              {locationPath == "/" && (
+                <div className="d-lg-flex d-block">
+                  {/* <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => alert('Comming Soon')}> <i className={'icon-Add me-2'}></i> {'Add New Appointment'}</Button> */}
+                  <Button
+                    variant="primary"
+                    className="px-3 btn-41"
+                    onClick={clickWalkInConsultation}>
+                    {"Start Walk-in Consultation"}
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="pb-5">&nbsp;</div>
