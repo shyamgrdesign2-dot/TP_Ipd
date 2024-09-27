@@ -1,0 +1,147 @@
+import { Button, Card } from "antd";
+import { useEffect, useRef, useState } from "react";
+import "./MedicalRecords.scss";
+import { useSelector } from "react-redux";
+import { Col, Row } from "react-bootstrap";
+import RecordCard from "./components/recordCard/RecordCard";
+
+const MedicalRecords = ({
+  onClose,
+  handleDrawerUploadDoc,
+  setFilesData,
+  setIsEditDocument,
+}) => {
+  const { uploadDocCategories, allUploadedDocs } = useSelector(
+    (state) => state.uploadDoc
+  );
+
+  const newCategory = {
+    category_id: -1,
+    category_name: "All",
+  };
+  const updatedCategory = [newCategory, ...uploadDocCategories];
+
+  const [activeCategory, setActiveCategory] = useState(-1);
+  const [activeCategoryDocs, setActiveCategoryDocs] = useState(allUploadedDocs);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const updatedUploadedDocs =
+      activeCategory === -1
+        ? allUploadedDocs
+        : allUploadedDocs.filter((item) => item.category_id === activeCategory);
+    setActiveCategoryDocs([...updatedUploadedDocs]);
+  }, [activeCategory]);
+
+  const categoryOptionHandler = (index) => {
+    setActiveCategory(index);
+  };
+
+  const handleFileUpload = (event) => {
+    const files = event.target.files;
+    if (files) {
+      const filesData = Array.from(files);
+      if (filesData.length > 0) {
+        setFilesData(filesData);
+        handleDrawerUploadDoc();
+      }
+    }
+  };
+
+  return (
+    <div className="medical-records">
+      <Card bordered={false} className="search-modalCard">
+        <div
+          className="modalCard-header align-items-center justify-content-between d-flex"
+          style={{
+            position: "sticky",
+            top: "0px",
+            zIndex: 2,
+            height: "90px",
+          }}
+        >
+          <div className="align-items-center d-flex">
+            <Button
+              type="text"
+              className="btn btn-delete-prescription px-3 focus-none h-100"
+              onClick={onClose}
+            >
+              <i className="icon-Cross fs-3"></i>
+            </Button>
+            <div className="modal-title">Medical Records</div>
+          </div>
+          <div style={{ padding: "20px" }}>
+            <Button
+              className="btn-41 btn ant-btn-text btn-input"
+              style={{ display: "flex", alignItems: "center", gap: "5px" }}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input
+                type="file"
+                multiple
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                style={{ display: "none" }}
+              />
+              <i className="icon-upload" />
+              <span>Upload new report</span>
+            </Button>
+          </div>
+        </div>
+
+        <div className="d-flex justify-content-center flex-column">
+          <div
+            className="d-flex flex-wrap"
+            style={{ padding: "24px", columnGap: "16px" }}
+          >
+            {updatedCategory.map((item) => (
+              <Button
+                type="text"
+                key={item?.category_id}
+                className={`btnStyle btn px-5-16 fs-14 category-btn ${
+                  item?.category_id === activeCategory
+                    ? "active-category-btn"
+                    : ""
+                }`}
+                onClick={() => categoryOptionHandler(item?.category_id)}
+              >
+                <span
+                  className={`btnText category-label ${
+                    item?.category_id === activeCategory
+                      ? "active-category-label"
+                      : ""
+                  }`}
+                >
+                  {item?.category_name}
+                </span>
+              </Button>
+            ))}
+          </div>
+          <Row
+            xs={1}
+            sm={2}
+            md={2}
+            lg={3}
+            className="gy-4 w-100"
+            style={{ paddingLeft: "24px" }}
+          >
+            {activeCategoryDocs.map((document, index) => {
+              return (
+                <Col key={index} className="gx-4">
+                  <RecordCard
+                    document={document}
+                    handleDrawerUploadDoc={handleDrawerUploadDoc}
+                    setFilesData={setFilesData}
+                    setIsEditDocument={setIsEditDocument}
+                  />
+                </Col>
+              );
+            })}
+          </Row>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+export default MedicalRecords;

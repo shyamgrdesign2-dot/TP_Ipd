@@ -1,0 +1,309 @@
+import { Button, Card, DatePicker, Input, Select } from "antd";
+import { useContext, useRef, useState } from "react";
+import document from "./../../assets/images/fallback-thumbnail.svg";
+import dayjs from "dayjs";
+import { disableFutureDates } from "../growthChart/growthChartHelper";
+import "./UploadDocument.scss";
+import CommonModal from "../../common/CommonModal";
+import alertIcon from "./../../assets/images/alertIcon.svg";
+import { useSelector } from "react-redux";
+import { uploadDocument } from "./service";
+import CashManagerContext from "../../context/CashManagerContext";
+
+const UploadDocument = ({
+  onClose,
+  handleDrawerUploadDoc,
+  shouldShowDeletePopup,
+  setShowDeletePopup,
+  filesData,
+  setFilesData,
+  isEditDocument,
+  setIsEditDocument,
+}) => {
+  const { userId } = useSelector((state) => state.doctors);
+  const { patient_data } = useContext(CashManagerContext);
+  const { uploadDocCategories } = useSelector((state) => state.uploadDoc);
+  const documentOptions = uploadDocCategories.map((item) => {
+    return {
+      label: item.category_name,
+      value: item.category_id,
+    };
+  });
+
+  const [recordData, setRecordData] = useState(
+    filesData.map((item) => {
+      return {
+        recordType: item?.category_id,
+        recordUploadDate: dayjs().toISOString(),
+        notes: item?.notes || "",
+      };
+    })
+  );
+  const fileInputRef = useRef(null);
+
+  const handleRecordChange = (index, field, value) => {
+    setRecordData((prevData) =>
+      prevData.map((item, i) => {
+        if (i === index) {
+          return { ...item, [field]: value };
+        }
+        return item;
+      })
+    );
+  };
+
+  const toggleDeletePopup = () => {
+    setShowDeletePopup(false);
+  };
+
+  const handleDeleteRecord = (index) => {
+    const updatedFilesData = filesData?.filter((_, i) => i !== index);
+    setFilesData([...updatedFilesData]);
+    setRecordData((prevData) => prevData.filter((_, i) => i !== index));
+    if (updatedFilesData.length === 0) {
+      handleDrawerUploadDoc();
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (isEditDocument) {
+      setIsEditDocument(false);
+    } else {
+      const formData = new FormData();
+      // filesData.forEach((item) => {
+      formData.append("file", document);
+      // });
+      formData.append(
+        "pm_id",
+        patient_data !== undefined ? patient_data.pm_id : 0
+      );
+      formData.append(
+        "patient_unique_id",
+        patient_data !== undefined ? patient_data.patient_unique_id : 0
+      );
+      formData.append("um_id", userId);
+      formData.append(
+        "pm_pid",
+        patient_data !== undefined ? patient_data.pm_pid : 0
+      );
+      const uploadResponse = await uploadDocument(formData);
+    }
+    handleDrawerUploadDoc();
+  };
+
+  const handleFileUpload = (event) => {
+    const selectedFiles = Array.from(event.target.files || []);
+    const totalFiles = [...filesData, ...selectedFiles];
+
+    if (totalFiles.length > 5) {
+      alert("You can only upload a maximum of 5 files.");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""; // Reset file input
+      }
+    } else {
+      setFilesData(totalFiles);
+      // Optionally handle any drawer or upload action
+      // handleDrawerUploadDoc();
+    }
+  };
+
+  return (
+    <div className="upload-document">
+      <Card bordered={false} className="search-modalCard">
+        <div
+          className="modalCard-header h-60 align-items-center justify-content-between d-flex"
+          style={{
+            position: "sticky",
+            top: "0px",
+            zIndex: 2,
+          }}
+        >
+          <div className="align-items-center d-flex">
+            <Button
+              type="text"
+              className="btn btn-delete-prescription px-3 focus-none h-100"
+              onClick={onClose}
+            >
+              <i className="icon-Cross fs-3"></i>
+            </Button>
+            <div className="modal-title">
+              {isEditDocument ? "Edit" : "Upload"} Medical Records
+            </div>
+          </div>
+          <Button
+            onClick={handleSubmit}
+            className="btn btn-primary3 btn-41 px-4 me-20"
+          >
+            {isEditDocument ? "Save" : "Submit"}
+          </Button>
+        </div>
+
+        <div style={{ padding: "20px" }}>
+          {!isEditDocument ? (
+            <Button
+              className="btn-41 btn ant-btn-text btn-input"
+              style={{ display: "flex", alignItems: "center", gap: "5px" }}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input
+                type="file"
+                multiple
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                style={{ display: "none" }}
+                disabled={filesData.length >= 5}
+              />
+              <i className="icon-upload" />
+              <span>Upload new report</span>
+            </Button>
+          ) : null}
+        </div>
+
+        <div
+          className="d-flex justify-content-center align-items-center flex-column"
+          style={{ gap: "24px", padding: "0 24px 24px" }}
+        >
+          {filesData.map((item, index) => (
+            <div
+              key={index}
+              style={{
+                background: "#FAFAFB",
+                borderRadius: "16px",
+                padding: "16px 24px",
+              }}
+            >
+              <div className="d-flex justify-content-between pb-3">
+                <span style={{ fontWeight: 500 }}>{item?.name}</span>
+                {!isEditDocument ? (
+                  <i
+                    className="icon-delete"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleDeleteRecord(index)}
+                  />
+                ) : null}
+              </div>
+              <div
+                className="d-flex justify-content-between"
+                style={{ gap: "32px" }}
+              >
+                <div>
+                  <img
+                    style={{ borderRadius: "25px" }}
+                    src={document}
+                    alt="vitals"
+                  />
+                </div>
+                <div className="w-100">
+                  <div
+                    className="d-flex align-items-center w-100 justify-content-between"
+                    style={{ gap: "32px" }}
+                  >
+                    <div style={{ width: "50%" }}>
+                      <label className="label" style={{ marginBottom: 5 }}>
+                        Record Type<span className="mandatory">*</span>
+                      </label>
+                      <Select
+                        style={{ height: 38 }}
+                        onChange={(value) =>
+                          handleRecordChange(index, "recordType", value)
+                        }
+                        options={documentOptions}
+                        placeholder="Select"
+                        className="w-100"
+                        value={recordData?.[index]?.recordType}
+                        allowClear
+                      />
+                    </div>
+                    <div style={{ width: "50%" }}>
+                      <label style={{ marginBottom: 5 }} className="label">
+                        Date of Investigation
+                        <span className="mandatory">*</span>
+                      </label>
+                      <DatePicker
+                        placeholder="Select Date"
+                        onChange={(_, d) => {
+                          handleRecordChange(
+                            index,
+                            "recordUploadDate",
+                            d ? dayjs(d, "DD MMM YYYY").toISOString() : ""
+                          );
+                        }}
+                        style={{
+                          height: "38px",
+                          width: "100%",
+                        }}
+                        format="DD MMM YYYY"
+                        // value={
+                        //   recordData?.[index]?.recordUploadDate
+                        //     ? recordData?.[index]?.recordUploadDate
+                        //     : ""
+                        // }
+                        allowClear={false}
+                        disabledDate={disableFutureDates}
+                        defaultValue={dayjs()}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ paddingTop: "12px" }}>
+                    <label style={{ marginBottom: 5 }} className="label">
+                      Notes
+                    </label>
+                    <Input.TextArea
+                      placeholder="Enter remarks"
+                      className="textareaPlaceholder"
+                      style={{ height: "38px" }}
+                      rows={1}
+                      value={recordData?.[index]?.notes}
+                      onChange={(e) =>
+                        handleRecordChange(index, "notes", e.target.value)
+                      }
+                      autoComplete="off"
+                      autoCorrect="off"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+      <CommonModal
+        isModalOpen={shouldShowDeletePopup}
+        onCancel={toggleDeletePopup}
+        modalWidth={500}
+        title={"You may lose your data"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className="me-3" src={alertIcon} alt="Warning" />
+                <span>Are you sure you want to delete ?</span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div
+                  onClick={() => {
+                    handleDrawerUploadDoc();
+                    toggleDeletePopup();
+                  }}
+                  className="me-4 text-decoration-underline btn p-0 text-main"
+                >
+                  Yes Leave
+                </div>
+                <Button
+                  onClick={toggleDeletePopup}
+                  className="lh-lg btn btn-primary3 btn-41 px-4"
+                >
+                  <span>No, Stay</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    </div>
+  );
+};
+
+export default UploadDocument;

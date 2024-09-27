@@ -52,6 +52,7 @@ import CreateCertificate from "./medical_certificate/CreateCertificate";
 import { resetVaccineState } from "../redux/vaccineSlice";
 import { resetGrowthChartState } from "../redux/growthChartSlice";
 import { resetObstetricState } from "../redux/obstetricSlice";
+import UploadDocument from "../pages/medicalRecords/UploadDocument";
 
 const { TextArea } = Input;
 
@@ -83,6 +84,35 @@ function AppointmentData({ locationPath }) {
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
     );
+    const [filesData, setFilesData] = useState([]);
+    const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
+    const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+    const fileInputRef = useRef(null);
+
+    const handleDrawerUploadDoc = () => {
+        setUploadDocDrawer(!uploadDocDrawer);
+    };
+
+  const handleDeletePopup = () => {
+    setShowDeletePopup(true);
+  };
+
+  const handleFileUpload = (event) => {
+    const files = event.target.files;
+    if (files) {
+      const filesData = Array.from(files);
+      if (filesData.length > 0) {
+        setFilesData(filesData);
+        handleDrawerUploadDoc();
+      }
+    }
+  };
+
+  const handleAddClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
     const handleClickOutside = (event) => {
         if (!consultButtonRef?.current?.contains(event.target)) {
@@ -359,6 +389,19 @@ function AppointmentData({ locationPath }) {
                         handleEndVisitReasonModal();
                     }}>End Visit Reason</span>,
                 key: "endvisitreason",
+            },
+            {
+                label: <div
+                   onClick={handleAddClick}>Upload Medical Records
+                     <input
+                        type="file"
+                        multiple
+                        ref={fileInputRef}
+                        onChange={handleFileUpload}
+                        style={{ display: "none" }}
+                        />
+                    </div>,
+                key: "uploadDoc",
             },
         ];
 
@@ -1065,6 +1108,25 @@ function AppointmentData({ locationPath }) {
 
                     </div>
                 </Modal>
+            )}
+             {uploadDocDrawer && (
+                <Drawer
+                closeIcon={false}
+                placement="right"
+                onClose={handleDeletePopup}
+                open={uploadDocDrawer}
+                width="50%"
+                push={false}
+                >
+                <UploadDocument
+                    onClose={handleDeletePopup}
+                    handleDrawerUploadDoc={handleDrawerUploadDoc}
+                    shouldShowDeletePopup={shouldShowDeletePopup}
+                    setShowDeletePopup={setShowDeletePopup}
+                    filesData={filesData}
+                    setFilesData={setFilesData}
+                />
+                </Drawer>
             )}
         </>
     );

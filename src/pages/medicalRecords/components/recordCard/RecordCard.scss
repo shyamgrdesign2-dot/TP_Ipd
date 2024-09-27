@@ -1,0 +1,61 @@
+.image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  .doc-image {
+    object-fit: cover;
+    border: 1px solid #e2e2ea;
+    width: 100%;
+    height: 100%;
+  }
+
+  .notes-style {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+
+  .document-details {
+    position: absolute;
+    height: 60px;
+    bottom: 0px;
+    width: 100%;
+    background-color: #e2e2ea;
+    border: 1px solid #e2e2ea;
+    border-radius: 0 0 10px 10px;
+    text-align: center;
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+
+    .category {
+      font-weight: 600;
+      text-align: left;
+      white-space: nowrap;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.notes-txt {
+  font-weight: 600;
+  font-size: 16px;
+  color: #171725;
+  padding-bottom: 6px;
+}
+
+.medical-records-tooltip {
+  &.ant-tooltip .ant-tooltip-inner {
+    background-color: #ffffff;
+    min-width: 310px;
+    border-radius: 10px;
+    padding: 18px;
+  }
+
+  &.ant-tooltip .ant-tooltip-arrow {
+    --antd-arrow-background-color: #ffffff;
+  }
+}
