@@ -23,7 +23,7 @@ import dayjs from "dayjs";
 import { errorMessage } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
 
-import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FETCH_SMART_RX, UNFINISHED_RX_CASE, GB_SMARTSYNC_CVT } from "../utils/constants";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import noData from "../assets/images/nodata-found.svg";
@@ -88,8 +88,13 @@ function AppointmentData({ locationPath }) {
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
     );
+    const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
+        GB_SMARTSYNC_CVT
+    );
 
     const baseUrl = env.casemanager_api_url ;
+    const customBaseUrl = { customBaseUrl: env.casemanager_api_url };
+    const baseUrlRxDigitise = env.rx_digitization ;
 
     const handleClickOutside = (event) => {
         if (!consultButtonRef?.current?.contains(event.target)) {
@@ -194,23 +199,27 @@ function AppointmentData({ locationPath }) {
             </div>
             ),
         },
-    ];
+        ];
 
-    // Conditionally add the Pending Digitisation tab
-    if (pendingDigitisation?.data?.length > 0) {
-      updatedItems.push({
-        key: 2,
-        label: (
-          <div className="d-flex align-items-center">
-            <i className="icon-Medical-Certificate"></i>
-            Pending Digitisation ({pendingDigitisation?.data?.length})
-          </div>
-        ),
-      });
-    }
+        // Split the string by commas and get the length
+        const pendingDigitisationArray = pendingDigitisation?.data?.split(',');
+        const pendingDigitisationLength = pendingDigitisationArray?.length;
 
-    // Update the items state with new data
-    setItems(updatedItems);
+        // Conditionally add the Pending Digitisation tab
+        if (isSmartSyncCVTAccessableFromGB && pendingDigitisation?.data?.length > 0) {
+            updatedItems.push({
+                key: 2,
+                label: (
+                <div className="d-flex align-items-center">
+                    <i className="icon-Report"></i>
+                    Pending Digitisation ({pendingDigitisationLength})
+                </div>
+                ),
+            });
+        }
+
+        // Update the items state with new data
+        setItems(updatedItems);
 
     }, [pendingDigitisation, queueCount, finishedCount, cancelledCount]);
 
@@ -257,14 +266,19 @@ function AppointmentData({ locationPath }) {
             var sendData = {
                 startDate: date.startDate,
                 endDate: date.endDate,
-                apStatue: selectedTab,
+                apStatue: (isDigitisationTab && pendingDigitisation?.data) ? 3 : selectedTab,
                 filterVisitType: visitTypeFilters,
                 page: pageNo,
                 search: searchQuery,
-                sortOrder: sort_order
+                sortOrder: sort_order,
+                ...(isDigitisationTab && pendingDigitisation?.data
+                    ? { cvtAppointmentIdsStr: pendingDigitisation.data }
+                    : {})
             }
             // console.log(sendData)
             dispatch(getAllAppointment(sendData));
+
+
             // if (searchQuery) {
             //     const searchTimeOutId = setTimeout(() => {
             //         dispatch(getAllAppointment(sendData));
@@ -279,13 +293,13 @@ function AppointmentData({ locationPath }) {
         return () => {
             clearTimeout(timeOutId);
         };
-    }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order]);
+    }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order, isDigitisationTab]);
 
     useEffect(() => {
         if(isSmartSyncAccessableFromGB){
             fetchPendingDigitisationRx();
         }
-    }, [isDigitisationTab]);
+    }, [isSmartSyncAccessableFromGB]);
 
     useEffect(() => {
         if (date.startDate === date.endDate) {
@@ -491,6 +505,97 @@ function AppointmentData({ locationPath }) {
         navigate("/smart-prescription", { state: { patient_data: record } })
     }
 
+    const fetchData = async (tcm_id) => {
+        const payload = {
+          tcm_id: tcm_id,
+        };
+        try {
+          const response = await api.post(
+            FETCH_SMART_RX,
+            payload,
+            customBaseUrl
+          );
+          if(response?.data?.length){
+            return response.data;
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          return null;
+        }
+    };
+
+    const fetchRxDigitisedData = async (tcm_id) => {
+        try {
+            const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+            const cleanedToken = token.replace(/['"]+/g, '');
+    
+            // API call for Rx Digitisation
+            const response = await axios.get(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${tcm_id}`, {
+                headers: {
+                    'Authorization': `Bearer ${cleanedToken}`,
+                },
+            });
+            return response.data; // return the data after it's fetched
+        }catch (error) {
+            console.error('Error digitizing the prescription:', error);
+            return null;
+        }
+    };
+
+    // Function to remove non-numeric characters (like 'th', 'rd', 'st') from the day part and format the date correctly
+    function formatDate(dateString) {
+        // Remove 'th', 'rd', 'st' or any such suffix from the day part
+        const cleanedDateString = dateString.replace(/(\d+)(st|nd|rd|th)/, '$1');
+        
+        // Try parsing the cleaned date
+        const date = new Date(cleanedDateString);
+        
+        // Ensure the date is valid
+        if (isNaN(date)) {
+            console.error("Invalid date format");
+            return null;  // Return null if the date is invalid
+        }
+        
+        // Format the date to YYYY-MM-DD
+        const year = date.getFullYear();
+        const month = (`0${date.getMonth() + 1}`).slice(-2); // Add leading zero if necessary
+        const day = (`0${date.getDate()}`).slice(-2); // Add leading zero if necessary
+        return `${year}-${month}-${day}`;
+    }
+
+    const handleDigitiseRx = async(record) => {
+        const formattedDate = formatDate(record.apDate);
+
+        const payload = {
+            pam_id: record.pam_id,
+            tcm_created_date: formattedDate
+        };
+        try {
+            // API call for Rx Digitisation case id
+            const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+            const cleanedToken = token.replace(/['"]+/g, '');
+            const response = await axios.post(`${baseUrl}${UNFINISHED_RX_CASE}`, payload, {
+                headers: {
+                    'Authorization': `Bearer ${cleanedToken}`,
+                },
+            });
+            const tcm_id = response.data[0]?.tcm_id
+            const smartRxData= await fetchData(tcm_id);
+            const ocrData = await fetchRxDigitisedData(tcm_id);
+
+            navigate("/smart-rx-digitise", {
+                state: {
+                    patient_data: record,
+                    smartRxFilesData: smartRxData,
+                    tcm_id: tcm_id,
+                    print_url: record.print_rx_url,
+                    digitisedData: ocrData.data,
+                },
+            })
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
 
     const onPrintRxUrlClick = async (record) => {
         if (record.print_rx_url) {
@@ -607,6 +712,12 @@ function AppointmentData({ locationPath }) {
             render: (_, record, index) => (
                 <div size="middle" style={{ display: "flex" }}>
                     {isSmartSyncAccessableFromGB && !isMobile ? (
+                        isDigitisationTab ?
+                        <>
+                            <button className="btn btn-outline-primary" style={{fontSize:"13px !important"}} onClick={() => handleDigitiseRx(record,index)}>
+                                {"Digitise Rx"}
+                            </button>
+                        </> :
                         <>
                             {selectedTab !== TAB_CANCELLED && (
                                 <button
@@ -645,21 +756,23 @@ function AppointmentData({ locationPath }) {
                             )}
                         </>
                     )}
-                    <Dropdown
-                        className="btn btn-outline btn-more ms-3"
-                        menu={{
-                            items: getMenuItems(record),
-                        }}
-                        trigger={["click"]}
-                    >
-                        <a
-                            onClick={(e) => {
-                                e.preventDefault();
+                    { !isDigitisationTab &&
+                        <Dropdown
+                            className="btn btn-outline btn-more ms-3"
+                            menu={{
+                                items: getMenuItems(record),
                             }}
+                            trigger={["click"]}
                         >
-                            <i className="icon-More" />
-                        </a>
-                    </Dropdown>
+                            <a
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                }}
+                            >
+                                <i className="icon-More" />
+                            </a>
+                        </Dropdown>
+                    }
                 </div>
             ),
 
