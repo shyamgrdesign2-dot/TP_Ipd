@@ -711,9 +711,7 @@ useEffect(() => {
               className="col-lg-4 col-md-12 col-12"
               style={{
                 marginLeft: "4rem",
-                position: "fixed",
-                height: "100%",
-                overflow: "hidden",
+                height: "100vh", /* Full height for independent scrolling */
               }}
             >
               <div className="prescription-box-sm p-14">
@@ -752,8 +750,7 @@ useEffect(() => {
               style={{
                 width: "61%",
                 height: "100%",
-                position: "relative",
-                left: "39%",
+                marginLeft: "10px", 
               }}
             >
               <div>

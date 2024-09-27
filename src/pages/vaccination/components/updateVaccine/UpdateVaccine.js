@@ -372,7 +372,7 @@ const UpdateVaccine = ({
           <div
             ref={formRef}
             className="d-flex flex-column gap-3"
-            style={{ maxHeight: "650px", overflowY: "auto" }}
+            style={{ maxHeight: "650px", overflowY: "auto", scrollbarWidth: "none" }}
           >
             {selectedDate === "given" ? (
               <>
@@ -409,7 +409,6 @@ const UpdateVaccine = ({
                           label: brand?.tvc_name,
                           value: brand?.tvc_id,
                         }))}
-                      dropdownStyle={{ maxHeight: "176px" }}
                       onChange={(value) => {
                         handleDetails(
                           vaccine?.tvac_name,

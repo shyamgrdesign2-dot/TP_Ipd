@@ -27,6 +27,7 @@ import { useLocalStorage } from "./utils/localStorage";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
 import TalkativeWidget from "./components/TalkativeWidget";
+import SmartRxDigitise from "./pages/SmartRxDigitise";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -111,6 +112,7 @@ function App() {
                 <Route path="print-smart-rx" element={<SmartRxPreview />} />
                 <Route path="doctor_profile" element={<DoctorProfile />} />
                 <Route path="doctor_website_setting" element={<DoctorWebsiteSetting />} />
+                <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
               </Routes>
             </PersistGate>
           </Provider>
