@@ -33,7 +33,7 @@ import {
   getDiagnosisTemplates,
   getFrequentlySearchedDiagnosis,
   searchDiagnosis,
-  getLoadPreviousDiagnosis
+  getLoadPreviousDiagnosis,
 } from "../redux/diagnosisSlice";
 
 function DiagnosisBox() {
@@ -782,13 +782,13 @@ function DiagnosisBox() {
             <div className="title-common">Diagnosis</div>
           </div>
           <div className="d-flex align-items-center">
-          <button
-                className="btn d-flex align-items-center btn-text"
-                onClick={loadPreviousClick}
-              >
-                {" "}
-                <i className="icon-reload me-2"></i> <span>Load Prev. Diagnosis</span>
-              </button>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={loadPreviousClick}
+            >
+              {" "}
+              <i className="icon-reload me-2"></i> <span>Load Prev. Diagnosis</span>
+            </button>
             <Popover
               open={popOver1}
               onOpenChange={showHideTemplatesListPopover}
