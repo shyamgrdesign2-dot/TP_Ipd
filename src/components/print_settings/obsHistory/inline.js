@@ -1799,10 +1799,11 @@ function ObsHistoryInlineView({
                             fontWeight: 400,
                           }}
                         >
-                          {/* {(i + 1).toString().padStart(2, "0")} */}
-                          {(obsHistoryData?.examinationHistory.length - i)
-                            .toString()
-                            .padStart(2, "0")}
+                          {item?.visitNumber
+                            ? (item?.visitNumber).toString().padStart(2, "0")
+                            : (obsHistoryData?.examinationHistory.length - i)
+                                .toString()
+                                .padStart(2, "0")}
                         </Text>
                         {"pallor" in item ||
                         "oedema" in item ||
