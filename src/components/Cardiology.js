@@ -18,6 +18,7 @@ import notesicon from "../assets/images/notes.svg";
 import calenderBlank from "../assets/images/calenderBlank.svg";
 import followUp from "../assets/images/followup.svg";
 import smartPadGrey from "../assets/images/smartPadGrey.svg";
+import successIcon from '../assets/images/success-icon.svg';
 
 import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
@@ -57,7 +58,7 @@ function Cardiology(props) {
   );
   const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
     GB_SMARTSYNC_CVT
-);
+  );
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
   const baseUrlRxDigitise = env.rx_digitization ;
@@ -300,11 +301,13 @@ function Cardiology(props) {
                   'Authorization': `Bearer ${cleanedToken}`,
               },
           });
-          if(response?.data?.data?.editedData) {
-            setRxDigitisedData(response?.data?.data?.editedData);
-            setIsRxdigitised(true);
-          } else {
-            setIsRxdigitised(false);
+          if(response?.data?.data) {
+              setRxDigitisedData(response?.data?.data);
+              if(response?.data?.data?.editedData){
+                setIsRxdigitised(true);
+              } else {
+                setIsRxdigitised(false);
+              }
           }
 
           return response.data; // return the data after it's fetched
@@ -314,21 +317,35 @@ function Cardiology(props) {
       }
   };
 
+  const handleDigitiseRx = async(record) => {
+    navigate("/smart-rx-digitise", {
+        state: {
+            patient_data: patient_data,
+            smartRxFilesData: smartRxFile,
+            tcm_id: viewCaseManagerData?.tcm_id,
+            print_url: viewCaseManagerData?.print_rx_url,
+            digitisedData: rxDigitisedData,
+        },
+    })
+  };
+
   // Render items for each type (medications, tests, etc.)
   const renderItems = (type) => (
     <div className='digitised-data-section'>
       <ol>
-        {rxDigitisedData?.[type].map((item, index) => (
-          <li key={index} className='medicine-item'>
-            <span>
-              {type === "advice" ?  rxDigitisedData?.[type][index] : type === "symptoms" ? item.name : item.refinedName}
-            </span>
-
-            {type === "medications" && item.lineItem &&
-              <span> 
-                {` (${item.lineItem})`}
+        {rxDigitisedData?.editedData?.[type].map((item, index) => (
+          <li key={index}>
+            <div className='medicine-item'>
+              <span>
+                {type === "advice" ?  rxDigitisedData?.editedData?.[type][index] : type === "symptoms" ? item.name : item.refinedName}
               </span>
-            }
+
+              {type === "medications" && item.lineItem &&
+                <span> 
+                  {` (${item.lineItem})`}
+                </span>
+              }
+            </div>
           </li>
         ))}
       </ol>
@@ -414,10 +431,23 @@ function Cardiology(props) {
                 </div>
               </div>
             </Card.Header>
-            { (isRxdigitised && isSmartSyncCVTAccessableFromGB && isSmartRxFile) &&
+
+            { (isRxdigitised && isSmartSyncCVTAccessableFromGB && isSmartRxFile) ?
               <div className="p-2 mb-2">
                 <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
                 <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>
+              </div>
+              :
+              <div className="digitise-info-cardiology">
+                <img src={successIcon} alt="success" width="40px" height="40px" />
+                <p>
+                    <span className="digitise-info-header-cardiology">{`${patient_data?.pm_fullname}'s Digital Rx is ready!`}</span>
+                    Digitise Rx to enhance patient care, workflow efficiency, and revenue. Know More
+                </p>
+                {/* <button onClick={handleDigitiseRx} className=""> */}
+                <button className="digitise-info-btn-cardiology" onClick={handleDigitiseRx}>
+                    Digitise Rx Now
+                </button>
               </div>
             }
             { loading ? (
@@ -434,7 +464,7 @@ function Cardiology(props) {
                 <div>
                   { isRxdigitised && showDigitalRx ? (
                     <div className="m-4"> 
-                      {rxDigitisedData?.medications && rxDigitisedData.medications.length > 0 && (
+                      {rxDigitisedData?.editedData?.medications && rxDigitisedData?.editedData?.medications.length > 0 && (
                         <>
                           <div className="d-flex align-items-start">
                             <img
@@ -448,7 +478,7 @@ function Cardiology(props) {
                         </> 
                       )}
 
-                      {rxDigitisedData?.tests && rxDigitisedData.tests.length > 0 && (
+                      {rxDigitisedData?.editedData?.tests && rxDigitisedData?.editedData?.tests.length > 0 && (
                         <>
                           <div className="d-flex align-items-start">
                             <img
@@ -462,7 +492,7 @@ function Cardiology(props) {
                         </>
                       )}
 
-                      {rxDigitisedData?.symptoms && rxDigitisedData.symptoms.length > 0 && (
+                      {rxDigitisedData?.editedData?.symptoms && rxDigitisedData?.editedData?.symptoms.length > 0 && (
                         <>
                           <div className="d-flex align-items-start">
                             <img
@@ -476,7 +506,7 @@ function Cardiology(props) {
                         </>    
                       )}
 
-                      {rxDigitisedData?.advice && rxDigitisedData.advice.length > 0 && (
+                      {rxDigitisedData?.editedData?.advice && rxDigitisedData?.editedData?.advice.length > 0 && (
                         <>
                           <div className="d-flex align-items-start">
                             <img 
