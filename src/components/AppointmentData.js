@@ -53,6 +53,8 @@ import { resetVaccineState } from "../redux/vaccineSlice";
 import { resetGrowthChartState } from "../redux/growthChartSlice";
 import { resetObstetricState } from "../redux/obstetricSlice";
 import UploadDocument from "../pages/medicalRecords/UploadDocument";
+import { fetchAllDocumentCategories } from "../pages/medicalRecords/service";
+import { resetUploadDocState, setUploadDocCategories } from "../redux/uploadDocSlice";
 
 const { TextArea } = Input;
 
@@ -64,6 +66,9 @@ function AppointmentData({ locationPath }) {
     const navigate = useNavigate();
 
     const { sort_order, profile } = useSelector((state) => state.doctors);
+    const { uploadDocCategories } = useSelector(
+    (state) => state.uploadDoc
+    );
 
     const [searchParams, setSearchParams] = useSearchParams();
     const from = searchParams.get("from");
@@ -87,6 +92,7 @@ function AppointmentData({ locationPath }) {
     const [filesData, setFilesData] = useState([]);
     const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
     const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+    const [patientData, setPatientData] = useState(null);
     const fileInputRef = useRef(null);
 
     const handleDrawerUploadDoc = () => {
@@ -97,7 +103,12 @@ function AppointmentData({ locationPath }) {
     setShowDeletePopup(true);
   };
 
-  const handleFileUpload = (event) => {
+    const getAllDocumentCategories = async () => {
+      const response = await fetchAllDocumentCategories();
+      dispatch(setUploadDocCategories(response));
+    };
+
+  const handleFileUpload = (event, record) => {
     const files = event.target.files;
     if (files) {
       const filesData = Array.from(files);
@@ -105,6 +116,7 @@ function AppointmentData({ locationPath }) {
         setFilesData(filesData);
         handleDrawerUploadDoc();
       }
+      setPatientData(record);
     }
   };
 
@@ -119,6 +131,12 @@ function AppointmentData({ locationPath }) {
             setOpenRowIndex(null);
         }
     };
+
+    useEffect(() => {
+        if (uploadDocCategories.length === 0) {
+            getAllDocumentCategories();
+        }
+    }, []);
 
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
@@ -191,6 +209,7 @@ function AppointmentData({ locationPath }) {
         dispatch(resetVaccineState());
         dispatch(resetGrowthChartState());
         dispatch(resetObstetricState());
+        dispatch(resetUploadDocState());
     }, []);
 
     useEffect(() => {
@@ -397,7 +416,7 @@ function AppointmentData({ locationPath }) {
                         type="file"
                         multiple
                         ref={fileInputRef}
-                        onChange={handleFileUpload}
+                        onChange={(e) => handleFileUpload(e, record)}
                         style={{ display: "none" }}
                         />
                     </div>,
@@ -1111,21 +1130,23 @@ function AppointmentData({ locationPath }) {
             )}
              {uploadDocDrawer && (
                 <Drawer
-                closeIcon={false}
-                placement="right"
-                onClose={handleDeletePopup}
-                open={uploadDocDrawer}
-                width="50%"
-                push={false}
-                >
-                <UploadDocument
+                    closeIcon={false}
+                    placement="right"
                     onClose={handleDeletePopup}
-                    handleDrawerUploadDoc={handleDrawerUploadDoc}
-                    shouldShowDeletePopup={shouldShowDeletePopup}
-                    setShowDeletePopup={setShowDeletePopup}
-                    filesData={filesData}
-                    setFilesData={setFilesData}
-                />
+                    open={uploadDocDrawer}
+                    width="50%"
+                    push={false}
+                    >
+                    <UploadDocument
+                        onClose={handleDeletePopup}
+                        handleDrawerUploadDoc={handleDrawerUploadDoc}
+                        shouldShowDeletePopup={shouldShowDeletePopup}
+                        setShowDeletePopup={setShowDeletePopup}
+                        filesData={filesData}
+                        setFilesData={setFilesData}
+                        patientData={patientData}
+                        isAppointmentData={true}
+                    />
                 </Drawer>
             )}
         </>

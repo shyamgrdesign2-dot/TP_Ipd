@@ -22,6 +22,7 @@ import { GB_ISCRIBE } from "../utils/constants";
 import { resetGrowthChartState } from "../redux/growthChartSlice";
 import { resetObstetricState } from "../redux/obstetricSlice";
 import moment from "moment";
+import { resetUploadDocState } from "../redux/uploadDocSlice";
 
 function WalkInConsultationZydus() {
     const navigate = useNavigate();
@@ -255,6 +256,7 @@ function WalkInConsultationZydus() {
         dispatch(resetVaccineState());
         dispatch(resetGrowthChartState());
         dispatch(resetObstetricState());
+        dispatch(resetUploadDocState());
     }, [])
 
     useEffect(() => {

@@ -125,11 +125,11 @@ const MedicalRecords = ({
             className="gy-4 w-100"
             style={{ padding: "0 0 24px 24px" }}
           >
-            {activeCategoryDocs.map((document, index) => {
+            {activeCategoryDocs.map((cardData, index) => {
               return (
                 <Col key={index} className="gx-4">
                   <RecordCard
-                    document={document}
+                    cardData={cardData}
                     handleDrawerUploadDoc={handleDrawerUploadDoc}
                     setFilesData={setFilesData}
                     setIsEditDocument={setIsEditDocument}

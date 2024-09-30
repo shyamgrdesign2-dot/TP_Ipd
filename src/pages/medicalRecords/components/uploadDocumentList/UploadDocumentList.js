@@ -13,11 +13,11 @@ const UploadDocumentList = ({
   return (
     <div>
       <Row sm={2} md={2} lg={2} style={{ columnGap: "14px" }}>
-        {allUploadedDocs.slice(0, 2)?.map((document, index) => {
+        {allUploadedDocs.slice(0, 2)?.map((cardData, index) => {
           return (
             <Col key={index} className="gx-4">
               <RecordCard
-                document={document}
+                cardData={cardData}
                 handleDrawerUploadDoc={handleDrawerUploadDoc}
                 setFilesData={setFilesData}
                 setIsEditDocument={setIsEditDocument}

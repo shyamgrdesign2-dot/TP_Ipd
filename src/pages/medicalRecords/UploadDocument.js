@@ -1,6 +1,7 @@
 import { Button, Card, DatePicker, Input, Select } from "antd";
 import { useRef, useState } from "react";
-import document from "./../../assets/images/fallback-thumbnail.svg";
+import emptyBg from "./../../assets/images/empty-bg.svg";
+import emptyFile from "./../../assets/images/empty-file.svg";
 import dayjs from "dayjs";
 import { disableFutureDates } from "../growthChart/growthChartHelper";
 import "./UploadDocument.scss";
@@ -15,6 +16,7 @@ import {
 } from "./service";
 import { setAllUploadedDocs } from "../../redux/uploadDocSlice";
 import { useLocation } from "react-router-dom";
+import { shortenText } from "./components/recordCard/RecordCard";
 
 const UploadDocument = ({
   onClose,
@@ -25,11 +27,13 @@ const UploadDocument = ({
   setFilesData,
   isEditDocument,
   setIsEditDocument,
+  patientData,
+  isAppointmentData,
 }) => {
   const dispatch = useDispatch();
   const { userId } = useSelector((state) => state.doctors);
   const { state } = useLocation();
-  const { patient_data } = state;
+  const patient_data = state?.patient_data || patientData;
   const { uploadDocCategories, allUploadedDocs } = useSelector(
     (state) => state.uploadDoc
   );
@@ -133,10 +137,12 @@ const UploadDocument = ({
         });
         updateDocument(payload);
       }
-      const response = await fetchAllPatientDocs(
-        patient_data?.patient_unique_id
-      );
-      dispatch(setAllUploadedDocs(response));
+      if (!isAppointmentData) {
+        const response = await fetchAllPatientDocs(
+          patient_data?.patient_unique_id
+        );
+        dispatch(setAllUploadedDocs(response));
+      }
     }
     handleDrawerUploadDoc();
   };
@@ -239,11 +245,27 @@ const UploadDocument = ({
                 style={{ gap: "32px" }}
               >
                 <div>
-                  <img
-                    style={{ borderRadius: "25px" }}
-                    src={document}
-                    alt="vitals"
-                  />
+                  <div
+                    className="image-container"
+                    style={{
+                      backgroundImage: `url('${emptyBg}')`,
+                      height: 144,
+                      width: 144,
+                      border: "1px solid #F1F1F5",
+                      paddingBottom: "0px",
+                    }}
+                  >
+                    <img
+                      className="doc-image"
+                      width={62}
+                      height={62}
+                      src={emptyFile}
+                      alt="document"
+                    />
+                    <div className="file-name">
+                      {shortenText(item?.name, 20, 13, -7)}
+                    </div>
+                  </div>
                 </div>
                 <div className="w-100">
                   <div

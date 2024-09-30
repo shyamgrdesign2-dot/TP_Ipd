@@ -1,7 +1,8 @@
-import { Dropdown, Tooltip } from "antd";
+import { Dropdown, Popover, Tooltip } from "antd";
 import "./RecordCard.scss";
-import { useRef, useState } from "react";
-import documentImg from "./../../../../assets/images/fallback-thumbnail.svg";
+import { useCallback, useEffect, useRef, useState } from "react";
+import emptyBg from "./../../../../assets/images/empty-bg.svg";
+import emptyFile from "./../../../../assets/images/empty-file.svg";
 import file from "./../../../../assets/images/file.svg";
 import download from "./../../../../assets/images/document-download.svg";
 import edit from "./../../../../assets/images/document-edit.svg";
@@ -14,8 +15,22 @@ import { isChrome, isSafari } from "react-device-detect";
 import axios from "axios";
 import { saveAs } from "file-saver";
 
+export function shortenText(
+  text,
+  length = 30,
+  firstPartLength = 23,
+  lastPartLength = -7
+) {
+  if (text.length > length) {
+    const firstPart = text.slice(0, firstPartLength);
+    const lastPart = text.slice(lastPartLength);
+    return `${firstPart}...${lastPart}`;
+  }
+  return text;
+}
+
 const RecordCard = ({
-  document,
+  cardData,
   handleDrawerUploadDoc,
   setFilesData,
   setIsEditDocument,
@@ -25,24 +40,27 @@ const RecordCard = ({
   const { state } = useLocation();
   const { patient_data } = state;
   const { uploadDocCategories } = useSelector((state) => state.uploadDoc);
+  const { notes, id, url, investigation_date, category_id, display_name } =
+    cardData || {};
+  const updatedFileName = shortenText(display_name);
   const categoryName = uploadDocCategories.find(
-    (item) => item.category_id === document?.category_id
+    (item) => item.category_id === category_id
   )?.category_name;
 
   const [showTooltip, setShowTooltip] = useState(false);
   const tooltipRef = useRef(null);
 
-  // useEffect(() => {
-  //   if (showTooltip) {
-  //     document.addEventListener("click", handleTooltipClickOutside);
-  //   } else {
-  //     document.removeEventListener("click", handleTooltipClickOutside);
-  //   }
+  useEffect(() => {
+    if (showTooltip) {
+      document.addEventListener("mousedown", handleTooltipClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleTooltipClickOutside);
+    }
 
-  //   return () => {
-  //     document.removeEventListener("click", handleTooltipClickOutside);
-  //   };
-  // }, [showTooltip]);
+    return () => {
+      document.removeEventListener("mousedown", handleTooltipClickOutside);
+    };
+  }, [showTooltip]);
 
   const handleTooltipClickOutside = (event) => {
     if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
@@ -50,29 +68,33 @@ const RecordCard = ({
     }
   };
 
+  const showTooltipPopOver = useCallback(() => {
+    setShowTooltip(!showTooltip);
+  }, [showTooltip]);
+
   const tooltipTitle = () => {
     return (
       <div>
         <div className="notes-txt">Notes</div>
-        <div>{document?.notes}</div>
+        <div>{notes}</div>
       </div>
     );
   };
 
   const handleDelete = async () => {
-    await deleteDocById(document?.id);
+    await deleteDocById(id);
     const response = await fetchAllPatientDocs(patient_data.patient_unique_id);
     dispatch(setAllUploadedDocs(response));
   };
 
   const handleEdit = () => {
-    setFilesData([document]);
+    setFilesData([cardData]);
     setIsEditDocument(true);
     handleDrawerUploadDoc();
   };
 
   const handleInAppDownload = async () => {
-    navigate(document?.url, {
+    navigate(url, {
       replace: true,
       state: state,
     });
@@ -82,7 +104,7 @@ const RecordCard = ({
   const handleDownload = async () => {
     try {
       const response = await axios({
-        url: document?.url,
+        url: url,
         method: "GET",
         responseType: "blob",
       });
@@ -132,37 +154,43 @@ const RecordCard = ({
     ];
   };
   return (
-    <div className="image-container">
-      <img
-        className="doc-image"
-        style={{ borderRadius: "10px" }}
-        src={documentImg}
-        alt="document"
-      />
+    <div
+      className="image-container"
+      style={{
+        backgroundImage: `url('${emptyBg}')`,
+      }}
+    >
+      <img className="doc-image" src={emptyFile} alt="document" />
+      <div className="file-name">{updatedFileName}</div>
       <div className="notes-style" ref={tooltipRef}>
         <Tooltip
           title={tooltipTitle}
           overlayClassName="medical-records-tooltip"
-          open={showTooltip}
-          placement="bottom"
-          trigger={["hover", "click"]}
         >
-          <img
-            onClick={() => setShowTooltip(true)}
-            style={{ cursor: "pointer" }}
-            src={file}
-            alt="file"
-          />
+          <Popover
+            open={showTooltip}
+            onOpenChange={showTooltipPopOver}
+            overlayClassName="pp-0"
+            trigger={["hover", "click"]}
+            placement="bottom"
+          >
+            <img
+              onClick={() => setShowTooltip(true)}
+              style={{ cursor: "pointer" }}
+              src={file}
+              alt="file"
+            />
+          </Popover>
         </Tooltip>
       </div>
-
+      
       <div className="document-details">
         <div
           className="d-flex justify-content-between flex-column align-items-start"
           style={{ fontSize: "14px", width: "85%" }}
         >
           <div className="category">{categoryName}</div>
-          <div>{document?.investigation_date}</div>
+          <div>{investigation_date}</div>
         </div>
         <div>
           <Dropdown

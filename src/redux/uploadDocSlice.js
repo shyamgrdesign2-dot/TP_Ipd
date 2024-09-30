@@ -9,7 +9,9 @@ const uploadDocSlice = createSlice({
   name: "uploadDoc",
   initialState,
   reducers: {
-    resetUploadDocState: () => initialState,
+    resetUploadDocState: (state) => {
+      state.allUploadedDocs = [];
+    },
     setUploadDocCategories: (state, action) => {
       state.uploadDocCategories = action.payload;
     },
