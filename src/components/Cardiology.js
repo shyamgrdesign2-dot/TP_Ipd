@@ -144,6 +144,7 @@ function Cardiology(props) {
       dataIndex: "rx",
       key: "rx",
       width: "40px",
+      className: 'rowspan-border-0',
       render: (text, record, index) => (
         <div>
           <span>{!medicationData.slice(0, index).some((e) => (e.tmm_id == record.tmm_id)) && indexx++}</span>
@@ -166,6 +167,7 @@ function Cardiology(props) {
       title: "MEDICINE",
       dataIndex: "name",
       key: "name",
+      className: 'rowspan-border-0',
       render: (text, record) => (
         <div className="lh-base">
           <div className="fw-medium">{record.tmm_medicine_name}</div>

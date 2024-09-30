@@ -1714,17 +1714,6 @@ body {
             display: flex;
         }
     }
-    .badge-then {
-        position: absolute;
-        left: -22px;
-        z-index:  9;
-        top: -12px;
-        padding: 1px 6px;
-        font-size: 12px;
-        border-radius: 10px;
-        border: 1px solid $bordercolor;
-        background-color: $drawerHeaderColor;
-    }
     .badge-tapper {
         position: absolute;
         bottom: 0;
@@ -1741,4 +1730,15 @@ body {
             font-size: 16px;
         }
     }
+}
+.badge-then {
+    position: absolute;
+    left: -22px;
+    z-index:  9;
+    top: -12px;
+    padding: 1px 6px;
+    font-size: 12px;
+    border-radius: 10px;
+    border: 1px solid $bordercolor;
+    background-color: $drawerHeaderColor;
 }
