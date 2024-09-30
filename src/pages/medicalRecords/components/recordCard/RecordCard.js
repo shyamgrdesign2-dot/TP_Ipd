@@ -8,8 +8,11 @@ import edit from "./../../../../assets/images/document-edit.svg";
 import trash from "./../../../../assets/images/trash.svg";
 import { deleteDocById, fetchAllPatientDocs } from "../../service";
 import { setAllUploadedDocs } from "../../../../redux/uploadDocSlice";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { isChrome, isSafari } from "react-device-detect";
+import axios from "axios";
+import { saveAs } from "file-saver";
 
 const RecordCard = ({
   document,
@@ -18,6 +21,7 @@ const RecordCard = ({
   setIsEditDocument,
 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data } = state;
   const { uploadDocCategories } = useSelector((state) => state.uploadDoc);
@@ -67,11 +71,40 @@ const RecordCard = ({
     handleDrawerUploadDoc();
   };
 
+  const handleInAppDownload = async () => {
+    navigate(document?.url, {
+      replace: true,
+      state: state,
+    });
+    navigate(0, { replace: true });
+  };
+
+  const handleDownload = async () => {
+    try {
+      const response = await axios({
+        url: document?.url,
+        method: "GET",
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
+      saveAs(blob, `${Date.now()}.pdf`);
+    } catch (error) {
+      console.error("Error downloading file: ", error);
+    }
+  };
+
   const getMenuItems = () => {
     return [
       {
         label: (
-          <div onClick={() => console.log("download")}>
+          <div
+            onClick={() =>
+              !isChrome && !isSafari ? handleInAppDownload() : handleDownload()
+            }
+          >
             <img src={download} alt="download" className="me-2" />
             Download
           </div>

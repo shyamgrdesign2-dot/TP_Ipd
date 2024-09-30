@@ -1,5 +1,5 @@
 import { Button, Card, Drawer } from "antd";
-import emptyDocument from "./../../../../assets/images/fallback-thumbnail.svg";
+import emptyDocument from "./../../../../assets/images/empty-document.png";
 import { useDispatch, useSelector } from "react-redux";
 import { setUploadDocCategories } from "../../../../redux/uploadDocSlice";
 import { fetchAllDocumentCategories } from "../../service";
@@ -25,6 +25,7 @@ const VisitMedicalRecords = () => {
   const [filesData, setFilesData] = useState([]);
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [isEditDocument, setIsEditDocument] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -164,7 +165,12 @@ const VisitMedicalRecords = () => {
                 {activeCategoryDocs.map((document, index) => {
                   return (
                     <Col key={index} className="gx-4">
-                      <RecordCard document={document} />
+                      <RecordCard
+                        document={document}
+                        handleDrawerUploadDoc={handleDrawerUploadDoc}
+                        setFilesData={setFilesData}
+                        setIsEditDocument={setIsEditDocument}
+                      />
                     </Col>
                   );
                 })}
@@ -189,6 +195,8 @@ const VisitMedicalRecords = () => {
             setShowDeletePopup={setShowDeletePopup}
             filesData={filesData}
             setFilesData={setFilesData}
+            isEditDocument={isEditDocument}
+            setIsEditDocument={setIsEditDocument}
           />
         </Drawer>
       )}

@@ -61,6 +61,7 @@ import {
   setAllUploadedDocs,
   setUploadDocCategories,
 } from "../redux/uploadDocSlice";
+import UploadDocumentList from "./medicalRecords/components/uploadDocumentList/UploadDocumentList";
 
 function Prescription() {
   const {
@@ -662,89 +663,91 @@ function Prescription() {
                             <PrivateNotesList handleDrawerPrivateNotes={handleDrawerPrivateNotes} />
                     )}
                   </div>
-                ) : (
-                  e.tmdpm_id === 17 &&
+                ) : e.tmdpm_id === 17 &&
                   e.tmdpm_status === 0 &&
-                  isGynaecHistoryAccessable && (
-                    <>
-                      <div className="prescription-box-sm p-14">
-                        <div className="d-flex align-items-center justify-content-between">
-                          <div className="d-flex align-items-center">
-                            <img
-                              src={obstetricImg}
-                              alt="obstetric"
-                              className="me-3"
-                            />
-                                <div className="title-common">Obstetric History</div>
-                          </div>
-                          <button
-                            className="btn d-flex align-items-center btn-text"
-                            onClick={handleDrawerObstetric}
-                          >
-                            <i
-                                  className={`${examinationHistory.length > 0
-                                  ? "icon-Edit"
-                                  : "icon-Add"
-                              } me-1 fs-5`}
-                            ></i>
-                                <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"
-                            }`}</span>
-                          </button>
+                  isGynaecHistoryAccessable ? (
+                    <div className="prescription-box-sm p-14">
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center">
+                          <img
+                            src={obstetricImg}
+                            alt="obstetric"
+                            className="me-3"
+                          />
+                              <div className="title-common">Obstetric History</div>
                         </div>
-                        {(obstetricDetails?.lmp ||
-                          obstetricDetails?.edd ||
-                          obstetricDetails?.gravidity ||
-                          obstetricDetails?.parity ||
-                          obstetricDetails?.livingChildren ||
-                          obstetricDetails?.abortion ||
-                          obstetricDetails?.ectopicPregnancies ||
-                          examinationHistory?.length > 0) && <ObstetricList />}
+                        <button
+                          className="btn d-flex align-items-center btn-text"
+                          onClick={handleDrawerObstetric}
+                        >
+                          <i
+                                className={`${examinationHistory.length > 0
+                                ? "icon-Edit"
+                                : "icon-Add"
+                            } me-1 fs-5`}
+                          ></i>
+                              <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"
+                          }`}</span>
+                        </button>
                       </div>
-                      <div className="prescription-box-sm p-14">
-                        <div className="d-flex align-items-center justify-content-between">
-                          <div className="d-flex align-items-center">
-                            <img
-                              src={uploadDocImg}
-                              alt="upload-document"
-                              className="me-3"
-                            />
-                            <div className="title-common">Medical Records</div>
-                          </div>
-                          <button
+                      {(obstetricDetails?.lmp ||
+                        obstetricDetails?.edd ||
+                        obstetricDetails?.gravidity ||
+                        obstetricDetails?.parity ||
+                        obstetricDetails?.livingChildren ||
+                        obstetricDetails?.abortion ||
+                        obstetricDetails?.ectopicPregnancies ||
+                        examinationHistory?.length > 0) && <ObstetricList />}
+                    </div>
+                  ) : e.tmdpm_id === 18 &&
+                  e.tmdpm_status === 0 && (
+                    <div className="prescription-box-sm p-14">
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center">
+                          <img
+                            src={uploadDocImg}
+                            alt="upload-document"
+                            className="me-3"
+                          />
+                          <div className="title-common">Medical Records</div>
+                        </div>
+                        <button
+                          type="file"
+                          multiple
+                          onChange={handleFileUpload}
+                          className="btn d-flex align-items-center btn-text"
+                          style={{ paddingRight: allUploadedDocs.length > 0 ? 0 : 12 }}
+                          onClick={
+                            allUploadedDocs.length > 0
+                              ? handleDrawerMedicalReport
+                              : handleAddClick
+                          }
+                        >
+                          <input
                             type="file"
                             multiple
+                            ref={fileInputRef}
                             onChange={handleFileUpload}
-                            className="btn d-flex align-items-center btn-text"
-                            style={{ paddingRight: 0 }}
-                            onClick={
-                              allUploadedDocs.length > 0
-                                ? handleDrawerMedicalReport
-                                : handleAddClick
-                            }
-                          >
-                            <input
-                              type="file"
-                              multiple
-                              ref={fileInputRef}
-                              onChange={handleFileUpload}
-                              style={{ display: "none" }}
-                            />
-                            {allUploadedDocs.length === 0 && (
-                              <i className="icon-Add me-1 fs-5" />
-                            )}
-                            <span>{`${
-                              allUploadedDocs.length > 0 ? "View All" : "Add"
-                            }`}</span>
-                            {allUploadedDocs.length > 0 && (
-                              <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
-                            )}
-                          </button>
-                        </div>
-                        <uploadDocList />
+                            style={{ display: "none" }}
+                          />
+                          {allUploadedDocs.length === 0 && (
+                            <i className="icon-Add me-1 fs-5" />
+                          )}
+                          <span>{`${
+                            allUploadedDocs.length > 0 ? "View All" : "Add"
+                          }`}</span>
+                          {allUploadedDocs.length > 0 && (
+                            <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                          )}
+                        </button>
                       </div>
-                    </>
+                      <UploadDocumentList 
+                        handleDrawerUploadDoc={handleDrawerUploadDoc}
+                        setFilesData={setFilesData}
+                        setIsEditDocument={setIsEditDocument}
+                        />
+                    </div>
                   )
-                );
               })}
 
               {/* <div>

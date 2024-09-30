@@ -46,6 +46,16 @@ export const fetchAllPatientDocs = async function (patientUniqueId) {
   return res;
 };
 
+export const fetchDocById = async function (docId) {
+  let res = [];
+  try {
+    res = await api.get(`/api/v1/docs/${docId}`, baseUrl);
+  } catch (e) {
+    console.error("Error while fetching document by id: ", e);
+  }
+  return res;
+};
+
 export const deleteDocById = async function (id) {
   let res = [];
   try {

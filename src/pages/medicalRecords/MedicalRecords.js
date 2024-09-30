@@ -31,7 +31,7 @@ const MedicalRecords = ({
         ? allUploadedDocs
         : allUploadedDocs.filter((item) => item.category_id === activeCategory);
     setActiveCategoryDocs([...updatedUploadedDocs]);
-  }, [activeCategory]);
+  }, [activeCategory, allUploadedDocs]);
 
   const categoryOptionHandler = (index) => {
     setActiveCategory(index);
@@ -123,7 +123,7 @@ const MedicalRecords = ({
             md={2}
             lg={3}
             className="gy-4 w-100"
-            style={{ paddingLeft: "24px" }}
+            style={{ padding: "0 0 24px 24px" }}
           >
             {activeCategoryDocs.map((document, index) => {
               return (

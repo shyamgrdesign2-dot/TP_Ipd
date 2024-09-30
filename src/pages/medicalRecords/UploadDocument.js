@@ -1,14 +1,20 @@
 import { Button, Card, DatePicker, Input, Select } from "antd";
-import { useContext, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import document from "./../../assets/images/fallback-thumbnail.svg";
 import dayjs from "dayjs";
 import { disableFutureDates } from "../growthChart/growthChartHelper";
 import "./UploadDocument.scss";
 import CommonModal from "../../common/CommonModal";
 import alertIcon from "./../../assets/images/alertIcon.svg";
-import { useSelector } from "react-redux";
-import { uploadDocument } from "./service";
-import CashManagerContext from "../../context/CashManagerContext";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchAllPatientDocs,
+  fetchDocById,
+  updateDocument,
+  uploadDocument,
+} from "./service";
+import { setAllUploadedDocs } from "../../redux/uploadDocSlice";
+import { useLocation } from "react-router-dom";
 
 const UploadDocument = ({
   onClose,
@@ -20,9 +26,13 @@ const UploadDocument = ({
   isEditDocument,
   setIsEditDocument,
 }) => {
+  const dispatch = useDispatch();
   const { userId } = useSelector((state) => state.doctors);
-  const { patient_data } = useContext(CashManagerContext);
-  const { uploadDocCategories } = useSelector((state) => state.uploadDoc);
+  const { state } = useLocation();
+  const { patient_data } = state;
+  const { uploadDocCategories, allUploadedDocs } = useSelector(
+    (state) => state.uploadDoc
+  );
   const documentOptions = uploadDocCategories.map((item) => {
     return {
       label: item.category_name,
@@ -33,8 +43,12 @@ const UploadDocument = ({
   const [recordData, setRecordData] = useState(
     filesData.map((item) => {
       return {
+        id: item?.id,
+        name: item?.name,
         recordType: item?.category_id,
-        recordUploadDate: dayjs().toISOString(),
+        recordUploadDate: item?.investigation_date
+          ? item?.investigation_date
+          : dayjs().format("YYYY-MM-DD"),
         notes: item?.notes || "",
       };
     })
@@ -67,12 +81,30 @@ const UploadDocument = ({
 
   const handleSubmit = async () => {
     if (isEditDocument) {
+      const fileData = recordData?.[0];
+      if (fileData) {
+        const payload = {
+          id: fileData?.id,
+          category_id: fileData?.recordType,
+          investigation_date: fileData?.recordUploadDate,
+          notes: fileData?.notes,
+        };
+        const resultStatus = await updateDocument([payload]);
+        if (resultStatus?.status === 204) {
+          const response = await fetchDocById(fileData?.id);
+          let updatedData = allUploadedDocs.map((item) =>
+            item.id === fileData?.id ? response : item
+          );
+
+          dispatch(setAllUploadedDocs(updatedData));
+        }
+      }
       setIsEditDocument(false);
     } else {
       const formData = new FormData();
-      // filesData.forEach((item) => {
-      formData.append("file", document);
-      // });
+      filesData.forEach((item) => {
+        formData.append("file", item);
+      });
       formData.append(
         "pm_id",
         patient_data !== undefined ? patient_data.pm_id : 0
@@ -87,6 +119,24 @@ const UploadDocument = ({
         patient_data !== undefined ? patient_data.pm_pid : 0
       );
       const uploadResponse = await uploadDocument(formData);
+      if (uploadResponse?.length > 0) {
+        const payload = uploadResponse.map((item) => {
+          const recordItem = recordData.find(
+            (record) => record.name === item.name
+          );
+          return {
+            id: item?.id || 0,
+            category_id: recordItem?.recordType,
+            investigation_date: recordItem?.recordUploadDate,
+            notes: recordItem?.notes,
+          };
+        });
+        updateDocument(payload);
+      }
+      const response = await fetchAllPatientDocs(
+        patient_data?.patient_unique_id
+      );
+      dispatch(setAllUploadedDocs(response));
     }
     handleDrawerUploadDoc();
   };
@@ -98,7 +148,7 @@ const UploadDocument = ({
     if (totalFiles.length > 5) {
       alert("You can only upload a maximum of 5 files.");
       if (fileInputRef.current) {
-        fileInputRef.current.value = ""; // Reset file input
+        fileInputRef.current.value = "";
       }
     } else {
       setFilesData(totalFiles);
@@ -106,6 +156,8 @@ const UploadDocument = ({
       // handleDrawerUploadDoc();
     }
   };
+
+  console.log("hello", recordData, filesData);
 
   return (
     <div className="upload-document">
@@ -225,7 +277,9 @@ const UploadDocument = ({
                           handleRecordChange(
                             index,
                             "recordUploadDate",
-                            d ? dayjs(d, "DD MMM YYYY").toISOString() : ""
+                            d
+                              ? dayjs(d, "DD MMM YYYY").format("YYYY-MM-DD")
+                              : ""
                           );
                         }}
                         style={{
@@ -233,11 +287,11 @@ const UploadDocument = ({
                           width: "100%",
                         }}
                         format="DD MMM YYYY"
-                        // value={
-                        //   recordData?.[index]?.recordUploadDate
-                        //     ? recordData?.[index]?.recordUploadDate
-                        //     : ""
-                        // }
+                        value={
+                          recordData?.[index]?.recordUploadDate
+                            ? dayjs(recordData?.[index]?.recordUploadDate)
+                            : ""
+                        }
                         allowClear={false}
                         disabledDate={disableFutureDates}
                         defaultValue={dayjs()}
