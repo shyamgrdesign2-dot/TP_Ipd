@@ -1753,8 +1753,9 @@ function ObsHistoryListView({
                         fontWeight: 400,
                       }}
                     >
-                      {/* {i + 1} */}
-                      {obsHistoryData?.examinationHistory.length - i}
+                      {item?.visitNumber
+                        ? item?.visitNumber
+                        : obsHistoryData?.examinationHistory.length - i}
                     </Text>
 
                     {("pallor" in item ||

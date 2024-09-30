@@ -21,6 +21,7 @@ import PageFormatLayout from "../components/print_settings/PageFormatLayout";
 import "cropperjs/dist/cropper.css";
 import { useTodayVaccines } from "./vaccination/useTodayVaccines";
 import { useGrowthChart } from "./growthChart/useGrowthChart";
+import useObstetric from "./obstetric/useObstetric";
 
 function ConfigurePrintSetting() {
 
@@ -41,6 +42,7 @@ function ConfigurePrintSetting() {
     const [fileSignature, setFileSignature] = useState(null);
     const todayVaccines = useTodayVaccines(caseManagerData);
     const growthChartDetails = useGrowthChart(caseManagerData);
+    const obstetricDetails = useObstetric(caseManagerData?.patient_data?.patient_unique_id);
     const medicalHistoryCheckboxOptions = caseManagerData?.medical_history?.map(e => {
         return { label: e?.title, value: e?.tmmhs_id }
     })
@@ -104,9 +106,9 @@ function ConfigurePrintSetting() {
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <Tabs defaultActiveKey="1" items={caseManagerData !== undefined ? TabsPrintSetting : TabsPrintSetting.slice(1, 2)} onChange={onTabChange} className="print-tabs" />
                                 {selectedTab === TAB_PRESCRIPTION ? (
-                                    <PrescriptionLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} />
+                                    <PrescriptionLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} />
                                 ) : selectedTab === TAB_HEADER_FOOTER ? (
-                                    <HeaderFooterLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} />
+                                    <HeaderFooterLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} />
                                 ) : selectedTab === TAB_PAGE_FORMAT && (
                                     <PageFormatLayout />
                                 )}
@@ -117,7 +119,7 @@ function ConfigurePrintSetting() {
                                 <div className="titleprint mt-20">Preview</div>
                                 <div ref={divRef} className="rounded-20px bg-white mt-20 overflow-hidden">
                                     <div className="position-relative printheight">
-                                        {caseManagerData !== undefined ? <Quixote mode={NORMAL} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} /> : <QuixoteCertificate mode={NORMAL} />}
+                                        {caseManagerData !== undefined ? <Quixote mode={NORMAL} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} /> : <QuixoteCertificate mode={NORMAL} />}
                                     </div>
                                 </div>
                             </div>

@@ -173,7 +173,7 @@ function ObsHistoryTableView({
                     ]}
                   >
                     {"gravidity" in obsHistoryData
-                      ? (obsHistoryData?.gravidity)?.toString()?.padStart(2, "0")
+                      ? obsHistoryData?.gravidity?.toString()?.padStart(2, "0")
                       : `-`}
                   </Text>
                   <Text
@@ -190,7 +190,7 @@ function ObsHistoryTableView({
                     ]}
                   >
                     {"parity" in obsHistoryData
-                      ? (obsHistoryData?.parity)?.toString()?.padStart(2, "0")
+                      ? obsHistoryData?.parity?.toString()?.padStart(2, "0")
                       : `-`}
                   </Text>
                   <Text
@@ -207,7 +207,7 @@ function ObsHistoryTableView({
                     ]}
                   >
                     {"livingChildren" in obsHistoryData
-                      ? (obsHistoryData?.livingChildren)
+                      ? obsHistoryData?.livingChildren
                           ?.toString()
                           ?.padStart(2, "0")
                       : `-`}
@@ -226,7 +226,7 @@ function ObsHistoryTableView({
                     ]}
                   >
                     {"abortion" in obsHistoryData
-                      ? (obsHistoryData?.abortion)?.toString()?.padStart(2, "0")
+                      ? obsHistoryData?.abortion?.toString()?.padStart(2, "0")
                       : `-`}
                   </Text>
                   <Text
@@ -243,7 +243,7 @@ function ObsHistoryTableView({
                     ]}
                   >
                     {"ectopicPregnancies" in obsHistoryData
-                      ? (obsHistoryData?.ectopicPregnancies)
+                      ? obsHistoryData?.ectopicPregnancies
                           ?.toString()
                           ?.padStart(2, "0")
                       : `-`}
@@ -644,80 +644,287 @@ function ObsHistoryTableView({
         </View>
       )}
 
-      {options?.includes("history") && (
-        <View>
-          <Text
-            style={{
-              color: "#000",
-              marginTop: PX_TO_PT * 12,
-              fontFamily: printSettings?.page_format?.font_family,
-              fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-              fontWeight: 500,
-              padding: 6,
-              borderTop: "1px solid #171725",
-              borderLeft: "1px solid #171725",
-              borderRight: "1px solid #171725",
-              backgroundColor: "#E2E2EA",
-            }}
-          >
-            Pregnancy history
-          </Text>
-          {obsHistoryData?.pregnancyHistory.map((item, i) => {
-            return (
-              <View key={i} wrap={false}>
-                <View style={[styles.table, { marginTop: 0 }]}>
-                  <View
-                    style={[
-                      styles.row,
-                      { alignItems: "center", justifyContent: "center" },
-                    ]}
-                  >
-                    <Text
+      {options?.includes("history") &&
+        obsHistoryData?.pregnancyHistory?.length > 0 && (
+          <View>
+            <Text
+              style={{
+                color: "#000",
+                marginTop: PX_TO_PT * 12,
+                fontFamily: printSettings?.page_format?.font_family,
+                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                fontWeight: 500,
+                padding: 6,
+                borderTop: "1px solid #171725",
+                borderLeft: "1px solid #171725",
+                borderRight: "1px solid #171725",
+                backgroundColor: "#E2E2EA",
+              }}
+            >
+              Pregnancy history
+            </Text>
+            {obsHistoryData?.pregnancyHistory.map((item, i) => {
+              return (
+                <View key={i} wrap={false}>
+                  <View style={[styles.table, { marginTop: 0 }]}>
+                    <View
                       style={[
-                        styles.cell,
-                        {
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 500,
-                          color: "#000",
-                          textAlign: "center",
-                        },
+                        styles.row,
+                        { alignItems: "center", justifyContent: "center" },
                       ]}
                     >
-                      Gravida no
-                    </Text>
-                    <Text
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Gravida no
+                      </Text>
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Outcome
+                      </Text>
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        Term length
+                      </Text>
+                      {"deliveryMode" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          Delivery mode
+                        </Text>
+                      )}
+
+                      {"gestationPeriod" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          Period of gestation
+                        </Text>
+                      )}
+
+                      {"location" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          Location
+                        </Text>
+                      )}
+
+                      {"modeOfManagement" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          Management mode
+                        </Text>
+                      )}
+
+                      {"typeOfAbortion" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          Type of Miscarriage
+                        </Text>
+                      )}
+
+                      {"modeOfAbortion" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          Mode of Miscarriage
+                        </Text>
+                      )}
+
+                      {"dateOfDelivery" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          Delivery date
+                        </Text>
+                      )}
+
+                      {"ageOfDelivery" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          Age
+                        </Text>
+                      )}
+
+                      {"gender" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          Gender
+                        </Text>
+                      )}
+
+                      {"babysWeight" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          Baby's weight
+                        </Text>
+                      )}
+                    </View>
+
+                    <View
                       style={[
-                        styles.cell,
-                        {
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 500,
-                          color: "#000",
-                          textAlign: "center",
-                        },
+                        styles.row,
+                        { alignItems: "center", justifyContent: "center" },
                       ]}
                     >
-                      Outcome
-                    </Text>
-                    <Text
-                      style={[
-                        styles.cell,
-                        {
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 500,
-                          color: "#000",
-                          textAlign: "center",
-                        },
-                      ]}
-                    >
-                      Term length
-                    </Text>
-                    {"deliveryMode" in item && (
                       <Text
                         style={[
                           styles.cell,
@@ -725,462 +932,299 @@ function ObsHistoryTableView({
                             fontFamily: printSettings?.page_format?.font_family,
                             fontSize:
                               PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 500,
+                            fontWeight: 400,
                             color: "#000",
                             textAlign: "center",
                           },
                         ]}
                       >
-                        Delivery mode
+                        {"gravidaNumber" in item
+                          ? item?.gravidaNumber?.toString()?.padStart(2, "0")
+                          : `-`}
                       </Text>
-                    )}
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        {"outcome" in item
+                          ? getPregnancyOutcome(item?.outcome)
+                          : `-`}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.cell,
+                          {
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                            color: "#000",
+                            textAlign: "center",
+                          },
+                        ]}
+                      >
+                        {"termLength" in item ? item?.termLength : `-`}
+                      </Text>
 
-                    {"gestationPeriod" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 500,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        Period of gestation
-                      </Text>
-                    )}
+                      {"deliveryMode" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          {"deliveryMode" in item ? item?.deliveryMode : `-`}
+                        </Text>
+                      )}
 
-                    {"location" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 500,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        Location
-                      </Text>
-                    )}
+                      {"gestationPeriod" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          {"gestationPeriod" in item
+                            ? `${item?.gestationPeriod} ${
+                                Number(item?.gestationPeriod) > 1
+                                  ? "weeks"
+                                  : "week"
+                              }`
+                            : "-"}
+                        </Text>
+                      )}
 
-                    {"modeOfManagement" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 500,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        Management mode
-                      </Text>
-                    )}
+                      {"location" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          {"location" in item ? item?.location : `-`}
+                        </Text>
+                      )}
 
-                    {"typeOfAbortion" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 500,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        Type of Miscarriage
-                      </Text>
-                    )}
+                      {"modeOfManagement" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          {"modeOfManagement" in item
+                            ? item?.modeOfManagement
+                            : `-`}
+                        </Text>
+                      )}
 
-                    {"modeOfAbortion" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 500,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        Mode of Miscarriage
-                      </Text>
-                    )}
+                      {"typeOfAbortion" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          {"typeOfAbortion" in item
+                            ? getTypeOfAbortion(item?.typeOfAbortion)
+                            : `-`}
+                        </Text>
+                      )}
 
-                    {"dateOfDelivery" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 500,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        Delivery date
-                      </Text>
-                    )}
+                      {"modeOfAbortion" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          {"modeOfAbortion" in item
+                            ? item?.modeOfAbortion
+                            : `-`}
+                        </Text>
+                      )}
 
-                    {"ageOfDelivery" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 500,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        Age
-                      </Text>
-                    )}
+                      {"dateOfDelivery" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          {"dateOfDelivery" in item
+                            ? moment(item?.dateOfDelivery).format("DD MMM YYYY")
+                            : `-`}
+                        </Text>
+                      )}
 
-                    {"gender" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 500,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        Gender
-                      </Text>
-                    )}
+                      {"ageOfDelivery" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          {"ageOfDelivery" in item ? item?.ageOfDelivery : `-`}
+                        </Text>
+                      )}
 
-                    {"babysWeight" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 500,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        Baby's weight
-                      </Text>
-                    )}
+                      {"gender" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          {"gender" in item ? item?.gender : `-`}
+                        </Text>
+                      )}
+
+                      {"babysWeight" in item && (
+                        <Text
+                          style={[
+                            styles.cell,
+                            {
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                              color: "#000",
+                              textAlign: "center",
+                            },
+                          ]}
+                        >
+                          {"babysWeight" in item ? item?.babysWeight : ``}
+                          {"babysWeight" in item ? `kgs` : `-`}
+                        </Text>
+                      )}
+                    </View>
                   </View>
-
-                  <View
-                    style={[
-                      styles.row,
-                      { alignItems: "center", justifyContent: "center" },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.cell,
-                        {
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 400,
-                          color: "#000",
-                          textAlign: "center",
-                        },
-                      ]}
-                    >
-                      {"gravidaNumber" in item
-                        ? (item?.gravidaNumber)?.toString()?.padStart(2, "0")
-                        : `-`}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.cell,
-                        {
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 400,
-                          color: "#000",
-                          textAlign: "center",
-                        },
-                      ]}
-                    >
-                      {"outcome" in item
-                        ? getPregnancyOutcome(item?.outcome)
-                        : `-`}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.cell,
-                        {
-                          fontFamily: printSettings?.page_format?.font_family,
-                          fontSize:
-                            PX_TO_PT * printSettings?.page_format?.font_size,
-                          fontWeight: 400,
-                          color: "#000",
-                          textAlign: "center",
-                        },
-                      ]}
-                    >
-                      {"termLength" in item ? item?.termLength : `-`}
-                    </Text>
-
-                    {"deliveryMode" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        {"deliveryMode" in item ? item?.deliveryMode : `-`}
-                      </Text>
-                    )}
-
-                    {"gestationPeriod" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        {"gestationPeriod" in item
-                          ? `${item?.gestationPeriod} ${
-                              Number(item?.gestationPeriod) > 1
-                                ? "weeks"
-                                : "week"
-                            }`
-                          : "-"}
-                      </Text>
-                    )}
-
-                    {"location" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        {"location" in item ? item?.location : `-`}
-                      </Text>
-                    )}
-
-                    {"modeOfManagement" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        {"modeOfManagement" in item
-                          ? item?.modeOfManagement
-                          : `-`}
-                      </Text>
-                    )}
-
-                    {"typeOfAbortion" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        {"typeOfAbortion" in item
-                          ? getTypeOfAbortion(item?.typeOfAbortion)
-                          : `-`}
-                      </Text>
-                    )}
-
-                    {"modeOfAbortion" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        {"modeOfAbortion" in item ? item?.modeOfAbortion : `-`}
-                      </Text>
-                    )}
-
-                    {"dateOfDelivery" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        {"dateOfDelivery" in item
-                          ? moment(item?.dateOfDelivery).format("DD MMM YYYY")
-                          : `-`}
-                      </Text>
-                    )}
-
-                    {"ageOfDelivery" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        {"ageOfDelivery" in item ? item?.ageOfDelivery : `-`}
-                      </Text>
-                    )}
-
-                    {"gender" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        {"gender" in item ? item?.gender : `-`}
-                      </Text>
-                    )}
-
-                    {"babysWeight" in item && (
-                      <Text
-                        style={[
-                          styles.cell,
-                          {
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                            color: "#000",
-                            textAlign: "center",
-                          },
-                        ]}
-                      >
-                        {"babysWeight" in item ? item?.babysWeight : ``}
-                        {"babysWeight" in item ? `kgs` : `-`}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-                <Text
-                  style={{
-                    color: "#000",
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                    fontWeight: 500,
-                    padding: 6,
-                    borderBottom: "1px solid #171725",
-                    borderLeft: "1px solid #171725",
-                    borderRight: "1px solid #171725",
-                  }}
-                >
-                  Notes&nbsp;:&nbsp;
                   <Text
-                    style={[
-                      styles.cell,
-                      {
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 400,
-                        color: "#000",
-                      },
-                    ]}
+                    style={{
+                      color: "#000",
+                      fontFamily: printSettings?.page_format?.font_family,
+                      fontSize:
+                        PX_TO_PT * printSettings?.page_format?.font_size,
+                      fontWeight: 500,
+                      padding: 6,
+                      borderBottom: "1px solid #171725",
+                      borderLeft: "1px solid #171725",
+                      borderRight: "1px solid #171725",
+                    }}
                   >
-                    {"remarks" in item ? item?.remarks : `-`}
+                    Notes&nbsp;:&nbsp;
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                          color: "#000",
+                        },
+                      ]}
+                    >
+                      {"remarks" in item ? item?.remarks : `-`}
+                    </Text>
                   </Text>
-                </Text>
-              </View>
-            );
-          })}
-        </View>
-      )}
+                </View>
+              );
+            })}
+          </View>
+        )}
 
       {options?.includes("examination") && (
         <View>
@@ -1376,8 +1420,9 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {/* {i + 1} */}
-                    {obsHistoryData?.examinationHistory.length - i}
+                    {item?.visitNumber
+                      ? item?.visitNumber
+                      : obsHistoryData?.examinationHistory.length - i}
                   </Text>
                   <Text
                     style={[
