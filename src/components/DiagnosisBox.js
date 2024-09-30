@@ -358,7 +358,7 @@ function DiagnosisBox() {
 
   const onTemplateSelected = (template) => {
     const updatedData = template.diagnosis.map(e => {
-      return { ...e, unique_id: uuidv4(), since: "", status: "", note: "" }
+      return { ...e, unique_id: uuidv4(), since: "", status: "", note: e.note ? e.note : "" }
     })
     setDiagnosisData([...diagnosisData, ...updatedData]);
     showHideTemplatesListPopover();
