@@ -19,7 +19,7 @@ import playIcons from '../assets/images/tube-icon.svg';
 import fullicon from '../assets/images/full-icon.svg';
 import VideoModal from './VideoModal';
 
-import { errorMessage, getClinicName, removeBeforeWhiteSpace, sortRxData } from "../utils/utils";
+import { errorMessage, getClinicName, removeBeforeWhiteSpace } from "../utils/utils";
 
 import { EXTRA_OPTIONS, MESSAGE_KEY } from "../utils/constants";
 
@@ -833,7 +833,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                 symptoms: symptomsData,
                 examination: examinationData,
                 diagnosis: diagnosisData,
-                medicine: sortRxData(medicationData.map(({ medicineUnit, ...rest }) => rest)),
+                medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
                 advice: adviceData,
                 investigation: investigationData,
                 vitals: vitalsData,

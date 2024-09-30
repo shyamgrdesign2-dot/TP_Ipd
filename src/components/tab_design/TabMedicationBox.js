@@ -164,9 +164,30 @@ function TabMedicationBox() {
     setAllTemplates(templates);
   }, [templates]);
 
-  const onRemoveRow = (tmm_id) => {
-    const filteredData = medicationData.filter(e => e.tmm_id !== tmm_id);
-    setMedicationData(filteredData);
+  const innerMedication = (index) => {
+    const mainArray = []
+    for (var i = index; i < medicationData.length; i++) {
+      if (medicationData[i].tmm_id == medicationData[index].tmm_id) {
+        mainArray.push(medicationData[i])
+      } else {
+        break;
+      }
+    }
+    return mainArray
+  }
+
+  const onRemoveRow = async (index, data = []) => {
+    const childData = await innerMedication(index)
+    childData.map((e) => {
+      const mainIndex = medicationData.findIndex(x => x.unique_id == e.unique_id);
+      if (mainIndex != -1) {
+        medicationData.splice(mainIndex, 1)
+      }
+    })
+    if (data?.length > 0) {
+      medicationData.splice(selectedIndex, 0, ...data)
+    }
+    setMedicationData((prev) => [...prev]);
     setSelectedIndex(null);
   };
 
@@ -226,8 +247,20 @@ function TabMedicationBox() {
     }
   };
 
+  // const innerMedication = (index) => {
+  //   const mainArray = []
+  //   for (var i = index; i < medicationData.length; i++) {
+  //     if (medicationData[i].tmm_id == medicationData[index].tmm_id) {
+  //       mainArray.push(medicationData[i])
+  //     } else {
+  //       break;
+  //     }
+  //   }
+  //   return mainArray
+  // }
+
   // Handle Child Drawer
-  const handleDrawerChild = (data, item) => {
+  const handleDrawerChild = (data, index) => {
     setChildDrawer(!childDrawer);
     setChildDrawerData(data);
     if (data && data?.length > 0) {
@@ -242,9 +275,14 @@ function TabMedicationBox() {
       }
     }
     setSinceValue(data && data?.length > 0 && data[0].tmm_days ? parseInt(data[0].tmm_days) : 1);
-    setSelectedIndex(item ? medicationData.findIndex(e => e.tmm_id == item.tmm_id) : null);
+    setSelectedIndex(index);
     setChildIndex(data && data?.length > 0 ? 0 : null)
     setActiveKey(data && data?.length > 0 ? data[0].unique_id : null)
+  }
+
+  const mainMedicationSelect = async (index) => {
+    const childData = await innerMedication(index)
+    handleDrawerChild(childData, index)
   }
 
   // Handle Template Drawer
@@ -484,7 +522,7 @@ function TabMedicationBox() {
   const TABLE_MEDICATION = useMemo(() => {
     return (
       medicationData.length > 0 &&
-      medicationData.reduce((acc, item) => acc.find(i => i.tmm_id == item.tmm_id) ? acc : [...acc, item], []).map((item, index) => {
+      medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, index) => {
         return (
           <div
             key={index}
@@ -501,10 +539,10 @@ function TabMedicationBox() {
           >
             <div
               className="text-truncate p-2"
-              onClick={() => handleDrawerChild(medicationData?.filter(e => e.tmm_id === item.tmm_id).map(e => ({ ...e })), item)}>
+              onClick={() => mainMedicationSelect(item?.index)}>
               <div className="text-truncate">
                 {item.tmm_medicine_name}
-                {medicationData?.filter(e => e.tmm_id == item.tmm_id)?.length > 1 ? (
+                {innerMedication(item?.index)?.length > 1 ? (
                   <div className="text-truncate small">Taper Dose</div>
                 ) : (
                   (item.tmm_dosage || item.tmm_unit_name) ? (
@@ -532,7 +570,7 @@ function TabMedicationBox() {
             <Button
               type="text"
               className="rounded-0 btn-close-chips"
-              onClick={() => onRemoveRow(item.tmm_id)}
+              onClick={() => onRemoveRow(item?.index)}
             >
               <i className="icon-Cross"></i>
             </Button>
@@ -1019,13 +1057,9 @@ function TabMedicationBox() {
 
   const updateChild = async (item) => {
     if (item?.length > 0) {
-      const addDataIndex = medicationData.findIndex(e => e.tmm_id == item[0].tmm_id);
-      const nonMatchingItems = medicationData.filter(e => e.tmm_id != item[0].tmm_id);
-      nonMatchingItems.splice(addDataIndex, 0, ...item)
-      setMedicationData(nonMatchingItems);
+      onRemoveRow(selectedIndex, item);
     } else {
-      const nonMatchingItems = medicationData.filter(e => e.tmm_id != medicationData[selectedIndex].tmm_id);
-      setMedicationData(nonMatchingItems);
+      onRemoveRow(selectedIndex);
     }
     handleDrawerChild();
   };
@@ -1094,10 +1128,9 @@ function TabMedicationBox() {
         if (checkIndex != -1) {
           setChildIndex(checkIndex);
         } else {
-          setChildIndex(childDrawerData.findIndex(e => e.tmm_id == item.tmm_id));
-          setActiveKey(childDrawerData.find(e => e.tmm_id == item.tmm_id)?.unique_id);
+          setChildIndex(selectedIndex);
+          setActiveKey(childDrawerData[selectedIndex]?.unique_id);
         }
-
       }
     }
   };

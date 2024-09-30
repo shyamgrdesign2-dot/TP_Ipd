@@ -60,7 +60,6 @@ function Cardiology(props) {
   );
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
-  const baseUrlRxDigitise = env.rx_digitization;
 
   useEffect(() => {
     setSmartRxFile([]);
@@ -136,8 +135,21 @@ function Cardiology(props) {
     //     key: 'SavedasTemplate',
     // }
   ];
-  const medicationData = viewCaseManagerData ? JSON.parse(JSON.stringify(viewCaseManagerData.medicine)).sort((a, b) => parseInt(a.tmm_id) - parseInt(b.tmm_id)) : []
-  var indexx = 1
+
+  const medicationData = viewCaseManagerData ? JSON.parse(JSON.stringify(viewCaseManagerData.medicine)) : []
+
+  const innerMedication = (index) => {
+    const mainArray = []
+    for (var i = index; i < medicationData.length; i++) {
+      if (medicationData[i].tmm_id == medicationData[index].tmm_id) {
+        mainArray.push(medicationData[i])
+      } else {
+        break;
+      }
+    }
+    return mainArray
+  }
+  var sNO = 1
   const columns = [
     {
       title: "S.NO",
@@ -146,16 +158,16 @@ function Cardiology(props) {
       width: "40px",
       render: (text, record, index) => (
         <div>
-          <span>{!medicationData.slice(0, index).some((e) => (e.tmm_id == record.tmm_id)) && indexx++}</span>
+          <span>{record?.tmm_id != medicationData[index - 1]?.tmm_id && sNO++}</span>
         </div>
       ),
       onCell: (record, index) => {
-        if (!medicationData.slice(0, index).some((e) => (e.tmm_id == record.tmm_id))) {
+        if (record?.tmm_id != medicationData[index - 1]?.tmm_id) {
           return {
-            rowSpan: medicationData.filter((e) => e.tmm_id == record.tmm_id).length,
+            rowSpan: innerMedication(index)?.length,
           };
         }
-        if (medicationData.slice(0, index).some((e) => e.tmm_id == record.tmm_id)) {
+        if (record?.tmm_id == medicationData[index - 1]?.tmm_id) {
           return {
             rowSpan: 0,
           };
@@ -173,12 +185,12 @@ function Cardiology(props) {
         </div>
       ),
       onCell: (record, index) => {
-        if (!medicationData.slice(0, index).some((e) => (e.tmm_id == record.tmm_id))) {
+        if (record?.tmm_id != medicationData[index - 1]?.tmm_id) {
           return {
-            rowSpan: medicationData.filter((e) => e.tmm_id == record.tmm_id).length,
+            rowSpan: innerMedication(index)?.length,
           };
         }
-        if (medicationData.slice(0, index).some((e) => e.tmm_id == record.tmm_id)) {
+        if (record?.tmm_id == medicationData[index - 1]?.tmm_id) {
           return {
             rowSpan: 0,
           };
@@ -321,7 +333,7 @@ function Cardiology(props) {
       const cleanedToken = token.replace(/['"]+/g, '');
 
       // API call for Rx Digitisation
-      const response = await axios.get(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${caseId}`, {
+      const response = await axios.get(`https://pm-rxdigitization-uat.tatvacare.in/api/v1/rxdigitize/rx/${caseId}`, {
         headers: {
           'Authorization': `Bearer ${cleanedToken}`,
         },

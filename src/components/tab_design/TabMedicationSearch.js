@@ -78,15 +78,16 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   //Taper Dose
   const [selectedIndex1, setSelectedIndex1] = useState(null);
-  const [activeKey, setActiveKey] = useState(null);
+  const [childIndex, setChildIndex] = useState(null);
+  const [activeKey, setActiveKey] = useState(medicationData[passIndex] !== undefined && medicationData[passIndex].unique_id ? medicationData[passIndex].unique_id : null);
 
   const filteredTitles = frequencyList.filter((item) => item.tmf_block !== 0);
 
   useEffect(() => {
     if (passIndex != null) {
-      const setArray = medicationData.reduce((acc, item) => acc.find(i => i.tmm_id == item.tmm_id) ? acc : [...acc, item], [])
+      const setArray = medicationData.reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], [])
       setSelectedIndex1(setArray?.length - 1)
-      setActiveKey(setArray[setArray?.length - 1]?.unique_id);
+      setChildIndex(medicationData.findIndex(e => e.unique_id == setArray.at(-1)?.unique_id));
     }
   }, [passIndex]);
 
@@ -196,10 +197,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
         });
         setMedicationData((prev) => [...prev]);
         setSelectedIndex(medicationData.length - 1);
+        setActiveKey(updatedData[0]?.unique_id);
 
-        const setArray = medicationData.reduce((acc, item) => acc.find(i => i.tmm_id == item.tmm_id) ? acc : [...acc, item], [])
+        const setArray = medicationData.reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], [])
         setSelectedIndex1(setArray?.length - 1)
-        setActiveKey(setArray[setArray?.length - 1]?.unique_id);
+        setChildIndex(medicationData.findIndex(e => e.unique_id == setArray.at(-1)?.unique_id));
 
         setSinceValue(updatedData[0].tmm_days ? parseInt(updatedData[0].tmm_days) : 1);
         setSearchChildQuery("");
@@ -210,19 +212,38 @@ function TabMedicationSearch({ passIndex, onClose }) {
     }
   }
 
-  const onRemoveRow = (tmm_id) => {
-    const filteredData = medicationData.filter(e => e.tmm_id !== tmm_id);
-    setMedicationData(filteredData);
+  const innerMedication = (index) => {
+    const mainArray = []
+    for (var i = index; i < medicationData.length; i++) {
+      if (medicationData[i]?.tmm_id == medicationData[index]?.tmm_id) {
+        mainArray.push(medicationData[i])
+      } else {
+        break;
+      }
+    }
+    return mainArray
+  }
+
+  const onRemoveRow = async (index) => {
+    const childData = await innerMedication(index)
+    childData.map((e) => {
+      const mainIndex = medicationData.findIndex(x => x.unique_id == e.unique_id);
+      if (mainIndex != -1) {
+        medicationData.splice(mainIndex, 1)
+      }
+    })
+    setMedicationData((prev) => [...prev]);
     setSelectedIndex(null);
+    setActiveKey(null);
     setSelectedIndex1(null);
-    setActiveKey(null)
+    setChildIndex(null);
   };
 
   //Child Componet
   const TABLE_MEDICATION = useMemo(() => {
     return (
       medicationData.length > 0 &&
-      medicationData.reduce((acc, item) => acc.find(i => i.tmm_id == item.tmm_id) ? acc : [...acc, item], []).map((item, index) => {
+      medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, index) => {
         return (
           <div
             key={index}
@@ -241,10 +262,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
             <div
               className="text-truncate p-2"
               onClick={() => {
-                setSelectedIndex(medicationData.findIndex(e => e.tmm_id == item.tmm_id));
+                setSelectedIndex(item?.index);
+                setActiveKey(item?.unique_id);
 
                 setSelectedIndex1(index);
-                setActiveKey(medicationData.find(e => e.tmm_id == item.tmm_id)?.unique_id);
+                setChildIndex(item?.index);
 
                 setSinceValue(item.tmm_days ? parseInt(item.tmm_days) : 1);
                 setAddCustom(null);
@@ -252,7 +274,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             >
               <div className="text-truncate">
                 {item.tmm_medicine_name}
-                {medicationData?.filter(e => e.tmm_id == item.tmm_id)?.length > 1 ? (
+                {innerMedication(item?.index)?.length > 1 ? (
                   <div className="text-truncate small">Taper Dose</div>
                 ) : (
                   (item.tmm_dosage || item.tmm_unit_name) ? (
@@ -281,7 +303,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             <Button
               type="text"
               className="rounded-0 btn-close-chips"
-              onClick={() => onRemoveRow(item.tmm_id)}
+              onClick={() => onRemoveRow(item?.index)}
             >
               <i className="icon-Cross"></i>
             </Button>
@@ -289,7 +311,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         );
       })
     );
-  }, [medicationData, selectedIndex, selectedIndex1, selectedTab]);
+  }, [medicationData, selectedIndex, selectedIndex1, childIndex, selectedTab]);
 
   const onChangeDosageChild = useCallback(
     (e) => {
@@ -641,7 +663,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
     setSinceValue(data && data?.tmm_days ? parseInt(data?.tmm_days) : 1);
   }
 
-  const taperDoseAdd = (item) => {
+  const taperDoseAdd = async (item) => {
+    const array = await innerMedication(childIndex).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) }))
     let updatedData = {
       ...item,
       tmf_block: 0,
@@ -664,9 +687,9 @@ function TabMedicationSearch({ passIndex, onClose }) {
       tmu_id: 0,
       unique_id: uuidv4(),
     }
-    medicationData.push(updatedData);
+    medicationData.splice(parseInt(array.at(-1).index) + 1, 0, updatedData);
     setMedicationData((prev) => [...prev]);
-    setSelectedIndex(medicationData.length - 1);
+    setSelectedIndex(parseInt(array.at(-1).index) + 1);
     setSinceValue(updatedData.tmm_days ? parseInt(updatedData.tmm_days) : 1);
     setSearchChildQuery("");
     setAddCustom(null);
@@ -685,8 +708,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
         if (checkIndex != -1) {
           setSelectedIndex(checkIndex);
         } else {
-          setSelectedIndex(medicationData.findIndex(e => e.tmm_id == item.tmm_id));
-          setActiveKey(medicationData.find(e => e.tmm_id == item.tmm_id)?.unique_id);
+          setSelectedIndex(childIndex);
+          setActiveKey(medicationData[childIndex]?.unique_id);
         }
       }
     }
@@ -712,8 +735,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
               type="editable-card"
               onChange={onChange}
               activeKey={activeKey}
-              onEdit={(targetKey, action) => onEdit(targetKey, action, medicationData[selectedIndex])}
-              items={medicationData?.filter(e => e.tmm_id == medicationData[selectedIndex]?.tmm_id).map((e, i) => {
+              onEdit={(targetKey, action) => onEdit(targetKey, action, medicationData[childIndex])}
+              items={childIndex != null && innerMedication(childIndex).map((e, i) => {
                 return {
                   key: e.unique_id,
                   label: `Dose ${i + 1}`,
@@ -722,7 +745,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
               })}
               className="tablet-medication-tabs"
             />
-            <i className="icon-Add custom-tapper-button" onClick={() => taperDoseAdd(medicationData[selectedIndex])} />
+            <i className="icon-Add custom-tapper-button" onClick={() => taperDoseAdd(medicationData[childIndex])} />
             <div className="p-4">
               <div>
                 <label className="title-common mb-1">Unit/Dose</label>
@@ -1390,7 +1413,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
     timingMoreOptionsVisible,
     frequencyMoreOptionsVisible,
     durationMoreOptionsVisible,
-    activeKey
+    activeKey,
+    childIndex
   ]);
 
   //Add Custom
@@ -1496,10 +1520,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
       });
       setMedicationData((prev) => [...prev]);
       setSelectedIndex(medicationData.length - 1);
+      setActiveKey(updatedData[0]?.unique_id);
 
-      const setArray = medicationData.reduce((acc, item) => acc.find(i => i.tmm_id == item.tmm_id) ? acc : [...acc, item], [])
+      const setArray = medicationData.reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], [])
       setSelectedIndex1(setArray?.length - 1)
-      setActiveKey(setArray[setArray?.length - 1]?.unique_id);
+      setChildIndex(medicationData.findIndex(e => e.unique_id == setArray.at(-1)?.unique_id));
 
       setSinceValue(updatedData[0].tmm_days ? parseInt(updatedData[0].tmm_days) : 1);
       setSearchChildQuery("");

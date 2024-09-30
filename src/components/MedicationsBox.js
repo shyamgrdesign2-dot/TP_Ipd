@@ -713,9 +713,22 @@ function MedicationsBox() {
     );
   }, [isModalOpen]);
 
-  const taperDoseAdd = (item) => {
+  const innerMedication = (index) => {
+    const mainArray = []
+    for (var i = index; i < medicationData.length; i++) {
+      if (medicationData[i].tmm_id == medicationData[index].tmm_id) {
+        mainArray.push(medicationData[i])
+      } else {
+        break;
+      }
+    }
+    return mainArray
+  }
+
+  const taperDoseAdd = async (item) => {
+    const array = await innerMedication(item?.index).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) }))
     let updatedData = {
-      ...item,
+      ...array.at(-1),
       tmf_block: 0,
       tmm_freq_type: 0,
       tmm_freq_type_name: "",
@@ -737,7 +750,8 @@ function MedicationsBox() {
       tmu_id: 0,
       unique_id: uuidv4(),
     }
-    medicationData.push(updatedData);
+    let { index, ...updated } = updatedData
+    medicationData.splice(parseInt(array.at(-1).index) + 1, 0, updated);
     setMedicationData((prev) => [...prev]);
   };
 
@@ -802,7 +816,7 @@ function MedicationsBox() {
           </Row>
         }
         {medicationData.length > 0 &&
-          medicationData.reduce((acc, item) => acc.find(i => i.tmm_id == item.tmm_id) ? acc : [...acc, item], []).map((item, i) => {
+          medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, i) => {
             return (
               <>
                 <Row
@@ -820,7 +834,7 @@ function MedicationsBox() {
                     </div>
                   </Col>
                   <Col lg={19} md={19} sm={19} xs={19}>
-                    {medicationData?.filter(e => e.tmm_id == item.tmm_id).map(item => ({ ...item, index: medicationData.findIndex(e => e.unique_id == item.unique_id) })).map((item, ii) => {
+                    {innerMedication(item.index).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) })).map((item, ii) => {
                       return (
                         <Row key={ii} className={`${ii != 0 && 'position-relative border-top'}`}>
                           <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">

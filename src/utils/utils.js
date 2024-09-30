@@ -663,7 +663,3 @@ export const groupArray = async (array) => {
   }, []);
   return updatedArray;
 }
-
-export const sortRxData = (array) => {
-  return array.sort((a, b) => parseInt(a.tmm_id) - parseInt(b.tmm_id));
-}
