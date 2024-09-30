@@ -932,7 +932,7 @@ function MedicationsBox() {
                     })}
                   </Col>
                   <div className="badge-tapper" onClick={() => taperDoseAdd(item)}>
-                    <i className="icon-Add me-1"></i> Tapring Dose
+                    <i className="icon-Add me-1"></i> Tapering Dose
                   </div>
                 </Row>
               </>

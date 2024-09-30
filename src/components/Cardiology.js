@@ -156,6 +156,7 @@ function Cardiology(props) {
       dataIndex: "rx",
       key: "rx",
       width: "40px",
+      className: 'rowspan-border-0',
       render: (text, record, index) => (
         <div>
           <span>{record?.tmm_id != medicationData[index - 1]?.tmm_id && sNO++}</span>
@@ -178,6 +179,7 @@ function Cardiology(props) {
       title: "MEDICINE",
       dataIndex: "name",
       key: "name",
+      className: 'rowspan-border-0',
       render: (text, record) => (
         <div className="lh-base">
           <div className="fw-medium">{record.tmm_medicine_name}</div>
