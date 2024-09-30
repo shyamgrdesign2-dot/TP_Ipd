@@ -200,7 +200,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         return value
     }
 
-    let gynecListViewCounter = 1, medicalHistoryIndex = 1;
+    let gynecListViewCounter = 1, medicalHistoryIndex = 1, medicationRx = 1;
     const isSmartSyncPrescription = smartRxData && smartRxData[0]?.smart_prescription_file;
 
     return (
@@ -597,7 +597,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         )
                                     )}
                                 </>
-                            ) : option?.id === 4 && option?.enable === 'Y' && option?.custom_status === 'Y' ? ( 
+                            ) : option?.id === 4 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     {caseManagerData.medicine.length > 0 && (
                                         option?.format === 'inline' ? (
@@ -606,7 +606,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {caseManagerData.medicine.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tmm_medicine_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{`${item.tmm_id != caseManagerData.medicine[i - 1]?.tmm_id ? item.tmm_medicine_name : 'then'}`}&nbsp;</Text>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                                 {`(${Object.values(Object.fromEntries(Object.entries(
                                                                     (
@@ -628,7 +628,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             tmm_remarks,
                                                                             default_tmm_unit
                                                                         }) => ({
-                                                                            modiGeneric: option?.medicine_with_generic ? tmm_generic : '',
+                                                                            modiGeneric: option?.medicine_with_generic ? item.tmm_id != caseManagerData.medicine[i - 1]?.tmm_id ? tmm_generic : '' : '',
 
                                                                             modiUnitPerDose: option?.medicine_option?.includes('dose') ? tmm_dosage && tmm_unit ? `${tmm_dosage} ${medicineUnit && medicineUnit.find((x) => x.tmu_id == tmm_unit) !== undefined ? medicineUnit.find((x) => x.tmu_id == tmm_unit).tmu_title : ""}` : `${medicineUnit && medicineUnit.find((x) => x.tmu_id == default_tmm_unit) !== undefined ? medicineUnit.find((x) => x.tmu_id == default_tmm_unit).tmu_title : ""}` : "",
 
@@ -713,8 +713,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
-                                                <View style={styles.table}>
-                                                    <View style={styles.row}>
+                                                <View style={[styles.table, { borderBottom: '1px solid #171725' }]}>
+                                                    <View style={{ flexDirection: 'row' }}>
                                                         <Text style={[styles.cell, { flex: 0.18, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>S.NO</Text>
                                                         <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICINE</Text>
                                                         {option?.medicine_option?.includes('dose') && (
@@ -732,22 +732,26 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         )}
                                                     </View>
                                                     {caseManagerData.medicine.map((item, i) => (
-                                                        <View style={styles.row} key={i}>
-                                                            <Text style={[styles.cell, { flex: 0.18, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{i + 1}</Text>
-                                                            <View style={styles.cell}>
-                                                                <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tmm_medicine_name}</Text>
-                                                                {option?.medicine_with_generic && (
-                                                                    <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.tmm_generic}</Text>
+                                                        <View style={{ flexDirection: 'row' }} key={i}>
+                                                            <Text style={[styles.cell, { borderTop: item?.tmm_id != caseManagerData.medicine[i - 1]?.tmm_id ? `1px solid #171725` : `0px`, flex: 0.18, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item?.tmm_id != caseManagerData.medicine[i - 1]?.tmm_id ? medicationRx++ : ''}`}</Text>
+                                                            <View style={[styles.cell, { borderTop: item?.tmm_id != caseManagerData.medicine[i - 1]?.tmm_id ? `1px solid #171725` : `0px` }]}>
+                                                                {item?.tmm_id != caseManagerData.medicine[i - 1]?.tmm_id && (
+                                                                    <>
+                                                                        <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tmm_medicine_name}</Text>
+                                                                        {option?.medicine_with_generic && (
+                                                                            <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.tmm_generic}</Text>
+                                                                        )}
+                                                                    </>
                                                                 )}
                                                             </View>
                                                             {option?.medicine_option?.includes('dose') && (
-                                                                <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage && item.tmm_unit? `${item.tmm_dosage} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : `${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit).tmu_title : ""}`}`}</Text>
+                                                                <Text style={[styles.cell, { flex: 0.4, borderTop: '1px solid #171725', color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage && item.tmm_unit ? `${item.tmm_dosage} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : `${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit).tmu_title : ""}`}`}</Text>
                                                             )}
-                                                            <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                            <Text style={[styles.cell, { flex: 0.6, borderTop: '1px solid #171725', color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                 {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? `${item.tcm_tmm_freq_morning ? medicine_freq_format(item.tcm_tmm_freq_morning) : 0}-${item.tcm_tmm_freq_afternoon ? medicine_freq_format(item.tcm_tmm_freq_afternoon) : 0}${item.tcm_tmm_freq_evening ? '-' + medicine_freq_format(item.tcm_tmm_freq_evening) : ''}-${item.tcm_tmm_freq_night ? medicine_freq_format(item.tcm_tmm_freq_night) : 0}` : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}
                                                             </Text>
                                                             {option?.medicine_option?.includes('duration') && (
-                                                                <Text style={[styles.cell, { flex: 0.53, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                <Text style={[styles.cell, { flex: 0.53, borderTop: '1px solid #171725', color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                     {EXTRA_OPTIONS.some((x) => x.value == item.tmm_duration_type) ? capitalize(item.tmm_duration_type, true) :
                                                                         isNumeric(item.tmm_days) ?
                                                                             `${item.tmm_days} ${item.tmm_duration_type}`
@@ -755,12 +759,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 </Text>
                                                             )}
                                                             {option?.medicine_option?.includes('quantity') && (
-                                                                <Text style={[styles.cell, { flex: 0.18, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                <Text style={[styles.cell, { flex: 0.18, borderTop: '1px solid #171725', color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                     {item.display_qty ? item.display_qty : '-'}
                                                                 </Text>
                                                             )}
                                                             {option?.medicine_option?.includes('note') && (
-                                                                <Text style={[styles.cell, { flex: 0.7, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                <Text style={[styles.cell, { flex: 0.7, borderTop: '1px solid #171725', color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                     {item.tmm_remarks ? item.tmm_remarks : '-'}
                                                                 </Text>
                                                             )}
