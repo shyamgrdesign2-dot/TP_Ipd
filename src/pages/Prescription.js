@@ -712,9 +712,6 @@ function Prescription() {
                           <div className="title-common">Medical Records</div>
                         </div>
                         <button
-                          type="file"
-                          multiple
-                          onChange={handleFileUpload}
                           className="btn d-flex align-items-center btn-text"
                           style={{ paddingRight: allUploadedDocs.length > 0 ? 0 : 12 }}
                           onClick={
@@ -728,6 +725,7 @@ function Prescription() {
                             multiple
                             ref={fileInputRef}
                             onChange={handleFileUpload}
+                            accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
                             style={{ display: "none" }}
                           />
                           {allUploadedDocs.length === 0 && (

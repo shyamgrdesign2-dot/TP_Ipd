@@ -1134,7 +1134,8 @@ function AppointmentData({ locationPath }) {
                     placement="right"
                     onClose={handleDeletePopup}
                     open={uploadDocDrawer}
-                    width="50%"
+                    className="modalWidth-700"
+                    width="auto"
                     push={false}
                     >
                     <UploadDocument

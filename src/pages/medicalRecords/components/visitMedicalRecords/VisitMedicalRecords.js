@@ -119,6 +119,7 @@ const VisitMedicalRecords = () => {
                   multiple
                   ref={fileInputRef}
                   onChange={handleFileUpload}
+                  accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
                   style={{ display: "none" }}
                 />
                 <i className="icon-upload" />
@@ -185,7 +186,8 @@ const VisitMedicalRecords = () => {
           placement="right"
           onClose={handleDeletePopup}
           open={uploadDocDrawer}
-          width="50%"
+          className="modalWidth-700"
+          width="auto"
           push={false}
         >
           <UploadDocument

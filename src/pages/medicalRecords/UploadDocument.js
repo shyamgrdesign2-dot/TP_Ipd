@@ -1,5 +1,5 @@
 import { Button, Card, DatePicker, Input, Select } from "antd";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import emptyBg from "./../../assets/images/empty-bg.svg";
 import emptyFile from "./../../assets/images/empty-file.svg";
 import dayjs from "dayjs";
@@ -44,6 +44,9 @@ const UploadDocument = ({
     };
   });
 
+  const [isFileSizeError, setIsFileSizeError] = useState(false);
+  const [isFileLimitError, setIsFileLimitError] = useState(false);
+
   const [recordData, setRecordData] = useState(
     filesData.map((item) => {
       return {
@@ -58,6 +61,20 @@ const UploadDocument = ({
     })
   );
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (filesData?.length > 0) {
+      filesData.forEach((item) => {
+        // 8388608 = 8 MB (maximum file size to upload)
+        if (item?.size > 8388608) {
+          setIsFileSizeError(true);
+        }
+      });
+      if (filesData.length > 5) {
+        setIsFileLimitError(true);
+      }
+    }
+  }, [filesData]);
 
   const handleRecordChange = (index, field, value) => {
     setRecordData((prevData) =>
@@ -150,20 +167,32 @@ const UploadDocument = ({
   const handleFileUpload = (event) => {
     const selectedFiles = Array.from(event.target.files || []);
     const totalFiles = [...filesData, ...selectedFiles];
-
-    if (totalFiles.length > 5) {
-      alert("You can only upload a maximum of 5 files.");
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    } else {
-      setFilesData(totalFiles);
-      // Optionally handle any drawer or upload action
-      // handleDrawerUploadDoc();
-    }
+    const newRecordData = selectedFiles?.map((item) => {
+      return {
+        id: item?.id || 0,
+        name: item?.name || "",
+        recordType: undefined,
+        recordUploadDate: dayjs().format("YYYY-MM-DD"),
+        notes: "",
+      };
+    });
+    const updatedRecordData = [...recordData, ...newRecordData];
+    setFilesData(totalFiles);
+    setRecordData(updatedRecordData);
   };
 
-  console.log("hello", recordData, filesData);
+  const handleRetryBtn = () => {
+    setFilesData([]);
+    setRecordData([]);
+    setIsFileSizeError(false);
+    setIsFileLimitError(false);
+    fileInputRef.current?.click();
+  };
+
+  const handleLeaveBtn = () => {
+    handleDrawerUploadDoc();
+    toggleDeletePopup();
+  };
 
   return (
     <div className="upload-document">
@@ -191,6 +220,10 @@ const UploadDocument = ({
           <Button
             onClick={handleSubmit}
             className="btn btn-primary3 btn-41 px-4 me-20"
+            disabled={
+              recordData?.filter((item) => item.recordType === undefined)
+                ?.length > 0
+            }
           >
             {isEditDocument ? "Save" : "Submit"}
           </Button>
@@ -208,6 +241,7 @@ const UploadDocument = ({
                 multiple
                 ref={fileInputRef}
                 onChange={handleFileUpload}
+                accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
                 style={{ display: "none" }}
                 disabled={filesData.length >= 5}
               />
@@ -344,36 +378,70 @@ const UploadDocument = ({
         </div>
       </Card>
       <CommonModal
-        isModalOpen={shouldShowDeletePopup}
-        onCancel={toggleDeletePopup}
+        isModalOpen={
+          shouldShowDeletePopup || isFileSizeError || isFileLimitError
+        }
+        onCancel={
+          isFileSizeError || isFileLimitError
+            ? handleDrawerUploadDoc
+            : toggleDeletePopup
+        }
         modalWidth={500}
-        title={"You may lose your data"}
+        title={
+          isFileSizeError
+            ? "Exceeded File Size"
+            : isFileLimitError
+            ? "Exceeded File Upload Limit"
+            : "You may lose your data"
+        }
         modalBody={
           <>
             <div className="alert-warning rounded-10px p-2 patient-details">
               <div className="d-flex align-items-center">
                 <img className="me-3" src={alertIcon} alt="Warning" />
-                <span>Are you sure you want to delete ?</span>
+                <span>
+                  {isFileSizeError ? (
+                    <>
+                      The file size exceeded{" "}
+                      <span style={{ fontWeight: 700 }}>8MB.</span> Please
+                      upload a file smaller than 8MB
+                    </>
+                  ) : isFileLimitError ? (
+                    <>
+                      You can only upload up to
+                      <span style={{ fontWeight: 700 }}> 5 files.</span> Please
+                      reduce the number of files and try again.
+                    </>
+                  ) : (
+                    "Are you sure you want to leave ?"
+                  )}
+                </span>
               </div>
             </div>
             <div className="mt-4">
-              <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div
-                  onClick={() => {
-                    handleDrawerUploadDoc();
-                    toggleDeletePopup();
-                  }}
-                  className="me-4 text-decoration-underline btn p-0 text-main"
-                >
-                  Yes Leave
-                </div>
+              {isFileSizeError || isFileLimitError ? (
                 <Button
-                  onClick={toggleDeletePopup}
-                  className="lh-lg btn btn-primary3 btn-41 px-4"
+                  onClick={handleRetryBtn}
+                  className="w-100 btn btn-primary3 btn-41 px-4"
                 >
-                  <span>No, Stay</span>
+                  Retry
                 </Button>
-              </div>
+              ) : (
+                <div className="d-flex align-items-center mt-2 justify-content-end">
+                  <div
+                    onClick={handleLeaveBtn}
+                    className="me-4 text-decoration-underline btn p-0 text-main"
+                  >
+                    Yes Leave
+                  </div>
+                  <Button
+                    onClick={toggleDeletePopup}
+                    className="lh-lg btn btn-primary3 btn-41 px-4"
+                  >
+                    <span>No, Stay</span>
+                  </Button>
+                </div>
+              )}
             </div>
           </>
         }

@@ -81,6 +81,7 @@ const MedicalRecords = ({
                 multiple
                 ref={fileInputRef}
                 onChange={handleFileUpload}
+                accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
                 style={{ display: "none" }}
               />
               <i className="icon-upload" />
