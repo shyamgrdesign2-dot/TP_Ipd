@@ -86,6 +86,13 @@ body {
                                 }
                             }
                         }
+                        &:nth-last-child(2) {
+                            td {
+                                &.rowspan-border-0 {
+                                    border-bottom: 0 !important;
+                                }
+                            }
+                        }
                     }
                 }
             }

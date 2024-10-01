@@ -649,3 +649,17 @@ export const compressedFile = async (file) => {
   }
   return file;
 }
+
+export const groupArray = async (array) => {
+  const updatedArray = array.reduce((acc, currentItem) => {
+    const { tmm_id, tmm_medicine_name } = currentItem;
+    let group = acc.find(item => item.tmm_id == tmm_id);
+    if (!group) {
+      group = { tmm_id, tmm_medicine_name, data: [] };
+      acc.push(group);
+    }
+    group.data.push({ ...currentItem });
+    return acc;
+  }, []);
+  return updatedArray;
+}
