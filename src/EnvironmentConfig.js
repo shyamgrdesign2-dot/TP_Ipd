@@ -100,7 +100,7 @@ const uat = {
   firebaseStorageBucket: "diginext-28149.appspot.com",
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
-  tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
+  tatvaRedirect: "https://diginextloginuat.z6.web.core.windows.net/login/index.html#bypass_pedia=false",
   gynec_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
   obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
