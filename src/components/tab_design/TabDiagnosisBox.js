@@ -18,7 +18,7 @@ import {
     deleteTemplate,
     getDiagnosisTemplates,
     getFrequentlySearchedDiagnosis,
-    getLoadPreviousDiagnosis
+    getLoadPreviousDiagnosis,
 } from "../../redux/diagnosisSlice";
 
 import TabDiagnosisSearch from "../../components/tab_design/TabDiagnosisSearch";
@@ -156,23 +156,23 @@ function TabDiagnosisBox() {
 
     const loadPreviousClick = async () => {
         var sendData = {
-            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+          patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
         };
         const action = await dispatch(getLoadPreviousDiagnosis(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            const updatedData = action.payload.map(e => {
-                return { ...e, unique_id: uuidv4() }
-            })
-            setDiagnosisData([...diagnosisData, ...updatedData]);
-
+          const updatedData = action.payload.map(e => {
+            return { ...e, unique_id: uuidv4()}
+          })
+          setDiagnosisData([...diagnosisData, ...updatedData]);
+    
         } else {
-            errorMessage(action.error)
+          errorMessage(action.error)
         }
-    };
+      };
 
     const onTemplateSelected = (template) => {
         const updatedData = template.diagnosis.map(e => {
-            return { ...e, unique_id: uuidv4(), since: "", status: "", note: "" }
+            return { ...e, unique_id: uuidv4(), since: "", status: "", note: e.note ? e.note : "" }
         })
         setDiagnosisData([...diagnosisData, ...updatedData]);
         handleDrawerTemplate();

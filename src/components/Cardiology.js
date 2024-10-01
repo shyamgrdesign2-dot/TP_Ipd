@@ -18,6 +18,7 @@ import notesicon from "../assets/images/notes.svg";
 import calenderBlank from "../assets/images/calenderBlank.svg";
 import followUp from "../assets/images/followup.svg";
 import smartPadGrey from "../assets/images/smartPadGrey.svg";
+import successIcon from '../assets/images/success-icon.svg';
 
 import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
@@ -60,6 +61,7 @@ function Cardiology(props) {
   );
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
+  const baseUrlRxDigitise = env.rx_digitization ;
 
   useEffect(() => {
     setSmartRxFile([]);
@@ -335,16 +337,18 @@ function Cardiology(props) {
       const cleanedToken = token.replace(/['"]+/g, '');
 
       // API call for Rx Digitisation
-      const response = await axios.get(`https://pm-rxdigitization-uat.tatvacare.in/api/v1/rxdigitize/rx/${caseId}`, {
+      const response = await axios.get(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${caseId}`, {
         headers: {
           'Authorization': `Bearer ${cleanedToken}`,
         },
       });
-      if (response?.data?.data?.editedData) {
-        setRxDigitisedData(response?.data?.data?.editedData);
-        setIsRxdigitised(true);
-      } else {
-        setIsRxdigitised(false);
+      if (response?.data?.data) {
+        setRxDigitisedData(response?.data?.data);
+        if (response?.data?.data?.editedData) {
+          setIsRxdigitised(true);
+        } else {
+          setIsRxdigitised(false);
+        }
       }
 
       return response.data; // return the data after it's fetched
@@ -354,21 +358,35 @@ function Cardiology(props) {
     }
   };
 
+  const handleDigitiseRx = async (record) => {
+    navigate("/smart-rx-digitise", {
+      state: {
+        patient_data: patient_data,
+        smartRxFilesData: smartRxFile,
+        tcm_id: viewCaseManagerData?.tcm_id,
+        print_url: viewCaseManagerData?.print_rx_url,
+        digitisedData: rxDigitisedData,
+      },
+    })
+  };
+
   // Render items for each type (medications, tests, etc.)
   const renderItems = (type) => (
     <div className='digitised-data-section'>
       <ol>
-        {rxDigitisedData?.[type].map((item, index) => (
-          <li key={index} className='medicine-item'>
-            <span>
-              {type === "advice" ? rxDigitisedData?.[type][index] : type === "symptoms" ? item.name : item.refinedName}
-            </span>
-
-            {type === "medications" && item.lineItem &&
+        {rxDigitisedData?.editedData?.[type].map((item, index) => (
+          <li key={index}>
+            <div className='medicine-item'>
               <span>
-                {` (${item.lineItem})`}
+                {type === "advice" ? rxDigitisedData?.editedData?.[type][index] : type === "symptoms" ? item.name : item.refinedName}
               </span>
-            }
+
+              {type === "medications" && item.lineItem &&
+                <span>
+                  {` (${item.lineItem})`}
+                </span>
+              }
+            </div>
           </li>
         ))}
       </ol>
@@ -454,284 +472,300 @@ function Cardiology(props) {
                 </div>
               </div>
             </Card.Header>
-            {(isRxdigitised && isSmartSyncCVTAccessableFromGB && isSmartRxFile) &&
+
+            {(isRxdigitised && isSmartSyncCVTAccessableFromGB && isSmartRxFile) ?
               <div className="p-2 mb-2">
                 <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
                 <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>
               </div>
-            }
-            {loading ? (
-              <div
-                className="d-flex flex-column justify-content-center"
-                style={{ height: "calc(100vh - 218px)" }}
-              >
-                <div className="align-items-center text-center">
-                  <Spin />
-                </div>
+              :
+              <div className="digitise-info-cardiology">
+                <img src={successIcon} alt="success" width="40px" height="40px" />
+                <p>
+                  <span className="digitise-info-header-cardiology">{`${patient_data?.pm_fullname}'s Digital Rx is ready!`}</span>
+                  Digitise Rx to enhance patient care, workflow efficiency, and revenue. Know More
+                </p>
+                {/* <button onClick={handleDigitiseRx} className=""> */}
+                <button className="digitise-info-btn-cardiology" onClick={handleDigitiseRx}>
+                  Digitise Rx Now
+                </button>
               </div>
-            ) :
-              isSmartRxFile ? (
-                <div>
-                  {isRxdigitised && showDigitalRx ? (
-                    <div className="m-4">
-                      {rxDigitisedData?.medications && rxDigitisedData.medications.length > 0 && (
+            }
+            {
+              loading ? (
+                <div
+                  className="d-flex flex-column justify-content-center"
+                  style={{ height: "calc(100vh - 218px)" }}
+                >
+                  <div className="align-items-center text-center">
+                    <Spin />
+                  </div>
+                </div>
+              ) :
+                isSmartRxFile ? (
+                  <div>
+                    {isRxdigitised && showDigitalRx ? (
+                      <div className="m-4">
+                        {rxDigitisedData?.editedData?.medications && rxDigitisedData?.editedData?.medications.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={Medicationicon}
+                                alt="Medication"
+                              />
+                              <div className="title-digitise-section mb-1">Medication</div>
+                            </div>
+                            {renderItems('medications')}
+                          </>
+                        )}
+
+                        {rxDigitisedData?.editedData?.tests && rxDigitisedData?.editedData?.tests.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={Diagnosisicon}
+                                alt="Diagnosis"
+                              />
+                              <div className="title-digitise-section mb-1">Tests</div>
+                            </div>
+                            {renderItems('tests')}
+                          </>
+                        )}
+
+                        {rxDigitisedData?.editedData?.symptoms && rxDigitisedData?.editedData?.symptoms.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={Symptomsicon}
+                                alt="Symptoms"
+                              />
+                              <div className="title-digitise-section mb-1">Symptoms</div>
+                            </div>
+                            {renderItems('symptoms')}
+                          </>
+                        )}
+
+                        {rxDigitisedData?.editedData?.advice && rxDigitisedData?.editedData?.advice.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={Frameicon}
+                                alt="Advice"
+                              />
+                              <div className="title-digitise-section mb-1">Advices</div>
+                            </div>
+                            {renderItems('advice')}
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        {smartRxFile.length > 0 &&
+                          smartRxFile?.map(({ smart_prescription_file }) => (
+                            <div style={{ padding: "5px" }}>
+                              {smart_prescription_file && (
+                                <img
+                                  src={smart_prescription_file}
+                                  alt="Smart Rx"
+                                  width="100%"
+                                  height="660px"
+                                />
+                              )}
+                            </div>
+                          ))}
+                      </>
+                    )
+                    }
+                    <div className={`d-flex align-items-center mb-14 ${viewCaseManagerData?.follow_up_date ? "follow-up-detailsPage" : ""}`}>
+                      {viewCaseManagerData?.follow_up_date && (
                         <>
-                          <div className="d-flex align-items-start">
-                            <img
-                              className="me-2"
-                              src={Medicationicon}
-                              alt="Medication"
-                            />
-                            <div className="title-digitise-section mb-1">Medication</div>
+                          <img className="me-3" src={followUp} alt="Symptoms" />
+                          <div className="title-common">Follow-up:</div>
+                          <div className="follow-up-date-text">
+                            {viewCaseManagerData?.follow_up_date}
                           </div>
-                          {renderItems('medications')}
                         </>
                       )}
-
-                      {rxDigitisedData?.tests && rxDigitisedData.tests.length > 0 && (
-                        <>
-                          <div className="d-flex align-items-start">
-                            <img
-                              className="me-2"
-                              src={Diagnosisicon}
-                              alt="Diagnosis"
-                            />
-                            <div className="title-digitise-section mb-1">Tests</div>
-                          </div>
-                          {renderItems('tests')}
-                        </>
-                      )}
-
-                      {rxDigitisedData?.symptoms && rxDigitisedData.symptoms.length > 0 && (
-                        <>
-                          <div className="d-flex align-items-start">
+                    </div>
+                  </div >
+                ) : (
+                  <Card.Body className="p-0 cardbody-data">
+                    <div>
+                      <div className="p-3 pb-0">
+                        {viewCaseManagerData.symptoms.length > 0 && (
+                          <div className="d-flex align-items-start mb-4">
                             <img
                               className="me-2"
                               src={Symptomsicon}
                               alt="Symptoms"
                             />
-                            <div className="title-digitise-section mb-1">Symptoms</div>
+                            <div>
+                              <div className="title">Symptoms</div>
+                              {viewCaseManagerData.symptoms.map((item, i) => {
+                                return (
+                                  <span key={i}>
+                                    <span>{item.symptom_name}</span> :{" "}
+                                    <label>{`${item.since &&
+                                      `since ${item.since}${item.severity && ","}`
+                                      } ${item.severity &&
+                                      `severity ${item.severity}${item.note && ","
+                                      } `
+                                      } ${item.note && `${item.note}`}`}</label>
+                                    {viewCaseManagerData.symptoms.length - 1 != i &&
+                                      " | "}
+                                  </span>
+                                );
+                              })}
+                            </div>
                           </div>
-                          {renderItems('symptoms')}
-                        </>
-                      )}
-
-                      {rxDigitisedData?.advice && rxDigitisedData.advice.length > 0 && (
-                        <>
-                          <div className="d-flex align-items-start">
+                        )}
+                        {viewCaseManagerData.examination.length > 0 && (
+                          <div className="d-flex align-items-start mb-4">
                             <img
                               className="me-2"
-                              src={Frameicon}
+                              src={Examinationsicon}
+                              alt="Examinations"
+                            />
+                            <div>
+                              <div className="title">Examinations</div>
+                              {viewCaseManagerData.examination.map((item, i) => {
+                                return (
+                                  <span key={i}>
+                                    <span>{item.examination_name}</span> :{" "}
+                                    <label>{item.note}</label>
+                                    {viewCaseManagerData.examination.length - 1 !=
+                                      i && " | "}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        {viewCaseManagerData.diagnosis.length > 0 && (
+                          <div className="d-flex align-items-start mb-4">
+                            <img
+                              className="me-2"
+                              src={Diagnosisicon}
+                              alt="Diagnosis"
+                            />
+                            <div>
+                              <div className="title">Diagnosis</div>
+                              {viewCaseManagerData.diagnosis.map((item, i) => {
+                                return (
+                                  <span key={i}>
+                                    <span>{item.tds_name}</span> :{" "}
+                                    <label>{`${item.since &&
+                                      `since ${item.since}${item.status && ","}`
+                                      } ${item.status &&
+                                      `status ${item.status}${item.note && ","} `
+                                      } ${item.note && `${item.note}`}`}</label>
+                                    {viewCaseManagerData.diagnosis.length - 1 !=
+                                      i && " | "}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        {medicationData.length > 0 && (
+                          <div className="d-flex align-items-center">
+                            <img
+                              className="me-2"
+                              src={Medicationicon}
+                              alt="Medication"
+                            />
+                            <div>
+                              <div className="title">Medication (Rx)</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      {medicationData.length > 0 && (
+                        <div>
+                          <div className="border-top border-bottom mt-2">
+                            <Table
+                              className="table-border patient-medication"
+                              columns={columns}
+                              dataSource={medicationData}
+                              onChange={handleChange}
+                              pagination={false}
+                            />
+                          </div>
+                        </div>
+                      )}
+                      <div className="p-3">
+                        {viewCaseManagerData.advice.length > 0 && (
+                          <div className="d-flex align-items-start mb-4">
+                            <img className="me-2" src={Frameicon} alt="Advice" />
+                            <div>
+                              <div className="title">Advice</div>
+
+                              {viewCaseManagerData.advice.map((item, i) => {
+                                return (
+                                  <label key={i}>{`${i != 0 ? ", " : ""}${item.advice_name
+                                    }`}</label>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        {viewCaseManagerData.investigation.length > 0 && (
+                          <div className="d-flex align-items-start mb-4">
+                            <img
+                              className="me-2"
+                              src={Investigationicon}
                               alt="Advice"
                             />
-                            <div className="title-digitise-section mb-1">Advices</div>
+                            <div>
+                              <div className="title">Lab Investigation</div>
+                              {viewCaseManagerData.investigation.map((item, i) => {
+                                return (
+                                  <span key={i}>
+                                    <span key={i}>{item.investigation_name}</span> :{" "}
+                                    <label>{item.note}</label>
+                                    {viewCaseManagerData.investigation.length - 1 !=
+                                      i && " | "}
+                                  </span>
+                                );
+                              })}
+                            </div>
                           </div>
-                          {renderItems('advice')}
-                        </>
-                      )}
-                    </div>
-                  ) : (
-                    <>
-                      {smartRxFile.length > 0 &&
-                        smartRxFile?.map(({ smart_prescription_file }) => (
-                          <div style={{ padding: "5px" }}>
-                            {smart_prescription_file && (
-                              <img
-                                src={smart_prescription_file}
-                                alt="Smart Rx"
-                                width="100%"
-                                height="660px"
-                              />
-                            )}
+                        )}
+                        {viewCaseManagerData.visit_advice && (
+                          <div className="d-flex align-items-start mb-4">
+                            <img
+                              className="me-2"
+                              src={notesicon}
+                              alt="Doctor Note"
+                            />
+                            <div>
+                              <div className="title">Doctor Note</div>
+                              <label>{viewCaseManagerData.visit_advice}</label>
+                            </div>
                           </div>
-                        ))}
-                    </>
-                  )}
-                  <div className={`d-flex align-items-center mb-14 ${viewCaseManagerData?.follow_up_date ? "follow-up-detailsPage" : ""}`}>
-                    {viewCaseManagerData?.follow_up_date && (
-                      <>
-                        <img className="me-3" src={followUp} alt="Symptoms" />
-                        <div className="title-common">Follow-up:</div>
-                        <div className="follow-up-date-text">
-                          {viewCaseManagerData?.follow_up_date}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <Card.Body className="p-0 cardbody-data">
-                  <div>
-                    <div className="p-3 pb-0">
-                      {viewCaseManagerData.symptoms.length > 0 && (
-                        <div className="d-flex align-items-start mb-4">
-                          <img
-                            className="me-2"
-                            src={Symptomsicon}
-                            alt="Symptoms"
-                          />
-                          <div>
-                            <div className="title">Symptoms</div>
-                            {viewCaseManagerData.symptoms.map((item, i) => {
-                              return (
-                                <span key={i}>
-                                  <span>{item.symptom_name}</span> :{" "}
-                                  <label>{`${item.since &&
-                                    `since ${item.since}${item.severity && ","}`
-                                    } ${item.severity &&
-                                    `severity ${item.severity}${item.note && ","
-                                    } `
-                                    } ${item.note && `${item.note}`}`}</label>
-                                  {viewCaseManagerData.symptoms.length - 1 != i &&
-                                    " | "}
-                                </span>
-                              );
-                            })}
+                        )}
+                        {viewCaseManagerData.treatment && (
+                          <div className="d-flex align-items-start mb-4">
+                            <img
+                              className="me-2"
+                              src={notesicon}
+                              alt="Doctor Note1"
+                            />
+                            <div>
+                              <div className="title">Treatment</div>
+                              <label className="whitespace-pre-wrap">{viewCaseManagerData.treatment}</label>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {viewCaseManagerData.examination.length > 0 && (
-                        <div className="d-flex align-items-start mb-4">
-                          <img
-                            className="me-2"
-                            src={Examinationsicon}
-                            alt="Examinations"
-                          />
-                          <div>
-                            <div className="title">Examinations</div>
-                            {viewCaseManagerData.examination.map((item, i) => {
-                              return (
-                                <span key={i}>
-                                  <span>{item.examination_name}</span> :{" "}
-                                  <label>{item.note}</label>
-                                  {viewCaseManagerData.examination.length - 1 !=
-                                    i && " | "}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                      {viewCaseManagerData.diagnosis.length > 0 && (
-                        <div className="d-flex align-items-start mb-4">
-                          <img
-                            className="me-2"
-                            src={Diagnosisicon}
-                            alt="Diagnosis"
-                          />
-                          <div>
-                            <div className="title">Diagnosis</div>
-                            {viewCaseManagerData.diagnosis.map((item, i) => {
-                              return (
-                                <span key={i}>
-                                  <span>{item.tds_name}</span> :{" "}
-                                  <label>{`${item.since &&
-                                    `since ${item.since}${item.status && ","}`
-                                    } ${item.status &&
-                                    `status ${item.status}${item.note && ","} `
-                                    } ${item.note && `${item.note}`}`}</label>
-                                  {viewCaseManagerData.diagnosis.length - 1 !=
-                                    i && " | "}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                      {medicationData.length > 0 && (
-                        <div className="d-flex align-items-center">
-                          <img
-                            className="me-2"
-                            src={Medicationicon}
-                            alt="Medication"
-                          />
-                          <div>
-                            <div className="title">Medication (Rx)</div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    {medicationData.length > 0 && (
-                      <div>
-                        <div className="border-top border-bottom mt-2">
-                          <Table
-                            className="table-border patient-medication"
-                            columns={columns}
-                            dataSource={medicationData}
-                            onChange={handleChange}
-                            pagination={false}
-                          />
-                        </div>
+                        )}
                       </div>
-                    )}
-                    <div className="p-3">
-                      {viewCaseManagerData.advice.length > 0 && (
-                        <div className="d-flex align-items-start mb-4">
-                          <img className="me-2" src={Frameicon} alt="Advice" />
-                          <div>
-                            <div className="title">Advice</div>
-
-                            {viewCaseManagerData.advice.map((item, i) => {
-                              return (
-                                <label key={i}>{`${i != 0 ? ", " : ""}${item.advice_name
-                                  }`}</label>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                      {viewCaseManagerData.investigation.length > 0 && (
-                        <div className="d-flex align-items-start mb-4">
-                          <img
-                            className="me-2"
-                            src={Investigationicon}
-                            alt="Advice"
-                          />
-                          <div>
-                            <div className="title">Lab Investigation</div>
-                            {viewCaseManagerData.investigation.map((item, i) => {
-                              return (
-                                <span key={i}>
-                                  <span key={i}>{item.investigation_name}</span> :{" "}
-                                  <label>{item.note}</label>
-                                  {viewCaseManagerData.investigation.length - 1 !=
-                                    i && " | "}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                      {viewCaseManagerData.visit_advice && (
-                        <div className="d-flex align-items-start mb-4">
-                          <img
-                            className="me-2"
-                            src={notesicon}
-                            alt="Doctor Note"
-                          />
-                          <div>
-                            <div className="title">Doctor Note</div>
-                            <label>{viewCaseManagerData.visit_advice}</label>
-                          </div>
-                        </div>
-                      )}
-                      {viewCaseManagerData.treatment && (
-                        <div className="d-flex align-items-start mb-4">
-                          <img
-                            className="me-2"
-                            src={notesicon}
-                            alt="Doctor Note1"
-                          />
-                          <div>
-                            <div className="title">Treatment</div>
-                            <label className="whitespace-pre-wrap">{viewCaseManagerData.treatment}</label>
-                          </div>
-                        </div>
-                      )}
                     </div>
-                  </div>
-                </Card.Body>
-              )}
+                  </Card.Body>
+                )
+            }
           </>
         ) : (
           <div
@@ -773,9 +807,10 @@ function Cardiology(props) {
               </div>
             )}
           </div>
-        )}
-      </Card>
-    </div>
+        )
+        }
+      </Card >
+    </div >
   );
 }
 export default React.memo(Cardiology);

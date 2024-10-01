@@ -473,6 +473,18 @@
                 width: 100% !important;
             }
         }
+        .digital-pdf__Page_afterload {
+            background-color: $bgbody !important;
+            border: 1px solid $bordercolor;
+            margin-bottom: 15px;
+            // border-radius: 20px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            .react-pdf__Page__canvas {
+                border-radius: 20px;
+                width: 100% !important;
+            }
+        }
     }
     #my-pdf {
         z-index: 1;
@@ -1208,6 +1220,9 @@ body {
         i {
             font-size: 18px;
         }
+        &.btn-headfoot2 {
+            right: 47px;
+        }
     }
     &.upload-headfoot1 {
         background-color: $bgbody;
@@ -1384,6 +1399,27 @@ body {
     letter-spacing: 0.00625rem;
     margin-left: -7rem;
 
+}
+.digital-rx-info{
+    display: flex;
+    padding: 0.5rem 14.5px;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #E2E2EA;
+    border-radius: 0rem 0rem 1.375rem 1.375rem;
+    background: #FEF4E6;
+    position: absolute;
+    z-index: 2;
+    gap: 12px;
+    margin-top: -2.2%;
+}
+
+.digital-rx-info-text{
+    font-size: 0.8rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.625rem;
+    letter-spacing: 0.00625rem;
 }
 
 .digitise-container{
@@ -1567,6 +1603,14 @@ body {
     transition: background-color 0.3s ease;
 }
 
+.medicine-item input:focus {
+    border: 1px solid #EDDFF7;
+    color: #BA7DE9 !important;;
+    background: #FAFAFB;
+    outline: none;
+    width: auto;
+}
+
 .title-digitise-card{
     font-size: 1rem;
     font-weight: 500;
@@ -1642,6 +1686,7 @@ body {
 }
 .digitised-item{
     font-size: 1rem !important;
+    margin-left: 4px;
 }
 .digitised-item:hover {
     cursor: pointer;
@@ -1656,15 +1701,88 @@ body {
     padding: 0 1rem;
 }
 
+.digitise-info-cardiology{
+    display: flex;
+    flex: 100%;
+    padding: 0.5rem 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--Colour-Green-Green---10, #EDF7ED);
+
+    img{
+        flex: 9%;
+    }
+    p{
+        flex: 70%;
+        margin: 0;
+        font-size: 13.5px;
+    }
+    button{
+        flex: 21%;
+    }
+}
+
+.digitise-info-header-cardiology{
+    font-weight: 560;
+    padding-right: 4px;
+}
+
+.digitise-info-btn-cardiology{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    border-radius: 0.625rem;
+    border: 1px solid var(--P-CTA-100, #4B4AD5);
+    opacity: 0.9;
+    color: var(--P-CTA-100, #4B4AD5);
+    padding: 0.3rem .3rem;
+
+}
+
+// CSS for Shimmer
+.shimmer-container {
+    width: 100%;
+    height: 50px; /* Adjust based on your container's size */
+    background-color: #d7d7d7; /* Background color similar to loading skeleton */
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+}
+  
+.shimmer {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+    45deg, /* 45-degree angle for diagonal shimmer */
+    rgba(148, 27, 27, 0) 0%, 
+    rgba(255, 255, 255, 1) 50%, /* Light shimmer line */
+    rgba(190, 9, 9, 0) 100%
+    );
+    background-size: 300% 300%; /* Make background large enough to animate smoothly */
+    animation: shimmer-diagonal 0.5 infinite; /* Animate the shimmer */
+}
+  
+@keyframes shimmer-diagonal {
+    0% {
+        background-position: -150% -150%; /* Start shimmer from top-left corner */
+    }
+    100% {
+        background-position: 150% 150%; /* End shimmer at bottom-right corner */
+    }
+}
+  
+  
+
 /* Suggestion card styles */
 .suggestion-card {
     position: absolute;
-    top: 100%; /* Position the card just below the medicine */
+    top: 100%;
     left: 0;
     background-color: white;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-    z-index: 1000; /* Ensure it appears above other content */
+    z-index: 1000;
     padding: 10px 0;
     width: 300px;
     margin-top: 4px;
@@ -1685,11 +1803,13 @@ body {
     border-bottom-left-radius: 10px;
     border-top-left-radius: 10px;
 }
+
 .written-btn{
     padding: 0.35rem 0.8rem;
     border-bottom-right-radius: 10px;
     border-top-right-radius: 10px;
 }
+
 .digitise-toggle-btn{
     border: 1px solid #E2E2EA;
     background: white;

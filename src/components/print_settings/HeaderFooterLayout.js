@@ -153,7 +153,7 @@ const FONTS_SIZE_LIST = [
     }
 ]
 
-function HeaderFooterLayout({ todayVaccines, growthChartDetails }) {
+function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetails }) {
 
     const inputHeaderFile = React.createRef();
     const cropperHeaderRef = React.createRef();
@@ -957,7 +957,7 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails }) {
                                             </Col>
                                         </Row>
                                         <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
-                                            <WhatsappConfigureView handleDrawerWhatsappView={handleDrawerWhatsappView} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} />
+                                            <WhatsappConfigureView handleDrawerWhatsappView={handleDrawerWhatsappView} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} />
                                         </Drawer>
                                     </>
                                 )}
