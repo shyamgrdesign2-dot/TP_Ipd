@@ -139,7 +139,7 @@ function TabExaminationBox() {
 
     const onTemplateSelected = (template) => {
         const updatedData = template.examination.map(e => {
-            return { ...e, unique_id: uuidv4(), note: "" }
+            return { ...e, unique_id: uuidv4(), note: e.note ? e.note : "" }
         })
         setExaminationData([...examinationData, ...updatedData]);
         handleDrawerTemplate();
