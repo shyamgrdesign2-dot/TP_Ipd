@@ -473,6 +473,18 @@
                 width: 100% !important;
             }
         }
+        .digital-pdf__Page_afterload {
+            background-color: $bgbody !important;
+            border: 1px solid $bordercolor;
+            margin-bottom: 15px;
+            // border-radius: 20px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            .react-pdf__Page__canvas {
+                border-radius: 20px;
+                width: 100% !important;
+            }
+        }
     }
     #my-pdf {
         z-index: 1;
@@ -777,10 +789,11 @@ body {
     }
 
     .tablet-medication-tabs {
+        .ant-tabs-content-holder {
+            display: none;
+        }
         .ant-tabs-nav {
-            padding-top: 20px;
-            margin-bottom: 7px;
-
+            margin-bottom: 0px;
             .ant-tabs-nav-wrap {
                 overflow-x: auto;
 
@@ -789,28 +802,36 @@ body {
                 }
 
                 .ant-tabs-nav-list {
-                    width: 100%;
+                    // width: 100%;
 
                     .ant-tabs-tab {
                         background-color: transparent;
                         border: none;
-                        padding: 8px 10px;
-                        margin-left: 10px;
+                        padding: 8px 12px;
+                        margin: 0 !important;
+                        border-left: 1px solid $bordercolor;
+                        border-radius: 0;
+                        border-bottom: 2px solid transparent;
                     }
 
                     .ant-tabs-tab-active {
-                        background-color: transparent;
-
+                        background-color: $white;
+                        .ant-tabs-tab-remove{
+                            display: block;
+                        }
                         .ant-tabs-tab-btn {
                             color: $theme !important;
                         }
+                        border-bottom-color: $theme;
                     }
 
                     .ant-tabs-ink-bar {
-                        visibility: visible;
-                        background-color: $theme;
-                        height: 4px;
-                        border-radius: 50px;
+                        // visibility: visible;
+                        // background-color: $theme;
+                        // height: 2px;
+                        // border-radius: 50px;
+                        // width: 100%;
+                        display: none;
                     }
                 }
             }
@@ -820,8 +841,9 @@ body {
                 border-left: 1px solid $bordercolor;
                 border-radius: 0px;
                 margin-left: auto;
+                visibility: hidden;
             }
-
+            
             &:before {
                 border-color: $bordercolor;
             }
@@ -830,6 +852,27 @@ body {
         .ant-tabs-content {
             padding: 18px;
         }
+        .ant-tabs-tab-remove {
+            margin-left: 0;
+            display: none;
+            span{
+                svg {
+                    color: #fff;
+                    background: #999;
+                    padding: 3px;
+                    border-radius: 100%;
+                    font-size: 14px;
+                    margin-top: 4px;
+                }
+            }
+        }
+    }
+
+    .custom-tapper-button {
+        position: absolute;
+        top: 72px;
+        right: 11px;   
+        font-size: 18px;
     }
 
     // Vitals
@@ -1335,3 +1378,488 @@ body {
     width: 2%;
 }
 
+// Rx Digitisation style
+
+.cvt-info{
+    display: flex;
+    padding: 0.5rem 1.25rem;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0rem 0rem 0.375rem 0.375rem;
+    background: #FEF4E6;
+}
+
+.cvt-info-text{
+    color: #44444F;
+    font-family: Roboto;
+    font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.625rem;
+    letter-spacing: 0.00625rem;
+    margin-left: -7rem;
+
+}
+.digital-rx-info{
+    display: flex;
+    padding: 0.5rem 14.5px;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #E2E2EA;
+    border-radius: 0rem 0rem 1.375rem 1.375rem;
+    background: #FEF4E6;
+    position: absolute;
+    z-index: 2;
+    gap: 12px;
+    margin-top: -2.2%;
+}
+
+.digital-rx-info-text{
+    font-size: 0.8rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.625rem;
+    letter-spacing: 0.00625rem;
+}
+
+.digitise-container{
+    display: flex;
+    flex-direction: column;
+    border-radius: 21.046px;
+    border: 3.508px solid #9C68C4;
+    background: #222;
+}
+
+.digitise-box-top{
+    display: flex;
+    width: 270px;
+    align-items: flex-start;
+    gap: 10px;
+}
+.digitise-header{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff !important;
+    margin: 0;
+}
+
+.digitise-info{
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 18px;
+    margin: 0;
+    margin-bottom: 1.5rem;
+}               
+
+.digitise-btn{
+    display: flex;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid #fff;
+    border-radius: 7.665px;
+    background: #FFF;
+}
+
+.digitised-container{
+    padding: 20px;
+    gap: 10px;
+    flex: 1 0 0;
+}
+
+.title-digitise-section{
+    font-family: Poppins;
+    color: black !important;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px; /* 150% */
+    letter-spacing: 0.1px;
+}
+
+.digitised-section{
+    display: flex;
+    padding: 16px;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    border-radius: 10px;
+    border: 1px solid var(--T-Text-10, #E2E2EA);
+    background: #FCFCFC;
+    margin-bottom: 1.5rem;
+
+    .no-bullets{
+        padding: 0.3rem 0 0 0;
+
+        .btn-outline-digitise {
+            background-color: white;
+            color: #4B4AD5;
+            border-radius: 0.5rem;
+            padding: 0.4rem 1rem;
+            font-size: 14px;
+            border: 1px solid #4B4AD5;
+            margin: 0.5rem 1rem 0.3rem 1rem;
+        }
+    }
+
+    ul {
+        padding-left: 1rem;
+        margin: 0;
+
+        &.no-bullets li {
+            list-style-type: none;
+            padding: 0.2rem 1rem;
+            font-size: 15px;
+            font-weight: 600;
+            li:hover{
+                color: #BA7DE9;
+            }
+        }
+
+        &.no-bullets li:hover{
+            color: #BA7DE9 !important;
+        }
+
+        li{
+            cursor: pointer;
+            font-size: 16px !important;
+            margin: 6px 0px; 
+            color: #454551 !important;
+            span{
+                color: #454551 !important;
+            }
+        }
+        li:hover{
+            color: #BA7DE9;
+            background: #f5f5f5;
+        }
+    }
+}
+
+.digitised-data-section{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    margin-bottom: 1.5rem;
+    margin-left: 2rem;
+
+    .no-bullets{
+        padding: 0.3rem 0 0 0;
+
+        .btn-outline-digitise {
+            background-color: white;
+            color: #4B4AD5;
+            border-radius: 0.5rem;
+            padding: 0.4rem 1rem;
+            font-size: 14px;
+            border: 1px solid #4B4AD5;
+            margin: 0.5rem 1rem 0.3rem 1rem;
+        }
+    }
+
+    ol {
+        padding-left: 1rem;
+        margin: 0;
+
+        &.no-bullets li {
+            list-style-type: none;
+            padding: 0.2rem 1rem;
+            font-size: 15px;
+            font-weight: 600;
+            // li:hover{
+            //     color: #BA7DE9;
+            // }
+        }
+
+        // &.no-bullets li:hover{
+        //     color: #BA7DE9 !important;
+        // }
+
+        li{
+            cursor: default;
+            font-size: 0.88rem !important;
+            color: #454551 !important;
+            span{
+                color: #454551 !important;
+            }
+            &.medicine-item {
+                margin-bottom: 0;
+            }
+        }
+    }
+}
+
+.medicine-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-bottom: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.medicine-item input:focus {
+    border: 1px solid #EDDFF7;
+    color: #BA7DE9 !important;;
+    background: #FAFAFB;
+    outline: none;
+    width: auto;
+}
+
+.title-digitise-card{
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.editable-digitised-item {
+    display: flex;
+    padding: 0px 6px;
+    align-items: center;
+    border-radius: 6px;
+    border: 1px solid #EDDFF7;
+    background: #FAFAFB;
+}
+
+.know-more-cvt{
+    margin-bottom: 15px;
+    background: #3332b3;
+    border-radius: 1rem;
+    border: 1px solid var(--S-Icon-100, #A461D8);
+    background: #EFE9F3;
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+.sparkle{
+    border-radius: 0.53569rem;
+    background: var(--S-Icon-100, #A461D8);
+    width: 2.25rem;
+    height: 2.25rem;
+}
+.new-btn{
+       padding: 0.1rem 0.48rem;
+       font-size: 10px;
+       color: #fff !important;
+       justify-content: center;
+       align-items: center;
+       gap: 0.25rem;
+       border-radius: 0.25rem;
+       background: linear-gradient(102deg, #A461D8 9.72%, #B85DFF 47.18%, #7700D4 100%);
+}
+.know-more-btn{
+    background: none;
+    border: none;
+    color: var(--S-Icon-100, #A461D8);
+    font-size: 1rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.5rem; /* 150% */
+    letter-spacing: 0.00625rem;
+    text-decoration-line: underline;
+    padding: 0;
+}
+
+/* Style for active editable state */
+.editable-active {
+    color: #BA7DE9;
+    border: 1px solid #e7e7e7 !important; /* Important will work in CSS */
+    background-color: #fff;
+    outline: none;
+}
+
+/* Change the cursor to indicate the input is focused and editable */
+.editable-digitised-item:focus {
+    border-color: blue;
+    caret-color:#BA7DE9;
+}
+
+/* General hover effect for non-editable span */
+.editable-medicine:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+.digitised-item{
+    font-size: 1rem !important;
+    margin-left: 4px;
+}
+.digitised-item:hover {
+    cursor: pointer;
+    color:  #BA7DE9 !important;
+    background: #FAFAFB !important;
+    // border: 0.3px solid #EDDFF7;
+}
+
+.title-common-digitised{
+    color: black;
+    cursor: default;
+    padding: 0 1rem;
+}
+
+.digitise-info-cardiology{
+    display: flex;
+    flex: 100%;
+    padding: 0.5rem 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--Colour-Green-Green---10, #EDF7ED);
+
+    img{
+        flex: 9%;
+    }
+    p{
+        flex: 70%;
+        margin: 0;
+        font-size: 13.5px;
+    }
+    button{
+        flex: 21%;
+    }
+}
+
+.digitise-info-header-cardiology{
+    font-weight: 560;
+    padding-right: 4px;
+}
+
+.digitise-info-btn-cardiology{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    border-radius: 0.625rem;
+    border: 1px solid var(--P-CTA-100, #4B4AD5);
+    opacity: 0.9;
+    color: var(--P-CTA-100, #4B4AD5);
+    padding: 0.3rem .3rem;
+
+}
+
+// CSS for Shimmer
+.shimmer-container {
+    width: 100%;
+    height: 50px; /* Adjust based on your container's size */
+    background-color: #d7d7d7; /* Background color similar to loading skeleton */
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+}
+  
+.shimmer {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+    45deg, /* 45-degree angle for diagonal shimmer */
+    rgba(148, 27, 27, 0) 0%, 
+    rgba(255, 255, 255, 1) 50%, /* Light shimmer line */
+    rgba(190, 9, 9, 0) 100%
+    );
+    background-size: 300% 300%; /* Make background large enough to animate smoothly */
+    animation: shimmer-diagonal 0.5 infinite; /* Animate the shimmer */
+}
+  
+@keyframes shimmer-diagonal {
+    0% {
+        background-position: -150% -150%; /* Start shimmer from top-left corner */
+    }
+    100% {
+        background-position: 150% 150%; /* End shimmer at bottom-right corner */
+    }
+}
+  
+  
+
+/* Suggestion card styles */
+.suggestion-card {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    z-index: 1000;
+    padding: 10px 0;
+    width: 300px;
+    margin-top: 4px;
+}
+  
+.suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+.digital-btn{
+    padding: 0.35rem 0.8rem;
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.written-btn{
+    padding: 0.35rem 0.8rem;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.digitise-toggle-btn{
+    border: 1px solid #E2E2EA;
+    background: white;
+}
+
+.active-digitise-toggle-btn{
+    border: 1px solid #6766FA;
+    color: #fff;
+    background: linear-gradient(180deg, #6A69FF 0%, #3A39B2 100%);
+}
+
+.scrollable-body {
+    max-height: 100vh; /* Set a fixed height as per your requirement */
+    overflow-y: auto;  /* Enable vertical scrolling */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+}
+
+.taper-dose {
+    position: relative;
+    &:hover {
+        .badge-tapper {
+            display: flex;
+        }
+    }
+    .badge-tapper {
+        position: absolute;
+        bottom: 0;
+        padding: 3px 8px;
+        font-size: 12px;
+        background-color: $drawerHeaderColor;
+        color: $theme !important;
+        font-weight: 500;
+        font-family: 'Roboto' !important;
+        align-items: center;
+        display: none;
+        cursor: pointer;
+        i {
+            font-size: 16px;
+        }
+    }
+}
+.badge-then {
+    position: absolute;
+    left: -22px;
+    z-index:  9;
+    top: -12px;
+    padding: 1px 6px;
+    font-size: 12px !important;
+    border-radius: 10px;
+    border: 1px solid $bordercolor;
+    background-color: $drawerHeaderColor;
+    line-height: 1.7;
+}

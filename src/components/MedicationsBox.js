@@ -713,6 +713,48 @@ function MedicationsBox() {
     );
   }, [isModalOpen]);
 
+  const innerMedication = (index) => {
+    const mainArray = []
+    for (var i = index; i < medicationData.length; i++) {
+      if (medicationData[i].tmm_id == medicationData[index].tmm_id) {
+        mainArray.push(medicationData[i])
+      } else {
+        break;
+      }
+    }
+    return mainArray
+  }
+
+  const taperDoseAdd = async (item) => {
+    const array = await innerMedication(item?.index).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) }))
+    let updatedData = {
+      ...array.at(-1),
+      tmf_block: 0,
+      tmm_freq_type: 0,
+      tmm_freq_type_name: "",
+      tmf_block_val: "",
+      tcm_tmm_freq_afternoon: 0,
+      tcm_tmm_freq_evening: 0,
+      tcm_tmm_freq_morning: 0,
+      tcm_tmm_freq_night: 0,
+      tmm_days: 0,
+      tmm_days_duration_type: "",
+      tmm_duration_type: "",
+      tmm_dosage: "",
+      tmm_dosage_unit_name: "",
+      tmm_remarks: "",
+      tmm_time: 0,
+      tmm_time_name: "",
+      tmm_unit: 0,
+      tmm_unit_name: "",
+      tmu_id: 0,
+      unique_id: uuidv4(),
+    }
+    let { index, ...updated } = updatedData
+    medicationData.splice(parseInt(array.at(-1).index) + 1, 0, updated);
+    setMedicationData((prev) => [...prev]);
+  };
+
   //Child Componet
   const TABLE_MEDICATION = useMemo(() => {
     return (
@@ -722,159 +764,178 @@ function MedicationsBox() {
             gutter={[0]}
             className={`mt-14 border-top align-items-center`}
           >
-            <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+            <Col lg={5} md={5} sm={5} xs={5}>
               <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
                 <label>MEDICINE</label>
               </div>
             </Col>
-            <Col lg={3} md={3} sm={3} xs={3} className="border-end">
-              <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
-                <label>UNIT PER DOSE</label>
-              </div>
-            </Col>
-            <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-              <div className="fontroboto fw-medium p-2 fs-12 text-welcome d-flex align-items-center">
-                <label>FREQUENCY </label>
-                <Popover
-                  open={frequencyPopOver}
-                  content={FREQUENCY_CONTENT}
-                  placement="rightTop"
-                  trigger="click"
-                  arrow={false}
-                  onOpenChange={showHideFrequencyPopOver}
-                  overlayClassName="pp-0">
-                  <i className='icon-info ms-1 fs-18'></i>
-                </Popover>
-              </div>
-            </Col>
-            <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-              <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
-                <label>WHEN</label>
-              </div>
-            </Col>
-            <Col lg={3} md={3} sm={3} xs={3} className="border-end">
-              <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
-                <label>DURATION</label>
-              </div>
-            </Col>
-            <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-              <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
-                <label>NOTE</label>
-              </div>
-            </Col>
-            <Col lg={1} md={1} sm={2} xs={2} className="text-center">
-              <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
-                <label></label>
-              </div>
+            <Col lg={19} md={19} sm={19} xs={19}>
+              <Row>
+                <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
+                  <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+                    <label>UNIT PER DOSE</label>
+                  </div>
+                </Col>
+                <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+                  <div className="fontroboto fw-medium p-2 fs-12 text-welcome d-flex align-items-center">
+                    <label>FREQUENCY </label>
+                    <Popover
+                      open={frequencyPopOver}
+                      content={FREQUENCY_CONTENT}
+                      placement="rightTop"
+                      trigger="click"
+                      arrow={false}
+                      onOpenChange={showHideFrequencyPopOver}
+                      overlayClassName="pp-0">
+                      <i className='icon-info ms-1 fs-18'></i>
+                    </Popover>
+                  </div>
+                </Col>
+                <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+                  <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+                    <label>WHEN</label>
+                  </div>
+                </Col>
+                <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+                  <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+                    <label>DURATION</label>
+                  </div>
+                </Col>
+                <Col lg={6} md={6} sm={6} xs={6} className="border-end">
+                  <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+                    <label>NOTE</label>
+                  </div>
+                </Col>
+                <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+                  <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+                    <label></label>
+                  </div>
+                </Col>
+              </Row>
             </Col>
           </Row>
         }
         {medicationData.length > 0 &&
-          medicationData.map((item, index) => {
+          medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, i) => {
             return (
-              <Row
-                key={index}
-                gutter={[0]}
-                className={`${index === 0 && "border-top"} border-bottom`}
-              >
-                <Col lg={5} md={5} sm={5} xs={5} className="border-end">
-                  <div className="fontroboto fw-medium p-2">
-                    <label>{item.tmm_medicine_name}</label>
-                    <Tooltip placement="bottom" title={item.tmm_generic}>
-                      <div className="text-truncate fw-normal">{item.tmm_generic}</div>
-                    </Tooltip>
-                  </div>
-                </Col>
-                <Col lg={3} md={3} sm={3} xs={3} className="border-end">
-                  <AutoComplete
-                    defaultValue={item.tmm_dosage_unit_name}
-                    value={item.tmm_dosage_unit_name}
-                    placeholder="e.g 1 Tablet"
-                    bordered={false}
-                    defaultOpen={false}
-                    onSearch={(query) => onSearchUnitPerDoseChid(query, index)}
-                    onBlur={() => onBlurUnitPerDoseChid(index)}
-                    options={unitPerDoseOptions}
-                    // backfill={true}
-                    className="autocomplete-custom w-100 h-100 inputborder"
-                    defaultActiveFirstOption={true}
-                    onSelect={(data, e) => onSelectUnitPerDoseChild(data, e, index)}
-                    onClear={() => onSearchUnitPerDoseChid("", index)}
-                    allowClear
-                  />
-                </Col>
-                <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-                  <Select
-                    showSearch
-                    className="autocomplete-custom w-100 h-100 inputborder"
-                    placeholder="e.g 1-0-1"
-                    defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
-                    value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
-                    onSearch={(query) => onSearchFrequencyChild(query, index)}
-                    onFocus={() => onSearchFrequencyChild(item.tmm_freq_type_name, index)}
-                    onBlur={() => onBlurFrequencyChild(index)}
-                    onSelect={(data) => onSelectFrequencyChild(data, index)}
-                    options={frequencyOptions}
-                    onClear={() => onSelectFrequencyChild("", index)}
-                    allowClear
-                  />
-                </Col>
-                <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-                  <Select
-                    className="autocomplete-custom w-100 h-100 inputborder"
-                    placeholder="e.g Before Food"
-                    defaultValue={item.tmm_time_name != "" ? item.tmm_time_name : null}
-                    value={item.tmm_time_name != "" ? item.tmm_time_name : null}
-                    onSelect={(data) => onSelectTimingChild(data, index)}
-                    options={timingList.map((e) => {
-                      return {
-                        value: JSON.stringify({ ...e, unique_id: uuidv4() }),
-                        label: e.tmt_title,
-                      };
+              <>
+                <Row
+                  key={i}
+                  gutter={[0]}
+                  align="middle"
+                  className={`taper-dose ${i === 0 && "border-top"} border-bottom`}
+                >
+                  <Col lg={5} md={5} sm={5} xs={5}>
+                    <div className="fontroboto fw-medium p-2 pe-3">
+                      <label>{item.tmm_medicine_name}</label>
+                      <Tooltip placement="bottom" title={item.tmm_generic}>
+                        <div className="text-truncate fw-normal">{item.tmm_generic}</div>
+                      </Tooltip>
+                    </div>
+                  </Col>
+                  <Col lg={19} md={19} sm={19} xs={19}>
+                    {innerMedication(item.index).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) })).map((item, ii) => {
+                      return (
+                        <Row key={ii} className={`${ii != 0 && 'position-relative border-top'}`}>
+                          <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
+                            <AutoComplete
+                              defaultValue={item.tmm_dosage_unit_name}
+                              value={item.tmm_dosage_unit_name}
+                              placeholder="e.g 1 Tablet"
+                              bordered={false}
+                              defaultOpen={false}
+                              onSearch={(query) => onSearchUnitPerDoseChid(query, item?.index)}
+                              onBlur={() => onBlurUnitPerDoseChid(item?.index)}
+                              options={unitPerDoseOptions}
+                              // backfill={true}
+                              className="autocomplete-custom w-100 h-100 inputborder"
+                              defaultActiveFirstOption={true}
+                              onSelect={(data, e) => onSelectUnitPerDoseChild(data, e, item?.index)}
+                              onClear={() => onSearchUnitPerDoseChid("", item?.index)}
+                              allowClear
+                            />
+                          </Col>
+                          <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+                            <Select
+                              showSearch
+                              className="autocomplete-custom w-100 h-100 inputborder"
+                              placeholder="e.g 1-0-1"
+                              defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
+                              value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
+                              onSearch={(query) => onSearchFrequencyChild(query, item?.index)}
+                              onFocus={() => onSearchFrequencyChild(item.tmm_freq_type_name, item?.index)}
+                              onBlur={() => onBlurFrequencyChild(item?.index)}
+                              onSelect={(data) => onSelectFrequencyChild(data, item?.index)}
+                              options={frequencyOptions}
+                              onClear={() => onSelectFrequencyChild("", item?.index)}
+                              allowClear
+                            />
+                          </Col>
+                          <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+                            <Select
+                              className="autocomplete-custom w-100 h-100 inputborder"
+                              placeholder="e.g Before Food"
+                              defaultValue={item.tmm_time_name != "" ? item.tmm_time_name : null}
+                              value={item.tmm_time_name != "" ? item.tmm_time_name : null}
+                              onSelect={(data) => onSelectTimingChild(data, item?.index)}
+                              options={timingList.map((e) => {
+                                return {
+                                  value: JSON.stringify({ ...e, unique_id: uuidv4() }),
+                                  label: e.tmt_title,
+                                };
+                              })}
+                              onClear={() => onSelectTimingChild("", item?.index)}
+                              allowClear
+                            />
+                          </Col>
+                          <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+                            <AutoComplete
+                              defaultValue={item.tmm_days_duration_type}
+                              value={hasNumber(item.tmm_days_duration_type) ? item.tmm_days_duration_type : capitalize(item.tmm_days_duration_type, true)}
+                              placeholder="e.g 1 Day"
+                              bordered={false}
+                              defaultOpen={false}
+                              onSearch={(query) => onSearchSinceChid(query, item?.index)}
+                              options={sinceOptions}
+                              className="autocomplete-custom h-100 w-100 inputborder truncate-autocomplete"
+                              popupClassName="option-truncate"
+                              defaultActiveFirstOption={true}
+                              onSelect={(data, e) => onSelectSinceChild(data, e, item?.index)}
+                              onClear={() => onSearchSinceChid("", item?.index)}
+                              allowClear
+                            />
+                          </Col>
+                          <Col lg={6} md={6} sm={6} xs={6} className="border-end">
+                            <TextArea
+                              className="notesinput border-0 h-100 align-self-center"
+                              placeholder="Notes"
+                              defaultValue={item.tmm_remarks}
+                              value={item.tmm_remarks}
+                              autoSize={{
+                                minRows: 1,
+                                maxRows: 2,
+                              }}
+                              onChange={(e) => onChangeNoteChild(e, item?.index)}
+                            />
+                          </Col>
+                          <Col lg={1} md={1} sm={2} xs={2} className="d-flex align-items-center justify-content-center">
+                            <Button
+                              className="btn py-0 btn-delete-prescription px-0"
+                              onClick={() => onRemoveRow(item?.index)}
+                            >
+                              <i className="icon-delete"></i>
+                            </Button>
+                          </Col>
+                          {ii != 0 && (<div className="badge-then">Then</div>)}
+                        </Row>
+                      )
                     })}
-                    onClear={() => onSelectTimingChild("", index)}
-                    allowClear
-                  />
-                </Col>
-                <Col lg={3} md={3} sm={3} xs={3} className="border-end">
-                  <AutoComplete
-                    defaultValue={item.tmm_days_duration_type}
-                    value={hasNumber(item.tmm_days_duration_type) ? item.tmm_days_duration_type : capitalize(item.tmm_days_duration_type, true)}
-                    placeholder="e.g 1 Day"
-                    bordered={false}
-                    defaultOpen={false}
-                    onSearch={(query) => onSearchSinceChid(query, index)}
-                    options={sinceOptions}
-                    className="autocomplete-custom h-100 w-100 inputborder truncate-autocomplete"
-                    popupClassName="option-truncate"
-                    defaultActiveFirstOption={true}
-                    onSelect={(data, e) => onSelectSinceChild(data, e, index)}
-                    onClear={() => onSearchSinceChid("", index)}
-                    allowClear
-                  />
-                </Col>
-                <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-                  <TextArea
-                    className="notesinput border-0 h-100 align-self-center"
-                    placeholder="Notes"
-                    defaultValue={item.tmm_remarks}
-                    value={item.tmm_remarks}
-                    autoSize={{
-                      minRows: 1,
-                      maxRows: 2,
-                    }}
-                    onChange={(e) => onChangeNoteChild(e, index)}
-                  />
-                </Col>
-                <Col lg={1} md={1} sm={2} xs={2} className="text-center">
-                  <Button
-                    className="btn py-0 btn-delete-prescription px-0"
-                    onClick={() => onRemoveRow(index)}
-                  >
-                    <i className="icon-delete"></i>
-                  </Button>
-                </Col>
-              </Row>
+                  </Col>
+                  <div className="badge-tapper" onClick={() => taperDoseAdd(item)}>
+                    <i className="icon-Add me-1"></i> Tapering Dose
+                  </div>
+                </Row>
+              </>
             );
           })}
       </>

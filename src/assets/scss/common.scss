@@ -268,6 +268,9 @@ body {
     .fonttimesroman {
         font-family: 'Times-Roman' !important;
     }
+    .over-flow-y-hidden{
+        overflow-y: hidden;
+    }
     .fontverdana {
         font-family: 'Verdana' !important;
     }
@@ -728,6 +731,9 @@ body {
 }
 .video-bottom-spacing {
     margin-bottom: 35px;
+}
+.border-btm{
+    border-bottom: 1px solid #E2E2EA;
 }
 .hospital-address-slider {
     .slick-dots {

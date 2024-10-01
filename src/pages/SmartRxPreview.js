@@ -14,10 +14,14 @@ import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
 import wtsp from '../assets/images/wtsp.svg';
 import loadingImg from '../assets/images/loading.png';
+import successIcon from '../assets/images/success-icon.svg';
+import cvtInfoIcon from '../assets/images/cvt-info.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
-import { FETCH_SMART_RX, MESSAGE_KEY, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
+import { FETCH_SMART_RX, GB_SMARTSYNC_CVT, MESSAGE_KEY, RX_DIGITIZATION, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import config from "../../src/config";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -26,6 +30,7 @@ import { viewCaseManager } from "../redux/caseManagerSlice";
 import { pdfjs, Document, Page } from "react-pdf";
 import CommonModal from "../common/CommonModal";
 import { env } from "../EnvironmentConfig";
+import { getDecodedToken } from "../utils/localStorage";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -42,23 +47,49 @@ function SmartRxPreview() {
     const navigate = useNavigate();
 
     const { state } = useLocation();
-    const { patient_data } = state
+    const { patient_data, isDigitiseRxSubmit} = state
 
     const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}` : null);
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const [viewCaseManagerData, setViewCaseManagerData] = useState(null);
     const [token, setToken] = useState(null);
     const [tokenData, setTokenData] = useState(null);
     const [divWidth, setDivWidth] = useState(0);
     const [numPages, setNumPages] = useState();
     const [printBlob, setPrintBlob] = useState(null);
     const [smartRxFile, setSmartRxFile] = useState([]);
-    const [isUpdateMobileNoModalOpen, setIsUpdateMobileNoModalOpen] = useState(false);
-    const [mobileNumber, setMobileNumber] = useState('');
-    const [useRegisteredMobile, setUseRegisteredMobile] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [buttonText, setButtonText] = useState("Send to WhatsApp");
-    const registeredMobileNumber = '';
+
+    const [isRxDigitiseComplete, setRxDigitiseComplete] = useState(false);
+    const [rxDigitiseApiResponse, setRxDigitiseApiResponse] = useState(null);
+    const [isEditedData, setIsEditedData] = useState(null);
+    const [rxDigitisedData, setRxDigitisedData] = useState(null);
+    const [showDigitalRx, setShowDigitalRx] = useState(false);
+    const progressRef = useRef(null);
+    const progressValue = useRef(0);
 
     const baseUrl = { customBaseUrl: env.casemanager_api_url };
+    const baseUrlRxDigitise = env.rx_digitization ;
+    const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
+        GB_SMARTSYNC_CVT
+    );
+
+    const containerStyle = {
+        width: '100%',
+        height: '25px',
+        borderRadius: "16px",
+        background: "linear-gradient(180deg, #DBEFDC 0%, #EDF7ED 50%, #DBEFDC 100%)",
+        overflow: 'hidden',
+    };
+      
+    const progressStyle = {
+        height: '100%',
+        width: '0%',
+        borderRadius: "16px",
+        background: "linear-gradient(180deg, #94CF96 0%, #70BF73 50.35%, #94CF96 100%)",
+        transition: 'width 0.1s ease-in-out',
+    };
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -73,7 +104,7 @@ function SmartRxPreview() {
                 <div className='d-flex align-items-center'>
                     <img src={visitEnd} className='me-3' />
                     <div>
-                        <div className='title-common text-start fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
+                        <div className='title-common-digitised text-start fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
                         <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
                     </div>
                     <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
@@ -83,18 +114,50 @@ function SmartRxPreview() {
         });
     }, []);
 
+    const getCaseManagerData = async () => {
+        try {
+            const sendData = {
+                patient_unique_id: patient_data?.patient_unique_id || 0,
+                tcm_id: state.tcm_id
+            };
+            const action = await dispatch(viewCaseManager(sendData));
+            setViewCaseManagerData(action.payload);
+            return action.payload; // return the data after it's fetched
+        } catch (error) {
+            console.error('Error fetching case manager data:', error);
+            return null;
+        }
+    };
+
+    const fetchRxDigitisedData = async () => {
+        try {
+            const cleanedToken = token.replace(/['"]+/g, '');
+    
+                // API call for Rx Digitisation
+                const response = await axios.get(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${state.tcm_id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${cleanedToken}`,
+                    },
+                });
+                return response.data; // return the data after it's fetched
+        }catch (error) {
+            console.error('Error digitizing the prescription:', error);
+            return null;
+        }
+    };
+
     useEffect(() => {
         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-        setToken(token)
         if (token) {
           try {
-            var decoded = jwtDecode(token);
+            setToken(token)
+            const decoded = jwtDecode(token);
             setTokenData(decoded.result)
           } catch (e) {
             console.error(e);
           }
         }
-      }, []);
+    }, []);
 
     const handleDownload = async () => {
         try {
@@ -129,20 +192,154 @@ function SmartRxPreview() {
             tcm_id: state?.tcm_id,
           };
           try {
-                const response = await api.post(
-                  FETCH_SMART_RX,
-                  payload,
-                  baseUrl
-                );
-                if(response?.data?.length){
-                    setSmartRxFile(response?.data);
-                }
+            const response = await api.post(
+                FETCH_SMART_RX,
+                payload,
+                baseUrl
+            );
+            if(response?.data?.length){
+                setSmartRxFile(response?.data);
+            }
           } catch (error) {
             console.error("Error:", error);
           }
         };
         fetchData();
     }, []);
+
+    const fetchImageAsFile = async (url, fileName) => {
+        try {
+          const response = await fetch(url);
+          const blob = await response.blob(); // Convert response to a Blob
+          return new File([blob], fileName, { type: blob.type }); // Create a File object
+        } catch (error) {
+          console.error("Error fetching image:", error);
+          return null;
+        }
+    };
+
+    const uploadFiles = async () => {
+    
+        const apiDuration = 40000; // Simulated 40 seconds
+        const intervalTime = 100; // Update progress every 100ms
+        let elapsed = 0;
+    
+        // Start the progress bar interval
+        const interval = setInterval(() => {
+            elapsed += intervalTime;
+            progressValue.current = (elapsed / apiDuration) * 100;
+            if (progressRef.current) {
+                progressRef.current.style.width = `${progressValue.current}%`;
+            }
+    
+            // Clear the interval when the progress completes
+            if (elapsed >= apiDuration) {
+                clearInterval(interval);
+            }
+        }, intervalTime);
+    
+        const data = getDecodedToken();
+        const formData = new FormData();
+    
+        // Fetch and convert all images to File objects
+        const files = await Promise.all(
+            smartRxFile.map(async (file) => {
+                const fileUrl = file.smart_prescription_file;
+                const fileName = file.smart_prescription_filename;
+                return await fetchImageAsFile(fileUrl, fileName);
+            })
+        );
+    
+        // Append each file to FormData
+        files.forEach((file) => {
+            if (file) {
+                formData.append('files', file);
+            }
+        });
+    
+        // Append other fields to FormData
+        formData.append('doctorId', data.result.user_id);
+        formData.append('patientId', patient_data.patient_unique_id);
+        formData.append('caseId', state.tcm_id);
+        formData.append('ocrModel', 'docx');
+    
+        try {
+            const cleanedToken = token.replace(/['"]+/g, '');
+
+                // API call for Rx Digitisation
+                const response = await axios.post(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${cleanedToken}`,
+                    },
+                });
+        
+                // Clear the interval when the upload is done
+                clearInterval(interval);
+        
+                // Set the response to state (this will trigger the success message)
+                setRxDigitiseApiResponse(response.data.data[0]);
+                setRxDigitiseComplete(true); // Mark the digitisation as complete
+        }catch (error) {
+            console.error('Error uploading files:', error);
+            clearInterval(interval);
+        }
+    }; 
+
+    useEffect(() => {
+        const fetchDataAndUpload = async () => {
+            try {
+                // Fetch both case manager data and Rx digitized data
+                const viewCaseManagerData = await getCaseManagerData();
+                setViewCaseManagerData(viewCaseManagerData)
+
+                const digitisedData = await fetchRxDigitisedData();
+                if (digitisedData.data) {
+                    setRxDigitisedData(true);
+                    setRxDigitiseApiResponse(digitisedData.data);
+                    setIsEditedData(digitisedData.data)
+                } else {
+                    setRxDigitisedData(false);
+                }
+
+                // After both API calls are completed, check their responses
+                // if (!viewCaseManagerData?.isRxDigitize && smartRxFile?.length > 0 && token) {
+                if (!viewCaseManagerData?.isRxDigitize && digitisedData.data === null && smartRxFile?.length > 0 && token) {
+                    // Proceed with the file upload
+                    await uploadFiles();
+                }
+            } catch (error) {
+                console.error('Error in fetchDataAndUpload:', error);
+            }
+        };
+    
+        if (smartRxFile?.length > 0 && token && state?.tcm_id && isSmartSyncCVTAccessableFromGB) {
+            fetchDataAndUpload();
+        }
+    }, [smartRxFile, token, state?.tcm_id]);
+
+    // Function to update rxDigitize parameter in the URL
+    const updateRxDigitizeInUrl = (url, showDigitalRx) => {
+        const urlObj = new URL(url);
+
+        if (showDigitalRx) {
+            urlObj.searchParams.set('rxDigitize', 'true');
+        } else {
+            // Remove rxDigitize parameter if showDigitalRx is false/null to keep the URL unchanged
+            urlObj.searchParams.delete('rxDigitize');
+        }
+
+        return urlObj.toString();
+    };
+
+    // Effect to update printUrl when showDigitalRx changes
+    useEffect(() => {
+        if (printUrl) {
+            // Only modify the URL if showDigitalRx is true, else keep printUrl unchanged
+            const updatedUrl = updateRxDigitizeInUrl(printUrl, showDigitalRx);
+            setPreviewUrl(updatedUrl);
+        }
+    }, [showDigitalRx, printUrl]);
 
     const configurePrintUrl = async () => {
         var sendData = {
@@ -157,27 +354,6 @@ function SmartRxPreview() {
             errorMessage(action.error)
         }
     }
-
-    const showHideUpdateMobileNoModal = () => {
-        setIsUpdateMobileNoModalOpen(!isUpdateMobileNoModalOpen);
-    };
-    
-    const onChangeMobileNumber = (e) => {
-        setMobileNumber(e.target.value);
-    };
-
-    const onChangeCheckbox = (e) => {
-        setUseRegisteredMobile(e.target.checked);
-        if (e.target.checked) {
-          setMobileNumber(registeredMobileNumber);
-        } else {
-          setMobileNumber('');
-        }
-      };
-
-    const handleUpdateMobileNoClick = () => {
-        setIsUpdateMobileNoModalOpen(!isUpdateMobileNoModalOpen)
-    };
 
     const handleSendToWhatsapp = async () => {
         const body = {
@@ -234,6 +410,18 @@ function SmartRxPreview() {
         }
     };
 
+    const handleDigitiseRx = async() => {
+        navigate("/smart-rx-digitise", {
+            state: {
+                patient_data: patient_data,
+                smartRxFilesData: smartRxFile,
+                tcm_id: state.tcm_id,
+                print_url: state.print_url,
+                digitisedData: rxDigitiseApiResponse,
+            },
+        })
+    };
+
     return (
         <>
             <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} printUrl={printUrl} />
@@ -247,7 +435,7 @@ function SmartRxPreview() {
                         </div>
                         }
                         <div className={`${!isMobile ? 'rounded-20px mt-20' : 'border-top-0 border-start-0 border-bottom-0'} border p-20 bg-white d-flex flex-column`}
-                            style={{ height: !isMobile ? 'calc(100vh - 160px)' : 'calc(100vh - 60px)' }}>
+                            style={{ height: !isMobile ? 'calc(100vh - 100px)' : 'calc(100vh - 60px)' }}>
                             <div>
                                 {!isMobile ? '' : <div className="d-flex align-items-center mb-14 h-38" onClick={configurePrintUrl}>
                                     <i className="icon-setting me-2"></i>
@@ -279,7 +467,6 @@ function SmartRxPreview() {
                                 <div className="fontroboto title-common">
                                     <div className="fw-normal fontroboto mb-2">Send this prescription to</div>
                                     {patient_data !== undefined ? `WhatsApp +91 ${patient_data.pm_contact_no}` : '-'}
-                                    {/* <i className='icon-Edit me-2 fs-21 edit-number-icon' onClick={() => setIsUpdateMobileNoModalOpen(!isUpdateMobileNoModalOpen)}></i> */}
                                 </div>
                             </div>
                             <button
@@ -291,78 +478,120 @@ function SmartRxPreview() {
                                 ) : (
                                     buttonText
                                 )}
-                            </button>                                
-                            {/* <CommonModal
-                                isModalOpen={isUpdateMobileNoModalOpen}
-                                onCancel={showHideUpdateMobileNoModal}
-                                modalWidth={500}
-                                title={"Update Mobile Number"}
-                                modalBody={
+                            </button>
+                            { isSmartSyncCVTAccessableFromGB && (
                                 <>
-                                    <div >
-                                        <div>Mobile Number<sup className="text-danger update-number-icon">*</sup> <br /></div>
-                                        <Form.Item
-                                            className="inputLabel-45">
-                                            <Input
-                                                placeholder="Mobile Number"
-                                                value={"7894561230"}
-                                                onChange={onChangeMobileNumber}
-                                                className="inputheight45 text-capitalize" />
-                                        </Form.Item>
-                                    </div>
-                                    <div className="mt-4">
-                                    <div>
-                                        <Checkbox onChange={onChangeCheckbox}>
-                                            Update with registered mobile number
-                                        </Checkbox>
-                                    </div>
-                                    <div className="d-flex align-items-center mt-2 justify-content-end">
-                                        <div onClick={showHideUpdateMobileNoModal}
-                                            className="me-4 btn p-0 text-main">
-                                            Cancel
+                                {/* This code is intended for future use. Please retain it for reference */}
+                                    {/* {!isRxDigitiseComplete ? (
+                                        <div className="digitise-container d-flex p-3 rounded-10px">
+                                            <div style={containerStyle}>
+                                                <div ref={progressRef} style={progressStyle}></div>
+                                            </div>
+                                            <p className="digitise-header" style={{ padding: "16px 0" }}>
+                                                {`${patient_data?.pm_fullname}'s Rx is getting Digitised!`}
+                                            </p>
+                                            <p className="digitise-info">
+                                                Our AI engine is converting handwritten Rx into digital Rx. This may take up to 30 sec
+                                            </p>
                                         </div>
-                                        <Button className="lh-lg btn btn-primary3 btn-41 px-4" onClick={handleUpdateMobileNoClick} loading={loading} disabled={patient_data ? false : false}>
-                                            <span>Update</span>
-                                        </Button>
-                                    </div>
-                                    </div>
+                                    ):
+                                    (
+                                        <div className="digitise-container p-3 rounded-10px">
+                                            <div className="digitise-box-top">
+                                                <img src={successIcon} alt="success" width="40px" height="40px" />
+                                                <div>
+                                                    <p className="digitise-header">
+                                                        {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
+                                                    </p>
+                                                    <p className="digitise-info">
+                                                        Digitise Rx to enhances patient care, streamline workflow, and unlock new revenue. Know More
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button onClick={handleDigitiseRx} className="digitise-btn">
+                                                Digitise Rx Now
+                                            </button>
+                                        </div>
+                                    )} */}
+
+                                    {!isRxDigitiseComplete && !rxDigitisedData && (
+                                        <div className="digitise-container d-flex p-3 rounded-10px">
+                                            <div style={containerStyle}>
+                                                <div ref={progressRef} style={progressStyle}></div>
+                                            </div>
+                                            <p className="digitise-header" style={{ padding: "16px 0" }}>
+                                                {`${patient_data?.pm_fullname}'s Rx is getting Digitised!`}
+                                            </p>
+                                            <p className="digitise-info">
+                                                Our AI engine is converting handwritten Rx into digital Rx. This may take up to 30 sec
+                                            </p>
+                                        </div>
+                                    )}
+                                    {rxDigitiseApiResponse && !isEditedData?.editedData && (
+                                        <div className="digitise-container p-3 rounded-10px">
+                                            <div className="digitise-box-top">
+                                                <img src={successIcon} alt="success" width="40px" height="40px" />
+                                                <div>
+                                                    <p className="digitise-header">
+                                                        {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
+                                                    </p>
+                                                    <p className="digitise-info">
+                                                        Digitise Rx to enhances patient care, streamline workflow, and unlock new revenue. Know More
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button onClick={handleDigitiseRx} className="digitise-btn">
+                                                Digitise Rx Now
+                                            </button>
+                                        </div>
+                                    )}
                                 </>
-                                }
-                            /> */}
+                            )}
                         </div>
                     </Col>
                     <Col md={17} lg={17} xl={12}>
                         <div className={isMobile ? 'p-20' : ''}>
                             <div className="d-flex align-itms-center justify-content-between">
                                 <div className="titleprint">Preview</div>
+                               { viewCaseManagerData?.isRxDigitize && isSmartSyncCVTAccessableFromGB &&
+                                    <div>
+                                        <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
+                                        <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>
+                                    </div>
+                                }
                             </div>
                             <div className="rounded-20px bg-white mt-20 overflow-hidden">
+
                                 <div ref={divRef} className="printheight">
                                     <div ref={printRef} className="position-relative h-100">
                                         <Document
-                                            loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
-                                            error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
-                                            noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
-                                            file={printUrl}
-                                            onLoadSuccess={onDocumentLoadSuccess}>
-                                            {Array.apply(null, Array(numPages))
-                                                .map((x, i) => i + 1)
-                                                .map((page) => {
-                                                    return (
-                                                        <Page
-                                                            key={Math.random()}
-                                                            className={printBlob ? 'react-pdf__Page_afterload' : null}
-                                                            loading={null}
-                                                            width={divWidth}
-                                                            pageNumber={page}
-                                                            renderTextLayer={false}
-                                                            renderAnnotationLayer={false}
-                                                        />
-                                                    );
-                                                })}
+                                        loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
+                                        error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
+                                        noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
+                                        file={!showDigitalRx ? printUrl : previewUrl }
+                                        onLoadSuccess={onDocumentLoadSuccess}>
+                                        {Array.apply(null, Array(numPages))
+                                            .map((x, i) => i + 1)
+                                            .map((page) => (
+                                            <Page
+                                                key={Math.random()}
+                                                className={printBlob ? 'react-pdf__Page_afterload' : null}
+                                                loading={null}
+                                                width={divWidth}
+                                                pageNumber={page}
+                                                renderTextLayer={false}
+                                                renderAnnotationLayer={false}
+                                            />
+                                            ))}
                                         </Document>
                                     </div>
-                                </div>
+                                    { showDigitalRx && 
+                                        <div className="digital-rx-info">
+                                            <img src={cvtInfoIcon} alt="cvt-info-icon" />
+                                            <span className="digital-rx-info-text"><span className="title-common">Note:</span>  This Digital Rx is for reference only and you can’t download or share with patients.</span>
+                                        </div>
+                                    }
+                                </div> 
                             </div>
                         </div>
                     </Col>
