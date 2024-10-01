@@ -432,7 +432,8 @@ function Cardiology(props) {
               </div>
             </Card.Header>
 
-            { (isRxdigitised && isSmartSyncCVTAccessableFromGB && isSmartRxFile) ?
+            { isSmartSyncCVTAccessableFromGB && isSmartRxFile &&
+             ( isRxdigitised ?
               <div className="p-2 mb-2">
                 <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
                 <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>
@@ -449,7 +450,7 @@ function Cardiology(props) {
                     Digitise Rx Now
                 </button>
               </div>
-            }
+             )}
             { loading ? (
               <div
                 className="d-flex flex-column justify-content-center"

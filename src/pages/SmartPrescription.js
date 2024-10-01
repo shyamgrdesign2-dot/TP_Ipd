@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 import { jwtDecode } from "jwt-decode";
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, SMART_RX_UPLOAD, WEBSOCKET_ERROR_MESSAGE } from "../utils/constants";
+import { ADD, EDIT, GB_SMARTSYNC_CVT, SMART_RX_UPLOAD, WEBSOCKET_ERROR_MESSAGE } from "../utils/constants";
 
 import { getVitals } from "../redux/vitalsSlice";
 import ReconnectingWebSocket from 'reconnectingwebsocket';
@@ -30,6 +30,7 @@ import { MESSAGE_KEY } from "../utils/constants";
 import CommonModal from "../common/CommonModal";
 import alertIcon from "../assets/images/alertIcon.svg";
 import FullPageLoader from "./vaccination/components/Loader";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 function SmartPrescription() {
   const {
@@ -118,6 +119,10 @@ function SmartPrescription() {
   };
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
+
+  const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
+    GB_SMARTSYNC_CVT
+  );
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
 
@@ -714,7 +719,8 @@ useEffect(() => {
                 height: "100vh", /* Full height for independent scrolling */
               }}
             >
-              <div className="know-more-cvt p-14">
+              { isSmartSyncCVTAccessableFromGB &&
+                <div className="know-more-cvt p-14">
                 <div className="sparkle"></div>
                 <div className="title-common">
                   <div>
@@ -725,7 +731,8 @@ useEffect(() => {
                   </div>
                   <button className="know-more-btn">Know More</button>
                 </div>
-              </div>
+                </div>
+              }
               <div className="prescription-box-sm p-14">
                 <div className="d-flex align-items-center justify-content-between">
                   <div className="d-flex align-items-center">
