@@ -163,12 +163,11 @@ const obsHistoryCheckboxOptions = [
   },
 ];
 
-function PrescriptionLayout({ todayVaccines, growthChartDetails }) {
+function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetails }) {
   const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions } = useContext(PrintSettingsContext);
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
 
   const onMainCaseOptionChange = useCallback(
     (e) => {
