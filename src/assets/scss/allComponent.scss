@@ -1857,8 +1857,9 @@ body {
     z-index:  9;
     top: -12px;
     padding: 1px 6px;
-    font-size: 12px;
+    font-size: 12px !important;
     border-radius: 10px;
     border: 1px solid $bordercolor;
     background-color: $drawerHeaderColor;
+    line-height: 1.7;
 }
