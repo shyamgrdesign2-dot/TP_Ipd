@@ -4,12 +4,21 @@ import { getDecodedToken } from "../../utils/localStorage";
 
 const baseUrl = { customBaseUrl: config.obstetric_api_url };
 
-export const fetchAllObstetricDetails = async function (patient_unique_id, userId) {
+export const fetchAllObstetricDetails = async function (
+  patient_unique_id,
+  userId,
+  todaysExamination
+) {
   let res = {};
   try {
     const decodedToken = getDecodedToken();
     const doctorId = decodedToken?.result?.user_id;
-    res = await api.get(`/obstetric/${patient_unique_id}/${userId || doctorId}`, baseUrl);
+    res = await api.get(
+      `/obstetric/${patient_unique_id}/${userId || doctorId}${
+        todaysExamination ? "?todaysExamination=true" : ""
+      }`,
+      baseUrl
+    );
     res = res.data;
   } catch (e) {
     console.error("Error while fetching obstetric details: ", e);

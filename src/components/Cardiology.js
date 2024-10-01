@@ -18,8 +18,9 @@ import notesicon from "../assets/images/notes.svg";
 import calenderBlank from "../assets/images/calenderBlank.svg";
 import followUp from "../assets/images/followup.svg";
 import smartPadGrey from "../assets/images/smartPadGrey.svg";
+import successIcon from '../assets/images/success-icon.svg';
 
-import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE } from "../utils/constants";
+import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { capitalize, isNumeric, medicine_freq_format } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
@@ -45,6 +46,9 @@ function Cardiology(props) {
   const [setSortedInfo] = useState({});
   const [smartRxFile, setSmartRxFile] = useState([]);
   const [isSmartRxFile, setIsSmartRxFile] = useState(false);
+  const [showDigitalRx, setShowDigitalRx] = useState(null);
+  const [rxDigitisedData, setRxDigitisedData] = useState(null);
+  const [isRxdigitised, setIsRxdigitised] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -52,8 +56,12 @@ function Cardiology(props) {
   const isSmartSyncAccessableFromGB = useFeatureIsOn(
     GB_ISCRIBE
   );
+  const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
+    GB_SMARTSYNC_CVT
+  );
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
+  const baseUrlRxDigitise = env.rx_digitization ;
 
   useEffect(() => {
     setSmartRxFile([]);
@@ -73,10 +81,12 @@ function Cardiology(props) {
         // viewCaseManagerData.treatment
     ) {
       setIsSmartRxFile(true);
-    } else {
+      if(viewCaseManagerData?.tcm_id && isSmartSyncCVTAccessableFromGB){
+        fetchRxDigitisedData(viewCaseManagerData?.tcm_id);
+      }
+    }else {
       setIsSmartRxFile(false);
     }
-    
   }, [viewCaseManagerData]);
 
   const fetchData = async () => {
@@ -126,7 +136,7 @@ function Cardiology(props) {
     //     label: 'Saved as a Template',
     //     key: 'SavedasTemplate',
     // }
-];
+  ];
   const columns = [
     {
       title: "S.NO",
@@ -280,6 +290,68 @@ function Cardiology(props) {
     }
   };
 
+  const fetchRxDigitisedData = async (caseId) => {
+      try {
+          const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+          const cleanedToken = token.replace(/['"]+/g, '');
+
+          // API call for Rx Digitisation
+          const response = await axios.get(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${caseId}`, {
+              headers: {
+                  'Authorization': `Bearer ${cleanedToken}`,
+              },
+          });
+          if(response?.data?.data) {
+              setRxDigitisedData(response?.data?.data);
+              if(response?.data?.data?.editedData){
+                setIsRxdigitised(true);
+              } else {
+                setIsRxdigitised(false);
+              }
+          }
+
+          return response.data; // return the data after it's fetched
+      } catch (error) {
+          console.error('Error digitizing the prescription:', error);
+          return null;
+      }
+  };
+
+  const handleDigitiseRx = async(record) => {
+    navigate("/smart-rx-digitise", {
+        state: {
+            patient_data: patient_data,
+            smartRxFilesData: smartRxFile,
+            tcm_id: viewCaseManagerData?.tcm_id,
+            print_url: viewCaseManagerData?.print_rx_url,
+            digitisedData: rxDigitisedData,
+        },
+    })
+  };
+
+  // Render items for each type (medications, tests, etc.)
+  const renderItems = (type) => (
+    <div className='digitised-data-section'>
+      <ol>
+        {rxDigitisedData?.editedData?.[type].map((item, index) => (
+          <li key={index}>
+            <div className='medicine-item'>
+              <span>
+                {type === "advice" ?  rxDigitisedData?.editedData?.[type][index] : type === "symptoms" ? item.name : item.refinedName}
+              </span>
+
+              {type === "medications" && item.lineItem &&
+                <span> 
+                  {` (${item.lineItem})`}
+                </span>
+              }
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+
   return (
     <div className="appointment-wrap PatientDetailswrap m-0">
       <Card className="">
@@ -359,7 +431,26 @@ function Cardiology(props) {
                 </div>
               </div>
             </Card.Header>
-            {loading ? (
+
+            { (isRxdigitised && isSmartSyncCVTAccessableFromGB && isSmartRxFile) ?
+              <div className="p-2 mb-2">
+                <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
+                <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>
+              </div>
+              :
+              <div className="digitise-info-cardiology">
+                <img src={successIcon} alt="success" width="40px" height="40px" />
+                <p>
+                    <span className="digitise-info-header-cardiology">{`${patient_data?.pm_fullname}'s Digital Rx is ready!`}</span>
+                    Digitise Rx to enhance patient care, workflow efficiency, and revenue. Know More
+                </p>
+                {/* <button onClick={handleDigitiseRx} className=""> */}
+                <button className="digitise-info-btn-cardiology" onClick={handleDigitiseRx}>
+                    Digitise Rx Now
+                </button>
+              </div>
+            }
+            { loading ? (
               <div
                 className="d-flex flex-column justify-content-center"
                 style={{ height: "calc(100vh - 218px)" }}
@@ -368,41 +459,98 @@ function Cardiology(props) {
                   <Spin />
                 </div>
               </div>
-            ) : //smart image
-            isSmartRxFile ?
-            (
-            <>
-              {smartRxFile.length > 0 && smartRxFile?.map(({smart_prescription_file}) =>
-                  <div style={{ padding: "5px" }}>
-                    {smart_prescription_file && (
-                      <img
-                        src={smart_prescription_file}
-                        alt="Smart Rx"
-                        width="100%"
-                        height="660px"
-                      />
+              ) : 
+              isSmartRxFile ? (
+                <div>
+                  { isRxdigitised && showDigitalRx ? (
+                    <div className="m-4"> 
+                      {rxDigitisedData?.editedData?.medications && rxDigitisedData?.editedData?.medications.length > 0 && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={Medicationicon}
+                              alt="Medication"
+                            />
+                            <div className="title-digitise-section mb-1">Medication</div>
+                          </div>
+                          {renderItems('medications')}
+                        </> 
+                      )}
+
+                      {rxDigitisedData?.editedData?.tests && rxDigitisedData?.editedData?.tests.length > 0 && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={Diagnosisicon}
+                              alt="Diagnosis"
+                            />
+                            <div className="title-digitise-section mb-1">Tests</div>
+                          </div>
+                          {renderItems('tests')}
+                        </>
+                      )}
+
+                      {rxDigitisedData?.editedData?.symptoms && rxDigitisedData?.editedData?.symptoms.length > 0 && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={Symptomsicon}
+                              alt="Symptoms"
+                            />
+                            <div className="title-digitise-section mb-1">Symptoms</div>
+                          </div>
+                          {renderItems('symptoms')}
+                        </>    
+                      )}
+
+                      {rxDigitisedData?.editedData?.advice && rxDigitisedData?.editedData?.advice.length > 0 && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img 
+                              className="me-2" 
+                              src={Frameicon}
+                              alt="Advice" 
+                            />
+                            <div className="title-digitise-section mb-1">Advices</div>
+                          </div>
+                          {renderItems('advice')}
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      {smartRxFile.length > 0 &&
+                        smartRxFile?.map(({ smart_prescription_file }) => (
+                          <div style={{ padding: "5px" }}>
+                            {smart_prescription_file && (
+                              <img
+                                src={smart_prescription_file}
+                                alt="Smart Rx"
+                                width="100%"
+                                height="660px"
+                              />
+                            )}
+                          </div>
+                      ))}
+                    </>
+                  )}
+                  <div className={`d-flex align-items-center mb-14 ${viewCaseManagerData?.follow_up_date ? "follow-up-detailsPage" : "" }`}>
+                    {viewCaseManagerData?.follow_up_date && (
+                      <>
+                        <img className="me-3" src={followUp} alt="Symptoms" />
+                        <div className="title-common">Follow-up:</div>
+                        <div className="follow-up-date-text">
+                          {viewCaseManagerData?.follow_up_date}
+                        </div>
+                      </>
                     )}
                   </div>
-              )} 
-              {/* { !(smartRxFile?.length > 0 || viewCaseManagerData?.follow_up_date || viewCaseManagerData.vitals?.length > 0) && (<div className='smart-rx-no-data'>
-                      <img src={smartPadGrey} width={60} height={60} alt="No prescriptions saved for the patient!" />
-                      <p className='mt-2 fontroboto'>
-                          No smart prescriptions available for the patient!
-                      </p>
-                  </div>
-              )} */}
-              <div className={`d-flex align-items-center mb-14 ${viewCaseManagerData?.follow_up_date ? 'follow-up-detailsPage' : ""}`}>
-                { viewCaseManagerData?.follow_up_date &&
-                  <>
-                    <img className='me-3' src={followUp} alt="Symptoms" />
-                    <div className="title-common">Follow-up:</div>
-                    <div className="follow-up-date-text">{viewCaseManagerData?.follow_up_date}</div>
-                  </>
-                }
-              </div>
-              </>
-            ) : (
-              <Card.Body className="p-0 cardbody-data">
+                </div>
+              ) : (
+                <Card.Body className="p-0 cardbody-data">
                 <div>
                   <div className="p-3 pb-0">
                     {viewCaseManagerData.symptoms.length > 0 && (

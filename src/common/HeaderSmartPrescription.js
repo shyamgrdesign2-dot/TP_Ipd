@@ -182,12 +182,13 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
 
   useEffect(() => {
     if(isSmartSyncConnectAccessableFromGB){
-      const ws = new ReconnectingWebSocket(WS_CONTROL_URL, null, {debug: true, reconnectInterval: 3000});
+      const ws = new ReconnectingWebSocket(WS_CONTROL_URL, null, {debug: true, reconnectInterval: 2000});
 
       ws.onopen = () => {
         console.log('WebSocket connection opened');
         setSocket(ws);
         checkDeviceStatus(ws);
+        checkAppVersion(ws)
       };
 
       ws.onclose = () => {
@@ -222,6 +223,10 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
   const checkDeviceStatus = (ws) => {
     ws.send('DeviceStatus');
   };
+
+  const checkAppVersion = (ws) => {
+    ws.send("AppVersion")
+  }
 
   const wsError = (error) => {
     message.open({
@@ -267,6 +272,8 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
       setIsConnected(!statusMessage);
       setConnectLoading(false);
       if (!statusMessage) setError('Failed to disconnect device');
+    } else if (message.startsWith("AppVersion")) {
+      const versionMessage = message.split(':')[1];
     }
   };
 
@@ -307,10 +314,11 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
     setIsDisconnect(true)
   }
 
+  //Disconnect Modal function
   const showHideDisconnectModal = () => {
     setIsDisconnect(null);
-    showDiconnectPopup(false)
-  };
+    setShowDiconnectPopup(false)
+  }
 
   // Effect to handle updated data from parent
   useEffect(() => {
@@ -355,23 +363,6 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
         : await dispatch(editCaseManager(sendData));
 
     if (action.meta.requestStatus === "fulfilled") {
-      if(IS_RX_DIGI_API_CALL){
-        const data = getDecodedToken();
-        // FormData for rx_digitizing api
-        const formData = new FormData();
-        files.forEach((file) => {
-          formData.append('files', file);
-        });
-        formData.append('doctorId', data.result.user_id);
-        formData.append('patientId', action.meta.arg.patient_unique_id);
-        formData.append('caseId', action.payload.tcm_id);
-        formData.append('ocrModel', 'docx');
-        try {
-          const response = api.post(RX_DIGITIZATION, formData, baseUrl);
-        } catch (error) {
-          console.error('Error DIGITIZING the prescription:', error);
-        }
-      }
       navigate('/print-smart-rx', { replace: true, state: { ...action.payload, patient_data: patient_data, smartRxFile: smartRxFiles } })
     } else {
       errorMessage(action.error);
