@@ -80,8 +80,8 @@ const VisitMedicalRecords = () => {
     <div className="appointment-wrap PatientDetailswrap m-0">
       <Card>
         <div
-          className="d-flex flex-column justify-content-center"
-          // style={{ height: "calc(100vh - 118px)", overflow: "auto" }}
+          className="d-flex flex-column"
+          style={{ height: "calc(100vh - 150px)", overflow: "auto" }}
         >
           {allUploadedDocs.length === 0 ? (
             <div
@@ -184,6 +184,7 @@ const VisitMedicalRecords = () => {
         <Drawer
           closeIcon={false}
           placement="right"
+          bodyStyle={{ backgroundColor: "white" }}
           onClose={handleDeletePopup}
           open={uploadDocDrawer}
           className="modalWidth-700"

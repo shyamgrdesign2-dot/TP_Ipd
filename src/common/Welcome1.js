@@ -303,6 +303,7 @@ function Welcome1(props) {
                 <Drawer
                 closeIcon={false}
                 placement="right"
+                bodyStyle={{backgroundColor: "white"}}
                 onClose={handleDeletePopup}
                 open={uploadDocDrawer}
                 className="modalWidth-700"

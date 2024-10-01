@@ -937,6 +937,7 @@ function TabPrescription() {
           <Drawer
             closeIcon={false}
             placement="right"
+            bodyStyle={{backgroundColor: "white"}}
             onClose={handleDeletePopup}
             open={uploadDocDrawer}
             className="modalWidth-700"
@@ -959,6 +960,7 @@ function TabPrescription() {
           <Drawer
             closeIcon={false}
             placement="right"
+            bodyStyle={{backgroundColor: "white"}}
             onClose={handleDrawerMedicalReport}
             open={medicalReportDrawer}
             className="modalWidth-700"

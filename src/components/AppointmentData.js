@@ -1132,6 +1132,7 @@ function AppointmentData({ locationPath }) {
                 <Drawer
                     closeIcon={false}
                     placement="right"
+                    bodyStyle={{backgroundColor: "white"}}
                     onClose={handleDeletePopup}
                     open={uploadDocDrawer}
                     className="modalWidth-700"

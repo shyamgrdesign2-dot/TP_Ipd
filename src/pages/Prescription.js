@@ -880,9 +880,11 @@ function Prescription() {
           <Drawer
             closeIcon={false}
             placement="right"
+            bodyStyle={{backgroundColor: "white"}}
             onClose={handleDeletePopup}
             open={uploadDocDrawer}
-            width="50%"
+            className="modalWidth-700"
+            width="auto"
             push={false}
           >
             <UploadDocument
@@ -901,6 +903,7 @@ function Prescription() {
           <Drawer
             closeIcon={false}
             placement="right"
+            bodyStyle={{backgroundColor: "white"}}
             onClose={handleDrawerMedicalReport}
             open={medicalReportDrawer}
             width="50%"

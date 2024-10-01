@@ -362,7 +362,6 @@ const UploadDocument = ({
                       placeholder="Enter remarks"
                       className="textareaPlaceholder"
                       style={{ height: "38px" }}
-                      rows={1}
                       value={recordData?.[index]?.notes}
                       onChange={(e) =>
                         handleRecordChange(index, "notes", e.target.value)
