@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useRef } from 'react';
 import { Popover, Drawer } from "antd";
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
@@ -14,18 +14,26 @@ import CreateCertificate from '../components/medical_certificate/CreateCertifica
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_ISCRIBE } from '../utils/constants';
 import { getClinicName } from '../utils/utils';
+import UploadDocument from '../pages/medicalRecords/UploadDocument';
 
 function Welcome1(props) {
 
     const [popOverVideo, setPopOverVideo] = useState(false);
     const [videoLink, setVideoLink] = useState(null);
     const [clickedDownArrow, setClickedDownArrow] = useState(false);
+    const [filesData, setFilesData] = useState([]);
+    const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
+    const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+    const fileInputRef = useRef(null);
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
     );
 
     const navigate = useNavigate();
     const { profile, videoList, patientCertificateList } = useSelector((state) => state.doctors);
+    const { allUploadedDocs } = useSelector(
+      (state) => state.uploadDoc
+    );
     const { locationPath, isMobile, patient_data, viewCaseManagerData, sidebarKey } = props
 
     const modifyFormat = useMemo(() => {
@@ -62,6 +70,31 @@ function Welcome1(props) {
     const showHideVideoListPopover = useCallback(() => {
         setPopOverVideo(!popOverVideo);
     }, [popOverVideo]);
+
+      const handleDrawerUploadDoc = () => {
+        setUploadDocDrawer(!uploadDocDrawer);
+      };
+
+      const handleDeletePopup = () => {
+        setShowDeletePopup(true);
+      };
+
+      const handleFileUpload = (event) => {
+        const files = event.target.files;
+        if (files) {
+          const filesData = Array.from(files);
+          if (filesData.length > 0) {
+            setFilesData(filesData);
+            handleDrawerUploadDoc();
+          }
+        }
+      };
+
+      const handleAddClick = () => {
+        if (fileInputRef.current) {
+          fileInputRef.current.click();
+        }
+      };
 
     //Video Componet
     const VIDEO_CONTENT = useCallback(() => {
@@ -116,8 +149,10 @@ function Welcome1(props) {
                                 {isMobile && (<ProfilePopover locationPath={locationPath} isMobile={isMobile} patient_data={patient_data} />)}
                                 {isMobile ? '' : <p className='mb-1'>&nbsp;</p>}
                             </div>
-                        ) : (
+                        ) : sidebarKey === 2 ? (
                             <h1 className='mt-2 mb-3'>{'Certificate'}</h1>
+                        ) : (
+                            <h1 className='mt-2 mb-3'>{'Medical Records'}</h1>
                         )}
                         <img src={require("../assets/images/bg-welcome.png")} className={`welcomeig d-inline-block align-top ${isMobile ? 'ms-2' : 'ms-4'}`} alt="Welcome" />
                     </div>
@@ -219,7 +254,7 @@ function Welcome1(props) {
                                 </div>
                             )}
                         </div>
-                    ) : (
+                    ) : sidebarKey === 2 ? (
                         <div>
                             {patientCertificateList?.length > 0 && (
                                 <Button variant="primary" onClick={handleCreateCertificateDrawer}
@@ -227,6 +262,25 @@ function Welcome1(props) {
                                     {'Create Certificate'}
                                 </Button>
                             )}
+                        </div>
+                    ) : sidebarKey === 3 && allUploadedDocs?.length > 0 && (
+                        <div>
+                            <Button
+                                variant="primary"
+                                style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                                onClick={handleAddClick}
+                            >
+                                <input
+                                    type="file"
+                                    multiple
+                                    ref={fileInputRef}
+                                    onChange={handleFileUpload}
+                                    accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
+                                    style={{ display: "none" }}
+                                    />
+                                <i className="icon-upload" />
+                                {"Upload new report"}
+                            </Button>
                         </div>
                     )}
                 </div>
@@ -245,6 +299,27 @@ function Welcome1(props) {
                     &nbsp;
                 </div>
             </div>
+            {uploadDocDrawer && (
+                <Drawer
+                closeIcon={false}
+                placement="right"
+                bodyStyle={{backgroundColor: "white"}}
+                onClose={handleDeletePopup}
+                open={uploadDocDrawer}
+                className="modalWidth-700"
+                width="auto"
+                push={false}
+                >
+                <UploadDocument
+                    onClose={handleDeletePopup}
+                    handleDrawerUploadDoc={handleDrawerUploadDoc}
+                    shouldShowDeletePopup={shouldShowDeletePopup}
+                    setShowDeletePopup={setShowDeletePopup}
+                    filesData={filesData}
+                    setFilesData={setFilesData}
+                />
+                </Drawer>
+            )}
         </>
     )
 }

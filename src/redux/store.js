@@ -19,6 +19,7 @@ import vaccineSlice from './vaccineSlice';
 import growthChartSlice from './growthChartSlice';
 import doctorWebsiteSlice from './doctorWebsiteSlice';
 import obstetricSlice from './obstetricSlice';
+import uploadDocSlice from './uploadDocSlice';
 
 const persistConfig = {
   key: 'root',
@@ -42,7 +43,8 @@ const rootReducer = combineReducers({
   vaccines: vaccineSlice,
   growthChart: growthChartSlice,
   doctorWebsite: doctorWebsiteSlice,
-  obstetric: obstetricSlice
+  obstetric: obstetricSlice,
+  uploadDoc: uploadDocSlice
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
