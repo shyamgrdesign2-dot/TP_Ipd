@@ -17,6 +17,10 @@ import {
 import { setAllUploadedDocs } from "../../redux/uploadDocSlice";
 import { useLocation } from "react-router-dom";
 import { shortenText } from "./components/recordCard/RecordCard";
+import { pdfjs } from "react-pdf";
+import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+const worker = require("pdfjs-dist/build/pdf.worker.min.js");
+pdfjs.GlobalWorkerOptions.workerSrc = worker;
 
 const UploadDocument = ({
   onClose,
@@ -46,6 +50,8 @@ const UploadDocument = ({
 
   const [isFileSizeError, setIsFileSizeError] = useState(false);
   const [isFileLimitError, setIsFileLimitError] = useState(false);
+  const [thumbnails, setThumbnails] = useState([]);
+  const [thumbnailUrls, setThumbnailUrls] = useState([]);
 
   const [recordData, setRecordData] = useState(
     filesData.map((item) => {
@@ -123,8 +129,14 @@ const UploadDocument = ({
       setIsEditDocument(false);
     } else {
       const formData = new FormData();
-      filesData.forEach((item) => {
-        formData.append("file", item);
+      filesData.forEach((item, index) => {
+        formData.append(item?.name, item);
+        formData.append(
+          "thumbnail_" +
+            item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+            ".png",
+          thumbnails?.[index]
+        );
       });
       formData.append(
         "pm_id",
@@ -194,6 +206,81 @@ const UploadDocument = ({
     toggleDeletePopup();
   };
 
+  const loadPdf = (url) => {
+    return new Promise(async (resolve) => {
+      try {
+        const loadingTask = pdfjs.getDocument(url);
+        const pdf = await loadingTask.promise;
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 1 });
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport,
+        };
+        await page.render(renderContext).promise;
+
+        // Convert canvas to data URL (base64)
+        const dataURL = canvas.toDataURL("image/png");
+        resolve(dataURL); // Return the base64 image data
+      } catch (e) {
+        resolve("");
+      }
+    });
+  };
+
+  const createThumbnails = async () => {
+    const makeThumbnailUrls = await Promise.all(
+      filesData?.map(async (item) => {
+        let thumbnailUrl;
+        let fileData;
+        if (item && item.type === "application/pdf") {
+          thumbnailUrl = await loadPdf(URL.createObjectURL(item));
+          fileData = dataURLtoFile(
+            thumbnailUrl,
+            "thumbnail_" +
+              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+              ".png"
+          );
+        } else {
+          thumbnailUrl = URL.createObjectURL(item);
+          fileData = new File(
+            [item],
+            "thumbnail_" +
+              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+              ".png",
+            { type: "image/png" }
+          );
+        }
+        setThumbnailUrls((prev) => [...prev, thumbnailUrl]);
+        return fileData;
+      })
+    );
+    setThumbnails(makeThumbnailUrls);
+  };
+
+  const dataURLtoFile = (dataurl, filename) => {
+    const base64 = dataurl?.split(",")?.[1];
+    const mime = dataurl?.match(/:(.*?);/)?.[1];
+
+    const bstr = atob(base64);
+    let n = bstr?.length;
+    const u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  };
+
+  useEffect(() => {
+    setThumbnailUrls([]);
+    createThumbnails();
+  }, [filesData]);
+
   return (
     <div className="upload-document">
       <Card bordered={false} className="search-modalCard">
@@ -221,6 +308,7 @@ const UploadDocument = ({
             onClick={handleSubmit}
             className="btn btn-primary3 btn-41 px-4 me-20"
             disabled={
+              recordData?.length === 0 ||
               recordData?.filter((item) => item.recordType === undefined)
                 ?.length > 0
             }
@@ -282,23 +370,29 @@ const UploadDocument = ({
                   <div
                     className="image-container"
                     style={{
-                      backgroundImage: `url('${emptyBg}')`,
+                      backgroundImage: `url('${
+                        thumbnailUrls?.[index] || emptyBg
+                      }')`,
                       height: 144,
                       width: 144,
                       border: "1px solid #F1F1F5",
                       paddingBottom: "0px",
                     }}
                   >
-                    <img
-                      className="doc-image"
-                      width={62}
-                      height={62}
-                      src={emptyFile}
-                      alt="document"
-                    />
-                    <div className="file-name">
-                      {shortenText(item?.name, 20, 13, -7)}
-                    </div>
+                    {thumbnailUrls?.[index] ? null : (
+                      <>
+                        <img
+                          className="doc-image"
+                          width={62}
+                          height={62}
+                          src={emptyFile}
+                          alt="document"
+                        />
+                        <div className="file-name">
+                          {shortenText(item?.name, 20, 13, -7)}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="w-100">

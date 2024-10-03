@@ -1,4 +1,4 @@
-import { Button, Dropdown, Popover, Tooltip } from "antd";
+import { Button, Drawer, Dropdown, Popover, Tooltip } from "antd";
 import "./RecordCard.scss";
 import { useCallback, useEffect, useRef, useState } from "react";
 import emptyBg from "./../../../../assets/images/empty-bg.svg";
@@ -16,6 +16,7 @@ import { isChrome, isSafari } from "react-device-detect";
 import axios from "axios";
 import { saveAs } from "file-saver";
 import CommonModal from "../../../../common/CommonModal";
+import DocumentPreview from "../documentPreview/DocumentPreview";
 
 export function shortenText(
   text,
@@ -42,8 +43,15 @@ const RecordCard = ({
   const { state } = useLocation();
   const { patient_data } = state;
   const { uploadDocCategories } = useSelector((state) => state.uploadDoc);
-  const { notes, id, url, investigation_date, category_id, display_name } =
-    cardData || {};
+  const {
+    notes,
+    id,
+    url,
+    thumbnail_url,
+    investigation_date,
+    category_id,
+    display_name,
+  } = cardData || {};
   const updatedFileName = shortenText(display_name);
   const categoryName = uploadDocCategories.find(
     (item) => item.category_id === category_id
@@ -51,6 +59,7 @@ const RecordCard = ({
 
   const [showTooltip, setShowTooltip] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [shouldShowPreview, setShowPreview] = useState(false);
   const tooltipRef = useRef(null);
 
   useEffect(() => {
@@ -102,6 +111,10 @@ const RecordCard = ({
   };
 
   const handleInAppDownload = async () => {
+    navigate(`/prescription/?url=${url}&key=download`, {
+      replace: true,
+      state: state,
+    });
     navigate(url, {
       replace: true,
       state: state,
@@ -120,7 +133,7 @@ const RecordCard = ({
       const blob = new Blob([response.data], {
         type: response.headers["content-type"],
       });
-      saveAs(blob, `${Date.now()}.pdf`);
+      saveAs(blob, display_name);
     } catch (error) {
       console.error("Error downloading file: ", error);
     }
@@ -161,15 +174,25 @@ const RecordCard = ({
       },
     ];
   };
+
+  const handlePreview = () => {
+    setShowPreview((prev) => !prev);
+  };
+
   return (
     <div
       className="image-container"
       style={{
-        backgroundImage: `url('${emptyBg}')`,
+        backgroundImage: `url('${thumbnail_url || emptyBg}')`,
       }}
+      // onClick={handlePreview}
     >
-      <img className="doc-image" src={emptyFile} alt="document" />
-      <div className="file-name">{updatedFileName}</div>
+      {thumbnail_url ? null : (
+        <>
+          <img className="doc-image" src={emptyFile} alt="document" />
+          <div className="file-name">{updatedFileName}</div>
+        </>
+      )}
       {notes?.length ? (
         <div className="notes-style" ref={tooltipRef}>
           <Tooltip
@@ -255,6 +278,22 @@ const RecordCard = ({
           }
         />
       ) : null}
+      {shouldShowPreview && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          bodyStyle={{ backgroundColor: "#222222" }}
+          onClose={handlePreview}
+          open={shouldShowPreview}
+          width="100%"
+          push={false}
+        >
+          <DocumentPreview
+            handlePreview={handlePreview}
+            shouldShowPreview={shouldShowPreview}
+          />
+        </Drawer>
+      )}
     </div>
   );
 };
