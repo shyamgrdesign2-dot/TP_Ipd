@@ -31,8 +31,7 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl }) {
         }
         const action = await dispatch(sendCashsheetWhatsapp(sendData));
         if (
-          appointmentsData?.[0]?.pam_id &&
-          process.env.REACT_APP_ENV !== "prod"
+          appointmentsData?.[0]?.pam_id
         ) {
           await updateVisitStatus(appointmentsData[0].pam_id, {
             status: 3,

@@ -13,7 +13,7 @@ import {
   obstetricDetailsUpdated,
   patientDiagnosisUpdated,
 } from "../../../../redux/obstetricSlice";
-import { isNumberCheck } from "../../utils/helper";
+import { isDecimalCheck, isNumberCheck } from "../../utils/helper";
 
 const dateFormat = "YYYY-MM-DD";
 
@@ -322,7 +322,7 @@ function AddExamination({
             value={examinationData.mothersWeight || ""}
             addonAfter={"Kgs"}
             onChange={(e) =>
-              isNumberCheck(e) &&
+              isDecimalCheck(e) &&
               handleExaminationDataChange("mothersWeight", e.target.value)
             }
           />

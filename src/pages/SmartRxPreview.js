@@ -15,6 +15,7 @@ import imgCloseVisit from '../assets/images/close-visit.svg';
 import wtsp from '../assets/images/wtsp.svg';
 import loadingImg from '../assets/images/loading.png';
 import successIcon from '../assets/images/success-icon.svg';
+import cvtInfoIcon from '../assets/images/cvt-info.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
 import { FETCH_SMART_RX, GB_SMARTSYNC_CVT, MESSAGE_KEY, RX_DIGITIZATION, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
@@ -33,8 +34,6 @@ import { getDecodedToken } from "../utils/localStorage";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
-const baseUrl = config.rx_digitization ;
-
 function SmartRxPreview() {
 
     const divRef = useRef(null);
@@ -51,7 +50,7 @@ function SmartRxPreview() {
     const { patient_data, isDigitiseRxSubmit} = state
 
     const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}` : null);
-    const [previewUrl, setPreviewUrl] = useState(state !== undefined ? `${state.print_url}` : null);
+    const [previewUrl, setPreviewUrl] = useState(null);
     const [viewCaseManagerData, setViewCaseManagerData] = useState(null);
     const [token, setToken] = useState(null);
     const [tokenData, setTokenData] = useState(null);
@@ -297,13 +296,14 @@ function SmartRxPreview() {
                 const digitisedData = await fetchRxDigitisedData();
                 if (digitisedData.data) {
                     setRxDigitisedData(true);
-                    setRxDigitiseApiResponse(digitisedData.data)
+                    setRxDigitiseApiResponse(digitisedData.data);
                     setIsEditedData(digitisedData.data)
                 } else {
                     setRxDigitisedData(false);
                 }
 
                 // After both API calls are completed, check their responses
+                // if (!viewCaseManagerData?.isRxDigitize && smartRxFile?.length > 0 && token) {
                 if (!viewCaseManagerData?.isRxDigitize && digitisedData.data === null && smartRxFile?.length > 0 && token) {
                     // Proceed with the file upload
                     await uploadFiles();
@@ -481,6 +481,39 @@ function SmartRxPreview() {
                             </button>
                             { isSmartSyncCVTAccessableFromGB && (
                                 <>
+                                {/* This code is intended for future use. Please retain it for reference */}
+                                    {/* {!isRxDigitiseComplete ? (
+                                        <div className="digitise-container d-flex p-3 rounded-10px">
+                                            <div style={containerStyle}>
+                                                <div ref={progressRef} style={progressStyle}></div>
+                                            </div>
+                                            <p className="digitise-header" style={{ padding: "16px 0" }}>
+                                                {`${patient_data?.pm_fullname}'s Rx is getting Digitised!`}
+                                            </p>
+                                            <p className="digitise-info">
+                                                Our AI engine is converting handwritten Rx into digital Rx. This may take up to 30 sec
+                                            </p>
+                                        </div>
+                                    ):
+                                    (
+                                        <div className="digitise-container p-3 rounded-10px">
+                                            <div className="digitise-box-top">
+                                                <img src={successIcon} alt="success" width="40px" height="40px" />
+                                                <div>
+                                                    <p className="digitise-header">
+                                                        {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
+                                                    </p>
+                                                    <p className="digitise-info">
+                                                        Digitise Rx to enhances patient care, streamline workflow, and unlock new revenue. Know More
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button onClick={handleDigitiseRx} className="digitise-btn">
+                                                Digitise Rx Now
+                                            </button>
+                                        </div>
+                                    )} */}
+
                                     {!isRxDigitiseComplete && !rxDigitisedData && (
                                         <div className="digitise-container d-flex p-3 rounded-10px">
                                             <div style={containerStyle}>
@@ -494,12 +527,12 @@ function SmartRxPreview() {
                                             </p>
                                         </div>
                                     )}
-                                    {rxDigitisedData && !isEditedData?.editedData &&  (
+                                    {rxDigitiseApiResponse && !isEditedData?.editedData && (
                                         <div className="digitise-container p-3 rounded-10px">
                                             <div className="digitise-box-top">
                                                 <img src={successIcon} alt="success" width="40px" height="40px" />
                                                 <div>
-                                                    <p className="digitise-header" style={{ marginLeft: "-17px" }}>
+                                                    <p className="digitise-header">
                                                         {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
                                                     </p>
                                                     <p className="digitise-info">
@@ -528,56 +561,37 @@ function SmartRxPreview() {
                                 }
                             </div>
                             <div className="rounded-20px bg-white mt-20 overflow-hidden">
-                                { !showDigitalRx ? 
-                                    (<div ref={divRef} className="printheight">
-                                        <div ref={printRef} className="position-relative h-100">
-                                            <Document
-                                            loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
-                                            error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
-                                            noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
-                                            file={printUrl}
-                                            onLoadSuccess={onDocumentLoadSuccess}>
-                                            {Array.apply(null, Array(numPages))
-                                                .map((x, i) => i + 1)
-                                                .map((page) => (
-                                                <Page
-                                                    key={Math.random()}
-                                                    className={printBlob ? 'react-pdf__Page_afterload' : null}
-                                                    loading={null}
-                                                    width={divWidth}
-                                                    pageNumber={page}
-                                                    renderTextLayer={false}
-                                                    renderAnnotationLayer={false}
-                                                />
-                                                ))}
-                                            </Document>
+
+                                <div ref={divRef} className="printheight">
+                                    <div ref={printRef} className="position-relative h-100">
+                                        <Document
+                                        loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
+                                        error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
+                                        noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
+                                        file={!showDigitalRx ? printUrl : previewUrl }
+                                        onLoadSuccess={onDocumentLoadSuccess}>
+                                        {Array.apply(null, Array(numPages))
+                                            .map((x, i) => i + 1)
+                                            .map((page) => (
+                                            <Page
+                                                key={Math.random()}
+                                                className={printBlob ? 'react-pdf__Page_afterload' : null}
+                                                loading={null}
+                                                width={divWidth}
+                                                pageNumber={page}
+                                                renderTextLayer={false}
+                                                renderAnnotationLayer={false}
+                                            />
+                                            ))}
+                                        </Document>
+                                    </div>
+                                    { showDigitalRx && 
+                                        <div className="digital-rx-info">
+                                            <img src={cvtInfoIcon} alt="cvt-info-icon" />
+                                            <span className="digital-rx-info-text"><span className="title-common">Note:</span>  This Digital Rx is for reference only and you can’t download or share with patients.</span>
                                         </div>
-                                    </div> ) : (
-                                        <div ref={divRef} className="printheight">
-                                        <div ref={printRef} className="position-relative h-100">
-                                            <Document
-                                            loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
-                                            error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
-                                            noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
-                                            file={previewUrl}
-                                            onLoadSuccess={onDocumentLoadSuccess}>
-                                            {Array.apply(null, Array(numPages))
-                                                .map((x, i) => i + 1)
-                                                .map((page) => (
-                                                <Page
-                                                    key={Math.random()}
-                                                    className={printBlob ? 'react-pdf__Page_afterload' : null}
-                                                    loading={null}
-                                                    width={divWidth}
-                                                    pageNumber={page}
-                                                    renderTextLayer={false}
-                                                    renderAnnotationLayer={false}
-                                                />
-                                                ))}
-                                            </Document>
-                                        </div>
-                                    </div> )
-                                }
+                                    }
+                                </div> 
                             </div>
                         </div>
                     </Col>

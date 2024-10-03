@@ -1753,8 +1753,9 @@ function ObsHistoryListView({
                         fontWeight: 400,
                       }}
                     >
-                      {/* {i + 1} */}
-                      {obsHistoryData?.examinationHistory.length - i}
+                      {item?.visitNumber
+                        ? item?.visitNumber
+                        : obsHistoryData?.examinationHistory.length - i}
                     </Text>
 
                     {("pallor" in item ||
@@ -1950,6 +1951,10 @@ function ObsHistoryListView({
                               {item?.systolic}
                               {"systolic" in item && "diastolic" in item
                                 ? `/`
+                                : `-`}
+                              {"diastolic" in item ? item?.diastolic : ``}
+                              {"systolic" in item || "diastolic" in item
+                                ? ` mmHg`
                                 : ``}
                               {item?.diastolic}
                               {` mmHg`}

@@ -8,7 +8,54 @@ const DigitisedPrescription = ({ data, setData}) => {
   const [editableText, setEditableText] = useState('');
   const [editableLineItem, setEditableLineItem] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loading, setLoading] = useState(true);
   const suggestionRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    //loading for 1 second
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer); // Cleanup the timer on unmount
+  }, []);
+
+  // Handle input blur (closing edit mode)
+  const handleInputBlur = (type, index) => {
+    setData((prevData) => {
+      const updatedData = { ...prevData };
+      if (type === 'medications' || type === 'tests') {
+        updatedData[type][index].refinedName = editableText; // Ensure editable text gets updated
+      } else if (type === 'symptoms') {
+        updatedData[type][index].name = editableText; // Update the name for symptoms
+      } else if (type === 'advice') {
+        updatedData[type][index] = editableText; // Update the advice text
+      }
+      return updatedData;
+    });
+    //   setShowSuggestions(false);
+    setActiveIndex(null);
+    setActiveType(null);
+  };
+
+  // Handle click outside suggestion and input box
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        inputRef.current && !inputRef.current.contains(event.target) &&
+        suggestionRef.current && !suggestionRef.current.contains(event.target)
+      ) {
+        handleInputBlur(activeType, activeIndex);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [activeIndex, activeType, handleInputBlur]);
 
   // Handle selecting an item from suggestions
   const handleSuggestionClick = (type, index, suggestion) => {
@@ -30,24 +77,6 @@ const DigitisedPrescription = ({ data, setData}) => {
     setEditableText(suggestion); // Update editableText to match the selected suggestion
     setActiveIndex(null);
     setActiveType(null);
-  };
-
-  // Handle input blur (closing edit mode)
-  const handleInputBlur = (type, index) => {
-      setData((prevData) => {
-        const updatedData = { ...prevData };
-        if (type === 'medications' || type === 'tests') {
-          updatedData[type][index].refinedName = editableText; // Ensure editable text gets updated
-        } else if (type === 'symptoms') {
-          updatedData[type][index].name = editableText; // Update the name for symptoms
-        } else if (type === 'advice') {
-          updatedData[type][index] = editableText; // Update the advice text
-        }
-        return updatedData;
-      });
-    //   setShowSuggestions(false);
-    // setActiveIndex(null);
-    // setActiveType(null);
   };
 
   // Handle lineItem input blur (closing edit mode)
@@ -93,11 +122,19 @@ const DigitisedPrescription = ({ data, setData}) => {
   };
 
   const renderItems = (type) => (
-      <div className='digitised-section'>
+    <div className='digitised-section'>
+      { loading ? (
+        <div className="shimmer-container">
+          <div className="shimmer"></div>
+        </div>
+      ) : (
         <ul>
           {data[type].map((item, index) => {
             // Measure the width of the editable text
             let textWidth = 0;
+            let lineItemWidth = 0;
+    
+            // For refinedName or other primary data (editableText)
             if (activeIndex === index && activeType === type) {
               const tempSpan = document.createElement('span');
               tempSpan.style.visibility = 'hidden';
@@ -108,88 +145,104 @@ const DigitisedPrescription = ({ data, setData}) => {
               textWidth = tempSpan.offsetWidth;
               document.body.removeChild(tempSpan);
             }
-
+    
+            // For lineItem (editableLineItem)
+            if (activeIndex === index && activeType === `${type}-lineItem`) {
+              const tempSpanLineItem = document.createElement('span');
+              tempSpanLineItem.style.visibility = 'hidden';
+              tempSpanLineItem.style.position = 'absolute';
+              tempSpanLineItem.style.whiteSpace = 'nowrap';
+              tempSpanLineItem.innerText = editableLineItem || '';
+              document.body.appendChild(tempSpanLineItem);
+              lineItemWidth = tempSpanLineItem.offsetWidth;
+              document.body.removeChild(tempSpanLineItem);
+            }
+    
             return (
-              <li key={index} className='medicine-item'>
-                {activeIndex === index && activeType === type ? (
-                  <input
-                    type="text"
-                    value={editableText}
-                    className='editable-digitised-item'
-                    onChange={handleInputChange}
-                    onBlur={() => handleInputBlur(type, index)}
-                    autoFocus
-                    style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
-                  />
-                ) : (
-                  <span
-                    onClick={() => handleItemClick(type, index)}
-                    className='digitised-item'
-                  >
-                    {type === 'advice' ? item : type === 'symptoms' ? item.name : item.refinedName}
-                  </span>
-                )}
-
-                {type === "medications" && item.lineItem && (
-                  activeIndex === index && activeType === `${type}-lineItem` ? (
-                    <input
-                      type="text"
-                      value={editableLineItem}
-                      className='editable-digitised-item'
-                      onChange={handleLineItemChange}
-                      onBlur={() => handleLineItemBlur(type, index)}
-                      autoFocus
-                      style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
-                    />
-                  ) : (
-                    <span
-                      onClick={() => handleLineItemClick(type, index)}
-                      className='digitised-item'
-                    >
-                      {` (${item.lineItem})`}
-                    </span>
-                  )
-                )}
-
-                {/* Suggestions dropdown */}
-                {showSuggestions && activeIndex === index && activeType === type && (
-                  <div
-                    className='suggestion-card'
-                    ref={suggestionRef}
-                  >
-                    <div className="align-items-center d-flex justify-content-between border-btm pb-2">
-                      <div className="title-common-digitised">Suggestions :</div>
-                      <Button
-                        className="btn btn-delete-prescription p-0 me-3"
-                        onClick={() => setShowSuggestions(false)}
+              <li key={index}>
+                <div className='medicine-item'>
+                  {
+                    activeIndex === index && activeType === type ? (
+                      <input
+                        type="text"
+                        value={editableText}
+                        className="editable-digitised-item"
+                        onChange={handleInputChange}
+                        ref={inputRef}
+                        autoFocus
+                        style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
+                      />
+                    ) : (
+                      <span
+                        onClick={() => handleItemClick(type, index)}
+                        className="digitised-item"
                       >
-                        <i className="icon-Cross" />
-                      </Button>
-                    </div>
-                    <ul className="no-bullets">
-                      {item.suggestions?.map((suggestion, suggestionIndex) => (
-                        <li
-                          key={suggestionIndex}
-                          onClick={() => handleSuggestionClick(type, index, suggestion)}
-                          style={{ cursor: "pointer" }}
-                        >
-                          {suggestion}
-                        </li>
-                      ))}
-                      <button
-                        className='btn-outline-digitise'
-                        onClick={() => handleSuggestionClick(type, index, item.refinedName)}
+                        {type === "advice" ? item : type === "symptoms" ? item.name[0].toUpperCase() + item.name.slice(1) : item.refinedName}
+                      </span>
+                    )
+                  }
+    
+                  {/* Editable input for lineItem */}
+                  {type === "medications" && item.lineItem && (
+                    activeIndex === index && activeType === `${type}-lineItem` ? (
+                      <input
+                        type="text"
+                        value={editableLineItem}
+                        className='editable-digitised-item'
+                        onChange={handleLineItemChange}
+                        onBlur={() => handleLineItemBlur(type, index)}
+                        autoFocus
+                        style={{ width: `${lineItemWidth + 10}px` }} // Add padding for better UX
+                      />
+                    ) : (
+                      <span
+                        onClick={() => handleLineItemClick(type, index)}
+                        className='digitised-item'
                       >
-                        Keep {item.refinedName} as it is
-                      </button>
-                    </ul>
-                  </div>
-                )}
+                        {`(${item.lineItem})`}
+                      </span>
+                    )
+                  )}
+    
+                  {
+                    showSuggestions && activeIndex === index && activeType === type && (
+                      <div className="suggestion-card" ref={suggestionRef}>
+                        <div className="align-items-center d-flex justify-content-between border-btm pb-2">
+                          <div className="title-common-digitised">Suggestions :</div>
+                          <Button
+                            className="btn btn-delete-prescription p-0 me-3"
+                            onClick={() => setShowSuggestions(false)}
+                          >
+                            <i className="icon-Cross" />
+                          </Button>
+                        </div>
+                        <ul className="no-bullets">
+                          {item.suggestions?.map((suggestion, suggestionIndex) => (
+                            <li
+                              key={suggestionIndex}
+                              onClick={() => handleSuggestionClick(type, index, suggestion)}
+                              style={{ cursor: "pointer" }}
+                            >
+                              {suggestion}
+                            </li>
+                          ))}
+                          <button
+                            className="btn-outline-digitise"
+                            onClick={() => handleSuggestionClick(type, index, item.refinedName)}
+                          >
+                            Keep {item.refinedName} as it is
+                          </button>
+                        </ul>
+                      </div>
+                    )
+                  }
+                </div>
               </li>
             );
           })}
         </ul>
-      </div>
+      )}
+    </div>
   );
 
   return (
@@ -226,4 +279,3 @@ const DigitisedPrescription = ({ data, setData}) => {
 };
 
 export default DigitisedPrescription;
-

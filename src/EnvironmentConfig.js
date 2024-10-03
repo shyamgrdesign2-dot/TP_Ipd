@@ -102,7 +102,7 @@ const uat = {
   firebaseStorageBucket: "diginext-28149.appspot.com",
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
-  tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
+  tatvaRedirect: "https://doctor-uat.tatvacare.in#bypass_pedia=false",
   gynec_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
   obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
@@ -151,8 +151,6 @@ const prod = {
 };
 
 const getEnv = () => {
-  // console.log("process.env",process.env);
-  // console.log("process.env.REACT_APP_ENV",process.env.REACT_APP_ENV);
   switch (process.env.REACT_APP_ENV) {
     case "dev":
       return dev;
