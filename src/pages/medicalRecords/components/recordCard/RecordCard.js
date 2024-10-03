@@ -115,10 +115,6 @@ const RecordCard = ({
       replace: true,
       state: state,
     });
-    navigate(url, {
-      replace: true,
-      state: state,
-    });
     navigate(0, { replace: true });
   };
 
