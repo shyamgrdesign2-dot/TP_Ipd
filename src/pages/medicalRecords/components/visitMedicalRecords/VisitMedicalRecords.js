@@ -101,7 +101,8 @@ const VisitMedicalRecords = () => {
                   You haven’t added any medical records yet!
                 </div>
                 <div>
-                  Only pdf, jpg, jpeg or png files with the max size 5mb.
+                  Only PDF, JPG, JPEG, or PNG files are allowed. Maximum file
+                  size: 8MB, up to 5 files.
                 </div>
               </div>
               <Button
