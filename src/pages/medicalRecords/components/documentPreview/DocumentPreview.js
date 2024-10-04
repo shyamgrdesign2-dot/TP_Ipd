@@ -1,8 +1,5 @@
 import { Button } from "antd";
 import { Col, Container, Navbar, Row } from "react-bootstrap";
-import { useState } from "react";
-import { EmbedPDF } from "@simplepdf/react-embed-pdf";
-import { SimplePDFViewer } from "@simplepdf/react-embed-pdf";
 import { Worker, Viewer, SpecialZoomLevel } from "@react-pdf-viewer/core";
 import { zoomPlugin } from "@react-pdf-viewer/zoom";
 import "./DocumentPreview.scss";

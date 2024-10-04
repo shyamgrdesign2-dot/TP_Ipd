@@ -282,23 +282,23 @@ const RecordCard = ({
           }
         />
       ) : null}
-      {/* {shouldShowPreview && ( */}
-      <Drawer
-        closeIcon={false}
-        placement="right"
-        bodyStyle={{ backgroundColor: "#222222" }}
-        // onClose={handlePreview}
-        open={true}
-        width="100%"
-        height={"100%"}
-        push={false}
-      >
-        <DocumentPreview
-        // handlePreview={handlePreview}
-        // shouldShowPreview={shouldShowPreview}
-        />
-      </Drawer>
-      {/* )} */}
+      {shouldShowPreview && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          bodyStyle={{ backgroundColor: "#222222" }}
+          // onClose={handlePreview}
+          open={shouldShowPreview}
+          width="100%"
+          height={"100%"}
+          push={false}
+        >
+          <DocumentPreview
+          // handlePreview={handlePreview}
+          // shouldShowPreview={shouldShowPreview}
+          />
+        </Drawer>
+      )}
     </div>
   );
 };
