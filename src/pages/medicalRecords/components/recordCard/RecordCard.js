@@ -40,7 +40,8 @@ const RecordCard = ({
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const location = useLocation();
+  const { state } = location;
   const { patient_data } = state;
   const { uploadDocCategories } = useSelector((state) => state.uploadDoc);
   const {
@@ -111,10 +112,17 @@ const RecordCard = ({
   };
 
   const handleInAppDownload = async () => {
-    navigate(`/prescription/?url=${url}&key=download`, {
-      replace: true,
-      state: state,
-    });
+    navigate(
+      `/${
+        location?.pathname === "/patient_details"
+          ? "patient_details"
+          : "prescription"
+      }/?url=${url}&key=download`,
+      {
+        replace: true,
+        state: state,
+      }
+    );
     navigate(0, { replace: true });
   };
 
@@ -274,22 +282,23 @@ const RecordCard = ({
           }
         />
       ) : null}
-      {shouldShowPreview && (
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          bodyStyle={{ backgroundColor: "#222222" }}
-          onClose={handlePreview}
-          open={shouldShowPreview}
-          width="100%"
-          push={false}
-        >
-          <DocumentPreview
-            handlePreview={handlePreview}
-            shouldShowPreview={shouldShowPreview}
-          />
-        </Drawer>
-      )}
+      {/* {shouldShowPreview && ( */}
+      <Drawer
+        closeIcon={false}
+        placement="right"
+        bodyStyle={{ backgroundColor: "#222222" }}
+        // onClose={handlePreview}
+        open={true}
+        width="100%"
+        height={"100%"}
+        push={false}
+      >
+        <DocumentPreview
+        // handlePreview={handlePreview}
+        // shouldShowPreview={shouldShowPreview}
+        />
+      </Drawer>
+      {/* )} */}
     </div>
   );
 };
