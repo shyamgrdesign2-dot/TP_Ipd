@@ -57,6 +57,7 @@ const TabUploadDocumentList = ({
             {allUploadedDocs.slice(0, 2)?.map((cardData, index) => {
               return (
                 <RecordCard
+                  key={index}
                   cardData={cardData}
                   handleDrawerUploadDoc={handleDrawerUploadDoc}
                   setFilesData={setFilesData}
