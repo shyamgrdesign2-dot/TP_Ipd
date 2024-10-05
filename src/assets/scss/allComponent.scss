@@ -789,10 +789,11 @@ body {
     }
 
     .tablet-medication-tabs {
+        .ant-tabs-content-holder {
+            display: none;
+        }
         .ant-tabs-nav {
-            padding-top: 20px;
-            margin-bottom: 7px;
-
+            margin-bottom: 0px;
             .ant-tabs-nav-wrap {
                 overflow-x: auto;
 
@@ -801,28 +802,36 @@ body {
                 }
 
                 .ant-tabs-nav-list {
-                    width: 100%;
+                    // width: 100%;
 
                     .ant-tabs-tab {
                         background-color: transparent;
                         border: none;
-                        padding: 8px 10px;
-                        margin-left: 10px;
+                        padding: 8px 12px;
+                        margin: 0 !important;
+                        border-left: 1px solid $bordercolor;
+                        border-radius: 0;
+                        border-bottom: 2px solid transparent;
                     }
 
                     .ant-tabs-tab-active {
-                        background-color: transparent;
-
+                        background-color: $white;
+                        .ant-tabs-tab-remove{
+                            display: block;
+                        }
                         .ant-tabs-tab-btn {
                             color: $theme !important;
                         }
+                        border-bottom-color: $theme;
                     }
 
                     .ant-tabs-ink-bar {
-                        visibility: visible;
-                        background-color: $theme;
-                        height: 4px;
-                        border-radius: 50px;
+                        // visibility: visible;
+                        // background-color: $theme;
+                        // height: 2px;
+                        // border-radius: 50px;
+                        // width: 100%;
+                        display: none;
                     }
                 }
             }
@@ -832,8 +841,9 @@ body {
                 border-left: 1px solid $bordercolor;
                 border-radius: 0px;
                 margin-left: auto;
+                visibility: hidden;
             }
-
+            
             &:before {
                 border-color: $bordercolor;
             }
@@ -842,6 +852,27 @@ body {
         .ant-tabs-content {
             padding: 18px;
         }
+        .ant-tabs-tab-remove {
+            margin-left: 0;
+            display: none;
+            span{
+                svg {
+                    color: #fff;
+                    background: #999;
+                    padding: 3px;
+                    border-radius: 100%;
+                    font-size: 14px;
+                    margin-top: 4px;
+                }
+            }
+        }
+    }
+
+    .custom-tapper-button {
+        position: absolute;
+        top: 72px;
+        right: 11px;   
+        font-size: 18px;
     }
 
     // Vitals
@@ -1857,3 +1888,39 @@ body {
     padding: 5px;
   }
   
+.taper-dose {
+    position: relative;
+    &:hover {
+        .badge-tapper {
+            display: flex;
+        }
+    }
+    .badge-tapper {
+        position: absolute;
+        bottom: 0;
+        padding: 3px 8px;
+        font-size: 12px;
+        background-color: $drawerHeaderColor;
+        color: $theme !important;
+        font-weight: 500;
+        font-family: 'Roboto' !important;
+        align-items: center;
+        display: none;
+        cursor: pointer;
+        i {
+            font-size: 16px;
+        }
+    }
+}
+.badge-then {
+    position: absolute;
+    left: -22px;
+    z-index:  9;
+    top: -12px;
+    padding: 1px 6px;
+    font-size: 12px !important;
+    border-radius: 10px;
+    border: 1px solid $bordercolor;
+    background-color: $drawerHeaderColor;
+    line-height: 1.7;
+}

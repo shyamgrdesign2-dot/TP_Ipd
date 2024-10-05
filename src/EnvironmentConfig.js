@@ -34,6 +34,7 @@ const dev = {
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   lab_params_api_url: "https://dummy.in",
+  upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in/"
 };
 
 const qa = {
@@ -72,6 +73,7 @@ const qa = {
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   lab_params_api_url: "https://dummy.in",
+  upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in/"
 };
 
 const uat = {
@@ -102,7 +104,7 @@ const uat = {
   firebaseStorageBucket: "diginext-28149.appspot.com",
   firebaseMessagingSenderId: "482265957598",
   firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
-  tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
+  tatvaRedirect: "https://doctor-uat.tatvacare.in#bypass_pedia=false",
   gynec_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
   obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
@@ -110,6 +112,7 @@ const uat = {
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   lab_params_api_url: "https://dummy.in",
+  upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in/"
 };
 
 const prod = {
@@ -148,6 +151,7 @@ const prod = {
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-prod.tatvacare.in",
   lab_params_api_url: "https://dummy.in",
+  upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in/"
 };
 
 const getEnv = () => {

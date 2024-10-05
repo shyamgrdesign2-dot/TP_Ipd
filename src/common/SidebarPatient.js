@@ -14,11 +14,14 @@ function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHan
 
     const { profile } = useSelector((state) => state.doctors);
     const [tokenData, setTokenData] = useState(null);
+     const { allUploadedDocs } = useSelector(
+       (state) => state.uploadDoc
+     );
 
     const menu = [
         { key: 1, icon_name: 'icon-Visit-Summary-Fill', short_title: 'Visit', long_title: 'Visit Summary' },
         { key: 2, icon_name: 'icon-Medical-Certificate', short_title: 'Certificate', long_title: 'Certificate' },
-        // { icon_name: 'icon-Report', short_title: 'Reports', long_title: 'Medical Reports (3)' },
+        { key: 3, icon_name: 'icon-Report', short_title: 'Records', long_title: `Medical Records ${allUploadedDocs?.length > 0 ? `(${allUploadedDocs?.length})` : "" }` },
         // { icon_name: 'icon-Discharge-Summary', short_title: 'Discharge', long_title: 'Discharge Summary' },
         // { icon_name: 'icon-Medical-Certificate', short_title: 'Certificate', long_title: 'Medical Certificate' },
         // { icon_name: 'icon-billings', short_title: 'Add Bill', long_title: 'Add Bill/Payment' },

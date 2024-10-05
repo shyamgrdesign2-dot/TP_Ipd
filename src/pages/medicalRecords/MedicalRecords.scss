@@ -1,0 +1,26 @@
+.medical-records {
+  .category-btn {
+    height: 38px;
+    min-width: 80px;
+    border: 1px solid #e2e2ea;
+    border-radius: 10px;
+    padding: 6px 18px;
+
+    &:hover {
+      background-color: #eddff7 !important;
+      border-color: #ba7de9;
+    }
+  }
+  .active-category-btn {
+    background-color: #eddff7;
+    border-color: #ba7de9;
+  }
+
+  .category-label {
+    font-weight: 500;
+  }
+
+  .active-category-label {
+    color: #a461d8 !important;
+  }
+}

@@ -55,6 +55,9 @@ import CreateCertificate from "./medical_certificate/CreateCertificate";
 import { resetVaccineState } from "../redux/vaccineSlice";
 import { resetGrowthChartState } from "../redux/growthChartSlice";
 import { resetObstetricState } from "../redux/obstetricSlice";
+import UploadDocument from "../pages/medicalRecords/UploadDocument";
+import { fetchAllDocumentCategories } from "../pages/medicalRecords/service";
+import { resetUploadDocState, setUploadDocCategories } from "../redux/uploadDocSlice";
 import axios from "axios";
 import LabParams from "./LabParams";
 
@@ -68,6 +71,9 @@ function AppointmentData({ locationPath }) {
     const navigate = useNavigate();
 
     const { sort_order, profile } = useSelector((state) => state.doctors);
+    const { uploadDocCategories } = useSelector(
+    (state) => state.uploadDoc
+    );
 
     const [searchParams, setSearchParams] = useSearchParams();
     const from = searchParams.get("from");
@@ -89,6 +95,42 @@ function AppointmentData({ locationPath }) {
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
     );
+    const [filesData, setFilesData] = useState([]);
+    const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
+    const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+    const [patientData, setPatientData] = useState(null);
+    const fileInputRef = useRef(null);
+
+    const handleDrawerUploadDoc = () => {
+        setUploadDocDrawer(!uploadDocDrawer);
+    };
+
+  const handleDeletePopup = () => {
+    setShowDeletePopup(true);
+  };
+
+    const getAllDocumentCategories = async () => {
+      const response = await fetchAllDocumentCategories();
+      dispatch(setUploadDocCategories(response));
+    };
+
+  const handleFileUpload = (event, record) => {
+    const files = event.target.files;
+    if (files) {
+      const filesData = Array.from(files);
+      if (filesData.length > 0) {
+        setFilesData(filesData);
+        handleDrawerUploadDoc();
+      }
+      setPatientData(record);
+    }
+  };
+
+  const handleAddClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
     const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
         GB_SMARTSYNC_CVT
     );
@@ -102,6 +144,12 @@ function AppointmentData({ locationPath }) {
             setOpenRowIndex(null);
         }
     };
+
+    useEffect(() => {
+        if (uploadDocCategories.length === 0) {
+            getAllDocumentCategories();
+        }
+    }, []);
 
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
@@ -261,6 +309,7 @@ function AppointmentData({ locationPath }) {
         dispatch(resetVaccineState());
         dispatch(resetGrowthChartState());
         dispatch(resetObstetricState());
+        dispatch(resetUploadDocState());
     }, []);
 
     useEffect(() => {
@@ -485,6 +534,19 @@ function AppointmentData({ locationPath }) {
                         handleEndVisitReasonModal();
                     }}>End Visit Reason</span>,
                 key: "endvisitreason",
+            },
+            {
+                label: <div
+                   onClick={handleAddClick}>Upload Medical Records
+                     <input
+                        type="file"
+                        multiple
+                        ref={fileInputRef}
+                        onChange={(e) => handleFileUpload(e, record)}
+                        style={{ display: "none" }}
+                        />
+                    </div>,
+                key: "uploadDoc",
             },
         ];
 
@@ -1309,6 +1371,29 @@ function AppointmentData({ locationPath }) {
 
                     </div>
                 </Modal>
+            )}
+             {uploadDocDrawer && (
+                <Drawer
+                    closeIcon={false}
+                    placement="right"
+                    bodyStyle={{backgroundColor: "white"}}
+                    onClose={handleDeletePopup}
+                    open={uploadDocDrawer}
+                    className="modalWidth-700"
+                    width="auto"
+                    push={false}
+                    >
+                    <UploadDocument
+                        onClose={handleDeletePopup}
+                        handleDrawerUploadDoc={handleDrawerUploadDoc}
+                        shouldShowDeletePopup={shouldShowDeletePopup}
+                        setShowDeletePopup={setShowDeletePopup}
+                        filesData={filesData}
+                        setFilesData={setFilesData}
+                        patientData={patientData}
+                        isAppointmentData={true}
+                    />
+                </Drawer>
             )}
         </>
     );

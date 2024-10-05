@@ -1,0 +1,211 @@
+import { Button, Card, Drawer } from "antd";
+import emptyDocument from "./../../../../assets/images/empty-document.png";
+import { useDispatch, useSelector } from "react-redux";
+import { setUploadDocCategories } from "../../../../redux/uploadDocSlice";
+import { fetchAllDocumentCategories } from "../../service";
+import { useEffect, useRef, useState } from "react";
+import { Col, Row } from "react-bootstrap";
+import "./../../MedicalRecords.scss";
+import UploadDocument from "../../UploadDocument";
+import RecordCard from "../recordCard/RecordCard";
+
+const VisitMedicalRecords = () => {
+  const dispatch = useDispatch();
+  const { allUploadedDocs, uploadDocCategories } = useSelector(
+    (state) => state.uploadDoc
+  );
+  const newCategory = {
+    category_id: -1,
+    category_name: "All",
+  };
+  const updatedCategory = [newCategory, ...uploadDocCategories];
+
+  const [activeCategory, setActiveCategory] = useState(-1);
+  const [activeCategoryDocs, setActiveCategoryDocs] = useState(allUploadedDocs);
+  const [filesData, setFilesData] = useState([]);
+  const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
+  const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [isEditDocument, setIsEditDocument] = useState(false);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const updatedUploadedDocs =
+      activeCategory === -1
+        ? allUploadedDocs
+        : allUploadedDocs.filter((item) => item.category_id === activeCategory);
+    setActiveCategoryDocs([...updatedUploadedDocs]);
+  }, [activeCategory, allUploadedDocs]);
+
+  useEffect(() => {
+    if (uploadDocCategories.length === 0) {
+      getAllDocumentCategories();
+    }
+  }, []);
+
+  const getAllDocumentCategories = async () => {
+    const response = await fetchAllDocumentCategories();
+    dispatch(setUploadDocCategories(response));
+  };
+
+  const categoryOptionHandler = (index) => {
+    setActiveCategory(index);
+  };
+
+  const handleDrawerUploadDoc = () => {
+    setUploadDocDrawer(!uploadDocDrawer);
+  };
+
+  const handleDeletePopup = () => {
+    setShowDeletePopup(true);
+  };
+
+  const handleFileUpload = (event) => {
+    const files = event.target.files;
+    if (files) {
+      const filesData = Array.from(files);
+      if (filesData.length > 0) {
+        setFilesData(filesData);
+        handleDrawerUploadDoc();
+      }
+    }
+  };
+
+  const handleAddClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  return (
+    <div className="appointment-wrap PatientDetailswrap m-0">
+      <Card>
+        <div
+          className="d-flex flex-column"
+          style={{ height: "calc(100vh - 150px)", overflow: "auto" }}
+        >
+          {allUploadedDocs.length === 0 ? (
+            <div
+              className="d-flex align-items-center justify-content-center text-center flex-column"
+              style={{ rowGap: "24px" }}
+            >
+              <div>
+                <img
+                  src={emptyDocument}
+                  height={300}
+                  width={400}
+                  alt="empty-document"
+                />
+              </div>
+              <div>
+                <div style={{ fontSize: "20px" }}>
+                  You haven’t added any medical records yet!
+                </div>
+                <div>
+                  Only PDF, JPG, JPEG, or PNG files are allowed. Maximum file
+                  size: 8MB, up to 5 files.
+                </div>
+              </div>
+              <Button
+                className="btn btn-primary3 btn-text-white px-5 btn-41"
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "5px",
+                }}
+                onClick={handleAddClick}
+              >
+                <input
+                  type="file"
+                  multiple
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
+                  style={{ display: "none" }}
+                />
+                <i className="icon-upload" />
+                {"Upload new report"}
+              </Button>
+            </div>
+          ) : (
+            <div className="d-flex justify-content-center flex-column medical-records">
+              <div
+                className="d-flex flex-wrap"
+                style={{ padding: "24px", columnGap: "16px" }}
+              >
+                {updatedCategory.map((item) => (
+                  <Button
+                    type="text"
+                    key={item?.category_id}
+                    className={`btnStyle btn px-5-16 fs-14 category-btn ${
+                      item?.category_id === activeCategory
+                        ? "active-category-btn"
+                        : ""
+                    }`}
+                    onClick={() => categoryOptionHandler(item?.category_id)}
+                  >
+                    <span
+                      className={`btnText category-label ${
+                        item?.category_id === activeCategory
+                          ? "active-category-label"
+                          : ""
+                      }`}
+                    >
+                      {item?.category_name}
+                    </span>
+                  </Button>
+                ))}
+              </div>
+              <Row
+                xs={2}
+                sm={3}
+                md={3}
+                lg={4}
+                className="gy-4 w-100"
+                style={{ paddingLeft: "24px" }}
+              >
+                {activeCategoryDocs.map((cardData, index) => {
+                  return (
+                    <Col key={index} className="gx-4">
+                      <RecordCard
+                        cardData={cardData}
+                        handleDrawerUploadDoc={handleDrawerUploadDoc}
+                        setFilesData={setFilesData}
+                        setIsEditDocument={setIsEditDocument}
+                      />
+                    </Col>
+                  );
+                })}
+              </Row>
+            </div>
+          )}
+        </div>
+      </Card>
+      {uploadDocDrawer && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          bodyStyle={{ backgroundColor: "white" }}
+          onClose={handleDeletePopup}
+          open={uploadDocDrawer}
+          className="modalWidth-700"
+          width="auto"
+          push={false}
+        >
+          <UploadDocument
+            onClose={handleDeletePopup}
+            handleDrawerUploadDoc={handleDrawerUploadDoc}
+            shouldShowDeletePopup={shouldShowDeletePopup}
+            setShowDeletePopup={setShowDeletePopup}
+            filesData={filesData}
+            setFilesData={setFilesData}
+            isEditDocument={isEditDocument}
+            setIsEditDocument={setIsEditDocument}
+          />
+        </Drawer>
+      )}
+    </div>
+  );
+};
+
+export default VisitMedicalRecords;
