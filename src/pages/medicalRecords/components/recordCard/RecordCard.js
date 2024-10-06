@@ -101,17 +101,20 @@ const RecordCard = ({
     toggleDeletePopup();
   };
 
-  const handleEdit = () => {
+  const handleEdit = (e) => {
+    e.stopPropagation();
     setFilesData([cardData]);
     setIsEditDocument(true);
     handleDrawerUploadDoc();
   };
 
-  const toggleDeletePopup = () => {
+  const toggleDeletePopup = (e) => {
+    e?.stopPropagation();
     setShowDeletePopup((prev) => !prev);
   };
 
-  const handleInAppDownload = async () => {
+  const handleInAppDownload = async (e) => {
+    e.stopPropagation();
     navigate(
       `/${
         location?.pathname === "/patient_details"
@@ -126,7 +129,8 @@ const RecordCard = ({
     navigate(0, { replace: true });
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (e) => {
+    e.stopPropagation();
     try {
       const response = await axios({
         url: url,
@@ -148,8 +152,10 @@ const RecordCard = ({
       {
         label: (
           <div
-            onClick={() =>
-              !isChrome && !isSafari ? handleInAppDownload() : handleDownload()
+            onClick={(e) =>
+              !isChrome && !isSafari
+                ? handleInAppDownload(e)
+                : handleDownload(e)
             }
           >
             <img src={download} alt="download" className="me-2" />
@@ -160,7 +166,7 @@ const RecordCard = ({
       },
       {
         label: (
-          <div onClick={handleEdit}>
+          <div onClick={(e) => handleEdit(e)}>
             <img src={edit} alt="edit" className="me-2" />
             Edit
           </div>
@@ -169,7 +175,7 @@ const RecordCard = ({
       },
       {
         label: (
-          <div onClick={toggleDeletePopup}>
+          <div onClick={(e) => toggleDeletePopup(e)}>
             <img src={trash} alt="delete" className="me-2" />
             Delete
           </div>
@@ -180,7 +186,12 @@ const RecordCard = ({
   };
 
   const handlePreview = () => {
-    setShowPreview((prev) => !prev);
+    setShowPreview(false);
+  };
+
+  const handleThumbnailClick = (e) => {
+    e.stopPropagation();
+    setShowPreview(true);
   };
 
   return (
@@ -189,7 +200,7 @@ const RecordCard = ({
       style={{
         backgroundImage: `url('${thumbnail_url || emptyBg}')`,
       }}
-      // onClick={handlePreview}
+      onClick={(e) => handleThumbnailClick(e)}
     >
       {thumbnail_url ? null : (
         <>
@@ -211,7 +222,10 @@ const RecordCard = ({
               placement="bottom"
             >
               <img
-                onClick={() => setShowTooltip(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowTooltip(true);
+                }}
                 style={{ cursor: "pointer" }}
                 src={file}
                 alt="file"
@@ -225,6 +239,9 @@ const RecordCard = ({
         <div
           className="d-flex justify-content-between flex-column align-items-start"
           style={{ fontSize: "14px", width: "85%" }}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
         >
           <div className="category">{categoryName}</div>
           <div>{investigation_date}</div>
@@ -237,14 +254,13 @@ const RecordCard = ({
             }}
             trigger={["click"]}
           >
-            <a
-              style={{ padding: "6px" }}
+            <div
               onClick={(e) => {
-                e.preventDefault();
+                e.stopPropagation();
               }}
             >
               <i className="icon-More" />
-            </a>
+            </div>
           </Dropdown>
         </div>
       </div>
@@ -287,15 +303,19 @@ const RecordCard = ({
           closeIcon={false}
           placement="right"
           bodyStyle={{ backgroundColor: "#222222" }}
-          // onClose={handlePreview}
+          onClose={handlePreview}
           open={shouldShowPreview}
           width="100%"
           height={"100%"}
           push={false}
         >
           <DocumentPreview
-          // handlePreview={handlePreview}
-          // shouldShowPreview={shouldShowPreview}
+            onClose={handlePreview}
+            cardData={cardData}
+            handleEdit={handleEdit}
+            toggleDeletePopup={toggleDeletePopup}
+            handleInAppDownload={handleInAppDownload}
+            handleDownload={handleDownload}
           />
         </Drawer>
       )}

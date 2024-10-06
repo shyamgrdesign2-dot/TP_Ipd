@@ -19,8 +19,10 @@ import { useLocation } from "react-router-dom";
 import { shortenText } from "./components/recordCard/RecordCard";
 import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-const worker = require("pdfjs-dist/build/pdf.worker.min.js");
-pdfjs.GlobalWorkerOptions.workerSrc = worker;
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.js",
+  import.meta.url
+).toString();
 
 const UploadDocument = ({
   onClose,
@@ -277,8 +279,10 @@ const UploadDocument = ({
   };
 
   useEffect(() => {
-    setThumbnailUrls([]);
-    createThumbnails();
+    if (!isEditDocument) {
+      setThumbnailUrls([]);
+      createThumbnails();
+    }
   }, [filesData]);
 
   return (
@@ -371,7 +375,9 @@ const UploadDocument = ({
                     className="image-container"
                     style={{
                       backgroundImage: `url('${
-                        thumbnailUrls?.[index] || emptyBg
+                        (isEditDocument
+                          ? filesData?.[index]?.thumbnail_url
+                          : thumbnailUrls?.[index]) || emptyBg
                       }')`,
                       height: 144,
                       width: 144,
@@ -379,7 +385,8 @@ const UploadDocument = ({
                       paddingBottom: "0px",
                     }}
                   >
-                    {thumbnailUrls?.[index] ? null : (
+                    {(isEditDocument && filesData?.[index]?.thumbnail_url) ||
+                    thumbnailUrls?.[index] ? null : (
                       <>
                         <img
                           className="doc-image"
