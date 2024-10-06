@@ -41,6 +41,7 @@ import vaccinationImg from "../assets/images/Vaccination.svg";
 import growthChartImg from "../assets/images/growth-chart-dark.svg";
 import obstetricImg from "../assets/images/obstetric-dark.svg";
 import uploadDocImg from "../assets/images/upload-doc-dark.svg";
+import labResultImg from "../assets/images/Lab.svg";
 import Vaccination from "./vaccination/Vaccination";
 import GrowthChart from "./growthChart/GrowthChart";
 import { viewPatient } from "../redux/appointmentsSlice";
@@ -62,6 +63,7 @@ import {
   setUploadDocCategories,
 } from "../redux/uploadDocSlice";
 import UploadDocumentList from "./medicalRecords/components/uploadDocumentList/UploadDocumentList";
+import LabParametersList from "../components/LabParametersList";
 
 function Prescription() {
   const {
@@ -701,6 +703,39 @@ function Prescription() {
                     </div>
                   ) : e.tmdpm_id === 18 &&
                   e.tmdpm_status === 0 && (
+                    <>
+                     <div className="prescription-box-sm" style={{overflow: 'hidden'}}>
+                      <div className="d-flex align-items-center justify-content-between p-14" style={{borderBottom: "1px solid #ddd"}}>
+                        <div className="d-flex align-items-center">
+                          <img
+                            src={labResultImg}
+                            alt="upload-document"
+                            className="me-3"
+                          />
+                          <div className="title-common">Lab Results</div>
+                        </div>
+                        <button
+                          className="btn d-flex align-items-center btn-text"
+                          style={{ paddingRight: allUploadedDocs.length > 0 ? 0 : 12 }}
+                          onClick={
+                            allUploadedDocs.length > 0
+                              ? handleDrawerMedicalReport
+                              : handleAddClick
+                          }
+                        >
+                          {allUploadedDocs.length === 0 && (
+                            <i className="icon-Add me-1 fs-5" />
+                          )}
+                          <span>{`${
+                            allUploadedDocs.length > 0 ? "View All" : "Add"
+                          }`}</span>
+                          {allUploadedDocs.length > 0 && (
+                            <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                          )}
+                        </button>
+                      </div>
+                      <LabParametersList />
+                    </div>
                     <div className="prescription-box-sm p-14">
                       <div className="d-flex align-items-center justify-content-between">
                         <div className="d-flex align-items-center">
@@ -745,6 +780,7 @@ function Prescription() {
                         setIsEditDocument={setIsEditDocument}
                         />
                     </div>
+                    </>
                   )
               })}
 

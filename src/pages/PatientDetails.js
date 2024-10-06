@@ -26,6 +26,7 @@ import { getClinicName } from "../utils/utils";
 import VisitMedicalRecords from "./medicalRecords/components/visitMedicalRecords/VisitMedicalRecords";
 import { setAllUploadedDocs } from "../redux/uploadDocSlice";
 import { fetchAllPatientDocs } from "./medicalRecords/service";
+import VisitLabParameters from "../components/VisitLabParameters";
 
 const { Sider, Content } = Layout;
 
@@ -155,6 +156,7 @@ function PatientDetails() {
                                                 {isVaccinationAccessable && <VisitVaccination />}
                                                 {isGrowthChartAccessable && <VisitGrowthChart />}
                                                 {isGynaecHistoryAccessable && <VisitObstetric />}
+                                                {<VisitLabParameters />}
                                             </>
                                         }
                                         {/*   <LabParameters />

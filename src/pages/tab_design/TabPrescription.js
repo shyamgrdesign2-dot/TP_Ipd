@@ -44,6 +44,8 @@ import obstetricWhite from "../../assets/images/obstetric-white.svg";
 import obstetricDark from "../../assets/images/obstetric-dark.svg";
 import medicalRecordsWhite from "../../assets/images/upload-doc-white.svg";
 import medicalRecordsDark from "../../assets/images/upload-doc-dark.svg";
+import labParamsWhite from "../../assets/images/lab-parameters-white.svg";
+import labParamsDark from "../../assets/images/Lab-Parameters.svg";
 
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
@@ -63,6 +65,7 @@ import { fetchAllDocumentCategories, fetchAllPatientDocs } from "../medicalRecor
 import TabUploadDocumentList from "../medicalRecords/components/uploadDocumentList/TabUploadDocumentList";
 import UploadDocument from "../medicalRecords/UploadDocument";
 import MedicalRecords from "../medicalRecords/MedicalRecords";
+import TabLabParametersList from "../../components/tab_design/TabLabParametersList";
 
 function TabPrescription() {
   const {
@@ -445,6 +448,8 @@ function TabPrescription() {
         handleDrawerObstetric();
       } else if (flag === 7) {
         handleDrawerUploadDoc();
+      } else if (flag === 8) {
+        // handleDrawerLabParams();
       }
     },
     [
@@ -702,6 +707,28 @@ function TabPrescription() {
                         </button>
                       ) : e.tmdpm_id === 18 &&
                       e.tmdpm_status === 0 && (
+                        <>
+                        <button
+                          type="button"
+                          className="mb-3 text-center btn btn-action"
+                          style={{ padding: "0px" }}
+                          onClick={() => allUploadedDocs.length === 0 ? handleAddClick() : openCollapsed(8)}
+                        >
+                          <div
+                            className={`prescription-tab-button rounded-10px ${collapsedFlag === 8 && "active"
+                              }`}
+                          >
+                            <img
+                              src={
+                                collapsedFlag === 8
+                                  ? labParamsDark
+                                  : labParamsWhite
+                              }
+                              alt="lab"
+                            />
+                          </div>
+                          <label className="text-white mt-1">Lab</label>
+                        </button>
                         <button
                           type="button"
                           className="mb-3 text-center btn btn-action"
@@ -731,6 +758,7 @@ function TabPrescription() {
                           </div>
                           <label className="text-white mt-1">Records</label>
                         </button>
+                        </>
                       )
                   ;
               })}
@@ -794,7 +822,7 @@ function TabPrescription() {
                 <TabObstetricList
                   handleCollapsed={() => setCollapsed(!collapsed)}
                   handleDrawerObstetric={handleDrawerObstetric} />
-              ) : collapsedFlag === 7 && (
+              ) : collapsedFlag === 7 ? (
                 <TabUploadDocumentList
                   handleCollapsed={() => setCollapsed(!collapsed)}
                   handleDrawerMedicalReport={handleDrawerMedicalReport}
@@ -805,6 +833,8 @@ function TabPrescription() {
                   setFilesData={setFilesData}
                   setIsEditDocument={setIsEditDocument}
                 />
+              ) : collapsedFlag === 8 && (
+                <TabLabParametersList handleCollapsed={() => setCollapsed(!collapsed)} />
               )}
             </Sider>
             <div
