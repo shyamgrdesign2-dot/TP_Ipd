@@ -3,14 +3,34 @@ import config from "../../config";
 
 const baseUrl = { customBaseUrl: config.lab_params_api_url };
 
-const LabParams = {};
-
-ApiLabParams.addUpdateLabParams = function (data) {
-  return api.post(`/api/v1/labParams/addLabParams`, data, baseUrl);
+export const fetchAllLabReports = async function (doctorId, patientId) {
+  let res = {};
+  try {
+    res = await api.get(`/results/${doctorId}/${patientId}`, baseUrl);
+    res = res.data;
+  } catch (e) {
+    console.error("Error while fetching patient's lab reports: ", e);
+  }
+  return res;
 };
 
-ApiLabParams.getLabParams = function (data) {
-  return api.post(`/api/v1/labParams/listLabParams`, data, baseUrl);
+export const fetchSearchReportParams = async function (searchText) {
+  let res = {};
+  try {
+    res = await api.get(`?search=${searchText}`, baseUrl);
+    res = res.data;
+  } catch (e) {
+    console.error("Error while fetching search report parameters: ", e);
+  }
+  return res;
 };
 
-export default ApiLabParams;
+export const addPatientLabReports = async function (payload) {
+  let res = {};
+  try {
+    res = await api.post(`/results`, payload, baseUrl);
+  } catch (e) {
+    console.error("Error while add/edit patient's lab reports: ", e);
+  }
+  return res;
+};
