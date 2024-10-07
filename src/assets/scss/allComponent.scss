@@ -1828,65 +1828,71 @@ body {
 }
 
 // labparameters styles
-// .lab-params-container{
-//     display: flex;
-//     gap: 0.875rem;;
-// }
-// .test-item{
-//     display: flex;
-//     height: 3.25rem;
-//     padding: 0.875rem 0.75rem;
-//     justify-content: space-between;
-//     align-items: center;
-//     flex-shrink: 0;
-//     align-self: stretch;
-//     border-radius: 0.75rem;
-//     background: var(--T-BG-100, #FAFAFB);
-// }
-
-.tests-container {
+.labparam-header{
+    display: flex;
     width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-  
-  .test-item {
-    margin-bottom: 10px;
-  }
-  
-  .test-header {
+    align-items: flex-start;
+    padding: 0.4375rem 1rem;
+    gap: 0.625rem;
+    border-radius: 0.75rem;
+    background: var(--T-BG-10, #F1F1F5);
+}
+.labparam-head{
+    color: var(--T-Text-80, #454551);
+    font-family: "Poppins";
+    width: 30%;
+    font-weight: 600;
+    line-height: normal;
+}
+.labparam-head-dates{
+    color: var(--T-Text-80, #454551);
+    font-family: "Poppins";
+    font-size: 0.75rem;
+    font-style: normal;
+    width: 17.5rem;
+    font-weight: 600;
+    line-height: normal;
+}
+.test-header{
     display: flex;
     justify-content: space-between;
     padding: 10px;
     background-color: #f5f5f5;
     cursor: pointer;
-    border-radius: 10px;
-    margin: 1rem;
-  }
-  
-  .test-parameters {
-    padding: 10px;
-    // background-color: #fafafa;
-    margin: 0 1rem 0.2rem 1rem ;
-    gap: 0.2rem 0;
-  }
-  
-  .test-parameter-row {
-    background-color: #fafafa;
+    border-bottom: 1px solid #ddd;
+}
+.test-values-row{
     display: flex;
+    width: 100%;
+}   
+.test-values-container{
+    width: 70%;
+}
+.test-parameters-header{
+    display: flex;
+    height: 3.25rem;
+    padding: 0 0.75rem;
     justify-content: space-between;
     margin-bottom: 10px;
-  }
-  
-  .param-title {
+    align-items: center;
+    align-self: stretch;
+    border-radius: 0.75rem;
+    background: #efefef;
+}
+.labparam-head-date{
+    width: 60%;
+    display: flex;
+}
+
+.param-title {
     flex: 1;
     margin-right: 10px;
-  }
-  
-  .param-input {
+}
+
+.param-input {
     flex: 2;
     padding: 5px;
-  }
+}
   
 .taper-dose {
     position: relative;
