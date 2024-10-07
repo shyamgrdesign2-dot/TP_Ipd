@@ -67,13 +67,15 @@ const TabUploadDocumentList = ({
             })}
           </div>
           <Divider dashed style={{ color: "#D0D5DD", margin: "0 0 16px" }} />
-          <div
-            className="d-flex align-items-center"
-            onClick={handleDrawerMedicalReport}
-          >
-            <span className="view-all-txt">View All</span>
-            <i className="icon-right view-all-icon" />
-          </div>
+          {allUploadedDocs?.length > 0 ? (
+            <div
+              className="d-flex align-items-center"
+              onClick={handleDrawerMedicalReport}
+            >
+              <span className="view-all-txt">View All</span>
+              <i className="icon-right view-all-icon" />
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

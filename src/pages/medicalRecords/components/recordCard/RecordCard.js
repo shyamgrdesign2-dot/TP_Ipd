@@ -17,6 +17,7 @@ import axios from "axios";
 import { saveAs } from "file-saver";
 import CommonModal from "../../../../common/CommonModal";
 import DocumentPreview from "../documentPreview/DocumentPreview";
+import dayjs from "dayjs";
 
 export function shortenText(
   text,
@@ -208,7 +209,7 @@ const RecordCard = ({
           <div className="file-name">{updatedFileName}</div>
         </>
       )}
-      {notes?.length ? (
+      {notes?.length > 0 ? (
         <div className="notes-style" ref={tooltipRef}>
           <Tooltip
             title={tooltipTitle}
@@ -244,7 +245,7 @@ const RecordCard = ({
           }}
         >
           <div className="category">{categoryName}</div>
-          <div>{investigation_date}</div>
+          <div>{dayjs(investigation_date).format("DD MMM, YYYY")}</div>
         </div>
         <div>
           <Dropdown
@@ -284,7 +285,7 @@ const RecordCard = ({
                     onClick={handleDelete}
                     className="me-4 text-decoration-underline btn p-0 text-main"
                   >
-                    Yes Delete
+                    Yes, Delete
                   </div>
                   <Button
                     onClick={toggleDeletePopup}

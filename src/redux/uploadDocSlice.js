@@ -14,9 +14,9 @@ const uploadDocSlice = createSlice({
     },
     setUploadDocCategories: (state, action) => {
       const categoriesOrder = [
-        "Prescription",
         "Pathology",
         "Radiology",
+        "Prescription",
         "Other",
       ];
       if (action?.payload?.length > 0) {

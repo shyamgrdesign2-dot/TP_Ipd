@@ -19,6 +19,7 @@ import { useLocation } from "react-router-dom";
 import { shortenText } from "./components/recordCard/RecordCard";
 import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+import SuccessPopup from "../../common/SuccessPopup";
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.js",
   import.meta.url
@@ -54,6 +55,7 @@ const UploadDocument = ({
   const [isFileLimitError, setIsFileLimitError] = useState(false);
   const [thumbnails, setThumbnails] = useState([]);
   const [thumbnailUrls, setThumbnailUrls] = useState([]);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [recordData, setRecordData] = useState(
     filesData.map((item) => {
@@ -116,7 +118,7 @@ const UploadDocument = ({
           id: fileData?.id,
           category_id: fileData?.recordType,
           investigation_date: fileData?.recordUploadDate,
-          notes: fileData?.notes,
+          notes: fileData?.notes?.trim(),
         };
         const resultStatus = await updateDocument([payload]);
         if (resultStatus?.status === 204) {
@@ -124,8 +126,8 @@ const UploadDocument = ({
           let updatedData = allUploadedDocs.map((item) =>
             item.id === fileData?.id ? response : item
           );
-
           dispatch(setAllUploadedDocs(updatedData));
+          setShowSuccess(true);
         }
       }
       setIsEditDocument(false);
@@ -163,19 +165,24 @@ const UploadDocument = ({
             id: item?.id || 0,
             category_id: recordItem?.recordType,
             investigation_date: recordItem?.recordUploadDate,
-            notes: recordItem?.notes,
+            notes: recordItem?.notes?.trim(),
           };
         });
         updateDocument(payload);
       }
       if (!isAppointmentData) {
-        const response = await fetchAllPatientDocs(
-          patient_data?.patient_unique_id
-        );
-        dispatch(setAllUploadedDocs(response));
+        setTimeout(async () => {
+          const response = await fetchAllPatientDocs(
+            patient_data?.patient_unique_id
+          );
+          dispatch(setAllUploadedDocs(response));
+        }, 1100);
       }
+      setShowSuccess(true);
     }
-    handleDrawerUploadDoc();
+    setTimeout(() => {
+      handleDrawerUploadDoc();
+    }, 2000);
   };
 
   const handleFileUpload = (event) => {
@@ -333,7 +340,7 @@ const UploadDocument = ({
                 multiple
                 ref={fileInputRef}
                 onChange={handleFileUpload}
-                accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
+                accept=".png, .jpeg, .jpg, .pdf"
                 style={{ display: "none" }}
                 disabled={filesData.length >= 5}
               />
@@ -477,75 +484,80 @@ const UploadDocument = ({
           ))}
         </div>
       </Card>
-      <CommonModal
-        isModalOpen={
-          shouldShowDeletePopup || isFileSizeError || isFileLimitError
-        }
-        onCancel={
-          isFileSizeError || isFileLimitError
-            ? handleDrawerUploadDoc
-            : toggleDeletePopup
-        }
-        modalWidth={500}
-        title={
-          isFileSizeError
-            ? "Exceeded File Size"
-            : isFileLimitError
-            ? "Exceeded File Upload Limit"
-            : "You may lose your data"
-        }
-        modalBody={
-          <>
-            <div className="alert-warning rounded-10px p-2 patient-details">
-              <div className="d-flex align-items-center">
-                <img className="me-3" src={alertIcon} alt="Warning" />
-                <span>
-                  {isFileSizeError ? (
-                    <>
-                      The file size exceeded{" "}
-                      <span style={{ fontWeight: 700 }}>8MB.</span> Please
-                      upload a file smaller than 8MB
-                    </>
-                  ) : isFileLimitError ? (
-                    <>
-                      You can only upload up to
-                      <span style={{ fontWeight: 700 }}> 5 files.</span> Please
-                      reduce the number of files and try again.
-                    </>
-                  ) : (
-                    "Are you sure you want to leave ?"
-                  )}
-                </span>
-              </div>
-            </div>
-            <div className="mt-4">
-              {isFileSizeError || isFileLimitError ? (
-                <Button
-                  onClick={handleRetryBtn}
-                  className="w-100 btn btn-primary3 btn-41 px-4"
-                >
-                  Retry
-                </Button>
-              ) : (
-                <div className="d-flex align-items-center mt-2 justify-content-end">
-                  <div
-                    onClick={handleLeaveBtn}
-                    className="me-4 text-decoration-underline btn p-0 text-main"
-                  >
-                    Yes Leave
-                  </div>
-                  <Button
-                    onClick={toggleDeletePopup}
-                    className="lh-lg btn btn-primary3 btn-41 px-4"
-                  >
-                    <span>No, Stay</span>
-                  </Button>
+      {showSuccess && (
+        <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
+      )}
+      {shouldShowDeletePopup || isFileSizeError || isFileLimitError ? (
+        <CommonModal
+          isModalOpen={
+            shouldShowDeletePopup || isFileSizeError || isFileLimitError
+          }
+          onCancel={
+            isFileSizeError || isFileLimitError
+              ? handleDrawerUploadDoc
+              : toggleDeletePopup
+          }
+          modalWidth={500}
+          title={
+            isFileSizeError
+              ? "Exceeded File Size"
+              : isFileLimitError
+              ? "Exceeded File Upload Limit"
+              : "You may lose your data"
+          }
+          modalBody={
+            <>
+              <div className="alert-warning rounded-10px p-2 patient-details">
+                <div className="d-flex align-items-center">
+                  <img className="me-3" src={alertIcon} alt="Warning" />
+                  <span>
+                    {isFileSizeError ? (
+                      <>
+                        The file size exceeded{" "}
+                        <span style={{ fontWeight: 700 }}>8MB.</span> Please
+                        upload a file smaller than 8MB
+                      </>
+                    ) : isFileLimitError ? (
+                      <>
+                        You can only upload up to
+                        <span style={{ fontWeight: 700 }}> 5 files.</span>{" "}
+                        Please reduce the number of files and try again.
+                      </>
+                    ) : (
+                      "Are you sure you want to leave ?"
+                    )}
+                  </span>
                 </div>
-              )}
-            </div>
-          </>
-        }
-      />
+              </div>
+              <div className="mt-4">
+                {isFileSizeError || isFileLimitError ? (
+                  <Button
+                    onClick={handleRetryBtn}
+                    className="w-100 btn btn-primary3 btn-41 px-4"
+                  >
+                    Retry
+                  </Button>
+                ) : (
+                  <div className="d-flex align-items-center mt-2 justify-content-end">
+                    <div
+                      onClick={handleLeaveBtn}
+                      className="me-4 text-decoration-underline btn p-0 text-main"
+                    >
+                      Yes, Leave
+                    </div>
+                    <Button
+                      onClick={toggleDeletePopup}
+                      className="lh-lg btn btn-primary3 btn-41 px-4"
+                    >
+                      <span>No, Stay</span>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </>
+          }
+        />
+      ) : null}
     </div>
   );
 };
