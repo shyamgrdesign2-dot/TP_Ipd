@@ -713,7 +713,7 @@ function TabPrescription() {
                             multiple
                             ref={fileInputRef}
                             onChange={handleFileUpload}
-                            accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
+                            accept=".png, .jpeg, .jpg, .pdf"
                             style={{ display: "none" }}
                           />
                           <div

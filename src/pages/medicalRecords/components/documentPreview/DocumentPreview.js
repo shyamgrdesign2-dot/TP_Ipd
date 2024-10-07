@@ -14,6 +14,7 @@ import {
 } from "react-zoom-pan-pinch";
 import { useSelector } from "react-redux";
 import { isChrome, isSafari } from "react-device-detect";
+import dayjs from "dayjs";
 
 const DocumentPreview = ({
   onClose,
@@ -242,7 +243,13 @@ const DocumentPreview = ({
                 style={{ cursor: "pointer", color: "white" }}
                 onClick={(e) => handleEdit(e)}
               />
-              <Button className="btn btn-primary3 btn-text-white px-4 btn-41">
+              <Button
+                className="btn btn-primary3 btn-text-white px-4 btn-41"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose(e);
+                }}
+              >
                 {"close"}
               </Button>
             </div>
@@ -257,7 +264,7 @@ const DocumentPreview = ({
             }}
           >
             <span className="document-date">
-              {cardData?.investigation_date}
+              {dayjs(cardData?.investigation_date).format("DD MMM, YYYY")}
             </span>
             {cardData?.notes ? (
               <div className="document-notes">
