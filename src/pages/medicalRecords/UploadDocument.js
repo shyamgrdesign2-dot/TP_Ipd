@@ -56,6 +56,7 @@ const UploadDocument = ({
   const [thumbnails, setThumbnails] = useState([]);
   const [thumbnailUrls, setThumbnailUrls] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [loader, setLoader] = useState(false);
 
   const [recordData, setRecordData] = useState(
     filesData.map((item) => {
@@ -111,6 +112,7 @@ const UploadDocument = ({
   };
 
   const handleSubmit = async () => {
+    setLoader(true);
     if (isEditDocument) {
       const fileData = recordData?.[0];
       if (fileData) {
@@ -180,9 +182,8 @@ const UploadDocument = ({
       }
       setShowSuccess(true);
     }
-    setTimeout(() => {
-      handleDrawerUploadDoc();
-    }, 2000);
+    setLoader(false);
+    handleDrawerUploadDoc();
   };
 
   const handleFileUpload = (event) => {
@@ -292,6 +293,12 @@ const UploadDocument = ({
     }
   }, [filesData]);
 
+  const handleFileInputClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   return (
     <div className="upload-document">
       <Card bordered={false} className="search-modalCard">
@@ -323,6 +330,7 @@ const UploadDocument = ({
               recordData?.filter((item) => item.recordType === undefined)
                 ?.length > 0
             }
+            loading={loader}
           >
             {isEditDocument ? "Save" : "Submit"}
           </Button>
@@ -333,7 +341,7 @@ const UploadDocument = ({
             <Button
               className="btn-41 btn ant-btn-text btn-input"
               style={{ display: "flex", alignItems: "center", gap: "5px" }}
-              onClick={() => fileInputRef.current?.click()}
+              onClick={handleFileInputClick}
             >
               <input
                 type="file"
@@ -476,7 +484,19 @@ const UploadDocument = ({
                       }
                       autoComplete="off"
                       autoCorrect="off"
+                      maxLength={300}
                     />
+                    <div
+                      className="d-flex justify-content-between align-items-center"
+                      style={{ marginTop: 5 }}
+                    >
+                      <label style={{ color: "#A2A2A8", fontSize: 10 }}>
+                        Write maximum 300 characters
+                      </label>
+                      <label style={{ fontSize: 10 }}>
+                        {`${recordData?.[index]?.notes?.length} / 300`}
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>

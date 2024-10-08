@@ -83,7 +83,7 @@ function TabPrescription() {
   const dispatch = useDispatch();
 
   const { state } = useLocation();
-  const { patient_data, caseManagerData } = state;
+  const { patient_data, caseManagerData, medicalReportDrawerState } = state;
   const chartType = state?.chartType;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
@@ -182,6 +182,9 @@ function TabPrescription() {
     }
     if (patient_data.patient_unique_id && allUploadedDocs.length === 0) {
       getAllPatientDocs();
+    }
+    if (medicalReportDrawerState) {
+      handleDrawerMedicalReport();
     }
   }, []);
 
@@ -968,6 +971,7 @@ function TabPrescription() {
             push={false}
           >
             <MedicalRecords
+              medicalReportDrawer={medicalReportDrawer}
               onClose={handleDrawerMedicalReport}
               handleDrawerUploadDoc={handleDrawerUploadDoc}
               setFilesData={setFilesData}
