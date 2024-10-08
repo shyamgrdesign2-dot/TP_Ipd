@@ -296,7 +296,7 @@ function AppointmentData({ locationPath }) {
     }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order, isDigitisationTab]);
 
     useEffect(() => {
-        if(isSmartSyncAccessableFromGB){
+        if(isSmartSyncAccessableFromGB && isSmartSyncCVTAccessableFromGB){
             fetchPendingDigitisationRx();
         }
     }, [isSmartSyncAccessableFromGB]);
