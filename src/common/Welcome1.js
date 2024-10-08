@@ -272,11 +272,13 @@ function Welcome1(props) {
                             >
                                 <input
                                     type="file"
+                                    capture="camera"
                                     multiple
                                     ref={fileInputRef}
                                     onChange={handleFileUpload}
-                                    accept=".png, .jpeg, .jpg, .pdf"
-                                    style={{ display: "none" }}
+                                    accept="image/png, image/jpeg, image/jpg, application/pdf"
+                                    style={{display:"none"}}
+                                    disabled={filesData.length >= 5}
                                     />
                                 <i className="icon-upload" />
                                 {"Upload new report"}

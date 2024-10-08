@@ -35,6 +35,7 @@ export function shortenText(
 
 const RecordCard = ({
   cardData,
+  medicalReportDrawer,
   handleDrawerUploadDoc,
   setFilesData,
   setIsEditDocument,
@@ -43,7 +44,7 @@ const RecordCard = ({
   const navigate = useNavigate();
   const location = useLocation();
   const { state } = location;
-  const { patient_data } = state;
+  const { patient_data, shouldShowPreviewState, cardDataState } = state;
   const { uploadDocCategories } = useSelector((state) => state.uploadDoc);
   const {
     notes,
@@ -61,7 +62,9 @@ const RecordCard = ({
 
   const [showTooltip, setShowTooltip] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
-  const [shouldShowPreview, setShowPreview] = useState(false);
+  const [shouldShowPreview, setShowPreview] = useState(
+    shouldShowPreviewState || false
+  );
   const tooltipRef = useRef(null);
 
   useEffect(() => {
@@ -127,7 +130,15 @@ const RecordCard = ({
         state: state,
       }
     );
-    navigate(0, { replace: true });
+    navigate(0, {
+      replace: true,
+      state: {
+        ...state,
+        medicalReportDrawerState: medicalReportDrawer,
+        shouldShowPreviewState: shouldShowPreview,
+        cardDataState: cardData,
+      },
+    });
   };
 
   const handleDownload = async (e) => {
@@ -214,6 +225,10 @@ const RecordCard = ({
           <Tooltip
             title={tooltipTitle}
             overlayClassName="medical-records-tooltip"
+            overlayStyle={{ width: 300 }}
+            placement="bottom"
+            autoAdjustOverflow={true}
+            getPopupContainer={(trigger) => trigger.parentElement}
           >
             <Popover
               open={showTooltip}
@@ -312,7 +327,7 @@ const RecordCard = ({
         >
           <DocumentPreview
             onClose={handlePreview}
-            cardData={cardData}
+            cardData={cardData || cardDataState}
             handleEdit={handleEdit}
             toggleDeletePopup={toggleDeletePopup}
             handleInAppDownload={handleInAppDownload}

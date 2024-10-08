@@ -6,6 +6,7 @@ import { Col, Row } from "react-bootstrap";
 import RecordCard from "./components/recordCard/RecordCard";
 
 const MedicalRecords = ({
+  medicalReportDrawer,
   onClose,
   handleDrawerUploadDoc,
   setFilesData,
@@ -131,6 +132,7 @@ const MedicalRecords = ({
                 <Col key={index} className="gx-4">
                   <RecordCard
                     cardData={cardData}
+                    medicalReportDrawer={medicalReportDrawer}
                     handleDrawerUploadDoc={handleDrawerUploadDoc}
                     setFilesData={setFilesData}
                     setIsEditDocument={setIsEditDocument}
