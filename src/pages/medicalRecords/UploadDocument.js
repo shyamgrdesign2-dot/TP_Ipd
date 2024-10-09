@@ -20,6 +20,9 @@ import { shortenText } from "./components/recordCard/RecordCard";
 import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import SuccessPopup from "../../common/SuccessPopup";
+import { isAndroid, isBrowser } from "react-device-detect";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.js",
   import.meta.url
@@ -53,6 +56,7 @@ const UploadDocument = ({
 
   const [isFileSizeError, setIsFileSizeError] = useState(false);
   const [isFileLimitError, setIsFileLimitError] = useState(false);
+  const [isFileTypeError, setIsFileTypeError] = useState(null);
   const [thumbnails, setThumbnails] = useState([]);
   const [thumbnailUrls, setThumbnailUrls] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -74,11 +78,20 @@ const UploadDocument = ({
   const fileInputRef = useRef(null);
 
   useEffect(() => {
+    const supportedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "application/pdf",
+    ];
     if (filesData?.length > 0) {
       filesData.forEach((item) => {
         // 8388608 = 8 MB (maximum file size to upload)
         if (item?.size > 8388608) {
           setIsFileSizeError(true);
+        }
+        if (!supportedTypes?.includes(item?.type)) {
+          setIsFileTypeError(item?.type);
         }
       });
       if (filesData.length > 5) {
@@ -186,29 +199,61 @@ const UploadDocument = ({
     handleDrawerUploadDoc();
   };
 
-  const handleFileUpload = (event) => {
-    const selectedFiles = Array.from(event.target.files || []);
-    const totalFiles = [...filesData, ...selectedFiles];
-    const newRecordData = selectedFiles?.map((item) => {
-      return {
-        id: item?.id || 0,
-        name: item?.name || "",
-        recordType: undefined,
-        recordUploadDate: dayjs().format("YYYY-MM-DD"),
-        notes: "",
-      };
-    });
-    const updatedRecordData = [...recordData, ...newRecordData];
-    setFilesData(totalFiles);
-    setRecordData(updatedRecordData);
+  const handleFileUpload = async (event) => {
+    if (isAndroid && !isBrowser) {
+      const deviceUid = localStorage.getItem("app_device_unique_id");
+      if (deviceUid) {
+        try {
+          await setDoc(doc(db, "capturedImage", deviceUid), {
+            clicked: "yes",
+            uri: "",
+          });
+        } catch (error) {
+          console.error("Error updating document:", error);
+        }
+      } else {
+        console.error("Device UID not found");
+      }
+    } else {
+      const selectedFiles = Array.from(event.target.files || []);
+      const totalFiles = [...selectedFiles, ...filesData];
+      const newRecordData = selectedFiles?.map((item) => {
+        return {
+          id: item?.id || 0,
+          name: item?.name || "",
+          recordType: undefined,
+          recordUploadDate: dayjs().format("YYYY-MM-DD"),
+          notes: "",
+        };
+      });
+      const updatedRecordData = [...newRecordData, ...recordData];
+      setFilesData(totalFiles);
+      setRecordData(updatedRecordData);
+    }
   };
+
+  // const getCapturedImgFromFirebase = async () => {
+  //   const totalFiles = [...filesData, ...selectedFiles];
+  //   const newRecordData = selectedFiles?.map((item) => {
+  //     return {
+  //       id: item?.id || 0,
+  //       name: item?.name || "",
+  //       recordType: undefined,
+  //       recordUploadDate: dayjs().format("YYYY-MM-DD"),
+  //       notes: "",
+  //     };
+  //   });
+  //   const updatedRecordData = [...recordData, ...newRecordData];
+  //   setFilesData(totalFiles);
+  //   setRecordData(updatedRecordData);
+  // };
 
   const handleRetryBtn = () => {
     setFilesData([]);
     setRecordData([]);
     setIsFileSizeError(false);
     setIsFileLimitError(false);
-    fileInputRef.current?.click();
+    setIsFileTypeError(null);
   };
 
   const handleLeaveBtn = () => {
@@ -265,7 +310,7 @@ const UploadDocument = ({
             { type: "image/png" }
           );
         }
-        setThumbnailUrls((prev) => [...prev, thumbnailUrl]);
+        setThumbnailUrls((prev) => [thumbnailUrl, ...prev]);
         return fileData;
       })
     );
@@ -507,13 +552,19 @@ const UploadDocument = ({
       {showSuccess && (
         <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
       )}
-      {shouldShowDeletePopup || isFileSizeError || isFileLimitError ? (
+      {shouldShowDeletePopup ||
+      isFileSizeError ||
+      isFileLimitError ||
+      isFileTypeError ? (
         <CommonModal
           isModalOpen={
-            shouldShowDeletePopup || isFileSizeError || isFileLimitError
+            shouldShowDeletePopup ||
+            isFileSizeError ||
+            isFileLimitError ||
+            isFileTypeError
           }
           onCancel={
-            isFileSizeError || isFileLimitError
+            isFileSizeError || isFileLimitError || isFileTypeError
               ? handleDrawerUploadDoc
               : toggleDeletePopup
           }
@@ -523,6 +574,8 @@ const UploadDocument = ({
               ? "Exceeded File Size"
               : isFileLimitError
               ? "Exceeded File Upload Limit"
+              : isFileTypeError
+              ? "File format not supported"
               : "You may lose your data"
           }
           modalBody={
@@ -543,6 +596,15 @@ const UploadDocument = ({
                         <span style={{ fontWeight: 700 }}> 5 files.</span>{" "}
                         Please reduce the number of files and try again.
                       </>
+                    ) : isFileTypeError ? (
+                      <>
+                        You can't upload
+                        <span style={{ fontWeight: 700 }}>
+                          {" "}
+                          {isFileTypeError}
+                        </span>{" "}
+                        file. Only PDF, JPG, JPEG, and PNG formats are accepted.
+                      </>
                     ) : (
                       "Are you sure you want to leave ?"
                     )}
@@ -550,7 +612,7 @@ const UploadDocument = ({
                 </div>
               </div>
               <div className="mt-4">
-                {isFileSizeError || isFileLimitError ? (
+                {isFileSizeError || isFileLimitError || isFileTypeError ? (
                   <Button
                     onClick={handleRetryBtn}
                     className="w-100 btn btn-primary3 btn-41 px-4"

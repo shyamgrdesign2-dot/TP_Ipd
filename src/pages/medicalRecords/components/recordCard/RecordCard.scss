@@ -1,5 +1,8 @@
-.image-container {
+.image-wrapper {
   position: relative;
+}
+
+.image-container {
   width: 100%;
   background-size: cover;
   height: 220px;
@@ -28,28 +31,27 @@
     top: 10px;
     right: 10px;
   }
+}
+.document-details {
+  position: absolute;
+  height: 60px;
+  bottom: 0px;
+  width: 100%;
+  background-color: #e2e2ea;
+  border: 1px solid #e2e2ea;
+  border-radius: 0 0 10px 10px;
+  text-align: center;
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
 
-  .document-details {
-    position: absolute;
-    height: 60px;
-    bottom: 0px;
+  .category {
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
     width: 100%;
-    background-color: #e2e2ea;
-    border: 1px solid #e2e2ea;
-    border-radius: 0 0 10px 10px;
-    text-align: center;
-    padding: 8px;
-    display: flex;
-    justify-content: space-between;
-
-    .category {
-      font-weight: 600;
-      text-align: left;
-      white-space: nowrap;
-      width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -62,9 +64,9 @@
 
 .medical-records-tooltip {
   &.ant-tooltip .ant-tooltip-inner {
-      background-color: #ffffff;
-      border-radius: 10px;
-      padding: 18px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 18px;
   }
 
   &.ant-tooltip .ant-tooltip-arrow {

@@ -81,7 +81,7 @@ const VisitMedicalRecords = () => {
       <Card>
         <div
           className="d-flex flex-column"
-          style={{ height: "calc(100vh - 150px)", overflow: "auto" }}
+          style={{ height: "calc(100vh - 150px)", overflow: "auto", paddingBottom: "30px" }}
         >
           {allUploadedDocs.length === 0 ? (
             <div
@@ -117,7 +117,6 @@ const VisitMedicalRecords = () => {
               >
                 <input
                   type="file"
-                  capture="camera"
                   multiple
                   ref={fileInputRef}
                   onChange={handleFileUpload}

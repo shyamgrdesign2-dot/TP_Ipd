@@ -272,7 +272,6 @@ function Welcome1(props) {
                             >
                                 <input
                                     type="file"
-                                    capture="camera"
                                     multiple
                                     ref={fileInputRef}
                                     onChange={handleFileUpload}

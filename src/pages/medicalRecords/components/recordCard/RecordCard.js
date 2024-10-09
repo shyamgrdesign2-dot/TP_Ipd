@@ -57,7 +57,7 @@ const RecordCard = ({
   } = cardData || {};
   const updatedFileName = shortenText(display_name);
   const categoryName = uploadDocCategories.find(
-    (item) => item.category_id === category_id
+    (item) => item?.category_id === category_id
   )?.category_name;
 
   const [showTooltip, setShowTooltip] = useState(false);
@@ -105,20 +105,17 @@ const RecordCard = ({
     toggleDeletePopup();
   };
 
-  const handleEdit = (e) => {
-    e.stopPropagation();
+  const handleEdit = () => {
     setFilesData([cardData]);
     setIsEditDocument(true);
     handleDrawerUploadDoc();
   };
 
-  const toggleDeletePopup = (e) => {
-    e?.stopPropagation();
+  const toggleDeletePopup = () => {
     setShowDeletePopup((prev) => !prev);
   };
 
-  const handleInAppDownload = async (e) => {
-    e.stopPropagation();
+  const handleInAppDownload = async () => {
     navigate(
       `/${
         location?.pathname === "/patient_details"
@@ -141,8 +138,7 @@ const RecordCard = ({
     });
   };
 
-  const handleDownload = async (e) => {
-    e.stopPropagation();
+  const handleDownload = async () => {
     try {
       const response = await axios({
         url: url,
@@ -164,10 +160,8 @@ const RecordCard = ({
       {
         label: (
           <div
-            onClick={(e) =>
-              !isChrome && !isSafari
-                ? handleInAppDownload(e)
-                : handleDownload(e)
+            onClick={() =>
+              !isChrome && !isSafari ? handleInAppDownload() : handleDownload()
             }
           >
             <img src={download} alt="download" className="me-2" />
@@ -178,7 +172,7 @@ const RecordCard = ({
       },
       {
         label: (
-          <div onClick={(e) => handleEdit(e)}>
+          <div onClick={handleEdit}>
             <img src={edit} alt="edit" className="me-2" />
             Edit
           </div>
@@ -187,7 +181,7 @@ const RecordCard = ({
       },
       {
         label: (
-          <div onClick={(e) => toggleDeletePopup(e)}>
+          <div onClick={toggleDeletePopup}>
             <img src={trash} alt="delete" className="me-2" />
             Delete
           </div>
@@ -201,63 +195,60 @@ const RecordCard = ({
     setShowPreview(false);
   };
 
-  const handleThumbnailClick = (e) => {
-    e.stopPropagation();
+  const handleThumbnailClick = () => {
     setShowPreview(true);
   };
 
   return (
-    <div
-      className="image-container"
-      style={{
-        backgroundImage: `url('${thumbnail_url || emptyBg}')`,
-      }}
-      onClick={(e) => handleThumbnailClick(e)}
-    >
-      {thumbnail_url ? null : (
-        <>
-          <img className="doc-image" src={emptyFile} alt="document" />
-          <div className="file-name">{updatedFileName}</div>
-        </>
-      )}
-      {notes?.length > 0 ? (
-        <div className="notes-style" ref={tooltipRef}>
-          <Tooltip
-            title={tooltipTitle}
-            overlayClassName="medical-records-tooltip"
-            overlayStyle={{ width: 300 }}
-            placement="bottom"
-            autoAdjustOverflow={true}
-            getPopupContainer={(trigger) => trigger.parentElement}
-          >
-            <Popover
-              open={showTooltip}
-              onOpenChange={showTooltipPopOver}
-              overlayClassName="pp-0"
-              trigger={["hover", "click"]}
+    <div className="image-wrapper">
+      <div
+        className="image-container"
+        style={{
+          backgroundImage: `url('${thumbnail_url || emptyBg}')`,
+        }}
+        onClick={handleThumbnailClick}
+      >
+        {thumbnail_url ? null : (
+          <>
+            <img className="doc-image" src={emptyFile} alt="document" />
+            <div className="file-name">{updatedFileName}</div>
+          </>
+        )}
+        {notes?.length > 0 ? (
+          <div className="notes-style" ref={tooltipRef}>
+            <Tooltip
+              title={tooltipTitle}
+              overlayClassName="medical-records-tooltip"
+              overlayStyle={{ width: 300 }}
               placement="bottom"
+              autoAdjustOverflow={true}
+              getPopupContainer={(trigger) => trigger.parentElement}
             >
-              <img
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowTooltip(true);
-                }}
-                style={{ cursor: "pointer" }}
-                src={file}
-                alt="file"
-              />
-            </Popover>
-          </Tooltip>
-        </div>
-      ) : null}
+              <Popover
+                open={showTooltip}
+                onOpenChange={showTooltipPopOver}
+                overlayClassName="pp-0"
+                trigger={["hover", "click"]}
+                placement="bottom"
+              >
+                <img
+                  onClick={() => {
+                    setShowTooltip(true);
+                  }}
+                  style={{ cursor: "pointer" }}
+                  src={file}
+                  alt="file"
+                />
+              </Popover>
+            </Tooltip>
+          </div>
+        ) : null}
+      </div>
 
       <div className="document-details">
         <div
           className="d-flex justify-content-between flex-column align-items-start"
           style={{ fontSize: "14px", width: "85%" }}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
         >
           <div className="category">{categoryName}</div>
           <div>{dayjs(investigation_date).format("DD MMM, YYYY")}</div>
@@ -268,13 +259,8 @@ const RecordCard = ({
             menu={{
               items: getMenuItems(),
             }}
-            trigger={["click"]}
           >
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-            >
+            <div>
               <i className="icon-More" />
             </div>
           </Dropdown>
