@@ -4,6 +4,9 @@ import "./MedicalRecords.scss";
 import { useSelector } from "react-redux";
 import { Col, Row } from "react-bootstrap";
 import RecordCard from "./components/recordCard/RecordCard";
+import { isAndroid, isBrowser } from "react-device-detect";
+import { doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const MedicalRecords = ({
   medicalReportDrawer,
@@ -25,6 +28,52 @@ const MedicalRecords = ({
   const [activeCategory, setActiveCategory] = useState(-1);
   const [activeCategoryDocs, setActiveCategoryDocs] = useState(allUploadedDocs);
   const fileInputRef = useRef(null);
+  const deviceUid = localStorage.getItem("app_device_unique_id");
+
+  const getCapturedImgFromFirebase = async (url) => {
+    console.log("url", url);
+    // console.log("selectedFiles", selectedFiles);
+    // const totalFiles = [...filesData, ...selectedFiles];
+    // const newRecordData = selectedFiles?.map((item) => {
+    //   return {
+    //     id: item?.id || 0,
+    //     name: item?.name || "",
+    //     recordType: undefined,
+    //     recordUploadDate: dayjs().format("YYYY-MM-DD"),
+    //     notes: "",
+    //   };
+    // });
+    // const updatedRecordData = [...recordData, ...newRecordData];
+    // setFilesData(totalFiles);
+    // setRecordData(updatedRecordData);
+  };
+
+  useEffect(() => {
+    if (isAndroid && !isBrowser) {
+      const checkInFireBase = async () => {
+        if (deviceUid) {
+          const docRef = doc(db, "capturedImage", deviceUid);
+          try {
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              onSnapshot(doc(db, "capturedImage", deviceUid), (docSnapshot) => {
+                const res = docSnapshot?.data();
+                if (res?.uri != "") {
+                  getCapturedImgFromFirebase(res.uri);
+                }
+              });
+            }
+          } catch (error) {
+            console.error("Error updating document:", error);
+          }
+        } else {
+          console.error("Device UID not found");
+        }
+      };
+
+      return () => checkInFireBase();
+    }
+  }, [db, deviceUid]);
 
   useEffect(() => {
     const updatedUploadedDocs =
@@ -38,13 +87,35 @@ const MedicalRecords = ({
     setActiveCategory(index);
   };
 
-  const handleFileUpload = (event) => {
-    const files = event.target.files;
-    if (files) {
-      const filesData = Array.from(files);
-      if (filesData.length > 0) {
-        setFilesData(filesData);
-        handleDrawerUploadDoc();
+  const handleFileUpload = async (event) => {
+    if (isAndroid && !isBrowser) {
+      const deviceUid = localStorage.getItem("app_device_unique_id");
+      if (deviceUid) {
+        // const docRef = doc(db, "capturedImage", deviceUid);
+        try {
+          // const docSnap = await getDoc(docRef);
+          // if (docSnap.exists()) {
+          //   await updateDoc(docRef, {
+          //     clicked: "yes",
+          //   });
+          // } else {
+          await setDoc(doc(db, "capturedImage", deviceUid), {
+            clicked: "yes",
+            uri: "",
+          });
+          // }
+        } catch (error) {
+          console.error("Error updating document:", error);
+        }
+      }
+    } else {
+      const files = event.target.files;
+      if (files) {
+        const filesData = Array.from(files);
+        if (filesData.length > 0) {
+          setFilesData(filesData);
+          handleDrawerUploadDoc();
+        }
       }
     }
   };
@@ -77,14 +148,23 @@ const MedicalRecords = ({
               style={{ display: "flex", alignItems: "center", gap: "5px" }}
               onClick={() => fileInputRef.current?.click()}
             >
-              <input
-                type="file"
-                multiple
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                accept=".png, .jpeg, .jpg, .pdf"
-                style={{ display: "none" }}
-              />
+              {isAndroid && !isBrowser ? (
+                <div
+                  ref={fileInputRef}
+                  onClick={handleFileUpload}
+                  accept=".png, .jpeg, .jpg, .pdf"
+                  style={{ display: "none" }}
+                />
+              ) : (
+                <input
+                  type="file"
+                  multiple
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept=".png, .jpeg, .jpg, .pdf"
+                  style={{ display: "none" }}
+                />
+              )}
               <i className="icon-upload" />
               <span>Upload new report</span>
             </Button>
@@ -125,7 +205,7 @@ const MedicalRecords = ({
             md={2}
             lg={3}
             className="gy-4 w-100"
-            style={{ padding: "0 0 24px 24px" }}
+            style={{ padding: "0 0 50px 24px" }}
           >
             {activeCategoryDocs.map((cardData, index) => {
               return (

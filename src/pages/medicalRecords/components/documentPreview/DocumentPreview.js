@@ -203,19 +203,22 @@ const DocumentPreview = ({
               <Button
                 type="text"
                 className="btn btn-delete-prescription px-3 focus-none h-100"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClose(e);
-                }}
+                onClick={onClose}
               >
                 <i className="icon-right text-white" />
               </Button>
-              <div style={{ display: "flex", flexDirection: "column" }}>
+              <div
+                style={{ display: "flex", gap: "10px", alignItems: "center" }}
+              >
                 <span
                   className="text-white"
                   style={{ fontSize: 16, fontWeight: 500 }}
                 >
                   {categoryName}
+                </span>
+                <span className="document-separator" />
+                <span className="document-date">
+                  {dayjs(cardData?.investigation_date).format("DD MMM, YYYY")}
                 </span>
               </div>
             </div>
@@ -226,29 +229,26 @@ const DocumentPreview = ({
               <i
                 className="icon-download"
                 style={{ cursor: "pointer", color: "white" }}
-                onClick={(e) =>
+                onClick={() =>
                   !isChrome && !isSafari
-                    ? handleInAppDownload(e)
-                    : handleDownload(e)
+                    ? handleInAppDownload()
+                    : handleDownload()
                 }
               />
 
               <i
                 className="icon-delete"
                 style={{ cursor: "pointer", color: "white" }}
-                onClick={(e) => toggleDeletePopup(e)}
+                onClick={toggleDeletePopup}
               />
               <i
                 className="icon-Edit"
                 style={{ cursor: "pointer", color: "white" }}
-                onClick={(e) => handleEdit(e)}
+                onClick={handleEdit}
               />
               <Button
                 className="btn btn-primary3 btn-text-white px-4 btn-41"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClose(e);
-                }}
+                onClick={onClose}
               >
                 {"close"}
               </Button>
@@ -263,9 +263,6 @@ const DocumentPreview = ({
               marginTop: -15,
             }}
           >
-            <span className="document-date">
-              {dayjs(cardData?.investigation_date).format("DD MMM, YYYY")}
-            </span>
             {cardData?.notes ? (
               <div className="document-notes">
                 <b>Notes</b> : {cardData?.notes}
