@@ -81,23 +81,25 @@ const UploadDocument = ({
       filesData.map(async (item) => {
         let thumbnailUrl;
         let fileData;
-        if (item && item.type === "application/pdf") {
-          thumbnailUrl = await loadPdf(URL.createObjectURL(item));
-          fileData = dataURLtoFile(
-            thumbnailUrl,
-            "thumbnail_" +
-              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-              ".png"
-          );
-        } else {
-          thumbnailUrl = URL.createObjectURL(item);
-          fileData = new File(
-            [item],
-            "thumbnail_" +
-              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-              ".png",
-            { type: "image/png" }
-          );
+        if (!isEditDocument) {
+          if (item && item.type === "application/pdf") {
+            thumbnailUrl = await loadPdf(URL.createObjectURL(item));
+            fileData = dataURLtoFile(
+              thumbnailUrl,
+              "thumbnail_" +
+                item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                ".png"
+            );
+          } else {
+            thumbnailUrl = URL.createObjectURL(item);
+            fileData = new File(
+              [item],
+              "thumbnail_" +
+                item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                ".png",
+              { type: "image/png" }
+            );
+          }
         }
         return {
           id: item?.id,
@@ -406,144 +408,144 @@ const UploadDocument = ({
           style={{ gap: "24px", padding: "0 24px 24px" }}
         >
           {filesData.map((item, index) => (
+            <div
+              key={index}
+              style={{
+                background: "#FAFAFB",
+                borderRadius: "16px",
+                padding: "16px 24px",
+              }}
+            >
+              <div className="d-flex justify-content-between pb-3">
+                <span style={{ fontWeight: 500 }}>{item?.name}</span>
+                {!isEditDocument ? (
+                  <i
+                    className="icon-delete"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleDeleteRecord(index)}
+                  />
+                ) : null}
+              </div>
               <div
-                key={index}
-                style={{
-                  background: "#FAFAFB",
-                  borderRadius: "16px",
-                  padding: "16px 24px",
-                }}
+                className="d-flex justify-content-between"
+                style={{ gap: "32px" }}
               >
-                <div className="d-flex justify-content-between pb-3">
-                  <span style={{ fontWeight: 500 }}>{item?.name}</span>
-                  {!isEditDocument ? (
-                    <i
-                      className="icon-delete"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleDeleteRecord(index)}
-                    />
-                  ) : null}
+                <div>
+                  <div
+                    className="image-container"
+                    style={{
+                      backgroundImage: `url('${
+                        (isEditDocument
+                          ? filesData?.[index]?.thumbnail_url
+                          : recordData?.[index]?.thumbnailUrl) || emptyBg
+                      }')`,
+                      height: 144,
+                      width: 144,
+                      border: "1px solid #F1F1F5",
+                      paddingBottom: "0px",
+                    }}
+                  >
+                    {(isEditDocument && filesData?.[index]?.thumbnail_url) ||
+                    recordData?.[index]?.thumbnailUrl ? null : (
+                      <>
+                        <img
+                          className="doc-image"
+                          width={62}
+                          height={62}
+                          src={emptyFile}
+                          alt="document"
+                        />
+                        <div className="file-name">
+                          {shortenText(item?.name, 20, 13, -7)}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <div
-                  className="d-flex justify-content-between"
-                  style={{ gap: "32px" }}
-                >
-                  <div>
-                    <div
-                      className="image-container"
-                      style={{
-                        backgroundImage: `url('${
-                          (isEditDocument
-                            ? filesData?.[index]?.thumbnail_url
-                            : recordData?.[index]?.thumbnailUrl) || emptyBg
-                        }')`,
-                        height: 144,
-                        width: 144,
-                        border: "1px solid #F1F1F5",
-                        paddingBottom: "0px",
-                      }}
-                    >
-                      {(isEditDocument && filesData?.[index]?.thumbnail_url) ||
-                      recordData?.[index]?.thumbnailUrl ? null : (
-                        <>
-                          <img
-                            className="doc-image"
-                            width={62}
-                            height={62}
-                            src={emptyFile}
-                            alt="document"
-                          />
-                          <div className="file-name">
-                            {shortenText(item?.name, 20, 13, -7)}
-                          </div>
-                        </>
-                      )}
+                <div className="w-100">
+                  <div
+                    className="d-flex align-items-center w-100 justify-content-between"
+                    style={{ gap: "32px" }}
+                  >
+                    <div style={{ width: "50%" }}>
+                      <label className="label" style={{ marginBottom: 5 }}>
+                        Record Type<span className="mandatory">*</span>
+                      </label>
+                      <Select
+                        style={{ height: 38 }}
+                        onChange={(value) =>
+                          handleRecordChange(index, "recordType", value)
+                        }
+                        options={documentOptions}
+                        placeholder="Select"
+                        className="w-100"
+                        value={recordData?.[index]?.recordType}
+                        allowClear
+                      />
+                    </div>
+                    <div style={{ width: "50%" }}>
+                      <label style={{ marginBottom: 5 }} className="label">
+                        Date of Investigation
+                        <span className="mandatory">*</span>
+                      </label>
+                      <DatePicker
+                        placeholder="Select Date"
+                        onChange={(_, d) => {
+                          handleRecordChange(
+                            index,
+                            "recordUploadDate",
+                            d
+                              ? dayjs(d, "DD MMM YYYY").format("YYYY-MM-DD")
+                              : ""
+                          );
+                        }}
+                        style={{
+                          height: "38px",
+                          width: "100%",
+                        }}
+                        format="DD MMM YYYY"
+                        value={
+                          recordData?.[index]?.recordUploadDate
+                            ? dayjs(recordData?.[index]?.recordUploadDate)
+                            : ""
+                        }
+                        allowClear={false}
+                        disabledDate={disableFutureDates}
+                        defaultValue={dayjs()}
+                      />
                     </div>
                   </div>
-                  <div className="w-100">
+                  <div style={{ paddingTop: "12px" }}>
+                    <label style={{ marginBottom: 5 }} className="label">
+                      Notes
+                    </label>
+                    <Input.TextArea
+                      placeholder="Enter remarks"
+                      className="textareaPlaceholder"
+                      style={{ height: "38px" }}
+                      value={recordData?.[index]?.notes}
+                      onChange={(e) =>
+                        handleRecordChange(index, "notes", e.target.value)
+                      }
+                      autoComplete="off"
+                      autoCorrect="off"
+                      maxLength={300}
+                    />
                     <div
-                      className="d-flex align-items-center w-100 justify-content-between"
-                      style={{ gap: "32px" }}
+                      className="d-flex justify-content-between align-items-center"
+                      style={{ marginTop: 5 }}
                     >
-                      <div style={{ width: "50%" }}>
-                        <label className="label" style={{ marginBottom: 5 }}>
-                          Record Type<span className="mandatory">*</span>
-                        </label>
-                        <Select
-                          style={{ height: 38 }}
-                          onChange={(value) =>
-                            handleRecordChange(index, "recordType", value)
-                          }
-                          options={documentOptions}
-                          placeholder="Select"
-                          className="w-100"
-                          value={recordData?.[index]?.recordType}
-                          allowClear
-                        />
-                      </div>
-                      <div style={{ width: "50%" }}>
-                        <label style={{ marginBottom: 5 }} className="label">
-                          Date of Investigation
-                          <span className="mandatory">*</span>
-                        </label>
-                        <DatePicker
-                          placeholder="Select Date"
-                          onChange={(_, d) => {
-                            handleRecordChange(
-                              index,
-                              "recordUploadDate",
-                              d
-                                ? dayjs(d, "DD MMM YYYY").format("YYYY-MM-DD")
-                                : ""
-                            );
-                          }}
-                          style={{
-                            height: "38px",
-                            width: "100%",
-                          }}
-                          format="DD MMM YYYY"
-                          value={
-                            recordData?.[index]?.recordUploadDate
-                              ? dayjs(recordData?.[index]?.recordUploadDate)
-                              : ""
-                          }
-                          allowClear={false}
-                          disabledDate={disableFutureDates}
-                          defaultValue={dayjs()}
-                        />
-                      </div>
-                    </div>
-                    <div style={{ paddingTop: "12px" }}>
-                      <label style={{ marginBottom: 5 }} className="label">
-                        Notes
+                      <label style={{ color: "#A2A2A8", fontSize: 10 }}>
+                        Write maximum 300 characters
                       </label>
-                      <Input.TextArea
-                        placeholder="Enter remarks"
-                        className="textareaPlaceholder"
-                        style={{ height: "38px" }}
-                        value={recordData?.[index]?.notes}
-                        onChange={(e) =>
-                          handleRecordChange(index, "notes", e.target.value)
-                        }
-                        autoComplete="off"
-                        autoCorrect="off"
-                        maxLength={300}
-                      />
-                      <div
-                        className="d-flex justify-content-between align-items-center"
-                        style={{ marginTop: 5 }}
-                      >
-                        <label style={{ color: "#A2A2A8", fontSize: 10 }}>
-                          Write maximum 300 characters
-                        </label>
-                        <label style={{ fontSize: 10 }}>
-                          {`${recordData?.[index]?.notes?.length} / 300`}
-                        </label>
-                      </div>
+                      <label style={{ fontSize: 10 }}>
+                        {`${recordData?.[index]?.notes?.length || 0} / 300`}
+                      </label>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
           ))}
         </div>
       </Card>
