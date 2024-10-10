@@ -22,7 +22,7 @@ ApiDiagnosis.getDiagnosisTemplates = function (query) {
 };
 
 ApiDiagnosis.getFrequentlySearchedDiagnosis = function () {
-  return api.get(`/api/v1/diagnosis/frequentlyDiagnosis`, baseUrl);
+    return api.get(`/api/v1/diagnosis/frequentlyDiagnosis`, baseUrl);
 };
 
 // ApiDiagnosis.getFrequentlySearchedDiagnosis = function () {

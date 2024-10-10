@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Layout, Drawer, DatePicker, Input, Button, Col, Row } from "antd";
 import { Content } from "antd/es/layout/layout";
@@ -42,6 +42,8 @@ import privateNotesWhite from "../../assets/images/private-notes-white.svg";
 import privateNotesDark from "../../assets/images/private-notes-dark.svg";
 import obstetricWhite from "../../assets/images/obstetric-white.svg";
 import obstetricDark from "../../assets/images/obstetric-dark.svg";
+import medicalRecordsWhite from "../../assets/images/upload-doc-white.svg";
+import medicalRecordsDark from "../../assets/images/upload-doc-dark.svg";
 
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
@@ -56,6 +58,13 @@ import Obstetric from "../obstetric/Obstetric";
 import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
 import { fetchAllObstetricDetails } from "../obstetric/service";
 import { addObstetricDetails, navigateToObstetric } from "../../redux/obstetricSlice";
+import { setAllUploadedDocs, setUploadDocCategories } from "../../redux/uploadDocSlice";
+import { fetchAllDocumentCategories, fetchAllPatientDocs } from "../medicalRecords/service";
+import TabUploadDocumentList from "../medicalRecords/components/uploadDocumentList/TabUploadDocumentList";
+import UploadDocument from "../medicalRecords/UploadDocument";
+import MedicalRecords from "../medicalRecords/MedicalRecords";
+import UploadDocPopup from "../medicalRecords/components/uploadDocPopup/UploadDocPopup";
+import { isAndroid, isBrowser } from "react-device-detect";
 
 function TabPrescription() {
   const {
@@ -70,10 +79,13 @@ function TabPrescription() {
   const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
   const { examinationHistory = [] } = obstetricDetails;
+  const { allUploadedDocs, uploadDocCategories } = useSelector(
+    (state) => state.uploadDoc
+  );
   const dispatch = useDispatch();
 
   const { state } = useLocation();
-  const { patient_data, caseManagerData } = state;
+  const { patient_data, caseManagerData, medicalReportDrawerState } = state;
   const chartType = state?.chartType;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
@@ -137,6 +149,13 @@ function TabPrescription() {
   const [selectPrivateNotes, setSelectPrivateNotes] = useState(null);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
+  const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
+  const [medicalReportDrawer, setMedicalReportDrawer] = useState(false);
+  const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
+  const [filesData, setFilesData] = useState([]);
+  const [isEditDocument, setIsEditDocument] = useState(false);
+  const fileInputRef = useRef(null);
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
@@ -147,6 +166,30 @@ function TabPrescription() {
       dispatch(addObstetricDetails(obstetricResponse));
     }
   }
+
+  const getAllPatientDocs = async () => {
+    const response = await fetchAllPatientDocs(
+      patient_data.patient_unique_id
+    );
+    dispatch(setAllUploadedDocs(response));
+  };
+
+  const getAllDocumentCategories = async () => {
+    const response = await fetchAllDocumentCategories();
+    dispatch(setUploadDocCategories(response));
+  };
+
+  useEffect(() => {
+    if (uploadDocCategories.length === 0) {
+      getAllDocumentCategories();
+    }
+    if (patient_data.patient_unique_id && allUploadedDocs.length === 0) {
+      getAllPatientDocs();
+    }
+    if (medicalReportDrawerState) {
+      handleDrawerMedicalReport();
+    }
+  }, []);
 
   useEffect(() => {
     const sendData = {
@@ -328,6 +371,42 @@ function TabPrescription() {
     setObstetricDrawer(!obstetricDrawer);
   };
 
+  const handleAddClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileUpload = (event) => {
+    const files = event.target.files;
+    if (files) {
+      const filesData = Array.from(files);
+      if (filesData.length > 0) {
+        setFilesData(filesData);
+        handleDrawerUploadDoc();
+      }
+    }
+  };
+
+  // Drawer Upload Document
+  const handleDrawerUploadDoc = () => {
+    setCollapsedFlag(7);
+    setUploadDocDrawer(!uploadDocDrawer);
+  };
+
+  const handleDeletePopup = () => {
+    setShowDeletePopup(true);
+  };
+
+  const handleUploadDocPopup = () => {
+    setShowUploadDocPopup((prev) => !prev);
+  };
+
+  // Drawer Medical Report
+  const handleDrawerMedicalReport = () => {
+    setMedicalReportDrawer(!medicalReportDrawer);
+  };
+
   useEffect(() => {
     if (chartType === "vaccination") {
       handleDrawerVaccination();
@@ -374,6 +453,8 @@ function TabPrescription() {
         handleDrawerGrowth();
       } else if (flag === 6) {
         handleDrawerObstetric();
+      } else if (flag === 7) {
+        handleDrawerUploadDoc();
       }
     },
     [
@@ -607,7 +688,7 @@ function TabPrescription() {
                       :
                       e.tmdpm_id === 17 &&
                       e.tmdpm_status === 0 &&
-                      isGynaecHistoryAccessable && (
+                      isGynaecHistoryAccessable ? (
                         <button
                           type="button"
                           className="mb-3 text-center btn btn-action"
@@ -628,6 +709,45 @@ function TabPrescription() {
                             />
                           </div>
                           <label className="text-white mt-1">Obstetric</label>
+                        </button>
+                      ) : e.tmdpm_id === 18 &&
+                      e.tmdpm_status === 0 && (
+                        <button
+                          type="button"
+                          className="mb-3 text-center btn btn-action"
+                          style={{ padding: "0px" }}
+                          onClick={() => allUploadedDocs.length === 0 ? handleAddClick() : openCollapsed(7)}
+                        >
+                          {isAndroid && !isBrowser ? (
+                            <div
+                              ref={fileInputRef}
+                              onClick={handleUploadDocPopup}
+                              style={{ display: "none" }}
+                            />
+                          ) : (
+                            <input
+                              type="file"
+                              multiple
+                              ref={fileInputRef}
+                              onChange={handleFileUpload}
+                              accept="image/png, image/jpeg, image/jpg, application/pdf"
+                              style={{ display: "none" }}
+                            />
+                          )}
+                          <div
+                            className={`prescription-tab-button rounded-10px ${collapsedFlag === 7 && "active"
+                              }`}
+                          >
+                            <img
+                              src={
+                                collapsedFlag === 7
+                                  ? medicalRecordsDark
+                                  : medicalRecordsWhite
+                              }
+                              alt="records"
+                            />
+                          </div>
+                          <label className="text-white mt-1">Records</label>
                         </button>
                       )
                   ;
@@ -688,10 +808,22 @@ function TabPrescription() {
                   handleDrawerPrivateNotes={handleDrawerPrivateNotes}
                   handleCollapsed={() => setCollapsed(!collapsed)}
                 />
-              ) : collapsedFlag === 6 && (
+              ) : collapsedFlag === 6 ? (
                 <TabObstetricList
                   handleCollapsed={() => setCollapsed(!collapsed)}
                   handleDrawerObstetric={handleDrawerObstetric} />
+              ) : collapsedFlag === 7 && (
+                <TabUploadDocumentList
+                  handleCollapsed={() => setCollapsed(!collapsed)}
+                  handleDrawerMedicalReport={handleDrawerMedicalReport}
+                  fileInputRef={fileInputRef}
+                  handleFileUpload={handleFileUpload}
+                  handleAddClick={handleAddClick}
+                  handleDrawerUploadDoc={handleDrawerUploadDoc}
+                  setFilesData={setFilesData}
+                  setIsEditDocument={setIsEditDocument}
+                  handleUploadDocPopup={handleUploadDocPopup}
+                />
               )}
             </Sider>
             <div
@@ -819,6 +951,60 @@ function TabPrescription() {
               handleDrawerObstetric={handleDrawerObstetric}
               handleCollapsed={(flag) => handleCollapsed(flag)} />
           </Drawer>
+        )}
+        {uploadDocDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            bodyStyle={{backgroundColor: "white"}}
+            onClose={handleDeletePopup}
+            open={uploadDocDrawer}
+            className="modalWidth-700"
+            width="auto"
+            push={false}
+          >
+            <UploadDocument
+              onClose={handleDeletePopup}
+              handleDrawerUploadDoc={handleDrawerUploadDoc}
+              shouldShowDeletePopup={shouldShowDeletePopup}
+              setShowDeletePopup={setShowDeletePopup}
+              filesData={filesData}
+              setFilesData={setFilesData}
+              isEditDocument={isEditDocument}
+              setIsEditDocument={setIsEditDocument}
+              handleUploadDocPopup={handleUploadDocPopup}
+            />
+          </Drawer>
+        )}
+        {medicalReportDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            bodyStyle={{backgroundColor: "white"}}
+            onClose={handleDrawerMedicalReport}
+            open={medicalReportDrawer}
+            className="modalWidth-700"
+            width={"auto"}
+            push={false}
+          >
+            <MedicalRecords
+              medicalReportDrawer={medicalReportDrawer}
+              onClose={handleDrawerMedicalReport}
+              handleDrawerUploadDoc={handleDrawerUploadDoc}
+              setFilesData={setFilesData}
+              setIsEditDocument={setIsEditDocument}
+              handleUploadDocPopup={handleUploadDocPopup}
+            />
+          </Drawer>
+        )}
+        {shouldShowUploadDocPopup && (
+          <UploadDocPopup 
+            onCancel={handleUploadDocPopup}
+            setFilesData={setFilesData}
+            filesData={filesData}
+            uploadDocDrawer={uploadDocDrawer}
+            handleDrawerUploadDoc={handleDrawerUploadDoc}
+          />
         )}
       </>
     </CashManagerContext.Provider>

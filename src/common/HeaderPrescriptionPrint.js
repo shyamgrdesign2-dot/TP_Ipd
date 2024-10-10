@@ -12,6 +12,7 @@ import { resetVaccineState } from '../redux/vaccineSlice';
 import { resetGrowthChartState } from '../redux/growthChartSlice';
 import { resetObstetricState } from '../redux/obstetricSlice';
 import { updateVisitStatus } from '../api/services/VisitService';
+import { resetUploadDocState } from '../redux/uploadDocSlice';
 
 function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl }) {
     const navigate = useNavigate();
@@ -30,8 +31,7 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl }) {
         }
         const action = await dispatch(sendCashsheetWhatsapp(sendData));
         if (
-          appointmentsData?.[0]?.pam_id &&
-          process.env.REACT_APP_ENV !== "prod"
+          appointmentsData?.[0]?.pam_id
         ) {
           await updateVisitStatus(appointmentsData[0].pam_id, {
             status: 3,
@@ -42,6 +42,7 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl }) {
             dispatch(resetVaccineState());
             dispatch(resetGrowthChartState());
             dispatch(resetObstetricState());
+            dispatch(resetUploadDocState());
             navigate('/', { replace: true });
         } else {
             errorMessage(action.error)
