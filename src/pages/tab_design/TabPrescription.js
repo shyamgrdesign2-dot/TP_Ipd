@@ -63,6 +63,8 @@ import { fetchAllDocumentCategories, fetchAllPatientDocs } from "../medicalRecor
 import TabUploadDocumentList from "../medicalRecords/components/uploadDocumentList/TabUploadDocumentList";
 import UploadDocument from "../medicalRecords/UploadDocument";
 import MedicalRecords from "../medicalRecords/MedicalRecords";
+import UploadDocPopup from "../medicalRecords/components/uploadDocPopup/UploadDocPopup";
+import { isAndroid, isBrowser } from "react-device-detect";
 
 function TabPrescription() {
   const {
@@ -150,6 +152,7 @@ function TabPrescription() {
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
   const [medicalReportDrawer, setMedicalReportDrawer] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
   const [filesData, setFilesData] = useState([]);
   const [isEditDocument, setIsEditDocument] = useState(false);
   const fileInputRef = useRef(null);
@@ -393,6 +396,10 @@ function TabPrescription() {
 
   const handleDeletePopup = () => {
     setShowDeletePopup(true);
+  };
+
+  const handleUploadDocPopup = () => {
+    setShowUploadDocPopup((prev) => !prev);
   };
 
   // Drawer Medical Report
@@ -711,14 +718,22 @@ function TabPrescription() {
                           style={{ padding: "0px" }}
                           onClick={() => allUploadedDocs.length === 0 ? handleAddClick() : openCollapsed(7)}
                         >
-                          <input
-                            type="file"
-                            multiple
-                            ref={fileInputRef}
-                            onChange={handleFileUpload}
-                            accept=".png, .jpeg, .jpg, .pdf"
-                            style={{ display: "none" }}
-                          />
+                          {isAndroid && !isBrowser ? (
+                            <div
+                              ref={fileInputRef}
+                              onClick={handleUploadDocPopup}
+                              style={{ display: "none" }}
+                            />
+                          ) : (
+                            <input
+                              type="file"
+                              multiple
+                              ref={fileInputRef}
+                              onChange={handleFileUpload}
+                              accept="image/png, image/jpeg, image/jpg, application/pdf"
+                              style={{ display: "none" }}
+                            />
+                          )}
                           <div
                             className={`prescription-tab-button rounded-10px ${collapsedFlag === 7 && "active"
                               }`}
@@ -807,6 +822,7 @@ function TabPrescription() {
                   handleDrawerUploadDoc={handleDrawerUploadDoc}
                   setFilesData={setFilesData}
                   setIsEditDocument={setIsEditDocument}
+                  handleUploadDocPopup={handleUploadDocPopup}
                 />
               )}
             </Sider>
@@ -956,6 +972,7 @@ function TabPrescription() {
               setFilesData={setFilesData}
               isEditDocument={isEditDocument}
               setIsEditDocument={setIsEditDocument}
+              handleUploadDocPopup={handleUploadDocPopup}
             />
           </Drawer>
         )}
@@ -976,8 +993,18 @@ function TabPrescription() {
               handleDrawerUploadDoc={handleDrawerUploadDoc}
               setFilesData={setFilesData}
               setIsEditDocument={setIsEditDocument}
+              handleUploadDocPopup={handleUploadDocPopup}
             />
           </Drawer>
+        )}
+        {shouldShowUploadDocPopup && (
+          <UploadDocPopup 
+            onCancel={handleUploadDocPopup}
+            setFilesData={setFilesData}
+            filesData={filesData}
+            uploadDocDrawer={uploadDocDrawer}
+            handleDrawerUploadDoc={handleDrawerUploadDoc}
+          />
         )}
       </>
     </CashManagerContext.Provider>
