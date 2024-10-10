@@ -78,7 +78,7 @@ const UploadDocument = ({
 
   const updateRecordData = async () => {
     const updatedRecord = await Promise.all(
-      filesData.map(async (item) => {
+      filesData.map(async (item, index) => {
         let thumbnailUrl;
         let fileData;
         if (!isEditDocument) {
@@ -103,7 +103,8 @@ const UploadDocument = ({
         }
         return {
           id: item?.id,
-          name: item?.name,
+          name:
+            item?.name !== "image.jpg" ? item?.name : `image${index + 1}.jpg`,
           recordType: item?.category_id,
           recordUploadDate: item?.investigation_date
             ? item?.investigation_date
@@ -249,7 +250,7 @@ const UploadDocument = ({
     const selectedFiles = Array.from(event.target.files || []);
     const totalFiles = [...selectedFiles, ...filesData];
     const newRecordData = await Promise.all(
-      selectedFiles.map(async (item) => {
+      selectedFiles.map(async (item, index) => {
         let thumbnailUrl;
         let fileData;
         if (item && item.type === "application/pdf") {
@@ -272,7 +273,8 @@ const UploadDocument = ({
         }
         return {
           id: item?.id,
-          name: item?.name || "",
+          name:
+            item?.name !== "image.jpg" ? item?.name : `image${index + 1}.jpg`,
           recordType: undefined,
           recordUploadDate: dayjs().format("YYYY-MM-DD"),
           notes: "",
@@ -414,7 +416,9 @@ const UploadDocument = ({
               }}
             >
               <div className="d-flex justify-content-between pb-3">
-                <span style={{ fontWeight: 500 }}>{item?.name}</span>
+                <span style={{ fontWeight: 500 }}>
+                  {recordData?.[index]?.name}
+                </span>
                 {!isEditDocument ? (
                   <i
                     className="icon-delete"

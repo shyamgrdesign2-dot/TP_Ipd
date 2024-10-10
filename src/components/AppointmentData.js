@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import moment from "moment";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { isChrome, isMobile, isSafari } from "react-device-detect";
+import { isAndroid, isBrowser, isChrome, isMobile, isSafari } from "react-device-detect";
 import {
     Tabs,
     Table,
@@ -59,6 +59,7 @@ import UploadDocument from "../pages/medicalRecords/UploadDocument";
 import { fetchAllDocumentCategories } from "../pages/medicalRecords/service";
 import { resetUploadDocState, setUploadDocCategories } from "../redux/uploadDocSlice";
 import axios from "axios";
+import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup";
 
 const { TextArea } = Input;
 
@@ -295,6 +296,7 @@ function AppointmentData({ locationPath }) {
     const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
     const [endVisitReason, setEndVisitReason] = useState('');
     const [noDetailsModal, setNoDetailsModal] = useState(false);
+    const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
 
     useEffect(() => {
         if (locationPath == '/' && from == 'onboarding') {
@@ -359,6 +361,10 @@ function AppointmentData({ locationPath }) {
             }
         }
     }, [date]);
+
+    const handleUploadDocPopup = () => {
+        setShowUploadDocPopup((prev) => !prev);
+    };
 
     const onChange = useCallback(
         (key) => {
@@ -489,55 +495,66 @@ function AppointmentData({ locationPath }) {
 
     const getMenuItems = (record) => {
         const items = [
-            {
+          {
                 label: <Link to="/patient_details" state={{ patient_data: record }}>Patient Details</Link>,
-                key: "patientdetails",
-            },
-            {
+            key: "patientdetails",
+          },
+          {
                 label: <span
-                    onClick={() => {
-                        setAppointmentSelectedFromMenu(record);
+                onClick={() => {
+                  setAppointmentSelectedFromMenu(record);
                         handleConfirmationModal()
                     }}>Cancel Appt.</span>,
-                key: "cancelappt",
-            },
-            {
+            key: "cancelappt",
+          },
+          {
                 label: <span
-                    onClick={() => {
-                        setAppointmentSelectedFromMenu(record);
+                onClick={() => {
+                  setAppointmentSelectedFromMenu(record);
                         handleCreateCertificateDrawer()
                     }}>Create Certificate</span>,
-                key: "certificate",
-            },
-            {
+            key: "certificate",
+          },
+          {
                 label: <span
-                    onClick={() => {
-                        setAppointmentSelectedFromMenu(record);
+                onClick={() => {
+                  setAppointmentSelectedFromMenu(record);
                         handleEndVisitReasonDrawer()
                     }}>End Visit</span>,
-                key: "endvisit",
-            },
-            {
+            key: "endvisit",
+          },
+          {
                 label: <span
-                    onClick={() => {
-                        setAppointmentSelectedFromMenu(record);
-                        handleEndVisitReasonModal();
+                onClick={() => {
+                  setAppointmentSelectedFromMenu(record);
+                  handleEndVisitReasonModal();
                     }}>End Visit Reason</span>,
-                key: "endvisitreason",
-            },
-            {
-                label: <div
-                   onClick={handleAddClick}>Upload Medical Records
-                     <input
-                        type="file"
-                        multiple
-                        ref={fileInputRef}
-                        onChange={(e) => handleFileUpload(e, record)}
-                        style={{ display: "none" }}
-                        />
-                    </div>,
-                key: "uploadDoc",
-            },
+            key: "endvisitreason",
+          },
+          {
+            label: (
+              <div onClick={handleAddClick}>
+                Upload Medical Records
+                {isAndroid && !isBrowser ? (
+                  <div
+                    ref={fileInputRef}
+                    onClick={handleUploadDocPopup}
+                    style={{ display: "none" }}
+                  />
+                ) : (
+                  <input
+                    type="file"
+                    multiple
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    accept="image/png, image/jpeg, image/jpg, application/pdf"
+                    style={{ display: "none" }}
+                  />
+                )}
+              </div>
+            ),
+            key: "uploadDoc",
+          },
         ];
 
         if (selectedTab === TAB_QUEUE) {
@@ -1365,6 +1382,15 @@ function AppointmentData({ locationPath }) {
                         isAppointmentData={true}
                     />
                 </Drawer>
+            )}
+            {shouldShowUploadDocPopup && (
+                <UploadDocPopup
+                    onCancel={handleUploadDocPopup}
+                    setFilesData={setFilesData}
+                    filesData={filesData}
+                    uploadDocDrawer={uploadDocDrawer}
+                    handleDrawerUploadDoc={handleDrawerUploadDoc}
+                />
             )}
         </>
     );
