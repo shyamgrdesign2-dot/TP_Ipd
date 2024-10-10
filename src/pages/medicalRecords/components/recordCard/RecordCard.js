@@ -124,7 +124,12 @@ const RecordCard = ({
       }/?url=${url}&key=download`,
       {
         replace: true,
-        state: state,
+        state: {
+          ...state,
+          medicalReportDrawerState: medicalReportDrawer,
+          shouldShowPreviewState: shouldShowPreview,
+          cardDataState: cardData,
+        },
       }
     );
     navigate(0, {

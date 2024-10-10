@@ -169,12 +169,12 @@ const DocumentPreview = ({
 
     const handleImgZoomIn = (state) => {
       zoomIn();
-      setScale(state?.step || 1);
+      setScale((prevScale) => prevScale + 0.2);
     };
 
     const handleImgZoomOut = (state) => {
       zoomOut();
-      setScale(state?.step || 1);
+      setScale((prevScale) => (prevScale - 0.2 > 1 ? prevScale - 0.2 : 1));
     };
 
     return (
@@ -317,6 +317,8 @@ const DocumentPreview = ({
                         transform: `rotate(${angle}deg)`,
                         transition: "transform 0.5s",
                         borderRadius: "12px",
+                        width: "700px",
+                        height: "600px",
                       }}
                     />
                   </TransformComponent>
