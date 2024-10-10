@@ -49,7 +49,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
             });
         });
         if (searchChildQuery.length > 0) {
-            searchChildQuery &&
+            searchChildQuery && childOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 &&
                 data.push({
                     key: JSON.stringify({
                         unique_id: uuidv4(),
@@ -177,7 +177,8 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                                             childSearchOptions.length > 0 &&
                                             childSearchOptions.filter(e => ![...investigationData.map(e1 => e1.investigation_name)].includes(e.value)).map((item, i) => {
                                                 return (
-                                                    i === childSearchOptions.length - 1 ? (
+                                                    // i === childSearchOptions.length - 1 ? (
+                                                    JSON.parse(item.key).change === 1 ? (
                                                         <Button
                                                             key={i}
                                                             type="text"
@@ -186,14 +187,14 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                                                             "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary">Add Custom</a>
                                                         </Button>
                                                     ) : (
-                                                    <Button
-                                                        key={i}
-                                                        type="text"
-                                                        style={{ width: item.value.length > 26 && '250px' }}
-                                                        className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
-                                                        onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                                                        {item.value}
-                                                    </Button>
+                                                        <Button
+                                                            key={i}
+                                                            type="text"
+                                                            style={{ width: item.value.length > 26 && '250px' }}
+                                                            className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
+                                                            onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                                                            {item.value}
+                                                        </Button>
                                                     )
                                                 )
                                             })
