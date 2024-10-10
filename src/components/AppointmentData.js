@@ -362,8 +362,9 @@ function AppointmentData({ locationPath }) {
         }
     }, [date]);
 
-    const handleUploadDocPopup = () => {
-        setShowUploadDocPopup((prev) => !prev);
+    const handleUploadDocPopup = (record) => {
+      setShowUploadDocPopup((prev) => !prev);
+      setPatientData(record);
     };
 
     const onChange = useCallback(
@@ -538,7 +539,7 @@ function AppointmentData({ locationPath }) {
                 {isAndroid && !isBrowser ? (
                   <div
                     ref={fileInputRef}
-                    onClick={handleUploadDocPopup}
+                    onClick={() => handleUploadDocPopup(record)}
                     style={{ display: "none" }}
                   />
                 ) : (
@@ -546,7 +547,7 @@ function AppointmentData({ locationPath }) {
                     type="file"
                     multiple
                     ref={fileInputRef}
-                    onChange={handleFileUpload}
+                    onChange={(event) => handleFileUpload(event, record)}
                     accept="image/png, image/jpeg, image/jpg, application/pdf"
                     style={{ display: "none" }}
                   />
@@ -1385,7 +1386,7 @@ function AppointmentData({ locationPath }) {
             )}
             {shouldShowUploadDocPopup && (
                 <UploadDocPopup
-                    onCancel={handleUploadDocPopup}
+                    onCancel={() => setShowUploadDocPopup(false)}
                     setFilesData={setFilesData}
                     filesData={filesData}
                     uploadDocDrawer={uploadDocDrawer}
