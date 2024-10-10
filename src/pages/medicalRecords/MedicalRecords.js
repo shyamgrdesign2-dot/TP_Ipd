@@ -13,6 +13,7 @@ const MedicalRecords = ({
   setFilesData,
   setIsEditDocument,
   handleUploadDocPopup,
+  setUploadDocDrawer,
 }) => {
   const { uploadDocCategories, allUploadedDocs } = useSelector(
     (state) => state.uploadDoc
@@ -146,6 +147,7 @@ const MedicalRecords = ({
                     handleDrawerUploadDoc={handleDrawerUploadDoc}
                     setFilesData={setFilesData}
                     setIsEditDocument={setIsEditDocument}
+                    setUploadDocDrawer={setUploadDocDrawer}
                   />
                 </Col>
               );

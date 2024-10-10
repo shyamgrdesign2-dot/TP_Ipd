@@ -83,7 +83,7 @@ function Prescription() {
   const dispatch = useDispatch();
 
   const { state } = useLocation();
-  const { patient_data, caseManagerData, medicalReportDrawerState } = state;
+  const { patient_data, caseManagerData } = state;
   const chartType = state?.chartType;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
@@ -209,9 +209,6 @@ function Prescription() {
     }
     if (patient_data.patient_unique_id && allUploadedDocs.length === 0) {
       getAllPatientDocs();
-    }
-    if (medicalReportDrawerState) {
-      handleDrawerMedicalReport();
     }
   }, []);
 
@@ -746,6 +743,7 @@ function Prescription() {
                         handleDrawerUploadDoc={handleDrawerUploadDoc}
                         setFilesData={setFilesData}
                         setIsEditDocument={setIsEditDocument}
+                        setUploadDocDrawer={setUploadDocDrawer}
                       />
                     </div>
                   )
@@ -918,6 +916,7 @@ function Prescription() {
               handleDrawerUploadDoc={handleDrawerUploadDoc}
               setFilesData={setFilesData}
               setIsEditDocument={setIsEditDocument}
+              setUploadDocDrawer={setUploadDocDrawer}
             />
           </Drawer>
         )}

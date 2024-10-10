@@ -165,14 +165,14 @@ const DocumentPreview = ({
   };
 
   const ImageControls = () => {
-    const { zoomIn, zoomOut, state } = useControls();
+    const { zoomIn, zoomOut } = useControls();
 
-    const handleImgZoomIn = (state) => {
+    const handleImgZoomIn = () => {
       zoomIn();
       setScale((prevScale) => prevScale + 0.2);
     };
 
-    const handleImgZoomOut = (state) => {
+    const handleImgZoomOut = () => {
       zoomOut();
       setScale((prevScale) => (prevScale - 0.2 > 1 ? prevScale - 0.2 : 1));
     };
@@ -304,7 +304,7 @@ const DocumentPreview = ({
               />
             </Worker>
           ) : (
-            <TransformWrapper initialScale={1}>
+            <TransformWrapper initialScale={1} options={{ zoomStep: 0.2 }}>
               {({ zoomIn, zoomOut, ...rest }) => (
                 <>
                   <ImageControls />
