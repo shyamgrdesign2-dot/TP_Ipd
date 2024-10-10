@@ -118,8 +118,10 @@ const UploadDocument = ({
   };
 
   useEffect(() => {
-    updateRecordData();
-  }, []);
+    if (filesData?.length !== recordData?.length) {
+      updateRecordData();
+    }
+  }, [filesData]);
 
   useEffect(() => {
     const supportedTypes = [
@@ -244,49 +246,44 @@ const UploadDocument = ({
   };
 
   const handleFileUpload = async (event) => {
-    if (isAndroid && !isBrowser) {
-      handleUploadDocPopup();
-    } else {
-      const selectedFiles = Array.from(event.target.files || []);
-      const totalFiles = [...selectedFiles, ...filesData];
-
-      const newRecordData = await Promise.all(
-        selectedFiles.map(async (item) => {
-          let thumbnailUrl;
-          let fileData;
-          if (item && item.type === "application/pdf") {
-            thumbnailUrl = await loadPdf(URL.createObjectURL(item));
-            fileData = dataURLtoFile(
-              thumbnailUrl,
-              "thumbnail_" +
-                item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-                ".png"
-            );
-          } else {
-            thumbnailUrl = URL.createObjectURL(item);
-            fileData = new File(
-              [item],
-              "thumbnail_" +
-                item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-                ".png",
-              { type: "image/png" }
-            );
-          }
-          return {
-            id: item?.id,
-            name: item?.name || "",
-            recordType: undefined,
-            recordUploadDate: dayjs().format("YYYY-MM-DD"),
-            notes: "",
-            thumbnailUrl: thumbnailUrl,
-            thumbnailFile: fileData,
-          };
-        })
-      );
-      const updatedRecordData = [...newRecordData, ...recordData];
-      setFilesData(totalFiles);
-      setRecordData(updatedRecordData);
-    }
+    const selectedFiles = Array.from(event.target.files || []);
+    const totalFiles = [...selectedFiles, ...filesData];
+    const newRecordData = await Promise.all(
+      selectedFiles.map(async (item) => {
+        let thumbnailUrl;
+        let fileData;
+        if (item && item.type === "application/pdf") {
+          thumbnailUrl = await loadPdf(URL.createObjectURL(item));
+          fileData = dataURLtoFile(
+            thumbnailUrl,
+            "thumbnail_" +
+              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+              ".png"
+          );
+        } else {
+          thumbnailUrl = URL.createObjectURL(item);
+          fileData = new File(
+            [item],
+            "thumbnail_" +
+              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+              ".png",
+            { type: "image/png" }
+          );
+        }
+        return {
+          id: item?.id,
+          name: item?.name || "",
+          recordType: undefined,
+          recordUploadDate: dayjs().format("YYYY-MM-DD"),
+          notes: "",
+          thumbnailUrl: thumbnailUrl,
+          thumbnailFile: fileData,
+        };
+      })
+    );
+    const updatedRecordData = [...newRecordData, ...recordData];
+    setFilesData(totalFiles);
+    setRecordData(updatedRecordData);
   };
 
   const handleRetryBtn = () => {
@@ -383,7 +380,7 @@ const UploadDocument = ({
               {isAndroid && !isBrowser ? (
                 <div
                   ref={fileInputRef}
-                  onClick={handleFileUpload}
+                  onClick={handleUploadDocPopup}
                   style={{ display: "none" }}
                 />
               ) : (

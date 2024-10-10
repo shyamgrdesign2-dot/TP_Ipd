@@ -14,6 +14,7 @@ const TabUploadDocumentList = ({
   setFilesData,
   setIsEditDocument,
   handleUploadDocPopup,
+  setUploadDocDrawer,
 }) => {
   const { allUploadedDocs } = useSelector((state) => state.uploadDoc);
   return (
@@ -72,6 +73,7 @@ const TabUploadDocumentList = ({
                   handleDrawerUploadDoc={handleDrawerUploadDoc}
                   setFilesData={setFilesData}
                   setIsEditDocument={setIsEditDocument}
+                  setUploadDocDrawer={setUploadDocDrawer}
                 />
               );
             })}

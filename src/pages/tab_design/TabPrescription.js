@@ -85,7 +85,7 @@ function TabPrescription() {
   const dispatch = useDispatch();
 
   const { state } = useLocation();
-  const { patient_data, caseManagerData, medicalReportDrawerState } = state;
+  const { patient_data, caseManagerData } = state;
   const chartType = state?.chartType;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
@@ -185,9 +185,6 @@ function TabPrescription() {
     }
     if (patient_data.patient_unique_id && allUploadedDocs.length === 0) {
       getAllPatientDocs();
-    }
-    if (medicalReportDrawerState) {
-      handleDrawerMedicalReport();
     }
   }, []);
 
@@ -568,7 +565,7 @@ function TabPrescription() {
                   >
                     <div
                       className={`prescription-tab-button rounded-10px ${collapsedFlag == 1 && "active"
-                        }`}
+                      }`}
                     >
                       <img
                         src={collapsedFlag == 1 ? vitalsDark : vitalsWhite}
@@ -590,7 +587,7 @@ function TabPrescription() {
                   >
                     <div
                       className={`prescription-tab-button rounded-10px ${collapsedFlag == 2 && "active"
-                        }`}
+                      }`}
                     >
                       <img
                         src={
@@ -616,7 +613,7 @@ function TabPrescription() {
                   >
                     <div
                       className={`prescription-tab-button rounded-10px  ${collapsedFlag == 4 && "active"
-                        }`}
+                      }`}
                     >
                       {privateNotesList?.length > 0 && (
                         <div className="notes-dot">
@@ -638,118 +635,120 @@ function TabPrescription() {
                   </button>
                 ) :
                   e.tmdpm_id === 7 &&
-                    e.tmdpm_status === 0 &&
-                    isVaccinationAccessable ? (
-                    <button
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={handleDrawerVaccination}
+                  e.tmdpm_status === 0 &&
+                  isVaccinationAccessable ? (
+                  <button
+                    type="button"
+                    className="mb-3 text-center btn btn-action"
+                    onClick={handleDrawerVaccination}
+                  >
+                    <div
+                      className={`bg-secondary-light prescription-tab-button rounded-10px ${
+                        collapsedFlag === 3 && "active"
+                      }`}
                     >
-                      <div
-                        className={`bg-secondary-light prescription-tab-button rounded-10px ${collapsedFlag === 3 && "active"}`}
-                      >
-                        <img
-                          src={
-                            collapsedFlag === 3
-                              ? vaccinationDark
-                              : vaccinationWhite
-                          }
-                          alt="Vitals"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Vaccine</label>
-                    </button>
+                      <img
+                        src={
+                          collapsedFlag === 3
+                            ? vaccinationDark
+                            : vaccinationWhite
+                        }
+                        alt="Vitals"
+                      />
+                    </div>
+                    <label className="text-white mt-1">Vaccine</label>
+                  </button>
                   )
                     :
                     e.tmdpm_id === 16 &&
-                      e.tmdpm_status === 0 &&
-                      isGrowthChartAccessable ? (
-                      <button
-                        type="button"
-                        className="mb-3 text-center btn btn-action"
-                        onClick={handleDrawerGrowth}
-                      >
-                        <div
+                  e.tmdpm_status === 0 &&
+                  isGrowthChartAccessable ? (
+                  <button
+                    type="button"
+                    className="mb-3 text-center btn btn-action"
+                    onClick={handleDrawerGrowth}
+                  >
+                    <div
                           className={`prescription-tab-button rounded-10px ${collapsedFlag === 5 && "active"
-                            }`}
-                        >
-                          <img
-                            src={
+                      }`}
+                    >
+                      <img
+                        src={
                               collapsedFlag === 5
                                 ? growthChartDark
                                 : growthChart
-                            }
-                            alt="Growth"
-                          />
-                        </div>
-                        <label className="text-white mt-1">Growth</label>
-                      </button>
+                        }
+                        alt="Growth"
+                      />
+                    </div>
+                    <label className="text-white mt-1">Growth</label>
+                  </button>
                     )
                       :
                       e.tmdpm_id === 17 &&
-                      e.tmdpm_status === 0 &&
-                      isGynaecHistoryAccessable ? (
-                        <button
-                          type="button"
-                          className="mb-3 text-center btn btn-action"
-                          style={{ padding: "0px" }}
+                  e.tmdpm_status === 0 &&
+                  isGynaecHistoryAccessable ? (
+                  <button
+                    type="button"
+                    className="mb-3 text-center btn btn-action"
+                    style={{ padding: "0px" }}
                           onClick={() => examinationHistory.length === 0 && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies ? handleDrawerObstetric() : openCollapsed(6)}
-                        >
-                          <div
+                  >
+                    <div
                             className={`prescription-tab-button rounded-10px ${collapsedFlag === 6 && "active"
-                              }`}
-                          >
-                            <img
-                              src={
+                      }`}
+                    >
+                      <img
+                        src={
                                 collapsedFlag === 6
                                   ? obstetricDark
                                   : obstetricWhite
-                              }
-                              alt="Obstetric"
-                            />
-                          </div>
-                          <label className="text-white mt-1">Obstetric</label>
-                        </button>
+                        }
+                        alt="Obstetric"
+                      />
+                    </div>
+                    <label className="text-white mt-1">Obstetric</label>
+                  </button>
                       ) : e.tmdpm_id === 18 &&
-                      e.tmdpm_status === 0 && (
-                        <button
-                          type="button"
-                          className="mb-3 text-center btn btn-action"
-                          style={{ padding: "0px" }}
+                  e.tmdpm_status === 0 && (
+                    <button
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      style={{ padding: "0px" }}
                           onClick={() => allUploadedDocs.length === 0 ? handleAddClick() : openCollapsed(7)}
-                        >
-                          {isAndroid && !isBrowser ? (
-                            <div
-                              ref={fileInputRef}
-                              onClick={handleUploadDocPopup}
-                              style={{ display: "none" }}
-                            />
-                          ) : (
-                            <input
-                              type="file"
-                              multiple
-                              ref={fileInputRef}
-                              onChange={handleFileUpload}
-                              accept="image/png, image/jpeg, image/jpg, application/pdf"
-                              style={{ display: "none" }}
-                            />
-                          )}
-                          <div
+                    >
+                      {isAndroid && !isBrowser ? (
+                        <div
+                          ref={fileInputRef}
+                          onClick={handleUploadDocPopup}
+                          style={{ display: "none" }}
+                        />
+                      ) : (
+                        <input
+                          type="file"
+                          multiple
+                          ref={fileInputRef}
+                          onChange={handleFileUpload}
+                          accept="image/png, image/jpeg, image/jpg, application/pdf"
+                          style={{ display: "none" }}
+                        />
+                      )}
+                      <div
                             className={`prescription-tab-button rounded-10px ${collapsedFlag === 7 && "active"
-                              }`}
-                          >
-                            <img
-                              src={
-                                collapsedFlag === 7
-                                  ? medicalRecordsDark
-                                  : medicalRecordsWhite
-                              }
-                              alt="records"
-                            />
-                          </div>
-                          <label className="text-white mt-1">Records</label>
-                        </button>
-                      )
+                        }`}
+                      >
+                        <img
+                          src={
+                            collapsedFlag === 7
+                              ? medicalRecordsDark
+                              : medicalRecordsWhite
+                          }
+                          alt="records"
+                        />
+                      </div>
+                      <label className="text-white mt-1">Records</label>
+                    </button>
+                  )
                   ;
               })}
               {/* <button type='button' className="mb-3 text-center btn btn-action">
@@ -813,17 +812,17 @@ function TabPrescription() {
                   handleCollapsed={() => setCollapsed(!collapsed)}
                   handleDrawerObstetric={handleDrawerObstetric} />
               ) : collapsedFlag === 7 && (
-                <TabUploadDocumentList
-                  handleCollapsed={() => setCollapsed(!collapsed)}
-                  handleDrawerMedicalReport={handleDrawerMedicalReport}
-                  fileInputRef={fileInputRef}
-                  handleFileUpload={handleFileUpload}
-                  handleAddClick={handleAddClick}
-                  handleDrawerUploadDoc={handleDrawerUploadDoc}
-                  setFilesData={setFilesData}
-                  setIsEditDocument={setIsEditDocument}
-                  handleUploadDocPopup={handleUploadDocPopup}
-                />
+                  <TabUploadDocumentList
+                    handleCollapsed={() => setCollapsed(!collapsed)}
+                    handleDrawerMedicalReport={handleDrawerMedicalReport}
+                    fileInputRef={fileInputRef}
+                    handleFileUpload={handleFileUpload}
+                    handleAddClick={handleAddClick}
+                    handleDrawerUploadDoc={handleDrawerUploadDoc}
+                    setFilesData={setFilesData}
+                    setIsEditDocument={setIsEditDocument}
+                    handleUploadDocPopup={handleUploadDocPopup}
+                  />
               )}
             </Sider>
             <div
@@ -871,18 +870,18 @@ function TabPrescription() {
           </Layout>
         </div>
         {vitalDrawer && (<Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={handleDrawerVital}
-          open={vitalDrawer}
-          className="modalWidth-700"
-          width="auto"
-        >
-          <VitalsBox
-            handleDrawerVital={handleDrawerVital}
-            handleCollapsed={(flag) => handleCollapsed(flag)}
-            isGrowthChart={isGrowthChart}
-          />
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerVital}
+            open={vitalDrawer}
+            className="modalWidth-700"
+            width="auto"
+          >
+            <VitalsBox
+              handleDrawerVital={handleDrawerVital}
+              handleCollapsed={(flag) => handleCollapsed(flag)}
+              isGrowthChart={isGrowthChart}
+            />
         </Drawer>)}
         <Drawer
           className="scroll-y-hidden"
@@ -994,11 +993,12 @@ function TabPrescription() {
               setFilesData={setFilesData}
               setIsEditDocument={setIsEditDocument}
               handleUploadDocPopup={handleUploadDocPopup}
+              setUploadDocDrawer={setUploadDocDrawer}
             />
           </Drawer>
         )}
         {shouldShowUploadDocPopup && (
-          <UploadDocPopup 
+          <UploadDocPopup
             onCancel={handleUploadDocPopup}
             setFilesData={setFilesData}
             filesData={filesData}

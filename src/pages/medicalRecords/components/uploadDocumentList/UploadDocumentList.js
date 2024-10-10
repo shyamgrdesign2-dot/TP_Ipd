@@ -7,6 +7,7 @@ const UploadDocumentList = ({
   handleDrawerUploadDoc,
   setFilesData,
   setIsEditDocument,
+  setUploadDocDrawer,
 }) => {
   const { allUploadedDocs } = useSelector((state) => state.uploadDoc);
 
@@ -21,6 +22,7 @@ const UploadDocumentList = ({
                 handleDrawerUploadDoc={handleDrawerUploadDoc}
                 setFilesData={setFilesData}
                 setIsEditDocument={setIsEditDocument}
+                setUploadDocDrawer={setUploadDocDrawer}
               />
             </Col>
           );

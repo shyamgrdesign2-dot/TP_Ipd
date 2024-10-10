@@ -18,6 +18,8 @@ import { saveAs } from "file-saver";
 import CommonModal from "../../../../common/CommonModal";
 import DocumentPreview from "../documentPreview/DocumentPreview";
 import dayjs from "dayjs";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../firebase";
 
 export function shortenText(
   text,
@@ -39,12 +41,13 @@ const RecordCard = ({
   handleDrawerUploadDoc,
   setFilesData,
   setIsEditDocument,
+  setUploadDocDrawer,
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { state } = location;
-  const { patient_data, shouldShowPreviewState, cardDataState } = state;
+  const { patient_data } = state;
   const { uploadDocCategories } = useSelector((state) => state.uploadDoc);
   const {
     notes,
@@ -62,9 +65,7 @@ const RecordCard = ({
 
   const [showTooltip, setShowTooltip] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
-  const [shouldShowPreview, setShowPreview] = useState(
-    shouldShowPreviewState || false
-  );
+  const [shouldShowPreview, setShowPreview] = useState(false);
   const tooltipRef = useRef(null);
 
   useEffect(() => {
@@ -106,9 +107,12 @@ const RecordCard = ({
   };
 
   const handleEdit = () => {
+    if (shouldShowPreview) {
+      setShowPreview(false);
+    }
     setFilesData([cardData]);
     setIsEditDocument(true);
-    handleDrawerUploadDoc();
+    setUploadDocDrawer(true);
   };
 
   const toggleDeletePopup = () => {
@@ -116,31 +120,26 @@ const RecordCard = ({
   };
 
   const handleInAppDownload = async () => {
-    navigate(
-      `/${
-        location?.pathname === "/patient_details"
-          ? "patient_details"
-          : "prescription"
-      }/?url=${url}&key=download`,
-      {
-        replace: true,
-        state: {
-          ...state,
-          medicalReportDrawerState: medicalReportDrawer,
-          shouldShowPreviewState: shouldShowPreview,
-          cardDataState: cardData,
-        },
+    const deviceUid = localStorage.getItem("app_device_unique_id");
+    if (deviceUid) {
+      const docRef = doc(db, "fileDownload", deviceUid);
+      try {
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          await updateDoc(docRef, {
+            canDownload: "yes",
+            pdfURL: url,
+          });
+        } else {
+          await setDoc(doc(db, "fileDownload", deviceUid), {
+            canDownload: "yes",
+            pdfURL: url,
+          });
+        }
+      } catch (error) {
+        console.error("Error updating document:", error);
       }
-    );
-    navigate(0, {
-      replace: true,
-      state: {
-        ...state,
-        medicalReportDrawerState: medicalReportDrawer,
-        shouldShowPreviewState: shouldShowPreview,
-        cardDataState: cardData,
-      },
-    });
+    }
   };
 
   const handleDownload = async () => {
@@ -318,7 +317,7 @@ const RecordCard = ({
         >
           <DocumentPreview
             onClose={handlePreview}
-            cardData={cardData || cardDataState}
+            cardData={cardData}
             handleEdit={handleEdit}
             toggleDeletePopup={toggleDeletePopup}
             handleInAppDownload={handleInAppDownload}

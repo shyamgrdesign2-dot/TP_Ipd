@@ -192,6 +192,7 @@ const VisitMedicalRecords = () => {
                         handleDrawerUploadDoc={handleDrawerUploadDoc}
                         setFilesData={setFilesData}
                         setIsEditDocument={setIsEditDocument}
+                        setUploadDocDrawer={setUploadDocDrawer}
                       />
                     </Col>
                   );
