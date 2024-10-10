@@ -821,7 +821,7 @@ function TabPrescription() {
                     handleDrawerUploadDoc={handleDrawerUploadDoc}
                     setFilesData={setFilesData}
                     setIsEditDocument={setIsEditDocument}
-                    handleUploadDocPopup={handleUploadDocPopup}
+                    setUploadDocDrawer={setUploadDocDrawer}
                   />
               )}
             </Sider>
