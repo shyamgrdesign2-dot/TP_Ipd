@@ -669,39 +669,39 @@ function Prescription() {
                 ) : e.tmdpm_id === 17 &&
                   e.tmdpm_status === 0 &&
                   isGynaecHistoryAccessable ? (
-                    <div className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={obstetricImg}
-                            alt="obstetric"
-                            className="me-3"
-                          />
-                              <div className="title-common">Obstetric History</div>
-                        </div>
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerObstetric}
-                        >
-                          <i
-                                className={`${examinationHistory.length > 0
-                                ? "icon-Edit"
-                                : "icon-Add"
-                            } me-1 fs-5`}
-                          ></i>
-                              <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"
-                          }`}</span>
-                        </button>
+                  <div className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img
+                          src={obstetricImg}
+                          alt="obstetric"
+                          className="me-3"
+                        />
+                        <div className="title-common">Obstetric History</div>
                       </div>
-                      {(obstetricDetails?.lmp ||
-                        obstetricDetails?.edd ||
-                        obstetricDetails?.gravidity ||
-                        obstetricDetails?.parity ||
-                        obstetricDetails?.livingChildren ||
-                        obstetricDetails?.abortion ||
-                        obstetricDetails?.ectopicPregnancies ||
-                        examinationHistory?.length > 0) && <ObstetricList />}
+                      <button
+                        className="btn d-flex align-items-center btn-text"
+                        onClick={handleDrawerObstetric}
+                      >
+                        <i
+                                className={`${examinationHistory.length > 0
+                              ? "icon-Edit"
+                              : "icon-Add"
+                          } me-1 fs-5`}
+                        ></i>
+                              <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"
+                        }`}</span>
+                      </button>
                     </div>
+                    {(obstetricDetails?.lmp ||
+                      obstetricDetails?.edd ||
+                      obstetricDetails?.gravidity ||
+                      obstetricDetails?.parity ||
+                      obstetricDetails?.livingChildren ||
+                      obstetricDetails?.abortion ||
+                      obstetricDetails?.ectopicPregnancies ||
+                      examinationHistory?.length > 0) && <ObstetricList />}
+                  </div>
                   ) : e.tmdpm_id === 18 &&
                   e.tmdpm_status === 0 && (
                     <div className="prescription-box-sm p-14">
@@ -712,7 +712,7 @@ function Prescription() {
                             alt="upload-document"
                             className="me-3"
                           />
-                          <div className="title-common">Medical Records</div>
+                          <div className="title-common">Medical Records {allUploadedDocs?.length > 0 ? `(${allUploadedDocs?.length})` : "" }</div>
                         </div>
                         <button
                           className="btn d-flex align-items-center btn-text"
@@ -742,11 +742,11 @@ function Prescription() {
                           )}
                         </button>
                       </div>
-                      <UploadDocumentList 
+                      <UploadDocumentList
                         handleDrawerUploadDoc={handleDrawerUploadDoc}
                         setFilesData={setFilesData}
                         setIsEditDocument={setIsEditDocument}
-                        />
+                      />
                     </div>
                   )
               })}
@@ -883,7 +883,7 @@ function Prescription() {
           <Drawer
             closeIcon={false}
             placement="right"
-            bodyStyle={{backgroundColor: "white"}}
+            bodyStyle={{ backgroundColor: "white" }}
             onClose={handleDeletePopup}
             open={uploadDocDrawer}
             className="modalWidth-700"
@@ -906,7 +906,7 @@ function Prescription() {
           <Drawer
             closeIcon={false}
             placement="right"
-            bodyStyle={{backgroundColor: "white"}}
+            bodyStyle={{ backgroundColor: "white" }}
             onClose={handleDrawerMedicalReport}
             open={medicalReportDrawer}
             width="50%"

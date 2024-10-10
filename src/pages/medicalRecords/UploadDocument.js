@@ -21,12 +21,24 @@ import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import SuccessPopup from "../../common/SuccessPopup";
 import { isAndroid, isBrowser } from "react-device-detect";
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "../../firebase";
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.js",
   import.meta.url
 ).toString();
+
+export const dataURLtoFile = (dataurl, filename) => {
+  const base64 = dataurl?.split(",")?.[1];
+  const mime = dataurl?.match(/:(.*?);/)?.[1];
+
+  const bstr = atob(base64);
+  let n = bstr?.length;
+  const u8arr = new Uint8Array(n);
+
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+};
 
 const UploadDocument = ({
   onClose,
@@ -39,6 +51,7 @@ const UploadDocument = ({
   setIsEditDocument,
   patientData,
   isAppointmentData,
+  handleUploadDocPopup,
 }) => {
   const dispatch = useDispatch();
   const { userId } = useSelector((state) => state.doctors);
@@ -57,25 +70,54 @@ const UploadDocument = ({
   const [isFileSizeError, setIsFileSizeError] = useState(false);
   const [isFileLimitError, setIsFileLimitError] = useState(false);
   const [isFileTypeError, setIsFileTypeError] = useState(null);
-  const [thumbnails, setThumbnails] = useState([]);
-  const [thumbnailUrls, setThumbnailUrls] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loader, setLoader] = useState(false);
 
-  const [recordData, setRecordData] = useState(
-    filesData.map((item) => {
-      return {
-        id: item?.id,
-        name: item?.name,
-        recordType: item?.category_id,
-        recordUploadDate: item?.investigation_date
-          ? item?.investigation_date
-          : dayjs().format("YYYY-MM-DD"),
-        notes: item?.notes || "",
-      };
-    })
-  );
+  const [recordData, setRecordData] = useState([]);
   const fileInputRef = useRef(null);
+
+  const updateRecordData = async () => {
+    const updatedRecord = await Promise.all(
+      filesData.map(async (item) => {
+        let thumbnailUrl;
+        let fileData;
+        if (item && item.type === "application/pdf") {
+          thumbnailUrl = await loadPdf(URL.createObjectURL(item));
+          fileData = dataURLtoFile(
+            thumbnailUrl,
+            "thumbnail_" +
+              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+              ".png"
+          );
+        } else {
+          thumbnailUrl = URL.createObjectURL(item);
+          fileData = new File(
+            [item],
+            "thumbnail_" +
+              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+              ".png",
+            { type: "image/png" }
+          );
+        }
+        return {
+          id: item?.id,
+          name: item?.name,
+          recordType: item?.category_id,
+          recordUploadDate: item?.investigation_date
+            ? item?.investigation_date
+            : dayjs().format("YYYY-MM-DD"),
+          notes: item?.notes || "",
+          thumbnailUrl: thumbnailUrl,
+          thumbnailFile: fileData,
+        };
+      })
+    );
+    setRecordData(updatedRecord);
+  };
+
+  useEffect(() => {
+    updateRecordData();
+  }, []);
 
   useEffect(() => {
     const supportedTypes = [
@@ -154,7 +196,7 @@ const UploadDocument = ({
           "thumbnail_" +
             item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
             ".png",
-          thumbnails?.[index]
+          recordData?.[index]?.thumbnailFile
         );
       });
       formData.append(
@@ -201,52 +243,49 @@ const UploadDocument = ({
 
   const handleFileUpload = async (event) => {
     if (isAndroid && !isBrowser) {
-      const deviceUid = localStorage.getItem("app_device_unique_id");
-      if (deviceUid) {
-        try {
-          await setDoc(doc(db, "capturedImage", deviceUid), {
-            clicked: "yes",
-            uri: "",
-          });
-        } catch (error) {
-          console.error("Error updating document:", error);
-        }
-      } else {
-        console.error("Device UID not found");
-      }
+      handleUploadDocPopup();
     } else {
       const selectedFiles = Array.from(event.target.files || []);
       const totalFiles = [...selectedFiles, ...filesData];
-      const newRecordData = selectedFiles?.map((item) => {
-        return {
-          id: item?.id || 0,
-          name: item?.name || "",
-          recordType: undefined,
-          recordUploadDate: dayjs().format("YYYY-MM-DD"),
-          notes: "",
-        };
-      });
+
+      const newRecordData = await Promise.all(
+        selectedFiles.map(async (item) => {
+          let thumbnailUrl;
+          let fileData;
+          if (item && item.type === "application/pdf") {
+            thumbnailUrl = await loadPdf(URL.createObjectURL(item));
+            fileData = dataURLtoFile(
+              thumbnailUrl,
+              "thumbnail_" +
+                item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                ".png"
+            );
+          } else {
+            thumbnailUrl = URL.createObjectURL(item);
+            fileData = new File(
+              [item],
+              "thumbnail_" +
+                item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                ".png",
+              { type: "image/png" }
+            );
+          }
+          return {
+            id: item?.id,
+            name: item?.name || "",
+            recordType: undefined,
+            recordUploadDate: dayjs().format("YYYY-MM-DD"),
+            notes: "",
+            thumbnailUrl: thumbnailUrl,
+            thumbnailFile: fileData,
+          };
+        })
+      );
       const updatedRecordData = [...newRecordData, ...recordData];
       setFilesData(totalFiles);
       setRecordData(updatedRecordData);
     }
   };
-
-  // const getCapturedImgFromFirebase = async () => {
-  //   const totalFiles = [...filesData, ...selectedFiles];
-  //   const newRecordData = selectedFiles?.map((item) => {
-  //     return {
-  //       id: item?.id || 0,
-  //       name: item?.name || "",
-  //       recordType: undefined,
-  //       recordUploadDate: dayjs().format("YYYY-MM-DD"),
-  //       notes: "",
-  //     };
-  //   });
-  //   const updatedRecordData = [...recordData, ...newRecordData];
-  //   setFilesData(totalFiles);
-  //   setRecordData(updatedRecordData);
-  // };
 
   const handleRetryBtn = () => {
     setFilesData([]);
@@ -259,6 +298,8 @@ const UploadDocument = ({
   const handleLeaveBtn = () => {
     handleDrawerUploadDoc();
     toggleDeletePopup();
+    setFilesData([]);
+    setRecordData([]);
   };
 
   const loadPdf = (url) => {
@@ -286,57 +327,6 @@ const UploadDocument = ({
       }
     });
   };
-
-  const createThumbnails = async () => {
-    const makeThumbnailUrls = await Promise.all(
-      filesData?.map(async (item) => {
-        let thumbnailUrl;
-        let fileData;
-        if (item && item.type === "application/pdf") {
-          thumbnailUrl = await loadPdf(URL.createObjectURL(item));
-          fileData = dataURLtoFile(
-            thumbnailUrl,
-            "thumbnail_" +
-              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-              ".png"
-          );
-        } else {
-          thumbnailUrl = URL.createObjectURL(item);
-          fileData = new File(
-            [item],
-            "thumbnail_" +
-              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-              ".png",
-            { type: "image/png" }
-          );
-        }
-        setThumbnailUrls((prev) => [thumbnailUrl, ...prev]);
-        return fileData;
-      })
-    );
-    setThumbnails(makeThumbnailUrls);
-  };
-
-  const dataURLtoFile = (dataurl, filename) => {
-    const base64 = dataurl?.split(",")?.[1];
-    const mime = dataurl?.match(/:(.*?);/)?.[1];
-
-    const bstr = atob(base64);
-    let n = bstr?.length;
-    const u8arr = new Uint8Array(n);
-
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, { type: mime });
-  };
-
-  useEffect(() => {
-    if (!isEditDocument) {
-      setThumbnailUrls([]);
-      createThumbnails();
-    }
-  }, [filesData]);
 
   const handleFileInputClick = () => {
     if (fileInputRef.current) {
@@ -388,15 +378,23 @@ const UploadDocument = ({
               style={{ display: "flex", alignItems: "center", gap: "5px" }}
               onClick={handleFileInputClick}
             >
-              <input
-                type="file"
-                multiple
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                accept=".png, .jpeg, .jpg, .pdf"
-                style={{ display: "none" }}
-                disabled={filesData.length >= 5}
-              />
+              {isAndroid && !isBrowser ? (
+                <div
+                  ref={fileInputRef}
+                  onClick={handleFileUpload}
+                  style={{ display: "none" }}
+                />
+              ) : (
+                <input
+                  type="file"
+                  multiple
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/png, image/jpeg, image/jpg, application/pdf"
+                  style={{ display: "none" }}
+                  disabled={filesData.length >= 5}
+                />
+              )}
               <i className="icon-upload" />
               <span>Upload new report</span>
             </Button>
@@ -408,144 +406,144 @@ const UploadDocument = ({
           style={{ gap: "24px", padding: "0 24px 24px" }}
         >
           {filesData.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                background: "#FAFAFB",
-                borderRadius: "16px",
-                padding: "16px 24px",
-              }}
-            >
-              <div className="d-flex justify-content-between pb-3">
-                <span style={{ fontWeight: 500 }}>{item?.name}</span>
-                {!isEditDocument ? (
-                  <i
-                    className="icon-delete"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleDeleteRecord(index)}
-                  />
-                ) : null}
-              </div>
               <div
-                className="d-flex justify-content-between"
-                style={{ gap: "32px" }}
+                key={index}
+                style={{
+                  background: "#FAFAFB",
+                  borderRadius: "16px",
+                  padding: "16px 24px",
+                }}
               >
-                <div>
-                  <div
-                    className="image-container"
-                    style={{
-                      backgroundImage: `url('${
-                        (isEditDocument
-                          ? filesData?.[index]?.thumbnail_url
-                          : thumbnailUrls?.[index]) || emptyBg
-                      }')`,
-                      height: 144,
-                      width: 144,
-                      border: "1px solid #F1F1F5",
-                      paddingBottom: "0px",
-                    }}
-                  >
-                    {(isEditDocument && filesData?.[index]?.thumbnail_url) ||
-                    thumbnailUrls?.[index] ? null : (
-                      <>
-                        <img
-                          className="doc-image"
-                          width={62}
-                          height={62}
-                          src={emptyFile}
-                          alt="document"
-                        />
-                        <div className="file-name">
-                          {shortenText(item?.name, 20, 13, -7)}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div className="w-100">
-                  <div
-                    className="d-flex align-items-center w-100 justify-content-between"
-                    style={{ gap: "32px" }}
-                  >
-                    <div style={{ width: "50%" }}>
-                      <label className="label" style={{ marginBottom: 5 }}>
-                        Record Type<span className="mandatory">*</span>
-                      </label>
-                      <Select
-                        style={{ height: 38 }}
-                        onChange={(value) =>
-                          handleRecordChange(index, "recordType", value)
-                        }
-                        options={documentOptions}
-                        placeholder="Select"
-                        className="w-100"
-                        value={recordData?.[index]?.recordType}
-                        allowClear
-                      />
-                    </div>
-                    <div style={{ width: "50%" }}>
-                      <label style={{ marginBottom: 5 }} className="label">
-                        Date of Investigation
-                        <span className="mandatory">*</span>
-                      </label>
-                      <DatePicker
-                        placeholder="Select Date"
-                        onChange={(_, d) => {
-                          handleRecordChange(
-                            index,
-                            "recordUploadDate",
-                            d
-                              ? dayjs(d, "DD MMM YYYY").format("YYYY-MM-DD")
-                              : ""
-                          );
-                        }}
-                        style={{
-                          height: "38px",
-                          width: "100%",
-                        }}
-                        format="DD MMM YYYY"
-                        value={
-                          recordData?.[index]?.recordUploadDate
-                            ? dayjs(recordData?.[index]?.recordUploadDate)
-                            : ""
-                        }
-                        allowClear={false}
-                        disabledDate={disableFutureDates}
-                        defaultValue={dayjs()}
-                      />
-                    </div>
-                  </div>
-                  <div style={{ paddingTop: "12px" }}>
-                    <label style={{ marginBottom: 5 }} className="label">
-                      Notes
-                    </label>
-                    <Input.TextArea
-                      placeholder="Enter remarks"
-                      className="textareaPlaceholder"
-                      style={{ height: "38px" }}
-                      value={recordData?.[index]?.notes}
-                      onChange={(e) =>
-                        handleRecordChange(index, "notes", e.target.value)
-                      }
-                      autoComplete="off"
-                      autoCorrect="off"
-                      maxLength={300}
+                <div className="d-flex justify-content-between pb-3">
+                  <span style={{ fontWeight: 500 }}>{item?.name}</span>
+                  {!isEditDocument ? (
+                    <i
+                      className="icon-delete"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleDeleteRecord(index)}
                     />
+                  ) : null}
+                </div>
+                <div
+                  className="d-flex justify-content-between"
+                  style={{ gap: "32px" }}
+                >
+                  <div>
                     <div
-                      className="d-flex justify-content-between align-items-center"
-                      style={{ marginTop: 5 }}
+                      className="image-container"
+                      style={{
+                        backgroundImage: `url('${
+                          (isEditDocument
+                            ? filesData?.[index]?.thumbnail_url
+                            : recordData?.[index]?.thumbnailUrl) || emptyBg
+                        }')`,
+                        height: 144,
+                        width: 144,
+                        border: "1px solid #F1F1F5",
+                        paddingBottom: "0px",
+                      }}
                     >
-                      <label style={{ color: "#A2A2A8", fontSize: 10 }}>
-                        Write maximum 300 characters
+                      {(isEditDocument && filesData?.[index]?.thumbnail_url) ||
+                      recordData?.[index]?.thumbnailUrl ? null : (
+                        <>
+                          <img
+                            className="doc-image"
+                            width={62}
+                            height={62}
+                            src={emptyFile}
+                            alt="document"
+                          />
+                          <div className="file-name">
+                            {shortenText(item?.name, 20, 13, -7)}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="w-100">
+                    <div
+                      className="d-flex align-items-center w-100 justify-content-between"
+                      style={{ gap: "32px" }}
+                    >
+                      <div style={{ width: "50%" }}>
+                        <label className="label" style={{ marginBottom: 5 }}>
+                          Record Type<span className="mandatory">*</span>
+                        </label>
+                        <Select
+                          style={{ height: 38 }}
+                          onChange={(value) =>
+                            handleRecordChange(index, "recordType", value)
+                          }
+                          options={documentOptions}
+                          placeholder="Select"
+                          className="w-100"
+                          value={recordData?.[index]?.recordType}
+                          allowClear
+                        />
+                      </div>
+                      <div style={{ width: "50%" }}>
+                        <label style={{ marginBottom: 5 }} className="label">
+                          Date of Investigation
+                          <span className="mandatory">*</span>
+                        </label>
+                        <DatePicker
+                          placeholder="Select Date"
+                          onChange={(_, d) => {
+                            handleRecordChange(
+                              index,
+                              "recordUploadDate",
+                              d
+                                ? dayjs(d, "DD MMM YYYY").format("YYYY-MM-DD")
+                                : ""
+                            );
+                          }}
+                          style={{
+                            height: "38px",
+                            width: "100%",
+                          }}
+                          format="DD MMM YYYY"
+                          value={
+                            recordData?.[index]?.recordUploadDate
+                              ? dayjs(recordData?.[index]?.recordUploadDate)
+                              : ""
+                          }
+                          allowClear={false}
+                          disabledDate={disableFutureDates}
+                          defaultValue={dayjs()}
+                        />
+                      </div>
+                    </div>
+                    <div style={{ paddingTop: "12px" }}>
+                      <label style={{ marginBottom: 5 }} className="label">
+                        Notes
                       </label>
-                      <label style={{ fontSize: 10 }}>
-                        {`${recordData?.[index]?.notes?.length} / 300`}
-                      </label>
+                      <Input.TextArea
+                        placeholder="Enter remarks"
+                        className="textareaPlaceholder"
+                        style={{ height: "38px" }}
+                        value={recordData?.[index]?.notes}
+                        onChange={(e) =>
+                          handleRecordChange(index, "notes", e.target.value)
+                        }
+                        autoComplete="off"
+                        autoCorrect="off"
+                        maxLength={300}
+                      />
+                      <div
+                        className="d-flex justify-content-between align-items-center"
+                        style={{ marginTop: 5 }}
+                      >
+                        <label style={{ color: "#A2A2A8", fontSize: 10 }}>
+                          Write maximum 300 characters
+                        </label>
+                        <label style={{ fontSize: 10 }}>
+                          {`${recordData?.[index]?.notes?.length} / 300`}
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
           ))}
         </div>
       </Card>
