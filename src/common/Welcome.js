@@ -67,7 +67,6 @@ function Welcome(props) {
     };
     try {
         const response = await axios.post(apiUrl, data, { headers });
-        console.log(response.data)
         return response.data
     } catch (error) {
         console.error('Error:', error);
@@ -87,7 +86,6 @@ function Welcome(props) {
     
     // Generate and set the URL
     const url = `https://visit-enrolment-tatva.getvisitapp.net/tatva-care?d_id=${d_id}&c_id=${c_id}`
-    // console.log(url,"url")
     setOpdPlansUrl(url);  // Set the URL after the API call
   };
 
