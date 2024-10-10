@@ -91,7 +91,7 @@ const VisitMedicalRecords = () => {
           style={{
             height: "calc(100vh - 150px)",
             overflow: "auto",
-            paddingBottom: "30px",
+            paddingBottom: "40px",
           }}
         >
           {allUploadedDocs.length === 0 ? (
