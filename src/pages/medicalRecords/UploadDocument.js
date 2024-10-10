@@ -70,7 +70,6 @@ const UploadDocument = ({
   const [isFileSizeError, setIsFileSizeError] = useState(false);
   const [isFileLimitError, setIsFileLimitError] = useState(false);
   const [isFileTypeError, setIsFileTypeError] = useState(null);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [loader, setLoader] = useState(false);
 
   const [recordData, setRecordData] = useState([]);
@@ -189,7 +188,6 @@ const UploadDocument = ({
             item.id === fileData?.id ? response : item
           );
           dispatch(setAllUploadedDocs(updatedData));
-          setShowSuccess(true);
         }
       }
       setIsEditDocument(false);
@@ -240,11 +238,10 @@ const UploadDocument = ({
           dispatch(setAllUploadedDocs(response));
         }, 1100);
       }
-      setShowSuccess(true);
     }
     setLoader(false);
     setFilesData([]);
-    recordData([]);
+    setRecordData([]);
     handleDrawerUploadDoc();
   };
 
@@ -552,9 +549,6 @@ const UploadDocument = ({
           ))}
         </div>
       </Card>
-      {showSuccess && (
-        <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
-      )}
       {shouldShowDeletePopup ||
       isFileSizeError ||
       isFileLimitError ||
