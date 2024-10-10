@@ -243,6 +243,8 @@ const UploadDocument = ({
       setShowSuccess(true);
     }
     setLoader(false);
+    setFilesData([]);
+    recordData([]);
     handleDrawerUploadDoc();
   };
 
