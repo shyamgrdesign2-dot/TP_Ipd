@@ -34,6 +34,7 @@ export const UNFINISHED_RX_CASE = "//api/v1/casemanager/get-ufinished-case"
 export const LAB_PARAMS_RESULTS = "/api/v1/lab-parameters/results"
 export const IS_RX_DIGI_API_CALL = false
 export const FETCH_SMART_RX = "/api/v1/casemanager/smart-rx"
+export const OPD_API_KEY = "lChjFRJce3bxmoS3TSQk5w=="
 export const WTSAP_ERR_MESSAGE = "Error sending the prescription, Please try again"
 
 export const GB_ISCRIBE = "iscribe"

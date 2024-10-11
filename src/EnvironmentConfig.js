@@ -34,6 +34,7 @@ const dev = {
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
+  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in/"
 };
 
@@ -73,6 +74,7 @@ const qa = {
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
+  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in/"
 };
 
@@ -112,6 +114,7 @@ const uat = {
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
+  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in/"
 };
 
@@ -151,6 +154,7 @@ const prod = {
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-prod.tatvacare.in",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
+  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in/"
 };
 

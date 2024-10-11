@@ -13,7 +13,18 @@ const uploadDocSlice = createSlice({
       state.allUploadedDocs = [];
     },
     setUploadDocCategories: (state, action) => {
-      state.uploadDocCategories = action.payload;
+      const categoriesOrder = [
+        "Pathology",
+        "Radiology",
+        "Prescription",
+        "Other",
+      ];
+      if (action?.payload?.length > 0) {
+        const reorderedCategories = categoriesOrder.map((name) =>
+          action.payload.find((category) => category.category_name === name)
+        );
+        state.uploadDocCategories = reorderedCategories;
+      }
     },
     setAllUploadedDocs: (state, action) => {
       state.allUploadedDocs = action.payload;
@@ -21,6 +32,9 @@ const uploadDocSlice = createSlice({
   },
 });
 
-export const { resetUploadDocState, setUploadDocCategories, setAllUploadedDocs } =
-  uploadDocSlice.actions;
+export const {
+  resetUploadDocState,
+  setUploadDocCategories,
+  setAllUploadedDocs,
+} = uploadDocSlice.actions;
 export default uploadDocSlice.reducer;
