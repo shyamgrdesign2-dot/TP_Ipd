@@ -3,7 +3,7 @@ import "./UploadDocPopup.scss";
 import { db } from "../../../../firebase";
 import { doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { useEffect } from "react";
-import { getCorrectedFileName } from "../../UploadDocument";
+import { getCorrectedFileName } from "../../utils/helper";
 
 const UploadDocPopup = ({
   onCancel,

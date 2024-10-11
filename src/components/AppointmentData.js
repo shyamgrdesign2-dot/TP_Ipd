@@ -55,11 +55,12 @@ import CreateCertificate from "./medical_certificate/CreateCertificate";
 import { resetVaccineState } from "../redux/vaccineSlice";
 import { resetGrowthChartState } from "../redux/growthChartSlice";
 import { resetObstetricState } from "../redux/obstetricSlice";
-import UploadDocument, { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/UploadDocument";
+import UploadDocument from "../pages/medicalRecords/UploadDocument";
 import { fetchAllDocumentCategories } from "../pages/medicalRecords/service";
 import { resetUploadDocState, setUploadDocCategories } from "../redux/uploadDocSlice";
 import axios from "axios";
 import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup";
+import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
 
 const { TextArea } = Input;
 

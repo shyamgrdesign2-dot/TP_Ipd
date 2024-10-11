@@ -51,17 +51,20 @@ import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
 import { fetchAllObstetricDetails } from "./obstetric/service";
 import { addObstetricDetails, navigateToObstetric } from "../redux/obstetricSlice";
 import { getClinicName } from "../utils/utils";
-import UploadDocument, { generateUniqueFileName, getCorrectedFileName } from "./medicalRecords/UploadDocument";
+import UploadDocument from "./medicalRecords/UploadDocument";
 import MedicalRecords from "./medicalRecords/MedicalRecords";
 import {
   fetchAllDocumentCategories,
   fetchAllPatientDocs,
+  fetchDocsUploadedByPatient,
 } from "./medicalRecords/service";
 import {
   setAllUploadedDocs,
+  setPatientUploadedDocs,
   setUploadDocCategories,
 } from "../redux/uploadDocSlice";
 import UploadDocumentList from "./medicalRecords/components/uploadDocumentList/UploadDocumentList";
+import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "./medicalRecords/utils/helper";
 
 function Prescription() {
   const {
@@ -167,8 +170,18 @@ function Prescription() {
   };
 
   const getAllPatientDocs = async () => {
-    const response = await fetchAllPatientDocs(patient_data.patient_unique_id);
-    dispatch(setAllUploadedDocs(response));
+    const doctorUploadedDocs = await fetchAllPatientDocs(
+      patient_data.patient_unique_id
+    );
+    const patientUploadedDocs = await fetchDocsUploadedByPatient(
+      patient_data.patient_unique_id
+    );
+    dispatch(setPatientUploadedDocs(patientUploadedDocs));
+    dispatch(
+      setAllUploadedDocs(
+        mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
+      )
+    );
   };
 
   const getAllDocumentCategories = async () => {

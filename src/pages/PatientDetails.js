@@ -24,8 +24,9 @@ import { useAccess } from "./vaccination/useAccess";
 import VisitObstetric from "./obstetric/components/visitObstetric/VisitObstetric";
 import { getClinicName } from "../utils/utils";
 import VisitMedicalRecords from "./medicalRecords/components/visitMedicalRecords/VisitMedicalRecords";
-import { setAllUploadedDocs } from "../redux/uploadDocSlice";
-import { fetchAllPatientDocs } from "./medicalRecords/service";
+import { setAllUploadedDocs, setPatientUploadedDocs } from "../redux/uploadDocSlice";
+import { fetchAllPatientDocs, fetchDocsUploadedByPatient } from "./medicalRecords/service";
+import { mergeDocuments } from "./medicalRecords/utils/helper";
 
 const { Sider, Content } = Layout;
 
@@ -92,8 +93,16 @@ function PatientDetails() {
     }, []);
 
     const getAllPatientDocs = async () => {
-        const response = await fetchAllPatientDocs(patient_data.patient_unique_id);
-        dispatch(setAllUploadedDocs(response));
+        const doctorUploadedDocs = await fetchAllPatientDocs(patient_data.patient_unique_id);
+        const patientUploadedDocs = await fetchDocsUploadedByPatient(
+          patient_data.patient_unique_id
+        );
+        dispatch(setPatientUploadedDocs(patientUploadedDocs));
+        dispatch(
+          setAllUploadedDocs(
+            mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
+          )
+        );
     };
 
     const nextPress = () => {

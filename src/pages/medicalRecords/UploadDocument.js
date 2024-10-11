@@ -18,44 +18,17 @@ import {
 } from "./service";
 import { setAllUploadedDocs } from "../../redux/uploadDocSlice";
 import { useLocation } from "react-router-dom";
-import { shortenText } from "./components/recordCard/RecordCard";
-import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import { isAndroid, isBrowser } from "react-device-detect";
 import { MESSAGE_KEY } from "../../utils/constants";
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.js",
-  import.meta.url
-).toString();
-
-export const dataURLtoFile = (dataurl, filename) => {
-  const base64 = dataurl?.split(",")?.[1];
-  const mime = dataurl?.match(/:(.*?);/)?.[1];
-
-  const bstr = atob(base64);
-  let n = bstr?.length;
-  const u8arr = new Uint8Array(n);
-
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
-  }
-  return new File([u8arr], filename, { type: mime });
-};
-
-export const getCorrectedFileName = (fileName) => {
-  const parts = fileName.split(".");
-  const extension = parts.pop(); // Get the last part (the file extension)
-  const baseName = parts.join(".").replace(/\./g, "").replace(/\s+/g, "-"); // Remove dots and replace spaces with hyphens
-  return `${baseName}.${extension}`;
-};
-
-export const generateUniqueFileName = (file) => {
-  const fileExtension = file.name.split(".").pop(); // Extract file extension
-  const uniqueName = `${Date.now()}-${Math.random()
-    .toString(36)
-    .substring(2, 9)}.${fileExtension}`;
-  return uniqueName;
-};
+import {
+  generateUniqueFileName,
+  getCorrectedFileName,
+  loadPdf,
+  mergeDocuments,
+  shortenText,
+  uploadDocURLtoFile,
+} from "./utils/helper";
 
 const UploadDocument = ({
   onClose,
@@ -74,9 +47,8 @@ const UploadDocument = ({
   const { userId } = useSelector((state) => state.doctors);
   const { state } = useLocation();
   const patient_data = state?.patient_data || patientData;
-  const { uploadDocCategories, allUploadedDocs } = useSelector(
-    (state) => state.uploadDoc
-  );
+  const { uploadDocCategories, allUploadedDocs, patientUploadedDocs } =
+    useSelector((state) => state.uploadDoc);
   const documentOptions = uploadDocCategories.map((item) => {
     return {
       label: item.category_name,
@@ -100,7 +72,7 @@ const UploadDocument = ({
         if (!isEditDocument) {
           if (item && item.type === "application/pdf") {
             thumbnailUrl = await loadPdf(URL.createObjectURL(item));
-            fileData = dataURLtoFile(
+            fileData = uploadDocURLtoFile(
               thumbnailUrl,
               "thumbnail_" +
                 item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
@@ -200,10 +172,14 @@ const UploadDocument = ({
         const resultStatus = await updateDocument([payload]);
         if (resultStatus?.status === 204) {
           const response = await fetchDocById(fileData?.id);
-          let updatedData = allUploadedDocs.map((item) =>
+          const doctorUploadedDocs = allUploadedDocs.map((item) =>
             item.id === fileData?.id ? response : item
           );
-          dispatch(setAllUploadedDocs(updatedData));
+          dispatch(
+            setAllUploadedDocs(
+              mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
+            )
+          );
           message.open({
             key: MESSAGE_KEY,
             type: "",
@@ -292,10 +268,14 @@ const UploadDocument = ({
       }
       if (!isAppointmentData) {
         setTimeout(async () => {
-          const response = await fetchAllPatientDocs(
+          const doctorUploadedDocs = await fetchAllPatientDocs(
             patient_data?.patient_unique_id
           );
-          dispatch(setAllUploadedDocs(response));
+          dispatch(
+            setAllUploadedDocs(
+              mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
+            )
+          );
         }, 1100);
       }
     }
@@ -341,7 +321,7 @@ const UploadDocument = ({
             let fileData;
             if (item && item.type === "application/pdf") {
               thumbnailUrl = await loadPdf(URL.createObjectURL(item));
-              fileData = dataURLtoFile(
+              fileData = uploadDocURLtoFile(
                 thumbnailUrl,
                 "thumbnail_" +
                   item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
@@ -388,32 +368,6 @@ const UploadDocument = ({
     toggleDeletePopup();
     setFilesData([]);
     setRecordData([]);
-  };
-
-  const loadPdf = (url) => {
-    return new Promise(async (resolve) => {
-      try {
-        const loadingTask = pdfjs.getDocument(url);
-        const pdf = await loadingTask.promise;
-        const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 1 });
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport,
-        };
-        await page.render(renderContext).promise;
-
-        // Convert canvas to data URL (base64)
-        const dataURL = canvas.toDataURL("image/png");
-        resolve(dataURL); // Return the base64 image data
-      } catch (e) {
-        resolve("");
-      }
-    });
   };
 
   const handleFileInputClick = () => {
