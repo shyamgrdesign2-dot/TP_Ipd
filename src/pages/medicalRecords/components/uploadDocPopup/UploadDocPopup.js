@@ -1,14 +1,9 @@
 import { Card, Divider, Modal } from "antd";
 import "./UploadDocPopup.scss";
 import { db } from "../../../../firebase";
-import {
-  doc,
-  getDoc,
-  onSnapshot,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { useEffect } from "react";
+import { getCorrectedFileName } from "../../UploadDocument";
 
 const UploadDocPopup = ({
   onCancel,
@@ -46,11 +41,7 @@ const UploadDocPopup = ({
     onCancel();
   };
 
-  function base64ToFile(
-    base64String,
-    fileName,
-    fileType
-  ) {
+  function base64ToFile(base64String, fileName, fileType) {
     const byteString = atob(base64String); // Decode base64 string
 
     // Create an ArrayBuffer to hold the byte data
@@ -80,7 +71,7 @@ const UploadDocPopup = ({
               if (res?.uri != "") {
                 const newFile = base64ToFile(
                   res?.uri,
-                  res?.fileName,
+                  getCorrectedFileName(res?.fileName),
                   res?.fileType
                 );
                 setFilesData((prev) => {
