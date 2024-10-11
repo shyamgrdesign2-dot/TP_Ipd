@@ -6,7 +6,7 @@ import { fetchAllDocumentCategories } from "../../service";
 import { useEffect, useRef, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import "./../../MedicalRecords.scss";
-import UploadDocument from "../../UploadDocument";
+import UploadDocument, { generateUniqueFileName, getCorrectedFileName } from "../../UploadDocument";
 import RecordCard from "../recordCard/RecordCard";
 import { isAndroid, isBrowser } from "react-device-detect";
 import UploadDocPopup from "../uploadDocPopup/UploadDocPopup";
@@ -66,16 +66,41 @@ const VisitMedicalRecords = () => {
     setShowDeletePopup(true);
   };
 
-  const handleFileUpload = (event) => {
-    const files = event.target.files;
-    if (files) {
-      const filesData = Array.from(files);
-      if (filesData.length > 0) {
-        setFilesData(filesData);
-        handleDrawerUploadDoc();
-      }
+const handleFileUpload = (event) => {
+  const files = event.target.files;
+  if (files) {
+    const filesData = Array.from(files);
+    if (filesData.length > 0) {
+      const updatedFiles = [];
+      filesData.forEach((file) => {
+        const cleanFileName = getCorrectedFileName(file?.name || "");
+        // Check if the file is an image and if its name follows typical camera-captured file patterns
+        const isCapturedFromCamera =
+          (file.type === "image/jpeg" ||
+            file.type === "image/png" ||
+            file.type === "image/jpg") &&
+          (cleanFileName === "image.jpg" ||
+            cleanFileName === "image.png" ||
+            cleanFileName === "image.jpeg");
+
+        let newFile = file;
+
+        if (isCapturedFromCamera) {
+          // Generate a unique file name for camera-captured images
+          const uniqueFileName = generateUniqueFileName(file);
+          newFile = new File([file], uniqueFileName, { type: file.type });
+        } else {
+          // If the file name had spaces, create a new file with spaces removed
+          newFile = new File([file], cleanFileName, { type: file.type });
+        }
+
+        updatedFiles.push(newFile);
+      });
+      setFilesData(updatedFiles);
+      handleDrawerUploadDoc();
     }
-  };
+  }
+};
 
   const handleAddClick = () => {
     if (fileInputRef.current) {

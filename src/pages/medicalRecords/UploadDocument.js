@@ -40,6 +40,21 @@ export const dataURLtoFile = (dataurl, filename) => {
   return new File([u8arr], filename, { type: mime });
 };
 
+export const getCorrectedFileName = (fileName) => {
+  const parts = fileName.split(".");
+  const extension = parts.pop(); // Get the last part (the file extension)
+  const baseName = parts.join(".").replace(/\./g, "").replace(/\s+/g, "-"); // Remove dots and replace spaces with hyphens
+  return `${baseName}.${extension}`;
+};
+
+export const generateUniqueFileName = (file) => {
+  const fileExtension = file.name.split(".").pop(); // Extract file extension
+  const uniqueName = `${Date.now()}-${Math.random()
+    .toString(36)
+    .substring(2, 9)}.${fileExtension}`;
+  return uniqueName;
+};
+
 const UploadDocument = ({
   onClose,
   handleDrawerUploadDoc,
@@ -77,7 +92,7 @@ const UploadDocument = ({
 
   const updateRecordData = async () => {
     const updatedRecord = await Promise.all(
-      filesData.map(async (item, index) => {
+      filesData.map(async (item) => {
         let thumbnailUrl;
         let fileData;
         if (!isEditDocument) {
@@ -102,8 +117,7 @@ const UploadDocument = ({
         }
         return {
           id: item?.id,
-          name:
-            item?.name !== "image.jpg" ? item?.name : `image${index + 1}.jpg`,
+          name: item?.name,
           recordType: item?.category_id,
           recordUploadDate: item?.investigation_date
             ? item?.investigation_date
@@ -245,46 +259,39 @@ const UploadDocument = ({
     handleDrawerUploadDoc();
   };
 
-  const handleFileUpload = async (event) => {
-    const selectedFiles = Array.from(event.target.files || []);
-    const totalFiles = [...selectedFiles, ...filesData];
-    const newRecordData = await Promise.all(
-      selectedFiles.map(async (item, index) => {
-        let thumbnailUrl;
-        let fileData;
-        if (item && item.type === "application/pdf") {
-          thumbnailUrl = await loadPdf(URL.createObjectURL(item));
-          fileData = dataURLtoFile(
-            thumbnailUrl,
-            "thumbnail_" +
-              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-              ".png"
-          );
-        } else {
-          thumbnailUrl = URL.createObjectURL(item);
-          fileData = new File(
-            [item],
-            "thumbnail_" +
-              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-              ".png",
-            { type: "image/png" }
-          );
-        }
-        return {
-          id: item?.id,
-          name:
-            item?.name !== "image.jpg" ? item?.name : `image${index + 1}.jpg`,
-          recordType: undefined,
-          recordUploadDate: dayjs().format("YYYY-MM-DD"),
-          notes: "",
-          thumbnailUrl: thumbnailUrl,
-          thumbnailFile: fileData,
-        };
-      })
-    );
-    const updatedRecordData = [...newRecordData, ...recordData];
-    setFilesData(totalFiles);
-    setRecordData(updatedRecordData);
+  const handleFileUpload = (event) => {
+    const files = event.target.files;
+    if (files) {
+      const filesData = Array.from(files);
+      if (filesData.length > 0) {
+        const updatedFiles = [];
+        filesData.forEach((file) => {
+          const cleanFileName = getCorrectedFileName(file?.name || "");
+          // Check if the file is an image and if its name follows typical camera-captured file patterns
+          const isCapturedFromCamera =
+            (file.type === "image/jpeg" ||
+              file.type === "image/png" ||
+              file.type === "image/jpg") &&
+            (cleanFileName === "image.jpg" ||
+              cleanFileName === "image.png" ||
+              cleanFileName === "image.jpeg");
+
+          let newFile = file;
+
+          if (isCapturedFromCamera) {
+            // Generate a unique file name for camera-captured images
+            const uniqueFileName = generateUniqueFileName(file);
+            newFile = new File([file], uniqueFileName, { type: file.type });
+          } else {
+            // If the file name had spaces, create a new file with spaces removed
+            newFile = new File([file], cleanFileName, { type: file.type });
+          }
+
+          updatedFiles.push(newFile);
+        });
+        setFilesData((prev) => [...updatedFiles, ...prev]);
+      }
+    }
   };
 
   const handleRetryBtn = () => {
@@ -415,9 +422,7 @@ const UploadDocument = ({
               }}
             >
               <div className="d-flex justify-content-between pb-3">
-                <span style={{ fontWeight: 500 }}>
-                  {recordData?.[index]?.name}
-                </span>
+                <span style={{ fontWeight: 500 }}>{item?.name}</span>
                 {!isEditDocument ? (
                   <i
                     className="icon-delete"
