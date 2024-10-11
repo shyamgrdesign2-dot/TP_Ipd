@@ -1,4 +1,4 @@
-import { Button, Card, DatePicker, Input, Select } from "antd";
+import { Button, Card, DatePicker, Input, Select, message } from "antd";
 import { useEffect, useRef, useState } from "react";
 import emptyBg from "./../../assets/images/empty-bg.svg";
 import emptyFile from "./../../assets/images/empty-file.svg";
@@ -7,6 +7,8 @@ import { disableFutureDates } from "../growthChart/growthChartHelper";
 import "./UploadDocument.scss";
 import CommonModal from "../../common/CommonModal";
 import alertIcon from "./../../assets/images/alertIcon.svg";
+import visitEnd from "./../../assets/images/end-visit.svg";
+import imgCloseVisit from "./../../assets/images/close-visit.svg";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllPatientDocs,
@@ -19,8 +21,8 @@ import { useLocation } from "react-router-dom";
 import { shortenText } from "./components/recordCard/RecordCard";
 import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import SuccessPopup from "../../common/SuccessPopup";
 import { isAndroid, isBrowser } from "react-device-detect";
+import { MESSAGE_KEY } from "../../utils/constants";
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.js",
   import.meta.url
@@ -202,6 +204,27 @@ const UploadDocument = ({
             item.id === fileData?.id ? response : item
           );
           dispatch(setAllUploadedDocs(updatedData));
+          message.open({
+            key: MESSAGE_KEY,
+            type: "",
+            className: "message-appointment",
+            content: (
+              <div className="d-flex align-items-center">
+                <img src={visitEnd} className="me-3" />
+                <div>
+                  <div className="fontroboto text-start fw-normal mt-1">
+                    Medical Records updated successfully
+                  </div>
+                </div>
+                <img
+                  src={imgCloseVisit}
+                  className="ms-3"
+                  onClick={() => message.destroy()}
+                />
+              </div>
+            ),
+            duration: 5,
+          });
         }
       }
       setIsEditDocument(false);
@@ -242,7 +265,30 @@ const UploadDocument = ({
             notes: recordItem?.notes?.trim(),
           };
         });
-        updateDocument(payload);
+        const resultStatus = await updateDocument(payload);
+        if (resultStatus?.status === 204) {
+          message.open({
+            key: MESSAGE_KEY,
+            type: "",
+            className: "message-appointment",
+            content: (
+              <div className="d-flex align-items-center">
+                <img src={visitEnd} className="me-3" />
+                <div>
+                  <div className="fontroboto text-start fw-normal mt-1">
+                    Medical Records added successfully
+                  </div>
+                </div>
+                <img
+                  src={imgCloseVisit}
+                  className="ms-3"
+                  onClick={() => message.destroy()}
+                />
+              </div>
+            ),
+            duration: 5,
+          });
+        }
       }
       if (!isAppointmentData) {
         setTimeout(async () => {
@@ -259,7 +305,7 @@ const UploadDocument = ({
     handleDrawerUploadDoc();
   };
 
-  const handleFileUpload = (event) => {
+  const handleFileUpload = async (event) => {
     const files = event.target.files;
     if (files) {
       const filesData = Array.from(files);
@@ -289,6 +335,41 @@ const UploadDocument = ({
 
           updatedFiles.push(newFile);
         });
+        const newRecordData = await Promise.all(
+          updatedFiles.map(async (item) => {
+            let thumbnailUrl;
+            let fileData;
+            if (item && item.type === "application/pdf") {
+              thumbnailUrl = await loadPdf(URL.createObjectURL(item));
+              fileData = dataURLtoFile(
+                thumbnailUrl,
+                "thumbnail_" +
+                  item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                  ".png"
+              );
+            } else {
+              thumbnailUrl = URL.createObjectURL(item);
+              fileData = new File(
+                [item],
+                "thumbnail_" +
+                  item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                  ".png",
+                { type: "image/png" }
+              );
+            }
+            return {
+              id: item?.id,
+              name: item?.name,
+              recordType: undefined,
+              recordUploadDate: dayjs().format("YYYY-MM-DD"),
+              notes: "",
+              thumbnailUrl: thumbnailUrl,
+              thumbnailFile: fileData,
+            };
+          })
+        );
+        const updatedRecordData = [...newRecordData, ...recordData];
+        setRecordData(updatedRecordData);
         setFilesData((prev) => [...updatedFiles, ...prev]);
       }
     }
