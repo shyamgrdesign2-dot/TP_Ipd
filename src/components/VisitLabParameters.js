@@ -1,88 +1,43 @@
 import { Button } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LabParametersList from "./LabParametersList";
 import labParamsImg from "../assets/images/Lab.svg";
 import { Card } from "react-bootstrap";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import axios from 'axios';
 
-const mockData = [
-  {
-    date: "2024-09-23",
-    inputs: [
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85090",
-        reportName: "CBC",
-        name: "Red blood cell count",
-        value: "98.4",
-        arrowDirection: "",
-        unit: "Cells/L",
-      },
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85090",
-        reportName: "CBC",
-        name: "Hemoglobin",
-        value: "98.4",
-        arrowDirection: "",
-        unit: "dl",
-      },
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85090",
-        reportName: "CBC",
-        name: "Platelet Count",
-        value: "95",
-        arrowDirection: "down",
-        unit: "cmm",
-      },
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85090",
-        reportName: "CBC",
-        name: "Remarks",
-        value: "some random string is input here",
-        arrowDirection: "down",
-        unit: "cmm",
-      },
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85093",
-        reportName: "Spot Urine Sodium",
-        name: "Remarks",
-        value: "some random string is input here",
-        arrowDirection: "down",
-        unit: "cmm",
-      },
-    ],
-  },
-  {
-    date: "2024-09-24",
-    inputs: [
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85090",
-        reportName: "CBC",
-        name: "Red blood cell count",
-        value: "98.4",
-        arrowDirection: "down",
-        unit: "Cells/L",
-      },
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85090",
-        reportName: "CBC",
-        name: "Platelet Count",
-        value: "95",
-        arrowDirection: "up",
-        unit: "cmm",
-      },
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85093",
-        reportName: "Spot Urine Sodium",
-        name: "Remarks",
-        value: "some random string is input here",
-        arrowDirection: "down",
-        unit: "cmm",
-      },
-    ],
-  },
-];
+const VisitLabParameters = ( {patient_unique_id, doc_id}) => {
+  const [labParamsData, setLabParamsData] = useState([]);
 
-const VisitLabParameters = () => {
-  const [labParamsData, setLabParamsData] = useState(mockData?.slice(0, 2));
+  const [token, setToken] = useState(null);
+
+  const getLabParams = async () => {
+    try {
+        const cleanedToken = token.replace(/['"]+/g, '');
+        const response = await axios.get(`https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-parameters/results/${doc_id}/${patient_unique_id}`, {
+            headers: {
+                'Authorization': `Bearer ${cleanedToken}`,
+            },
+        });
+        setLabParamsData(response.data?.results || []);
+    } catch (error) {
+        console.error("Error fetching lab params:", error);
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+    if (token) {
+      setToken(token);
+    }
+  }, []);
+
+  useEffect(() => {
+    if(token){
+      getLabParams()
+    }
+  },[token])
+
   return (
     <div>
       {labParamsData?.length > 0 ? (
@@ -118,7 +73,7 @@ const VisitLabParameters = () => {
                 </Button>
               </div>
             </Card.Header>
-            <LabParametersList />
+            <LabParametersList patient_unique_id={patient_unique_id} doc_id={doc_id} />
           </Card>
         </div>
       ) : null}

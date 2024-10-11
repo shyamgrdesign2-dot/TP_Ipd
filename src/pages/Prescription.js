@@ -64,6 +64,7 @@ import {
 } from "../redux/uploadDocSlice";
 import UploadDocumentList from "./medicalRecords/components/uploadDocumentList/UploadDocumentList";
 import LabParametersList from "../components/LabParametersList";
+import LabParams from "../components/LabParams";
 
 function Prescription() {
   const {
@@ -103,6 +104,7 @@ function Prescription() {
   const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
+  const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
   const [privateNotesData, setPrivateNotesData] = useState(null);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
@@ -530,6 +532,14 @@ function Prescription() {
     }
   };
 
+  const handleAddLabParamsDrawer = useCallback(
+    () => {
+        setAddlabparamsDrawer(!addlabparamsDrawer)
+    },
+    [addlabparamsDrawer]
+);
+
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -717,11 +727,7 @@ function Prescription() {
                         <button
                           className="btn d-flex align-items-center btn-text"
                           style={{ paddingRight: allUploadedDocs.length > 0 ? 0 : 12 }}
-                          onClick={
-                            allUploadedDocs.length > 0
-                              ? handleDrawerMedicalReport
-                              : handleAddClick
-                          }
+                          onClick={handleAddLabParamsDrawer}
                         >
                           {allUploadedDocs.length === 0 && (
                             <i className="icon-Add me-1 fs-5" />
@@ -734,7 +740,7 @@ function Prescription() {
                           )}
                         </button>
                       </div>
-                      <LabParametersList />
+                      <LabParametersList patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} />
                     </div>
                     <div className="prescription-box-sm p-14">
                       <div className="d-flex align-items-center justify-content-between">
@@ -953,6 +959,16 @@ function Prescription() {
             />
           </Drawer>
         )}
+        <Drawer
+            closeIcon={false}
+            className="modalWidth-700"
+            placement="right"
+            open={addlabparamsDrawer}
+            onClose={handleAddLabParamsDrawer}
+            width="auto"
+        >
+            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_data={patient_data}/>
+        </Drawer>
       </>
     </CashManagerContext.Provider>
   );
