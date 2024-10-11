@@ -957,3 +957,13 @@ body {
         white-space: nowrap !important;
     }
 }
+
+.lab-params-warning {
+    color: #E54848 !important;
+}
+
+.remarks-style {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

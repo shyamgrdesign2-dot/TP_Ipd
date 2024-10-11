@@ -59,6 +59,7 @@ import UploadDocument, { generateUniqueFileName, getCorrectedFileName } from "..
 import { fetchAllDocumentCategories } from "../pages/medicalRecords/service";
 import { resetUploadDocState, setUploadDocCategories } from "../redux/uploadDocSlice";
 import axios from "axios";
+import LabParams from "./LabParams";
 import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup";
 
 const { TextArea } = Input;
@@ -319,6 +320,7 @@ function AppointmentData({ locationPath }) {
     const [isEndVisitReasonModal, setEndVisitReasonModal] = useState(false);
     const [endVisitReasonDrawer, setEndVisitReasonDrawer] = useState(false);
     const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
+    const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
     const [endVisitReason, setEndVisitReason] = useState('');
     const [noDetailsModal, setNoDetailsModal] = useState(false);
     const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
@@ -372,7 +374,7 @@ function AppointmentData({ locationPath }) {
     }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order, isDigitisationTab]);
 
     useEffect(() => {
-        if(isSmartSyncAccessableFromGB){
+        if(isSmartSyncAccessableFromGB && isSmartSyncCVTAccessableFromGB){
             fetchPendingDigitisationRx();
         }
     }, [isSmartSyncAccessableFromGB]);
@@ -527,8 +529,16 @@ function AppointmentData({ locationPath }) {
           },
           {
                 label: <span
-                onClick={() => {
-                  setAppointmentSelectedFromMenu(record);
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
+                        handleAddLabParamsDrawer()
+                    }}>Add Lab Results</span>,
+                key: "labparams",
+            },
+            {
+                label: <span
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
                         handleConfirmationModal()
                     }}>Cancel Appt.</span>,
             key: "cancelappt",
@@ -940,6 +950,13 @@ function AppointmentData({ locationPath }) {
         [createCertificateDrawer]
     );
 
+    const handleAddLabParamsDrawer = useCallback(
+        () => {
+            setAddlabparamsDrawer(!addlabparamsDrawer)
+        },
+        [addlabparamsDrawer]
+    );
+
     const handleNoDetailsModal = useCallback(
         () => {
             setNoDetailsModal(!noDetailsModal)
@@ -1323,6 +1340,18 @@ function AppointmentData({ locationPath }) {
                 // key="left"
                 >
                     <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={appointmentSelectedFromMenu} replace={false} />
+                </Drawer>
+                <Drawer
+                    closeIcon={false}
+                    className="modalWidth-700"
+                    // title="Add Lab Results"
+                    placement="right"
+                    open={addlabparamsDrawer}
+                    onClose={handleAddLabParamsDrawer}
+                    width="auto"
+                // key="left"
+                >
+                    <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_data={appointmentSelectedFromMenu}/>
                 </Drawer>
             </div>
 

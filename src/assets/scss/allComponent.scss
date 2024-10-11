@@ -1827,6 +1827,140 @@ body {
     overflow-x: hidden; /* Hide horizontal scrollbar */
 }
 
+// labparameters styles
+.labparam-header{
+    display: flex;
+    width: 100%;
+    align-items: center;
+    padding: 0.4375rem 1rem;
+    gap: 0.625rem;
+    border-radius: 0.75rem;
+    background: var(--T-BG-10, #e4e4e4);
+    height: 2.3rem;
+    margin-bottom: 0.875rem;
+}
+.labparam-head{
+    color: var(--T-Text-80, #454551);
+    font-family: "Poppins";
+    width: 38.05rem;
+    font-weight: 600;
+    line-height: normal;
+}
+.labparam-title{
+    color: var(--T-Text-80, #454551);
+    font-family: "Poppins";
+    width: 37.05rem;
+    font-weight: 600;
+    line-height: normal;
+    margin-left: 1rem;
+    display: flex;
+    align-items: center;
+}
+.labparam-head-dates{
+    color: var(--T-Text-80, #454551);
+    font-family: "Poppins";
+    font-size: 0.75rem;
+    font-style: normal;
+    width: 17.7rem;
+    font-weight: 600;
+    line-height: normal;
+    padding: 0 0.5rem;
+}
+
+// .lab-param-add-date{
+//     cursor: pointer !important;
+// }
+
+.calender-labparams {
+    .ant-picker-input {
+        visibility: hidden;
+    }
+
+    height: 2.5rem;
+    width: 8.3rem;
+    cursor: pointer;
+    background-color: transparent !important;
+    border: none;
+    box-shadow: none !important;
+    position: absolute;
+    left: 0;
+
+}
+
+.test-header{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f5f5f5;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+}
+.test-values-row{
+    display: flex;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}   
+.test-values-container{
+    width: 70%;
+    display: flex;
+    height: 3.9375rem;
+    padding: 0.5rem 1rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2.0625rem;
+}
+.test-parameters-header{
+    display: flex;
+    height: 2.8rem;
+    padding: 0 0.75rem;
+    justify-content: space-between;
+    margin-bottom: 0.875rem;
+    align-items: center;
+    align-self: stretch;
+    border-radius: 0.75rem;
+    background: #efefef;
+    cursor: pointer;
+}
+.labparam-head-date{
+    width: 60%;
+    display: flex;
+}
+// style for lapparams Remarks section
+.truncated {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 164px;
+    cursor: pointer;
+}
+
+.full-remarks-container {
+    position: absolute;
+    background-color: white;
+    padding: 10px;
+    border: 1px solid #ccc;
+    z-index: 10;
+    /* Add any other styling as needed */
+}
+
+.full-remarks-content {
+    white-space: normal;
+    max-width: 400px;
+    max-height: 300px; 
+    overflow-y: auto;
+}
+
+.param-title {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.param-input {
+    flex: 2;
+    padding: 5px;
+}
+  
 .taper-dose {
     position: relative;
     &:hover {
