@@ -60,14 +60,15 @@ import Obstetric from "../obstetric/Obstetric";
 import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
 import { fetchAllObstetricDetails } from "../obstetric/service";
 import { addObstetricDetails, navigateToObstetric } from "../../redux/obstetricSlice";
-import { setAllUploadedDocs, setUploadDocCategories } from "../../redux/uploadDocSlice";
-import { fetchAllDocumentCategories, fetchAllPatientDocs } from "../medicalRecords/service";
+import { setAllUploadedDocs, setPatientUploadedDocs, setUploadDocCategories } from "../../redux/uploadDocSlice";
+import { fetchAllDocumentCategories, fetchAllPatientDocs, fetchDocsUploadedByPatient } from "../medicalRecords/service";
 import TabUploadDocumentList from "../medicalRecords/components/uploadDocumentList/TabUploadDocumentList";
-import UploadDocument, { generateUniqueFileName, getCorrectedFileName } from "../medicalRecords/UploadDocument";
+import UploadDocument from "../medicalRecords/UploadDocument";
 import MedicalRecords from "../medicalRecords/MedicalRecords";
 import TabLabParametersList from "../../components/tab_design/TabLabParametersList";
 import UploadDocPopup from "../medicalRecords/components/uploadDocPopup/UploadDocPopup";
 import { isAndroid, isBrowser } from "react-device-detect";
+import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "../medicalRecords/utils/helper";
 
 function TabPrescription() {
   const {
@@ -171,10 +172,16 @@ function TabPrescription() {
   }
 
   const getAllPatientDocs = async () => {
-    const response = await fetchAllPatientDocs(
+    const doctorUploadedDocs = await fetchAllPatientDocs(
       patient_data.patient_unique_id
     );
-    dispatch(setAllUploadedDocs(response));
+    const patientUploadedDocs = await fetchDocsUploadedByPatient(
+      patient_data.patient_unique_id
+    );
+    dispatch(setPatientUploadedDocs(patientUploadedDocs));
+    dispatch(
+      setAllUploadedDocs(mergeDocuments(doctorUploadedDocs, patientUploadedDocs))
+    );
   };
 
   const getAllDocumentCategories = async () => {

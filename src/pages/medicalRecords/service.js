@@ -65,3 +65,16 @@ export const deleteDocById = async function (id) {
   }
   return res;
 };
+
+export const fetchDocsUploadedByPatient = async function (patientUniqueId) {
+  let res = [];
+  try {
+    res = await api.get(
+      `api/v1/docs/myt?patient_unique_id=${patientUniqueId}`,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching documents uploaded by patient: ", e);
+  }
+  return res;
+};

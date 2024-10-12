@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { Col, Row } from "react-bootstrap";
 import RecordCard from "./components/recordCard/RecordCard";
 import { isAndroid, isBrowser } from "react-device-detect";
-import { generateUniqueFileName, getCorrectedFileName } from "./UploadDocument";
+import { generateUniqueFileName, getCorrectedFileName } from "./utils/helper";
 
 const MedicalRecords = ({
   medicalReportDrawer,

@@ -10,7 +10,7 @@ import trash from "./../../../../assets/images/trash.svg";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
 import { deleteDocById, fetchAllPatientDocs } from "../../service";
 import { setAllUploadedDocs } from "../../../../redux/uploadDocSlice";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { isChrome, isSafari } from "react-device-detect";
 import axios from "axios";
@@ -20,20 +20,7 @@ import DocumentPreview from "../documentPreview/DocumentPreview";
 import dayjs from "dayjs";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../firebase";
-
-export function shortenText(
-  text,
-  length = 25,
-  firstPartLength = 18,
-  lastPartLength = -7
-) {
-  if (text.length > length) {
-    const firstPart = text.slice(0, firstPartLength);
-    const lastPart = text.slice(lastPartLength);
-    return `${firstPart}...${lastPart}`;
-  }
-  return text;
-}
+import { loadPdf, mergeDocuments, shortenText } from "../../utils/helper";
 
 const RecordCard = ({
   cardData,
@@ -44,11 +31,12 @@ const RecordCard = ({
   setUploadDocDrawer,
 }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const location = useLocation();
   const { state } = location;
   const { patient_data } = state;
-  const { uploadDocCategories } = useSelector((state) => state.uploadDoc);
+  const { uploadDocCategories, patientUploadedDocs } = useSelector(
+    (state) => state.uploadDoc
+  );
   const {
     notes,
     id,
@@ -58,6 +46,25 @@ const RecordCard = ({
     category_id,
     display_name,
   } = cardData || {};
+
+  const [thumbnailUrl, setThumbnailUrl] = useState(thumbnail_url);
+
+  const getThumbnailUrl = async (url) => {
+    if (url?.includes(".pdf")) {
+      loadPdf(url).then((thumbnailDataUrl) => {
+        setThumbnailUrl(thumbnailDataUrl);
+      });
+    } else {
+      setThumbnailUrl(url);
+    }
+  };
+
+  useEffect(() => {
+    if (!thumbnailUrl) {
+      getThumbnailUrl(url);
+    }
+  }, []);
+
   const updatedFileName = shortenText(display_name);
   const categoryName = uploadDocCategories.find(
     (item) => item?.category_id === category_id
@@ -65,6 +72,7 @@ const RecordCard = ({
 
   const [showTooltip, setShowTooltip] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [shouldShowReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
   const [shouldShowPreview, setShowPreview] = useState(false);
   const tooltipRef = useRef(null);
 
@@ -101,22 +109,36 @@ const RecordCard = ({
 
   const handleDelete = async () => {
     await deleteDocById(id);
-    const response = await fetchAllPatientDocs(patient_data.patient_unique_id);
-    dispatch(setAllUploadedDocs(response));
+    const doctorUploadedDocs = await fetchAllPatientDocs(
+      patient_data.patient_unique_id
+    );
+    dispatch(
+      setAllUploadedDocs(
+        mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
+      )
+    );
     toggleDeletePopup();
   };
 
   const handleEdit = () => {
-    if (shouldShowPreview) {
-      setShowPreview(false);
+    if (cardData?.id) {
+      if (shouldShowPreview) {
+        setShowPreview(false);
+      }
+      setFilesData([cardData]);
+      setIsEditDocument(true);
+      setUploadDocDrawer(true);
+    } else {
+      setShowReadOnlyPopup(true);
     }
-    setFilesData([cardData]);
-    setIsEditDocument(true);
-    setUploadDocDrawer(true);
   };
 
   const toggleDeletePopup = () => {
-    setShowDeletePopup((prev) => !prev);
+    if (cardData?.id) {
+      setShowDeletePopup((prev) => !prev);
+    } else {
+      setShowReadOnlyPopup((prev) => !prev);
+    }
   };
 
   const handleInAppDownload = async () => {
@@ -208,11 +230,11 @@ const RecordCard = ({
       <div
         className="image-container"
         style={{
-          backgroundImage: `url('${thumbnail_url || emptyBg}')`,
+          backgroundImage: `url('${thumbnailUrl || emptyBg}')`,
         }}
         onClick={handleThumbnailClick}
       >
-        {thumbnail_url ? null : (
+        {thumbnailUrl ? null : (
           <>
             <img className="doc-image" src={emptyFile} alt="document" />
             <div className="file-name">{updatedFileName}</div>
@@ -270,33 +292,43 @@ const RecordCard = ({
           </Dropdown>
         </div>
       </div>
-      {shouldShowDeletePopup ? (
+      {shouldShowDeletePopup || shouldShowReadOnlyPopup ? (
         <CommonModal
-          isModalOpen={shouldShowDeletePopup}
+          isModalOpen={shouldShowDeletePopup || shouldShowReadOnlyPopup}
           onCancel={toggleDeletePopup}
-          modalWidth={500}
-          title={"You may lose your data"}
+          modalWidth={510}
+          title={
+            shouldShowReadOnlyPopup
+              ? "This document cannot be edit or deleted."
+              : "You may lose your data"
+          }
           modalBody={
             <>
               <div className="alert-warning rounded-10px p-2 patient-details">
                 <div className="d-flex align-items-center">
                   <img className="me-3" src={alertIcon} alt="Warning" />
-                  <span>{"Are you sure you want to delete ?"}</span>
+                  <span>
+                    {shouldShowReadOnlyPopup
+                      ? "This document was uploaded by the patient and cannot be modified."
+                      : "Are you sure you want to delete ?"}
+                  </span>
                 </div>
               </div>
               <div className="mt-4">
                 <div className="d-flex align-items-center mt-2 justify-content-end">
-                  <div
-                    onClick={handleDelete}
-                    className="me-4 text-decoration-underline btn p-0 text-main"
-                  >
-                    Yes, Delete
-                  </div>
+                  {shouldShowReadOnlyPopup ? null : (
+                    <div
+                      onClick={handleDelete}
+                      className="me-4 text-decoration-underline btn p-0 text-main"
+                    >
+                      Yes, Delete
+                    </div>
+                  )}
                   <Button
                     onClick={toggleDeletePopup}
                     className="lh-lg btn btn-primary3 btn-41 px-4"
                   >
-                    <span>No</span>
+                    <span>{shouldShowReadOnlyPopup ? "Got it" : "No"}</span>
                   </Button>
                 </div>
               </div>

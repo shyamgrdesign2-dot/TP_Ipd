@@ -6,10 +6,11 @@ import { fetchAllDocumentCategories } from "../../service";
 import { useEffect, useRef, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import "./../../MedicalRecords.scss";
-import UploadDocument, { generateUniqueFileName, getCorrectedFileName } from "../../UploadDocument";
+import UploadDocument from "../../UploadDocument";
 import RecordCard from "../recordCard/RecordCard";
 import { isAndroid, isBrowser } from "react-device-detect";
 import UploadDocPopup from "../uploadDocPopup/UploadDocPopup";
+import { generateUniqueFileName, getCorrectedFileName } from "../../utils/helper";
 
 const VisitMedicalRecords = () => {
   const dispatch = useDispatch();

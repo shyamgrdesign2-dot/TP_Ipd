@@ -14,9 +14,10 @@ import CreateCertificate from '../components/medical_certificate/CreateCertifica
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_ISCRIBE } from '../utils/constants';
 import { getClinicName } from '../utils/utils';
-import UploadDocument, { generateUniqueFileName, getCorrectedFileName } from '../pages/medicalRecords/UploadDocument';
+import UploadDocument from '../pages/medicalRecords/UploadDocument';
 import { isAndroid, isBrowser } from 'react-device-detect';
 import UploadDocPopup from '../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup';
+import { generateUniqueFileName, getCorrectedFileName } from '../pages/medicalRecords/utils/helper';
 
 function Welcome1(props) {
 
