@@ -27,12 +27,15 @@ import VisitMedicalRecords from "./medicalRecords/components/visitMedicalRecords
 import { setAllUploadedDocs, setPatientUploadedDocs } from "../redux/uploadDocSlice";
 import { fetchAllPatientDocs, fetchDocsUploadedByPatient } from "./medicalRecords/service";
 import { mergeDocuments } from "./medicalRecords/utils/helper";
+import { setAllUploadedDocs } from "../redux/uploadDocSlice";
+import { fetchAllPatientDocs } from "./medicalRecords/service";
+import VisitLabParameters from "../components/VisitLabParameters";
 
 const { Sider, Content } = Layout;
 
 function PatientDetails() {
 
-    const { profile } = useSelector((state) => state.doctors);
+    const { profile, userId } = useSelector((state) => state.doctors);
     const {
         viewCaseManagerData,
         loading,
@@ -164,6 +167,7 @@ function PatientDetails() {
                                                 {isVaccinationAccessable && <VisitVaccination />}
                                                 {isGrowthChartAccessable && <VisitGrowthChart />}
                                                 {isGynaecHistoryAccessable && <VisitObstetric />}
+                                                {<VisitLabParameters patient_unique_id={patient_data?.patient_unique_id} doc_id={userId}/>}
                                             </>
                                         }
                                         {/*   <LabParameters />

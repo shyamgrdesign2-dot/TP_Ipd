@@ -41,6 +41,7 @@ import vaccinationImg from "../assets/images/Vaccination.svg";
 import growthChartImg from "../assets/images/growth-chart-dark.svg";
 import obstetricImg from "../assets/images/obstetric-dark.svg";
 import uploadDocImg from "../assets/images/upload-doc-dark.svg";
+import labResultImg from "../assets/images/Lab.svg";
 import Vaccination from "./vaccination/Vaccination";
 import GrowthChart from "./growthChart/GrowthChart";
 import { viewPatient } from "../redux/appointmentsSlice";
@@ -65,6 +66,8 @@ import {
 } from "../redux/uploadDocSlice";
 import UploadDocumentList from "./medicalRecords/components/uploadDocumentList/UploadDocumentList";
 import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "./medicalRecords/utils/helper";
+import LabParametersList from "../components/LabParametersList";
+import LabParams from "../components/LabParams";
 
 function Prescription() {
   const {
@@ -104,6 +107,7 @@ function Prescription() {
   const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
+  const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
   const [privateNotesData, setPrivateNotesData] = useState(null);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
@@ -566,6 +570,14 @@ function Prescription() {
     }
   };
 
+  const handleAddLabParamsDrawer = useCallback(
+    () => {
+        setAddlabparamsDrawer(!addlabparamsDrawer)
+    },
+    [addlabparamsDrawer]
+);
+
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -739,6 +751,35 @@ function Prescription() {
                   </div>
                   ) : e.tmdpm_id === 18 &&
                   e.tmdpm_status === 0 && (
+                    <>
+                     <div className="prescription-box-sm" style={{overflow: 'hidden'}}>
+                      <div className="d-flex align-items-center justify-content-between p-14" style={{borderBottom: "1px solid #ddd"}}>
+                        <div className="d-flex align-items-center">
+                          <img
+                            src={labResultImg}
+                            alt="upload-document"
+                            className="me-3"
+                          />
+                          <div className="title-common">Lab Results</div>
+                        </div>
+                        <button
+                          className="btn d-flex align-items-center btn-text"
+                          style={{ paddingRight: allUploadedDocs.length > 0 ? 0 : 12 }}
+                          onClick={handleAddLabParamsDrawer}
+                        >
+                          {allUploadedDocs.length === 0 && (
+                            <i className="icon-Add me-1 fs-5" />
+                          )}
+                          <span>{`${
+                            allUploadedDocs.length > 0 ? "View All" : "Add"
+                          }`}</span>
+                          {allUploadedDocs.length > 0 && (
+                            <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                          )}
+                        </button>
+                      </div>
+                      <LabParametersList patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} />
+                    </div>
                     <div className="prescription-box-sm p-14">
                       <div className="d-flex align-items-center justify-content-between">
                         <div className="d-flex align-items-center">
@@ -784,6 +825,7 @@ function Prescription() {
                         setUploadDocDrawer={setUploadDocDrawer}
                       />
                     </div>
+                    </>
                   )
               })}
 
@@ -958,6 +1000,16 @@ function Prescription() {
             />
           </Drawer>
         )}
+        <Drawer
+            closeIcon={false}
+            className="modalWidth-700"
+            placement="right"
+            open={addlabparamsDrawer}
+            onClose={handleAddLabParamsDrawer}
+            width="auto"
+        >
+            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_data={patient_data}/>
+        </Drawer>
       </>
     </CashManagerContext.Provider>
   );

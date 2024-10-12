@@ -44,6 +44,8 @@ import obstetricWhite from "../../assets/images/obstetric-white.svg";
 import obstetricDark from "../../assets/images/obstetric-dark.svg";
 import medicalRecordsWhite from "../../assets/images/upload-doc-white.svg";
 import medicalRecordsDark from "../../assets/images/upload-doc-dark.svg";
+import labParamsWhite from "../../assets/images/lab-parameters-white.svg";
+import labParamsDark from "../../assets/images/Lab-Parameters.svg";
 
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
@@ -63,6 +65,7 @@ import { fetchAllDocumentCategories, fetchAllPatientDocs, fetchDocsUploadedByPat
 import TabUploadDocumentList from "../medicalRecords/components/uploadDocumentList/TabUploadDocumentList";
 import UploadDocument from "../medicalRecords/UploadDocument";
 import MedicalRecords from "../medicalRecords/MedicalRecords";
+import TabLabParametersList from "../../components/tab_design/TabLabParametersList";
 import UploadDocPopup from "../medicalRecords/components/uploadDocPopup/UploadDocPopup";
 import { isAndroid, isBrowser } from "react-device-detect";
 import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "../medicalRecords/utils/helper";
@@ -484,6 +487,8 @@ const handleFileUpload = (event) => {
         handleDrawerObstetric();
       } else if (flag === 7) {
         handleDrawerUploadDoc();
+      } else if (flag === 8) {
+        // handleDrawerLabParams();
       }
     },
     [
@@ -742,45 +747,68 @@ const handleFileUpload = (event) => {
                     <label className="text-white mt-1">Obstetric</label>
                   </button>
                       ) : e.tmdpm_id === 18 &&
-                  e.tmdpm_status === 0 && (
-                    <button
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      style={{ padding: "0px" }}
-                          onClick={() => allUploadedDocs.length === 0 ? handleAddClick() : openCollapsed(7)}
-                    >
-                      {isAndroid && !isBrowser ? (
-                        <div
-                          ref={fileInputRef}
-                          onClick={handleUploadDocPopup}
-                          style={{ display: "none" }}
-                        />
-                      ) : (
-                        <input
-                          type="file"
-                          multiple
-                          ref={fileInputRef}
-                          onChange={handleFileUpload}
-                          accept="image/png, image/jpeg, image/jpg, application/pdf"
-                          style={{ display: "none" }}
-                        />
-                      )}
-                      <div
-                            className={`prescription-tab-button rounded-10px ${collapsedFlag === 7 && "active"
-                        }`}
+                      e.tmdpm_status === 0 && (
+                        <>
+                          <button
+                            type="button"
+                            className="mb-3 text-center btn btn-action"
+                            style={{ padding: "0px" }}
+                            onClick={() => allUploadedDocs.length === 0 ? handleAddClick() : openCollapsed(8)}
+                          >
+                            <div
+                              className={`prescription-tab-button rounded-10px ${collapsedFlag === 8 && "active"
+                                }`}
+                            >
+                              <img
+                                src={
+                                  collapsedFlag === 8
+                                    ? labParamsDark
+                                    : labParamsWhite
+                                }
+                                alt="lab"
+                              />
+                            </div>
+                            <label className="text-white mt-1">Lab</label>
+                          </button>
+                          <button
+                            type="button"
+                            className="mb-3 text-center btn btn-action"
+                            style={{ padding: "0px" }}
+                            onClick={() => allUploadedDocs.length === 0 ? handleAddClick() : openCollapsed(7)}
                       >
-                        <img
-                          src={
-                            collapsedFlag === 7
-                              ? medicalRecordsDark
-                              : medicalRecordsWhite
-                          }
-                          alt="records"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Records</label>
-                    </button>
-                  )
+                        {isAndroid && !isBrowser ? (
+                          <div
+                            ref={fileInputRef}
+                            onClick={handleUploadDocPopup}
+                            style={{ display: "none" }}
+                          />
+                        ) : (
+                          <input
+                            type="file"
+                            multiple
+                            ref={fileInputRef}
+                            onChange={handleFileUpload}
+                            accept="image/png, image/jpeg, image/jpg, application/pdf"
+                            style={{ display: "none" }}
+                          />
+                        )}
+                        <div
+                              className={`prescription-tab-button rounded-10px ${collapsedFlag === 7 && "active"
+                                }`}
+                            >
+                              <img
+                                src={
+                                  collapsedFlag === 7
+                                    ? medicalRecordsDark
+                                    : medicalRecordsWhite
+                                }
+                                alt="records"
+                              />
+                            </div>
+                            <label className="text-white mt-1">Records</label>
+                          </button>
+                        </>
+                      )
                   ;
               })}
               {/* <button type='button' className="mb-3 text-center btn btn-action">
@@ -843,7 +871,7 @@ const handleFileUpload = (event) => {
                 <TabObstetricList
                   handleCollapsed={() => setCollapsed(!collapsed)}
                   handleDrawerObstetric={handleDrawerObstetric} />
-              ) : collapsedFlag === 7 && (
+              ) : collapsedFlag === 7 ? (
                   <TabUploadDocumentList
                     handleCollapsed={() => setCollapsed(!collapsed)}
                     handleDrawerMedicalReport={handleDrawerMedicalReport}
@@ -856,6 +884,8 @@ const handleFileUpload = (event) => {
                     handleUploadDocPopup={handleUploadDocPopup}
                     setUploadDocDrawer={setUploadDocDrawer}
                   />
+              ) : collapsedFlag === 8 && (
+                <TabLabParametersList handleCollapsed={() => setCollapsed(!collapsed)} />
               )}
             </Sider>
             <div
