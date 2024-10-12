@@ -27,8 +27,6 @@ import VisitMedicalRecords from "./medicalRecords/components/visitMedicalRecords
 import { setAllUploadedDocs, setPatientUploadedDocs } from "../redux/uploadDocSlice";
 import { fetchAllPatientDocs, fetchDocsUploadedByPatient } from "./medicalRecords/service";
 import { mergeDocuments } from "./medicalRecords/utils/helper";
-import { setAllUploadedDocs } from "../redux/uploadDocSlice";
-import { fetchAllPatientDocs } from "./medicalRecords/service";
 import VisitLabParameters from "../components/VisitLabParameters";
 
 const { Sider, Content } = Layout;
