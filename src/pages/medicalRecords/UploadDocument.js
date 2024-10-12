@@ -353,6 +353,7 @@ const UploadDocument = ({
         setFilesData((prev) => [...updatedFiles, ...prev]);
       }
     }
+    event.target.value = null;
   };
 
   const handleRetryBtn = () => {
@@ -364,6 +365,9 @@ const UploadDocument = ({
   };
 
   const handleLeaveBtn = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     handleDrawerUploadDoc();
     toggleDeletePopup();
     setFilesData([]);
