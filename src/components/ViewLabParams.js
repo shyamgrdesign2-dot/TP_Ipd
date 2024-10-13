@@ -1,6 +1,7 @@
 import { Button, Input } from 'antd';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CaretRightOutlined, CaretDownOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 
 const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitchToAddLabParams }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -42,6 +43,15 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
         });
     });
 
+    useEffect(() => {
+      Object.keys(groupedData)?.map((reportName) => {
+        setExpandedReports((prevState) => ({
+          ...prevState,
+          [reportName]: true,
+        }));
+      });
+    }, [labParamsData]);
+    
     // Filter data for search functionality
     const filteredData = labParamsData?.filter((report) =>
         report.inputs.some((input) =>
@@ -97,17 +107,18 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
             <div style={{ overflowX: 'auto', margin: "8px" }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     {/* Table Header */}
-                    <thead style={{ backgroundColor: '#d3d3d3' }}>
+                    <thead style={{ backgroundColor: "#F1F1F5" }}>
                         <tr>
                             <th
                                 style={{
                                     position: 'sticky',
                                     left: 0,
-                                    background: '#d3d3d3',
+                                    background: '#F1F1F5',
                                     width: "23rem",
                                     padding: '10px',
                                     borderTopLeftRadius: "10px",
                                     borderBottomLeftRadius: "10px",
+                                    fontWeight: "600",
                                 }}
                             >
                                 Name
@@ -118,10 +129,11 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                     style={{
                                         width: '160px',
                                         padding: '10px',
-                                        zIndex: "1"
+                                        zIndex: "1",
+                                        fontWeight: "600",
                                     }}
                                 >
-                                    {entry.date}
+                                    {dayjs(entry?.date).format("DD MMM, YY")}
                                 </th>
                             ))}
                         </tr>
@@ -141,7 +153,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                             onClick={() => toggleReport(reportName)}
                                             style={{
                                                 cursor: 'pointer',
-                                                background: 'var(--T-BG-100, #FAFAFB)',
+                                                background: '#FAFAFB',
                                                 width: '100%',
                                             }}
                                         >
@@ -151,7 +163,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                     position: 'sticky',
                                                     left: 0,  // Set the left position to make it stick on the left
                                                     zIndex: 2, // Ensure it stays above the other rows
-                                                    background: "var(--T-BG-100, #e8e8e8)", // Provide a background so it doesn't overlap
+                                                    background: "#FAFAFB", // Provide a background so it doesn't overlap
                                                     padding: '10px',
                                                     display: 'flex',
                                                     alignItems: 'center',
@@ -162,13 +174,13 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                 }}
                                             >   
                                                 <span>{reportName}</span>
-                                                <div style={{position:"absolute",top:"27%",right:"-81%"}}>
+                                                {/* <div style={{position:"absolute",top:"27%",right:"-81%"}}>
                                                     {isExpanded ? (
                                                         <CaretDownOutlined style={{ cursor: 'pointer' }} />
                                                     ) : (
                                                         <CaretRightOutlined style={{ cursor: 'pointer' }} />
                                                     )}
-                                                </div>
+                                                </div> */}
                                             </td>
                                             {filteredData.map((entry, entryIndex) => {
                                                 const isLastCell = entryIndex === filteredData.length - 1;
@@ -176,7 +188,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                     <td
                                                         key={entry.date}
                                                         style={{
-                                                            background: "var(--T-BG-100, #e8e8e8)",
+                                                            background: "#FAFAFB",
                                                             width:"160px",
                                                             padding: '10px',
                                                             textAlign: 'right', // Right align the icon for the last cell
@@ -237,6 +249,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                                                 borderRight: '1px solid #ddd',
                                                                                 padding: '10px',
                                                                                 background: 'white',
+                                                                                fontWeight: "400",
                                                                             }}
                                                                         >
                                                                             {testOnDate

@@ -11,7 +11,7 @@ import CheckableTag from 'antd/es/tag/CheckableTag';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 
-const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => {
+const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBackModalOpen, showHideBackModal }) => {
 
     const [token, setToken] = useState(null);
     const [tokenData, setTokenData] = useState(null);
@@ -25,7 +25,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
     const [isRemarksVisible, setIsRemarksVisible] = useState({});
     const [testCounts, setTestCounts] = useState({});
     const [showTooltip, setShowTooltip] = useState(false);
-    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const scrollContainerRef = useRef(null);
     const inputRef = useRef([]);
     const currentDate = new Date().toISOString().split("T")[0];
@@ -516,10 +515,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
           }
 
     }
-
-    const showHideBackModal = useCallback(() => {
-        setIsBackModalOpen(!isBackModalOpen);
-    }, [isBackModalOpen]);
     
     return (
         <div>
@@ -546,7 +541,12 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
                                 </div>
                                 <div className="mt-4">
                                     <div className="d-flex align-items-center mt-2 justify-content-end">
-                                        <div onClick={handleAddLabParamsDrawer} className="me-4 text-decoration-underline btn p-0 text-main">
+                                        <div
+                                            onClick={() => {
+                                                handleAddLabParamsDrawer();
+                                                showHideBackModal();
+                                            }}
+                                            className="me-4 text-decoration-underline btn p-0 text-main">
                                             Yes Leave
                                         </div>
                                         <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">
@@ -593,7 +593,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
                 </div>
                 {/* Scrollable container for date-based inputs */}
                 <div ref={scrollContainerRef} className='d-flex'>
-                    <div className="d-flex flex-column w-100">
+                    <div className="d-flex flex-column w-100" style={{ overflowY: "auto", position: "relative" }}>
                         {Object.keys(inputValues).map((reportName) => (
                             <>
                                 <div className="test-parameters-header" key={reportName} onClick={() => toggleReport(reportName)}>
@@ -607,10 +607,19 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
                                     {(!!expandedReports[reportName]) ? <CaretDownOutlined /> : <CaretRightOutlined />}
                                 </div>
                                 { Object.keys(inputValues[reportName]).map((testName) => (
-                                    <>
+                                    <div>
                                         { expandedReports[reportName] && ( // Only render if report is expanded
                                             <div key={testName} className="test-values-row">
-                                                <div key={testName} className='labparam-title'>
+                                                 <div
+                                                    className="labparam-title sticky-testname"
+                                                    style={{
+                                                        width: "280px",
+                                                        position: "sticky",
+                                                        left: 0,
+                                                        background: "#fff",
+                                                        zIndex: 2,
+                                                    }}
+                                                    >
                                                     {testName}
                                                     <Tooltip 
                                                         placement="bottom" 
@@ -636,50 +645,75 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
                                                         </i>
                                                     </Tooltip>
                                                 </div>
-                                                {dates.map((date) => (
-                                                    <div key={date} className='test-values-container'>
-                                                        {testName === "Remarks" ? (
-                                                            // Conditionally rendering remarks as text with truncation
-                                                            <div className='test-value'>
-                                                                <div 
-                                                                    className="remarks-text truncated" 
-                                                                >
-                                                                    {inputValues[reportName][testName][date]?.value || "No remarks"}
-                                                                </div>
-
-                                                                {/* Modal or container to show full remarks when clicked */}
-                                                                {isRemarksVisible[reportName]?.[testName]?.[date] && (
-                                                                    <div className="full-remarks-container">
-                                                                        <div className="full-remarks-content">
-                                                                            {inputValues[reportName][testName][date]?.value}
-                                                                        </div>
+                                                <div style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    columnGap: '15px',
+                                                }}>
+                                                    {dates.map((date) => (
+                                                        <div key={date} className='test-values-container'>
+                                                            {testName === "Remarks" ? (
+                                                                // Conditionally rendering remarks as text with truncation
+                                                                <div>
+                                                                    <div 
+                                                                        className="remarks-text truncated" 
+                                                                    >
+                                                                        {inputValues[reportName][testName][date]?.value || "No remarks"}
                                                                     </div>
-                                                                )}
-                                                            </div>
-                                                        ) : (
-                                                            // Regular input for non-remarks fields
-                                                            <div className='test-value'>
-                                                                <Input
-                                                                    className="inputheight41-group"
-                                                                    type="text"
-                                                                    value={inputValues[reportName][testName][date]?.value || ""}
-                                                                    addonAfter={inputValues[reportName][testName][date]?.units || getUnitForTest(reportName, testName)}
-                                                                    onChange={(e) =>
-                                                                        handleInputChange(
-                                                                            reportName,
-                                                                            testName,
-                                                                            date,
-                                                                            e.target.value
-                                                                        )
-                                                                    }
-                                                                />
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ))}
+
+                                                                    {/* Modal or container to show full remarks when clicked */}
+                                                                    {isRemarksVisible[reportName]?.[testName]?.[date] && (
+                                                                        <div className="full-remarks-container">
+                                                                            <div className="full-remarks-content">
+                                                                                {inputValues[reportName][testName][date]?.value}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ) : (
+                                                                // Regular input for non-remarks fields
+                                                                <div>
+                                                                    <Input
+                                                                        style={{
+                                                                            width: '180px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            borderRadius: '4px',
+                                                                        }}
+                                                                        type="text"
+                                                                        value={inputValues[reportName][testName][date]?.value || ""}
+                                                                        addonAfter={
+                                                                            <span
+                                                                            style={{
+                                                                                width: inputValues[reportName][testName][date]?.value ? '60px' : '',
+                                                                                textAlign: 'center',
+                                                                                overflow: 'hidden',
+                                                                                whiteSpace: 'nowrap',
+                                                                                textOverflow: 'ellipsis',
+                                                                            }}
+                                                                            >
+                                                                            {inputValues[reportName][testName][date]?.units ||
+                                                                                getUnitForTest(reportName, testName)}
+                                                                            </span>
+                                                                        }
+                                                                        onChange={(e) =>
+                                                                            handleInputChange(reportName, testName, date, e.target.value)
+                                                                        }
+                                                                        inputStyle={{
+                                                                            width: '120px',
+                                                                            overflow: 'hidden',
+                                                                            whiteSpace: 'nowrap',
+                                                                            textOverflow: 'ellipsis',
+                                                                        }}
+                                                                        />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
                                         )}
-                                    </>
+                                    </div>
                                 ))}
                             </>
                         ))}

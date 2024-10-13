@@ -159,6 +159,7 @@ function Prescription() {
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
   const [medicalReportDrawer, setMedicalReportDrawer] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [filesData, setFilesData] = useState([]);
   const [isEditDocument, setIsEditDocument] = useState(false);
   const fileInputRef = useRef(null);
@@ -606,6 +607,10 @@ const handleLabParamsUpdate = (newLabParams) => {
   setLabParamsData(newLabParams); // Update state with the new lab params data
 };
 
+const showHideBackModal = () => {
+  setIsBackModalOpen(!isBackModalOpen);
+};
+
 const getLabParams = async () => {
   try {
       const cleanedToken = token.replace(/['"]+/g, '');
@@ -1048,16 +1053,18 @@ const getLabParams = async () => {
             className="modalWidth-700"
             placement="right"
             open={addlabparamsDrawer}
-            onClose={handleAddLabParamsDrawer}
+            onClose={showHideBackModal}
+            bodyStyle={{ backgroundColor: "white" }}
             width="auto"
         >
-            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_data={patient_data} onSave={handleLabParamsUpdate}/>
+            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_data={patient_data} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal}/>
         </Drawer>
         <Drawer
             closeIcon={false}
             className="modalWidth-700"
             placement="right"
             open={viewlabparamsDrawer}
+            bodyStyle={{ backgroundColor: "white" }}
             onClose={handleViewLabParamsDrawer}
             width="auto"
         >
