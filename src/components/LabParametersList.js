@@ -5,13 +5,13 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import axios from 'axios';
 import { env } from "../EnvironmentConfig";
 
-const LabParametersList = ({labParamsData, patient_unique_id,doc_id}) => {
+const LabParametersList = ({labParamsData}) => {
 
   const transformData = (data) => {
     const result = {};
 
-    data.forEach((entry) => {
-      entry.inputs.forEach(({ testName, value, arrowDirection, units }) => {
+    data?.forEach((entry) => {
+      entry.inputs?.forEach(({ testName, value, arrowDirection, units }) => {
         if (!result[testName]) {
           result[testName] = [];
         }
