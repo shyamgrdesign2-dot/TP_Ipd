@@ -156,9 +156,9 @@ function PatientDetails() {
                                                 {isVaccinationAccessable && <VisitVaccination />}
                                                 {isGrowthChartAccessable && <VisitGrowthChart />}
                                                 {isGynaecHistoryAccessable && <VisitObstetric />}
-                                                {<VisitLabParameters patient_unique_id={patient_data?.patient_unique_id} doc_id={userId}/>}
                                             </>
                                         }
+                                        {<VisitLabParameters patient_unique_id={patient_data?.patient_unique_id} doc_id={userId}/>}
                                         {/*   <LabParameters />
                                             <Vaccination /> */}
                                     </div>

@@ -66,1335 +66,1404 @@ export const EXTRA_OPTIONS = [
 export const ABORTION = "Abortion";
 export const MISCARRIAGE = "Miscarriage";
 
-export const DEFAULT_TESTS_DATA = [
+export const DEFAULT_TESTS_DATA =[
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d85090",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Haemoglobin (Hb)",
+        "testName": "Haemoglobin (Hb)",
         "value": "",
-        "unit": "Gms %"
+        "units": "Gms %"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d85091",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Neutrophils",
+        "testName": "Neutrophils",
         "value": "",
-        "unit": "%"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d85095",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Total WBC Count",
+        "testName": "Total WBC Count",
         "value": "",
-        "unit": "Cells/cu mm"
+        "units": "Cells/cu mm"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d85096",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Lymphocytes",
+        "testName": "Lymphocytes",
         "value": "",
-        "unit": "%"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d85097",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Eosinophils",
+        "testName": "Eosinophils",
         "value": "",
-        "unit": "%"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d85098",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Monocytes",
+        "testName": "Monocytes",
         "value": "",
-        "unit": "%"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d85099",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Total Red Cell Count (RBC)",
+        "testName": "Total Red Cell Count (RBC)",
         "value": "",
-        "unit": "Million Cells/cu mm"
+        "units": "Million Cells/cu mm"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d8509a",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Erythrocyte Sedimentation Rate (ESR)",
+        "testName": "Erythrocyte Sedimentation Rate (ESR)",
         "value": "",
-        "unit": "mm/hour"
+        "units": "mm/hour"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d8509b",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Platelets Count",
+        "testName": "Platelets Count",
         "value": "",
-        "unit": " lakh/cu mm"
+        "units": " lakh/cu mm"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d8509c",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Haematocrit (PCV)",
+        "testName": "Haematocrit (PCV)",
         "value": "",
-        "unit": "%"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d8509d",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Mean Corpuscular Volume (MCV)",
+        "testName": "Mean Corpuscular Volume (MCV)",
         "value": "",
-        "unit": "fL"
+        "units": "fL"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d8509e",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Mean Corpuscular Haemoglobin (MCH)",
+        "testName": "Mean Corpuscular Haemoglobin (MCH)",
         "value": "",
-        "unit": "pg"
+        "units": "pg"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d8509f",
         "reportName": "Complete Blood Count - CBC",
-        "name": "Mean Corpuscular Haemoglobin Concentration (MCHC)",
+        "testName": "Mean Corpuscular Haemoglobin Concentration (MCHC)",
         "value": "",
-        "unit": "%"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1b3",
         "reportName": "Complete Blood Picture - CBP",
-        "name": "Haemoglobin (Hb)",
+        "testName": "Haemoglobin (Hb)",
         "value": "",
-        "unit": "Gms %"
+        "units": "Gms %"
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1b4",
         "reportName": "Complete Blood Picture - CBP",
-        "name": "Haematocrit (PCV)",
+        "testName": "Haematocrit (PCV)",
         "value": "",
-        "unit": "%"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1b5",
         "reportName": "Complete Blood Picture - CBP",
-        "name": "Total Red Cell Count (RBC)",
+        "testName": "Total Red Cell Count (RBC)",
         "value": "",
-        "unit": "Million Cells/cu mm"
+        "units": "Million Cells/cu mm"
     },
     {
-        "labParametersMasterId": "66fb8f3452fbbe596c40a22a",
         "reportName": "Complete Blood Picture - CBP",
-        "name": "RBCs",
+        "testName": "RBCs",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f3452fbbe596c40a22b",
         "reportName": "Complete Blood Picture - CBP",
-        "name": "WBCs",
+        "testName": "WBCs",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f3452fbbe596c40a22c",
         "reportName": "Complete Blood Picture - CBP",
-        "name": "Platelets",
+        "testName": "Platelets",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4652fbbe596c40a2d8",
         "reportName": "Complete Blood Picture - CBP",
-        "name": "Differential Count",
+        "testName": "Differential Count",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4652fbbe596c40a2d9",
         "reportName": "Complete Blood Picture - CBP",
-        "name": "Peripheral Blood Smear",
+        "testName": "Peripheral Blood Smear",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850a2",
-        "reportName": "URINE TEST",
-        "name": "Haemoglobin (Hb)",
+        "reportName": "Complete Blood Picture - CBP",
+        "testName": "Total WBC Count",
         "value": "",
-        "unit": "Gms %"
+        "units": "Cells/cu mm"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850a3",
-        "reportName": "URINE TEST",
-        "name": "Haematocrit (PCV)",
+        "reportName": "Complete Blood Picture - CBP",
+        "testName": "Platelets Count",
         "value": "",
-        "unit": "%"
+        "units": "lakh/cu mm"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850a4",
-        "reportName": "URINE TEST",
-        "name": "Fasting Blood Sugar (FBS)",
+        "reportName": "Complete Blood Picture - CBP",
+        "testName": "Neutrophils",
         "value": "",
-        "unit": "mg/dL"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850a5",
-        "reportName": "URINE TEST",
-        "name": "Post Prandial Blood Sugar (PPBS)",
+        "reportName": "Complete Blood Picture - CBP",
+        "testName": "Lymphocytes",
         "value": "",
-        "unit": "mg/dL"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850a6",
-        "reportName": "URINE TEST",
-        "name": "Glycosylated Haemoglobin - HbA1c",
+        "reportName": "Complete Blood Picture - CBP",
+        "testName": "Eosinophils",
         "value": "",
-        "unit": "%"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850a7",
-        "reportName": "URINE TEST",
-        "name": "Serum Creatinine",
+        "reportName": "Complete Blood Picture - CBP",
+        "testName": "Monocytes",
         "value": "",
-        "unit": "mg/dL"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850a8",
-        "reportName": "URINE TEST",
-        "name": "Serum Uric Acid",
+        "reportName": "Complete Blood Picture - CBP",
+        "testName": "Basophils",
         "value": "",
-        "unit": "mg/dL"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850a9",
-        "reportName": "URINE TEST",
-        "name": "Serum Alkaline Phosphatase",
+        "reportName": "Urine Test",
+        "testName": "Haemoglobin (Hb)",
         "value": "",
-        "unit": "IU/L"
+        "units": "Gms %"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850aa",
-        "reportName": "URINE TEST",
-        "name": "Urine Creatinine",
+        "reportName": "Urine Test",
+        "testName": "Haematocrit (PCV)",
         "value": "",
-        "unit": "mg/dL"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850ab",
-        "reportName": "URINE TEST",
-        "name": "Spot Albumin Creatinine Ratio",
+        "reportName": "Urine Test",
+        "testName": "Fasting Blood Sugar (FBS)",
         "value": "",
-        "unit": "mg/g Cr"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850ac",
-        "reportName": "URINE TEST",
-        "name": "TSH (Thyroid Stimulating Hormone)",
+        "reportName": "Urine Test",
+        "testName": "Post Prandial Blood Sugar (PPBS)",
         "value": "",
-        "unit": "mIU/L"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850ad",
-        "reportName": "URINE TEST",
-        "name": "Luteinizing Hormone (LH)",
+        "reportName": "Urine Test",
+        "testName": "Glycosylated Haemoglobin - HbA1c",
         "value": "",
-        "unit": "mIU/mL"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850ae",
-        "reportName": "URINE TEST",
-        "name": "Follicle Stimulating Hormone (FSH)",
+        "reportName": "Urine Test",
+        "testName": "Serum Creatinine",
         "value": "",
-        "unit": "mIU/mL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850af",
-        "reportName": "URINE TEST",
-        "name": "Prolactin",
+        "reportName": "Urine Test",
+        "testName": "Serum Uric Acid",
         "value": "",
-        "unit": "ng/mL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850b0",
-        "reportName": "URINE TEST",
-        "name": "Testosterone Total",
+        "reportName": "Urine Test",
+        "testName": "Serum Alkaline Phosphatase",
         "value": "",
-        "unit": "ng/dL"
+        "units": "IU/L"
     },
     {
-        "labParametersMasterId": "66fb8f4252fbbe596c40a2a3",
-        "reportName": "URINE TEST",
-        "name": "RBCs",
+        "reportName": "Urine Test",
+        "testName": "Urine Creatinine",
         "value": "",
-        "unit": ""
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4252fbbe596c40a2a4",
-        "reportName": "URINE TEST",
-        "name": "WBCs",
+        "reportName": "Urine Test",
+        "testName": "Spot Albumin Creatinine Ratio",
         "value": "",
-        "unit": "thousand cells/ÂµL"
+        "units": "mg/g Cr"
     },
     {
-        "labParametersMasterId": "66fb8f4252fbbe596c40a2a5",
-        "reportName": "URINE TEST",
-        "name": "Platelets",
+        "reportName": "Urine Test",
+        "testName": "TSH (Thyroid Stimulating Hormone)",
         "value": "",
-        "unit": ""
+        "units": "mIU/L"
     },
     {
-        "labParametersMasterId": "66fb8f4252fbbe596c40a2a6",
-        "reportName": "URINE TEST",
-        "name": "Haemoparasites",
+        "reportName": "Urine Test",
+        "testName": "Luteinizing Hormone (LH)",
         "value": "",
-        "unit": ""
+        "units": "mIU/mL"
     },
     {
-        "labParametersMasterId": "66fb8f4252fbbe596c40a2a7",
-        "reportName": "URINE TEST",
-        "name": "Impression",
+        "reportName": "Urine Test",
+        "testName": "Follicle Stimulating Hormone (FSH)",
         "value": "",
-        "unit": ""
+        "units": "mIU/mL"
     },
     {
-        "labParametersMasterId": "66fb8f4252fbbe596c40a2a8",
-        "reportName": "URINE TEST",
-        "name": "Fasting Urine Sugar (FUS)",
+        "reportName": "Urine Test",
+        "testName": "Prolactin",
         "value": "",
-        "unit": ""
+        "units": "ng/mL"
     },
     {
-        "labParametersMasterId": "66fb8f4252fbbe596c40a2a9",
-        "reportName": "URINE TEST",
-        "name": "Post Prandial Urine Sugar - PPUS",
+        "reportName": "Urine Test",
+        "testName": "Testosterone Total",
         "value": "",
-        "unit": ""
+        "units": "ng/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2aa",
-        "reportName": "URINE TEST",
-        "name": "Mean Blood Glucose (Calculated from HbA1c)",
+        "reportName": "Urine Test",
+        "testName": "RBCs",
         "value": "",
-        "unit": "mg/dL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2ab",
-        "reportName": "URINE TEST",
-        "name": "Random Urine Sugar",
+        "reportName": "Urine Test",
+        "testName": "WBCs",
         "value": "",
-        "unit": ""
+        "units": "thousand cells/ÂµL"
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2ac",
-        "reportName": "URINE TEST",
-        "name": "Ketone",
+        "reportName": "Urine Test",
+        "testName": "Platelets",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2ad",
-        "reportName": "URINE TEST",
-        "name": "Protein",
+        "reportName": "Urine Test",
+        "testName": "Haemoparasites",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2ae",
-        "reportName": "URINE TEST",
-        "name": "Serum Sodium (Na+)",
+        "reportName": "Urine Test",
+        "testName": "Impression",
         "value": "",
-        "unit": "mEq/L"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2af",
-        "reportName": "URINE TEST",
-        "name": "Serum Chloride (Cl+)",
+        "reportName": "Urine Test",
+        "testName": "Fasting Urine Sugar (FUS)",
         "value": "",
-        "unit": "mEq/L"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2b0",
-        "reportName": "URINE TEST",
-        "name": "Electrolyte Bicarbonate",
+        "reportName": "Urine Test",
+        "testName": "Post Prandial Urine Sugar - PPUS",
         "value": "",
-        "unit": "mEq/L"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2b1",
-        "reportName": "URINE TEST",
-        "name": "Urine Albumin",
+        "reportName": "Urine Test",
+        "testName": "Mean Blood Glucose (Calculated from HbA1c)",
         "value": "",
-        "unit": "mg/L"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2b2",
-        "reportName": "URINE TEST",
-        "name": "Volume",
+        "reportName": "Urine Test",
+        "testName": "Random Urine Sugar",
         "value": "",
-        "unit": "mL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f43035b84835c324064",
-        "reportName": "URINE TEST",
-        "name": "Colour",
+        "reportName": "Urine Test",
+        "testName": "Ketone",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f43035b84835c324065",
-        "reportName": "URINE TEST",
-        "name": "Appearance",
+        "reportName": "Urine Test",
+        "testName": "Protein",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f43035b84835c324066",
-        "reportName": "URINE TEST",
-        "name": "Reaction",
+        "reportName": "Urine Test",
+        "testName": "Serum Sodium (Na+)",
         "value": "",
-        "unit": ""
+        "units": "mEq/L"
     },
     {
-        "labParametersMasterId": "66fb8f43035b84835c324067",
-        "reportName": "URINE TEST",
-        "name": "Albumin",
+        "reportName": "Urine Test",
+        "testName": "Serum Chloride (Cl+)",
         "value": "",
-        "unit": ""
+        "units": "mEq/L"
     },
     {
-        "labParametersMasterId": "66fb8f43035b84835c324068",
-        "reportName": "URINE TEST",
-        "name": "Sugar",
+        "reportName": "Urine Test",
+        "testName": "Electrolyte Bicarbonate",
         "value": "",
-        "unit": ""
+        "units": "mEq/L"
     },
     {
-        "labParametersMasterId": "66fb8f43035b84835c324069",
-        "reportName": "URINE TEST",
-        "name": "Bile Salt",
+        "reportName": "Urine Test",
+        "testName": "Urine Albumin",
         "value": "",
-        "unit": ""
+        "units": "mg/L"
     },
     {
-        "labParametersMasterId": "66fb8f43035b84835c32406a",
-        "reportName": "URINE TEST",
-        "name": "Bile Pigment",
+        "reportName": "Urine Test",
+        "testName": "Volume",
         "value": "",
-        "unit": ""
+        "units": "mL"
     },
     {
-        "labParametersMasterId": "66fb8f43035b84835c32406b",
-        "reportName": "URINE TEST",
-        "name": "Casts",
+        "reportName": "Urine Test",
+        "testName": "Colour",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f43035b84835c32406c",
-        "reportName": "URINE TEST",
-        "name": "Crystals",
+        "reportName": "Urine Test",
+        "testName": "Appearance",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f43035b84835c32406d",
-        "reportName": "URINE TEST",
-        "name": "Urine Bacteria",
+        "reportName": "Urine Test",
+        "testName": "Reaction",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2b3",
-        "reportName": "URINE TEST",
-        "name": "Urobilinogen",
+        "reportName": "Urine Test",
+        "testName": "Albumin",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2b4",
-        "reportName": "URINE TEST",
-        "name": "TG Antibodies",
+        "reportName": "Urine Test",
+        "testName": "Sugar",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2b5",
-        "reportName": "URINE TEST",
-        "name": "Testosterone Free",
+        "reportName": "Urine Test",
+        "testName": "Bile Salt",
         "value": "",
-        "unit": "ng/dL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2b6",
-        "reportName": "URINE TEST",
-        "name": "DHEAS",
+        "reportName": "Urine Test",
+        "testName": "Bile Pigment",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2b7",
-        "reportName": "URINE TEST",
-        "name": "SHBG",
+        "reportName": "Urine Test",
+        "testName": "Casts",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2b8",
-        "reportName": "URINE TEST",
-        "name": "Oestridiol",
+        "reportName": "Urine Test",
+        "testName": "Crystals",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2b9",
-        "reportName": "URINE TEST",
-        "name": "FGW - Scoring",
+        "reportName": "Urine Test",
+        "testName": "Urine Bacteria",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2ba",
-        "reportName": "URINE TEST",
-        "name": "ECG",
+        "reportName": "Urine Test",
+        "testName": "Urobilinogen",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2bb",
-        "reportName": "URINE TEST",
-        "name": "ULTRASOUND",
+        "reportName": "Urine Test",
+        "testName": "TG Antibodies",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4352fbbe596c40a2bc",
-        "reportName": "URINE TEST",
-        "name": "FNAC",
+        "reportName": "Urine Test",
+        "testName": "Testosterone Free",
         "value": "",
-        "unit": ""
+        "units": "ng/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4652fbbe596c40a2e5",
-        "reportName": "URINE TEST",
-        "name": "Blood Urea Nitrogen (BUN)",
+        "reportName": "Urine Test",
+        "testName": "DHEAS",
         "value": "",
-        "unit": "mg/dL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4952fbbe596c40a335",
-        "reportName": "URINE TEST",
-        "name": "T3",
+        "reportName": "Urine Test",
+        "testName": "SHBG",
         "value": "",
-        "unit": "ng/dL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4952fbbe596c40a336",
-        "reportName": "URINE TEST",
-        "name": "T4",
+        "reportName": "Urine Test",
+        "testName": "Oestridiol",
         "value": "",
-        "unit": "µg/dL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4952fbbe596c40a337",
-        "reportName": "URINE TEST",
-        "name": "Free T3",
+        "reportName": "Urine Test",
+        "testName": "FGW - Scoring",
         "value": "",
-        "unit": "ng/mL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4952fbbe596c40a338",
-        "reportName": "URINE TEST",
-        "name": "Free T4",
+        "reportName": "Urine Test",
+        "testName": "ECG",
         "value": "",
-        "unit": "ng/dL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4952fbbe596c40a339",
-        "reportName": "URINE TEST",
-        "name": "Anitbodies TPO",
+        "reportName": "Urine Test",
+        "testName": "ULTRASOUND",
         "value": "",
-        "unit": " IU/mL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4952fbbe596c40a33a",
-        "reportName": "URINE TEST",
-        "name": "Anti Thyroglobulin Antibody (Anti Tg)",
+        "reportName": "Urine Test",
+        "testName": "FNAC",
         "value": "",
-        "unit": "U/mL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4952fbbe596c40a33f",
-        "reportName": "URINE TEST",
-        "name": "eGFR  Creatinine Clearance",
+        "reportName": "Urine Test",
+        "testName": "Blood Urea Nitrogen (BUN)",
         "value": "",
-        "unit": "mL/min/1.73m²"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4952fbbe596c40a340",
-        "reportName": "URINE TEST",
-        "name": "Serum Bilirubin Total",
+        "reportName": "Urine Test",
+        "testName": "T3",
         "value": "",
-        "unit": "mg/dL"
+        "units": "ng/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4952fbbe596c40a341",
-        "reportName": "URINE TEST",
-        "name": "Serum Bilirubin Direct",
+        "reportName": "Urine Test",
+        "testName": "T4",
         "value": "",
-        "unit": "mg/dL"
+        "units": "µg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a342",
-        "reportName": "URINE TEST",
-        "name": "Bilirubin Indirect",
+        "reportName": "Urine Test",
+        "testName": "Free T3",
         "value": "",
-        "unit": "mg/dL"
+        "units": "ng/mL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a343",
-        "reportName": "URINE TEST",
-        "name": "Serum Protein  Total",
+        "reportName": "Urine Test",
+        "testName": "Free T4",
         "value": "",
-        "unit": "g/dL"
+        "units": "ng/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a344",
-        "reportName": "URINE TEST",
-        "name": "Serum Protein  Albumin",
+        "reportName": "Urine Test",
+        "testName": "Anitbodies TPO",
         "value": "",
-        "unit": "g/dL"
+        "units": " IU/mL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a345",
-        "reportName": "URINE TEST",
-        "name": "Serum Protein  Globulin",
+        "reportName": "Urine Test",
+        "testName": "Anti Thyroglobulin Antibody (Anti Tg)",
         "value": "",
-        "unit": "g/dL"
+        "units": "U/mL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a346",
-        "reportName": "URINE TEST",
-        "name": "SGOT (AST)",
+        "reportName": "Urine Test",
+        "testName": "eGFR  Creatinine Clearance",
         "value": "",
-        "unit": "IU/L"
+        "units": "mL/min/1.73m²"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a347",
-        "reportName": "URINE TEST",
-        "name": "SGPT (AST)",
+        "reportName": "Urine Test",
+        "testName": "Serum Bilirubin Total",
         "value": "",
-        "unit": "IU/L"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a348",
-        "reportName": "URINE TEST",
-        "name": "Gamma Glutamyl Transpeptidase (GGT)",
+        "reportName": "Urine Test",
+        "testName": "Serum Bilirubin Direct",
         "value": "",
-        "unit": "IU/L"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a349",
-        "reportName": "URINE TEST",
-        "name": "Serum Magnesium (Mg+)",
+        "reportName": "Urine Test",
+        "testName": "Bilirubin Indirect",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a34a",
-        "reportName": "URINE TEST",
-        "name": "Pus Cells",
+        "reportName": "Urine Test",
+        "testName": "Serum Protein  Total",
         "value": "",
-        "unit": "/HPF"
+        "units": "g/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a34b",
-        "reportName": "URINE TEST",
-        "name": "Epithelial Cells",
+        "reportName": "Urine Test",
+        "testName": "Serum Protein  Albumin",
         "value": "",
-        "unit": "/HPF"
+        "units": "g/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a34c",
-        "reportName": "URINE TEST",
-        "name": "Urine PH",
+        "reportName": "Urine Test",
+        "testName": "Serum Protein  Globulin",
         "value": "",
-        "unit": ""
+        "units": "g/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a34d",
-        "reportName": "URINE TEST",
-        "name": "Specific Gravity",
+        "reportName": "Urine Test",
+        "testName": "SGOT (AST)",
         "value": "",
-        "unit": ""
+        "units": "IU/L"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a34e",
-        "reportName": "URINE TEST",
-        "name": "Mean Corpuscular Haemoglobin Concentration (MCHC)",
+        "reportName": "Urine Test",
+        "testName": "SGPT (AST)",
         "value": "",
-        "unit": "%"
+        "units": "IU/L"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a34f",
-        "reportName": "URINE TEST",
-        "name": "Random Blood Sugar  RBS",
+        "reportName": "Urine Test",
+        "testName": "Gamma Glutamyl Transpeptidase (GGT)",
         "value": "",
-        "unit": "mg/dL"
+        "units": "IU/L"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a350",
-        "reportName": "URINE TEST",
-        "name": "Total Cholesterol",
+        "reportName": "Urine Test",
+        "testName": "Serum Magnesium (Mg+)",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a351",
-        "reportName": "URINE TEST",
-        "name": "Serum HDL Cholesterol",
+        "reportName": "Urine Test",
+        "testName": "Pus Cells",
         "value": "",
-        "unit": "mg/dL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a352",
-        "reportName": "URINE TEST",
-        "name": "Serum Triglycerides",
+        "reportName": "Urine Test",
+        "testName": "Epithelial Cells",
         "value": "",
-        "unit": "mg/dL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a353",
-        "reportName": "URINE TEST",
-        "name": "Serum LDL Cholesterol",
+        "reportName": "Urine Test",
+        "testName": "Urine PH",
         "value": "",
-        "unit": "mg/dL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a354",
-        "reportName": "URINE TEST",
-        "name": "Serum VLDL Cholesterol",
+        "reportName": "Urine Test",
+        "testName": "Specific Gravity",
         "value": "",
-        "unit": "mg/dL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a355",
-        "reportName": "URINE TEST",
-        "name": "Total Cholesterol/ HDL Ratio",
+        "reportName": "Urine Test",
+        "testName": "Mean Corpuscular Haemoglobin Concentration (MCHC)",
         "value": "",
-        "unit": ""
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a356",
-        "reportName": "URINE TEST",
-        "name": "LDL Cholesterol / HDL Cholesterol Ratio",
+        "reportName": "Urine Test",
+        "testName": "Random Blood Sugar  RBS",
         "value": "",
-        "unit": ""
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a357",
-        "reportName": "URINE TEST",
-        "name": "TRIGLYCERIDES / HDL RATIO",
+        "reportName": "Urine Test",
+        "testName": "Total Cholesterol",
         "value": "",
-        "unit": ""
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a358",
-        "reportName": "URINE TEST",
-        "name": "Non HDL Cholesterol",
+        "reportName": "Urine Test",
+        "testName": "Serum HDL Cholesterol",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a359",
-        "reportName": "URINE TEST",
-        "name": "Blood Urea",
+        "reportName": "Urine Test",
+        "testName": "Serum Triglycerides",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a35a",
-        "reportName": "URINE TEST",
-        "name": "Serum Potassium (K+)",
+        "reportName": "Urine Test",
+        "testName": "Serum LDL Cholesterol",
         "value": "",
-        "unit": "mEq/L"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a35b",
-        "reportName": "URINE TEST",
-        "name": "Serum Calcium",
+        "reportName": "Urine Test",
+        "testName": "Serum VLDL Cholesterol",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4f52fbbe596c40a3b2",
-        "reportName": "URINE TEST",
-        "name": "Absolute Eosinophil Count",
+        "reportName": "Urine Test",
+        "testName": "Total Cholesterol/ HDL Ratio",
         "value": "",
-        "unit": "cells/cumm"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4f52fbbe596c40a3b3",
-        "reportName": "URINE TEST",
-        "name": "Total WBC Count",
+        "reportName": "Urine Test",
+        "testName": "LDL Cholesterol / HDL Cholesterol Ratio",
         "value": "",
-        "unit": "Cells/cu mm"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4f52fbbe596c40a3b4",
-        "reportName": "URINE TEST",
-        "name": "Neutrophils",
+        "reportName": "Urine Test",
+        "testName": "TRIGLYCERIDES / HDL RATIO",
         "value": "",
-        "unit": "%"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4f52fbbe596c40a3b5",
-        "reportName": "URINE TEST",
-        "name": "Lymphocytes",
+        "reportName": "Urine Test",
+        "testName": "Non HDL Cholesterol",
         "value": "",
-        "unit": "%"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4f52fbbe596c40a3b6",
-        "reportName": "URINE TEST",
-        "name": "Eosinophils",
+        "reportName": "Urine Test",
+        "testName": "Blood Urea",
         "value": "",
-        "unit": "%"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4ffde995b3ccbb0ed5",
-        "reportName": "URINE TEST",
-        "name": "Monocytes",
+        "reportName": "Urine Test",
+        "testName": "Serum Potassium (K+)",
         "value": "",
-        "unit": "%"
+        "units": "mEq/L"
     },
     {
-        "labParametersMasterId": "66fb8f4ffde995b3ccbb0ed6",
-        "reportName": "URINE TEST",
-        "name": "Basophils",
+        "reportName": "Urine Test",
+        "testName": "Serum Calcium",
         "value": "",
-        "unit": "%"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4ffde995b3ccbb0ed7",
-        "reportName": "URINE TEST",
-        "name": "RBC  Red Blood Cells",
+        "reportName": "Urine Test",
+        "testName": "Urine pH",
         "value": "",
-        "unit": "million cells/cu mm"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4ffde995b3ccbb0ed8",
-        "reportName": "URINE TEST",
-        "name": "Erythrocyte Sedimentation Rate (ESR)",
+        "reportName": "Urine Test",
+        "testName": "Absolute Eosinophil Count",
         "value": "",
-        "unit": "mm/hour"
+        "units": "cells/cumm"
     },
     {
-        "labParametersMasterId": "66fb8f4ffde995b3ccbb0ed9",
-        "reportName": "URINE TEST",
-        "name": "Mean Corpuscular Volume (MCV)",
+        "reportName": "Urine Test",
+        "testName": "Total WBC Count",
         "value": "",
-        "unit": "fL"
+        "units": "Cells/cu mm"
     },
     {
-        "labParametersMasterId": "66fb8f4ffde995b3ccbb0eda",
-        "reportName": "URINE TEST",
-        "name": "Mean Corpuscular Haemoglobin (MCH)",
+        "reportName": "Urine Test",
+        "testName": "Neutrophils",
         "value": "",
-        "unit": "pg"
+        "units": "%"
     },
     {
-        "labParametersMasterId": "66fb8f290f04df59a9d850c4",
+        "reportName": "Urine Test",
+        "testName": "Lymphocytes",
+        "value": "",
+        "units": "%"
+    },
+    {
+        "reportName": "Urine Test",
+        "testName": "Eosinophils",
+        "value": "",
+        "units": "%"
+    },
+    {
+        "reportName": "Urine Test",
+        "testName": "Monocytes",
+        "value": "",
+        "units": "%"
+    },
+    {
+        "reportName": "Urine Test",
+        "testName": "Basophils",
+        "value": "",
+        "units": "%"
+    },
+    {
+        "reportName": "Urine Test",
+        "testName": "RBC  Red Blood Cells",
+        "value": "",
+        "units": "million cells/cu mm"
+    },
+    {
+        "reportName": "Urine Test",
+        "testName": "Erythrocyte Sedimentation Rate (ESR)",
+        "value": "",
+        "units": "mm/hour"
+    },
+    {
+        "reportName": "Urine Test",
+        "testName": "Mean Corpuscular Volume (MCV)",
+        "value": "",
+        "units": "fL"
+    },
+    {
+        "reportName": "Urine Test",
+        "testName": "Mean Corpuscular Haemoglobin (MCH)",
+        "value": "",
+        "units": "pg"
+    },
+    {
+        "reportName": "Urine Test",
+        "testName": "TSH (Thyroid Stimulating Hormone)",
+        "value": "",
+        "units": "mIU/L"
+    },
+    {
+        "reportName": "Thyroid Profile",
+        "testName": "TSH (Thyroid Stimulating Hormone)",
+        "value": "",
+        "units": "mIU/L"
+    },
+    {
         "reportName": "Thyroid Stimulating Hormone - TSH",
-        "name": "TSH (Thyroid Stimulating Hormone)",
+        "testName": "TSH (Thyroid Stimulating Hormone)",
         "value": "",
-        "unit": "mIU/L"
+        "units": "mIU/L"
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1bf",
+        "reportName": "COMMON-TESTS",
+        "testName": "TSH (Thyroid Stimulating Hormone)",
+        "value": "",
+        "units": "mIU/L"
+    },
+    {
+        "reportName": "Free Thyroid Profile",
+        "testName": "TSH (Thyroid Stimulating Hormone)",
+        "value": "",
+        "units": "mIU/L"
+    },
+    {
         "reportName": "Urine Routine - UA",
-        "name": "Volume",
+        "testName": "Volume",
         "value": "",
-        "unit": "mL"
+        "units": "mL"
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1c0",
         "reportName": "Urine Routine - UA",
-        "name": "Colour",
+        "testName": "Colour",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1c1",
         "reportName": "Urine Routine - UA",
-        "name": "Appearance",
+        "testName": "Appearance",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1c2",
         "reportName": "Urine Routine - UA",
-        "name": "Reaction",
+        "testName": "Reaction",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1c3",
         "reportName": "Urine Routine - UA",
-        "name": "Albumin",
+        "testName": "Albumin",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1c4",
         "reportName": "Urine Routine - UA",
-        "name": "Sugar",
+        "testName": "Sugar",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1c5",
         "reportName": "Urine Routine - UA",
-        "name": "Blood (U)",
+        "testName": "Blood (U)",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1c6",
         "reportName": "Urine Routine - UA",
-        "name": "Acetone",
+        "testName": "Acetone",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1c7",
         "reportName": "Urine Routine - UA",
-        "name": "Ketone",
+        "testName": "Ketone",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1c8",
         "reportName": "Urine Routine - UA",
-        "name": "Urobilinogen",
+        "testName": "Urobilinogen",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1c9",
         "reportName": "Urine Routine - UA",
-        "name": "Bile Salt",
+        "testName": "Bile Salt",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1ca",
         "reportName": "Urine Routine - UA",
-        "name": "Bile Pigment",
+        "testName": "Bile Pigment",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1cb",
         "reportName": "Urine Routine - UA",
-        "name": "Nitrite",
+        "testName": "Nitrite",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1cc",
         "reportName": "Urine Routine - UA",
-        "name": "Leucocyte",
+        "testName": "Leucocyte",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1cd",
         "reportName": "Urine Routine - UA",
-        "name": "Protein",
+        "testName": "Protein",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1ce",
         "reportName": "Urine Routine - UA",
-        "name": "RBCs",
+        "testName": "RBCs",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1cf",
         "reportName": "Urine Routine - UA",
-        "name": "Casts",
+        "testName": "Casts",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1d0",
         "reportName": "Urine Routine - UA",
-        "name": "Crystals",
+        "testName": "Crystals",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1d1",
         "reportName": "Urine Routine - UA",
-        "name": "Others",
+        "testName": "Others",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f69",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Specimen",
+        "testName": "Specimen",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f6a",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Colony Count",
+        "testName": "Colony Count",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f6b",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Urine Wetmount",
+        "testName": "Urine Wetmount",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f6c",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Culture Yields",
+        "testName": "Culture Yields",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f6d",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Organisms Isolated",
+        "testName": "Organisms Isolated",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f6e",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Ciprofloxacin",
+        "testName": "Ciprofloxacin",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f6f",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Cefepime",
+        "testName": "Cefepime",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f70",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Netillimicin",
+        "testName": "Netillimicin",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f71",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Co-Trimoxazole",
+        "testName": "Co-Trimoxazole",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f72",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Gatifloxacin",
+        "testName": "Gatifloxacin",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f73",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Ofloxacin",
+        "testName": "Ofloxacin",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f74",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Norfloxacin",
+        "testName": "Norfloxacin",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f75",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Gentamicin",
+        "testName": "Gentamicin",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f76",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Cefpodoxime",
+        "testName": "Cefpodoxime",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f77",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Ceftazidime",
+        "testName": "Ceftazidime",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f78",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Amikacin",
+        "testName": "Amikacin",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f79",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Imipenum",
+        "testName": "Imipenum",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f7a",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Piperacillin/Tazobactum",
+        "testName": "Piperacillin/Tazobactum",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f7b",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Nitrofurantoin",
+        "testName": "Nitrofurantoin",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f7c",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Ceftazidime & Clavulanic Acid",
+        "testName": "Ceftazidime & Clavulanic Acid",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f7d",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Lomefloxacin",
+        "testName": "Lomefloxacin",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f7e",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Nalidixic Acid",
+        "testName": "Nalidixic Acid",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f7f",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Cefuroxime",
+        "testName": "Cefuroxime",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2c035b84835c323f80",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Amoxycillin & Clavulanic Acid",
+        "testName": "Amoxycillin & Clavulanic Acid",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f44071a71c4f2dc87bb",
         "reportName": "Urine Culture and Sensitivity",
-        "name": "Anti Microbial Agent",
+        "testName": "Anti Microbial Agent",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2e52fbbe596c40a201",
         "reportName": "Blood Widal Test",
-        "name": "Agglutination to Salmonella - Typhi O",
+        "testName": "Agglutination to Salmonella - Typhi O",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2e52fbbe596c40a202",
         "reportName": "Blood Widal Test",
-        "name": "Agglutination to Salmonella - Typhi H",
+        "testName": "Agglutination to Salmonella - Typhi H",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2e52fbbe596c40a203",
         "reportName": "Blood Widal Test",
-        "name": "Agglutination to S.Paratyphi AH",
+        "testName": "Agglutination to S.Paratyphi AH",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f2e52fbbe596c40a204",
         "reportName": "Blood Widal Test",
-        "name": "Agglutination to S.Paratyphi BH",
+        "testName": "Agglutination to S.Paratyphi BH",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a309",
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Volume",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Colour",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Appearance",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Reaction",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Albumin",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Sugar",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Blood (U)",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Acetone",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Ketone",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Urobilinogen",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Bile Salt",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Bile Pigment",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Nitrite",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Leucocyte",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Protein",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "RBCs",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Casts",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Crystals",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Others",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Physical Examination",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Chemical Examination",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Complete Urine Evaluation - CUE",
+        "testName": "Microscopic Examination",
+        "value": "",
+        "units": ""
+    },
+    {
         "reportName": "Fasting Lipid Profile  FLP",
-        "name": "Serum Cholesterol",
+        "testName": "Serum Cholesterol",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a30a",
         "reportName": "Fasting Lipid Profile  FLP",
-        "name": "Serum Triglycerides",
+        "testName": "Serum Triglycerides",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a30b",
         "reportName": "Fasting Lipid Profile  FLP",
-        "name": "Serum HDL Cholesterol",
+        "testName": "Serum HDL Cholesterol",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a30c",
         "reportName": "Fasting Lipid Profile  FLP",
-        "name": "Serum LDL Cholesterol",
+        "testName": "Serum LDL Cholesterol",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a30d",
         "reportName": "Fasting Lipid Profile  FLP",
-        "name": "Serum VLDL Cholesterol",
+        "testName": "Serum VLDL Cholesterol",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a30e",
         "reportName": "Fasting Lipid Profile  FLP",
-        "name": "Total Cholesterol/ HDL Ratio",
+        "testName": "Total Cholesterol/ HDL Ratio",
         "value": "",
-        "unit": ""
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a30f",
         "reportName": "Fasting Lipid Profile  FLP",
-        "name": "Non HDL Cholesterol",
+        "testName": "Non HDL Cholesterol",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f280f04df59a9d850b3",
-        "reportName": "Kidney Function Test -KFT",
-        "name": "Urine Creatinine",
+        "reportName": "Kidney Function Test - KFT",
+        "testName": "Urine Creatinine",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f2a52fbbe596c40a1be",
-        "reportName": "Kidney Function Test -KFT",
-        "name": "Estimated Protein Excretion",
+        "reportName": "Kidney Function Test - KFT",
+        "testName": "Estimated Protein Excretion",
         "value": "",
-        "unit": "g/day"
+        "units": "g/day"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a312",
-        "reportName": "Liver Function Tests  LFT",
-        "name": "Serum Bilirubin Total",
+        "reportName": "Kidney Function Test - KFT",
+        "testName": "Urine Protein Excretion",
         "value": "",
-        "unit": "mg/dL"
+        "units": "g/day"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a313",
-        "reportName": "Liver Function Tests  LFT",
-        "name": "Serum Bilirubin Direct",
+        "reportName": "Kidney Function Test - KFT",
+        "testName": "Protein/Creatinine Ratio",
         "value": "",
-        "unit": "mg/dL"
+        "units": ""
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a314",
-        "reportName": "Liver Function Tests  LFT",
-        "name": "Bilirubin Indirect",
+        "reportName": "Liver Function Tests - LFT",
+        "testName": "Serum Alkaline Phosphatase",
         "value": "",
-        "unit": "mg/dL"
+        "units": "IU/L"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a315",
-        "reportName": "Liver Function Tests  LFT",
-        "name": "SGOT (AST)",
+        "reportName": "Liver Function Tests - LFT",
+        "testName": "Serum Bilirubin Total",
         "value": "",
-        "unit": "IU/L"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a316",
-        "reportName": "Liver Function Tests  LFT",
-        "name": "SGPT (AST)",
+        "reportName": "Liver Function Tests - LFT",
+        "testName": "Serum Bilirubin Direct",
         "value": "",
-        "unit": "IU/L"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a317",
-        "reportName": "Liver Function Tests  LFT",
-        "name": "Serum Protein  Total",
+        "reportName": "Liver Function Tests - LFT",
+        "testName": "Bilirubin Indirect",
         "value": "",
-        "unit": "g/dL"
+        "units": "mg/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a318",
-        "reportName": "Liver Function Tests  LFT",
-        "name": "Serum Protein  Albumin",
+        "reportName": "Liver Function Tests - LFT",
+        "testName": "SGOT (AST)",
         "value": "",
-        "unit": "g/dL"
+        "units": "IU/L"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a319",
-        "reportName": "Liver Function Tests  LFT",
-        "name": "Serum Protein  Globulin",
+        "reportName": "Liver Function Tests - LFT",
+        "testName": "SGPT (AST)",
         "value": "",
-        "unit": "g/dL"
+        "units": "IU/L"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a31a",
-        "reportName": "Liver Function Tests  LFT",
-        "name": "Serum Albumin/Globulin Ratio",
+        "reportName": "Liver Function Tests - LFT",
+        "testName": "Serum Protein  Total",
         "value": "",
-        "unit": ""
+        "units": "g/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4852fbbe596c40a31b",
-        "reportName": "Liver Function Tests  LFT",
-        "name": "Gamma Glutamyl Transpeptidase (GGT)",
+        "reportName": "Liver Function Tests - LFT",
+        "testName": "Serum Protein  Albumin",
         "value": "",
-        "unit": "IU/L"
+        "units": "g/dL"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a35c",
+        "reportName": "Liver Function Tests - LFT",
+        "testName": "Serum Protein  Globulin",
+        "value": "",
+        "units": "g/dL"
+    },
+    {
+        "reportName": "Liver Function Tests - LFT",
+        "testName": "Serum Albumin/Globulin Ratio",
+        "value": "",
+        "units": ""
+    },
+    {
+        "reportName": "Liver Function Tests - LFT",
+        "testName": "Gamma Glutamyl Transpeptidase (GGT)",
+        "value": "",
+        "units": "IU/L"
+    },
+    {
+        "reportName": "Spot Urine Sodium",
+        "testName": "Spot Urine Sodium",
+        "value": "",
+        "units": "mmol/L"
+    },
+    {
         "reportName": "Spot Urine Electrolytes",
-        "name": "Spot Urine Sodium",
+        "testName": "Spot Urine Sodium",
         "value": "",
-        "unit": "mmol/L"
+        "units": "mmol/L"
     },
     {
-        "labParametersMasterId": "66fb8f4a52fbbe596c40a35d",
         "reportName": "Spot Urine Electrolytes",
-        "name": "Spot Urine Potassium",
+        "testName": "Spot Urine Potassium",
         "value": "",
-        "unit": "mmol/L"
+        "units": "mmol/L"
     },
     {
-        "labParametersMasterId": "66fb8f4c035b84835c324070",
+        "reportName": "Fasting Lipid Profile  FLP",
+        "testName": "Serum LDL Cholesterol",
+        "value": "",
+        "units": "mg/dL"
+    },
+    {
+        "reportName": "Common Tests",
+        "testName": "Serum LDL Cholesterol",
+        "value": "",
+        "units": "mg/dL"
+    },
+    {
+        "reportName": "Urine Test",
+        "testName": "Serum LDL Cholesterol",
+        "value": "",
+        "units": "mg/dL"
+    },
+    {
         "reportName": "Serum LDL Cholesterol",
-        "name": "LDL Cholesterol",
+        "testName": "LDL Cholesterol",
         "value": "",
-        "unit": "mg/dL"
+        "units": "mg/dL"
     },
+    {
+        "reportName": "Non Fasting Lipid Profile",
+        "testName": "Serum LDL Cholesterol (Non Fasting)",
+        "value": "",
+        "units": "mg/dL"
+    },
+    {
+        "reportName": "ipad_test",
+        "testName": "Serum LDL Cholesterol",
+        "value": "",
+        "units": "mg/dL"
+    }
 ]
+

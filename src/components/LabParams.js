@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Button, Card, DatePicker, Input, Tooltip, message } from 'antd';
+import { Button, Card, DatePicker, Input, Popover, Tooltip, message } from 'antd';
 import { CaretRightOutlined, CaretDownOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import moment from "moment";
@@ -8,8 +8,10 @@ import { DEFAULT_TESTS_DATA, LAB_PARAMS_RESULTS, PERSISTANT_STORAGE_KEY_AUTH_TOK
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import CheckableTag from 'antd/es/tag/CheckableTag';
+import CommonModal from '../common/CommonModal';
+import alertIcon from '../assets/images/alertIcon.svg';
 
-const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
+const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => {
 
     const [token, setToken] = useState(null);
     const [tokenData, setTokenData] = useState(null);
@@ -21,6 +23,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [labParamsResults, setLabParamsResults] = useState([]);
     const [isRemarksVisible, setIsRemarksVisible] = useState({});
+    const [testCounts, setTestCounts] = useState({});
+    const [showTooltip, setShowTooltip] = useState(false);
+    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const scrollContainerRef = useRef(null);
     const inputRef = useRef([]);
     const currentDate = new Date().toISOString().split("T")[0];
@@ -37,10 +42,10 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
                 if (!grouped[input.reportName]) {
                     grouped[input.reportName] = {};
                 }
-                if (!grouped[input.reportName][input.name]) {
-                    grouped[input.reportName][input.name] = {};
+                if (!grouped[input.reportName][input.testName]) {
+                    grouped[input.reportName][input.testName] = {};
                 }
-                grouped[input.reportName][input.name][result.date] = input;
+                grouped[input.reportName][input.testName][result.date] = input;
             });
         });
         return grouped;
@@ -66,6 +71,26 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
         }));
     };
 
+    // const searchLabParams = async (searchQuery) => {
+    //     try {
+    //         const cleanedToken = token.replace(/['"]+/g, '');
+    //         const response = await axios.get(`https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-parameters?search=${searchQuery}`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${cleanedToken}`,
+    //             },
+    //         });
+    
+    //         // Assuming response.data contains the fetched lab parameters.
+    //         const labParamsData = response.data;
+            
+    //         return labParamsData; 
+    //     } catch (error) {
+    //         console.error("Error fetching lab params:", error);
+    //         return [];
+    //     }
+    // }; 
+
+
     const searchLabParams = async (searchQuery) => {
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
@@ -74,12 +99,26 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
                     'Authorization': `Bearer ${cleanedToken}`,
                 },
             });
-            return response.data; 
+    
+            const labParamsData = response.data;
+    
+            // If searchQuery is present, expand all the report names
+            if (searchQuery) {
+                const expanded = labParamsData.reduce((acc, report) => {
+                    acc[report.reportName] = true; // Expand all reports
+                    return acc;
+                }, {});
+                setExpandedReports(expanded); // Set expanded state for all reports
+            } else {
+                setExpandedReports({}); // Collapse all if no search query
+            }
+    
+            return labParamsData;
         } catch (error) {
             console.error("Error fetching lab params:", error);
             return [];
         }
-    }
+    };
 
     const getLabParams = async () => {
         try {
@@ -111,6 +150,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
         const fetchLabParams = async () => {
              if (searchQuery === '') {
                 setLabParamsResults([]);
+                setExpandedReports({});
             } else {
                 const labParamsResults = await searchLabParams(searchQuery);
                 setLabParamsResults(labParamsResults);
@@ -121,80 +161,105 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
 
     useEffect(() => {
         const timeOutId = setTimeout(async () => {
-            const updatedResults = mergeSearchResults(existingResults, labParamsResults);
-            const groupedData = groupByReportName(updatedResults);
-            setInputValues(groupedData);
-        }, 500);
-        return () => {
-            clearTimeout(timeOutId);
-        };
-    }, [labParamsResults, existingResults]);
+            const updatedResults = mergeSearchResults(existingResults, labParamsResults, searchQuery);
+    
+            // Sort newly added data first when no search query
+            if (!searchQuery) {
+                const sortedResults = updatedResults.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const groupedData = groupByReportName(sortedResults);
+                setInputValues(groupedData);
+            } else {
+                const groupedData = groupByReportName(updatedResults);
+                setInputValues(groupedData);
+            }
+        }, 1000);
+    
+        return () => clearTimeout(timeOutId);
+    }, [labParamsResults, existingResults, searchQuery]);
 
     const combineData = (currentFilledData, filledData) => {
-        const combinedResults = [...filledData]; // Start with a copy of filledData
+        const combinedResults = [...filledData];
       
         currentFilledData.forEach((currentEntry) => {
-          // Check if there is an entry with the same date in filledData
-          const filledEntry = combinedResults.find(
-            (entry) => entry.date === currentEntry.date
-          );
-      
-          if (filledEntry) {
-            // If date matches, loop through the inputs of currentFilledData
-            currentEntry.inputs.forEach((currentInput) => {
-              const matchingInput = filledEntry.inputs.find(
-                (filledInput) =>
-                  filledInput.reportName === currentInput.reportName &&
-                  filledInput.name === currentInput.name
-              );
-      
-              if (matchingInput) {
-                // If reportName and name match, update filledData's input with currentInput's values
-                matchingInput.value = currentInput.value;
-                matchingInput.arrowDirection = currentInput.arrowDirection;
-                matchingInput.unit = currentInput.unit;
-              } else {
-                // If no match, add the currentInput to the filledEntry's inputs
-                filledEntry.inputs.push(currentInput);
-              }
-            });
-          } else {
-            // If no matching date, add the entire currentEntry to the results
-            combinedResults.push(currentEntry);
-          }
+            // Check if the date already exists in the filledData
+            const filledEntry = combinedResults.find((entry) => entry.date === currentEntry.date);
+    
+            if (filledEntry) {
+                // If date exists, loop through the inputs of currentFilledData
+                currentEntry.inputs.forEach((currentInput) => {
+                    const matchingInput = filledEntry.inputs.find(
+                        (filledInput) =>
+                            filledInput.reportName === currentInput.reportName &&
+                            filledInput.testName === currentInput.testName
+                    );
+    
+                    if (matchingInput) {
+                        // Update input if match is found
+                        matchingInput.value = currentInput.value;
+                        matchingInput.arrowDirection = currentInput.arrowDirection;
+                        matchingInput.units = currentInput.units;
+
+                        // Mark the input as recently updated by adding a `recentlyUpdated` flag
+                        matchingInput.recentlyUpdated = true;
+                    } else {
+                        // If no match, add the new input and mark it as recently added
+                        filledEntry.inputs.push({
+                            ...currentInput,
+                            recentlyUpdated: true
+                        });
+                        }
+                });
+            } else {
+                // If date doesn't exist, push the new entry and mark it as recently added
+                combinedResults.push({
+                    ...currentEntry,
+                    inputs: currentEntry.inputs.map(input => ({
+                        ...input,
+                        recentlyUpdated: true
+                    }))
+                });
+                }
         });
-      
+    
+        // Sort results by recently updated entries first, then by date
+        combinedResults.forEach(entry => {
+            entry.inputs.sort((a, b) => {
+                if (a.recentlyUpdated && !b.recentlyUpdated) return -1;
+                if (!a.recentlyUpdated && b.recentlyUpdated) return 1;
+                return 0; // Keep original order if neither or both are recently updated
+            });
+        });
+        
         return combinedResults;
     };
 
-    function mergeSearchResults(existingResults, labParamsResults, searchQuery) {
+    const mergeSearchResults = (existingResults, labParamsResults, searchQuery) => {
         const tempResults = [];
-
+    
         const currentFilledData = assemblePayload(inputValues);
-        const data = combineData(currentFilledData,filledData) 
-        setFilledData(data)
-
-        existingResults = data?.length > 0 ?  data : existingResults ;
+        const data = combineData(currentFilledData, filledData);
+    
+        setFilledData(data);  // Update filledData with combined data
+        existingResults = data?.length > 0 ? data : existingResults; // Use the combined data
     
         // Case 1: No existing results
         if (existingResults.length === 0) {
             if (labParamsResults.length === 0) {
-                // If no existing results and no labParamsResults, show predefined lab params with current date
+                // No labParamsResults: return default data
                 const newEntry = {
                     date: new Date().toISOString().split('T')[0],
                     inputs: [...DEFAULT_TESTS_DATA]
                 };
                 tempResults.push(newEntry);
             } else {
-                // If no existing results but labParamsResults exist, show them with current date
+                // LabParamsResults exist: create new entry with current date
                 const newEntry = {
                     date: new Date().toISOString().split('T')[0],
                     inputs: labParamsResults.map(lab => ({
-                        labParametersMasterId: lab._id || "",
                         reportName: lab.reportName || "",
-                        name: lab.testName || "",
+                        testName: lab.testName || "",
                         value: "",
-                        unit: lab.units || ""
+                        units: lab.units || ""
                     }))
                 };
                 tempResults.push(newEntry);
@@ -202,100 +267,113 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
             return tempResults;
         }
     
-        // Case 2: Existing results exist
+        // Case 2: Existing results present
         if (existingResults.length > 0) {
-            // Case 3: Existing results and labParamsResults exist
             if (labParamsResults.length > 0) {
                 existingResults.forEach(entry => {
-                    // Create a new entry using the existing date
                     const newEntry = {
-                        date: entry.date, // Retain the date of the existing entry
+                        date: entry.date,  // Keep existing date
                         inputs: labParamsResults.map(lab => {
-                            // Check if the lab.testName exists in the current entry's inputs
-                            const existingInput = entry.inputs.find(input => 
-                                input.name === lab.testName && input.reportName === lab.reportName
+                            const existingInput = entry.inputs.find(input =>
+                                input.testName === lab.testName && input.reportName === lab.reportName
                             );
-
-                            // If found, retain the existing value, otherwise set an empty value
+    
                             const labInput = {
-                                labParametersMasterId: lab.labParametersMasterId || "",
                                 reportName: lab.reportName || "",
-                                name: lab.testName || "",
-                                value: existingInput ? existingInput.value : "", // Retain existing value if present
-                                unit: lab.units || ""
+                                testName: lab.testName || "",
+                                value: existingInput ? existingInput.value : "",  // Retain value if exists
+                                units: lab.units || ""
                             };
-
-                            // Check if 'Remarks' exists in the current inputs for the same reportName
-                            const remarksInput = entry.inputs.find(input => 
-                                input.name === "Remarks" && input.reportName === lab.reportName
+    
+                            // Handle 'Remarks' input
+                            const remarksInput = entry.inputs.find(input =>
+                                input.testName === "Remarks" && input.reportName === lab.reportName
                             );
-
+    
                             if (remarksInput) {
-                                // Add Remarks as a new field if found in the existing results for that reportName
                                 return {
                                     ...labInput,
-                                    name:remarksInput.name,
-                                    value: remarksInput.value || "",
-                                    // Attach remarks if they exist
+                                    testName: remarksInput.testName,
+                                    value: remarksInput.value || ""
                                 };
                             }
-
-                            return labInput; // Return the normal input if no remarks found
+    
+                            return {
+                                ...labInput,
+                                recentlyUpdated: !!existingInput // Mark as recently updated if already exists
+                            };
                         })
                     };
-
-                    // Push the new entry with labParamsResults mapped to the existing date
                     tempResults.push(newEntry);
                 });
-
-                return tempResults; // Return processed results
+    
+                return tempResults; // Return combined results
             }
-
-
-            // If predefined lab parameters exist, append them
-            if (DEFAULT_TESTS_DATA.length > 0) {
-            
-                // First step: Iterate over existing results and push existing inputs to tempResults
+    
+            // Append predefined lab parameters if not already present
+            if (DEFAULT_TESTS_DATA?.length > 0) {
                 existingResults.forEach((entry) => {
-                    // Create a new entry for each existing date
-                    let newEntry = {
-                        date: entry.date, // Retain the date of the existing entry
-                        inputs: [...entry.inputs], // Copy all existing inputs
+                    const newEntry = {
+                        date: entry.date,
+                        inputs: [...entry.inputs]
                     };
-
-                    // Second step: Append predefined results if they are not already in the inputs
+    
                     DEFAULT_TESTS_DATA.forEach((lab) => {
-                        // Check if this predefined lab test already exists in the current date's inputs
                         const existingInput = newEntry.inputs.find(
-                            (input) =>
-                                input.name === lab.name &&
-                                input.reportName === lab.reportName
+                            input => input.testName === lab.testName && input.reportName === lab.reportName
                         );
-
-                        // If it doesn't exist, add it to the inputs with an empty value
+    
                         if (!existingInput) {
                             newEntry.inputs.push({
-                                labParametersMasterId: lab.labParametersMasterId || "",
                                 reportName: lab.reportName || "",
-                                name: lab.name || "",
-                                value: "", // Set empty value for predefined tests
-                                unit: lab.unit || "",
+                                testName: lab.testName || "",
+                                value: "",
+                                units: lab.units || "",
+                                recentlyUpdated: true // Mark predefined data as newly added
                             });
                         }
                     });
-
-                    // Push the newEntry to tempResults
+    
                     tempResults.push(newEntry);
                 });
-
+    
                 return tempResults;
             }
-    
         }
     
-        // Final fallback: just return existingResults if they exceed the expected conditions
-        return existingResults;
-    }
+        return existingResults; // Fallback: return existing results if nothing changes
+    };
+
+    // Function to get the unique count of testNames for each reportName
+    const getUniqueTestNameCount = (inputValues) => {
+        const reportCounts = {};
+
+        Object.keys(inputValues).forEach((reportName) => {
+            const testNameSet = new Set();
+
+            Object.keys(inputValues[reportName]).forEach((testName) => {
+                const hasValue = Object.keys(inputValues[reportName][testName]).some((date) => {
+                    return inputValues[reportName][testName][date]?.value;
+                });
+
+                if (hasValue) {
+                    testNameSet.add(testName);
+                }
+            });
+
+            if (testNameSet.size > 0) {
+                reportCounts[reportName] = testNameSet.size;
+            }
+        });
+
+        return reportCounts;
+    };
+
+    // Update the state when inputValues change
+    useEffect(() => {
+        const counts = getUniqueTestNameCount(inputValues);
+        setTestCounts(counts);
+    }, [inputValues]);
     
     useEffect(() => {
         if (existingResults.length === 0) {
@@ -327,11 +405,10 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
             // Check if the date exists under the testName, if not, initialize it
             if (!updatedData[reportName][testName][date]) {
                 updatedData[reportName][testName][date] = {
-                    labParametersMasterId: "", 
                     reportName: reportName,
-                    name: testName,
+                    testName: testName,
                     value: "",
-                    unit: getUnitForTest(reportName, testName),
+                    units: getUnitForTest(reportName, testName),
                 };
             }
     
@@ -344,9 +421,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
     
     const getUnitForTest = (reportName, testName) => {
         for (const date of dates) {
-            const unit = inputValues[reportName]?.[testName]?.[date]?.unit;
-            if (unit) {
-                return unit;
+            const units = inputValues[reportName]?.[testName]?.[date]?.units;
+            if (units) {
+                return units;
             }
         }
         return "";
@@ -362,12 +439,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
                                 const testValue = inputValues[reportName][testName][date]?.value || "";
                                 if (testValue) {
                                     return {
-                                        labParametersMasterId: inputValues[reportName][testName][date]?.labParametersMasterId,
                                         reportName,
-                                        name: testName,
+                                        testName: testName,
                                         value: testValue,
                                         arrowDirection: inputValues[reportName][testName][date]?.arrowDirection || "",
-                                        unit: inputValues[reportName][testName][date]?.unit || getUnitForTest(reportName, testName),
+                                        units: inputValues[reportName][testName][date]?.units || getUnitForTest(reportName, testName),
                                     };
                                 } else {
                                     return null; // Exclude tests without a value
@@ -397,11 +473,10 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
                     Object.keys(updatedValues[reportName]).forEach((testName) => {
                         if (!updatedValues[reportName][testName][date]) {
                             updatedValues[reportName][testName][date] = {
-                                labParametersMasterId: "",
                                 reportName: reportName,
-                                name: testName,
+                                testName: testName,
                                 value: "",
-                                unit: getUnitForTest(reportName, testName),
+                                units: getUnitForTest(reportName, testName),
                             };
                         }
                     });
@@ -415,10 +490,15 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
     };
 
     const handleSave = async() =>{
+
+        const currentFilledData = assemblePayload(inputValues);
+        const data = combineData(currentFilledData,filledData);
+        setFilledData(data)
+
         const payload = {
             patientId: patient_data?.patient_unique_id,
             doctorId: tokenData?.user_id,
-            results: filledData 
+            results: data 
         }
 
         try {
@@ -428,6 +508,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
               baseUrl
             );
             if(response){
+                onSave(data);
                 handleAddLabParamsDrawer();
             }
           } catch (error) {
@@ -435,14 +516,47 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
           }
 
     }
+
+    const showHideBackModal = useCallback(() => {
+        setIsBackModalOpen(!isBackModalOpen);
+    }, [isBackModalOpen]);
     
     return (
         <div>
             <div className='modalCard-header h-60 align-items-center justify-content-between d-flex' style={{position: "sticky",top: "0",zIndex: "1"}}>
                 <div className='align-items-center d-flex'>
-                    <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleAddLabParamsDrawer} >
+                    <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={showHideBackModal}>
                         <i className='icon-Cross fs-3'></i>
                     </Button>
+                    <CommonModal
+                        isModalOpen={isBackModalOpen}
+                        onCancel={showHideBackModal}
+                        modalWidth={500}
+                        title={"You may lose your data"}
+                        modalBody={
+                            <>
+                                <div className="alert-warning rounded-10px p-2 patient-details">
+                                    <div className="d-flex align-items-center">
+                                        <img className='me-3' src={alertIcon} alt="Warning" />
+                                        <span>
+                                            Are you sure you want to leave? <br />
+                                            You will permanently lose your data.
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="mt-4">
+                                    <div className="d-flex align-items-center mt-2 justify-content-end">
+                                        <div onClick={handleAddLabParamsDrawer} className="me-4 text-decoration-underline btn p-0 text-main">
+                                            Yes Leave
+                                        </div>
+                                        <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                            <span>No, Stay</span>
+                                        </Button>
+                                    </div>
+                                </div>
+                            </>
+                        }
+                    />
                     <div className="modal-title">Add Lab Results</div>
                 </div>
                 <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={handleSave}>
@@ -482,8 +596,14 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
                     <div className="d-flex flex-column w-100">
                         {Object.keys(inputValues).map((reportName) => (
                             <>
-                                <div className="test-parameters-header" onClick={() => toggleReport(reportName)}>
-                                    <span className=''>{reportName}</span>
+                                <div className="test-parameters-header" key={reportName} onClick={() => toggleReport(reportName)}>
+                                    <span className=''>
+                                        {reportName}
+                                        {testCounts[reportName] > 0 && (
+                                            <span> ({testCounts[reportName]})</span>
+                                        )}
+                                    </span>
+                                    
                                     {(!!expandedReports[reportName]) ? <CaretDownOutlined /> : <CaretRightOutlined />}
                                 </div>
                                 { Object.keys(inputValues[reportName]).map((testName) => (
@@ -492,6 +612,29 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
                                             <div key={testName} className="test-values-row">
                                                 <div key={testName} className='labparam-title'>
                                                     {testName}
+                                                    <Tooltip 
+                                                        placement="bottom" 
+                                                        title={
+                                                            <div style={{ textAlign: 'center' }}>
+                                                                <div><strong>Male:</strong> {`50 - 90 Cells/L`}</div>
+                                                                <div><strong>Female:</strong> {`50 - 90 Cells/L`}</div>
+                                                                <div style={{ marginTop: '10px', fontStyle: 'italic', color: '#888' }}>
+                                                                {`referenceRange.disclaimer`}
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        overlayClassName="lab-params-tooltip"
+                                                        overlayInnerStyle={{ padding: '12px', width: '250px',background:"white",color:"black" }} // Adjust styling as necessary
+                                                    >
+                                                        <i className="icon-info ms-1" 
+                                                            style={{ cursor: "pointer",
+                                                            color: "#d3d3d3",
+                                                            fontSize: "18px",
+                                                            marginBottom: "10px",
+                                                        }}
+                                                            >
+                                                        </i>
+                                                    </Tooltip>
                                                 </div>
                                                 {dates.map((date) => (
                                                     <div key={date} className='test-values-container'>
@@ -520,7 +663,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data }) => {
                                                                     className="inputheight41-group"
                                                                     type="text"
                                                                     value={inputValues[reportName][testName][date]?.value || ""}
-                                                                    addonAfter={inputValues[reportName][testName][date]?.unit || getUnitForTest(reportName, testName)}
+                                                                    addonAfter={inputValues[reportName][testName][date]?.units || getUnitForTest(reportName, testName)}
                                                                     onChange={(e) =>
                                                                         handleInputChange(
                                                                             reportName,
