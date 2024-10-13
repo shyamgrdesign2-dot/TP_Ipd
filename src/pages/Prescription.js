@@ -182,7 +182,6 @@ function Prescription() {
   };
 
   const getAllPatientDocs = async () => {
-
     const doctorUploadedDocs = await fetchAllPatientDocs(
       patient_data.patient_unique_id
     );

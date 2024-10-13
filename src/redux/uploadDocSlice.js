@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   uploadDocCategories: [],
   allUploadedDocs: [],
+  patientUploadedDocs: [],
 };
 
 const uploadDocSlice = createSlice({
@@ -26,6 +27,9 @@ const uploadDocSlice = createSlice({
         state.uploadDocCategories = reorderedCategories;
       }
     },
+    setPatientUploadedDocs: (state, action) => {
+      state.patientUploadedDocs = action.payload;
+    },
     setAllUploadedDocs: (state, action) => {
       state.allUploadedDocs = action.payload;
     },
@@ -35,6 +39,7 @@ const uploadDocSlice = createSlice({
 export const {
   resetUploadDocState,
   setUploadDocCategories,
+  setPatientUploadedDocs,
   setAllUploadedDocs,
 } = uploadDocSlice.actions;
 export default uploadDocSlice.reducer;

@@ -1,4 +1,4 @@
-import { Button, Card, DatePicker, Input, Select } from "antd";
+import { Button, Card, DatePicker, Input, Select, message } from "antd";
 import { useEffect, useRef, useState } from "react";
 import emptyBg from "./../../assets/images/empty-bg.svg";
 import emptyFile from "./../../assets/images/empty-file.svg";
@@ -7,6 +7,8 @@ import { disableFutureDates } from "../growthChart/growthChartHelper";
 import "./UploadDocument.scss";
 import CommonModal from "../../common/CommonModal";
 import alertIcon from "./../../assets/images/alertIcon.svg";
+import visitEnd from "./../../assets/images/end-visit.svg";
+import imgCloseVisit from "./../../assets/images/close-visit.svg";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllPatientDocs,
@@ -16,29 +18,17 @@ import {
 } from "./service";
 import { setAllUploadedDocs } from "../../redux/uploadDocSlice";
 import { useLocation } from "react-router-dom";
-import { shortenText } from "./components/recordCard/RecordCard";
-import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import SuccessPopup from "../../common/SuccessPopup";
 import { isAndroid, isBrowser } from "react-device-detect";
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.js",
-  import.meta.url
-).toString();
-
-export const dataURLtoFile = (dataurl, filename) => {
-  const base64 = dataurl?.split(",")?.[1];
-  const mime = dataurl?.match(/:(.*?);/)?.[1];
-
-  const bstr = atob(base64);
-  let n = bstr?.length;
-  const u8arr = new Uint8Array(n);
-
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
-  }
-  return new File([u8arr], filename, { type: mime });
-};
+import { MESSAGE_KEY } from "../../utils/constants";
+import {
+  generateUniqueFileName,
+  getCorrectedFileName,
+  loadPdf,
+  mergeDocuments,
+  shortenText,
+  uploadDocURLtoFile,
+} from "./utils/helper";
 
 const UploadDocument = ({
   onClose,
@@ -57,9 +47,8 @@ const UploadDocument = ({
   const { userId } = useSelector((state) => state.doctors);
   const { state } = useLocation();
   const patient_data = state?.patient_data || patientData;
-  const { uploadDocCategories, allUploadedDocs } = useSelector(
-    (state) => state.uploadDoc
-  );
+  const { uploadDocCategories, allUploadedDocs, patientUploadedDocs } =
+    useSelector((state) => state.uploadDoc);
   const documentOptions = uploadDocCategories.map((item) => {
     return {
       label: item.category_name,
@@ -77,13 +66,13 @@ const UploadDocument = ({
 
   const updateRecordData = async () => {
     const updatedRecord = await Promise.all(
-      filesData.map(async (item, index) => {
+      filesData.map(async (item) => {
         let thumbnailUrl;
         let fileData;
         if (!isEditDocument) {
           if (item && item.type === "application/pdf") {
             thumbnailUrl = await loadPdf(URL.createObjectURL(item));
-            fileData = dataURLtoFile(
+            fileData = uploadDocURLtoFile(
               thumbnailUrl,
               "thumbnail_" +
                 item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
@@ -102,8 +91,7 @@ const UploadDocument = ({
         }
         return {
           id: item?.id,
-          name:
-            item?.name !== "image.jpg" ? item?.name : `image${index + 1}.jpg`,
+          name: item?.name,
           recordType: item?.category_id,
           recordUploadDate: item?.investigation_date
             ? item?.investigation_date
@@ -184,10 +172,35 @@ const UploadDocument = ({
         const resultStatus = await updateDocument([payload]);
         if (resultStatus?.status === 204) {
           const response = await fetchDocById(fileData?.id);
-          let updatedData = allUploadedDocs.map((item) =>
+          const doctorUploadedDocs = allUploadedDocs.map((item) =>
             item.id === fileData?.id ? response : item
           );
-          dispatch(setAllUploadedDocs(updatedData));
+          dispatch(
+            setAllUploadedDocs(
+              mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
+            )
+          );
+          message.open({
+            key: MESSAGE_KEY,
+            type: "",
+            className: "message-appointment",
+            content: (
+              <div className="d-flex align-items-center">
+                <img src={visitEnd} className="me-3" />
+                <div>
+                  <div className="fontroboto text-start fw-normal mt-1">
+                    Medical Records updated successfully
+                  </div>
+                </div>
+                <img
+                  src={imgCloseVisit}
+                  className="ms-3"
+                  onClick={() => message.destroy()}
+                />
+              </div>
+            ),
+            duration: 5,
+          });
         }
       }
       setIsEditDocument(false);
@@ -228,14 +241,41 @@ const UploadDocument = ({
             notes: recordItem?.notes?.trim(),
           };
         });
-        updateDocument(payload);
+        const resultStatus = await updateDocument(payload);
+        if (resultStatus?.status === 204) {
+          message.open({
+            key: MESSAGE_KEY,
+            type: "",
+            className: "message-appointment",
+            content: (
+              <div className="d-flex align-items-center">
+                <img src={visitEnd} className="me-3" />
+                <div>
+                  <div className="fontroboto text-start fw-normal mt-1">
+                    Medical Records added successfully
+                  </div>
+                </div>
+                <img
+                  src={imgCloseVisit}
+                  className="ms-3"
+                  onClick={() => message.destroy()}
+                />
+              </div>
+            ),
+            duration: 5,
+          });
+        }
       }
       if (!isAppointmentData) {
         setTimeout(async () => {
-          const response = await fetchAllPatientDocs(
+          const doctorUploadedDocs = await fetchAllPatientDocs(
             patient_data?.patient_unique_id
           );
-          dispatch(setAllUploadedDocs(response));
+          dispatch(
+            setAllUploadedDocs(
+              mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
+            )
+          );
         }, 1100);
       }
     }
@@ -246,45 +286,74 @@ const UploadDocument = ({
   };
 
   const handleFileUpload = async (event) => {
-    const selectedFiles = Array.from(event.target.files || []);
-    const totalFiles = [...selectedFiles, ...filesData];
-    const newRecordData = await Promise.all(
-      selectedFiles.map(async (item, index) => {
-        let thumbnailUrl;
-        let fileData;
-        if (item && item.type === "application/pdf") {
-          thumbnailUrl = await loadPdf(URL.createObjectURL(item));
-          fileData = dataURLtoFile(
-            thumbnailUrl,
-            "thumbnail_" +
-              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-              ".png"
-          );
-        } else {
-          thumbnailUrl = URL.createObjectURL(item);
-          fileData = new File(
-            [item],
-            "thumbnail_" +
-              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-              ".png",
-            { type: "image/png" }
-          );
-        }
-        return {
-          id: item?.id,
-          name:
-            item?.name !== "image.jpg" ? item?.name : `image${index + 1}.jpg`,
-          recordType: undefined,
-          recordUploadDate: dayjs().format("YYYY-MM-DD"),
-          notes: "",
-          thumbnailUrl: thumbnailUrl,
-          thumbnailFile: fileData,
-        };
-      })
-    );
-    const updatedRecordData = [...newRecordData, ...recordData];
-    setFilesData(totalFiles);
-    setRecordData(updatedRecordData);
+    const files = event.target.files;
+    if (files) {
+      const filesData = Array.from(files);
+      if (filesData.length > 0) {
+        const updatedFiles = [];
+        filesData.forEach((file) => {
+          const cleanFileName = getCorrectedFileName(file?.name || "");
+          // Check if the file is an image and if its name follows typical camera-captured file patterns
+          const isCapturedFromCamera =
+            (file.type === "image/jpeg" ||
+              file.type === "image/png" ||
+              file.type === "image/jpg") &&
+            (cleanFileName === "image.jpg" ||
+              cleanFileName === "image.png" ||
+              cleanFileName === "image.jpeg");
+
+          let newFile = file;
+
+          if (isCapturedFromCamera) {
+            // Generate a unique file name for camera-captured images
+            const uniqueFileName = generateUniqueFileName(file);
+            newFile = new File([file], uniqueFileName, { type: file.type });
+          } else {
+            // If the file name had spaces, create a new file with spaces removed
+            newFile = new File([file], cleanFileName, { type: file.type });
+          }
+
+          updatedFiles.push(newFile);
+        });
+        const newRecordData = await Promise.all(
+          updatedFiles.map(async (item) => {
+            let thumbnailUrl;
+            let fileData;
+            if (item && item.type === "application/pdf") {
+              thumbnailUrl = await loadPdf(URL.createObjectURL(item));
+              fileData = uploadDocURLtoFile(
+                thumbnailUrl,
+                "thumbnail_" +
+                  item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                  ".png"
+              );
+            } else {
+              thumbnailUrl = URL.createObjectURL(item);
+              fileData = new File(
+                [item],
+                "thumbnail_" +
+                  item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                  ".png",
+                { type: "image/png" }
+              );
+            }
+            return {
+              id: item?.id,
+              name: item?.name,
+              recordType: undefined,
+              recordUploadDate: dayjs().format("YYYY-MM-DD"),
+              notes: "",
+              thumbnailUrl: thumbnailUrl,
+              thumbnailFile: fileData,
+            };
+          })
+        );
+        const updatedRecordData = [...newRecordData, ...recordData];
+        setRecordData(updatedRecordData);
+        setFilesData((prev) => [...updatedFiles, ...prev]);
+      }
+    }
+    event.target.value = null;
   };
 
   const handleRetryBtn = () => {
@@ -296,36 +365,13 @@ const UploadDocument = ({
   };
 
   const handleLeaveBtn = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     handleDrawerUploadDoc();
     toggleDeletePopup();
     setFilesData([]);
     setRecordData([]);
-  };
-
-  const loadPdf = (url) => {
-    return new Promise(async (resolve) => {
-      try {
-        const loadingTask = pdfjs.getDocument(url);
-        const pdf = await loadingTask.promise;
-        const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 1 });
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport,
-        };
-        await page.render(renderContext).promise;
-
-        // Convert canvas to data URL (base64)
-        const dataURL = canvas.toDataURL("image/png");
-        resolve(dataURL); // Return the base64 image data
-      } catch (e) {
-        resolve("");
-      }
-    });
   };
 
   const handleFileInputClick = () => {
@@ -415,9 +461,7 @@ const UploadDocument = ({
               }}
             >
               <div className="d-flex justify-content-between pb-3">
-                <span style={{ fontWeight: 500 }}>
-                  {recordData?.[index]?.name}
-                </span>
+                <span style={{ fontWeight: 500 }}>{item?.name}</span>
                 {!isEditDocument ? (
                   <i
                     className="icon-delete"

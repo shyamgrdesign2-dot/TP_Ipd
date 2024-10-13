@@ -60,14 +60,15 @@ import Obstetric from "../obstetric/Obstetric";
 import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
 import { fetchAllObstetricDetails } from "../obstetric/service";
 import { addObstetricDetails, navigateToObstetric } from "../../redux/obstetricSlice";
-import { setAllUploadedDocs, setUploadDocCategories } from "../../redux/uploadDocSlice";
-import { fetchAllDocumentCategories, fetchAllPatientDocs } from "../medicalRecords/service";
+import { setAllUploadedDocs, setPatientUploadedDocs, setUploadDocCategories } from "../../redux/uploadDocSlice";
+import { fetchAllDocumentCategories, fetchAllPatientDocs, fetchDocsUploadedByPatient } from "../medicalRecords/service";
 import TabUploadDocumentList from "../medicalRecords/components/uploadDocumentList/TabUploadDocumentList";
 import UploadDocument from "../medicalRecords/UploadDocument";
 import MedicalRecords from "../medicalRecords/MedicalRecords";
 import TabLabParametersList from "../../components/tab_design/TabLabParametersList";
 import UploadDocPopup from "../medicalRecords/components/uploadDocPopup/UploadDocPopup";
 import { isAndroid, isBrowser } from "react-device-detect";
+import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "../medicalRecords/utils/helper";
 
 function TabPrescription() {
   const {
@@ -171,10 +172,16 @@ function TabPrescription() {
   }
 
   const getAllPatientDocs = async () => {
-    const response = await fetchAllPatientDocs(
+    const doctorUploadedDocs = await fetchAllPatientDocs(
       patient_data.patient_unique_id
     );
-    dispatch(setAllUploadedDocs(response));
+    const patientUploadedDocs = await fetchDocsUploadedByPatient(
+      patient_data.patient_unique_id
+    );
+    dispatch(setPatientUploadedDocs(patientUploadedDocs));
+    dispatch(
+      setAllUploadedDocs(mergeDocuments(doctorUploadedDocs, patientUploadedDocs))
+    );
   };
 
   const getAllDocumentCategories = async () => {
@@ -377,16 +384,41 @@ function TabPrescription() {
     }
   };
 
-  const handleFileUpload = (event) => {
-    const files = event.target.files;
-    if (files) {
-      const filesData = Array.from(files);
-      if (filesData.length > 0) {
-        setFilesData(filesData);
-        handleDrawerUploadDoc();
-      }
+const handleFileUpload = (event) => {
+  const files = event.target.files;
+  if (files) {
+    const filesData = Array.from(files);
+    if (filesData.length > 0) {
+      const updatedFiles = [];
+      filesData.forEach((file) => {
+        const cleanFileName = getCorrectedFileName(file?.name || "");
+        // Check if the file is an image and if its name follows typical camera-captured file patterns
+        const isCapturedFromCamera =
+          (file.type === "image/jpeg" ||
+            file.type === "image/png" ||
+            file.type === "image/jpg") &&
+          (cleanFileName === "image.jpg" ||
+            cleanFileName === "image.png" ||
+            cleanFileName === "image.jpeg");
+
+        let newFile = file;
+
+        if (isCapturedFromCamera) {
+          // Generate a unique file name for camera-captured images
+          const uniqueFileName = generateUniqueFileName(file);
+          newFile = new File([file], uniqueFileName, { type: file.type });
+        } else {
+          // If the file name had spaces, create a new file with spaces removed
+          newFile = new File([file], cleanFileName, { type: file.type });
+        }
+
+        updatedFiles.push(newFile);
+      });
+      setFilesData(updatedFiles);
+      handleDrawerUploadDoc();
     }
-  };
+  }
+};
 
   // Drawer Upload Document
   const handleDrawerUploadDoc = () => {
