@@ -73,7 +73,7 @@ const VisitLabParameters = ( {patient_unique_id, doc_id}) => {
                 </Button>
               </div>
             </Card.Header>
-            <LabParametersList patient_unique_id={patient_unique_id} doc_id={doc_id} />
+            <LabParametersList labParamsData={labParamsData}/>
           </Card>
         </div>
       ) : null}
