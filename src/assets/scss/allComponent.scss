@@ -1951,6 +1951,20 @@ body {
     overflow-y: auto;
 }
 
+.lap-params-tooltip {
+    &.ant-tooltip .ant-tooltip-inner {
+      background-color: #ffffff !important;
+      min-width: 310px;
+      border-radius: 10px;
+      padding: 18px;
+      color :black;
+    }
+  
+    &.ant-tooltip .ant-tooltip-arrow {
+      --antd-arrow-background-color: #ffffff !important;
+    }
+  }
+
 .param-title {
     flex: 1;
     margin-right: 10px;

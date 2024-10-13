@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, GB_GYNEC_HISTORY, GYNAECOLOGY } from "../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, GB_GYNEC_HISTORY, GYNAECOLOGY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../redux/medicalhistorySlice";
@@ -67,7 +67,10 @@ import {
 import UploadDocumentList from "./medicalRecords/components/uploadDocumentList/UploadDocumentList";
 import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "./medicalRecords/utils/helper";
 import LabParametersList from "../components/LabParametersList";
+import axios from 'axios';
+import { env } from "../EnvironmentConfig";
 import LabParams from "../components/LabParams";
+import ViewLabParam from "../components/ViewLabParams";
 
 function Prescription() {
   const {
@@ -108,10 +111,12 @@ function Prescription() {
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
+  const [viewlabparamsDrawer, setViewlabparamsDrawer] = useState(false);
   const [privateNotesData, setPrivateNotesData] = useState(null);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
   const [isGrowthChart, setIsGrowthChart] = useState(false);
+  const [labParamsData, setLabParamsData] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
 
   const contextApi = {
@@ -162,6 +167,9 @@ function Prescription() {
     isGrowthChartAccessable,
     isGynaecHistoryAccessable,
   } = useAccess(patient_data?.ageYears);
+  
+  const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const baseUrl = env.lab_params_api_url;
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
@@ -511,6 +519,9 @@ function Prescription() {
       fetchGynecHistory();
     }
   }, [isGynaecHistoryAccessable]);
+  useEffect(() => {
+    getLabParams();
+  },[]);
 
   const fetchGynecHistory = async () => {
     try {
@@ -577,11 +588,43 @@ function Prescription() {
     [addlabparamsDrawer]
 );
 
+const handleViewLabParamsDrawer = useCallback(
+  () => {
+      setViewlabparamsDrawer(!viewlabparamsDrawer)
+  },
+  [viewlabparamsDrawer]    
+);
+
+// Function to close "View Lab Params" and open "Add Lab Params"
+const handleSwitchToAddLabParams = () => {
+  setViewlabparamsDrawer(false);
+  setAddlabparamsDrawer(true);
+};
+
+// Function to update lab params data in parent component when saved
+const handleLabParamsUpdate = (newLabParams) => {
+  setLabParamsData(newLabParams); // Update state with the new lab params data
+};
+
+const getLabParams = async () => {
+  try {
+      const cleanedToken = token.replace(/['"]+/g, '');
+      const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${userId}/${patient_data?.patient_unique_id}`, {
+          headers: {
+              'Authorization': `Bearer ${cleanedToken}`,
+          },
+      });
+      setLabParamsData(response.data?.results || []);
+  } catch (error) {
+      console.error("Error fetching lab params:", error);
+  }
+};
+
 
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData}/>
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
@@ -764,22 +807,22 @@ function Prescription() {
                         </div>
                         <button
                           className="btn d-flex align-items-center btn-text"
-                          style={{ paddingRight: allUploadedDocs.length > 0 ? 0 : 12 }}
-                          onClick={handleAddLabParamsDrawer}
+                          style={{ paddingRight: labParamsData?.length > 0 ? 0 : 12 }}
+                          onClick={labParamsData?.length > 0 ? handleViewLabParamsDrawer : handleAddLabParamsDrawer }
                         >
-                          {allUploadedDocs.length === 0 && (
+                          {labParamsData?.length === 0 && (
                             <i className="icon-Add me-1 fs-5" />
                           )}
                           <span>{`${
-                            allUploadedDocs.length > 0 ? "View All" : "Add"
+                            labParamsData?.length > 0 ? "View All" : "Add"
                           }`}</span>
-                          {allUploadedDocs.length > 0 && (
+                          {labParamsData?.length > 0 && (
                             <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
                           )}
                         </button>
                       </div>
-                      <LabParametersList patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} />
-                    </div>
+                      <LabParametersList labParamsData={labParamsData} patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} />
+                      </div>
                     <div className="prescription-box-sm p-14">
                       <div className="d-flex align-items-center justify-content-between">
                         <div className="d-flex align-items-center">
@@ -804,7 +847,7 @@ function Prescription() {
                             multiple
                             ref={fileInputRef}
                             onChange={handleFileUpload}
-                            accept=".png, .jpeg, .jpg, .pdf"
+                            accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
                             style={{ display: "none" }}
                           />
                           {allUploadedDocs.length === 0 && (
@@ -1008,7 +1051,17 @@ function Prescription() {
             onClose={handleAddLabParamsDrawer}
             width="auto"
         >
-            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_data={patient_data}/>
+            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_data={patient_data} onSave={handleLabParamsUpdate}/>
+        </Drawer>
+        <Drawer
+            closeIcon={false}
+            className="modalWidth-700"
+            placement="right"
+            open={viewlabparamsDrawer}
+            onClose={handleViewLabParamsDrawer}
+            width="auto"
+        >
+            <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
         </Drawer>
       </>
     </CashManagerContext.Provider>
