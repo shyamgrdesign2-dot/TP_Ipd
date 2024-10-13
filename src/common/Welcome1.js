@@ -15,6 +15,8 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_ISCRIBE } from '../utils/constants';
 import { getClinicName } from '../utils/utils';
 import UploadDocument from '../pages/medicalRecords/UploadDocument';
+import { isAndroid, isBrowser } from 'react-device-detect';
+import UploadDocPopup from '../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup';
 
 function Welcome1(props) {
 
@@ -24,6 +26,7 @@ function Welcome1(props) {
     const [filesData, setFilesData] = useState([]);
     const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
     const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+    const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
     const fileInputRef = useRef(null);
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
@@ -94,6 +97,10 @@ function Welcome1(props) {
         if (fileInputRef.current) {
           fileInputRef.current.click();
         }
+      };
+
+      const handleUploadDocPopup = () => {
+         setShowUploadDocPopup((prev) => !prev);
       };
 
     //Video Componet
@@ -270,14 +277,23 @@ function Welcome1(props) {
                                 style={{ display: "flex", alignItems: "center", gap: "5px" }}
                                 onClick={handleAddClick}
                             >
-                                <input
-                                    type="file"
-                                    multiple
-                                    ref={fileInputRef}
-                                    onChange={handleFileUpload}
-                                    accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
-                                    style={{ display: "none" }}
+                                {isAndroid && !isBrowser ? (
+                                    <div
+                                        ref={fileInputRef}
+                                        onClick={handleUploadDocPopup}
+                                        style={{ display: "none" }}
                                     />
+                                    ) : (
+                                    <input
+                                        type="file"
+                                        multiple
+                                        ref={fileInputRef}
+                                        onChange={handleFileUpload}
+                                        accept="image/png, image/jpeg, image/jpg, application/pdf"
+                                        style={{ display: "none" }}
+                                        disabled={filesData.length >= 5}
+                                    />
+                                    )}
                                 <i className="icon-upload" />
                                 {"Upload new report"}
                             </Button>
@@ -319,6 +335,15 @@ function Welcome1(props) {
                     setFilesData={setFilesData}
                 />
                 </Drawer>
+            )}
+            {shouldShowUploadDocPopup && (
+                <UploadDocPopup
+                    onCancel={handleUploadDocPopup}
+                    setFilesData={setFilesData}
+                    filesData={filesData}
+                    uploadDocDrawer={uploadDocDrawer}
+                    handleDrawerUploadDoc={handleDrawerUploadDoc}
+                />
             )}
         </>
     )

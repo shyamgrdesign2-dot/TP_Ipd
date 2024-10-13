@@ -17,6 +17,9 @@ import axios from "axios";
 import { saveAs } from "file-saver";
 import CommonModal from "../../../../common/CommonModal";
 import DocumentPreview from "../documentPreview/DocumentPreview";
+import dayjs from "dayjs";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../firebase";
 
 export function shortenText(
   text,
@@ -34,9 +37,11 @@ export function shortenText(
 
 const RecordCard = ({
   cardData,
+  medicalReportDrawer,
   handleDrawerUploadDoc,
   setFilesData,
   setIsEditDocument,
+  setUploadDocDrawer,
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -55,7 +60,7 @@ const RecordCard = ({
   } = cardData || {};
   const updatedFileName = shortenText(display_name);
   const categoryName = uploadDocCategories.find(
-    (item) => item.category_id === category_id
+    (item) => item?.category_id === category_id
   )?.category_name;
 
   const [showTooltip, setShowTooltip] = useState(false);
@@ -102,9 +107,12 @@ const RecordCard = ({
   };
 
   const handleEdit = () => {
+    if (shouldShowPreview) {
+      setShowPreview(false);
+    }
     setFilesData([cardData]);
     setIsEditDocument(true);
-    handleDrawerUploadDoc();
+    setUploadDocDrawer(true);
   };
 
   const toggleDeletePopup = () => {
@@ -112,18 +120,26 @@ const RecordCard = ({
   };
 
   const handleInAppDownload = async () => {
-    navigate(
-      `/${
-        location?.pathname === "/patient_details"
-          ? "patient_details"
-          : "prescription"
-      }/?url=${url}&key=download`,
-      {
-        replace: true,
-        state: state,
+    const deviceUid = localStorage.getItem("app_device_unique_id");
+    if (deviceUid) {
+      const docRef = doc(db, "fileDownload", deviceUid);
+      try {
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          await updateDoc(docRef, {
+            canDownload: "yes",
+            pdfURL: url,
+          });
+        } else {
+          await setDoc(doc(db, "fileDownload", deviceUid), {
+            canDownload: "yes",
+            pdfURL: url,
+          });
+        }
+      } catch (error) {
+        console.error("Error updating document:", error);
       }
-    );
-    navigate(0, { replace: true });
+    }
   };
 
   const handleDownload = async () => {
@@ -180,46 +196,58 @@ const RecordCard = ({
   };
 
   const handlePreview = () => {
-    setShowPreview((prev) => !prev);
+    setShowPreview(false);
+  };
+
+  const handleThumbnailClick = () => {
+    setShowPreview(true);
   };
 
   return (
-    <div
-      className="image-container"
-      style={{
-        backgroundImage: `url('${thumbnail_url || emptyBg}')`,
-      }}
-      // onClick={handlePreview}
-    >
-      {thumbnail_url ? null : (
-        <>
-          <img className="doc-image" src={emptyFile} alt="document" />
-          <div className="file-name">{updatedFileName}</div>
-        </>
-      )}
-      {notes?.length ? (
-        <div className="notes-style" ref={tooltipRef}>
-          <Tooltip
-            title={tooltipTitle}
-            overlayClassName="medical-records-tooltip"
-          >
-            <Popover
-              open={showTooltip}
-              onOpenChange={showTooltipPopOver}
-              overlayClassName="pp-0"
-              trigger={["hover", "click"]}
+    <div className="image-wrapper">
+      <div
+        className="image-container"
+        style={{
+          backgroundImage: `url('${thumbnail_url || emptyBg}')`,
+        }}
+        onClick={handleThumbnailClick}
+      >
+        {thumbnail_url ? null : (
+          <>
+            <img className="doc-image" src={emptyFile} alt="document" />
+            <div className="file-name">{updatedFileName}</div>
+          </>
+        )}
+        {notes?.length > 0 ? (
+          <div className="notes-style" ref={tooltipRef}>
+            <Tooltip
+              title={tooltipTitle}
+              overlayClassName="medical-records-tooltip"
+              overlayStyle={{ width: 300 }}
               placement="bottom"
+              autoAdjustOverflow={true}
+              getPopupContainer={(trigger) => trigger.parentElement}
             >
-              <img
-                onClick={() => setShowTooltip(true)}
-                style={{ cursor: "pointer" }}
-                src={file}
-                alt="file"
-              />
-            </Popover>
-          </Tooltip>
-        </div>
-      ) : null}
+              <Popover
+                open={showTooltip}
+                onOpenChange={showTooltipPopOver}
+                overlayClassName="pp-0"
+                trigger={["hover", "click"]}
+                placement="bottom"
+              >
+                <img
+                  onClick={() => {
+                    setShowTooltip(true);
+                  }}
+                  style={{ cursor: "pointer" }}
+                  src={file}
+                  alt="file"
+                />
+              </Popover>
+            </Tooltip>
+          </div>
+        ) : null}
+      </div>
 
       <div className="document-details">
         <div
@@ -227,7 +255,7 @@ const RecordCard = ({
           style={{ fontSize: "14px", width: "85%" }}
         >
           <div className="category">{categoryName}</div>
-          <div>{investigation_date}</div>
+          <div>{dayjs(investigation_date).format("DD MMM, YYYY")}</div>
         </div>
         <div>
           <Dropdown
@@ -235,16 +263,10 @@ const RecordCard = ({
             menu={{
               items: getMenuItems(),
             }}
-            trigger={["click"]}
           >
-            <a
-              style={{ padding: "6px" }}
-              onClick={(e) => {
-                e.preventDefault();
-              }}
-            >
+            <div>
               <i className="icon-More" />
-            </a>
+            </div>
           </Dropdown>
         </div>
       </div>
@@ -268,7 +290,7 @@ const RecordCard = ({
                     onClick={handleDelete}
                     className="me-4 text-decoration-underline btn p-0 text-main"
                   >
-                    Yes Delete
+                    Yes, Delete
                   </div>
                   <Button
                     onClick={toggleDeletePopup}
@@ -287,15 +309,19 @@ const RecordCard = ({
           closeIcon={false}
           placement="right"
           bodyStyle={{ backgroundColor: "#222222" }}
-          // onClose={handlePreview}
+          onClose={handlePreview}
           open={shouldShowPreview}
           width="100%"
           height={"100%"}
           push={false}
         >
           <DocumentPreview
-          // handlePreview={handlePreview}
-          // shouldShowPreview={shouldShowPreview}
+            onClose={handlePreview}
+            cardData={cardData}
+            handleEdit={handleEdit}
+            toggleDeletePopup={toggleDeletePopup}
+            handleInAppDownload={handleInAppDownload}
+            handleDownload={handleDownload}
           />
         </Drawer>
       )}

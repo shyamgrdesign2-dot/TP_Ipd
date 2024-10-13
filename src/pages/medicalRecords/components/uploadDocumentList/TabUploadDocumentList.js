@@ -2,6 +2,7 @@ import { Button, Divider } from "antd";
 import { useSelector } from "react-redux";
 import RecordCard from "../recordCard/RecordCard";
 import "./UploadDocumentList.scss";
+import { isAndroid, isBrowser } from "react-device-detect";
 
 const TabUploadDocumentList = ({
   handleCollapsed,
@@ -12,6 +13,8 @@ const TabUploadDocumentList = ({
   handleDrawerUploadDoc,
   setFilesData,
   setIsEditDocument,
+  handleUploadDocPopup,
+  setUploadDocDrawer,
 }) => {
   const { allUploadedDocs } = useSelector((state) => state.uploadDoc);
   return (
@@ -35,14 +38,22 @@ const TabUploadDocumentList = ({
             className="btn btn-input d-flex w-100 align-items-center btn-41"
             onClick={handleAddClick}
           >
-            <input
-              type="file"
-              multiple
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
-              style={{ display: "none" }}
-            />
+            {isAndroid && !isBrowser ? (
+              <div
+                ref={fileInputRef}
+                onClick={handleUploadDocPopup}
+                style={{ display: "none" }}
+              />
+            ) : (
+              <input
+                type="file"
+                multiple
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept="image/png, image/jpeg, image/jpg, application/pdf"
+                style={{ display: "none" }}
+              />
+            )}
             <i className="icon-Add me-2 fs-21"></i>
             Upload new Report
           </Button>
@@ -57,22 +68,26 @@ const TabUploadDocumentList = ({
             {allUploadedDocs.slice(0, 2)?.map((cardData, index) => {
               return (
                 <RecordCard
+                  key={index}
                   cardData={cardData}
                   handleDrawerUploadDoc={handleDrawerUploadDoc}
                   setFilesData={setFilesData}
                   setIsEditDocument={setIsEditDocument}
+                  setUploadDocDrawer={setUploadDocDrawer}
                 />
               );
             })}
           </div>
           <Divider dashed style={{ color: "#D0D5DD", margin: "0 0 16px" }} />
-          <div
-            className="d-flex align-items-center"
-            onClick={handleDrawerMedicalReport}
-          >
-            <span className="view-all-txt">View All</span>
-            <i className="icon-right view-all-icon" />
-          </div>
+          {allUploadedDocs?.length > 0 ? (
+            <div
+              className="d-flex align-items-center"
+              onClick={handleDrawerMedicalReport}
+            >
+              <span className="view-all-txt">View All</span>
+              <i className="icon-right view-all-icon" />
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

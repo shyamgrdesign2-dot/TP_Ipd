@@ -4,12 +4,16 @@ import "./MedicalRecords.scss";
 import { useSelector } from "react-redux";
 import { Col, Row } from "react-bootstrap";
 import RecordCard from "./components/recordCard/RecordCard";
+import { isAndroid, isBrowser } from "react-device-detect";
 
 const MedicalRecords = ({
+  medicalReportDrawer,
   onClose,
   handleDrawerUploadDoc,
   setFilesData,
   setIsEditDocument,
+  handleUploadDocPopup,
+  setUploadDocDrawer,
 }) => {
   const { uploadDocCategories, allUploadedDocs } = useSelector(
     (state) => state.uploadDoc
@@ -37,7 +41,7 @@ const MedicalRecords = ({
     setActiveCategory(index);
   };
 
-  const handleFileUpload = (event) => {
+  const handleFileUpload = async (event) => {
     const files = event.target.files;
     if (files) {
       const filesData = Array.from(files);
@@ -76,14 +80,22 @@ const MedicalRecords = ({
               style={{ display: "flex", alignItems: "center", gap: "5px" }}
               onClick={() => fileInputRef.current?.click()}
             >
-              <input
-                type="file"
-                multiple
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
-                style={{ display: "none" }}
-              />
+              {isAndroid && !isBrowser ? (
+                <div
+                  ref={fileInputRef}
+                  onClick={handleUploadDocPopup}
+                  style={{ display: "none" }}
+                />
+              ) : (
+                <input
+                  type="file"
+                  multiple
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/png, image/jpeg, image/jpg, application/pdf"
+                  style={{ display: "none" }}
+                />
+              )}
               <i className="icon-upload" />
               <span>Upload new report</span>
             </Button>
@@ -124,16 +136,18 @@ const MedicalRecords = ({
             md={2}
             lg={3}
             className="gy-4 w-100"
-            style={{ padding: "0 0 24px 24px" }}
+            style={{ padding: "0 0 50px 24px" }}
           >
             {activeCategoryDocs.map((cardData, index) => {
               return (
                 <Col key={index} className="gx-4">
                   <RecordCard
                     cardData={cardData}
+                    medicalReportDrawer={medicalReportDrawer}
                     handleDrawerUploadDoc={handleDrawerUploadDoc}
                     setFilesData={setFilesData}
                     setIsEditDocument={setIsEditDocument}
+                    setUploadDocDrawer={setUploadDocDrawer}
                   />
                 </Col>
               );

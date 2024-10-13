@@ -8,6 +8,8 @@ import { Col, Row } from "react-bootstrap";
 import "./../../MedicalRecords.scss";
 import UploadDocument from "../../UploadDocument";
 import RecordCard from "../recordCard/RecordCard";
+import { isAndroid, isBrowser } from "react-device-detect";
+import UploadDocPopup from "../uploadDocPopup/UploadDocPopup";
 
 const VisitMedicalRecords = () => {
   const dispatch = useDispatch();
@@ -26,6 +28,7 @@ const VisitMedicalRecords = () => {
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [isEditDocument, setIsEditDocument] = useState(false);
+  const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -55,6 +58,10 @@ const VisitMedicalRecords = () => {
     setUploadDocDrawer(!uploadDocDrawer);
   };
 
+  const handleUploadDocPopup = () => {
+    setShowUploadDocPopup((prev) => !prev);
+  };
+
   const handleDeletePopup = () => {
     setShowDeletePopup(true);
   };
@@ -81,7 +88,11 @@ const VisitMedicalRecords = () => {
       <Card>
         <div
           className="d-flex flex-column"
-          style={{ height: "calc(100vh - 150px)", overflow: "auto" }}
+          style={{
+            height: "calc(100vh - 150px)",
+            overflow: "auto",
+            paddingBottom: "40px",
+          }}
         >
           {allUploadedDocs.length === 0 ? (
             <div
@@ -115,14 +126,23 @@ const VisitMedicalRecords = () => {
                 }}
                 onClick={handleAddClick}
               >
-                <input
-                  type="file"
-                  multiple
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
-                  style={{ display: "none" }}
-                />
+                {isAndroid && !isBrowser ? (
+                  <div
+                    ref={fileInputRef}
+                    onClick={handleUploadDocPopup}
+                    style={{ display: "none" }}
+                  />
+                ) : (
+                  <input
+                    type="file"
+                    multiple
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    accept="image/png, image/jpeg, image/jpg, application/pdf"
+                    style={{ display: "none" }}
+                    disabled={filesData.length >= 5}
+                  />
+                )}
                 <i className="icon-upload" />
                 {"Upload new report"}
               </Button>
@@ -172,6 +192,7 @@ const VisitMedicalRecords = () => {
                         handleDrawerUploadDoc={handleDrawerUploadDoc}
                         setFilesData={setFilesData}
                         setIsEditDocument={setIsEditDocument}
+                        setUploadDocDrawer={setUploadDocDrawer}
                       />
                     </Col>
                   );
@@ -203,6 +224,15 @@ const VisitMedicalRecords = () => {
             setIsEditDocument={setIsEditDocument}
           />
         </Drawer>
+      )}
+      {shouldShowUploadDocPopup && (
+        <UploadDocPopup
+          onCancel={handleUploadDocPopup}
+          setFilesData={setFilesData}
+          filesData={filesData}
+          uploadDocDrawer={uploadDocDrawer}
+          handleDrawerUploadDoc={handleDrawerUploadDoc}
+        />
       )}
     </div>
   );
