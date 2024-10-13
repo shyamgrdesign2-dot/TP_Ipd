@@ -1050,12 +1050,11 @@ const getLabParams = async () => {
         )}
         <Drawer
             closeIcon={false}
-            className="modalWidth-700"
+            width={880}
             placement="right"
             open={addlabparamsDrawer}
             onClose={showHideBackModal}
             bodyStyle={{ backgroundColor: "white" }}
-            width="auto"
         >
             <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_data={patient_data} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal}/>
         </Drawer>

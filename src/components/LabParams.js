@@ -27,6 +27,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
     const [showTooltip, setShowTooltip] = useState(false);
     const scrollContainerRef = useRef(null);
     const inputRef = useRef([]);
+    const scrollRefs = useRef([]);
     const currentDate = new Date().toISOString().split("T")[0];
     const dateFormat = 'YYYY-MM-DD';
     const showDateFormat = 'DD MMM, YY';
@@ -515,213 +516,308 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
           }
 
     }
+
+    const handleScroll = (index) => {
+        const scrollLeft = scrollRefs.current[index].scrollLeft;
+        scrollRefs.current.forEach((ref, i) => {
+            if (i !== index) {
+                ref.scrollLeft = scrollLeft; // Synchronize scroll position
+            }
+        });
+    };
     
     return (
-        <div>
-            <div className='modalCard-header h-60 align-items-center justify-content-between d-flex' style={{position: "sticky",top: "0",zIndex: "1"}}>
-                <div className='align-items-center d-flex'>
-                    <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={showHideBackModal}>
-                        <i className='icon-Cross fs-3'></i>
-                    </Button>
-                    <CommonModal
-                        isModalOpen={isBackModalOpen}
-                        onCancel={showHideBackModal}
-                        modalWidth={500}
-                        title={"You may lose your data"}
-                        modalBody={
-                            <>
-                                <div className="alert-warning rounded-10px p-2 patient-details">
-                                    <div className="d-flex align-items-center">
-                                        <img className='me-3' src={alertIcon} alt="Warning" />
-                                        <span>
-                                            Are you sure you want to leave? <br />
-                                            You will permanently lose your data.
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="mt-4">
-                                    <div className="d-flex align-items-center mt-2 justify-content-end">
-                                        <div
-                                            onClick={() => {
-                                                handleAddLabParamsDrawer();
-                                                showHideBackModal();
-                                            }}
-                                            className="me-4 text-decoration-underline btn p-0 text-main">
-                                            Yes Leave
-                                        </div>
-                                        <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">
-                                            <span>No, Stay</span>
-                                        </Button>
-                                    </div>
-                                </div>
-                            </>
-                        }
-                    />
-                    <div className="modal-title">Add Lab Results</div>
+      <div>
+        <div
+          className="modalCard-header h-60 align-items-center justify-content-between d-flex"
+          style={{ position: "sticky", top: "0", zIndex: "3" }}
+        >
+          <div className="align-items-center d-flex">
+            <Button
+              type="text"
+              className="btn btn-delete-prescription px-3 focus-none h-100"
+              onClick={showHideBackModal}
+            >
+              <i className="icon-Cross fs-3"></i>
+            </Button>
+            <CommonModal
+              isModalOpen={isBackModalOpen}
+              onCancel={showHideBackModal}
+              modalWidth={500}
+              title={"You may lose your data"}
+              modalBody={
+                <>
+                  <div className="alert-warning rounded-10px p-2 patient-details">
+                    <div className="d-flex align-items-center">
+                      <img className="me-3" src={alertIcon} alt="Warning" />
+                      <span>
+                        Are you sure you want to leave? <br />
+                        You will permanently lose your data.
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <div className="d-flex align-items-center mt-2 justify-content-end">
+                      <div
+                        onClick={() => {
+                          handleAddLabParamsDrawer();
+                          showHideBackModal();
+                        }}
+                        className="me-4 text-decoration-underline btn p-0 text-main"
+                      >
+                        Yes Leave
+                      </div>
+                      <Button
+                        onClick={showHideBackModal}
+                        className="lh-lg btn btn-primary3 btn-41 px-4"
+                      >
+                        <span>No, Stay</span>
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              }
+            />
+            <div className="modal-title">Add Lab Results</div>
+          </div>
+          <Button
+            className="btn btn-primary3 btn-41 px-4 me-20"
+            onClick={handleSave}
+          >
+            Save
+          </Button>
+        </div>
+        <div className="align-items-center d-flex justify-content-between px-20 py-3 gap-4">
+          <Input
+            value={searchQuery}
+            placeholder="Search by test name or category"
+            className="inputheight38"
+            style={{ width: "18rem" }}
+            prefix={<i className="icon-search" />}
+            suffix={
+              searchQuery.length > 0 && (
+                <i className="icon-Cross" onClick={() => onSearch("")}></i>
+              )
+            }
+            onChange={(e) => onSearch(e.target.value)}
+          />
+          <div className="position-relative">
+            <Button className="btn btn-primary2 btn-41">Add New Date</Button>
+            <DatePicker
+              key={Math.random()}
+              suffixIcon={null}
+              inputReadOnly
+              onChange={(date, dateString) => handleAddNewDate(dateString)}
+              disabledDate={disabledDate}
+              className="calender-labparams"
+            />
+          </div>
+        </div>
+        <div className="px-20">
+          <div className="labparam-header">
+            <div className="labparam-head">Name</div>
+            <div className="labparam-head-date">
+              {dates.map((date) => (
+                <div key={date} className="labparam-head-dates">
+                  {moment(date).format(showDateFormat)}
                 </div>
-                <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={handleSave}>
-                    Save
-                </Button>
+              ))}
             </div>
-            <div className="align-items-center d-flex justify-content-between px-20 py-3 gap-4">
-                <Input
-                    value={searchQuery}
-                    placeholder="Search by test name or category"
-                    className="inputheight38"
-                    style={{width:"18rem"}}
-                    prefix={<i className="icon-search" />}
-                    suffix={searchQuery.length > 0 && <i className="icon-Cross" onClick={() => onSearch('')}></i>}
-                    onChange={(e) => onSearch(e.target.value)}
-                />
-                <div className="position-relative">
-                    <Button className='btn btn-primary2 btn-41'>
-                        Add New Date
-                    </Button>
-                    <DatePicker key={Math.random()} suffixIcon={null} inputReadOnly onChange={(date, dateString) => handleAddNewDate(dateString)} disabledDate={disabledDate} className='calender-labparams'/>
-                </div>
-            </div>
-            <div className='px-20'>
-                <div className='labparam-header'>
-                    <div className='labparam-head'>Name</div>
-                    <div className='labparam-head-date'>
-                        {dates.map((date) => (
-                            <div key={date} className='labparam-head-dates'>
-                                {moment(date).format(showDateFormat)}
+          </div>
+          {/* Scrollable container for date-based inputs */}
+          <div ref={scrollContainerRef} className="d-flex">
+            <div
+              className="d-flex flex-column w-100"
+              style={{ overflowY: "auto", position: "relative" }}
+            >
+              {Object.keys(inputValues).map((reportName) => (
+                <>
+                  <div
+                    className="test-parameters-header"
+                    key={reportName}
+                    onClick={() => toggleReport(reportName)}
+                  >
+                    <div>
+                      <span>{reportName}</span>
+                      {testCounts[reportName] > 0 && (
+                        <span> ({testCounts[reportName]})</span>
+                      )}
+                    </div>
+                    {!!expandedReports[reportName] ? (
+                      <CaretDownOutlined />
+                    ) : (
+                      <CaretRightOutlined />
+                    )}
+                  </div>
+                  {Object.keys(inputValues[reportName]).map(
+                    (testName, index) => (
+                      <div>
+                        {expandedReports[reportName] && ( // Only render if report is expanded
+                          <div key={testName} className="test-values-row">
+                            <div
+                              className="labparam-title sticky-testname"
+                              style={{
+                                width: 280,
+                                position: "sticky",
+                                left: 0,
+                                background: "#fff",
+                                zIndex: 2,
+                              }}
+                            >
+                              <div style={{ width: 280 }}>
+                                {testName}
+                                <Tooltip
+                                  placement="bottom"
+                                  title={
+                                    <div style={{ textAlign: "center" }}>
+                                      <div>
+                                        <strong>Male:</strong>{" "}
+                                        {`50 - 90 Cells/L`}
+                                      </div>
+                                      <div>
+                                        <strong>Female:</strong>{" "}
+                                        {`50 - 90 Cells/L`}
+                                      </div>
+                                      <div
+                                        style={{
+                                          marginTop: "10px",
+                                          fontStyle: "italic",
+                                          color: "#888",
+                                        }}
+                                      >
+                                        {`referenceRange.disclaimer`}
+                                      </div>
+                                    </div>
+                                  }
+                                  overlayClassName="lab-params-tooltip"
+                                  overlayInnerStyle={{
+                                    padding: "12px",
+                                    width: "250px",
+                                    background: "white",
+                                    color: "black",
+                                  }}
+                                >
+                                  <i
+                                    className="icon-info ms-1"
+                                    style={{
+                                      cursor: "pointer",
+                                      color: "#d3d3d3",
+                                      fontSize: "18px",
+                                      marginBottom: "10px",
+                                    }}
+                                  ></i>
+                                </Tooltip>
+                              </div>
                             </div>
-                        ))}
-                    </div>
-                </div>
-                {/* Scrollable container for date-based inputs */}
-                <div ref={scrollContainerRef} className='d-flex'>
-                    <div className="d-flex flex-column w-100" style={{ overflowY: "auto", position: "relative" }}>
-                        {Object.keys(inputValues).map((reportName) => (
-                            <>
-                                <div className="test-parameters-header" key={reportName} onClick={() => toggleReport(reportName)}>
-                                    <span className=''>
-                                        {reportName}
-                                        {testCounts[reportName] > 0 && (
-                                            <span> ({testCounts[reportName]})</span>
-                                        )}
-                                    </span>
-                                    
-                                    {(!!expandedReports[reportName]) ? <CaretDownOutlined /> : <CaretRightOutlined />}
-                                </div>
-                                { Object.keys(inputValues[reportName]).map((testName) => (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                columnGap: "36px",
+                                overflowX: "auto",
+                                maxHeight: "220px",
+                                "-ms-overflow-style": "none",
+                                scrollbarWidth: "none"
+                              }}
+                              ref={(el) => (scrollRefs.current[index] = el)}
+                              onScroll={() => handleScroll(index)}
+                            >
+                              {dates.map((date) => (
+                                <div
+                                  key={date}
+                                  className="test-values-container"
+                                >
+                                  {testName === "Remarks" ? (
                                     <div>
-                                        { expandedReports[reportName] && ( // Only render if report is expanded
-                                            <div key={testName} className="test-values-row">
-                                                 <div
-                                                    className="labparam-title sticky-testname"
-                                                    style={{
-                                                        width: "280px",
-                                                        position: "sticky",
-                                                        left: 0,
-                                                        background: "#fff",
-                                                        zIndex: 2,
-                                                    }}
-                                                    >
-                                                    {testName}
-                                                    <Tooltip 
-                                                        placement="bottom" 
-                                                        title={
-                                                            <div style={{ textAlign: 'center' }}>
-                                                                <div><strong>Male:</strong> {`50 - 90 Cells/L`}</div>
-                                                                <div><strong>Female:</strong> {`50 - 90 Cells/L`}</div>
-                                                                <div style={{ marginTop: '10px', fontStyle: 'italic', color: '#888' }}>
-                                                                {`referenceRange.disclaimer`}
-                                                                </div>
-                                                            </div>
-                                                        }
-                                                        overlayClassName="lab-params-tooltip"
-                                                        overlayInnerStyle={{ padding: '12px', width: '250px',background:"white",color:"black" }} // Adjust styling as necessary
-                                                    >
-                                                        <i className="icon-info ms-1" 
-                                                            style={{ cursor: "pointer",
-                                                            color: "#d3d3d3",
-                                                            fontSize: "18px",
-                                                            marginBottom: "10px",
-                                                        }}
-                                                            >
-                                                        </i>
-                                                    </Tooltip>
-                                                </div>
-                                                <div style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'row',
-                                                    columnGap: '15px',
-                                                }}>
-                                                    {dates.map((date) => (
-                                                        <div key={date} className='test-values-container'>
-                                                            {testName === "Remarks" ? (
-                                                                // Conditionally rendering remarks as text with truncation
-                                                                <div>
-                                                                    <div 
-                                                                        className="remarks-text truncated" 
-                                                                    >
-                                                                        {inputValues[reportName][testName][date]?.value || "No remarks"}
-                                                                    </div>
+                                      <div className="remarks-text truncated">
+                                        {inputValues[reportName][testName][date]
+                                          ?.value || "No remarks"}
+                                      </div>
 
-                                                                    {/* Modal or container to show full remarks when clicked */}
-                                                                    {isRemarksVisible[reportName]?.[testName]?.[date] && (
-                                                                        <div className="full-remarks-container">
-                                                                            <div className="full-remarks-content">
-                                                                                {inputValues[reportName][testName][date]?.value}
-                                                                            </div>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            ) : (
-                                                                // Regular input for non-remarks fields
-                                                                <div>
-                                                                    <Input
-                                                                        style={{
-                                                                            width: '180px',
-                                                                            display: 'flex',
-                                                                            alignItems: 'center',
-                                                                            borderRadius: '4px',
-                                                                        }}
-                                                                        type="text"
-                                                                        value={inputValues[reportName][testName][date]?.value || ""}
-                                                                        addonAfter={
-                                                                            <span
-                                                                            style={{
-                                                                                width: inputValues[reportName][testName][date]?.value ? '60px' : '',
-                                                                                textAlign: 'center',
-                                                                                overflow: 'hidden',
-                                                                                whiteSpace: 'nowrap',
-                                                                                textOverflow: 'ellipsis',
-                                                                            }}
-                                                                            >
-                                                                            {inputValues[reportName][testName][date]?.units ||
-                                                                                getUnitForTest(reportName, testName)}
-                                                                            </span>
-                                                                        }
-                                                                        onChange={(e) =>
-                                                                            handleInputChange(reportName, testName, date, e.target.value)
-                                                                        }
-                                                                        inputStyle={{
-                                                                            width: '120px',
-                                                                            overflow: 'hidden',
-                                                                            whiteSpace: 'nowrap',
-                                                                            textOverflow: 'ellipsis',
-                                                                        }}
-                                                                        />
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
+                                      {isRemarksVisible[reportName]?.[
+                                        testName
+                                      ]?.[date] && (
+                                        <div className="full-remarks-container">
+                                          <div className="full-remarks-content">
+                                            {
+                                              inputValues[reportName][testName][
+                                                date
+                                              ]?.value
+                                            }
+                                          </div>
+                                        </div>
+                                      )}
                                     </div>
-                                ))}
-                            </>
-                        ))}
-                    </div>
-                </div>
-            </div>  
-    </div>
-);
+                                  ) : (
+                                    <div>
+                                      <Input
+                                        style={{
+                                          width: "180px",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          borderRadius: "4px",
+                                        }}
+                                        type="text"
+                                        value={
+                                          inputValues[reportName][testName][
+                                            date
+                                          ]?.value || ""
+                                        }
+                                        addonAfter={
+                                          <span
+                                            style={{
+                                              width: inputValues[reportName][
+                                                testName
+                                              ][date]?.value
+                                                ? "60px"
+                                                : "",
+                                              textAlign: "center",
+                                              overflow: "hidden",
+                                              whiteSpace: "nowrap",
+                                              textOverflow: "ellipsis",
+                                            }}
+                                          >
+                                            {inputValues[reportName][testName][
+                                              date
+                                            ]?.units ||
+                                              getUnitForTest(
+                                                reportName,
+                                                testName
+                                              )}
+                                          </span>
+                                        }
+                                        onChange={(e) =>
+                                          handleInputChange(
+                                            reportName,
+                                            testName,
+                                            date,
+                                            e.target.value
+                                          )
+                                        }
+                                        inputStyle={{
+                                          width: "120px",
+                                          overflow: "hidden",
+                                          whiteSpace: "nowrap",
+                                          textOverflow: "ellipsis",
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  )}
+                </>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
 };
 
 export default LabResultsTable;
