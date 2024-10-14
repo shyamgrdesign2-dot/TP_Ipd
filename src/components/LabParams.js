@@ -418,6 +418,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                     testName: testName,
                     value: "",
                     arrowDirection: "",
+                    refRange: inputValues[reportName]?.[testName]?.[date]?.refRange || "",
                     units: getUnitForTest(reportName, testName),
                 };
             }
@@ -502,16 +503,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     };
 
     const handleSave = async() =>{
-
-        // const currentFilledData = assemblePayload(inputValues);
-        // const data = combineData(currentFilledData,filledData);
-        // setFilledData(data)
-
-        // const payload = {
-        //     patientId: patient_data?.patient_unique_id,
-        //     doctorId: tokenData?.user_id,
-        //     results: data 
-        // }
 
         const data = assemblePayload();
         setFilledData(data);
@@ -684,48 +675,83 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                 zIndex: 2,
                               }}
                             >
-                              <div style={{ width: 280 }}>
+                              <div style={{ width:"100px" }}>
                                 {testName}
                                 <Tooltip
-                                  placement="bottom"
-                                  title={
-                                    <div style={{ textAlign: "center" }}>
-                                      <div>
-                                        <strong>Male:</strong>{" "}
-                                        {`50 - 90 Cells/L`}
-                                      </div>
-                                      <div>
-                                        <strong>Female:</strong>{" "}
-                                        {`50 - 90 Cells/L`}
-                                      </div>
-                                      <div
-                                        style={{
-                                          marginTop: "10px",
-                                          fontStyle: "italic",
-                                          color: "#888",
-                                        }}
-                                      >
-                                        {`referenceRange.disclaimer`}
-                                      </div>
-                                    </div>
-                                  }
-                                  overlayClassName="lab-params-tooltip"
-                                  overlayInnerStyle={{
-                                    padding: "12px",
-                                    width: "250px",
-                                    background: "white",
-                                    color: "black",
-                                  }}
+                                    placement="bottom"
+                                    title={
+                                        <div style={{ textAlign: 'center' }}>
+                                          {(() => {
+                                            // Initialize a variable to track if the reference range has been rendered
+                                            let hasRenderedRefRange = false;
+                                            
+                                            return inputValues[reportName][testName] &&
+                                              Object.keys(inputValues[reportName][testName]).map((date, index) => {
+                                                const testData = inputValues[reportName][testName][date];
+                                                const refRange = testData?.refRange;
+                                    
+                                                // If reference range is available and hasn't been rendered yet
+                                                if (refRange && refRange.ranges && refRange.ranges.length > 0 && !hasRenderedRefRange) {
+                                                  hasRenderedRefRange = true; // Set to true after rendering once
+                                                  
+                                                  if (refRange.isConditional) {
+                                                    // If reference range is conditional (i.e., gender-based)
+                                                    const maleRange = refRange.ranges.find(range => range.gender === 'MALE');
+                                                    const femaleRange = refRange.ranges.find(range => range.gender === 'FEMALE');
+                                                    
+                                                    return (
+                                                      <div key={index}>
+                                                        <strong>Reference Range:</strong>
+                                                        {maleRange && femaleRange ? (
+                                                          <div>
+                                                            <strong>Male:</strong> {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
+                                                            <strong>Female:</strong> {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                          </div>
+                                                        ) : maleRange ? (
+                                                          <div>
+                                                            <strong>Male:</strong> {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
+                                                          </div>
+                                                        ) : femaleRange ? (
+                                                          <div>
+                                                            <strong>Female:</strong> {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                          </div>
+                                                        ) : (
+                                                          <div>No reference range available</div>
+                                                        )}
+                                                      </div>
+                                                    );
+                                                  } else {
+                                                    // If reference range is common for all (i.e., non-conditional)
+                                                    const range = refRange.ranges[0];
+                                                    return (
+                                                      <div key={index}>
+                                                        <div>
+                                                          <strong>All:</strong> {`${range?.min} - ${range?.max} ${range?.unit}`}
+                                                        </div>
+                                                      </div>
+                                                    );
+                                                  }
+                                                }
+                                                // Render nothing if reference range has already been rendered
+                                                return null;
+                                              });
+                                          })()}
+                                          <div style={{ marginTop: '10px', fontStyle: 'italic', color: '#888' }}>
+                                            {`Disclaimer: This range is only for reference and may vary between patients based on different conditions.`}
+                                          </div>
+                                        </div>
+                                      }
+                                    overlayClassName="lab-params-tooltip"
+                                    overlayInnerStyle={{ padding: '12px', width: '250px',background:"white",color:"black" }} // Adjust styling as necessary
                                 >
-                                  <i
-                                    className="icon-info ms-1"
-                                    style={{
-                                      cursor: "pointer",
-                                      color: "#d3d3d3",
-                                      fontSize: "18px",
-                                      marginBottom: "10px",
+                                    <i className="icon-info ms-1"
+                                        style={{ cursor: "pointer",
+                                        color: "#d3d3d3",
+                                        fontSize: "18px",
+                                        marginBottom: "10px",
                                     }}
-                                  ></i>
+                                        >
+                                    </i>
                                 </Tooltip>
                               </div>
                             </div>
