@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button, Card, DatePicker, Input, Popover, Tooltip, message } from 'antd';
-import { CaretRightOutlined, CaretDownOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, DeleteOutlined, CaretRightOutlined, CaretDownOutlined } from "@ant-design/icons";
 import axios from 'axios';
 import moment from "moment";
 import { jwtDecode } from 'jwt-decode';
@@ -10,8 +10,9 @@ import { env } from "../EnvironmentConfig";
 import CheckableTag from 'antd/es/tag/CheckableTag';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
+import editIcon from '../assets/images/edit.svg';
 
-const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBackModalOpen, showHideBackModal }) => {
+const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal }) => {
 
     const [token, setToken] = useState(null);
     const [tokenData, setTokenData] = useState(null);
@@ -28,6 +29,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
     const scrollContainerRef = useRef(null);
     const inputRef = useRef([]);
     const scrollRefs = useRef([]);
+    const [editingDate, setEditingDate] = useState(null);
+
     const currentDate = new Date().toISOString().split("T")[0];
     const dateFormat = 'YYYY-MM-DD';
     const showDateFormat = 'DD MMM, YY';
@@ -71,26 +74,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
         }));
     };
 
-    // const searchLabParams = async (searchQuery) => {
-    //     try {
-    //         const cleanedToken = token.replace(/['"]+/g, '');
-    //         const response = await axios.get(`https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-parameters?search=${searchQuery}`, {
-    //             headers: {
-    //                 'Authorization': `Bearer ${cleanedToken}`,
-    //             },
-    //         });
-    
-    //         // Assuming response.data contains the fetched lab parameters.
-    //         const labParamsData = response.data;
-            
-    //         return labParamsData; 
-    //     } catch (error) {
-    //         console.error("Error fetching lab params:", error);
-    //         return [];
-    //     }
-    // }; 
-
-
     const searchLabParams = async (searchQuery) => {
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
@@ -123,14 +106,14 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
     const getLabParams = async () => {
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
-            const patientId = patient_data?.patient_unique_id;
+            const patientId = patient_unique_id;
             const doctorId = tokenData?.user_id;
             const response = await axios.get(`https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-parameters/results/${doctorId}/${patientId}`, {
                 headers: {
                     'Authorization': `Bearer ${cleanedToken}`,
                 },
             });
-            setExistingResults(response.data?.results || []); 
+            setExistingResults(response.data?.data?.results || []); 
         } catch (error) {
             console.error("Error fetching lab params:", error);
         }
@@ -259,7 +242,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
                         reportName: lab.reportName || "",
                         testName: lab.testName || "",
                         value: "",
-                        units: lab.units || ""
+                        units: lab.units || "",
+                        arrowDirection: "",
+                        refRange: lab.refRange || "",
                     }))
                 };
                 tempResults.push(newEntry);
@@ -279,10 +264,12 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
                             );
     
                             const labInput = {
-                                reportName: lab.reportName || "",
-                                testName: lab.testName || "",
-                                value: existingInput ? existingInput.value : "",  // Retain value if exists
-                                units: lab.units || ""
+                              reportName: lab.reportName || "",
+                              testName: lab.testName || "",
+                              value: existingInput ? existingInput.value : "",  // Retain value if exists
+                              units: lab.units || "",
+                              arrowDirection: existingInput ? existingInput.arrowDirection : "",
+                              refRange: lab.refRange || "",
                             };
     
                             // Handle 'Remarks' input
@@ -329,6 +316,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
                                 testName: lab.testName || "",
                                 value: "",
                                 units: lab.units || "",
+                                arrowDirection: "",
+                                refRange: lab.refRange || "",
                                 recentlyUpdated: true // Mark predefined data as newly added
                             });
                         }
@@ -384,6 +373,26 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
         }
     }, [existingResults]);
 
+    const handleEditDate = (date) => {
+      setEditingDate(date);
+  };
+
+  const handleDateChange = (newDate) => {
+      console.log(newDate,"newDate");
+      if (editingDate) {
+          const updatedDates = dates.map((date) =>
+              date === editingDate ? newDate : date
+          );
+          console.log(updatedDates,"updatedDates");
+          setDates(updatedDates);
+          setEditingDate(null);
+      }
+  };
+
+  const handleDeleteDate = (dateToDelete) => {
+      setDates((prevDates) => prevDates.filter((date) => date !== dateToDelete));
+  };
+
     const disabledDate = (current) => {
         return current && current >= moment().add(1, 'days').startOf('day');
     };
@@ -408,6 +417,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
                     reportName: reportName,
                     testName: testName,
                     value: "",
+                    arrowDirection: "",
                     units: getUnitForTest(reportName, testName),
                 };
             }
@@ -429,9 +439,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
         return "";
     };
 
-    const assemblePayload = (inputValues) => {
-        const results = dates
-            .map((date) => {
+    const assemblePayload = () => {
+        const results = dates.map((date) => {
                 const inputs = Object.keys(inputValues)
                     .flatMap((reportName) =>
                         Object.keys(inputValues[reportName])
@@ -443,6 +452,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
                                         testName: testName,
                                         value: testValue,
                                         arrowDirection: inputValues[reportName][testName][date]?.arrowDirection || "",
+                                        refRange: inputValues[reportName][testName][date]?.refRange,
                                         units: inputValues[reportName][testName][date]?.units || getUnitForTest(reportName, testName),
                                     };
                                 } else {
@@ -477,6 +487,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
                                 testName: testName,
                                 value: "",
                                 units: getUnitForTest(reportName, testName),
+                                arrowDirection:"",
+                                refRange: inputValues[reportName][testName][date]?.refRange,
                             };
                         }
                     });
@@ -491,15 +503,23 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave, isBac
 
     const handleSave = async() =>{
 
-        const currentFilledData = assemblePayload(inputValues);
-        const data = combineData(currentFilledData,filledData);
-        setFilledData(data)
+        // const currentFilledData = assemblePayload(inputValues);
+        // const data = combineData(currentFilledData,filledData);
+        // setFilledData(data)
 
+        // const payload = {
+        //     patientId: patient_data?.patient_unique_id,
+        //     doctorId: tokenData?.user_id,
+        //     results: data 
+        // }
+
+        const data = assemblePayload();
+        setFilledData(data);
         const payload = {
-            patientId: patient_data?.patient_unique_id,
+            patientId: patient_unique_id,
             doctorId: tokenData?.user_id,
-            results: data 
-        }
+            results: data,
+        };
 
         try {
             const response = await api.post(

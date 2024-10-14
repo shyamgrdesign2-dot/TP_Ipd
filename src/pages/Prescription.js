@@ -520,6 +520,7 @@ function Prescription() {
       fetchGynecHistory();
     }
   }, [isGynaecHistoryAccessable]);
+
   useEffect(() => {
     getLabParams();
   },[]);
@@ -619,12 +620,12 @@ const getLabParams = async () => {
               'Authorization': `Bearer ${cleanedToken}`,
           },
       });
-      setLabParamsData(response.data?.results || []);
+      console.log(response)
+      setLabParamsData(response.data?.data?.results || []);
   } catch (error) {
       console.error("Error fetching lab params:", error);
   }
 };
-
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -1056,7 +1057,7 @@ const getLabParams = async () => {
             onClose={showHideBackModal}
             bodyStyle={{ backgroundColor: "white" }}
         >
-            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_data={patient_data} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal}/>
+            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_data?.patient_unique_id} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal}/>
         </Drawer>
         <Drawer
             closeIcon={false}
