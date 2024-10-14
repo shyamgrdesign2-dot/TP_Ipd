@@ -60,6 +60,12 @@ function VitalsList(props) {
                                 <Input className='inputheight41-group mx-2' value={item.spo2} addonAfter={'%'} readOnly />
                             </div>
                         )}
+                        {item.ofc && (
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">OFC</div>
+                                <Input className='inputheight41-group mx-2' value={item.ofc} addonAfter={'cms'} readOnly />
+                            </div>
+                        )}
                         {item.height && (
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">Height</div>
@@ -145,6 +151,12 @@ function VitalsList(props) {
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">Height</div>
                                 <Input className='inputheight41-group mx-2' value={item.height} addonAfter={'cms'} readOnly />
+                            </div>
+                        )}
+                        {item?.ofc && (
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">OFC</div>
+                                <Input className='inputheight41-group mx-2' value={item.ofc} addonAfter={'cms'} readOnly />
                             </div>
                         )}
                         {item.weight && (
