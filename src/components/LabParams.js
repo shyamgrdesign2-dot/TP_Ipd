@@ -130,7 +130,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
                     'Authorization': `Bearer ${cleanedToken}`,
                 },
             });
-            setExistingResults(response.data?.results || []); 
+            setExistingResults(response.data?.data?.results || []); 
         } catch (error) {
             console.error("Error fetching lab params:", error);
         }
