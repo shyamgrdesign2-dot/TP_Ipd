@@ -935,6 +935,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             bmi,
                                                                             bmr,
                                                                             bsa,
+                                                                            ofc
                                                                         }) => ({
                                                                             temp: temp ? `Temp: ${temp}F` : '',
                                                                             pres: pres ? `Pulse: ${pres}/min` : '',
@@ -948,6 +949,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
                                                                             bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
                                                                             bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
+                                                                            ofc: ofc ? `OFC: ${ofc}cms` : '',
                                                                         })
                                                                     )(caseManagerData.vitals[i])
                                                                 ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;
@@ -978,6 +980,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             bmi,
                                                                             bmr,
                                                                             bsa,
+                                                                            ofc
                                                                         }) => ({
                                                                             temp: temp ? `Temp: ${temp}F` : '',
                                                                             pres: pres ? `Pulse: ${pres}/min` : '',
@@ -991,6 +994,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
                                                                             bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
                                                                             bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
+                                                                            ofc: ofc ? `OFC: ${ofc}cms` : '',
                                                                         })
                                                                     )(caseManagerData.vitals[i])
                                                                 ).filter(([_, v]) => v))).join(', ')}\n`}
