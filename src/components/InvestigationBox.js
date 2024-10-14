@@ -122,22 +122,22 @@ function InvestigationBox() {
         ),
       });
     }
-    // else {
-    //   searchParentQuery &&
-    //     data.push({
-    //       key: JSON.stringify({
-    //         unique_id: uuidv4(),
-    //         change: 1,
-    //         investigation_name: searchParentQuery
-    //       }),
-    //       value: searchParentQuery,
-    //       label: (
-    //         <>
-    //           <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
-    //         </>
-    //       ),
-    //     });
-    // }
+    else {
+      searchParentQuery &&
+        data.push({
+          key: JSON.stringify({
+            unique_id: uuidv4(),
+            change: 1,
+            investigation_name: searchParentQuery
+          }),
+          value: searchParentQuery,
+          label: (
+            <>
+              <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
+            </>
+          ),
+        });
+    }
     setParentSearchOptions(data);
   }, [parentOptionsList]);
 
