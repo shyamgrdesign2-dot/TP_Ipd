@@ -133,10 +133,10 @@ const handleFileUpload = (event) => {
             className="d-flex flex-wrap"
             style={{ padding: "24px", columnGap: "16px" }}
           >
-            {updatedCategory.map((item) => (
+            {updatedCategory.map((item, index) => (
               <Button
                 type="text"
-                key={item?.category_id}
+                key={index}
                 className={`btnStyle btn px-5-16 fs-14 category-btn ${
                   item?.category_id === activeCategory
                     ? "active-category-btn"
