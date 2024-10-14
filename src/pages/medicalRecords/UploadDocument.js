@@ -172,9 +172,9 @@ const UploadDocument = ({
         const resultStatus = await updateDocument([payload]);
         if (resultStatus?.status === 204) {
           const response = await fetchDocById(fileData?.id);
-          const doctorUploadedDocs = allUploadedDocs.map((item) =>
-            item.id === fileData?.id ? response : item
-          );
+          const doctorUploadedDocs = allUploadedDocs.map((item) => {
+            if (item?.id) return item.id === fileData?.id ? response : item;
+          })?.filter((item) => item !== undefined);
           dispatch(
             setAllUploadedDocs(
               mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
