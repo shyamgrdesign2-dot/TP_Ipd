@@ -13,6 +13,7 @@ import {
     getVitals,
 } from "../redux/vitalsSlice";
 import moment from "moment";
+import { PAEDIATRICS } from "../utils/constants";
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD MMM, YY'
@@ -256,9 +257,9 @@ function VitalsBox(props) {
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.spo2} addonAfter={'%'} onChange={(e) => onChangeInput(e.target.value, i, 6)} />
                         </div>
-                        <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
+                        {profile?.dp_name === PAEDIATRICS ? <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.ofc} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 9)} />
-                        </div>
+                        </div> : null}
                         <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.height} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 7)} />
                         </div>
@@ -335,9 +336,9 @@ function VitalsBox(props) {
                                 <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     SPO2
                                 </div>
-                                <div className='vitals-row d-flex align-items-center border-bottom px-2'>
+                                {profile?.dp_name === PAEDIATRICS ? <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     OFC
-                                </div>
+                                </div> : null}
                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
                                     Height
                                 </div>
