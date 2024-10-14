@@ -14,6 +14,7 @@ import {
 } from "../redux/vitalsSlice";
 import moment from "moment";
 import { PAEDIATRICS } from "../utils/constants";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD MMM, YY'
@@ -35,6 +36,9 @@ function VitalsBox(props) {
     const [childVitalsData, setChildVitalsData] = useState([]);
     const [dateString, setDateString] = useState(null);
     const { measurements } = useSelector((state) => state.growthChart);
+    const isGowthChartAccessableFromGB = useFeatureIsOn(
+      "growth-chart-new-design"
+    );
 
     const { profile, userId } = useSelector((state) => state.doctors);
 
@@ -257,7 +261,7 @@ function VitalsBox(props) {
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.spo2} addonAfter={'%'} onChange={(e) => onChangeInput(e.target.value, i, 6)} />
                         </div>
-                        {profile?.dp_name === PAEDIATRICS ? <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
+                        {profile?.dp_name === PAEDIATRICS || isGowthChartAccessableFromGB ? <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.ofc} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 9)} />
                         </div> : null}
                         <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
@@ -336,7 +340,7 @@ function VitalsBox(props) {
                                 <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     SPO2
                                 </div>
-                                {profile?.dp_name === PAEDIATRICS ? <div className='vitals-row d-flex align-items-center border-bottom px-2'>
+                                {profile?.dp_name === PAEDIATRICS || isGowthChartAccessableFromGB? <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     OFC
                                 </div> : null}
                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
