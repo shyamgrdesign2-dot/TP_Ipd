@@ -173,7 +173,7 @@ function ObsHistoryTableView({
                     ]}
                   >
                     {"gravidity" in obsHistoryData
-                      ? obsHistoryData?.gravidity?.toString()?.padStart(2, "0")
+                      ? obsHistoryData?.gravidity?.toString().padStart(2, "0")
                       : `-`}
                   </Text>
                   <Text

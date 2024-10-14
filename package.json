@@ -1,6 +1,6 @@
 {
   "name": "react-thyrocare",
-  "version": "2.4.6",
+  "version": "2.4.7",
   "private": true,
   "homepage": "/",
   "dependencies": {
@@ -8,6 +8,10 @@
     "@dnd-kit/modifiers": "^7.0.0",
     "@dnd-kit/sortable": "^8.0.0",
     "@growthbook/growthbook-react": "^1.0.0",
+    "@react-pdf-viewer/core": "^3.12.0",
+    "@react-pdf-viewer/page-navigation": "^3.12.0",
+    "@react-pdf-viewer/rotate": "^3.12.0",
+    "@react-pdf-viewer/zoom": "^3.12.0",
     "@react-pdf/renderer": "^3.4.0",
     "@reduxjs/toolkit": "^1.9.7",
     "@testing-library/jest-dom": "^5.17.0",
@@ -45,6 +49,7 @@
     "react-signature-canvas": "^1.0.6",
     "react-slick": "^0.30.2",
     "react-to-print": "^2.14.15",
+    "react-zoom-pan-pinch": "^3.6.1",
     "reactjs-pdf-reader": "^1.0.12",
     "reconnectingwebsocket": "^1.0.0",
     "redux-devtools-extension": "^2.13.9",

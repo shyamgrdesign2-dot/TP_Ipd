@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import moment from "moment";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { isChrome, isMobile, isSafari } from "react-device-detect";
+import { isAndroid, isBrowser, isChrome, isMobile, isSafari } from "react-device-detect";
 import {
     Tabs,
     Table,
@@ -55,7 +55,12 @@ import CreateCertificate from "./medical_certificate/CreateCertificate";
 import { resetVaccineState } from "../redux/vaccineSlice";
 import { resetGrowthChartState } from "../redux/growthChartSlice";
 import { resetObstetricState } from "../redux/obstetricSlice";
+import UploadDocument from "../pages/medicalRecords/UploadDocument";
+import { fetchAllDocumentCategories } from "../pages/medicalRecords/service";
+import { resetUploadDocState, setUploadDocCategories } from "../redux/uploadDocSlice";
 import axios from "axios";
+import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup";
+import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
 
 const { TextArea } = Input;
 
@@ -67,6 +72,9 @@ function AppointmentData({ locationPath }) {
     const navigate = useNavigate();
 
     const { sort_order, profile } = useSelector((state) => state.doctors);
+    const { uploadDocCategories } = useSelector(
+    (state) => state.uploadDoc
+    );
 
     const [searchParams, setSearchParams] = useSearchParams();
     const from = searchParams.get("from");
@@ -88,6 +96,67 @@ function AppointmentData({ locationPath }) {
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
     );
+    const [filesData, setFilesData] = useState([]);
+    const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
+    const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+    const [patientData, setPatientData] = useState(null);
+    const fileInputRef = useRef(null);
+
+    const handleDrawerUploadDoc = () => {
+        setUploadDocDrawer(!uploadDocDrawer);
+    };
+
+  const handleDeletePopup = () => {
+    setShowDeletePopup(true);
+  };
+
+    const getAllDocumentCategories = async () => {
+      const response = await fetchAllDocumentCategories();
+      dispatch(setUploadDocCategories(response));
+    };
+
+  const handleFileUpload = (event, record) => {
+    const files = event.target.files;
+    if (files) {
+      const filesData = Array.from(files);
+      if (filesData.length > 0) {
+        const updatedFiles = [];
+        filesData.forEach((file) => {
+          const cleanFileName = getCorrectedFileName(file?.name || "");
+          // Check if the file is an image and if its name follows typical camera-captured file patterns
+          const isCapturedFromCamera =
+            (file.type === "image/jpeg" ||
+              file.type === "image/png" ||
+              file.type === "image/jpg") &&
+            (cleanFileName === "image.jpg" ||
+              cleanFileName === "image.png" ||
+              cleanFileName === "image.jpeg");
+
+          let newFile = file;
+
+          if (isCapturedFromCamera) {
+            // Generate a unique file name for camera-captured images
+            const uniqueFileName = generateUniqueFileName(file);
+            newFile = new File([file], uniqueFileName, { type: file.type });
+          } else {
+            // If the file name had spaces, create a new file with spaces removed
+            newFile = new File([file], cleanFileName, { type: file.type });
+          }
+
+          updatedFiles.push(newFile);
+        });
+        setFilesData(updatedFiles);
+        handleDrawerUploadDoc();
+        setPatientData(record);
+      }
+    }
+  };
+
+  const handleAddClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
     const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
         GB_SMARTSYNC_CVT
     );
@@ -101,6 +170,12 @@ function AppointmentData({ locationPath }) {
             setOpenRowIndex(null);
         }
     };
+
+    useEffect(() => {
+        if (uploadDocCategories.length === 0) {
+            getAllDocumentCategories();
+        }
+    }, []);
 
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
@@ -247,6 +322,7 @@ function AppointmentData({ locationPath }) {
     const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
     const [endVisitReason, setEndVisitReason] = useState('');
     const [noDetailsModal, setNoDetailsModal] = useState(false);
+    const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
 
     useEffect(() => {
         if (locationPath == '/' && from == 'onboarding') {
@@ -259,6 +335,7 @@ function AppointmentData({ locationPath }) {
         dispatch(resetVaccineState());
         dispatch(resetGrowthChartState());
         dispatch(resetObstetricState());
+        dispatch(resetUploadDocState());
     }, []);
 
     useEffect(() => {
@@ -310,6 +387,11 @@ function AppointmentData({ locationPath }) {
             }
         }
     }, [date]);
+
+    const handleUploadDocPopup = (record) => {
+      setShowUploadDocPopup((prev) => !prev);
+      setPatientData(record);
+    };
 
     const onChange = useCallback(
         (key) => {
@@ -440,42 +522,66 @@ function AppointmentData({ locationPath }) {
 
     const getMenuItems = (record) => {
         const items = [
-            {
+          {
                 label: <Link to="/patient_details" state={{ patient_data: record }}>Patient Details</Link>,
-                key: "patientdetails",
-            },
-            {
+            key: "patientdetails",
+          },
+          {
                 label: <span
-                    onClick={() => {
-                        setAppointmentSelectedFromMenu(record);
+                onClick={() => {
+                  setAppointmentSelectedFromMenu(record);
                         handleConfirmationModal()
                     }}>Cancel Appt.</span>,
-                key: "cancelappt",
-            },
-            {
+            key: "cancelappt",
+          },
+          {
                 label: <span
-                    onClick={() => {
-                        setAppointmentSelectedFromMenu(record);
+                onClick={() => {
+                  setAppointmentSelectedFromMenu(record);
                         handleCreateCertificateDrawer()
                     }}>Create Certificate</span>,
-                key: "certificate",
-            },
-            {
+            key: "certificate",
+          },
+          {
                 label: <span
-                    onClick={() => {
-                        setAppointmentSelectedFromMenu(record);
+                onClick={() => {
+                  setAppointmentSelectedFromMenu(record);
                         handleEndVisitReasonDrawer()
                     }}>End Visit</span>,
-                key: "endvisit",
-            },
-            {
+            key: "endvisit",
+          },
+          {
                 label: <span
-                    onClick={() => {
-                        setAppointmentSelectedFromMenu(record);
-                        handleEndVisitReasonModal();
+                onClick={() => {
+                  setAppointmentSelectedFromMenu(record);
+                  handleEndVisitReasonModal();
                     }}>End Visit Reason</span>,
-                key: "endvisitreason",
-            },
+            key: "endvisitreason",
+          },
+          {
+            label: (
+              <div onClick={handleAddClick}>
+                Upload Medical Records
+                {isAndroid && !isBrowser ? (
+                  <div
+                    ref={fileInputRef}
+                    onClick={() => handleUploadDocPopup(record)}
+                    style={{ display: "none" }}
+                  />
+                ) : (
+                  <input
+                    type="file"
+                    multiple
+                    ref={fileInputRef}
+                    onChange={(event) => handleFileUpload(event, record)}
+                    accept="image/png, image/jpeg, image/jpg, application/pdf"
+                    style={{ display: "none" }}
+                  />
+                )}
+              </div>
+            ),
+            key: "uploadDoc",
+          },
         ];
 
         if (selectedTab === TAB_QUEUE) {
@@ -1280,6 +1386,38 @@ function AppointmentData({ locationPath }) {
 
                     </div>
                 </Modal>
+            )}
+             {uploadDocDrawer && (
+                <Drawer
+                    closeIcon={false}
+                    placement="right"
+                    bodyStyle={{backgroundColor: "white"}}
+                    onClose={handleDeletePopup}
+                    open={uploadDocDrawer}
+                    className="modalWidth-700"
+                    width="auto"
+                    push={false}
+                    >
+                    <UploadDocument
+                        onClose={handleDeletePopup}
+                        handleDrawerUploadDoc={handleDrawerUploadDoc}
+                        shouldShowDeletePopup={shouldShowDeletePopup}
+                        setShowDeletePopup={setShowDeletePopup}
+                        filesData={filesData}
+                        setFilesData={setFilesData}
+                        patientData={patientData}
+                        isAppointmentData={true}
+                    />
+                </Drawer>
+            )}
+            {shouldShowUploadDocPopup && (
+                <UploadDocPopup
+                    onCancel={() => setShowUploadDocPopup(false)}
+                    setFilesData={setFilesData}
+                    filesData={filesData}
+                    uploadDocDrawer={uploadDocDrawer}
+                    handleDrawerUploadDoc={handleDrawerUploadDoc}
+                />
             )}
         </>
     );
