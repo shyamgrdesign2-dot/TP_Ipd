@@ -138,6 +138,7 @@ const RecordCard = ({
       setShowDeletePopup((prev) => !prev);
     } else {
       setShowReadOnlyPopup((prev) => !prev);
+      setFilesData([]);
     }
   };
 
