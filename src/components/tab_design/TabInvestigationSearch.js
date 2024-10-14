@@ -48,17 +48,17 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                 value: e.investigation_name
             });
         });
-        // if (searchChildQuery.length > 0) {
-        //     searchChildQuery &&
-        //         data.push({
-        //             key: JSON.stringify({
-        //                 unique_id: uuidv4(),
-        //                 change: 1,
-        //                 investigation_name: searchChildQuery
-        //             }),
-        //             value: searchChildQuery
-        //         });
-        // }
+        if (searchChildQuery.length > 0) {
+            searchChildQuery && childOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 &&
+                data.push({
+                    key: JSON.stringify({
+                        unique_id: uuidv4(),
+                        change: 1,
+                        investigation_name: searchChildQuery
+                    }),
+                    value: searchChildQuery
+                });
+        }
         setChildSearchOptions(data);
     }, [childOptionsList]);
 
@@ -178,14 +178,15 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                                             childSearchOptions.filter(e => ![...investigationData.map(e1 => e1.investigation_name)].includes(e.value)).map((item, i) => {
                                                 return (
                                                     // i === childSearchOptions.length - 1 ? (
-                                                    //     <Button
-                                                    //         key={i}
-                                                    //         type="text"
-                                                    //         className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
-                                                    //         onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                                                    //         "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a>
-                                                    //     </Button>
-                                                    // ) : (
+                                                    JSON.parse(item.key).change === 1 ? (
+                                                        <Button
+                                                            key={i}
+                                                            type="text"
+                                                            className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
+                                                            onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                                                            "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a>
+                                                        </Button>
+                                                    ) : (
                                                     <Button
                                                         key={i}
                                                         type="text"
@@ -194,7 +195,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                                                         onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
                                                         {item.value}
                                                     </Button>
-                                                    // )
+                                                    )
                                                 )
                                             })
                                         ) : (
