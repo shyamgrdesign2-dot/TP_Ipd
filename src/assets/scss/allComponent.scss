@@ -1771,8 +1771,7 @@ body {
         background-position: 150% 150%; /* End shimmer at bottom-right corner */
     }
 }
-  
-  
+
 
 /* Suggestion card styles */
 .suggestion-card {
@@ -1827,7 +1826,8 @@ body {
     overflow-x: hidden; /* Hide horizontal scrollbar */
 }
 
-// labparameters styles
+
+// labparameters styles //
 .labparam-header{
     display: flex;
     width: 100%;
@@ -1916,12 +1916,25 @@ body {
   text-overflow: ellipsis;
 }
 
-.full-remarks-container {
-  position: absolute;
-  background: white;
-  border: 1px solid #ddd;
-  padding: 8px;
-  z-index: 100;
+.remarks-textarea{
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    resize: none;
+    border: 1px solid #6767dd;
+    border-radius: 0.625rem;
+    overflow-y: auto;
+}
+
+.remarks-textarea:focus {
+    outline: none; /* Remove the default focus outline */
+    border: 1px solid #4242e5; /* Maintain the same border when focused */
+}
+
+.remarks-textarea::-webkit-scrollbar-thumb {
+    background-color: #a4a4a4; /* Scrollbar color */
+    border-radius: 1rem; /* Rounded edges */
+    height: 5rem;
 }
 
 .test-parameters-header{
@@ -1936,6 +1949,7 @@ body {
     background: #efefef;
     cursor: pointer;
 }
+
 .labparam-head-date{
     width: 60%;
     display: flex;
@@ -1946,6 +1960,14 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 164px;
+    cursor: pointer;
+}
+
+.underline-button{
+    border: none;
+    background: none;
+    text-decoration: underline;
+    color: #4B4AD5;
     cursor: pointer;
 }
 

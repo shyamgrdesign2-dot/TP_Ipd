@@ -4,7 +4,8 @@ import { EllipsisOutlined, DeleteOutlined, CaretRightOutlined, CaretDownOutlined
 import axios from 'axios';
 import moment from "moment";
 import { jwtDecode } from 'jwt-decode';
-import { DEFAULT_TESTS_DATA, LAB_PARAMS_RESULTS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from '../utils/constants';
+import { LAB_PARAMS_RESULTS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from '../utils/constants';
+import { DEFAULT_TESTS_DATA } from '../utils/labParamsConstants';
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import CheckableTag from 'antd/es/tag/CheckableTag';
@@ -12,7 +13,7 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import editIcon from '../assets/images/edit.svg';
 
-const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal }) => {
+const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal,  patientGender = "male"  }) => {
 
     const [token, setToken] = useState(null);
     const [tokenData, setTokenData] = useState(null);
@@ -34,6 +35,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const currentDate = new Date().toISOString().split("T")[0];
     const dateFormat = 'YYYY-MM-DD';
     const showDateFormat = 'DD MMM, YY';
+
+    //states for Remarks Functionality 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalContent, setModalContent] = useState("");
+    const [activeReport, setActiveReport] = useState(null);
+    const [activeTest, setActiveTest] = useState(null);
+    const [activeDate, setActiveDate] = useState(null);
 
     const baseUrl = { customBaseUrl: env.lab_params_api_url  };
 
@@ -209,11 +217,94 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             entry.inputs.sort((a, b) => {
                 if (a.recentlyUpdated && !b.recentlyUpdated) return -1;
                 if (!a.recentlyUpdated && b.recentlyUpdated) return 1;
-                return 0; // Keep original order if neither or both are recently updated
+                return 0;
             });
         });
         
         return combinedResults;
+    };
+
+    const addRemarksToUniqueReportNames = (inputs) => {
+        const uniqueReportNames = [...new Set(inputs.map(input => input.reportName))];
+        uniqueReportNames.forEach(reportName => {
+            const hasRemarks = inputs.some(input => input.testName === "Remarks" && input.reportName === reportName);
+            if (!hasRemarks) {
+                inputs.push({
+                    reportName: reportName,
+                    testName: "Remarks",
+                    value: "",  // Default value for Remarks
+                    units: "",
+                    arrowDirection: "",
+                    refRange: "",
+                    recentlyUpdated: true  // Mark as newly added
+                });
+            }
+        });
+    };
+
+    // Function to handle the modal opening
+    const handleOpenModal = (reportName, testName, date) => {
+        setActiveReport(reportName);
+        setActiveTest(testName);
+        setActiveDate(date);
+        setModalContent(inputValues[reportName][testName][date]?.value || "");
+        setIsModalOpen(true);
+    };
+
+    // Function to handle modal closing
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setActiveReport(null);
+        setActiveTest(null);
+        setActiveDate(null);
+        setModalContent("");
+    };
+
+    // Function to handle saving remarks
+    const handleSaveRemarks = () => {
+        const updatedValues = { ...inputValues };
+        if (!updatedValues[activeReport]) updatedValues[activeReport] = {};
+        if (!updatedValues[activeReport][activeTest]) updatedValues[activeReport][activeTest] = {};
+        if (!updatedValues[activeReport][activeTest][activeDate]) {
+            updatedValues[activeReport][activeTest][activeDate] = {};
+        }
+
+        updatedValues[activeReport][activeTest][activeDate].value = modalContent;
+
+        // Update input values
+        setInputValues(updatedValues);
+
+        // Close modal
+        handleCloseModal();
+    };
+
+    const calculateArrowDirection = (value, refRange, gender = "ALL") => {
+        if (!value || isNaN(parseFloat(value))) {
+            return "";
+        }
+    
+        let selectedRange;
+    
+        // Check if refRange has conditional ranges
+        if (refRange?.isConditional) {
+            selectedRange = refRange.ranges.find(range => range.gender === gender) || refRange.ranges[0];
+        } else {
+            selectedRange = refRange?.ranges[0]; // Single range case
+        }
+    
+        if (selectedRange) {
+            const numericValue = parseFloat(value);
+            const min = parseFloat(selectedRange.min);
+            const max = parseFloat(selectedRange.max);
+    
+            if (numericValue > max) {
+                return "up";
+            } else if (numericValue < min) {
+                return "down";
+            }
+        }
+    
+        return ""; // No arrow if within range
     };
 
     const mergeSearchResults = (existingResults, labParamsResults, searchQuery) => {
@@ -222,7 +313,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         const currentFilledData = assemblePayload(inputValues);
         const data = combineData(currentFilledData, filledData);
     
-        setFilledData(data);  // Update filledData with combined data
+        setFilledData(data);
         existingResults = data?.length > 0 ? data : existingResults; // Use the combined data
     
         // Case 1: No existing results
@@ -233,6 +324,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                     date: new Date().toISOString().split('T')[0],
                     inputs: [...DEFAULT_TESTS_DATA]
                 };
+
+                // Call function to add 'Remarks'
+                addRemarksToUniqueReportNames(newEntry.inputs);
                 tempResults.push(newEntry);
             } else {
                 // LabParamsResults exist: create new entry with current date
@@ -247,7 +341,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                         refRange: lab.refRange || "",
                     }))
                 };
+
+                // Call function to add 'Remarks'
+                addRemarksToUniqueReportNames(newEntry.inputs);
                 tempResults.push(newEntry);
+                console.log(tempResults,"tempResults");
             }
             return tempResults;
         }
@@ -262,41 +360,29 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                             const existingInput = entry.inputs.find(input =>
                                 input.testName === lab.testName && input.reportName === lab.reportName
                             );
-    
+
                             const labInput = {
-                              reportName: lab.reportName || "",
-                              testName: lab.testName || "",
-                              value: existingInput ? existingInput.value : "",  // Retain value if exists
-                              units: lab.units || "",
-                              arrowDirection: existingInput ? existingInput.arrowDirection : "",
-                              refRange: lab.refRange || "",
+                            reportName: lab.reportName || "",
+                            testName: lab.testName || "",
+                            value: existingInput ? existingInput.value : "",  // Retain value if exists
+                            units: lab.units || "",
+                            arrowDirection: existingInput ? existingInput.arrowDirection : "",
+                            refRange: lab.refRange || "",
                             };
-    
-                            // Handle 'Remarks' input
-                            const remarksInput = entry.inputs.find(input =>
-                                input.testName === "Remarks" && input.reportName === lab.reportName
-                            );
-    
-                            if (remarksInput) {
-                                return {
-                                    ...labInput,
-                                    testName: remarksInput.testName,
-                                    value: remarksInput.value || ""
-                                };
-                            }
-    
-                            return {
-                                ...labInput,
-                                recentlyUpdated: !!existingInput // Mark as recently updated if already exists
-                            };
+
+                            return labInput;
                         })
                     };
+
+                    // Call function to add 'Remarks'
+                    addRemarksToUniqueReportNames(newEntry.inputs);
+
                     tempResults.push(newEntry);
                 });
-    
-                return tempResults; // Return combined results
+
+                return tempResults;
             }
-    
+
             // Append predefined lab parameters if not already present
             if (DEFAULT_TESTS_DATA?.length > 0) {
                 existingResults.forEach((entry) => {
@@ -304,12 +390,12 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                         date: entry.date,
                         inputs: [...entry.inputs]
                     };
-    
+
                     DEFAULT_TESTS_DATA.forEach((lab) => {
                         const existingInput = newEntry.inputs.find(
                             input => input.testName === lab.testName && input.reportName === lab.reportName
                         );
-    
+
                         if (!existingInput) {
                             newEntry.inputs.push({
                                 reportName: lab.reportName || "",
@@ -322,10 +408,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                             });
                         }
                     });
-    
+
+                    // Call function to add 'Remarks'
+                    addRemarksToUniqueReportNames(newEntry.inputs);
+
                     tempResults.push(newEntry);
                 });
-    
+
                 return tempResults;
             }
         }
@@ -374,24 +463,24 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     }, [existingResults]);
 
     const handleEditDate = (date) => {
-      setEditingDate(date);
-  };
+        setEditingDate(date);
+    };
 
-  const handleDateChange = (newDate) => {
-      console.log(newDate,"newDate");
-      if (editingDate) {
-          const updatedDates = dates.map((date) =>
-              date === editingDate ? newDate : date
-          );
-          console.log(updatedDates,"updatedDates");
-          setDates(updatedDates);
-          setEditingDate(null);
-      }
-  };
+    const handleDateChange = (newDate) => {
+        
+        if (editingDate) {
+            const updatedDates = dates.map((date) =>
+                date === editingDate ? newDate : date
+            );
 
-  const handleDeleteDate = (dateToDelete) => {
-      setDates((prevDates) => prevDates.filter((date) => date !== dateToDelete));
-  };
+            setDates(updatedDates);
+            setEditingDate(null);
+        }
+    };
+
+    const handleDeleteDate = (dateToDelete) => {
+        setDates((prevDates) => prevDates.filter((date) => date !== dateToDelete));
+    };
 
     const disabledDate = (current) => {
         return current && current >= moment().add(1, 'days').startOf('day');
@@ -411,11 +500,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 updatedData[reportName][testName] = {};
             }
     
-            // Check if the date exists under the testName, if not, initialize it
+            // Initialize the date for the testName if not present
             if (!updatedData[reportName][testName][date]) {
                 updatedData[reportName][testName][date] = {
-                    reportName: reportName,
-                    testName: testName,
+                    reportName,
+                    testName,
                     value: "",
                     arrowDirection: "",
                     refRange: inputValues[reportName]?.[testName]?.[date]?.refRange || "",
@@ -423,12 +512,16 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 };
             }
     
-            // Update the value for the specific date
+            // Update the value and calculate the arrow direction
+            const refRange = updatedData[reportName][testName][date].refRange;
+            const gender = patientGender || "ALL"; // Assuming `patientGender` is available globally or passed in
+    
             updatedData[reportName][testName][date].value = value;
+            updatedData[reportName][testName][date].arrowDirection = calculateArrowDirection(value, refRange, gender);
     
             return updatedData;
         });
-    };
+    };    
     
     const getUnitForTest = (reportName, testName) => {
         for (const date of dates) {
@@ -598,7 +691,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             Save
           </Button>
         </div>
-        <div className="align-items-center d-flex justify-content-between px-20 py-3 gap-4">
+        <div className="align-items-center d-flex justify-content-between px-20 py-3 gap-4" style={{position:"sticky",top:"3.78rem", backgroundColor:"white",zIndex:"999"}}>
           <Input
             value={searchQuery}
             placeholder="Search by test name or category"
@@ -773,80 +866,70 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                   key={date}
                                   className="test-values-container"
                                 >
-                                  {testName === "Remarks" ? (
+                                {testName === "Remarks" ? (
                                     <div>
-                                      <div className="remarks-text truncated">
-                                        {inputValues[reportName][testName][date]
-                                          ?.value || "No remarks"}
-                                      </div>
-
-                                      {isRemarksVisible[reportName]?.[
-                                        testName
-                                      ]?.[date] && (
-                                        <div className="full-remarks-container">
-                                          <div className="full-remarks-content">
-                                            {
-                                              inputValues[reportName][testName][
-                                                date
-                                              ]?.value
-                                            }
-                                          </div>
+                                        <div className="remarks-text truncated">
+                                            {inputValues[reportName][testName][date]?.value ? (
+                                                inputValues[reportName][testName][date]?.value
+                                            ) : (
+                                                <Button
+                                                    className="underline-button"
+                                                    onClick={() => handleOpenModal(reportName, testName, date)}
+                                                >
+                                                    Add Remarks
+                                                </Button>
+                                            )}
                                         </div>
-                                      )}
+
+                                        {isRemarksVisible[reportName]?.[testName]?.[date] && (
+                                            <div className="full-remarks-container">
+                                                <div className="full-remarks-content">
+                                                    {inputValues[reportName][testName][date]?.value}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                  ) : (
+                                ) : (
                                     <div>
-                                      <Input
-                                        style={{
-                                          width: "180px",
-                                          display: "flex",
-                                          alignItems: "center",
-                                          borderRadius: "4px",
-                                        }}
-                                        type="text"
-                                        value={
-                                          inputValues[reportName][testName][
-                                            date
-                                          ]?.value || ""
-                                        }
-                                        addonAfter={
-                                          <span
+                                        <Input
                                             style={{
-                                              width: inputValues[reportName][
-                                                testName
-                                              ][date]?.value
-                                                ? "60px"
-                                                : "",
-                                              textAlign: "center",
-                                              overflow: "hidden",
-                                              whiteSpace: "nowrap",
-                                              textOverflow: "ellipsis",
+                                                width: "180px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                borderRadius: "9px",
+                                                border: inputValues[reportName][testName][date]?.arrowDirection
+                                                    ? "2px solid #E54848" // Red border when up or down arrow
+                                                    : "1px solid #d9d9d9", // Default border style
+                                                color: inputValues[reportName][testName][date]?.arrowDirection
+                                                    ? "#E54848" // Red text when up or down arrow
+                                                    : "inherit", // Default text color
                                             }}
-                                          >
-                                            {inputValues[reportName][testName][
-                                              date
-                                            ]?.units ||
-                                              getUnitForTest(
-                                                reportName,
-                                                testName
-                                              )}
-                                          </span>
-                                        }
-                                        onChange={(e) =>
-                                          handleInputChange(
-                                            reportName,
-                                            testName,
-                                            date,
-                                            e.target.value
-                                          )
-                                        }
-                                        inputStyle={{
-                                          width: "120px",
-                                          overflow: "hidden",
-                                          whiteSpace: "nowrap",
-                                          textOverflow: "ellipsis",
-                                        }}
-                                      />
+                                            type="text"
+                                            value={inputValues[reportName][testName][date]?.value || ""}
+                                            addonAfter={
+                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                    {/* Show the up or down arrow based on the calculated direction */}
+                                                    {inputValues[reportName][testName][date]?.arrowDirection === "up" ? (
+                                                        <span style={{ height:"12px",position: "absolute",left: "-46%", zIndex:"1" }}>↑</span>
+                                                    ) : inputValues[reportName][testName][date]?.arrowDirection === "down" ? (
+                                                        <span style={{position: "absolute",left: "-46%", zIndex:"1" }}>↓</span>
+                                                    ) : null}
+                                    
+                                                    {/* Show units */}
+                                                    <span
+                                                        style={{
+                                                            textAlign: "center",
+                                                            overflow: "hidden",
+                                                            whiteSpace: "nowrap",
+                                                            textOverflow: "ellipsis",
+                                                        }}
+                                                    >
+                                                        {inputValues[reportName][testName][date]?.units || getUnitForTest(reportName, testName)}
+                                                    </span>
+                                                </div>
+                                            }
+                                            onChange={(e) => handleInputChange(reportName, testName, date, e.target.value)}
+                                        />
                                     </div>
                                   )}
                                 </div>
@@ -862,6 +945,28 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             </div>
           </div>
         </div>
+        <CommonModal
+            isModalOpen={isModalOpen}
+            onCancel={handleCloseModal}
+            modalWidth={500}
+            title={"Add Remarks"}
+            modalBody={
+                <>
+                    <div className="d-flex align-items-center mt-2 justify-content-end">
+                        <textarea
+                            className="remarks-textarea"
+                            value={modalContent}
+                            onChange={(e) => setModalContent(e.target.value)}
+                            placeholder="Write your remarks here..."
+                            style={{ width: '100%', height: '150px', resize: 'none', overflowY: 'scroll' }}
+                        />
+                    </div>
+                    <Button onClick={() => {handleSaveRemarks()}} className="lh-lg btn btn-primary3 btn-41 px-4">
+                            <span>Save</span>
+                    </Button>
+                </>
+            }
+        />
       </div>
     );
 };
