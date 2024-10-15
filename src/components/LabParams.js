@@ -166,7 +166,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         }, 1000);
     
         return () => clearTimeout(timeOutId);
-    }, [labParamsResults, existingResults, searchQuery]);
+    }, [labParamsResults, existingResults, searchQuery, dates]);
+
 
     const combineData = (currentFilledData, filledData) => {
         const combinedResults = [...filledData];
@@ -287,9 +288,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     
         // Check if refRange has conditional ranges
         if (refRange?.isConditional) {
-            selectedRange = refRange.ranges.find(range => range.gender === gender) || refRange.ranges[0];
+            selectedRange = refRange.ranges.find(range => range.gender === gender) || refRange.ranges?.[0];
         } else {
-            selectedRange = refRange?.ranges[0]; // Single range case
+            selectedRange = refRange?.ranges?.[0]; // Single range case
         }
     
         if (selectedRange) {
@@ -345,7 +346,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 // Call function to add 'Remarks'
                 addRemarksToUniqueReportNames(newEntry.inputs);
                 tempResults.push(newEntry);
-                console.log(tempResults,"tempResults");
             }
             return tempResults;
         }
@@ -467,7 +467,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     };
 
     const handleDateChange = (newDate) => {
-        
+
         if (editingDate) {
             const updatedDates = dates.map((date) =>
                 date === editingDate ? newDate : date
@@ -500,6 +500,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 updatedData[reportName][testName] = {};
             }
     
+
             // Initialize the date for the testName if not present
             if (!updatedData[reportName][testName][date]) {
                 updatedData[reportName][testName][date] = {
@@ -507,7 +508,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                     testName,
                     value: "",
                     arrowDirection: "",
-                    refRange: inputValues[reportName]?.[testName]?.[date]?.refRange || "",
+                    refRange: updatedData[reportName][testName][date].refRange || "",
                     units: getUnitForTest(reportName, testName),
                 };
             }
@@ -530,7 +531,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 return units;
             }
         }
-        return "";
+        return "--";
     };
 
     const assemblePayload = () => {
@@ -570,19 +571,29 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     
             // Update the inputValues to include the new date
             setInputValues((prevInputValues) => {
-                const updatedValues = { ...prevInputValues };
+                const updatedValues = JSON.parse(JSON.stringify(prevInputValues)); // Deep clone the previous state
     
                 // Iterate over each reportName and testName to add the new date
                 Object.keys(updatedValues).forEach((reportName) => {
                     Object.keys(updatedValues[reportName]).forEach((testName) => {
                         if (!updatedValues[reportName][testName][date]) {
+                            // Find the previous available refRange (if any)
+                            const previousDates = Object.keys(updatedValues[reportName][testName]);
+                            const lastDateWithRefRange = previousDates
+                                .sort((a, b) => new Date(b) - new Date(a)) // Sort dates descending
+                                .find((prevDate) => updatedValues[reportName][testName][prevDate]?.refRange); // Find the latest refRange
+    
+                            const refRangeFromPrevious = lastDateWithRefRange
+                                ? updatedValues[reportName][testName][lastDateWithRefRange]?.refRange
+                                : "";
+    
                             updatedValues[reportName][testName][date] = {
                                 reportName: reportName,
                                 testName: testName,
-                                value: "",
+                                value: "", // Initialize empty value
                                 units: getUnitForTest(reportName, testName),
-                                arrowDirection:"",
-                                refRange: inputValues[reportName][testName][date]?.refRange,
+                                arrowDirection: "",
+                                refRange: refRangeFromPrevious, // Use the refRange from the last available date or default
                             };
                         }
                     });
@@ -594,6 +605,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             message.warning('Date already exists');
         }
     };
+    
+    
 
     const handleSave = async() =>{
 
@@ -723,7 +736,42 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             <div className="labparam-head-date">
               {dates.map((date) => (
                 <div key={date} className="labparam-head-dates">
-                  {moment(date).format(showDateFormat)}
+                    <span>{moment(date).format(showDateFormat)}</span>
+                    <Tooltip
+                        trigger={"click"}
+                        placement="bottom"
+                        title={
+                            <>
+                                <div className="tooltip-content" onClick={() => handleEditDate(date)}>
+                                    <img className="me-2" src={editIcon} alt="Edit" />
+                                    <span>Edit Date</span>
+                                </div>
+                                <div className="tooltip-content" onClick={() => handleDeleteDate(date)}>
+                                    <DeleteOutlined className="delete-icon" />
+                                    <span>Delete</span>
+                                </div>
+                            </>
+                        }
+                        overlayClassName="custom-tooltip"
+                    >
+                        <EllipsisOutlined className="vertical-dots" style={{fontSize: "16px"}}/>
+                    </Tooltip>
+                    {editingDate === date && (
+                        // <DatePicker
+                        //     value={moment(date, dateFormat)}
+                        //     format={dateFormat}
+                        //     onChange={handleDateChange}
+                        //     disabledDate={(current) => current && current > moment().endOf('day')}
+                        // />
+                        <DatePicker
+                            key={Math.random()}
+                            suffixIcon={null}
+                            inputReadOnly
+                            onChange={(date, dateString) => handleDateChange(dateString)}
+                            disabledDate={disabledDate}
+                            className="calender-labparams"
+                        />
+                    )}
                 </div>
               ))}
             </div>
@@ -768,84 +816,86 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                 zIndex: 2,
                               }}
                             >
-                              <div style={{ width:"100px" }}>
+                              <div>
                                 {testName}
-                                <Tooltip
-                                    placement="bottom"
-                                    title={
-                                        <div style={{ textAlign: 'center' }}>
-                                          {(() => {
-                                            // Initialize a variable to track if the reference range has been rendered
-                                            let hasRenderedRefRange = false;
-                                            
-                                            return inputValues[reportName][testName] &&
-                                              Object.keys(inputValues[reportName][testName]).map((date, index) => {
-                                                const testData = inputValues[reportName][testName][date];
-                                                const refRange = testData?.refRange;
-                                    
-                                                // If reference range is available and hasn't been rendered yet
-                                                if (refRange && refRange.ranges && refRange.ranges.length > 0 && !hasRenderedRefRange) {
-                                                  hasRenderedRefRange = true; // Set to true after rendering once
-                                                  
-                                                  if (refRange.isConditional) {
-                                                    // If reference range is conditional (i.e., gender-based)
-                                                    const maleRange = refRange.ranges.find(range => range.gender === 'MALE');
-                                                    const femaleRange = refRange.ranges.find(range => range.gender === 'FEMALE');
+                                { testName !== "Remarks" &&
+                                    <Tooltip
+                                        placement="bottom"
+                                        title={
+                                            <div className='ref-range-tooltip'>
+                                            {(() => {
+                                                // Initialize a variable to track if the reference range has been rendered
+                                                let hasRenderedRefRange = false;
+                                                
+                                                return inputValues[reportName][testName] &&
+                                                Object.keys(inputValues[reportName][testName]).map((date, index) => {
+                                                    const testData = inputValues[reportName][testName][date];
+                                                    const refRange = testData?.refRange;
+                                        
+                                                    // If reference range is available and hasn't been rendered yet
+                                                    if (refRange && refRange.ranges && refRange.ranges.length > 0 && !hasRenderedRefRange) {
+                                                    hasRenderedRefRange = true; // Set to true after rendering once
                                                     
-                                                    return (
-                                                      <div key={index}>
-                                                        <strong>Reference Range:</strong>
-                                                        {maleRange && femaleRange ? (
-                                                          <div>
-                                                            <strong>Male:</strong> {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
-                                                            <strong>Female:</strong> {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
-                                                          </div>
-                                                        ) : maleRange ? (
-                                                          <div>
-                                                            <strong>Male:</strong> {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
-                                                          </div>
-                                                        ) : femaleRange ? (
-                                                          <div>
-                                                            <strong>Female:</strong> {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
-                                                          </div>
-                                                        ) : (
-                                                          <div>No reference range available</div>
-                                                        )}
-                                                      </div>
-                                                    );
-                                                  } else {
-                                                    // If reference range is common for all (i.e., non-conditional)
-                                                    const range = refRange.ranges[0];
-                                                    return (
-                                                      <div key={index}>
-                                                        <div>
-                                                          <strong>All:</strong> {`${range?.min} - ${range?.max} ${range?.unit}`}
+                                                    if (refRange.isConditional) {
+                                                        // If reference range is conditional (i.e., gender-based)
+                                                        const maleRange = refRange.ranges.find(range => range.gender === 'MALE');
+                                                        const femaleRange = refRange.ranges.find(range => range.gender === 'FEMALE');
+                                                        
+                                                        return (
+                                                        <div key={index}>
+                                                            <strong>Reference Range:</strong>
+                                                            {maleRange && femaleRange ? (
+                                                            <div>
+                                                                <strong>Male:</strong> {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
+                                                                <strong>Female:</strong> {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                            </div>
+                                                            ) : maleRange ? (
+                                                            <div>
+                                                                <strong>Male:</strong> {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
+                                                            </div>
+                                                            ) : femaleRange ? (
+                                                            <div>
+                                                                <strong>Female:</strong> {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                            </div>
+                                                            ) : (
+                                                            <div>No reference range available</div>
+                                                            )}
                                                         </div>
-                                                      </div>
-                                                    );
-                                                  }
-                                                }
-                                                // Render nothing if reference range has already been rendered
-                                                return null;
-                                              });
-                                          })()}
-                                          <div style={{ marginTop: '10px', fontStyle: 'italic', color: '#888' }}>
-                                            {`Disclaimer: This range is only for reference and may vary between patients based on different conditions.`}
-                                          </div>
-                                        </div>
-                                      }
-                                    overlayClassName="lab-params-tooltip"
-                                    overlayInnerStyle={{ padding: '12px', width: '250px',background:"white",color:"black" }} // Adjust styling as necessary
-                                >
-                                    <i className="icon-info ms-1"
-                                        style={{ cursor: "pointer",
-                                        color: "#d3d3d3",
-                                        fontSize: "18px",
-                                        marginBottom: "10px",
-                                    }}
-                                        >
-                                    </i>
-                                </Tooltip>
+                                                        );
+                                                    } else {
+                                                        // If reference range is common for all (i.e., non-conditional)
+                                                        const range = refRange.ranges[0];
+                                                        return (
+                                                        <div key={index}>
+                                                            <div>
+                                                            <strong>All:</strong> {`${range?.min} - ${range?.max} ${range?.unit}`}
+                                                            </div>
+                                                        </div>
+                                                        );
+                                                    }
+                                                    }
+                                                    // Render nothing if reference range has already been rendered
+                                                    return null;
+                                                });
+                                            })()}
+                                            <div className='disclaimer-text'>
+                                                {`Disclaimer: This range is only for reference and may vary between patients based on different conditions.`}
+                                            </div>
+                                            </div>
+                                        }
+                                        overlayClassName="lab-params-tooltip"
+                                        overlayInnerStyle={{ padding: '12px', width: '250px',background:"white",color:"black" }} // Adjust styling as necessary
+                                    >
+                                        <i className="icon-info ms-1"
+                                            style={{ cursor: "pointer",
+                                            color: "#d3d3d3",
+                                            fontSize: "18px",
+                                            marginBottom: "10px",
+                                        }}
+                                            >
+                                        </i>
+                                    </Tooltip>
+                                }
                               </div>
                             </div>
                             <div

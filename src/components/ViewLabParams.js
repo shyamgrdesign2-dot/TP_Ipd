@@ -131,25 +131,60 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                             >
                                 Name
                             </th>
-                            {filteredReports.map((entry, entryIndex) => {
-                                const isLastCell = entryIndex === filteredReports.length - 1;
-                                return (
-                                    <th
-                                        key={entry.date}
-                                        style={{
-                                            width: '160px',
-                                            padding: '10px',
-                                            zIndex: "1",
-                                            fontWeight: "600",
-                                            background: "#F1F1F5",
-                                            borderTopRightRadius: isLastCell ? "10px" : " ",
-                                            borderBottomRightRadius: isLastCell ? "10px" : " ",
-                                        }}
-                                    >
-                                        {dayjs(entry?.date).format("DD MMM, YY")}
-                                    </th>
-                                );
-                            })}
+                            {filteredReports.length < 2 ? (
+                                filteredReports.map((entry, entryIndex) => {
+                                    const isLastCell = entryIndex === filteredReports.length - 1;
+                                    return (
+                                        <>
+                                            <th
+                                                key={entry.date}
+                                                style={{
+                                                    width: '160px',
+                                                    padding: '10px',
+                                                    zIndex: "1",
+                                                    fontWeight: "600",
+                                                    background: "#F1F1F5",
+                                                }}
+                                            >
+                                                {dayjs(entry?.date).format("DD MMM, YY")}
+                                            </th>
+                                            <th
+                                                key={entry.date}
+                                                style={{
+                                                    width: '160px',
+                                                    padding: '10px',
+                                                    zIndex: "1",
+                                                    fontWeight: "600",
+                                                    background: "#F1F1F5",
+                                                    borderTopRightRadius: "10px" ,
+                                                    borderBottomRightRadius: "10px",
+                                                }}
+                                            >
+                                            </th>
+                                        </>
+                                    );
+                                })
+                            ):(
+                                filteredReports.map((entry, entryIndex) => {
+                                    const isLastCell = entryIndex === filteredReports.length - 1;
+                                    return (
+                                        <th
+                                            key={entry.date}
+                                            style={{
+                                                width: '160px',
+                                                padding: '10px',
+                                                zIndex: "1",
+                                                fontWeight: "600",
+                                                background: "#F1F1F5",
+                                                borderTopRightRadius: isLastCell ? "10px" : " ",
+                                                borderBottomRightRadius: isLastCell ? "10px" : " ",
+                                            }}
+                                        >
+                                            {dayjs(entry?.date).format("DD MMM, YY")}
+                                        </th>
+                                    );
+                                })
+                            )}
                         </tr>
                     </thead>
                     <div style={{ height: '15px' }}></div>
