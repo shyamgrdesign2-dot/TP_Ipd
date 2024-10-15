@@ -3,13 +3,13 @@ import React, { useEffect, useState } from "react";
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-const TabLabParametersList = ({ handleCollapsed, labParamsData, handleAddLabParamsDrawer }) => {
+const TabLabParametersList = ({ handleCollapsed, labParamsData, handleAddLabParamsDrawer, handleViewLabParamsDrawer }) => {
 
   const [labParamsdeatils, setLabParamsdeatils] = useState([]);
 
   useEffect(() => {
     setLabParamsdeatils(labParamsData?.[0]);
-  },[])
+  }, [labParamsData]);
 
   const measurementDetails = () => {
     return (
@@ -98,7 +98,7 @@ const TabLabParametersList = ({ handleCollapsed, labParamsData, handleAddLabPara
           <Divider dashed style={{ color: "#D0D5DD", margin: "0 0 16px" }} />
           <div
             className="d-flex align-items-center"
-            // onClick={handleDrawerMedicalReport}
+            onClick={handleViewLabParamsDrawer}
           >
             <span className="view-all-txt">View All</span>
             <i className="icon-right view-all-icon" />

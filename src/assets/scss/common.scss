@@ -973,3 +973,15 @@ body {
     cursor: pointer;
     color: #4B4AD5 !important;
 }
+
+.lab-params-input {
+    .ant-input-suffix {
+        width: 100%;
+    }
+}
+
+.lab-params-intput-warning {
+    .ant-input-outlined {
+        border-color: #E54848;
+    }
+}

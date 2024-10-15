@@ -12,6 +12,7 @@ import CheckableTag from 'antd/es/tag/CheckableTag';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import editIcon from '../assets/images/edit.svg';
+import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 
 const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal,  patientGender = "male"  }) => {
 
@@ -31,7 +32,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const inputRef = useRef([]);
     const scrollRefs = useRef([]);
     const remarksRef = useRef(null);
-    const [editingDate, setEditingDate] = useState(null);
 
     const currentDate = new Date().toISOString().split("T")[0];
     const dateFormat = 'YYYY-MM-DD';
@@ -180,7 +180,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         }, 1000);
     
         return () => clearTimeout(timeOutId);
-    }, [labParamsResults, existingResults, searchQuery, dates]);
+    }, [labParamsResults, existingResults, searchQuery]);
 
 
     const combineData = (currentFilledData, filledData) => {
@@ -476,20 +476,41 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         }
     }, [existingResults]);
 
-    const handleEditDate = (date) => {
-        setEditingDate(date);
-    };
+    function replaceDateByIndex(
+      inputValues,
+      dateIndex,
+      newDate
+    ) {
+      const updatedValues = { ...inputValues };
 
-    const handleDateChange = (newDate) => {
+      Object.keys(updatedValues).forEach((reportName) => {
+        Object.keys(updatedValues[reportName]).forEach((testName) => {
+          const testData = updatedValues[reportName][testName];
+          const dateKeys = Object.keys(testData);
 
-        if (editingDate) {
-            const updatedDates = dates.map((date) =>
-                date === editingDate ? newDate : date
-            );
+          if (dateIndex >= 0 && dateIndex < dateKeys.length) {
+            const oldDate = dateKeys[dateIndex];
+            testData[newDate] = testData[oldDate];
+            delete testData[oldDate];
+          } else {
+            console.warn(`Date index "${dateIndex}" is out of bounds.`);
+          }
+        });
+      });
 
-            setDates(updatedDates);
-            setEditingDate(null);
-        }
+      return updatedValues;
+    }
+
+    const handleDateChange = (newDate, index) => {
+        setDates((prevDates) => {
+            const updatedDates = [...prevDates];
+            updatedDates[index] = newDate;
+            return updatedDates;
+        });
+        setInputValues((prev) => {
+            const updatedData = replaceDateByIndex(prev, index, newDate);
+            return updatedData;
+        });
     };
 
     const handleDeleteDate = (dateToDelete) => {
@@ -522,7 +543,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                     testName,
                     value: "",
                     arrowDirection: "",
-                    refRange: updatedData[reportName][testName][date].refRange || "",
+                    refRange: updatedData?.[reportName]?.[testName]?.[date]?.refRange || "",
                     units: getUnitForTest(reportName, testName),
                 };
             }
@@ -580,16 +601,16 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
 
     const handleAddNewDate = (date) => {
         if (!dates.includes(date)) {
-            // Update the dates
+      // Update the dates
             setDates((prevDates) => [...prevDates, date]);
-    
-            // Update the inputValues to include the new date
+
+      // Update the inputValues to include the new date
             setInputValues((prevInputValues) => {
                 const updatedValues = JSON.parse(JSON.stringify(prevInputValues)); // Deep clone the previous state
-    
+
                 // Iterate over each reportName and testName to add the new date
-                Object.keys(updatedValues).forEach((reportName) => {
-                    Object.keys(updatedValues[reportName]).forEach((testName) => {
+        Object.keys(updatedValues).forEach((reportName) => {
+          Object.keys(updatedValues[reportName]).forEach((testName) => {
                         if (!updatedValues[reportName][testName][date]) {
                             // Find the previous available refRange (if any)
                             const previousDates = Object.keys(updatedValues[reportName][testName]);
@@ -604,21 +625,21 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                             updatedValues[reportName][testName][date] = {
                                 reportName: reportName,
                                 testName: testName,
-                                value: "", // Initialize empty value
+                value: "", // Initialize empty value
                                 units: getUnitForTest(reportName, testName),
                                 arrowDirection: "",
                                 refRange: refRangeFromPrevious, // Use the refRange from the last available date or default
                             };
-                        }
-                    });
-                });
-    
+            }
+          });
+        });
+
                 return updatedValues;
             });
-        } else {
+    } else {
             message.warning('Date already exists');
-        }
-    };
+    }
+  };
     
     
 
@@ -645,7 +666,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
           } catch (error) {
             console.error("Error:", error);
           }
-
     }
 
     const handleScroll = (index) => {
@@ -765,7 +785,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
           <div className="labparam-header">
             <div className="labparam-head">Name</div>
             <div className="labparam-head-date">
-              {dates.map((date) => (
+              {dates.map((date, index) => (
                 <div key={date} className="labparam-head-dates">
                     <span>{moment(date).format(showDateFormat)}</span>
                     <Tooltip
@@ -773,9 +793,17 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                         placement="bottom"
                         title={
                             <>
-                                <div className="tooltip-content" onClick={() => handleEditDate(date)}>
+                                <div className="tooltip-content">
                                     <img className="me-2" src={editIcon} alt="Edit" />
                                     <span>Edit Date</span>
+                                    <DatePicker
+                                        key={Math.random()}
+                                        suffixIcon={null}
+                                        inputReadOnly
+                                        onChange={(date, dateString) => handleDateChange(dateString, index)}
+                                        disabledDate={disabledDate}
+                                        className="calender-labparams"
+                                    />
                                 </div>
                                 <div className="tooltip-content" onClick={() => handleDeleteDate(date)}>
                                     <DeleteOutlined className="delete-icon" />
@@ -787,22 +815,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                     >
                         <EllipsisOutlined className="vertical-dots" style={{fontSize: "16px"}}/>
                     </Tooltip>
-                    {editingDate === date && (
-                        // <DatePicker
-                        //     value={moment(date, dateFormat)}
-                        //     format={dateFormat}
-                        //     onChange={handleDateChange}
-                        //     disabledDate={(current) => current && current > moment().endOf('day')}
-                        // />
-                        <DatePicker
-                            key={Math.random()}
-                            suffixIcon={null}
-                            inputReadOnly
-                            onChange={(date, dateString) => handleDateChange(dateString)}
-                            disabledDate={disabledDate}
-                            className="calender-labparams"
-                        />
-                    )}
                 </div>
               ))}
             </div>
@@ -827,9 +839,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                       )}
                     </div>
                     {!!expandedReports[reportName] ? (
-                      <CaretDownOutlined />
+                      <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right fs-5' /></button>
                     ) : (
-                      <CaretRightOutlined />
+                      <button className='btn p-0 ms-2 iconrotate180'><i className='icon-right fs-5' /></button>
                     )}
                   </div>
                   {Object.keys(inputValues[reportName]).map(
@@ -988,24 +1000,35 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                 display: "flex",
                                                 alignItems: "center",
                                                 borderRadius: "9px",
-                                                border: inputValues[reportName][testName][date]?.arrowDirection
-                                                    ? "2px solid #E54848" // Red border when up or down arrow
-                                                    : "1px solid #d9d9d9", // Default border style
                                                 color: inputValues[reportName][testName][date]?.arrowDirection
                                                     ? "#E54848" // Red text when up or down arrow
                                                     : "inherit", // Default text color
                                             }}
                                             type="text"
-                                            value={inputValues[reportName][testName][date]?.value || ""}
-                                            addonAfter={
-                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                            className={`lab-params-input ${inputValues[reportName][testName][date]?.arrowDirection ? "lab-params-intput-warning" : ""}`}
+                                            suffix={
+                                                <div className='d-flex justify-content-between w-100'>
+                                                    <span>{inputValues[reportName][testName][date]?.value || ""}</span>
                                                     {/* Show the up or down arrow based on the calculated direction */}
                                                     {inputValues[reportName][testName][date]?.arrowDirection === "up" ? (
-                                                        <span style={{ height:"12px",position: "absolute",left: "-46%", zIndex:"1" }}>↑</span>
-                                                    ) : inputValues[reportName][testName][date]?.arrowDirection === "down" ? (
-                                                        <span style={{position: "absolute",left: "-46%", zIndex:"1" }}>↓</span>
-                                                    ) : null}
-                                    
+                                                            <ArrowUpOutlined
+                                                                className="lab-params-warning"
+                                                                style={{
+                                                                    paddingLeft: 5,
+                                                                }}
+                                                            />
+                                                        ) : inputValues[reportName][testName][date]?.arrowDirection === "down" ? (
+                                                            <ArrowDownOutlined
+                                                                className="lab-params-warning"
+                                                                style={{
+                                                                    paddingLeft: 5,
+                                                                }}
+                                                            />
+                                                        ) : null}
+                                                </div>
+                                            }
+                                            addonAfter={
+                                                <div style={{ display: "flex", alignItems: "center" }}>
                                                     {/* Show units */}
                                                     <span
                                                         style={{
