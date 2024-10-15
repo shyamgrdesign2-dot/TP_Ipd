@@ -26,10 +26,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const [labParamsResults, setLabParamsResults] = useState([]);
     const [isRemarksVisible, setIsRemarksVisible] = useState({});
     const [testCounts, setTestCounts] = useState({});
-    const [showTooltip, setShowTooltip] = useState(false);
+    const [showEditTooltip, setShowEditTooltip] = useState(false);
     const scrollContainerRef = useRef(null);
     const inputRef = useRef([]);
     const scrollRefs = useRef([]);
+    const remarksRef = useRef(null);
     const [editingDate, setEditingDate] = useState(null);
 
     const currentDate = new Date().toISOString().split("T")[0];
@@ -75,11 +76,24 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         }
     }, []);
 
+    useEffect(() => {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, []);
+
     const toggleReport = (reportName) => {
         setExpandedReports((prev) => ({
             ...prev,
             [reportName]: !prev[reportName],
         }));
+    };
+
+    const handleClickOutside = (event) => {
+      if (!remarksRef?.current?.contains(event.target)) {
+        setShowEditTooltip(false);
+      }
     };
 
     const searchLabParams = async (searchQuery) => {
@@ -642,6 +656,23 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             }
         });
     };
+    const tooltipTitle = (notes, reportName, testName, date) => {
+      return (
+        <div
+          className="d-flex justify-content-between flex-column h-100 w-100"
+          ref={remarksRef}
+        >
+          <div className='h-80' style={{overflow:'auto'}}>{notes}</div>
+          <div
+            className="d-flex"
+            onClick={() => handleOpenModal(reportName, testName, date)}
+          >
+            <img className="me-3" style={{cursor:'pointer'}} src={editIcon} alt="edit" />
+            <div className="lab-params-tooltip-txt">Edit Remark</div>
+          </div>
+        </div>
+      );
+    };
     
     return (
       <div>
@@ -918,19 +949,29 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                 >
                                 {testName === "Remarks" ? (
                                     <div>
-                                        <div className="remarks-text truncated">
-                                            {inputValues[reportName][testName][date]?.value ? (
-                                                inputValues[reportName][testName][date]?.value
-                                            ) : (
-                                                <Button
-                                                    className="underline-button"
-                                                    onClick={() => handleOpenModal(reportName, testName, date)}
-                                                >
-                                                    Add Remarks
-                                                </Button>
-                                            )}
-                                        </div>
-
+                                        {inputValues[reportName][testName][date]?.value ? (
+                                          <Tooltip
+                                            title={tooltipTitle(inputValues?.[reportName]?.[testName]?.[date]?.value, reportName, testName, date)}
+                                            overlayClassName="customTooltip"
+                                            open={showEditTooltip}
+                                            placement="top"
+                                          >
+                                            <div onClick={() => setShowEditTooltip(true)}>
+                                              <div className="remarks-text truncated">
+                                                {inputValues[reportName][testName][date]?.value}
+                                              </div>
+                                              <span style={{fontWeight: 500, color: "#171725", textDecoration: "underline", cursor: "pointer"}}>View Remarks</span>
+                                            </div>
+                                          </Tooltip>
+                                            
+                                        ) : (
+                                            <Button
+                                                className="underline-button"
+                                                onClick={() => handleOpenModal(reportName, testName, date)}
+                                            >
+                                                Add Remarks
+                                            </Button>
+                                        )}
                                         {isRemarksVisible[reportName]?.[testName]?.[date] && (
                                             <div className="full-remarks-container">
                                                 <div className="full-remarks-content">
