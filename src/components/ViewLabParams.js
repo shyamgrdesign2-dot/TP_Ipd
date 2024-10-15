@@ -10,6 +10,8 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
+    const [filteredReports, setFilteredReports] = useState([]);
+    const [groupedData, setGroupedData] = useState({});
 
     // Toggle report expansion/collapse
     const toggleReport = (reportName) => {
@@ -18,30 +20,6 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
             [reportName]: !prevState[reportName],
         }));
     };
-
-    // Grouping tests by report name and test name
-    const groupedData = {};
-
-    labParamsData?.forEach((report) => {
-        report.inputs.forEach((input) => {
-            const reportKey = input.reportName;
-            const testKey = input.testName;
-
-            if (!groupedData[reportKey]) {
-                groupedData[reportKey] = {};
-            }
-
-            if (!groupedData[reportKey][testKey]) {
-                groupedData[reportKey][testKey] = [];
-            }
-
-            groupedData[reportKey][testKey].push({
-                date: report.date,
-                value: input.value,
-                unit: input.units,
-            });
-        });
-    });
 
     useEffect(() => {
         Object.keys(groupedData)?.forEach((reportName) => {
@@ -52,22 +30,51 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
         });
     }, [labParamsData]);
 
+    useEffect(() => {
+        if (labParamsData?.length > 0) {
+            const filteredResultData = filterDataBySearchKey(labParamsData, searchTerm);
+            setFilteredReports(filteredResultData);
+
+
+            const updatedData = {};
+
+              filteredResultData?.forEach((report) => {
+                report.inputs.forEach((input) => {
+                  const reportKey = input.reportName;
+                  const testKey = input.testName;
+
+                  if (!updatedData[reportKey]) {
+                    updatedData[reportKey] = {};
+                  }
+
+                  if (!updatedData[reportKey][testKey]) {
+                    updatedData[reportKey][testKey] = [];
+                  }
+
+                  updatedData[reportKey][testKey].push({
+                    date: report.date,
+                    value: input.value,
+                    unit: input.units,
+                  });
+                });
+              });
+              setGroupedData(updatedData);
+        }  
+    }, [searchTerm, labParamsData]);
+
     // Filter and group data based on search query
-    const getFilteredResults = () => {
-        return labParamsData.reduce((acc, item) => {
-            const filteredInputs = item.inputs.filter(input => 
-                input.reportName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                input.testName.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-
-            if (filteredInputs.length > 0) {
-                acc.push({ date: item.date, inputs: filteredInputs });
-            }
-            return acc;
-        }, []);
-    };
-
-    const filteredReports = getFilteredResults();
+   const filterDataBySearchKey = (data, searchKey) => {
+     return data
+       .map(({ date, inputs }) => ({
+         date,
+         inputs: inputs.filter(
+           ({ testName, reportName }) =>
+             testName.toLowerCase().includes(searchKey.toLowerCase()) ||
+             reportName.toLowerCase().includes(searchKey.toLowerCase())
+         ),
+       }))
+       .filter(({ inputs }) => inputs.length > 0); // Remove dates with no matching inputs
+   }
 
     // Handle horizontal scrolling via dragging
     const handleMouseDown = (e) => {
