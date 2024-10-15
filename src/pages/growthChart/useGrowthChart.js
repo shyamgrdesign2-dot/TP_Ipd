@@ -2,6 +2,7 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { getAllGrowthChartParams, getGrowthChartImages } from "./service";
 import { useAccess } from "../vaccination/useAccess";
+import dayjs from "dayjs";
 
 export const useGrowthChart = (caseManagerData) => {
   const { isGrowthChartAccessable } = useAccess(
@@ -41,7 +42,13 @@ export const useGrowthChart = (caseManagerData) => {
       pm_id: caseManagerData?.patient_data?.pm_id || 0,
       pm_pid: caseManagerData?.patient_data?.patient_id || 0,
     });
-    setGrowthChartImageData(growthChartImageData);
+    const today = dayjs().format('YYYY-MM-DD');
+    if (
+      Object.values(growthChartImageData)?.length > 0 &&
+      Object.values(growthChartImageData)?.[0]?.includes(today)
+    ) {
+      setGrowthChartImageData(growthChartImageData);
+    }
   };
 
   return {
