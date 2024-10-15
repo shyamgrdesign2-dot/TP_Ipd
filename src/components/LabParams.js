@@ -961,9 +961,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                             style={{ width: '100%', height: '150px', resize: 'none', overflowY: 'scroll' }}
                         />
                     </div>
-                    <Button onClick={() => {handleSaveRemarks()}} className="lh-lg btn btn-primary3 btn-41 px-4">
-                            <span>Save</span>
-                    </Button>
+                    <div className='d-flex justify-content-end'>
+                      <Button onClick={() => {handleSaveRemarks()}} className="lh-lg btn btn-primary3 btn-41 px-4">
+                              <span>Save</span>
+                      </Button>
+                    </div>
                 </>
             }
         />

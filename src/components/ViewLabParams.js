@@ -2,6 +2,7 @@ import { Button, Input } from 'antd';
 import React, { useState, useRef, useEffect } from 'react';
 import { CaretRightOutlined, CaretDownOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 
 const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitchToAddLabParams }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -55,6 +56,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                     date: report.date,
                     value: input.value,
                     unit: input.units,
+                    arrowDirection: input.arrowDirection,
                   });
                 });
               });
@@ -194,11 +196,11 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                 }}
                                             >
                                                 <span>{reportName}</span>
-                                                <div style={{ position: "absolute", top: "27%", right: "-81%" }}>
+                                                <div style={{ position: "absolute", top: "16%", right: "-81%" }}>
                                                     {isExpanded ? (
-                                                        <CaretDownOutlined style={{ cursor: 'pointer' }} />
+                                                        <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right fs-5' /></button>
                                                     ) : (
-                                                        <CaretRightOutlined style={{ cursor: 'pointer' }} />
+                                                        <button className='btn p-0 ms-2 iconrotate180'><i className='icon-right fs-5' /></button>
                                                     )}
                                                 </div>
                                             </td>
@@ -268,23 +270,45 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                                         groupedData[reportName][testName].find(
                                                                             (t) => t.date === entry.date
                                                                         );
-
                                                                     return (
-                                                                        <div
-                                                                            key={entry.date}
-                                                                            className='truncated'
+                                                                      <div
+                                                                        key={entry.date}
+                                                                        style={{width: "160px",
+                                                                          borderRight: "1px solid #ddd",
+                                                                          padding: "10px",
+                                                                          background: "white",
+                                                                          fontWeight: "400",
+                                                                        }}
+                                                                        className={`truncated ${
+                                                                          testOnDate?.arrowDirection ===
+                                                                            "up" ||
+                                                                          testOnDate?.arrowDirection ===
+                                                                            "down"
+                                                                            ? "lab-params-warning"
+                                                                            : ""
+                                                                        }`}
+                                                                      >
+                                                                        {testOnDate
+                                                                          ? `${testOnDate.value} ${testOnDate.unit}`
+                                                                          : "-"}
+                                                                        {testOnDate?.arrowDirection ===
+                                                                        "up" ? (
+                                                                          <ArrowUpOutlined
+                                                                            className="lab-params-warning"
                                                                             style={{
-                                                                                width: "160px",
-                                                                                borderRight: '1px solid #ddd',
-                                                                                padding: '10px',
-                                                                                background: 'white',
-                                                                                fontWeight: "400",
+                                                                              paddingLeft: 5,
                                                                             }}
-                                                                        >
-                                                                            {testOnDate
-                                                                                ? `${testOnDate.value} ${testOnDate.unit}`
-                                                                                : '-'}
-                                                                        </div>
+                                                                          />
+                                                                        ) : testOnDate?.arrowDirection ===
+                                                                          "down" ? (
+                                                                          <ArrowDownOutlined
+                                                                            className="lab-params-warning"
+                                                                            style={{
+                                                                              paddingLeft: 5,
+                                                                            }}
+                                                                          />
+                                                                        ) : null}
+                                                                      </div>
                                                                     );
                                                                 })}
                                                             </div>
