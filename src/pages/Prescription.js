@@ -620,7 +620,6 @@ const getLabParams = async () => {
               'Authorization': `Bearer ${cleanedToken}`,
           },
       });
-      console.log(response)
       setLabParamsData(response.data?.data?.results || []);
   } catch (error) {
       console.error("Error fetching lab params:", error);
