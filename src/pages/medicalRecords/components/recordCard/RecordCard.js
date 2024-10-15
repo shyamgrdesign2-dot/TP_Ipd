@@ -47,15 +47,15 @@ const RecordCard = ({
     display_name,
   } = cardData || {};
 
-  const [thumbnailUrl, setThumbnailUrl] = useState(thumbnail_url);
+  let thumbnailUrl = thumbnail_url;
 
   const getThumbnailUrl = async (url) => {
     if (url?.includes(".pdf")) {
       loadPdf(url).then((thumbnailDataUrl) => {
-        setThumbnailUrl(thumbnailDataUrl);
+        thumbnailUrl = thumbnailDataUrl;
       });
     } else {
-      setThumbnailUrl(url);
+      thumbnailUrl = url;
     }
   };
 
@@ -138,6 +138,7 @@ const RecordCard = ({
       setShowDeletePopup((prev) => !prev);
     } else {
       setShowReadOnlyPopup((prev) => !prev);
+      setFilesData([]);
     }
   };
 

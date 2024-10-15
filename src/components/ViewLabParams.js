@@ -2,6 +2,7 @@ import { Button, Input } from 'antd';
 import React, { useState, useRef, useEffect } from 'react';
 import { CaretRightOutlined, CaretDownOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 
 const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitchToAddLabParams }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -10,6 +11,8 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
+    const [filteredReports, setFilteredReports] = useState([]);
+    const [groupedData, setGroupedData] = useState({});
 
     // Toggle report expansion/collapse
     const toggleReport = (reportName) => {
@@ -18,30 +21,6 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
             [reportName]: !prevState[reportName],
         }));
     };
-
-    // Grouping tests by report name and test name
-    const groupedData = {};
-
-    labParamsData?.forEach((report) => {
-        report.inputs.forEach((input) => {
-            const reportKey = input.reportName;
-            const testKey = input.testName;
-
-            if (!groupedData[reportKey]) {
-                groupedData[reportKey] = {};
-            }
-
-            if (!groupedData[reportKey][testKey]) {
-                groupedData[reportKey][testKey] = [];
-            }
-
-            groupedData[reportKey][testKey].push({
-                date: report.date,
-                value: input.value,
-                unit: input.units,
-            });
-        });
-    });
 
     useEffect(() => {
         Object.keys(groupedData)?.forEach((reportName) => {
@@ -52,22 +31,52 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
         });
     }, [labParamsData]);
 
+    useEffect(() => {
+        if (labParamsData?.length > 0) {
+            const filteredResultData = filterDataBySearchKey(labParamsData, searchTerm);
+            setFilteredReports(filteredResultData);
+
+
+            const updatedData = {};
+
+              filteredResultData?.forEach((report) => {
+                report.inputs.forEach((input) => {
+                  const reportKey = input.reportName;
+                  const testKey = input.testName;
+
+                  if (!updatedData[reportKey]) {
+                    updatedData[reportKey] = {};
+                  }
+
+                  if (!updatedData[reportKey][testKey]) {
+                    updatedData[reportKey][testKey] = [];
+                  }
+
+                  updatedData[reportKey][testKey].push({
+                    date: report.date,
+                    value: input.value,
+                    unit: input.units,
+                    arrowDirection: input.arrowDirection,
+                  });
+                });
+              });
+              setGroupedData(updatedData);
+        }  
+    }, [searchTerm, labParamsData]);
+
     // Filter and group data based on search query
-    const getFilteredResults = () => {
-        return labParamsData.reduce((acc, item) => {
-            const filteredInputs = item.inputs.filter(input => 
-                input.reportName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                input.testName.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-
-            if (filteredInputs.length > 0) {
-                acc.push({ date: item.date, inputs: filteredInputs });
-            }
-            return acc;
-        }, []);
-    };
-
-    const filteredReports = getFilteredResults();
+   const filterDataBySearchKey = (data, searchKey) => {
+     return data
+       .map(({ date, inputs }) => ({
+         date,
+         inputs: inputs.filter(
+           ({ testName, reportName }) =>
+             testName.toLowerCase().includes(searchKey.toLowerCase()) ||
+             reportName.toLowerCase().includes(searchKey.toLowerCase())
+         ),
+       }))
+       .filter(({ inputs }) => inputs.length > 0); // Remove dates with no matching inputs
+   }
 
     // Handle horizontal scrolling via dragging
     const handleMouseDown = (e) => {
@@ -222,11 +231,11 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                 }}
                                             >
                                                 <span>{reportName}</span>
-                                                <div style={{ position: "absolute", top: "27%", right: "-81%" }}>
+                                                <div style={{ position: "absolute", top: "16%", right: "-81%" }}>
                                                     {isExpanded ? (
-                                                        <CaretDownOutlined style={{ cursor: 'pointer' }} />
+                                                        <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right fs-5' /></button>
                                                     ) : (
-                                                        <CaretRightOutlined style={{ cursor: 'pointer' }} />
+                                                        <button className='btn p-0 ms-2 iconrotate180'><i className='icon-right fs-5' /></button>
                                                     )}
                                                 </div>
                                             </td>
@@ -296,23 +305,45 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                                         groupedData[reportName][testName].find(
                                                                             (t) => t.date === entry.date
                                                                         );
-
                                                                     return (
-                                                                        <div
-                                                                            key={entry.date}
-                                                                            className='truncated'
+                                                                      <div
+                                                                        key={entry.date}
+                                                                        style={{width: "160px",
+                                                                          borderRight: "1px solid #ddd",
+                                                                          padding: "10px",
+                                                                          background: "white",
+                                                                          fontWeight: "400",
+                                                                        }}
+                                                                        className={`truncated ${
+                                                                          testOnDate?.arrowDirection ===
+                                                                            "up" ||
+                                                                          testOnDate?.arrowDirection ===
+                                                                            "down"
+                                                                            ? "lab-params-warning"
+                                                                            : ""
+                                                                        }`}
+                                                                      >
+                                                                        {testOnDate
+                                                                          ? `${testOnDate.value} ${testOnDate.unit}`
+                                                                          : "-"}
+                                                                        {testOnDate?.arrowDirection ===
+                                                                        "up" ? (
+                                                                          <ArrowUpOutlined
+                                                                            className="lab-params-warning"
                                                                             style={{
-                                                                                width: "160px",
-                                                                                borderRight: '1px solid #ddd',
-                                                                                padding: '10px',
-                                                                                background: 'white',
-                                                                                fontWeight: "400",
+                                                                              paddingLeft: 5,
                                                                             }}
-                                                                        >
-                                                                            {testOnDate
-                                                                                ? `${testOnDate.value} ${testOnDate.unit}`
-                                                                                : '-'}
-                                                                        </div>
+                                                                          />
+                                                                        ) : testOnDate?.arrowDirection ===
+                                                                          "down" ? (
+                                                                          <ArrowDownOutlined
+                                                                            className="lab-params-warning"
+                                                                            style={{
+                                                                              paddingLeft: 5,
+                                                                            }}
+                                                                          />
+                                                                        ) : null}
+                                                                      </div>
                                                                     );
                                                                 })}
                                                             </div>
