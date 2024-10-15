@@ -1867,10 +1867,6 @@ body {
     padding: 0 0.5rem;
 }
 
-// .lab-param-add-date{
-//     cursor: pointer !important;
-// }
-
 .calender-labparams {
     .ant-picker-input {
         visibility: hidden;
@@ -1934,7 +1930,26 @@ body {
 .remarks-textarea::-webkit-scrollbar-thumb {
     background-color: #a4a4a4; /* Scrollbar color */
     border-radius: 1rem; /* Rounded edges */
-    height: 5rem;
+    height: 5rem;   
+}
+
+.ref-range-tooltip{
+    display: flex;
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--T-White-100, #FFF);
+    // box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.08);
+}
+
+.disclaimer-text{
+    font-family: Poppins;
+    font-size: 0.75rem;
+    border-top: 1px dashed #5A6774;
+    padding-top: 0.5rem;
+    color: var(--Colours-Text-Main-text-tertiery, #5A6774);
 }
 
 .test-parameters-header{
@@ -1954,6 +1969,7 @@ body {
     width: 60%;
     display: flex;
 }
+
 // style for lapparams Remarks section
 .truncated {
     white-space: nowrap;
@@ -1990,7 +2006,7 @@ body {
     &.ant-tooltip .ant-tooltip-arrow {
       --antd-arrow-background-color: #ffffff !important;
     }
-  }
+}
 
 .param-title {
     flex: 1;
@@ -2026,6 +2042,7 @@ body {
         }
     }
 }
+
 .badge-then {
     position: absolute;
     left: -22px;
