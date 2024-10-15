@@ -1,17 +1,19 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button, Card, DatePicker, Input, Popover, Tooltip, message } from 'antd';
-import { CaretRightOutlined, CaretDownOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, DeleteOutlined, CaretRightOutlined, CaretDownOutlined } from "@ant-design/icons";
 import axios from 'axios';
 import moment from "moment";
 import { jwtDecode } from 'jwt-decode';
-import { DEFAULT_TESTS_DATA, LAB_PARAMS_RESULTS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from '../utils/constants';
+import { LAB_PARAMS_RESULTS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from '../utils/constants';
+import { DEFAULT_TESTS_DATA } from '../utils/labParamsConstants';
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import CheckableTag from 'antd/es/tag/CheckableTag';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
+import editIcon from '../assets/images/edit.svg';
 
-const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => {
+const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal,  patientGender = "male"  }) => {
 
     const [token, setToken] = useState(null);
     const [tokenData, setTokenData] = useState(null);
@@ -25,12 +27,21 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
     const [isRemarksVisible, setIsRemarksVisible] = useState({});
     const [testCounts, setTestCounts] = useState({});
     const [showTooltip, setShowTooltip] = useState(false);
-    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const scrollContainerRef = useRef(null);
     const inputRef = useRef([]);
+    const scrollRefs = useRef([]);
+    const [editingDate, setEditingDate] = useState(null);
+
     const currentDate = new Date().toISOString().split("T")[0];
     const dateFormat = 'YYYY-MM-DD';
     const showDateFormat = 'DD MMM, YY';
+
+    //states for Remarks Functionality 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalContent, setModalContent] = useState("");
+    const [activeReport, setActiveReport] = useState(null);
+    const [activeTest, setActiveTest] = useState(null);
+    const [activeDate, setActiveDate] = useState(null);
 
     const baseUrl = { customBaseUrl: env.lab_params_api_url  };
 
@@ -71,26 +82,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
         }));
     };
 
-    // const searchLabParams = async (searchQuery) => {
-    //     try {
-    //         const cleanedToken = token.replace(/['"]+/g, '');
-    //         const response = await axios.get(`https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-parameters?search=${searchQuery}`, {
-    //             headers: {
-    //                 'Authorization': `Bearer ${cleanedToken}`,
-    //             },
-    //         });
-    
-    //         // Assuming response.data contains the fetched lab parameters.
-    //         const labParamsData = response.data;
-            
-    //         return labParamsData; 
-    //     } catch (error) {
-    //         console.error("Error fetching lab params:", error);
-    //         return [];
-    //     }
-    // }; 
-
-
     const searchLabParams = async (searchQuery) => {
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
@@ -123,7 +114,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
     const getLabParams = async () => {
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
-            const patientId = patient_data?.patient_unique_id;
+            const patientId = patient_unique_id;
             const doctorId = tokenData?.user_id;
             const response = await axios.get(`https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-parameters/results/${doctorId}/${patientId}`, {
                 headers: {
@@ -226,11 +217,94 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
             entry.inputs.sort((a, b) => {
                 if (a.recentlyUpdated && !b.recentlyUpdated) return -1;
                 if (!a.recentlyUpdated && b.recentlyUpdated) return 1;
-                return 0; // Keep original order if neither or both are recently updated
+                return 0;
             });
         });
         
         return combinedResults;
+    };
+
+    const addRemarksToUniqueReportNames = (inputs) => {
+        const uniqueReportNames = [...new Set(inputs.map(input => input.reportName))];
+        uniqueReportNames.forEach(reportName => {
+            const hasRemarks = inputs.some(input => input.testName === "Remarks" && input.reportName === reportName);
+            if (!hasRemarks) {
+                inputs.push({
+                    reportName: reportName,
+                    testName: "Remarks",
+                    value: "",  // Default value for Remarks
+                    units: "",
+                    arrowDirection: "",
+                    refRange: "",
+                    recentlyUpdated: true  // Mark as newly added
+                });
+            }
+        });
+    };
+
+    // Function to handle the modal opening
+    const handleOpenModal = (reportName, testName, date) => {
+        setActiveReport(reportName);
+        setActiveTest(testName);
+        setActiveDate(date);
+        setModalContent(inputValues[reportName][testName][date]?.value || "");
+        setIsModalOpen(true);
+    };
+
+    // Function to handle modal closing
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setActiveReport(null);
+        setActiveTest(null);
+        setActiveDate(null);
+        setModalContent("");
+    };
+
+    // Function to handle saving remarks
+    const handleSaveRemarks = () => {
+        const updatedValues = { ...inputValues };
+        if (!updatedValues[activeReport]) updatedValues[activeReport] = {};
+        if (!updatedValues[activeReport][activeTest]) updatedValues[activeReport][activeTest] = {};
+        if (!updatedValues[activeReport][activeTest][activeDate]) {
+            updatedValues[activeReport][activeTest][activeDate] = {};
+        }
+
+        updatedValues[activeReport][activeTest][activeDate].value = modalContent;
+
+        // Update input values
+        setInputValues(updatedValues);
+
+        // Close modal
+        handleCloseModal();
+    };
+
+    const calculateArrowDirection = (value, refRange, gender = "ALL") => {
+        if (!value || isNaN(parseFloat(value))) {
+            return "";
+        }
+    
+        let selectedRange;
+    
+        // Check if refRange has conditional ranges
+        if (refRange?.isConditional) {
+            selectedRange = refRange.ranges.find(range => range.gender === gender) || refRange.ranges[0];
+        } else {
+            selectedRange = refRange?.ranges[0]; // Single range case
+        }
+    
+        if (selectedRange) {
+            const numericValue = parseFloat(value);
+            const min = parseFloat(selectedRange.min);
+            const max = parseFloat(selectedRange.max);
+    
+            if (numericValue > max) {
+                return "up";
+            } else if (numericValue < min) {
+                return "down";
+            }
+        }
+    
+        return ""; // No arrow if within range
     };
 
     const mergeSearchResults = (existingResults, labParamsResults, searchQuery) => {
@@ -239,7 +313,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
         const currentFilledData = assemblePayload(inputValues);
         const data = combineData(currentFilledData, filledData);
     
-        setFilledData(data);  // Update filledData with combined data
+        setFilledData(data);
         existingResults = data?.length > 0 ? data : existingResults; // Use the combined data
     
         // Case 1: No existing results
@@ -250,6 +324,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
                     date: new Date().toISOString().split('T')[0],
                     inputs: [...DEFAULT_TESTS_DATA]
                 };
+
+                // Call function to add 'Remarks'
+                addRemarksToUniqueReportNames(newEntry.inputs);
                 tempResults.push(newEntry);
             } else {
                 // LabParamsResults exist: create new entry with current date
@@ -259,10 +336,16 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
                         reportName: lab.reportName || "",
                         testName: lab.testName || "",
                         value: "",
-                        units: lab.units || ""
+                        units: lab.units || "",
+                        arrowDirection: "",
+                        refRange: lab.refRange || "",
                     }))
                 };
+
+                // Call function to add 'Remarks'
+                addRemarksToUniqueReportNames(newEntry.inputs);
                 tempResults.push(newEntry);
+                console.log(tempResults,"tempResults");
             }
             return tempResults;
         }
@@ -277,39 +360,29 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
                             const existingInput = entry.inputs.find(input =>
                                 input.testName === lab.testName && input.reportName === lab.reportName
                             );
-    
+
                             const labInput = {
-                                reportName: lab.reportName || "",
-                                testName: lab.testName || "",
-                                value: existingInput ? existingInput.value : "",  // Retain value if exists
-                                units: lab.units || ""
+                            reportName: lab.reportName || "",
+                            testName: lab.testName || "",
+                            value: existingInput ? existingInput.value : "",  // Retain value if exists
+                            units: lab.units || "",
+                            arrowDirection: existingInput ? existingInput.arrowDirection : "",
+                            refRange: lab.refRange || "",
                             };
-    
-                            // Handle 'Remarks' input
-                            const remarksInput = entry.inputs.find(input =>
-                                input.testName === "Remarks" && input.reportName === lab.reportName
-                            );
-    
-                            if (remarksInput) {
-                                return {
-                                    ...labInput,
-                                    testName: remarksInput.testName,
-                                    value: remarksInput.value || ""
-                                };
-                            }
-    
-                            return {
-                                ...labInput,
-                                recentlyUpdated: !!existingInput // Mark as recently updated if already exists
-                            };
+
+                            return labInput;
                         })
                     };
+
+                    // Call function to add 'Remarks'
+                    addRemarksToUniqueReportNames(newEntry.inputs);
+
                     tempResults.push(newEntry);
                 });
-    
-                return tempResults; // Return combined results
+
+                return tempResults;
             }
-    
+
             // Append predefined lab parameters if not already present
             if (DEFAULT_TESTS_DATA?.length > 0) {
                 existingResults.forEach((entry) => {
@@ -317,26 +390,31 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
                         date: entry.date,
                         inputs: [...entry.inputs]
                     };
-    
+
                     DEFAULT_TESTS_DATA.forEach((lab) => {
                         const existingInput = newEntry.inputs.find(
                             input => input.testName === lab.testName && input.reportName === lab.reportName
                         );
-    
+
                         if (!existingInput) {
                             newEntry.inputs.push({
                                 reportName: lab.reportName || "",
                                 testName: lab.testName || "",
                                 value: "",
                                 units: lab.units || "",
+                                arrowDirection: "",
+                                refRange: lab.refRange || "",
                                 recentlyUpdated: true // Mark predefined data as newly added
                             });
                         }
                     });
-    
+
+                    // Call function to add 'Remarks'
+                    addRemarksToUniqueReportNames(newEntry.inputs);
+
                     tempResults.push(newEntry);
                 });
-    
+
                 return tempResults;
             }
         }
@@ -384,6 +462,26 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
         }
     }, [existingResults]);
 
+    const handleEditDate = (date) => {
+        setEditingDate(date);
+    };
+
+    const handleDateChange = (newDate) => {
+        
+        if (editingDate) {
+            const updatedDates = dates.map((date) =>
+                date === editingDate ? newDate : date
+            );
+
+            setDates(updatedDates);
+            setEditingDate(null);
+        }
+    };
+
+    const handleDeleteDate = (dateToDelete) => {
+        setDates((prevDates) => prevDates.filter((date) => date !== dateToDelete));
+    };
+
     const disabledDate = (current) => {
         return current && current >= moment().add(1, 'days').startOf('day');
     };
@@ -402,22 +500,28 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
                 updatedData[reportName][testName] = {};
             }
     
-            // Check if the date exists under the testName, if not, initialize it
+            // Initialize the date for the testName if not present
             if (!updatedData[reportName][testName][date]) {
                 updatedData[reportName][testName][date] = {
-                    reportName: reportName,
-                    testName: testName,
+                    reportName,
+                    testName,
                     value: "",
+                    arrowDirection: "",
+                    refRange: inputValues[reportName]?.[testName]?.[date]?.refRange || "",
                     units: getUnitForTest(reportName, testName),
                 };
             }
     
-            // Update the value for the specific date
+            // Update the value and calculate the arrow direction
+            const refRange = updatedData[reportName][testName][date].refRange;
+            const gender = patientGender || "ALL"; // Assuming `patientGender` is available globally or passed in
+    
             updatedData[reportName][testName][date].value = value;
+            updatedData[reportName][testName][date].arrowDirection = calculateArrowDirection(value, refRange, gender);
     
             return updatedData;
         });
-    };
+    };    
     
     const getUnitForTest = (reportName, testName) => {
         for (const date of dates) {
@@ -429,9 +533,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
         return "";
     };
 
-    const assemblePayload = (inputValues) => {
-        const results = dates
-            .map((date) => {
+    const assemblePayload = () => {
+        const results = dates.map((date) => {
                 const inputs = Object.keys(inputValues)
                     .flatMap((reportName) =>
                         Object.keys(inputValues[reportName])
@@ -443,6 +546,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
                                         testName: testName,
                                         value: testValue,
                                         arrowDirection: inputValues[reportName][testName][date]?.arrowDirection || "",
+                                        refRange: inputValues[reportName][testName][date]?.refRange,
                                         units: inputValues[reportName][testName][date]?.units || getUnitForTest(reportName, testName),
                                     };
                                 } else {
@@ -477,6 +581,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
                                 testName: testName,
                                 value: "",
                                 units: getUnitForTest(reportName, testName),
+                                arrowDirection:"",
+                                refRange: inputValues[reportName][testName][date]?.refRange,
                             };
                         }
                     });
@@ -491,15 +597,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
 
     const handleSave = async() =>{
 
-        const currentFilledData = assemblePayload(inputValues);
-        const data = combineData(currentFilledData,filledData);
-        setFilledData(data)
-
+        const data = assemblePayload();
+        setFilledData(data);
         const payload = {
-            patientId: patient_data?.patient_unique_id,
+            patientId: patient_unique_id,
             doctorId: tokenData?.user_id,
-            results: data 
-        }
+            results: data,
+        };
 
         try {
             const response = await api.post(
@@ -517,177 +621,354 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_data, onSave }) => 
 
     }
 
-    const showHideBackModal = useCallback(() => {
-        setIsBackModalOpen(!isBackModalOpen);
-    }, [isBackModalOpen]);
+    const handleScroll = (index) => {
+        const scrollLeft = scrollRefs.current[index].scrollLeft;
+        scrollRefs.current.forEach((ref, i) => {
+            if (i !== index) {
+                ref.scrollLeft = scrollLeft; // Synchronize scroll position
+            }
+        });
+    };
     
     return (
-        <div>
-            <div className='modalCard-header h-60 align-items-center justify-content-between d-flex' style={{position: "sticky",top: "0",zIndex: "1"}}>
-                <div className='align-items-center d-flex'>
-                    <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={showHideBackModal}>
-                        <i className='icon-Cross fs-3'></i>
-                    </Button>
-                    <CommonModal
-                        isModalOpen={isBackModalOpen}
-                        onCancel={showHideBackModal}
-                        modalWidth={500}
-                        title={"You may lose your data"}
-                        modalBody={
-                            <>
-                                <div className="alert-warning rounded-10px p-2 patient-details">
-                                    <div className="d-flex align-items-center">
-                                        <img className='me-3' src={alertIcon} alt="Warning" />
-                                        <span>
-                                            Are you sure you want to leave? <br />
-                                            You will permanently lose your data.
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="mt-4">
-                                    <div className="d-flex align-items-center mt-2 justify-content-end">
-                                        <div onClick={handleAddLabParamsDrawer} className="me-4 text-decoration-underline btn p-0 text-main">
-                                            Yes Leave
-                                        </div>
-                                        <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">
-                                            <span>No, Stay</span>
-                                        </Button>
-                                    </div>
-                                </div>
-                            </>
-                        }
-                    />
-                    <div className="modal-title">Add Lab Results</div>
-                </div>
-                <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={handleSave}>
-                    Save
-                </Button>
-            </div>
-            <div className="align-items-center d-flex justify-content-between px-20 py-3 gap-4">
-                <Input
-                    value={searchQuery}
-                    placeholder="Search by test name or category"
-                    className="inputheight38"
-                    style={{width:"18rem"}}
-                    prefix={<i className="icon-search" />}
-                    suffix={searchQuery.length > 0 && <i className="icon-Cross" onClick={() => onSearch('')}></i>}
-                    onChange={(e) => onSearch(e.target.value)}
-                />
-                <div className="position-relative">
-                    <Button className='btn btn-primary2 btn-41'>
-                        Add New Date
-                    </Button>
-                    <DatePicker key={Math.random()} suffixIcon={null} inputReadOnly onChange={(date, dateString) => handleAddNewDate(dateString)} disabledDate={disabledDate} className='calender-labparams'/>
-                </div>
-            </div>
-            <div className='px-20'>
-                <div className='labparam-header'>
-                    <div className='labparam-head'>Name</div>
-                    <div className='labparam-head-date'>
-                        {dates.map((date) => (
-                            <div key={date} className='labparam-head-dates'>
-                                {moment(date).format(showDateFormat)}
-                            </div>
-                        ))}
+      <div>
+        <div
+          className="modalCard-header h-60 align-items-center justify-content-between d-flex"
+          style={{ position: "sticky", top: "0", zIndex: "3" }}
+        >
+          <div className="align-items-center d-flex">
+            <Button
+              type="text"
+              className="btn btn-delete-prescription px-3 focus-none h-100"
+              onClick={showHideBackModal}
+            >
+              <i className="icon-Cross fs-3"></i>
+            </Button>
+            <CommonModal
+              isModalOpen={isBackModalOpen}
+              onCancel={showHideBackModal}
+              modalWidth={500}
+              title={"You may lose your data"}
+              modalBody={
+                <>
+                  <div className="alert-warning rounded-10px p-2 patient-details">
+                    <div className="d-flex align-items-center">
+                      <img className="me-3" src={alertIcon} alt="Warning" />
+                      <span>
+                        Are you sure you want to leave? <br />
+                        You will permanently lose your data.
+                      </span>
                     </div>
+                  </div>
+                  <div className="mt-4">
+                    <div className="d-flex align-items-center mt-2 justify-content-end">
+                      <div
+                        onClick={() => {
+                          handleAddLabParamsDrawer();
+                          showHideBackModal();
+                        }}
+                        className="me-4 text-decoration-underline btn p-0 text-main"
+                      >
+                        Yes Leave
+                      </div>
+                      <Button
+                        onClick={showHideBackModal}
+                        className="lh-lg btn btn-primary3 btn-41 px-4"
+                      >
+                        <span>No, Stay</span>
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              }
+            />
+            <div className="modal-title">Add Lab Results</div>
+          </div>
+          <Button
+            className="btn btn-primary3 btn-41 px-4 me-20"
+            onClick={handleSave}
+          >
+            Save
+          </Button>
+        </div>
+        <div className="align-items-center d-flex justify-content-between px-20 py-3 gap-4" style={{position:"sticky",top:"3.78rem", backgroundColor:"white",zIndex:"999"}}>
+          <Input
+            value={searchQuery}
+            placeholder="Search by test name or category"
+            className="inputheight38"
+            style={{ width: "18rem" }}
+            prefix={<i className="icon-search" />}
+            suffix={
+              searchQuery.length > 0 && (
+                <i className="icon-Cross" onClick={() => onSearch("")}></i>
+              )
+            }
+            onChange={(e) => onSearch(e.target.value)}
+          />
+          <div className="position-relative">
+            <Button className="btn btn-primary2 btn-41">Add New Date</Button>
+            <DatePicker
+              key={Math.random()}
+              suffixIcon={null}
+              inputReadOnly
+              onChange={(date, dateString) => handleAddNewDate(dateString)}
+              disabledDate={disabledDate}
+              className="calender-labparams"
+            />
+          </div>
+        </div>
+        <div className="px-20">
+          <div className="labparam-header">
+            <div className="labparam-head">Name</div>
+            <div className="labparam-head-date">
+              {dates.map((date) => (
+                <div key={date} className="labparam-head-dates">
+                  {moment(date).format(showDateFormat)}
                 </div>
-                {/* Scrollable container for date-based inputs */}
-                <div ref={scrollContainerRef} className='d-flex'>
-                    <div className="d-flex flex-column w-100">
-                        {Object.keys(inputValues).map((reportName) => (
-                            <>
-                                <div className="test-parameters-header" key={reportName} onClick={() => toggleReport(reportName)}>
-                                    <span className=''>
-                                        {reportName}
-                                        {testCounts[reportName] > 0 && (
-                                            <span> ({testCounts[reportName]})</span>
-                                        )}
-                                    </span>
+              ))}
+            </div>
+          </div>
+          {/* Scrollable container for date-based inputs */}
+          <div ref={scrollContainerRef} className="d-flex">
+            <div
+              className="d-flex flex-column w-100"
+              style={{ overflowY: "auto", position: "relative" }}
+            >
+              {Object.keys(inputValues).map((reportName) => (
+                <>
+                  <div
+                    className="test-parameters-header"
+                    key={reportName}
+                    onClick={() => toggleReport(reportName)}
+                  >
+                    <div>
+                      <span>{reportName}</span>
+                      {testCounts[reportName] > 0 && (
+                        <span> ({testCounts[reportName]})</span>
+                      )}
+                    </div>
+                    {!!expandedReports[reportName] ? (
+                      <CaretDownOutlined />
+                    ) : (
+                      <CaretRightOutlined />
+                    )}
+                  </div>
+                  {Object.keys(inputValues[reportName]).map(
+                    (testName, index) => (
+                      <div>
+                        {expandedReports[reportName] && ( // Only render if report is expanded
+                          <div key={testName} className="test-values-row">
+                            <div
+                              className="labparam-title sticky-testname"
+                              style={{
+                                width: 280,
+                                position: "sticky",
+                                left: 0,
+                                background: "#fff",
+                                zIndex: 2,
+                              }}
+                            >
+                              <div style={{ width:"100px" }}>
+                                {testName}
+                                <Tooltip
+                                    placement="bottom"
+                                    title={
+                                        <div style={{ textAlign: 'center' }}>
+                                          {(() => {
+                                            // Initialize a variable to track if the reference range has been rendered
+                                            let hasRenderedRefRange = false;
+                                            
+                                            return inputValues[reportName][testName] &&
+                                              Object.keys(inputValues[reportName][testName]).map((date, index) => {
+                                                const testData = inputValues[reportName][testName][date];
+                                                const refRange = testData?.refRange;
                                     
-                                    {(!!expandedReports[reportName]) ? <CaretDownOutlined /> : <CaretRightOutlined />}
-                                </div>
-                                { Object.keys(inputValues[reportName]).map((testName) => (
-                                    <>
-                                        { expandedReports[reportName] && ( // Only render if report is expanded
-                                            <div key={testName} className="test-values-row">
-                                                <div key={testName} className='labparam-title'>
-                                                    {testName}
-                                                    <Tooltip 
-                                                        placement="bottom" 
-                                                        title={
-                                                            <div style={{ textAlign: 'center' }}>
-                                                                <div><strong>Male:</strong> {`50 - 90 Cells/L`}</div>
-                                                                <div><strong>Female:</strong> {`50 - 90 Cells/L`}</div>
-                                                                <div style={{ marginTop: '10px', fontStyle: 'italic', color: '#888' }}>
-                                                                {`referenceRange.disclaimer`}
-                                                                </div>
-                                                            </div>
-                                                        }
-                                                        overlayClassName="lab-params-tooltip"
-                                                        overlayInnerStyle={{ padding: '12px', width: '250px',background:"white",color:"black" }} // Adjust styling as necessary
-                                                    >
-                                                        <i className="icon-info ms-1" 
-                                                            style={{ cursor: "pointer",
-                                                            color: "#d3d3d3",
-                                                            fontSize: "18px",
-                                                            marginBottom: "10px",
-                                                        }}
-                                                            >
-                                                        </i>
-                                                    </Tooltip>
-                                                </div>
-                                                {dates.map((date) => (
-                                                    <div key={date} className='test-values-container'>
-                                                        {testName === "Remarks" ? (
-                                                            // Conditionally rendering remarks as text with truncation
-                                                            <div className='test-value'>
-                                                                <div 
-                                                                    className="remarks-text truncated" 
-                                                                >
-                                                                    {inputValues[reportName][testName][date]?.value || "No remarks"}
-                                                                </div>
-
-                                                                {/* Modal or container to show full remarks when clicked */}
-                                                                {isRemarksVisible[reportName]?.[testName]?.[date] && (
-                                                                    <div className="full-remarks-container">
-                                                                        <div className="full-remarks-content">
-                                                                            {inputValues[reportName][testName][date]?.value}
-                                                                        </div>
-                                                                    </div>
-                                                                )}
-                                                            </div>
+                                                // If reference range is available and hasn't been rendered yet
+                                                if (refRange && refRange.ranges && refRange.ranges.length > 0 && !hasRenderedRefRange) {
+                                                  hasRenderedRefRange = true; // Set to true after rendering once
+                                                  
+                                                  if (refRange.isConditional) {
+                                                    // If reference range is conditional (i.e., gender-based)
+                                                    const maleRange = refRange.ranges.find(range => range.gender === 'MALE');
+                                                    const femaleRange = refRange.ranges.find(range => range.gender === 'FEMALE');
+                                                    
+                                                    return (
+                                                      <div key={index}>
+                                                        <strong>Reference Range:</strong>
+                                                        {maleRange && femaleRange ? (
+                                                          <div>
+                                                            <strong>Male:</strong> {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
+                                                            <strong>Female:</strong> {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                          </div>
+                                                        ) : maleRange ? (
+                                                          <div>
+                                                            <strong>Male:</strong> {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
+                                                          </div>
+                                                        ) : femaleRange ? (
+                                                          <div>
+                                                            <strong>Female:</strong> {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                          </div>
                                                         ) : (
-                                                            // Regular input for non-remarks fields
-                                                            <div className='test-value'>
-                                                                <Input
-                                                                    className="inputheight41-group"
-                                                                    type="text"
-                                                                    value={inputValues[reportName][testName][date]?.value || ""}
-                                                                    addonAfter={inputValues[reportName][testName][date]?.units || getUnitForTest(reportName, testName)}
-                                                                    onChange={(e) =>
-                                                                        handleInputChange(
-                                                                            reportName,
-                                                                            testName,
-                                                                            date,
-                                                                            e.target.value
-                                                                        )
-                                                                    }
-                                                                />
-                                                            </div>
+                                                          <div>No reference range available</div>
                                                         )}
-                                                    </div>
-                                                ))}
+                                                      </div>
+                                                    );
+                                                  } else {
+                                                    // If reference range is common for all (i.e., non-conditional)
+                                                    const range = refRange.ranges[0];
+                                                    return (
+                                                      <div key={index}>
+                                                        <div>
+                                                          <strong>All:</strong> {`${range?.min} - ${range?.max} ${range?.unit}`}
+                                                        </div>
+                                                      </div>
+                                                    );
+                                                  }
+                                                }
+                                                // Render nothing if reference range has already been rendered
+                                                return null;
+                                              });
+                                          })()}
+                                          <div style={{ marginTop: '10px', fontStyle: 'italic', color: '#888' }}>
+                                            {`Disclaimer: This range is only for reference and may vary between patients based on different conditions.`}
+                                          </div>
+                                        </div>
+                                      }
+                                    overlayClassName="lab-params-tooltip"
+                                    overlayInnerStyle={{ padding: '12px', width: '250px',background:"white",color:"black" }} // Adjust styling as necessary
+                                >
+                                    <i className="icon-info ms-1"
+                                        style={{ cursor: "pointer",
+                                        color: "#d3d3d3",
+                                        fontSize: "18px",
+                                        marginBottom: "10px",
+                                    }}
+                                        >
+                                    </i>
+                                </Tooltip>
+                              </div>
+                            </div>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                columnGap: "36px",
+                                overflowX: "auto",
+                                maxHeight: "220px",
+                                "-ms-overflow-style": "none",
+                                scrollbarWidth: "none"
+                              }}
+                              ref={(el) => (scrollRefs.current[index] = el)}
+                              onScroll={() => handleScroll(index)}
+                            >
+                              {dates.map((date) => (
+                                <div
+                                  key={date}
+                                  className="test-values-container"
+                                >
+                                {testName === "Remarks" ? (
+                                    <div>
+                                        <div className="remarks-text truncated">
+                                            {inputValues[reportName][testName][date]?.value ? (
+                                                inputValues[reportName][testName][date]?.value
+                                            ) : (
+                                                <Button
+                                                    className="underline-button"
+                                                    onClick={() => handleOpenModal(reportName, testName, date)}
+                                                >
+                                                    Add Remarks
+                                                </Button>
+                                            )}
+                                        </div>
+
+                                        {isRemarksVisible[reportName]?.[testName]?.[date] && (
+                                            <div className="full-remarks-container">
+                                                <div className="full-remarks-content">
+                                                    {inputValues[reportName][testName][date]?.value}
+                                                </div>
                                             </div>
                                         )}
-                                    </>
-                                ))}
-                            </>
-                        ))}
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <Input
+                                            style={{
+                                                width: "180px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                borderRadius: "9px",
+                                                border: inputValues[reportName][testName][date]?.arrowDirection
+                                                    ? "2px solid #E54848" // Red border when up or down arrow
+                                                    : "1px solid #d9d9d9", // Default border style
+                                                color: inputValues[reportName][testName][date]?.arrowDirection
+                                                    ? "#E54848" // Red text when up or down arrow
+                                                    : "inherit", // Default text color
+                                            }}
+                                            type="text"
+                                            value={inputValues[reportName][testName][date]?.value || ""}
+                                            addonAfter={
+                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                    {/* Show the up or down arrow based on the calculated direction */}
+                                                    {inputValues[reportName][testName][date]?.arrowDirection === "up" ? (
+                                                        <span style={{ height:"12px",position: "absolute",left: "-46%", zIndex:"1" }}>↑</span>
+                                                    ) : inputValues[reportName][testName][date]?.arrowDirection === "down" ? (
+                                                        <span style={{position: "absolute",left: "-46%", zIndex:"1" }}>↓</span>
+                                                    ) : null}
+                                    
+                                                    {/* Show units */}
+                                                    <span
+                                                        style={{
+                                                            textAlign: "center",
+                                                            overflow: "hidden",
+                                                            whiteSpace: "nowrap",
+                                                            textOverflow: "ellipsis",
+                                                        }}
+                                                    >
+                                                        {inputValues[reportName][testName][date]?.units || getUnitForTest(reportName, testName)}
+                                                    </span>
+                                                </div>
+                                            }
+                                            onChange={(e) => handleInputChange(reportName, testName, date, e.target.value)}
+                                        />
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  )}
+                </>
+              ))}
+            </div>
+          </div>
+        </div>
+        <CommonModal
+            isModalOpen={isModalOpen}
+            onCancel={handleCloseModal}
+            modalWidth={500}
+            title={"Add Remarks"}
+            modalBody={
+                <>
+                    <div className="d-flex align-items-center mt-2 justify-content-end">
+                        <textarea
+                            className="remarks-textarea"
+                            value={modalContent}
+                            onChange={(e) => setModalContent(e.target.value)}
+                            placeholder="Write your remarks here..."
+                            style={{ width: '100%', height: '150px', resize: 'none', overflowY: 'scroll' }}
+                        />
                     </div>
-                </div>
-            </div>  
-    </div>
-);
+                    <Button onClick={() => {handleSaveRemarks()}} className="lh-lg btn btn-primary3 btn-41 px-4">
+                            <span>Save</span>
+                    </Button>
+                </>
+            }
+        />
+      </div>
+    );
 };
 
 export default LabResultsTable;

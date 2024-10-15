@@ -1771,8 +1771,7 @@ body {
         background-position: 150% 150%; /* End shimmer at bottom-right corner */
     }
 }
-  
-  
+
 
 /* Suggestion card styles */
 .suggestion-card {
@@ -1827,7 +1826,8 @@ body {
     overflow-x: hidden; /* Hide horizontal scrollbar */
 }
 
-// labparameters styles
+
+// labparameters styles //
 .labparam-header{
     display: flex;
     width: 100%;
@@ -1900,16 +1900,43 @@ body {
     width: 100%;
     margin-bottom: 0.5rem;
 }   
-.test-values-container{
-    width: 70%;
-    display: flex;
-    height: 3.9375rem;
-    padding: 0.5rem 1rem;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 2.0625rem;
+.test-values-container {
+  width: 180px;
+  height: 3.9375rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2.0625rem;
 }
+
+.remarks-text.truncated {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.remarks-textarea{
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    resize: none;
+    border: 1px solid #6767dd;
+    border-radius: 0.625rem;
+    overflow-y: auto;
+}
+
+.remarks-textarea:focus {
+    outline: none; /* Remove the default focus outline */
+    border: 1px solid #4242e5; /* Maintain the same border when focused */
+}
+
+.remarks-textarea::-webkit-scrollbar-thumb {
+    background-color: #a4a4a4; /* Scrollbar color */
+    border-radius: 1rem; /* Rounded edges */
+    height: 5rem;
+}
+
 .test-parameters-header{
     display: flex;
     height: 2.8rem;
@@ -1922,6 +1949,7 @@ body {
     background: #efefef;
     cursor: pointer;
 }
+
 .labparam-head-date{
     width: 60%;
     display: flex;
@@ -1935,13 +1963,12 @@ body {
     cursor: pointer;
 }
 
-.full-remarks-container {
-    position: absolute;
-    background-color: white;
-    padding: 10px;
-    border: 1px solid #ccc;
-    z-index: 10;
-    /* Add any other styling as needed */
+.underline-button{
+    border: none;
+    background: none;
+    text-decoration: underline;
+    color: #4B4AD5;
+    cursor: pointer;
 }
 
 .full-remarks-content {
