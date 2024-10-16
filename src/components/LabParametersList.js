@@ -9,16 +9,20 @@ const LabParametersList = ({labParamsData}) => {
 
   const transformData = (data) => {
     const result = {};
-
+  
     data?.forEach((entry) => {
       entry.inputs?.forEach(({ testName, value, arrowDirection, units }) => {
-        if (!result[testName]) {
-          result[testName] = [];
+        // Skip testNames like "Remarks"
+        if (testName !== "Remarks") {
+          if (!result[testName]) {
+            result[testName] = [];
+          }
+          // Push all entries including duplicates
+          result[testName].push({ date: entry.date, value, arrowDirection, units });
         }
-        result[testName].push({ date: entry.date, value, arrowDirection, units });
       });
     });
-
+  
     return result;
   };
 
@@ -28,7 +32,7 @@ const LabParametersList = ({labParamsData}) => {
   const renderTableHeader = () => {
     // Sort labParamsData by date (descending) and take the first two dates
     const recentLabParamsData = labParamsData?.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 2);
-  
+
     return (
       <tr>
         <th
