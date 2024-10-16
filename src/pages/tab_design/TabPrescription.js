@@ -161,6 +161,7 @@ function TabPrescription() {
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
   const [medicalReportDrawer, setMedicalReportDrawer] = useState(false);
   const [labParamsDrawer, setLabParamsDrawer] = useState(false);
+  const [viewlabparamsDrawer, setViewlabparamsDrawer] = useState(false);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
@@ -627,6 +628,16 @@ function TabPrescription() {
     }
   };
 
+  const handleViewLabParamsDrawer = () => {
+    setViewlabparamsDrawer((prev) => !prev);
+  };
+
+  // Function to close "View Lab Params" and open "Add Lab Params"
+  const handleSwitchToAddLabParams = () => {
+    setViewlabparamsDrawer(false);
+    setLabParamsDrawer(true);
+  };
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -935,7 +946,7 @@ function TabPrescription() {
                     setUploadDocDrawer={setUploadDocDrawer}
                   />
               ) : collapsedFlag === 8 && (
-                <TabLabParametersList handleCollapsed={() => setCollapsed(!collapsed)} labParamsData={labParamsData} handleAddLabParamsDrawer={handleAddLabParamsDrawer}/>
+                <TabLabParametersList handleCollapsed={() => setCollapsed(!collapsed)} labParamsData={labParamsData} handleAddLabParamsDrawer={handleAddLabParamsDrawer} handleViewLabParamsDrawer={handleViewLabParamsDrawer}/>
               )}
             </Sider>
             <div
@@ -1132,6 +1143,19 @@ function TabPrescription() {
             <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} onSave={handleLabParamsUpdate} patient_unique_id={patient_data?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal}/>
           </Drawer>
         )}
+       {viewlabparamsDrawer && (
+        <Drawer
+              closeIcon={false}
+              className="modalWidth-700"
+              placement="right"
+              open={viewlabparamsDrawer}
+              bodyStyle={{ backgroundColor: "white" }}
+              onClose={handleViewLabParamsDrawer}
+              width="auto"
+          >
+              <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
+          </Drawer>
+      )}
       </>
     </CashManagerContext.Provider>
   );

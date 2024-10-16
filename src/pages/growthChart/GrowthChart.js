@@ -203,10 +203,7 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   };
 
   const imageUploadHandler = () => {
-    if (
-      measurements.length &&
-      (isMeasurementUpdated || isPercentileOrTimeLineUpdated)
-    ) {
+    if (allGrowthChartParams?.length > 0) {
       dispatch(updatedMeasurement());
       setIsSaveClicked(true);
       setIsPercentileOrTimeLineUpdated(false);
