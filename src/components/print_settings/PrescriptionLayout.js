@@ -562,7 +562,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                     ({ ...option, key: option.id })
                                     : (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ?
                                       ({ ...option, key: option.id })
-                                      : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0) ?
+                                      : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0) ?
                                         ({ ...option, key: option.id })
                                         : (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ?
                                           ({ ...option, key: option.id })

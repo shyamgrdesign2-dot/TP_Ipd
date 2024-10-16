@@ -125,7 +125,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     const gynecHistoryData = caseManagerData?.gynecHistoryData
     const labParamsData = caseManagerData?.labParamsData
 
-    const { growthChartData, growthChartImageData } = growthChartDetails || {};
+    const { growthChartData, growthChartImageData, todayGrowthChartData } =
+      growthChartDetails || {};
     let growthChartImageChunks = []
     if (growthChartImageData) {
         const growthChartOption = printSettings?.prescription?.case_option?.find(o => o.id === 12)?.growth_chart_option;
@@ -1484,7 +1485,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 12 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
-                                    {growthChartData?.length > 0 && (
+                                    {growthChartData?.length > 0 && Object.keys(growthChartImageData)?.length > 0 && todayGrowthChartData?.length > 0 && (
                                         option?.format === 'table' ? (
                                             <>
                                                 <View style={{ marginTop: PX_TO_PT * 15 }}>
