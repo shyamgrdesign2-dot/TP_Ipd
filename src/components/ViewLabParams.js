@@ -1,4 +1,4 @@
-import { Button, Input } from 'antd';
+import { Button, Input, Tooltip } from 'antd';
 import React, { useState, useRef, useEffect } from 'react';
 import { CaretRightOutlined, CaretDownOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -94,6 +94,16 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
 
     const handleMouseLeaveOrUp = () => {
         setIsDragging(false);
+    };
+
+    const tooltipTitle = (remarks) => {
+      return (
+        <div className="d-flex justify-content-between flex-column h-100 w-100">
+          <div className="h-80" style={{ overflow: "auto" }}>
+            {remarks}
+          </div>
+        </div>
+      );
     };
 
     return (
@@ -297,7 +307,6 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                                     display: 'flex',
                                                                     overflowX: 'auto',
                                                                     cursor: isDragging ? 'grabbing' : 'grab',
-                                                                    whiteSpace: 'nowrap',
                                                                 }}
                                                             >
                                                                 {filteredReports.map((entry) => {
@@ -314,7 +323,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                                           background: "white",
                                                                           fontWeight: "400",
                                                                         }}
-                                                                        className={`truncated ${
+                                                                        className={`${
                                                                           testOnDate?.arrowDirection ===
                                                                             "up" ||
                                                                           testOnDate?.arrowDirection ===
@@ -323,7 +332,20 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                                             : ""
                                                                         }`}
                                                                       >
-                                                                        {testOnDate
+                                                                        {testName === "Remarks" && testOnDate
+                                                                          ? (
+                                                                            <Tooltip
+                                                                                trigger={["hover"]}
+                                                                                title={tooltipTitle(testOnDate.value)}
+                                                                                overlayClassName="customTooltip"
+                                                                                placement="top"
+                                                                            >
+                                                                                <div className='truncated'>
+                                                                                    {testOnDate.value}
+                                                                                </div>
+                                                                            </Tooltip>
+                                                                          )
+                                                                          : testOnDate
                                                                           ? `${testOnDate.value} ${testOnDate.unit}`
                                                                           : "-"}
                                                                         {testOnDate?.arrowDirection ===
