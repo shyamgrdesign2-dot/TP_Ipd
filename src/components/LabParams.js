@@ -476,45 +476,63 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         }
     }, [existingResults]);
 
-    function replaceDateByIndex(
-      inputValues,
-      dateIndex,
-      newDate
-    ) {
-      const updatedValues = { ...inputValues };
+  function replaceDate(inputValues, oldDate, newDate) {
+    const updatedValues = { ...inputValues };
 
+    Object.keys(updatedValues).forEach((reportName) => {
+      Object.keys(updatedValues[reportName]).forEach((testName) => {
+        const testData = { ...updatedValues[reportName][testName] };
+
+        if (testData.hasOwnProperty(oldDate)) {
+          const reorderedData = {};
+
+          Object.keys(testData).forEach((key) => {
+            if (key === oldDate) {
+              // Replace the old date key with the new date key
+              reorderedData[newDate] = testData[oldDate];
+            } else {
+              // Retain other keys and their values
+              reorderedData[key] = testData[key];
+            }
+          });
+          // Update the test data with the reordered object
+          updatedValues[reportName][testName] = reorderedData;
+        } else {
+          console.warn(`Date "${oldDate}" not found in the test data.`);
+        }
+      });
+    });
+    return updatedValues;
+  }
+
+
+    function deleteDateByIndex(inputValues, date) {
+      const updatedValues = { ...inputValues };
       Object.keys(updatedValues).forEach((reportName) => {
         Object.keys(updatedValues[reportName]).forEach((testName) => {
           const testData = updatedValues[reportName][testName];
-          const dateKeys = Object.keys(testData);
-
-          if (dateIndex >= 0 && dateIndex < dateKeys.length) {
-            const oldDate = dateKeys[dateIndex];
-            testData[newDate] = testData[oldDate];
-            delete testData[oldDate];
-          } else {
-            console.warn(`Date index "${dateIndex}" is out of bounds.`);
-          }
+            delete testData[date];
         });
       });
-
       return updatedValues;
     }
 
     const handleDateChange = (newDate, index) => {
-        setDates((prevDates) => {
-            const updatedDates = [...prevDates];
-            updatedDates[index] = newDate;
-            return updatedDates;
-        });
-        setInputValues((prev) => {
-            const updatedData = replaceDateByIndex(prev, index, newDate);
-            return updatedData;
-        });
+      setDates((prevDates) => {
+        const updatedDates = [...prevDates];
+        updatedDates[index] = newDate;
+        return updatedDates;
+      });
+      setInputValues((prev) => {
+        const updatedData = replaceDate(prev, dates[index], newDate);
+        return updatedData;
+      });
     };
 
     const handleDeleteDate = (dateToDelete) => {
         setDates((prevDates) => prevDates.filter((date) => date !== dateToDelete));
+        const updatedData = deleteDateByIndex(inputValues, dateToDelete);
+        setInputValues(updatedData);
     };
 
     const disabledDate = (current) => {
@@ -639,6 +657,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     }
   };
     
+
+  useEffect(() => {
+    const sortedDates = dates.sort((a, b) => new Date(b) - new Date(a));
+    setDates(sortedDates);
+  }, [inputValues, dates]);
     
 
     const handleSave = async() =>{
@@ -799,18 +822,20 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                   <img className="me-2" src={editIcon} alt="Edit" />
                                   <span>Edit Date</span>
                                   <DatePicker
-                                  key={Math.random()}
-                                  suffixIcon={null}
-                                  inputReadOnly
-                                  onChange={(date, dateString) => handleDateChange(dateString, index)}
-                                  disabledDate={disabledDate}
-                                  className="calender-labparams"
+                                    key={Math.random()}
+                                    suffixIcon={null}
+                                    inputReadOnly
+                                    onChange={(date, dateString) => handleDateChange(dateString, index)}
+                                    disabledDate={disabledDate}
+                                    className="calender-labparams"
                                   />
                               </div>
-                              <div className="tooltip-content" onClick={() => handleDeleteDate(date)}>
-                                  <DeleteOutlined className="delete-icon" />
-                                  <span>Delete</span>
-                              </div>
+                              {dates.length > 1 && (
+                                <div className="tooltip-content" onClick={() => handleDeleteDate(date, index)}>
+                                    <DeleteOutlined className="delete-icon" />
+                                    <span>Delete</span>
+                                </div>
+                                )}
                               </>
                           }
                           overlayClassName="custom-tooltip"
