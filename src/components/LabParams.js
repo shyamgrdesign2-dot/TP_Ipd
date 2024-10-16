@@ -17,6 +17,7 @@ import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal,  patientGender = "male"  }) => {
 
     const [token, setToken] = useState(null);
+    const searchRef = useRef(null);
     const [tokenData, setTokenData] = useState(null);
     const [dates, setDates] = useState([]);
     const [existingResults, setExistingResults] = useState([]);
@@ -476,45 +477,63 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         }
     }, [existingResults]);
 
-    function replaceDateByIndex(
-      inputValues,
-      dateIndex,
-      newDate
-    ) {
-      const updatedValues = { ...inputValues };
+  function replaceDate(inputValues, oldDate, newDate) {
+    const updatedValues = { ...inputValues };
 
+    Object.keys(updatedValues).forEach((reportName) => {
+      Object.keys(updatedValues[reportName]).forEach((testName) => {
+        const testData = { ...updatedValues[reportName][testName] };
+
+        if (testData.hasOwnProperty(oldDate)) {
+          const reorderedData = {};
+
+          Object.keys(testData).forEach((key) => {
+            if (key === oldDate) {
+              // Replace the old date key with the new date key
+              reorderedData[newDate] = testData[oldDate];
+            } else {
+              // Retain other keys and their values
+              reorderedData[key] = testData[key];
+            }
+          });
+          // Update the test data with the reordered object
+          updatedValues[reportName][testName] = reorderedData;
+        } else {
+          console.warn(`Date "${oldDate}" not found in the test data.`);
+        }
+      });
+    });
+    return updatedValues;
+  }
+
+
+    function deleteDateByIndex(inputValues, date) {
+      const updatedValues = { ...inputValues };
       Object.keys(updatedValues).forEach((reportName) => {
         Object.keys(updatedValues[reportName]).forEach((testName) => {
           const testData = updatedValues[reportName][testName];
-          const dateKeys = Object.keys(testData);
-
-          if (dateIndex >= 0 && dateIndex < dateKeys.length) {
-            const oldDate = dateKeys[dateIndex];
-            testData[newDate] = testData[oldDate];
-            delete testData[oldDate];
-          } else {
-            console.warn(`Date index "${dateIndex}" is out of bounds.`);
-          }
+            delete testData[date];
         });
       });
-
       return updatedValues;
     }
 
     const handleDateChange = (newDate, index) => {
-        setDates((prevDates) => {
-            const updatedDates = [...prevDates];
-            updatedDates[index] = newDate;
-            return updatedDates;
-        });
-        setInputValues((prev) => {
-            const updatedData = replaceDateByIndex(prev, index, newDate);
-            return updatedData;
-        });
+      setDates((prevDates) => {
+        const updatedDates = [...prevDates];
+        updatedDates[index] = newDate;
+        return updatedDates;
+      });
+      setInputValues((prev) => {
+        const updatedData = replaceDate(prev, dates[index], newDate);
+        return updatedData;
+      });
     };
 
     const handleDeleteDate = (dateToDelete) => {
         setDates((prevDates) => prevDates.filter((date) => date !== dateToDelete));
+        const updatedData = deleteDateByIndex(inputValues, dateToDelete);
+        setInputValues(updatedData);
     };
 
     const disabledDate = (current) => {
@@ -639,6 +658,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     }
   };
     
+
+  useEffect(() => {
+    const sortedDates = dates.sort((a, b) => new Date(b) - new Date(a));
+    setDates(sortedDates);
+  }, [inputValues, dates]);
     
 
     const handleSave = async() =>{
@@ -757,6 +781,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         <div className="align-items-center d-flex justify-content-between px-20 py-3 gap-4" style={{position:"sticky",top:"3.78rem", backgroundColor:"white",zIndex:"999"}}>
           <Input
             value={searchQuery}
+            ref={searchRef}
             placeholder="Search by test name or category"
             className="inputheight38"
             style={{ width: "18rem" }}
@@ -799,18 +824,20 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                   <img className="me-2" src={editIcon} alt="Edit" />
                                   <span>Edit Date</span>
                                   <DatePicker
-                                  key={Math.random()}
-                                  suffixIcon={null}
-                                  inputReadOnly
-                                  onChange={(date, dateString) => handleDateChange(dateString, index)}
-                                  disabledDate={disabledDate}
-                                  className="calender-labparams"
+                                    key={Math.random()}
+                                    suffixIcon={null}
+                                    inputReadOnly
+                                    onChange={(date, dateString) => handleDateChange(dateString, index)}
+                                    disabledDate={disabledDate}
+                                    className="calender-labparams"
                                   />
                               </div>
-                              <div className="tooltip-content" onClick={() => handleDeleteDate(date)}>
-                                  <DeleteOutlined className="delete-icon" />
-                                  <span>Delete</span>
-                              </div>
+                              {dates.length > 1 && (
+                                <div className="tooltip-content" onClick={() => handleDeleteDate(date, index)}>
+                                    <DeleteOutlined className="delete-icon" />
+                                    <span>Delete</span>
+                                </div>
+                                )}
                               </>
                           }
                           overlayClassName="custom-tooltip"
@@ -879,16 +906,16 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                       <strong>Reference Range:</strong>
                                                       {maleRange && femaleRange ? (
                                                           <div>
-                                                          <strong>Male:</strong> {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
-                                                          <strong>Female:</strong> {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                          Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
+                                                          Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
                                                           </div>
                                                       ) : maleRange ? (
                                                           <div>
-                                                          <strong>Male:</strong> {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
+                                                          Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
                                                           </div>
                                                       ) : femaleRange ? (
                                                           <div>
-                                                          <strong>Female:</strong> {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                          Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
                                                           </div>
                                                       ) : (
                                                           <div>No reference range available</div>
@@ -899,7 +926,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                   const range = refRange.ranges[0];
                                                   return (
                                                       <div key={index}>
-                                                      <strong>All:</strong> {`${range?.min} - ${range?.max} ${range?.unit}`}
+                                                      All: {`${range?.min} - ${range?.max} ${range?.unit}`}
                                                       </div>
                                                   );
                                                   }
@@ -908,7 +935,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                               });
                                           })()}
                                           <div className="disclaimer-text">
-                                          {`Disclaimer: This range is only for reference and may vary between patients based on different conditions.`}
+                                          <span style={{fontWeight:"600"}}>Disclaimer:</span> {`This range is only for reference and may vary between patients based on different conditions.`}
                                           </div>
                                       </div>
                                       }
@@ -937,7 +964,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                         placement="top"
                                     >
                                         <div onClick={() => setShowEditTooltip(true)}>
-                                        <div className="remarks-text truncated">
+                                        <div className="truncated">
                                             {inputValues[reportName][testName][date]?.value}
                                         </div>
                                         <span style={{ fontWeight: 500, color: "#171725", textDecoration: "underline", cursor: "pointer" }}>View Remarks</span>
@@ -967,8 +994,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                         color: inputValues[reportName][testName][date]?.arrowDirection ? "#E54848" : "inherit",
                                     }}
                                     type="text"
-                                    className={`lab-params-input ${inputValues[reportName][testName][date]?.arrowDirection ? "lab-params-input-warning" : ""}`}
-                                    suffix={
+                                    className={`lab-params-input
+                                    ${inputValues[reportName][testName][date]?.arrowDirection !== ""
+                                    ? "lab-params-intput-warning" : ""}`}                                    suffix={
                                         <div className="d-flex justify-content-between w-100">
                                         <span>{inputValues[reportName][testName][date]?.value || ""}</span>
                                         {inputValues[reportName][testName][date]?.arrowDirection === "up" ? (
@@ -1004,6 +1032,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 ))}
                 </tbody>
             </table>
+        </div>
+
+        <div 
+            onClick={() => searchRef.current.focus()}  // Step 3: Focus on input when the div is clicked
+            style={{ cursor: 'pointer', marginLeft:"1.25rem", marginTop: "0.5rem", marginBottom: "0.5rem" }}
+        >
+            Unable to find the parameter? Discover more by <span className='hyperling-text-style'>searching</span>
         </div>
 
         <CommonModal

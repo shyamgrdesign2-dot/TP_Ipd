@@ -1979,6 +1979,8 @@ body {
     text-overflow: ellipsis;
     max-width: 164px;
     cursor: pointer;
+    font-size: 14px;
+    font-weight: 300;
 }
 
 .underline-button{
@@ -1987,6 +1989,11 @@ body {
     cursor: pointer;
     width: 209px;
     margin-left: -61px !important;
+}
+
+.hyperling-text-style{
+    text-decoration: underline;
+    color: #4B4AD5 !important;
 }
 
 .remarks-btn{
