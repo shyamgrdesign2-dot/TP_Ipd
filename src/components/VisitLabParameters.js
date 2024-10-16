@@ -12,6 +12,7 @@ const VisitLabParameters = ( {patient_unique_id, doc_id}) => {
   const [labParamsData, setLabParamsData] = useState([]);
   const [viewlabparamsDrawer, setViewlabparamsDrawer] = useState(false);
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
   const [token, setToken] = useState(null);
 
@@ -36,12 +37,13 @@ const VisitLabParameters = ( {patient_unique_id, doc_id}) => {
     [viewlabparamsDrawer]    
   );
 
-  const handleAddLabParamsDrawer = useCallback(
-    () => {
+  const handleAddLabParamsDrawer = () => {
         setAddlabparamsDrawer(!addlabparamsDrawer)
-    },
-    [addlabparamsDrawer]
-  );
+  }
+
+  const showHideBackModal = () => {
+    setIsBackModalOpen(!isBackModalOpen);
+  };
 
   // Function to close "View Lab Params" and open "Add Lab Params"
   const handleSwitchToAddLabParams = () => {
@@ -105,15 +107,15 @@ const VisitLabParameters = ( {patient_unique_id, doc_id}) => {
             <LabParametersList labParamsData={labParamsData}/>
           </Card>
           <Drawer
-            closeIcon={false}
-            className="modalWidth-700"
-            placement="right"
-            open={addlabparamsDrawer}
-            onClose={handleAddLabParamsDrawer}
-            width="auto"
-        >
-            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_unique_id} onSave={handleLabParamsUpdate}/>
-        </Drawer>
+              closeIcon={false}
+              className="modalWidth-700"
+              placement="right"
+              open={addlabparamsDrawer}
+              onClose={showHideBackModal}
+              width="auto"
+          >
+              <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_unique_id} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal}/>
+          </Drawer>
           <Drawer
               closeIcon={false}
               className="modalWidth-700"
