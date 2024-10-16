@@ -1,6 +1,6 @@
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { getAllGrowthChartParams, getGrowthChartImages } from "./service";
+import { getAllGrowthChartParams, getGrowthChartImages, getTodayGrowthChartParams } from "./service";
 import { useAccess } from "../vaccination/useAccess";
 import dayjs from "dayjs";
 
@@ -9,11 +9,13 @@ export const useGrowthChart = (caseManagerData) => {
     caseManagerData?.patient_data?.patient_age
   );
   const [growthChartData, setGrowthChartData] = useState([]);
+  const [todayGrowthChartData, setTodayGrowthChartData] = useState([]);
   const [growthChartImageData, setGrowthChartImageData] = useState({});
 
   useEffect(() => {
     if (isGrowthChartAccessable) {
       getGrowthChartDetails();
+      getTodayGrowthChartDetails();
     }
   }, []);
 
@@ -37,23 +39,31 @@ export const useGrowthChart = (caseManagerData) => {
     }
   };
 
+    const getTodayGrowthChartDetails = async () => {
+      console.log("hello")
+      const today = dayjs().format("YYYY-MM-DD");
+      const todayGrowthChartParams = await getTodayGrowthChartParams({
+        pm_id: caseManagerData?.patient_data?.pm_id || 0,
+        pm_pid: caseManagerData?.patient_data?.patient_id || 0,
+        date: today,
+        source: "GROWTH_CHART",
+      });
+      console.log("todayGrowthChartParams", todayGrowthChartParams);
+        setTodayGrowthChartData(todayGrowthChartParams);
+    };
+
   const getGrowthChartImageData = async () => {
     const growthChartImageData = await getGrowthChartImages({
       pm_id: caseManagerData?.patient_data?.pm_id || 0,
       pm_pid: caseManagerData?.patient_data?.patient_id || 0,
     });
-    const today = dayjs().format('YYYY-MM-DD');
-    if (
-      Object.values(growthChartImageData)?.length > 0 &&
-      Object.values(growthChartImageData)?.[0]?.includes(today)
-    ) {
-      setGrowthChartImageData(growthChartImageData);
-    }
+    setGrowthChartImageData(growthChartImageData);
   };
 
   return {
     growthChartData,
     growthChartImageData,
+    todayGrowthChartData,
     getGrowthChartDetails,
   };
 };
