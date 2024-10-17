@@ -4,6 +4,7 @@ const initialState = {
   uploadDocCategories: [],
   allUploadedDocs: [],
   patientUploadedDocs: [],
+  isLoading: false,
 };
 
 const uploadDocSlice = createSlice({
@@ -30,6 +31,9 @@ const uploadDocSlice = createSlice({
     setPatientUploadedDocs: (state, action) => {
       state.patientUploadedDocs = action.payload;
     },
+    setLoadingStatus: (state, action) => {
+      state.isLoading = action.payload;
+    },
     setAllUploadedDocs: (state, action) => {
       state.allUploadedDocs = action.payload;
     },
@@ -40,6 +44,7 @@ export const {
   resetUploadDocState,
   setUploadDocCategories,
   setPatientUploadedDocs,
+  setLoadingStatus,
   setAllUploadedDocs,
 } = uploadDocSlice.actions;
 export default uploadDocSlice.reducer;
