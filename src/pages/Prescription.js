@@ -604,8 +604,8 @@ const handleSwitchToAddLabParams = () => {
 };
 
 // Function to update lab params data in parent component when saved
-const handleLabParamsUpdate = (newLabParams) => {
-  setLabParamsData(newLabParams); // Update state with the new lab params data
+const handleLabParamsUpdate = () => {
+  getLabParams(); // Update state with the new lab params data
 };
 
 const showHideBackModal = () => {
@@ -1052,7 +1052,8 @@ const getLabParams = async () => {
             />
           </Drawer>
         )}
-        <Drawer
+        { addlabparamsDrawer &&
+          <Drawer
             closeIcon={false}
             width={880}
             placement="right"
@@ -1060,9 +1061,11 @@ const getLabParams = async () => {
             onClose={showHideBackModal}
             bodyStyle={{ backgroundColor: "white" }}
         >
-            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_data?.patient_unique_id} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal}/>
+            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_data?.patient_unique_id} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientGender={patient_data?.pm_gender}/>
         </Drawer>
-        <Drawer
+        }
+        { viewlabparamsDrawer &&
+          <Drawer
             closeIcon={false}
             className="modalWidth-700"
             placement="right"
@@ -1070,9 +1073,10 @@ const getLabParams = async () => {
             bodyStyle={{ backgroundColor: "white" }}
             onClose={handleViewLabParamsDrawer}
             width="auto"
-        >
+          >
             <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
-        </Drawer>
+          </Drawer>
+        }
       </>
     </CashManagerContext.Provider>
   );

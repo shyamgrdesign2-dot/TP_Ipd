@@ -32,7 +32,7 @@ const LabParametersList = ({labParamsData}) => {
   const renderTableHeader = () => {
     // Sort labParamsData by date (descending) and take the first two dates
     const recentLabParamsData = labParamsData?.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 2);
-
+  
     return (
       <tr>
         <th
@@ -66,51 +66,65 @@ const LabParametersList = ({labParamsData}) => {
   };
   
   const renderTableData = () => {
-    // Limit data to the two most recent entries
-    const recentLabParamsData = labParamsData?.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 2);
+    // Limit data to the two most recent entries (based on date)
+    const recentLabParamsData = labParamsData
+      ?.sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 2);
+  
+    // Flatten groupedData to create a list of all test entries, with duplicates
+    const flattenedData = [];
+  
+    Object.keys(groupedData)?.forEach((testName) => {
+      groupedData[testName]?.forEach((entry) => {
+        flattenedData.push({ testName, ...entry });
+      });
+    });
   
     return (
       <>
-        {Object.keys(groupedData)?.map((item, index) => (
+        {flattenedData?.map((entry, index) => (
           <tr key={index} className="column-border">
-            {/* First column for the item name and unit */}
-            <td className="labParamsTcell" style={{ width: "50%", fontWeight: 500,}}>
-              {groupedData?.[item]?.[0]?.units 
-                ? `${item} (${groupedData[item][0].units})` 
-                : item}
+            {/* First column for the test name and unit */}
+            <td className="labParamsTcell" style={{ width: "50%", fontWeight: 500 }}>
+              {entry.units ? `${entry.testName} (${entry.units})` : entry.testName}
             </td>
-
+  
             {/* Render values for the two most recent dates */}
-            {recentLabParamsData?.map((entry, dataIndex) => {
-              const dataForDate = groupedData[item]?.find(
-                (data) => data.date === entry.date
-              );
+            {recentLabParamsData?.map((dateEntry, dataIndex) => {
+              // Find the matching entry for the current date
+              const dataForDate = entry.date === dateEntry.date ? entry : null;
+  
               return (
                 <td
                   key={dataIndex}
-                  style={{ width: "25%",color: "#454551 !important" }}
+                  style={{ width: "25%", color: "#454551 !important" }}
                   className={`labParamsTcell ${
-                    dataForDate?.arrowDirection === "up" ||
-                    dataForDate?.arrowDirection === "down"
+                    dataForDate?.arrowDirection !== ""
                       ? "lab-params-warning"
                       : ""
-                  } ${item === "Remarks" ? "remarks-style" : ""}`}
+                  }`}
                 >
-                  {/* Render value or '--' if undefined */}
-                  {dataForDate?.value || "--"}
-
-                  {/* Conditionally render arrow icons based on arrowDirection */}
-                  {dataForDate?.arrowDirection === "up" ? (
-                    <ArrowUpOutlined
-                      className="lab-params-warning"
-                      style={{ paddingLeft: 5 }}
-                    />
-                  ) : dataForDate?.arrowDirection === "down" ? (
-                    <ArrowDownOutlined
-                      className="lab-params-warning"
-                      style={{ paddingLeft: 5 }}
-                    />
-                  ) : null}
+                  {/* Render the value or '--' if undefined */}
+                  {dataForDate ? (
+                    <>
+                      {dataForDate?.value || "--"}
+  
+                      {/* Conditionally render arrow icons based on arrowDirection */}
+                      {dataForDate?.arrowDirection === "up" ? (
+                        <ArrowUpOutlined
+                          className="lab-params-warning"
+                          style={{ paddingLeft: 5 }}
+                        />
+                      ) : dataForDate?.arrowDirection === "down" ? (
+                        <ArrowDownOutlined
+                          className="lab-params-warning"
+                          style={{ paddingLeft: 5 }}
+                        />
+                      ) : null}
+                    </>
+                  ) : (
+                    "--"
+                  )}
                 </td>
               );
             })}
@@ -119,6 +133,7 @@ const LabParametersList = ({labParamsData}) => {
       </>
     );
   };
+  
 
   return (
     <div>

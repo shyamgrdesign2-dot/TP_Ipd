@@ -8,14 +8,15 @@ const TabLabParametersList = ({ handleCollapsed, labParamsData, handleAddLabPara
   const [labParamsdeatils, setLabParamsdeatils] = useState([]);
 
   useEffect(() => {
-    setLabParamsdeatils(labParamsData?.[0]);
+    const updatedLabParamsData= labParamsData?.sort((a, b) => new Date(b.date) - new Date(a.date))
+    setLabParamsdeatils(updatedLabParamsData?.[0]);
   }, [labParamsData]);
 
   const measurementDetails = () => {
     return (
       <div style={{ display: "flex", flexDirection: "column", rowGap: "16px" }}>
         <div style={{ fontSize: "14px", fontWeight: "600" }}>
-          {dayjs(labParamsdeatils?.date).format("DD MMM, YY")}
+          {dayjs(labParamsdeatils?.date).format("DD MMM, YYYY")}
         </div>
         {labParamsdeatils?.inputs?.map((labParamItem, index) => {
           return (
@@ -39,7 +40,7 @@ const TabLabParametersList = ({ handleCollapsed, labParamsData, handleAddLabPara
                       ? "lab-params-warning"
                       : ""
                   } ${labParamItem?.name === "Remarks" ? "remarks-style" : ""}`}
-                  style={{ fontWeight: "400", width: "20%", textAlign: "end" }}
+                  style={{ fontWeight: "400", width: "24%", textAlign: "end" }}
                 >
                   {labParamItem?.arrowDirection === "up" ? (
                     <ArrowUpOutlined
@@ -61,6 +62,7 @@ const TabLabParametersList = ({ handleCollapsed, labParamsData, handleAddLabPara
       </div>
     );
   };
+
   return (
     <div>
       <div className="text-white align-items-center bg-secondary d-flex justify-content-between lh-lg px-2 py-2">
