@@ -58,9 +58,9 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   );
 
   let ageInterval = "";
-  if (patientAgeInMonths >= 0 && patientAgeInMonths <= 24) {
+  if (patientAgeInMonths >= 0 && patientAgeInMonths < 24) {
     ageInterval = "0To2";
-  } else if (patientAgeInMonths > 24 && patientAgeInMonths <= 60) {
+  } else if (patientAgeInMonths >= 24 && patientAgeInMonths <= 60) {
     ageInterval = "2To5";
   } else {
     ageInterval = "5To18";
@@ -294,6 +294,8 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setVisibility(percentileVisibility);
   };
 
+  console.log("growthChartData", growthChartData)
+
   const getGrowthChartDetails = async () => {
     const allGrowthChartParams = await getAllGrowthChartParams({
       pm_id: patient_data?.pm_id || 0,
@@ -301,13 +303,13 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     });
     if (allGrowthChartParams && patients_details?.pm_dob) {
       setAllGrowthChartParams(allGrowthChartParams);
-      setGrowthChartData(
-        getGrowthChartData(
-          allGrowthChartParams,
-          moment(patients_details?.pm_dob),
-          patientAgeInMonths
-        )
+      const dataRes = getGrowthChartData(
+        allGrowthChartParams,
+        moment(patients_details?.pm_dob),
+        patientAgeInMonths
       );
+      console.log("dataRes", dataRes);
+      setGrowthChartData(dataRes);
     }
   };
   const getGraphs = () => {
