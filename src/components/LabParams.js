@@ -14,7 +14,7 @@ import alertIcon from '../assets/images/alertIcon.svg';
 import editIcon from '../assets/images/edit.svg';
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 
-const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal,  patientGender = "male"  }) => {
+const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal, patientGender  }) => {
 
     const [token, setToken] = useState(null);
     const searchRef = useRef(null);
@@ -28,7 +28,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const [labParamsResults, setLabParamsResults] = useState([]);
     const [isRemarksVisible, setIsRemarksVisible] = useState({});
     const [testCounts, setTestCounts] = useState({});
-    const [showEditTooltip, setShowEditTooltip] = useState(false);
+    const [showEditTooltip, setShowEditTooltip] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
@@ -40,7 +40,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
 
     const currentDate = new Date().toISOString().split("T")[0];
     const dateFormat = 'YYYY-MM-DD';
-    const showDateFormat = 'DD MMM, YY';
+    const showDateFormat = 'DD MMM, YYYY';
 
     //states for Remarks Functionality 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,6 +68,12 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         });
         return grouped;
     };
+
+    // useEffect(() => {
+    //     if (!isBackModalOpen) {
+    //       setSearchQuery(''); // Reset the search query when the drawer closes
+    //     }
+    // }, [isBackModalOpen]);
 
     useEffect(() => {
         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
@@ -98,7 +104,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
 
     const handleClickOutside = (event) => {
       if (!remarksRef?.current?.contains(event.target)) {
-        setShowEditTooltip(false);
+        setShowEditTooltip(null);
       }
     };
 
@@ -299,7 +305,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         handleCloseModal();
     };
 
-    const calculateArrowDirection = (value, refRange, gender = "ALL") => {
+    const calculateArrowDirection = (value, refRange, gender = "Male") => {
         if (!value || isNaN(parseFloat(value))) {
             return "";
         }
@@ -574,7 +580,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     
             // Update the value and calculate the arrow direction
             const refRange = updatedData[reportName][testName][date].refRange;
-            const gender = patientGender || "ALL"; // Assuming `patientGender` is available globally or passed in
+            const gender = patientGender || "Male"; // Assuming `patientGender` is available globally or passed in
     
             updatedData[reportName][testName][date].value = value;
             updatedData[reportName][testName][date].arrowDirection = calculateArrowDirection(value, refRange, gender);
@@ -663,19 +669,21 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             message.warning('Date already exists');
     }
   };
-    
 
   useEffect(() => {
     const sortedDates = dates.sort((a, b) => new Date(b) - new Date(a));
+  
     setDates(sortedDates);
+  
   }, [inputValues, dates]);
-    
 
     const handleSave = async() =>{
 
         const currentFilledData = assemblePayload(inputValues);
         const data = combineData(currentFilledData,filledData);
-        setFilledData(data)
+        
+        // setFilledData([])
+
         const payload = {
             patientId: patient_unique_id,
             doctorId: tokenData?.user_id,
@@ -689,7 +697,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
               baseUrl
             );
             if(response){
-                onSave(data);
+                onSave();
                 handleAddLabParamsDrawer();
             }
           } catch (error) {
@@ -929,7 +937,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                         padding: "10px",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "space-between",
                         width: "23rem",
                         borderTopLeftRadius: "10px",
                         borderBottomLeftRadius: "10px",
@@ -944,14 +951,14 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                       {!!expandedReports[reportName] ? (
                         <button
                           className="btn p-0 ms-2 iconrotate270"
-                          style={{ position: "absolute", left: "760px" }}
+                          style={{ position: "absolute", left: "816px" }}
                         >
                           <i className="icon-right fs-5" />
                         </button>
                       ) : (
                         <button
                           className="btn p-0 ms-2 iconrotate180"
-                          style={{ position: "absolute", left: "760px" }}
+                          style={{ position: "absolute", left: "816px" }}
                         >
                           <i className="icon-right fs-5" />
                         </button>
@@ -1228,10 +1235,10 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                       )}
                                     </div>
                                   ) : (
-                                    <div>
+                                    <div style={{width:"180px"}}>
                                       <Input
                                         style={{
-                                          width: "180px",
+                                          width: "100%",
                                           display: "flex",
                                           alignItems: "center",
                                           borderRadius: "9px",

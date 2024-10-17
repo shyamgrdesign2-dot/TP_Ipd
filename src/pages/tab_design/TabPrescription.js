@@ -412,12 +412,9 @@ function TabPrescription() {
   };
 
   // Function to update lab params data in parent component when saved
-  const handleLabParamsUpdate = (newLabParams) => {
-    console.log(newLabParams,"newLabParams")
-    setLabParamsData(newLabParams); // Update state with the new lab params data
+  const handleLabParamsUpdate = () => {
+    getLabParams();
   };
-
-  console.log(labParamsData,"labParamsData")
   
   // Drawer Medical History
   const handleAddLabParamsDrawer = () => {
@@ -1140,7 +1137,7 @@ function TabPrescription() {
             width={"auto"}
             push={false}
           >
-            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} onSave={handleLabParamsUpdate} patient_unique_id={patient_data?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal}/>
+            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_data?.patient_unique_id} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientGender={patient_data?.pm_gender}/>
           </Drawer>
         )}
        {viewlabparamsDrawer && (
