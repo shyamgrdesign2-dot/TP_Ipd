@@ -4,10 +4,12 @@ import { Layout, Drawer, DatePicker, Input, Button, Col, Row } from "antd";
 import { Content } from "antd/es/layout/layout";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
+import axios from 'axios';
+import { env } from "../../EnvironmentConfig";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS } from "../../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 
 import { getVitals } from "../../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../../redux/medicalhistorySlice";
@@ -44,6 +46,8 @@ import obstetricWhite from "../../assets/images/obstetric-white.svg";
 import obstetricDark from "../../assets/images/obstetric-dark.svg";
 import medicalRecordsWhite from "../../assets/images/upload-doc-white.svg";
 import medicalRecordsDark from "../../assets/images/upload-doc-dark.svg";
+import labParamsWhite from "../../assets/images/lab-parameters-white.svg";
+import labParamsDark from "../../assets/images/Lab-Parameters.svg";
 
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
@@ -63,6 +67,9 @@ import { fetchAllDocumentCategories, fetchAllPatientDocs, fetchDocsUploadedByPat
 import TabUploadDocumentList from "../medicalRecords/components/uploadDocumentList/TabUploadDocumentList";
 import UploadDocument from "../medicalRecords/UploadDocument";
 import MedicalRecords from "../medicalRecords/MedicalRecords";
+import TabLabParametersList from "../../components/tab_design/TabLabParametersList";
+import LabParams from "../../components/LabParams";
+import ViewLabParam from "../../components/ViewLabParams";
 import UploadDocPopup from "../medicalRecords/components/uploadDocPopup/UploadDocPopup";
 import { isAndroid, isBrowser } from "react-device-detect";
 import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "../medicalRecords/utils/helper";
@@ -112,6 +119,7 @@ function TabPrescription() {
     caseManagerData?.patient_data?.patient_age
   );
   const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
+  const [labParamsData, setLabParamsData] = useState(null);
 
   const contextApi = {
     patient_data,
@@ -152,6 +160,9 @@ function TabPrescription() {
   const [growthDrawer, setGrowthDrawer] = useState(false);
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
   const [medicalReportDrawer, setMedicalReportDrawer] = useState(false);
+  const [labParamsDrawer, setLabParamsDrawer] = useState(false);
+  const [viewlabparamsDrawer, setViewlabparamsDrawer] = useState(false);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
   const [filesData, setFilesData] = useState([]);
@@ -167,6 +178,8 @@ function TabPrescription() {
       dispatch(addObstetricDetails(obstetricResponse));
     }
   }
+
+  const baseUrl = env.lab_params_api_url;
 
   const getAllPatientDocs = async () => {
     const doctorUploadedDocs = await fetchAllPatientDocs(
@@ -375,47 +388,81 @@ function TabPrescription() {
     setObstetricDrawer(!obstetricDrawer);
   };
 
+  const getLabParams = async () => {
+    try {
+        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+        const cleanedToken = token.replace(/['"]+/g, '');
+        const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${userId}/${patient_data?.patient_unique_id}`, {
+            headers: {
+                'Authorization': `Bearer ${cleanedToken}`,
+            },
+        });
+        setLabParamsData(response.data?.data?.results || []);
+    } catch (error) {
+        console.error("Error fetching lab params:", error);
+    }
+  };
+
+  useEffect(() => {
+    getLabParams()
+  }, []);
+
+  const showHideBackModal = () => {
+    setIsBackModalOpen(!isBackModalOpen);
+  };
+
+  // Function to update lab params data in parent component when saved
+  const handleLabParamsUpdate = () => {
+    getLabParams();
+  };
+  
+  // Drawer Medical History
+  const handleAddLabParamsDrawer = () => {
+    setCollapsedFlag(8);
+    setLabParamsDrawer(!labParamsDrawer);
+  }
+
   const handleAddClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-const handleFileUpload = (event) => {
-  const files = event.target.files;
-  if (files) {
-    const filesData = Array.from(files);
-    if (filesData.length > 0) {
-      const updatedFiles = [];
-      filesData.forEach((file) => {
-        const cleanFileName = getCorrectedFileName(file?.name || "");
-        // Check if the file is an image and if its name follows typical camera-captured file patterns
-        const isCapturedFromCamera =
-          (file.type === "image/jpeg" ||
-            file.type === "image/png" ||
-            file.type === "image/jpg") &&
-          (cleanFileName === "image.jpg" ||
-            cleanFileName === "image.png" ||
-            cleanFileName === "image.jpeg");
+  const handleFileUpload = (event) => {
+    const files = event.target.files;
+    if (files) {
+      const filesData = Array.from(files);
+      if (filesData.length > 0) {
+        const updatedFiles = [];
+        filesData.forEach((file) => {
+          const cleanFileName = getCorrectedFileName(file?.name || "");
+          // Check if the file is an image and if its name follows typical camera-captured file patterns
+          const isCapturedFromCamera =
+            (file.type === "image/jpeg" ||
+              file.type === "image/png" ||
+              file.type === "image/jpg") &&
+            (cleanFileName === "image.jpg" ||
+              cleanFileName === "image.png" ||
+              cleanFileName === "image.jpeg");
 
-        let newFile = file;
+          let newFile = file;
 
-        if (isCapturedFromCamera) {
-          // Generate a unique file name for camera-captured images
-          const uniqueFileName = generateUniqueFileName(file);
-          newFile = new File([file], uniqueFileName, { type: file.type });
-        } else {
-          // If the file name had spaces, create a new file with spaces removed
-          newFile = new File([file], cleanFileName, { type: file.type });
-        }
+          if (isCapturedFromCamera) {
+            // Generate a unique file name for camera-captured images
+            const uniqueFileName = generateUniqueFileName(file);
+            newFile = new File([file], uniqueFileName, { type: file.type });
+          } else {
+            // If the file name had spaces, create a new file with spaces removed
+            newFile = new File([file], cleanFileName, { type: file.type });
+          }
 
-        updatedFiles.push(newFile);
-      });
-      setFilesData(updatedFiles);
-      handleDrawerUploadDoc();
+          updatedFiles.push(newFile);
+        });
+        setFilesData(updatedFiles);
+        handleDrawerUploadDoc();
+      }
     }
-  }
-};
+  };
 
   // Drawer Upload Document
   const handleDrawerUploadDoc = () => {
@@ -484,6 +531,8 @@ const handleFileUpload = (event) => {
         handleDrawerObstetric();
       } else if (flag === 7) {
         handleDrawerUploadDoc();
+      } else if (flag === 8) {
+        handleAddLabParamsDrawer();
       }
     },
     [
@@ -576,10 +625,20 @@ const handleFileUpload = (event) => {
     }
   };
 
+  const handleViewLabParamsDrawer = () => {
+    setViewlabparamsDrawer((prev) => !prev);
+  };
+
+  // Function to close "View Lab Params" and open "Add Lab Params"
+  const handleSwitchToAddLabParams = () => {
+    setViewlabparamsDrawer(false);
+    setLabParamsDrawer(true);
+  };
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData}/>
         <div className="w-100 bg-body wrapper2 prescription-wrapper p-0">
           <Layout>
             <div className="prescription-sidebar">
@@ -742,11 +801,11 @@ const handleFileUpload = (event) => {
                     <label className="text-white mt-1">Obstetric</label>
                   </button>
                       ) : e.tmdpm_id === 18 &&
-                  e.tmdpm_status === 0 && (
-                    <button
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      style={{ padding: "0px" }}
+                      e.tmdpm_status === 0 ? (
+                        <button
+                          type="button"
+                          className="mb-3 text-center btn btn-action"
+                          style={{ padding: "0px" }}
                           onClick={() => allUploadedDocs.length === 0 ? handleAddClick() : openCollapsed(7)}
                     >
                       {isAndroid && !isBrowser ? (
@@ -767,20 +826,47 @@ const handleFileUpload = (event) => {
                       )}
                       <div
                             className={`prescription-tab-button rounded-10px ${collapsedFlag === 7 && "active"
-                        }`}
-                      >
-                        <img
-                          src={
-                            collapsedFlag === 7
-                              ? medicalRecordsDark
-                              : medicalRecordsWhite
-                          }
-                          alt="records"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Records</label>
-                    </button>
-                  )
+                              }`}
+                          >
+                            <img
+                              src={
+                                collapsedFlag === 7
+                                  ? medicalRecordsDark
+                                  : medicalRecordsWhite
+                              }
+                              alt="records"
+                            />
+                          </div>
+                          <label className="text-white mt-1">Records</label>
+                        </button>
+                      ) : e.tmdpm_id === 19 &&
+                      e.tmdpm_status === 0 && (
+                        <button
+                            type="button"
+                            className="mb-3 text-center btn btn-action"
+                            style={{ padding: "0px" }}
+                            onClick={() =>
+                              (labParamsData?.length === 0)
+                                ? handleAddLabParamsDrawer()
+                                : openCollapsed(8)
+                            }
+                          >
+                            <div
+                              className={`prescription-tab-button rounded-10px ${collapsedFlag === 8 && "active"
+                                }`}
+                            >
+                              <img
+                                src={
+                                  collapsedFlag === 8
+                                    ? labParamsDark
+                                    : labParamsWhite
+                                }
+                                alt="lab"
+                              />
+                            </div>
+                            <label className="text-white mt-1">Lab</label>
+                        </button>
+                      )
                   ;
               })}
               {/* <button type='button' className="mb-3 text-center btn btn-action">
@@ -843,7 +929,7 @@ const handleFileUpload = (event) => {
                 <TabObstetricList
                   handleCollapsed={() => setCollapsed(!collapsed)}
                   handleDrawerObstetric={handleDrawerObstetric} />
-              ) : collapsedFlag === 7 && (
+              ) : collapsedFlag === 7 ? (
                   <TabUploadDocumentList
                     handleCollapsed={() => setCollapsed(!collapsed)}
                     handleDrawerMedicalReport={handleDrawerMedicalReport}
@@ -856,6 +942,8 @@ const handleFileUpload = (event) => {
                     handleUploadDocPopup={handleUploadDocPopup}
                     setUploadDocDrawer={setUploadDocDrawer}
                   />
+              ) : collapsedFlag === 8 && (
+                <TabLabParametersList handleCollapsed={() => setCollapsed(!collapsed)} labParamsData={labParamsData} handleAddLabParamsDrawer={handleAddLabParamsDrawer} handleViewLabParamsDrawer={handleViewLabParamsDrawer}/>
               )}
             </Sider>
             <div
@@ -982,7 +1070,7 @@ const handleFileUpload = (event) => {
             <Obstetric
               handleDrawerObstetric={handleDrawerObstetric}
               handleCollapsed={(flag) => handleCollapsed(flag)} />
-          </Drawer>
+            </Drawer>
         )}
         {uploadDocDrawer && (
           <Drawer
@@ -1039,6 +1127,32 @@ const handleFileUpload = (event) => {
             handleDrawerUploadDoc={handleDrawerUploadDoc}
           />
         )}
+        {labParamsDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={showHideBackModal}
+            open={labParamsDrawer}
+            className="modalWidth-700"
+            width={"auto"}
+            push={false}
+          >
+            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_data?.patient_unique_id} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientGender={patient_data?.pm_gender}/>
+          </Drawer>
+        )}
+       {viewlabparamsDrawer && (
+        <Drawer
+              closeIcon={false}
+              className="modalWidth-700"
+              placement="right"
+              open={viewlabparamsDrawer}
+              bodyStyle={{ backgroundColor: "white" }}
+              onClose={handleViewLabParamsDrawer}
+              width="auto"
+          >
+              <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
+          </Drawer>
+      )}
       </>
     </CashManagerContext.Provider>
   );

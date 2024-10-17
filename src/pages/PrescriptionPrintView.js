@@ -21,6 +21,8 @@ import { viewCaseManager } from "../redux/caseManagerSlice";
 
 import { pdfjs, Document, Page } from "react-pdf";
 import { getGynecDetails } from "../api/services/ApiGynec";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { env } from "../EnvironmentConfig";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -96,7 +98,10 @@ function PrescriptionPrintView() {
     const [printBlob, setPrintBlob] = useState(null);
 
     const [gynecHistoryData, setGynecHistoryData] = useState(null);
+    const [labParamsData, setLabParamsData] = useState([]);
     const {isGynaecHistoryAccessable} = useAccess();
+
+    const baseUrl = env.lab_params_api_url;
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -116,6 +121,25 @@ function PrescriptionPrintView() {
             console.error('Error fetching gynec history:', error);
         }
     };
+
+    const getLabParams = async () => {
+        try {
+            const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN)
+            const cleanedToken = token.replace(/['"]+/g, '');
+            const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${userId}/${patient_data?.patient_unique_id}`, {
+                headers: {
+                    'Authorization': `Bearer ${cleanedToken}`,
+                },
+            });
+            setLabParamsData(response.data?.data?.results || []);
+        } catch (error) {
+            console.error("Error fetching lab params:", error);
+        }
+      };
+
+    useEffect(() => {
+        getLabParams();
+    },[])
 
     // const printContent = useReactToPrint({
     //     content: () => printRef.current,
@@ -218,7 +242,7 @@ function PrescriptionPrintView() {
         }
         const action = await dispatch(viewCaseManager(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate('/configure_print_setting', { state: { caseManagerData: {...action.payload, patient_data: {...action.payload.patient_data, pm_id: patient_data?.pm_id}, gynecHistoryData} } })
+            navigate('/configure_print_setting', { state: { caseManagerData: {...action.payload, patient_data: {...action.payload.patient_data, pm_id: patient_data?.pm_id}, gynecHistoryData, labParamsData} } })
         } else {
             errorMessage(action.error)
         }

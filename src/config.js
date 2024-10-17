@@ -34,5 +34,6 @@ export default {
   zydus_business_id: env.zydus_business_id,
   rx_digitization: env.rx_digitization,
   visit_api_url: env.visit_api_url,
+  lab_params_api_url: env.lab_params_api_url,
   upload_doc_api_url: env.upload_doc_api_url,
 };

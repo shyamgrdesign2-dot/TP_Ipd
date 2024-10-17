@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, GB_GYNEC_HISTORY, GYNAECOLOGY } from "../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, GB_GYNEC_HISTORY, GYNAECOLOGY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../redux/medicalhistorySlice";
@@ -41,6 +41,7 @@ import vaccinationImg from "../assets/images/Vaccination.svg";
 import growthChartImg from "../assets/images/growth-chart-dark.svg";
 import obstetricImg from "../assets/images/obstetric-dark.svg";
 import uploadDocImg from "../assets/images/upload-doc-dark.svg";
+import labResultImg from "../assets/images/Lab.svg";
 import Vaccination from "./vaccination/Vaccination";
 import GrowthChart from "./growthChart/GrowthChart";
 import { viewPatient } from "../redux/appointmentsSlice";
@@ -65,6 +66,11 @@ import {
 } from "../redux/uploadDocSlice";
 import UploadDocumentList from "./medicalRecords/components/uploadDocumentList/UploadDocumentList";
 import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "./medicalRecords/utils/helper";
+import LabParametersList from "../components/LabParametersList";
+import axios from 'axios';
+import { env } from "../EnvironmentConfig";
+import LabParams from "../components/LabParams";
+import ViewLabParam from "../components/ViewLabParams";
 
 function Prescription() {
   const {
@@ -104,10 +110,13 @@ function Prescription() {
   const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
+  const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
+  const [viewlabparamsDrawer, setViewlabparamsDrawer] = useState(false);
   const [privateNotesData, setPrivateNotesData] = useState(null);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
   const [isGrowthChart, setIsGrowthChart] = useState(false);
+  const [labParamsData, setLabParamsData] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
 
   const contextApi = {
@@ -150,6 +159,7 @@ function Prescription() {
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
   const [medicalReportDrawer, setMedicalReportDrawer] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [filesData, setFilesData] = useState([]);
   const [isEditDocument, setIsEditDocument] = useState(false);
   const fileInputRef = useRef(null);
@@ -158,6 +168,9 @@ function Prescription() {
     isGrowthChartAccessable,
     isGynaecHistoryAccessable,
   } = useAccess(patient_data?.ageYears);
+  
+  const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const baseUrl = env.lab_params_api_url;
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
@@ -508,6 +521,10 @@ function Prescription() {
     }
   }, [isGynaecHistoryAccessable]);
 
+  useEffect(() => {
+    getLabParams();
+  },[]);
+
   const fetchGynecHistory = async () => {
     try {
       const data = await getGynecDetails(
@@ -566,10 +583,53 @@ function Prescription() {
     }
   };
 
+  const handleAddLabParamsDrawer = useCallback(
+    () => {
+        setAddlabparamsDrawer(!addlabparamsDrawer)
+    },
+    [addlabparamsDrawer]
+);
+
+const handleViewLabParamsDrawer = useCallback(
+  () => {
+      setViewlabparamsDrawer(!viewlabparamsDrawer)
+  },
+  [viewlabparamsDrawer]    
+);
+
+// Function to close "View Lab Params" and open "Add Lab Params"
+const handleSwitchToAddLabParams = () => {
+  setViewlabparamsDrawer(false);
+  setAddlabparamsDrawer(true);
+};
+
+// Function to update lab params data in parent component when saved
+const handleLabParamsUpdate = () => {
+  getLabParams(); // Update state with the new lab params data
+};
+
+const showHideBackModal = () => {
+  setIsBackModalOpen(!isBackModalOpen);
+};
+
+const getLabParams = async () => {
+  try {
+      const cleanedToken = token.replace(/['"]+/g, '');
+      const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${userId}/${patient_data?.patient_unique_id}`, {
+          headers: {
+              'Authorization': `Bearer ${cleanedToken}`,
+          },
+      });
+      setLabParamsData(response.data?.data?.results || []);
+  } catch (error) {
+      console.error("Error fetching lab params:", error);
+  }
+};
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData}/>
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
@@ -738,52 +798,86 @@ function Prescription() {
                       examinationHistory?.length > 0) && <ObstetricList />}
                   </div>
                   ) : e.tmdpm_id === 18 &&
-                  e.tmdpm_status === 0 && (
-                    <div className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={uploadDocImg}
-                            alt="upload-document"
-                            className="me-3"
-                          />
-                          <div className="title-common">Medical Records {allUploadedDocs?.length > 0 ? `(${allUploadedDocs?.length})` : "" }</div>
+                  e.tmdpm_status === 0 ? (
+                    <>
+                      <div className="prescription-box-sm p-14">
+                        <div className="d-flex align-items-center justify-content-between">
+                          <div className="d-flex align-items-center">
+                            <img
+                              src={uploadDocImg}
+                              alt="upload-document"
+                              className="me-3"
+                            />
+                            <div className="title-common">Medical Records {allUploadedDocs?.length > 0 ? `(${allUploadedDocs?.length})` : "" }</div>
+                          </div>
+                          <button
+                            className="btn d-flex align-items-center btn-text"
+                            style={{ paddingRight: allUploadedDocs.length > 0 ? 0 : 12 }}
+                            onClick={
+                              allUploadedDocs.length > 0
+                                ? handleDrawerMedicalReport
+                                : handleAddClick
+                            }
+                          >
+                            <input
+                              type="file"
+                              multiple
+                              ref={fileInputRef}
+                              onChange={handleFileUpload}
+                              accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
+                              style={{ display: "none" }}
+                            />
+                            {allUploadedDocs.length === 0 && (
+                              <i className="icon-Add me-1 fs-5" />
+                            )}
+                            <span>{`${
+                              allUploadedDocs.length > 0 ? "View All" : "Add"
+                            }`}</span>
+                            {allUploadedDocs.length > 0 && (
+                              <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                            )}
+                          </button>
                         </div>
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          style={{ paddingRight: allUploadedDocs.length > 0 ? 0 : 12 }}
-                          onClick={
-                            allUploadedDocs.length > 0
-                              ? handleDrawerMedicalReport
-                              : handleAddClick
-                          }
-                        >
-                          <input
-                            type="file"
-                            multiple
-                            ref={fileInputRef}
-                            onChange={handleFileUpload}
-                            accept=".png, .jpeg, .jpg, .pdf"
-                            style={{ display: "none" }}
-                          />
-                          {allUploadedDocs.length === 0 && (
-                            <i className="icon-Add me-1 fs-5" />
-                          )}
-                          <span>{`${
-                            allUploadedDocs.length > 0 ? "View All" : "Add"
-                          }`}</span>
-                          {allUploadedDocs.length > 0 && (
-                            <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
-                          )}
-                        </button>
+                        <UploadDocumentList
+                          handleDrawerUploadDoc={handleDrawerUploadDoc}
+                          setFilesData={setFilesData}
+                          setIsEditDocument={setIsEditDocument}
+                          setUploadDocDrawer={setUploadDocDrawer}
+                        />
                       </div>
-                      <UploadDocumentList
-                        handleDrawerUploadDoc={handleDrawerUploadDoc}
-                        setFilesData={setFilesData}
-                        setIsEditDocument={setIsEditDocument}
-                        setUploadDocDrawer={setUploadDocDrawer}
-                      />
-                    </div>
+                    </>
+                  ) : e.tmdpm_id === 19 &&
+                  e.tmdpm_status === 0 && (
+                    <>
+                      <div className="prescription-box-sm" style={{overflow: 'hidden'}}>
+                        <div className="d-flex align-items-center justify-content-between p-14" style={{borderBottom: "1px solid #ddd"}}>
+                          <div className="d-flex align-items-center">
+                            <img
+                              src={labResultImg}
+                              alt="upload-document"
+                              className="me-3"
+                            />
+                            <div className="title-common">Lab Results</div>
+                          </div>
+                          <button
+                            className="btn d-flex align-items-center btn-text"
+                            style={{ paddingRight: labParamsData?.length > 0 ? 0 : 12 }}
+                            onClick={labParamsData?.length > 0 ? handleViewLabParamsDrawer : handleAddLabParamsDrawer }
+                          >
+                            {labParamsData?.length === 0 && (
+                              <i className="icon-Add me-1 fs-5" />
+                            )}
+                            <span>{`${
+                              labParamsData?.length > 0 ? "View All" : "Add"
+                            }`}</span>
+                            {labParamsData?.length > 0 && (
+                              <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                            )}
+                          </button>
+                        </div>
+                        <LabParametersList labParamsData={labParamsData} patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} />
+                      </div>
+                    </>
                   )
               })}
 
@@ -958,6 +1052,31 @@ function Prescription() {
             />
           </Drawer>
         )}
+        { addlabparamsDrawer &&
+          <Drawer
+            closeIcon={false}
+            width={880}
+            placement="right"
+            open={addlabparamsDrawer}
+            onClose={showHideBackModal}
+            bodyStyle={{ backgroundColor: "white" }}
+        >
+            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_data?.patient_unique_id} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientGender={patient_data?.pm_gender}/>
+        </Drawer>
+        }
+        { viewlabparamsDrawer &&
+          <Drawer
+            closeIcon={false}
+            className="modalWidth-700"
+            placement="right"
+            open={viewlabparamsDrawer}
+            bodyStyle={{ backgroundColor: "white" }}
+            onClose={handleViewLabParamsDrawer}
+            width="auto"
+          >
+            <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
+          </Drawer>
+        }
       </>
     </CashManagerContext.Provider>
   );

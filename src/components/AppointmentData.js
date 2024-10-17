@@ -59,6 +59,7 @@ import UploadDocument from "../pages/medicalRecords/UploadDocument";
 import { fetchAllDocumentCategories } from "../pages/medicalRecords/service";
 import { resetUploadDocState, setUploadDocCategories } from "../redux/uploadDocSlice";
 import axios from "axios";
+import LabParams from "./LabParams";
 import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup";
 import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
 
@@ -99,6 +100,7 @@ function AppointmentData({ locationPath }) {
     const [filesData, setFilesData] = useState([]);
     const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
     const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [patientData, setPatientData] = useState(null);
     const fileInputRef = useRef(null);
 
@@ -106,57 +108,57 @@ function AppointmentData({ locationPath }) {
         setUploadDocDrawer(!uploadDocDrawer);
     };
 
-  const handleDeletePopup = () => {
-    setShowDeletePopup(true);
-  };
+    const handleDeletePopup = () => {
+        setShowDeletePopup(true);
+    };
 
     const getAllDocumentCategories = async () => {
       const response = await fetchAllDocumentCategories();
       dispatch(setUploadDocCategories(response));
     };
 
-  const handleFileUpload = (event, record) => {
-    const files = event.target.files;
-    if (files) {
-      const filesData = Array.from(files);
-      if (filesData.length > 0) {
-        const updatedFiles = [];
-        filesData.forEach((file) => {
-          const cleanFileName = getCorrectedFileName(file?.name || "");
-          // Check if the file is an image and if its name follows typical camera-captured file patterns
-          const isCapturedFromCamera =
-            (file.type === "image/jpeg" ||
-              file.type === "image/png" ||
-              file.type === "image/jpg") &&
-            (cleanFileName === "image.jpg" ||
-              cleanFileName === "image.png" ||
-              cleanFileName === "image.jpeg");
+    const handleFileUpload = (event, record) => {
+        const files = event.target.files;
+        if (files) {
+        const filesData = Array.from(files);
+        if (filesData.length > 0) {
+            const updatedFiles = [];
+            filesData.forEach((file) => {
+            const cleanFileName = getCorrectedFileName(file?.name || "");
+            // Check if the file is an image and if its name follows typical camera-captured file patterns
+            const isCapturedFromCamera =
+                (file.type === "image/jpeg" ||
+                file.type === "image/png" ||
+                file.type === "image/jpg") &&
+                (cleanFileName === "image.jpg" ||
+                cleanFileName === "image.png" ||
+                cleanFileName === "image.jpeg");
 
-          let newFile = file;
+            let newFile = file;
 
-          if (isCapturedFromCamera) {
-            // Generate a unique file name for camera-captured images
-            const uniqueFileName = generateUniqueFileName(file);
-            newFile = new File([file], uniqueFileName, { type: file.type });
-          } else {
-            // If the file name had spaces, create a new file with spaces removed
-            newFile = new File([file], cleanFileName, { type: file.type });
-          }
+            if (isCapturedFromCamera) {
+                // Generate a unique file name for camera-captured images
+                const uniqueFileName = generateUniqueFileName(file);
+                newFile = new File([file], uniqueFileName, { type: file.type });
+            } else {
+                // If the file name had spaces, create a new file with spaces removed
+                newFile = new File([file], cleanFileName, { type: file.type });
+            }
 
-          updatedFiles.push(newFile);
-        });
-        setFilesData(updatedFiles);
-        handleDrawerUploadDoc();
-        setPatientData(record);
-      }
-    }
-  };
+            updatedFiles.push(newFile);
+            });
+            setFilesData(updatedFiles);
+            handleDrawerUploadDoc();
+            setPatientData(record);
+        }
+        }
+    };
 
-  const handleAddClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
+    const handleAddClick = () => {
+        if (fileInputRef.current) {
+        fileInputRef.current.click();
+        }
+    };
     const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
         GB_SMARTSYNC_CVT
     );
@@ -320,9 +322,14 @@ function AppointmentData({ locationPath }) {
     const [isEndVisitReasonModal, setEndVisitReasonModal] = useState(false);
     const [endVisitReasonDrawer, setEndVisitReasonDrawer] = useState(false);
     const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
+    const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
     const [endVisitReason, setEndVisitReason] = useState('');
     const [noDetailsModal, setNoDetailsModal] = useState(false);
     const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
+
+    const showHideBackModal = () => {
+        setIsBackModalOpen(!isBackModalOpen);
+    };
 
     useEffect(() => {
         if (locationPath == '/' && from == 'onboarding') {
@@ -528,8 +535,16 @@ function AppointmentData({ locationPath }) {
           },
           {
                 label: <span
-                onClick={() => {
-                  setAppointmentSelectedFromMenu(record);
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
+                        handleAddLabParamsDrawer()
+                    }}>Add Lab Results</span>,
+                key: "labparams",
+            },
+            {
+                label: <span
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
                         handleConfirmationModal()
                     }}>Cancel Appt.</span>,
             key: "cancelappt",
@@ -941,6 +956,17 @@ function AppointmentData({ locationPath }) {
         [createCertificateDrawer]
     );
 
+    const handleAddLabParamsDrawer = useCallback(
+        () => {
+            setAddlabparamsDrawer(!addlabparamsDrawer)
+        },
+        [addlabparamsDrawer]
+    );
+
+    const handleLabParamsUpdate = (() => {
+        // setAddlabparamsDrawer(!addlabparamsDrawer)
+    });
+
     const handleNoDetailsModal = useCallback(
         () => {
             setNoDetailsModal(!noDetailsModal)
@@ -1325,6 +1351,18 @@ function AppointmentData({ locationPath }) {
                 >
                     <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={appointmentSelectedFromMenu} replace={false} />
                 </Drawer>
+                {addlabparamsDrawer &&(<Drawer
+                    closeIcon={false}
+                    className="modalWidth-700"
+                    // title="Add Lab Results"
+                    placement="right"
+                    open={addlabparamsDrawer}
+                    onClose={showHideBackModal}
+                    width="auto"
+                // key="left"
+                >
+                    <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={appointmentSelectedFromMenu?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} onSave={handleLabParamsUpdate}/>
+                </Drawer>)}
             </div>
 
             {modalOpen && (
