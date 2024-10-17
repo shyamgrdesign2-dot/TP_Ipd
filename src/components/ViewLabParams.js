@@ -1,4 +1,4 @@
-import { Button, Input } from 'antd';
+import { Button, Input, Tooltip } from 'antd';
 import React, { useState, useRef, useEffect } from 'react';
 import { CaretRightOutlined, CaretDownOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -96,6 +96,16 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
         setIsDragging(false);
     };
 
+    const tooltipTitle = (remarks) => {
+      return (
+        <div className="d-flex justify-content-between flex-column h-100 w-100">
+          <div className="h-80" style={{ overflow: "auto" }}>
+            {remarks}
+          </div>
+        </div>
+      );
+    };
+
     return (
         <div style={{ backgroundColor: "#fff" }}>
             <div className='modalCard-header h-60 align-items-center justify-content-between d-flex' style={{ position: "sticky", top: "0", zIndex: "999" }}>
@@ -155,7 +165,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                     background: "#F1F1F5",
                                                 }}
                                             >
-                                                {dayjs(entry?.date).format("DD MMM, YY")}
+                                                {dayjs(entry?.date).format("DD MMM, YYYY")}
                                             </th>
                                             <th
                                                 key={entry.date}
@@ -189,7 +199,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                 borderBottomRightRadius: isLastCell ? "10px" : " ",
                                             }}
                                         >
-                                            {dayjs(entry?.date).format("DD MMM, YY")}
+                                            {dayjs(entry?.date).format("DD MMM, YYYY")}
                                         </th>
                                     );
                                 })
@@ -297,7 +307,6 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                                     display: 'flex',
                                                                     overflowX: 'auto',
                                                                     cursor: isDragging ? 'grabbing' : 'grab',
-                                                                    whiteSpace: 'nowrap',
                                                                 }}
                                                             >
                                                                 {filteredReports.map((entry) => {
@@ -314,7 +323,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                                           background: "white",
                                                                           fontWeight: "400",
                                                                         }}
-                                                                        className={`truncated ${
+                                                                        className={`${
                                                                           testOnDate?.arrowDirection ===
                                                                             "up" ||
                                                                           testOnDate?.arrowDirection ===
@@ -323,7 +332,20 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                                             : ""
                                                                         }`}
                                                                       >
-                                                                        {testOnDate
+                                                                        {testName === "Remarks" && testOnDate
+                                                                          ? (
+                                                                            <Tooltip
+                                                                                trigger={["hover"]}
+                                                                                title={tooltipTitle(testOnDate.value)}
+                                                                                overlayClassName="customTooltip"
+                                                                                placement="top"
+                                                                            >
+                                                                                <div className='truncated'>
+                                                                                    {testOnDate.value}
+                                                                                </div>
+                                                                            </Tooltip>
+                                                                          )
+                                                                          : testOnDate
                                                                           ? `${testOnDate.value} ${testOnDate.unit}`
                                                                           : "-"}
                                                                         {testOnDate?.arrowDirection ===

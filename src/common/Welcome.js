@@ -77,16 +77,18 @@ function Welcome(props) {
     const clinic_Id = decodedToken?.result?.clinic_id;
     const doc_Id = decodedToken?.result?.doctor_unique_id;
     
-    const clinic_Data = { c_id: clinic_Id };
-    const doc_Data = { d_id: doc_Id };
+    // const clinic_Data = { c_id: clinic_Id };
+    // const doc_Data = { d_id: doc_Id };
+    const decryptData = { d_id: doc_Id ,clinic_Id: clinic_Id};
 
     // Encrypt clinic and doctor ID
-    const c_id = await opdEncryptionApiCall(clinic_Data);
-    const d_id = await opdEncryptionApiCall(doc_Data);
+    const encryptedCata = await opdEncryptionApiCall(decryptData);
+
     
     // Generate and set the URL
-    const url = `https://visit-enrolment-tatva.getvisitapp.net/tatva-care?d_id=${d_id}&c_id=${c_id}`
-    setOpdPlansUrl(url);  // Set the URL after the API call
+    // const url = `https://visit-enrolment-tatva.getvisitapp.net/tatva-care?d_id=${d_id}&c_id=${c_id}`
+    const url = `https://visit-enrolment-tatva.getvisitapp.net/tatva-care?p_id=${encryptedCata}`
+    setOpdPlansUrl(url);
   };
 
   // Handle print functionality

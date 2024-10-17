@@ -125,7 +125,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     const gynecHistoryData = caseManagerData?.gynecHistoryData
     const labParamsData = caseManagerData?.labParamsData
 
-    const { growthChartData, growthChartImageData } = growthChartDetails || {};
+    const { growthChartData, growthChartImageData, todayGrowthChartData } =
+      growthChartDetails || {};
     let growthChartImageChunks = []
     if (growthChartImageData) {
         const growthChartOption = printSettings?.prescription?.case_option?.find(o => o.id === 12)?.growth_chart_option;
@@ -255,7 +256,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         ];
     };
 
-    const transformLabParamsTable = labParamsData ? transformDataLabParams(labParamsData) : null;
+    const removeRemarks = (data) => {
+        return data.map(item => ({
+          ...item,
+          inputs: item.inputs.filter(input => input.testName !== "Remarks")
+        }));
+    };
+
+    const labParamsPatchData = labParamsData ? removeRemarks(labParamsData) : null;
+    const transformLabParamsTable = labParamsPatchData ? transformDataLabParams(labParamsPatchData) : null;
+
     return (
         <Document>
             <Page
@@ -1502,7 +1512,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 12 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
-                                    {growthChartData?.length > 0 && (
+                                    {growthChartData?.length > 0 && Object.keys(growthChartImageData)?.length > 0 && todayGrowthChartData?.length > 0 && (
                                         option?.format === 'table' ? (
                                             <>
                                                 <View style={{ marginTop: PX_TO_PT * 15 }}>
@@ -3885,8 +3895,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 15 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
                                 <>
-                                    {labParamsData &&
-                                        labParamsData.length > 0 &&
+                                    {labParamsPatchData &&
+                                        labParamsPatchData.length > 0 &&
                                         (option?.format === "inline" ? (
                                             <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
                                                 <Text>
@@ -3902,7 +3912,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             Lab Results:&nbsp;
                                                         </Text>
 
-                                                        {labParamsData?.map((item, i) => {
+                                                        {labParamsPatchData?.map((item, i) => {
                                                             return (
                                                                 <>
                                                                     { i != 0 && 
@@ -3977,7 +3987,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             Lab Results:&nbsp;
                                                         </Text>
 
-                                                        {labParamsData?.map((item, i) => {
+                                                        {labParamsPatchData?.map((item, i) => {
                                                             return (
                                                                 <>
                                                                     <Text

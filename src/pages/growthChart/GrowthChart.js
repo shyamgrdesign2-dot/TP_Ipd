@@ -10,6 +10,7 @@ import {
   getAllGrowthChartParams,
   getParentalDetails,
   storeGrowthChart,
+  updateGrowthChartParam,
 } from "./service";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,6 +34,7 @@ import { handlePrintClick } from "../../utils/utils";
 import html2canvas from "html2canvas";
 import { updatedMeasurement } from "../../redux/growthChartSlice";
 import { getClinicName } from "../../utils/utils";
+import dayjs from "dayjs";
 
 const GrowthChart = ({ handleDrawerVaccination }) => {
   const dispatch = useDispatch();
@@ -42,8 +44,10 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   const { patients_details } = useSelector((state) => state.records);
   const { state } = useLocation();
   const { patient_data } = state;
-  const gender =
+  let gender =
     patient_data?.pm_gender === "Other" ? "Male" : patient_data?.pm_gender;
+  gender = gender?.toLowerCase();
+  gender = gender[0].toUpperCase() + gender.slice(1).toLowerCase();
   const { growthData, ageData } = growthChartStaticData;
   const patientAgeInMonths = getAgeInMonths(
     patients_details?.pm_dob
@@ -202,8 +206,42 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     await storeGrowthChart(formData);
   };
 
+  const updateTodayMeasurements = async (todayMeasurementData) => {
+    const today = dayjs().format("YYYY-MM-DD");
+
+    for (let i = 0; i < todayMeasurementData.length; i++) {
+      const payload = {
+        date: today,
+        height: todayMeasurementData[i]?.height,
+        weight: todayMeasurementData[i]?.weight,
+        bmi: todayMeasurementData[i]?.bmi,
+        ofc: todayMeasurementData[i]?.ofc,
+        pm_id: patient_data?.pm_id,
+        pm_pid: patient_data?.pm_pid,
+        patient_unique_id: patient_data?.patient_unique_id,
+        pam_id: patient_data?.pam_id || 0,
+      };
+      await updateGrowthChartParam(
+        {
+          id: todayMeasurementData[i]?.tcbc_id,
+          pm_id: patient_data?.pm_id,
+          pm_pid: patient_data?.pm_pid,
+          source: "GROWTH_CHART",
+        },
+        payload
+      );
+    }
+  };
+
   const imageUploadHandler = () => {
-    if (allGrowthChartParams?.length > 0) {
+    const today = dayjs().format("YYYY-MM-DD");
+
+    // Check if today's date is in tcbc_created_date
+    const todayMeasurementData = allGrowthChartParams.filter(
+      (item) => dayjs(item.tcbc_created_date).format("YYYY-MM-DD") === today
+    );
+    if (allGrowthChartParams?.length > 0 && todayMeasurementData?.length > 0) {
+      updateTodayMeasurements(todayMeasurementData);
       dispatch(updatedMeasurement());
       setIsSaveClicked(true);
       setIsPercentileOrTimeLineUpdated(false);
@@ -299,12 +337,11 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
 
     return growthChartResult.map((key, graphIndex) => {
       if (growthChartData.hasOwnProperty(key)) {
-        let objectName = growthData[gender][ageInterval][key];
-
+        let objectName = growthData?.[gender]?.[ageInterval]?.[key];
         if (key === "Weight" && patientAgeInMonths > 120) {
           objectName = {};
         }
-        if (Object.keys(objectName).length) {
+        if (objectName && Object.keys(objectName).length) {
           const chartData = dummyData.datasets?.map((item) => {
             const labelName = item.key;
             return {

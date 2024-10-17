@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Button, Card, DatePicker, Input, Popover, Tooltip, message } from 'antd';
+import { Button, Card, DatePicker, Input, Popover, Tooltip, message, Spin } from 'antd';
 import { EllipsisOutlined, DeleteOutlined, CaretRightOutlined, CaretDownOutlined } from "@ant-design/icons";
 import axios from 'axios';
 import moment from "moment";
 import { jwtDecode } from 'jwt-decode';
 import { LAB_PARAMS_RESULTS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from '../utils/constants';
 import { DEFAULT_TESTS_DATA } from '../utils/labParamsConstants';
+import { isMobile } from "react-device-detect";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import CheckableTag from 'antd/es/tag/CheckableTag';
@@ -14,9 +15,10 @@ import alertIcon from '../assets/images/alertIcon.svg';
 import editIcon from '../assets/images/edit.svg';
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 
-const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal,  patientGender = "male"  }) => {
+const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal, patientGender  }) => {
 
     const [token, setToken] = useState(null);
+    const searchRef = useRef(null);
     const [tokenData, setTokenData] = useState(null);
     const [dates, setDates] = useState([]);
     const [existingResults, setExistingResults] = useState([]);
@@ -27,18 +29,24 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const [labParamsResults, setLabParamsResults] = useState([]);
     const [isRemarksVisible, setIsRemarksVisible] = useState({});
     const [testCounts, setTestCounts] = useState({});
-    const [showEditTooltip, setShowEditTooltip] = useState(false);
+    const [showEditTooltip, setShowEditTooltip] = useState(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+    const [loading, setLoading] = useState(true);
     const scrollContainerRef = useRef(null);
     const inputRef = useRef([]);
     const scrollRefs = useRef([]);
     const remarksRef = useRef(null);
+    const scrollRef = useRef(null);
 
     const currentDate = new Date().toISOString().split("T")[0];
     const dateFormat = 'YYYY-MM-DD';
-    const showDateFormat = 'DD MMM, YY';
+    const showDateFormat = 'DD MMM, YYYY';
 
     //states for Remarks Functionality 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [shouldShowDeletePopup, setShouldShowDeletePopup] = useState(null);
     const [modalContent, setModalContent] = useState("");
     const [activeReport, setActiveReport] = useState(null);
     const [activeTest, setActiveTest] = useState(null);
@@ -63,6 +71,12 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         return grouped;
     };
 
+    // useEffect(() => {
+    //     if (!isBackModalOpen) {
+    //       setSearchQuery(''); // Reset the search query when the drawer closes
+    //     }
+    // }, [isBackModalOpen]);
+
     useEffect(() => {
         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
         if (token) {
@@ -75,6 +89,18 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             }
         }
     }, []);
+
+    useEffect(() => {
+
+      setLoading(true)
+      // Simulate a delay (2 seconds)
+      const timer = setTimeout(() => {
+        setLoading(false); // Hide the loader after 2 seconds
+      }, 1000);
+    
+      // Cleanup the timer when the component is unmounted
+      return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     useEffect(() => {
       document.addEventListener("mousedown", handleClickOutside);
@@ -92,7 +118,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
 
     const handleClickOutside = (event) => {
       if (!remarksRef?.current?.contains(event.target)) {
-        setShowEditTooltip(false);
+        setShowEditTooltip(null);
       }
     };
 
@@ -293,7 +319,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         handleCloseModal();
     };
 
-    const calculateArrowDirection = (value, refRange, gender = "ALL") => {
+    const calculateArrowDirection = (value, refRange, gender = "Male") => {
         if (!value || isNaN(parseFloat(value))) {
             return "";
         }
@@ -476,45 +502,64 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         }
     }, [existingResults]);
 
-    function replaceDateByIndex(
-      inputValues,
-      dateIndex,
-      newDate
-    ) {
-      const updatedValues = { ...inputValues };
+  function replaceDate(inputValues, oldDate, newDate) {
+    const updatedValues = { ...inputValues };
 
+    Object.keys(updatedValues).forEach((reportName) => {
+      Object.keys(updatedValues[reportName]).forEach((testName) => {
+        const testData = { ...updatedValues[reportName][testName] };
+
+        if (testData.hasOwnProperty(oldDate)) {
+          const reorderedData = {};
+
+          Object.keys(testData).forEach((key) => {
+            if (key === oldDate) {
+              // Replace the old date key with the new date key
+              reorderedData[newDate] = testData[oldDate];
+            } else {
+              // Retain other keys and their values
+              reorderedData[key] = testData[key];
+            }
+          });
+          // Update the test data with the reordered object
+          updatedValues[reportName][testName] = reorderedData;
+        } else {
+          console.warn(`Date "${oldDate}" not found in the test data.`);
+        }
+      });
+    });
+    return updatedValues;
+  }
+
+
+    function deleteDateByIndex(inputValues, date) {
+      const updatedValues = { ...inputValues };
       Object.keys(updatedValues).forEach((reportName) => {
         Object.keys(updatedValues[reportName]).forEach((testName) => {
           const testData = updatedValues[reportName][testName];
-          const dateKeys = Object.keys(testData);
-
-          if (dateIndex >= 0 && dateIndex < dateKeys.length) {
-            const oldDate = dateKeys[dateIndex];
-            testData[newDate] = testData[oldDate];
-            delete testData[oldDate];
-          } else {
-            console.warn(`Date index "${dateIndex}" is out of bounds.`);
-          }
+            delete testData[date];
         });
       });
-
       return updatedValues;
     }
 
     const handleDateChange = (newDate, index) => {
-        setDates((prevDates) => {
-            const updatedDates = [...prevDates];
-            updatedDates[index] = newDate;
-            return updatedDates;
-        });
-        setInputValues((prev) => {
-            const updatedData = replaceDateByIndex(prev, index, newDate);
-            return updatedData;
-        });
+      setDates((prevDates) => {
+        const updatedDates = [...prevDates];
+        updatedDates[index] = newDate;
+        return updatedDates;
+      });
+      setInputValues((prev) => {
+        const updatedData = replaceDate(prev, dates[index], newDate);
+        return updatedData;
+      });
     };
 
     const handleDeleteDate = (dateToDelete) => {
         setDates((prevDates) => prevDates.filter((date) => date !== dateToDelete));
+        const updatedData = deleteDateByIndex(inputValues, dateToDelete);
+        setInputValues(updatedData);
+        setShouldShowDeletePopup(null);
     };
 
     const disabledDate = (current) => {
@@ -549,7 +594,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     
             // Update the value and calculate the arrow direction
             const refRange = updatedData[reportName][testName][date].refRange;
-            const gender = patientGender || "ALL"; // Assuming `patientGender` is available globally or passed in
+            const gender = patientGender || "Male"; // Assuming `patientGender` is available globally or passed in
     
             updatedData[reportName][testName][date].value = value;
             updatedData[reportName][testName][date].arrowDirection = calculateArrowDirection(value, refRange, gender);
@@ -564,7 +609,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 return units;
             }
         }
-        return "--";
+        return "";
     };
 
     const assemblePayload = () => {
@@ -638,14 +683,21 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             message.warning('Date already exists');
     }
   };
-    
-    
+
+  useEffect(() => {
+    const sortedDates = dates.sort((a, b) => new Date(b) - new Date(a));
+  
+    setDates(sortedDates);
+  
+  }, [inputValues, dates]);
 
     const handleSave = async() =>{
 
         const currentFilledData = assemblePayload(inputValues);
         const data = combineData(currentFilledData,filledData);
-        setFilledData(data)
+        
+        // setFilledData([])
+
         const payload = {
             patientId: patient_unique_id,
             doctorId: tokenData?.user_id,
@@ -659,7 +711,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
               baseUrl
             );
             if(response){
-                onSave(data);
+                onSave();
                 handleAddLabParamsDrawer();
             }
           } catch (error) {
@@ -675,6 +727,24 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             }
         });
     };
+
+    const handleMouseDown = (e) => {
+        setIsDragging(true);
+        setStartX(e.pageX - scrollRef.current.offsetLeft);
+        setScrollLeft(scrollRef.current.scrollLeft);
+    };
+
+    const handleMouseMove = (e) => {
+        if (!isDragging) return;
+        const x = e.pageX - scrollRef.current.offsetLeft;
+        const walk = x - startX; // Distance moved
+        scrollRef.current.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleMouseLeaveOrUp = () => {
+        setIsDragging(false);
+    };
+
     const tooltipTitle = (notes, reportName, testName, date) => {
       return (
         <div
@@ -694,10 +764,10 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     };
     
     return (
-      <div>
+      <div style={{background:"#fff"}}>
         <div
           className="modalCard-header h-60 align-items-center justify-content-between d-flex"
-          style={{ position: "sticky", top: "0", zIndex: "3" }}
+          style={{ position: "sticky", top: "0", zIndex: "5" }}
         >
           <div className="align-items-center d-flex">
             <Button
@@ -754,9 +824,18 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             Save
           </Button>
         </div>
-        <div className="align-items-center d-flex justify-content-between px-20 py-3 gap-4" style={{position:"sticky",top:"3.78rem", backgroundColor:"white",zIndex:"999"}}>
+        <div
+          className="align-items-center d-flex justify-content-between px-20 py-3 gap-4"
+          style={{
+            position: "sticky",
+            top: "3.78rem",
+            backgroundColor: "white",
+            zIndex: "999",
+          }}
+        >
           <Input
             value={searchQuery}
+            ref={searchRef}
             placeholder="Search by test name or category"
             className="inputheight38"
             style={{ width: "18rem" }}
@@ -780,256 +859,618 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             />
           </div>
         </div>
-        <div className="px-20">
-            <table className="labparam-table" style={{ tableLayout: "fixed", width: "100%"}}>
-                <thead>
-                <tr style={{padding: "0 0.75rem",background: "#efefef"}}>
-                    <th className="labparam-head" style={{ paddingLeft:"17px", width: "280px", position: "sticky", left: 0, zIndex: 2 }}> {/* Set a fixed width here */}
-                        <span>Name</span>
-                    </th>
-                    {dates.map((date, index) => (
-                      <th key={date} className="date-values" style={{ padding:"10px",}}>
-                          <span>{moment(date).format(showDateFormat)}</span>
-                          <Tooltip
-                          trigger={"click"}
-                          placement="bottom"
-                          title={
-                              <>
-                              <div className="tooltip-content">
-                                  <img className="me-2" src={editIcon} alt="Edit" />
-                                  <span>Edit Date</span>
-                                  <DatePicker
-                                  key={Math.random()}
-                                  suffixIcon={null}
-                                  inputReadOnly
-                                  onChange={(date, dateString) => handleDateChange(dateString, index)}
-                                  disabledDate={disabledDate}
-                                  className="calender-labparams"
-                                  />
-                              </div>
-                              <div className="tooltip-content" onClick={() => handleDeleteDate(date)}>
-                                  <DeleteOutlined className="delete-icon" />
-                                  <span>Delete</span>
-                              </div>
-                              </>
-                          }
-                          overlayClassName="custom-tooltip"
-                          >
-                          <EllipsisOutlined className="vertical-dots" style={{ fontSize: "16px" }} />
-                          </Tooltip>
-                      </th>
-                    ))}
-                </tr>
-                </thead>
-                <tbody>
-                {Object.keys(inputValues).map((reportName) => (
-                    <>
-                    {/* Report Name Row */}
-                    <tr
-                        key={reportName}
-                        className="test-parameters-header"
-                        onClick={() => toggleReport(reportName)}
+
+        <div style={{ overflowX: "auto", margin: "8px" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead style={{ backgroundColor: "#F1F1F5" }}>
+              <tr style={{ position: "sticky", left: 0 }}>
+                <th
+                  style={{
+                    position: "sticky",
+                    left: 0,
+                    background: "#F1F1F5",
+                    width: "23rem",
+                    padding: "10px",
+                    borderTopLeftRadius: "10px",
+                    borderBottomLeftRadius: "10px",
+                    fontWeight: "600",
+                    zIndex: 3,
+                  }}
+                >
+                  {" "}
+                  {/* Set a fixed width here */}
+                  <span>Name</span>
+                </th>
+
+                {dates?.length < 2 ? (dates.map((date, index) => (
+                  <>
+                    <th
+                      key={date}
+                      className="date-values"
+                      style={{ padding: "10px" }}
                     >
-                        <td className="labparam-title" style={{ width: "auto", position: "sticky", left: 0, zIndex: 2 }}> {/* Match this width to the header */}
-                        <span>{reportName}</span>
-                        {testCounts[reportName] > 0 && <span> ({testCounts[reportName]})</span>}
-                        {!!expandedReports[reportName] ? (
-                            <button className="btn p-0 ms-2 iconrotate270" style={{ position: "absolute", left: "760px"}}>
-                              <i className="icon-right fs-5" />
-                            </button>
-                        ) : (
-                            <button className="btn p-0 ms-2 iconrotate180" style={{ position: "absolute", left: "760px"}}>
-                              <i className="icon-right fs-5" />
-                            </button>
-                        )}
-                        </td>
-                        {dates.map((date) => (
-                        <td key={date}></td>
-                        ))}
-                    </tr>
-                    {/* <div style="height: 15px;"></div> */}
-                    {/* Test Name and Test Values Rows */}
-                    {expandedReports[reportName] &&
-                        Object.keys(inputValues[reportName]).map((testName, index) => (
-                        <tr key={testName} className="test-values-row">
-                            {/* Test Name Column */}
-                            <td className="labparam-title sticky-testname" style={{ width: 280, position: "sticky", left: 0, background: "#fff", zIndex: 2 }}>
-                              <div style={{width:"280px", position: "sticky", left: "0px"}}>
-                                  {testName}
-                                  {testName !== "Remarks" && (
-                                  <Tooltip
-                                      placement="bottom"
-                                      title={
-                                      <div className="ref-range-tooltip">
-                                          {/* Logic for rendering the reference range */}
-                                          {(() => {
-                                          let hasRenderedRefRange = false;
-                                          return inputValues[reportName][testName] &&
-                                              Object.keys(inputValues[reportName][testName]).map((date, index) => {
-                                              const testData = inputValues[reportName][testName][date];
-                                              const refRange = testData?.refRange;
-
-                                              if (refRange && refRange.ranges && refRange.ranges.length > 0 && !hasRenderedRefRange) {
-                                                  hasRenderedRefRange = true;
-                                                  if (refRange.isConditional) {
-                                                  const maleRange = refRange.ranges.find(range => range.gender === 'MALE');
-                                                  const femaleRange = refRange.ranges.find(range => range.gender === 'FEMALE');
-                                                  return (
-                                                      <div key={index}>
-                                                      <strong>Reference Range:</strong>
-                                                      {maleRange && femaleRange ? (
-                                                          <div>
-                                                          <strong>Male:</strong> {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
-                                                          <strong>Female:</strong> {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
-                                                          </div>
-                                                      ) : maleRange ? (
-                                                          <div>
-                                                          <strong>Male:</strong> {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
-                                                          </div>
-                                                      ) : femaleRange ? (
-                                                          <div>
-                                                          <strong>Female:</strong> {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
-                                                          </div>
-                                                      ) : (
-                                                          <div>No reference range available</div>
-                                                      )}
-                                                      </div>
-                                                  );
-                                                  } else {
-                                                  const range = refRange.ranges[0];
-                                                  return (
-                                                      <div key={index}>
-                                                      <strong>All:</strong> {`${range?.min} - ${range?.max} ${range?.unit}`}
-                                                      </div>
-                                                  );
-                                                  }
-                                              }
-                                              return null;
-                                              });
-                                          })()}
-                                          <div className="disclaimer-text">
-                                          {`Disclaimer: This range is only for reference and may vary between patients based on different conditions.`}
-                                          </div>
-                                      </div>
-                                      }
-                                      overlayClassName="lab-params-tooltip"
-                                      overlayInnerStyle={{ padding: '12px', width: '250px', background: "white", color: "black" }}
-                                  >
-                                      <i
-                                      className="icon-info ms-1"
-                                      style={{ cursor: "pointer", color: "#d3d3d3", fontSize: "18px", marginBottom: "10px" }}
-                                      ></i>
-                                  </Tooltip>
-                                  )}
+                      <span>{moment(date).format(showDateFormat)}</span>
+                      <Tooltip
+                        trigger={"click"}
+                        placement="bottom"
+                        title={
+                          <>
+                            <div className="tooltip-content">
+                              <img className="me-2" src={editIcon} alt="Edit" />
+                              <span>Edit Date</span>
+                              <DatePicker
+                                key={Math.random()}
+                                suffixIcon={null}
+                                inputReadOnly
+                                onChange={(date, dateString) =>
+                                  handleDateChange(dateString, index)
+                                }
+                                disabledDate={disabledDate}
+                                className="calender-labparams"
+                              />
+                            </div>
+                            {dates.length > 1 && (
+                              <div
+                                className="tooltip-content"
+                                onClick={() => setShouldShowDeletePopup(date)}
+                              >
+                                <DeleteOutlined className="delete-icon" />
+                                <span>Delete</span>
                               </div>
-                            </td>
-
-                            {/* Test Value Columns (aligned with date columns in <thead>) */}
-                            {dates.map((date) => (
-                            <td key={date} className="test-values-container">
-                                {testName === "Remarks" ? (
-                                <div>
-                                    {inputValues[reportName][testName][date]?.value ? (
-                                    <Tooltip
-                                        title={tooltipTitle(inputValues?.[reportName]?.[testName]?.[date]?.value, reportName, testName, date)}
-                                        overlayClassName="customTooltip"
-                                        open={showEditTooltip}
-                                        placement="top"
-                                    >
-                                        <div onClick={() => setShowEditTooltip(true)}>
-                                        <div className="remarks-text truncated">
-                                            {inputValues[reportName][testName][date]?.value}
-                                        </div>
-                                        <span style={{ fontWeight: 500, color: "#171725", textDecoration: "underline", cursor: "pointer" }}>View Remarks</span>
-                                        </div>
-                                    </Tooltip>
-                                    ) : (
-                                    <Button className="remarks-btn" onClick={() => handleOpenModal(reportName, testName, date)}>
-                                        <span className="underline-button" >Add Remarks</span>
-                                    </Button>
-                                    )}
-                                    {isRemarksVisible[reportName]?.[testName]?.[date] && (
-                                    <div className="full-remarks-container">
-                                        <div className="full-remarks-content">
-                                        {inputValues[reportName][testName][date]?.value}
-                                        </div>
-                                    </div>
-                                    )}
-                                </div>
-                                ) : (
-                                <div>
-                                    <Input
-                                    style={{
-                                        width: "180px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        borderRadius: "9px",
-                                        color: inputValues[reportName][testName][date]?.arrowDirection ? "#E54848" : "inherit",
-                                    }}
-                                    type="text"
-                                    className={`lab-params-input ${inputValues[reportName][testName][date]?.arrowDirection ? "lab-params-input-warning" : ""}`}
-                                    suffix={
-                                        <div className="d-flex justify-content-between w-100">
-                                        <span>{inputValues[reportName][testName][date]?.value || ""}</span>
-                                        {inputValues[reportName][testName][date]?.arrowDirection === "up" ? (
-                                            <ArrowUpOutlined className="lab-params-warning" style={{ paddingLeft: 5 }} />
-                                        ) : inputValues[reportName][testName][date]?.arrowDirection === "down" ? (
-                                            <ArrowDownOutlined className="lab-params-warning" style={{ paddingLeft: 5 }} />
-                                        ) : null}
-                                        </div>
-                                    }
-                                    addonAfter={
-                                        <div style={{ display: "flex", alignItems: "center" }}>
-                                        <span
-                                            style={{
-                                            textAlign: "center",
-                                            overflow: "hidden",
-                                            whiteSpace: "nowrap",
-                                            textOverflow: "ellipsis",
-                                            }}
-                                        >
-                                            {inputValues[reportName][testName][date]?.units || getUnitForTest(reportName, testName)}
-                                        </span>
-                                        </div>
-                                    }
-                                    onChange={(e) => handleInputChange(reportName, testName, date, e.target.value)}
-                                    />
-                                </div>
-                                )}
-                            </td>
-                            ))}
-                        </tr>
-                        ))}
-                    </>
-                ))}
-                </tbody>
-            </table>
-        </div>
-
-        <CommonModal
-            isModalOpen={isModalOpen}
-            onCancel={handleCloseModal}
-            modalWidth={500}
-            title={"Add Remarks"}
-            modalBody={
-                <>
-                    <div className="d-flex align-items-center mt-2 justify-content-end">
-                        <textarea
-                            className="remarks-textarea"
-                            value={modalContent}
-                            onChange={(e) => setModalContent(e.target.value)}
-                            placeholder="Write your remarks here..."
-                            style={{ width: '100%', height: '150px', resize: 'none', overflowY: 'scroll' }}
+                            )}
+                          </>
+                        }
+                        overlayClassName="custom-tooltip"
+                      >
+                        <EllipsisOutlined
+                          className="vertical-dots"
+                          style={{ fontSize: "16px" }}
                         />
+                      </Tooltip>
+                    </th>
+                    <th
+                      className="date-values"
+                      style={{ padding: "10px" }}
+                    >
+                    </th>
+                  </>
+                ))):(dates.map((date, index) => (
+                  <th
+                    key={date}
+                    className="date-values"
+                    style={{ padding: "10px" }}
+                  >
+                    <span>{moment(date).format(showDateFormat)}</span>
+                    <Tooltip
+                      trigger={"click"}
+                      placement="bottom"
+                      title={
+                        <>
+                          <div className="tooltip-content">
+                            <img className="me-2" src={editIcon} alt="Edit" />
+                            <span>Edit Date</span>
+                            <DatePicker
+                              key={Math.random()}
+                              suffixIcon={null}
+                              inputReadOnly
+                              onChange={(date, dateString) =>
+                                handleDateChange(dateString, index)
+                              }
+                              disabledDate={disabledDate}
+                              className="calender-labparams"
+                            />
+                          </div>
+                          {dates.length > 1 && (
+                            <div
+                              className="tooltip-content"
+                              onClick={() => setShouldShowDeletePopup(date)}
+                            >
+                              <DeleteOutlined className="delete-icon" />
+                              <span>Delete</span>
+                            </div>
+                          )}
+                        </>
+                      }
+                      overlayClassName="custom-tooltip"
+                    >
+                      <EllipsisOutlined
+                        className="vertical-dots"
+                        style={{ fontSize: "16px" }}
+                      />
+                    </Tooltip>
+                  </th>
+                )))
+                }
+              </tr>
+            </thead>
+            { loading ? (
+                  <div
+                    className="d-flex flex-column justify-content-center"
+                    style={{ height: "calc(100vh - 218px)" }}
+                  >
+                    <div style={{position:'absolute', left:"50%"}}>
+                      <Spin />
                     </div>
+                  </div>
+                ) : (
+                  <>
+            <div style={{ height: "15px" }}></div>
+            <tbody>
+              {Object.keys(inputValues).map((reportName) => (
+                <>
+                  {/* Report Name Row */}
+                  <tr
+                    key={reportName}
+                    style={{
+                      cursor: "pointer",
+                      width: "100%",
+                    }}
+                    onClick={() => toggleReport(reportName)}
+                  >
+                    <td
+                      colSpan={Object.keys(inputValues).length + 1} // Span across all columns
+                      style={{
+                        position: "sticky",
+                        left: 0, // Set the left position to make it stick on the left
+                        zIndex: 2, // Ensure it stays above the other rows
+                        background: " #FAFAFB", // Provide a background so it doesn't overlap
+                        padding: "10px",
+                        display: "flex",
+                        alignItems: "center",
+                        width: "29rem",
+                        borderTopLeftRadius: "10px",
+                        borderBottomLeftRadius: "10px",
+                      }}
+                    >
+                      {" "}
+                      {/* Match this width to the header */}
+                      <span>{reportName}</span>
+                      {testCounts[reportName] > 0 && (
+                        <span> ({testCounts[reportName]})</span>
+                      )}
+                      {!!expandedReports[reportName] ? (
+                        <button
+                          className="btn p-0 ms-2 iconrotate270"
+                          style={{ position: "absolute", left: isMobile? "635px" : "816px" }}
+                        >
+                          <i className="icon-right fs-5" />
+                        </button>
+                      ) : (
+                        <button
+                          className="btn p-0 ms-2 iconrotate180"
+                          style={{ position: "absolute", left: "816px" }}
+                        >
+                          <i className="icon-right fs-5" />
+                        </button>
+                      )}
+                    </td>
+                    {dates.length < 2 ? (
+                      // Render at least two empty <td>s if the length is less than 2
+                      <>
+                        <td
+                          style={{
+                            background: "#FAFAFB",
+                            width: "160px",
+                            padding: "10px",
+                          }}
+                        ></td>
+                        <td
+                          style={{
+                            background: "#FAFAFB",
+                            width: "160px",
+                            padding: "10px",
+                          }}
+                        ></td>
+                      </>
+                    ) : (
+                      dates.map((entry, entryIndex) => {
+                        const isLastCell = entryIndex === dates.length - 1;
+                        return (
+                          <td
+                            key={entry.date}
+                            style={{
+                              background: "#FAFAFB",
+                              width: "160px",
+                              padding: "10px",
+                              textAlign: "right", // Right align the icon for the last cell
+                              borderTopRightRadius: isLastCell ? "10px" : " ",
+                              borderBottomRightRadius: isLastCell
+                                ? "10px"
+                                : " ",
+                            }}
+                          ></td>
+                        );
+                      })
+                    )}
+                  </tr>
+                  {!expandedReports[reportName] && (
+                    <div style={{ height: "10px" }}></div>
+                  )}
+                  {/* <div style="height: 15px;"></div> */}
+                  {/* Test Name and Test Values Rows */}
+                  {expandedReports[reportName] &&
+                    Object.keys(inputValues[reportName]).map(
+                      (testName, index) => (
+                        <tr key={testName} style={{background: "#fff"}}>
+                          {/* Test Name Column */}
+                          <td
+                            style={{
+                              position: "sticky",
+                              left: 0,
+                              background: "#fff",
+                              width: "23rem",
+                              padding: "10px",
+                              //   borderRight: "1px solid #ddd",
+                              overflow: "hidden",
+                              zIndex: 3,
+                            }}
+                          >
+                            {testName}
+                            {testName !== "Remarks" && (
+                              <Tooltip
+                                placement="bottom"
+                                title={
+                                  <div className="ref-range-tooltip">
+                                    {/* Logic for rendering the reference range */}
+                                    {(() => {
+                                      let hasRenderedRefRange = false;
+                                      return (
+                                        inputValues[reportName][testName] &&
+                                        Object.keys(
+                                          inputValues[reportName][testName]
+                                        ).map((date, index) => {
+                                          const testData =
+                                            inputValues[reportName][testName][
+                                              date
+                                            ];
+                                          const refRange = testData?.refRange;
+
+                                          if (
+                                            refRange &&
+                                            refRange.ranges &&
+                                            refRange.ranges.length > 0 &&
+                                            !hasRenderedRefRange
+                                          ) {
+                                            hasRenderedRefRange = true;
+                                            if (refRange.isConditional) {
+                                              const maleRange =
+                                                refRange.ranges.find(
+                                                  (range) =>
+                                                    range.gender === "MALE"
+                                                );
+                                              const femaleRange =
+                                                refRange.ranges.find(
+                                                  (range) =>
+                                                    range.gender === "FEMALE"
+                                                );
+                                              return (
+                                                <div key={index}>
+                                                  <strong>
+                                                    Reference Range:
+                                                  </strong>
+                                                  {maleRange && femaleRange ? (
+                                                    <div>
+                                                      Male:{" "}
+                                                      {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}{" "}
+                                                      <br />
+                                                      Female:{" "}
+                                                      {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                    </div>
+                                                  ) : maleRange ? (
+                                                    <div>
+                                                      Male:{" "}
+                                                      {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
+                                                    </div>
+                                                  ) : femaleRange ? (
+                                                    <div>
+                                                      Female:{" "}
+                                                      {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                    </div>
+                                                  ) : (
+                                                    <div>
+                                                      No reference range
+                                                      available
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              );
+                                            } else {
+                                              const range = refRange.ranges[0];
+                                              return (
+                                                <div key={index}>
+                                                  All:{" "}
+                                                  {`${range?.min} - ${range?.max} ${range?.unit}`}
+                                                </div>
+                                              );
+                                            }
+                                          }
+                                          return null;
+                                        })
+                                      );
+                                    })()}
+                                    <div className="disclaimer-text">
+                                      <span style={{ fontWeight: "600" }}>
+                                        Disclaimer:
+                                      </span>{" "}
+                                      {`This range is only for reference and may vary between patients based on different conditions.`}
+                                    </div>
+                                  </div>
+                                }
+                                overlayClassName="lab-params-tooltip"
+                                overlayInnerStyle={{
+                                  padding: "12px",
+                                  width: "250px",
+                                  background: "white",
+                                  color: "black",
+                                }}
+                              >
+                                <i
+                                  className="icon-info ms-1"
+                                  style={{
+                                    cursor: "pointer",
+                                    color: "#d3d3d3",
+                                    fontSize: "18px",
+                                    marginBottom: "10px",
+                                  }}
+                                ></i>
+                              </Tooltip>
+                            )}
+                          </td>
+
+                          <td
+                            colSpan={Object.keys(inputValues).length}
+                            style={{ padding: 0 }}
+                          >
+                            <div
+                              ref={scrollRef}
+                              onMouseDown={handleMouseDown}
+                              onMouseLeave={handleMouseLeaveOrUp}
+                              onMouseUp={handleMouseLeaveOrUp}
+                              onMouseMove={handleMouseMove}
+                              style={{
+                                display: "flex",
+                                overflowX: "auto",
+                                cursor: isDragging ? "grabbing" : "grab",
+                              }}
+                            >
+                              {/* Test Value Columns (aligned with date columns in <thead>) */}
+                              {dates.map((date, inputIndex) => (
+                                <div
+                                  key={inputIndex}
+                                  className="test-values-container"
+                                >
+                                  {testName === "Remarks" ? (
+                                    <div>
+                                      {inputValues[reportName][testName][date]
+                                        ?.value ? (
+                                        <Tooltip
+                                          title={tooltipTitle(
+                                            inputValues?.[reportName]?.[
+                                              testName
+                                            ]?.[date]?.value,
+                                            reportName,
+                                            testName,
+                                            date
+                                          )}
+                                          overlayClassName="customTooltip"
+                                          open={showEditTooltip}
+                                          placement="top"
+                                        >
+                                          <div
+                                            // onClick={() =>
+                                            //   setShowEditTooltip(true)
+                                            // }
+                                          >
+                                            <div className="truncated">
+                                              {
+                                                inputValues[reportName][
+                                                  testName
+                                                ][date]?.value
+                                              }
+                                            </div>
+                                            <span
+                                              style={{
+                                                fontWeight: 500,
+                                                color: "#171725",
+                                                textDecoration: "underline",
+                                                cursor: "pointer",
+                                                fontSize: "14px",
+                                              }}
+                                            >
+                                              View Remarks
+                                            </span>
+                                          </div>
+                                        </Tooltip>
+                                      ) : (
+                                        <Button
+                                          className="remarks-btn"
+                                          onClick={() =>
+                                            handleOpenModal(
+                                              reportName,
+                                              testName,
+                                              date
+                                            )
+                                          }
+                                        >
+                                          <span
+                                            className="underline-button"
+                                            style={{ fontWeight: 600 }}
+                                          >
+                                            Add Remarks
+                                          </span>
+                                        </Button>
+                                      )}
+                                      {isRemarksVisible[reportName]?.[
+                                        testName
+                                      ]?.[date] && (
+                                        <div className="full-remarks-container">
+                                          <div className="full-remarks-content">
+                                            {
+                                              inputValues[reportName][testName][
+                                                date
+                                              ]?.value
+                                            }
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <div style={{width:"180px"}}>
+                                      <Input
+                                        style={{
+                                          width: "100%",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          borderRadius: "9px",
+                                          color: inputValues[reportName][
+                                            testName
+                                          ][date]?.arrowDirection
+                                            ? "#E54848"
+                                            : "inherit",
+                                        }}
+                                        type="text"
+                                        className={`lab-params-input
+                                    ${
+                                      inputValues[reportName][testName][date]
+                                        ?.arrowDirection !== ""
+                                        ? "lab-params-intput-warning"
+                                        : ""
+                                    }`}
+                                        value={inputValues[reportName][testName][date]?.value || ""}
+                                        suffix={
+                                          inputValues[reportName][testName][date]?.arrowDirection === "up" ? (
+                                            <ArrowUpOutlined
+                                              className="lab-params-warning"
+                                              style={{ paddingLeft: 5 }}
+                                            />
+                                          ) : inputValues[reportName][testName][date]?.arrowDirection === "down" ? (
+                                            <ArrowDownOutlined
+                                              className="lab-params-warning"
+                                              style={{ paddingLeft: 5 }}
+                                            />
+                                          ) : <span />
+                                        }
+                                        addonAfter={
+                                          <div
+                                            style={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                            }}
+                                          >
+                                            <span
+                                              style={{
+                                                textAlign: "center",
+                                                overflow: "hidden",
+                                                whiteSpace: "nowrap",
+                                                textOverflow: "ellipsis",
+                                                fontSize: "12px",
+                                                fontWeight: "600",
+                                              }}
+                                            >
+                                              {
+                                                inputValues[reportName][testName][date]?.units ||
+                                                getUnitForTest(reportName, testName) ||
+                                                "--"
+                                              }                                            
+                                            </span>
+                                          </div>
+                                        }
+                                        onChange={(e) =>
+                                          handleInputChange(
+                                            reportName,
+                                            testName,
+                                            date,
+                                            e.target.value.trim()
+                                          )
+                                        }
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    )}
+                </>
+              ))}
+            </tbody>
+        <div
+          onClick={() => searchRef.current.focus()} // Step 3: Focus on input when the div is clicked
+          style={{
+            cursor: "pointer",
+            marginLeft: "1.25rem",
+            marginTop: "0.5rem",
+            marginBottom: "0.5rem",
+          }}
+        >
+          Unable to find the parameter? Discover more by{" "}
+          <span className="hyperling-text-style">searching</span>
+        </div>
+      </>
+    )
+}
+</table>
+</div>
+        <CommonModal
+          isModalOpen={isModalOpen}
+          onCancel={handleCloseModal}
+          modalWidth={500}
+          title={"Add Remarks"}
+          modalBody={
+            <>
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <textarea
+                  className="remarks-textarea"
+                  value={modalContent}
+                  onChange={(e) => setModalContent(e.target.value)}
+                  placeholder="Write your remarks here..."
+                            style={{ width: '100%', height: '150px', resize: 'none', overflowY: 'scroll' }}
+                />
+              </div>
                     <div className='d-flex justify-content-end'>
                       <Button onClick={() => {handleSaveRemarks()}} className="lh-lg btn btn-primary3 btn-41 px-4">
-                              <span>Save</span>
-                      </Button>
-                    </div>
-                </>
-            }
+                  <span>Save</span>
+                </Button>
+              </div>
+            </>
+          }
         />
+
+        {shouldShowDeletePopup !== null && 
+          <CommonModal
+            isModalOpen={shouldShowDeletePopup !== null}
+            onCancel={() => setShouldShowDeletePopup(null)}
+            modalWidth={357}
+            title={"You may lose your data"}
+            modalBody={
+              <>
+                <div className="alert-warning rounded-10px p-2 patient-details">
+                  <div className="d-flex align-items-center">
+                    <img className="me-3" src={alertIcon} alt="Warning" />
+                    <span>Are you sure you want to delete ?</span>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <div className="d-flex align-items-center mt-2 justify-content-end">
+                    <div
+                      onClick={() => handleDeleteDate(shouldShowDeletePopup)}
+                      className="me-4 text-decoration-underline btn p-0 text-main"
+                    >
+                      Yes, Delete
+                    </div>
+                    <Button
+                      onClick={() => setShouldShowDeletePopup(null)}
+                      className="lh-lg btn btn-primary3 btn-41 px-4"
+                    >
+                      <span>No</span>
+                    </Button>
+                  </div>
+                </div>
+              </>
+            }
+        />}
       </div>
     );
 };

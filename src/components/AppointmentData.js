@@ -963,6 +963,10 @@ function AppointmentData({ locationPath }) {
         [addlabparamsDrawer]
     );
 
+    const handleLabParamsUpdate = (() => {
+        // setAddlabparamsDrawer(!addlabparamsDrawer)
+    });
+
     const handleNoDetailsModal = useCallback(
         () => {
             setNoDetailsModal(!noDetailsModal)
@@ -1357,7 +1361,7 @@ function AppointmentData({ locationPath }) {
                     width="auto"
                 // key="left"
                 >
-                    <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={appointmentSelectedFromMenu?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal}/>
+                    <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={appointmentSelectedFromMenu?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} onSave={handleLabParamsUpdate}/>
                 </Drawer>
             </div>
 

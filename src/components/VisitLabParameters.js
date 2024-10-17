@@ -8,7 +8,7 @@ import axios from 'axios';
 import LabParams from "../components/LabParams";
 import ViewLabParam from "../components/ViewLabParams";
 
-const VisitLabParameters = ( {patient_unique_id, doc_id}) => {
+const VisitLabParameters = ( {patient_unique_id, doc_id, onSave}) => {
   const [labParamsData, setLabParamsData] = useState([]);
   const [viewlabparamsDrawer, setViewlabparamsDrawer] = useState(false);
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
@@ -53,7 +53,7 @@ const VisitLabParameters = ( {patient_unique_id, doc_id}) => {
 
   // Function to update lab params data in parent component when saved
   const handleLabParamsUpdate = (newLabParams) => {
-    setLabParamsData(newLabParams); // Update state with the new lab params data
+    getLabParams();
   };
 
   useEffect(() => {
@@ -106,26 +106,31 @@ const VisitLabParameters = ( {patient_unique_id, doc_id}) => {
             </Card.Header>
             <LabParametersList labParamsData={labParamsData}/>
           </Card>
-          <Drawer
-              closeIcon={false}
-              className="modalWidth-700"
-              placement="right"
-              open={addlabparamsDrawer}
-              onClose={showHideBackModal}
-              width="auto"
-          >
-              <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_unique_id} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal}/>
-          </Drawer>
-          <Drawer
-              closeIcon={false}
-              className="modalWidth-700"
-              placement="right"
-              open={viewlabparamsDrawer}
-              onClose={handleViewLabParamsDrawer}
-              width="auto"
-          >
-              <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
-          </Drawer>
+
+          { addlabparamsDrawer &&
+            <Drawer
+                closeIcon={false}
+                width={880}
+                // className="modalWidth-700"
+                placement="right"
+                open={addlabparamsDrawer}
+                onClose={showHideBackModal}
+            >
+                <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_unique_id} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal}/>
+            </Drawer>
+          }
+          { viewlabparamsDrawer &&
+            <Drawer
+                closeIcon={false}
+                width="auto"
+                className="modalWidth-700"
+                placement="right"
+                open={viewlabparamsDrawer}
+                onClose={handleViewLabParamsDrawer}
+            >
+                <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
+            </Drawer>
+          }
         </div>
       ) : null}
     </div>
