@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../api/services/axiosService";
 import config from "../config";
 import { getDecodedToken } from "../utils/localStorage";
-import moment from "moment";
 
 const token = getDecodedToken();
 
@@ -32,7 +31,6 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         planStatus: { code },
         productType,
       } = response?.body?.plans?.content?.[0];
-      const { plan_expiry_date } = response?.body?.profile;
 
       return {
         planStatus: code,
@@ -40,7 +38,6 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         billingHistory: response?.body?.plans?.content,
         ...response?.body?.profile,
         totalPages: response?.body?.plans?.totalPages,
-        expiresIn: moment(plan_expiry_date).diff(moment(), "days"),
       };
     }
   }
