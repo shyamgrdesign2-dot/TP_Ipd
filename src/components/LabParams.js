@@ -1210,9 +1210,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                               }}
                             >
                               {/* Test Value Columns (aligned with date columns in <thead>) */}
-                              {dates.map((date) => (
+                              {dates.map((date, inputIndex) => (
                                 <div
-                                  key={date}
+                                  key={inputIndex}
                                   className="test-values-container"
                                 >
                                   {testName === "Remarks" ? (
@@ -1312,30 +1312,19 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                         ? "lab-params-intput-warning"
                                         : ""
                                     }`}
+                                        value={inputValues[reportName][testName][date]?.value || ""}
                                         suffix={
-                                          <div className="d-flex justify-content-between w-100">
-                                            <span>
-                                              {inputValues[reportName][
-                                                testName
-                                              ][date]?.value || ""}
-                                            </span>
-                                            {inputValues[reportName][testName][
-                                              date
-                                            ]?.arrowDirection === "up" ? (
-                                              <ArrowUpOutlined
-                                                className="lab-params-warning"
-                                                style={{ paddingLeft: 5 }}
-                                              />
-                                            ) : inputValues[reportName][
-                                                testName
-                                              ][date]?.arrowDirection ===
-                                              "down" ? (
-                                              <ArrowDownOutlined
-                                                className="lab-params-warning"
-                                                style={{ paddingLeft: 5 }}
-                                              />
-                                            ) : null}
-                                          </div>
+                                          inputValues[reportName][testName][date]?.arrowDirection === "up" ? (
+                                            <ArrowUpOutlined
+                                              className="lab-params-warning"
+                                              style={{ paddingLeft: 5 }}
+                                            />
+                                          ) : inputValues[reportName][testName][date]?.arrowDirection === "down" ? (
+                                            <ArrowDownOutlined
+                                              className="lab-params-warning"
+                                              style={{ paddingLeft: 5 }}
+                                            />
+                                          ) : <span />
                                         }
                                         addonAfter={
                                           <div
@@ -1354,13 +1343,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                 fontWeight: "600",
                                               }}
                                             >
-                                              {inputValues[reportName][
-                                                testName
-                                              ][date]?.units ||
-                                                getUnitForTest(
-                                                  reportName,
-                                                  testName
-                                                )}
+                                              {inputValues[reportName][testName][date]?.units ||
+                                                getUnitForTest(reportName, testName)}
                                             </span>
                                           </div>
                                         }

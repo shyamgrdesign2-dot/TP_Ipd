@@ -85,7 +85,7 @@ const LabParametersList = ({labParamsData}) => {
         {flattenedData?.map((entry, index) => (
           <tr key={index} className="column-border">
             {/* First column for the test name and unit */}
-            <td className="labParamsTcell" style={{ width: "50%", fontWeight: 500 }}>
+            <td className="labParamsTcell" style={{ width: "50%", fontWeight: 400 }}>
               {entry.units ? `${entry.testName} (${entry.units})` : entry.testName}
             </td>
   

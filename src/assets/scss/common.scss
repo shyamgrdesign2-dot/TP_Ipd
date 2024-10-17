@@ -975,13 +975,16 @@ body {
 }
 
 .lab-params-input {
-    .ant-input-suffix {
-        width: 100%;
+    .ant-input-group >.ant-input {
+        height: 40px;
+    }
+    .ant-input-group .ant-input-affix-wrapper {
+        height: 40px;
     }
 }
 
 .lab-params-intput-warning {
     .ant-input-outlined {
-        border-color: #E54848;
+        border-color: #E54848 !important;
     }
 }
