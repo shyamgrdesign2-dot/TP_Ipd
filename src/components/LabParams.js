@@ -39,6 +39,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const scrollRefs = useRef([]);
     const remarksRef = useRef(null);
     const scrollRef = useRef(null);
+    const [defaultTestData, setDefaultTestData] = useState([]);
+
+    useEffect(() => {
+      setDefaultTestData(JSON.parse(JSON.stringify(DEFAULT_TESTS_DATA)));
+    }, [])
 
     const currentDate = new Date().toISOString().split("T")[0];
     const dateFormat = 'YYYY-MM-DD';
@@ -350,7 +355,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
 
     const mergeSearchResults = (existingResults, labParamsResults, searchQuery) => {
         const tempResults = [];
-    
+      
         const currentFilledData = assemblePayload(inputValues);
         const data = combineData(currentFilledData, filledData);
     
@@ -363,7 +368,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 // No labParamsResults: return default data
                 const newEntry = {
                     date: new Date().toISOString().split('T')[0],
-                    inputs: [...DEFAULT_TESTS_DATA]
+                    inputs: [...defaultTestData]
                 };
 
                 // Call function to add 'Remarks'
@@ -424,14 +429,14 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             }
 
             // Append predefined lab parameters if not already present
-            if (DEFAULT_TESTS_DATA?.length > 0) {
+            if (defaultTestData?.length > 0) {
                 existingResults.forEach((entry) => {
                     const newEntry = {
                         date: entry.date,
                         inputs: [...entry.inputs]
                     };
 
-                    DEFAULT_TESTS_DATA.forEach((lab) => {
+                    defaultTestData.forEach((lab) => {
                         const existingInput = newEntry.inputs.find(
                             input => input.testName === lab.testName && input.reportName === lab.reportName
                         );
