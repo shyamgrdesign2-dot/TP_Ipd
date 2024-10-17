@@ -253,6 +253,7 @@ const handleFileUpload = (event) => {
       )}
       {shouldShowUploadDocPopup && (
         <UploadDocPopup
+          shouldShowUploadDocPopup={shouldShowUploadDocPopup}
           onCancel={handleUploadDocPopup}
           setFilesData={setFilesData}
           filesData={filesData}

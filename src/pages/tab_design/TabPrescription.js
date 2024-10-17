@@ -1118,16 +1118,17 @@ function TabPrescription() {
             />
           </Drawer>
         )}
-        {shouldShowUploadDocPopup && (
+        {shouldShowUploadDocPopup ?
           <UploadDocPopup
+            shouldShowUploadDocPopup={shouldShowUploadDocPopup}
             onCancel={handleUploadDocPopup}
             setFilesData={setFilesData}
             filesData={filesData}
             uploadDocDrawer={uploadDocDrawer}
             handleDrawerUploadDoc={handleDrawerUploadDoc}
-          />
-        )}
-        {labParamsDrawer && (
+          /> 
+          : null}
+          {labParamsDrawer && (
           <Drawer
             closeIcon={false}
             placement="right"
