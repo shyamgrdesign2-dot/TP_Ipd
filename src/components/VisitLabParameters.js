@@ -32,8 +32,6 @@ const VisitLabParameters = ( {patient_unique_id, doc_id, onSave}) => {
     }
   };
 
-  console.log(labParamsData,"labParamsData")
-
   const handleViewLabParamsDrawer = useCallback(
     () => {
         setViewlabparamsDrawer(!viewlabparamsDrawer)
