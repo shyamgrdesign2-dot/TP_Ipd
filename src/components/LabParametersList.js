@@ -118,7 +118,7 @@ const LabParametersList = ({ labParamsData }) => {
                         ) : null}
                       </>
                     ) : (
-                      "--"
+                      <span>{"--"}</span>
                     )}
                   </td>
                 );
