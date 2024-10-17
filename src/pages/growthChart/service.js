@@ -22,6 +22,26 @@ export const getAllGrowthChartParams = async function ({
   return allGrowthChartParams;
 };
 
+export const getTodayGrowthChartParams = async function ({
+  pm_id,
+  pm_pid,
+  date,
+  source,
+}) {
+  let allGrowthChartParams = [];
+  try {
+    allGrowthChartParams = await api.get(
+      `growthChart/all?pm_id=${pm_id}&pm_pid=${pm_pid}${
+        date ? `&created_date=${date}&source=${source}` : ""
+      }`,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching allGrowthChartParams", e);
+  }
+  return allGrowthChartParams;
+};
+
 export const getGrowthChartParamsById = async (pm_id, pm_pid) => {
   let res = {};
   try {

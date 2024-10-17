@@ -21,6 +21,7 @@ import doctorWebsiteSlice from './doctorWebsiteSlice';
 import obstetricSlice from './obstetricSlice';
 import subscriptionReducer from './subscriptionSlice';
 import doctorModalReducer from './doctorModalSlice';
+import uploadDocSlice from './uploadDocSlice';
 
 const persistConfig = {
   key: 'root',
@@ -47,6 +48,7 @@ const rootReducer = combineReducers({
   obstetric: obstetricSlice,
   subscription: subscriptionReducer,
   doctorModal: doctorModalReducer,
+  uploadDoc: uploadDocSlice
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

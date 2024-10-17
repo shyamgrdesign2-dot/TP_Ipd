@@ -23,16 +23,24 @@ import VisitGrowthChart from "./growthChart/components/visitGrowthChart/VisitGro
 import { useAccess } from "./vaccination/useAccess";
 import VisitObstetric from "./obstetric/components/visitObstetric/VisitObstetric";
 import { getClinicName } from "../utils/utils";
+import VisitMedicalRecords from "./medicalRecords/components/visitMedicalRecords/VisitMedicalRecords";
+import { setAllUploadedDocs, setPatientUploadedDocs } from "../redux/uploadDocSlice";
+import { fetchAllPatientDocs, fetchDocsUploadedByPatient } from "./medicalRecords/service";
+import { mergeDocuments } from "./medicalRecords/utils/helper";
+import VisitLabParameters from "../components/VisitLabParameters";
 
 const { Sider, Content } = Layout;
 
 function PatientDetails() {
 
-    const { profile } = useSelector((state) => state.doctors);
+    const { profile, userId } = useSelector((state) => state.doctors);
     const {
         viewCaseManagerData,
         loading,
     } = useSelector((state) => state.caseManager);
+    const { allUploadedDocs } = useSelector(
+      (state) => state.uploadDoc
+    );
     const dispatch = useDispatch();
 
     const { state } = useLocation();
@@ -78,6 +86,25 @@ function PatientDetails() {
         //     clearTimeout(timeOutId);
         // };
     }, [tcmData]);
+
+    useEffect(() => {
+    if (patient_data.patient_unique_id && allUploadedDocs.length === 0) {
+        getAllPatientDocs();
+    }
+    }, []);
+
+    const getAllPatientDocs = async () => {
+        const doctorUploadedDocs = await fetchAllPatientDocs(patient_data.patient_unique_id);
+        const patientUploadedDocs = await fetchDocsUploadedByPatient(
+          patient_data.patient_unique_id
+        );
+        dispatch(setPatientUploadedDocs(patientUploadedDocs));
+        dispatch(
+          setAllUploadedDocs(
+            mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
+          )
+        );
+    };
 
     const nextPress = () => {
         window.Moengage.track_event("patient_detail_prev", {
@@ -140,6 +167,7 @@ function PatientDetails() {
                                                 {isGynaecHistoryAccessable && <VisitObstetric />}
                                             </>
                                         }
+                                        {<VisitLabParameters patient_unique_id={patient_data?.patient_unique_id} doc_id={userId}/>}
                                         {/*   <LabParameters />
                                             <Vaccination /> */}
                                     </div>
@@ -148,9 +176,13 @@ function PatientDetails() {
                                     </div>
                                 </div>
                             </div>
-                        ) : (
+                        ) : sidebarKey === 2 ? (
                             <div className="appointment-wrap PatientDetailswrap">
                                 <CertificateDetails patient_data={patient_data} />
+                            </div>
+                        ) : (
+                            <div className="appointment-wrap PatientDetailswrap">
+                                <VisitMedicalRecords />
                             </div>
                         )}
                     </div>

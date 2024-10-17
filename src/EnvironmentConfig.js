@@ -39,6 +39,9 @@ const dev = {
   razorpay_integration_url: "https://pm-razorpay-uat-integration.tatvacare.in",
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
+  lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
+  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
+  upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in/"
 };
 
 const qa = {
@@ -82,6 +85,9 @@ const qa = {
   razorpay_integration_url: "https://pm-razorpay-uat-integration.tatvacare.in",
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
+  lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
+  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
+  upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in/"
 };
 
 const uat = {
@@ -117,6 +123,9 @@ const uat = {
     "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
   obstetric_api_url:
     "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
+  tatvaRedirect: "https://doctor-uat.tatvacare.in#bypass_pedia=false",
+  gynec_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: "754811713438773",
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
@@ -125,6 +134,9 @@ const uat = {
   razorpay_integration_url: "https://pm-razorpay-uat-integration.tatvacare.in",
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
+  lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
+  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
+  upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in/"
 };
 
 const prod = {
@@ -169,6 +181,9 @@ const prod = {
   razorpay_integration_url: "https://pm-razorpay-uat-integration.tatvacare.in",
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
+  lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
+  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
+  upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in/"
 };
 
 const getEnv = () => {

@@ -164,7 +164,7 @@ const obsHistoryCheckboxOptions = [
 ];
 
 function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetails }) {
-  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions } = useContext(PrintSettingsContext);
+  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions, labParamsData } = useContext(PrintSettingsContext);
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
@@ -562,11 +562,13 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                     ({ ...option, key: option.id })
                                     : (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ?
                                       ({ ...option, key: option.id })
-                                      : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) ?
+                                      : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0) ?
                                         ({ ...option, key: option.id })
                                         : (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ?
                                           ({ ...option, key: option.id })
-                                          : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?._id) && ({ ...option, key: option.id })
+                                          : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?._id) ? 
+                                          ({ ...option, key: option.id }) 
+                                          : (caseManagerData.labParamsData?.length > 0 && option.id === 15) && ({ ...option, key: option.id }) 
               )}
               showHeader={false}
             />

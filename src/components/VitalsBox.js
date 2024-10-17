@@ -13,6 +13,8 @@ import {
     getVitals,
 } from "../redux/vitalsSlice";
 import moment from "moment";
+import { PAEDIATRICS } from "../utils/constants";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD MMM, YY'
@@ -34,6 +36,9 @@ function VitalsBox(props) {
     const [childVitalsData, setChildVitalsData] = useState([]);
     const [dateString, setDateString] = useState(null);
     const { measurements } = useSelector((state) => state.growthChart);
+    const isGowthChartAccessableFromGB = useFeatureIsOn(
+      "growth-chart-new-design"
+    );
 
     const { profile, userId } = useSelector((state) => state.doctors);
 
@@ -49,6 +54,7 @@ function VitalsBox(props) {
                 date: m.date,
                 height: m.height || "",
                 weight: m.weight || "", 
+                ofc: m.ofc || "",
                 bmi: m.bmi || cal.bmi,
                 dev_unique_id: 0,
                 tcv_id: 0,
@@ -85,6 +91,7 @@ function VitalsBox(props) {
                 spo2: '',
                 height: '',
                 weight: '',
+                ofc: '',
                 bmi: cal.bmi,
                 bmr: cal.bmr,
                 bsa: cal.bsa,
@@ -97,7 +104,7 @@ function VitalsBox(props) {
         (date, dateString) => {
             let cal = calculate('', '');
             const growthChartData = measurements?.find((m) => m.date === dateString);
-            const { height, weight, bmi } = growthChartData || {};
+            const { height, weight, bmi, ofc } = growthChartData || {};
             const tempVitals = [...childVitalsData];
             setDateString(dateString);
             tempVitals.push(
@@ -105,6 +112,7 @@ function VitalsBox(props) {
                 date: dateString,
                 height: height || "",
                 weight: weight || "",
+                ofc: ofc || "",
                 bmi: bmi || cal.bmi,
                 dev_unique_id: 0,
                 tcv_id: 0,
@@ -198,6 +206,8 @@ function VitalsBox(props) {
                 childVitalsData[i].bmi = cal.bmi;
                 childVitalsData[i].bmr = cal.bmr;
                 childVitalsData[i].bsa = cal.bsa;
+            } else if (flag === 9) {
+                childVitalsData[i].ofc = updateValue;
             }
             setChildVitalsData((prev) => [...prev]);
         },
@@ -251,6 +261,9 @@ function VitalsBox(props) {
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.spo2} addonAfter={'%'} onChange={(e) => onChangeInput(e.target.value, i, 6)} />
                         </div>
+                        {profile?.dp_name === PAEDIATRICS || isGowthChartAccessableFromGB ? <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
+                            <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.ofc} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 9)} />
+                        </div> : null}
                         <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.height} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 7)} />
                         </div>
@@ -327,6 +340,9 @@ function VitalsBox(props) {
                                 <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     SPO2
                                 </div>
+                                {profile?.dp_name === PAEDIATRICS || isGowthChartAccessableFromGB? <div className='vitals-row d-flex align-items-center border-bottom px-2'>
+                                    OFC
+                                </div> : null}
                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
                                     Height
                                 </div>
