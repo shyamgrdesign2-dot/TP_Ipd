@@ -1351,7 +1351,7 @@ function AppointmentData({ locationPath }) {
                 >
                     <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={appointmentSelectedFromMenu} replace={false} />
                 </Drawer>
-                <Drawer
+                {addlabparamsDrawer &&(<Drawer
                     closeIcon={false}
                     className="modalWidth-700"
                     // title="Add Lab Results"
@@ -1362,7 +1362,7 @@ function AppointmentData({ locationPath }) {
                 // key="left"
                 >
                     <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={appointmentSelectedFromMenu?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} onSave={handleLabParamsUpdate}/>
-                </Drawer>
+                </Drawer>)}
             </div>
 
             {modalOpen && (

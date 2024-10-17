@@ -5,6 +5,7 @@ import labParamsImg from "../assets/images/Lab.svg";
 import { Card } from "react-bootstrap";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import axios from 'axios';
+import { env } from "../EnvironmentConfig";
 import LabParams from "../components/LabParams";
 import ViewLabParam from "../components/ViewLabParams";
 
@@ -15,11 +16,12 @@ const VisitLabParameters = ( {patient_unique_id, doc_id, onSave}) => {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
   const [token, setToken] = useState(null);
+  const baseUrl = env.lab_params_api_url;
 
   const getLabParams = async () => {
     try {
         const cleanedToken = token.replace(/['"]+/g, '');
-        const response = await axios.get(`https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-parameters/results/${doc_id}/${patient_unique_id}`, {
+        const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${doc_id}/${patient_unique_id}`, {
             headers: {
                 'Authorization': `Bearer ${cleanedToken}`,
             },
