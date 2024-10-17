@@ -12,14 +12,11 @@ import Link1 from "../assets/images/link1.svg";
 import ProfilePersonalDetailsView from "../components/doctor_profile/ProfilePersonalDetailsView";
 import ProfileClinicView from "../components/doctor_profile/ProfileClinicView";
 import { TAB_ADDRESS } from "../utils/constants";
-import Subscription from "../components/doctor_profile/Subscription";
-import PremiumUser from "../common/PremiumUser";
 
 function DoctorProfile() {
 
   const navigate = useNavigate();
   const { profile } = useSelector((state) => state.doctors);
-  const { planDetails } = useSelector((state) => state.subscription);
 
   const { state } = useLocation();
   const { websiteData } = state
@@ -253,11 +250,9 @@ function DoctorProfile() {
                       className="rounded-circle"
                       style={{ width: "90px" }}
                     />
-                  ) : planDetails?.planStatus === "PAID" ? (
-                    <PremiumUser />
-                  ) :
-                    <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
-                  }
+                  ) : (
+                    <div className='rounded-pill patientProfile patientProfile90 border'>{makeDefaultLogo(profile?.um_name)}</div>
+                  )}
                 </div>
                 <div>
                   <div className="title-hypertension text-welcome">{(profile?.um_name)}</div>
@@ -311,9 +306,6 @@ function DoctorProfile() {
           <div className="mb-4">
             <ProfileClinicView />
           </div>
-          {/* {planDetails?.planStatus === "PAID" && <div className="mb-4"> */}
-            <Subscription />
-          {/* </div>} */}
         </Container>
       </div>
     </>
