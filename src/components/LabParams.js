@@ -150,7 +150,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             const cleanedToken = token.replace(/['"]+/g, '');
             const patientId = patient_unique_id;
             const doctorId = tokenData?.user_id;
-            const response = await axios.get(`https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-parameters/results/${doctorId}/${patientId}`, {
+            const response = await axios.get(`${baseUrl.customBaseUrl}/api/v1/lab-parameters/results/${doctorId}/${patientId}`, {
                 headers: {
                     'Authorization': `Bearer ${cleanedToken}`,
                 },

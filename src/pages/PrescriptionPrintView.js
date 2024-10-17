@@ -22,6 +22,7 @@ import { viewCaseManager } from "../redux/caseManagerSlice";
 import { pdfjs, Document, Page } from "react-pdf";
 import { getGynecDetails } from "../api/services/ApiGynec";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { env } from "../EnvironmentConfig";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -100,6 +101,8 @@ function PrescriptionPrintView() {
     const [labParamsData, setLabParamsData] = useState([]);
     const {isGynaecHistoryAccessable} = useAccess();
 
+    const baseUrl = env.lab_params_api_url;
+
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
@@ -123,7 +126,7 @@ function PrescriptionPrintView() {
         try {
             const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN)
             const cleanedToken = token.replace(/['"]+/g, '');
-            const response = await axios.get(`https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-parameters/results/${userId}/${patient_data?.patient_unique_id}`, {
+            const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${userId}/${patient_data?.patient_unique_id}`, {
                 headers: {
                     'Authorization': `Bearer ${cleanedToken}`,
                 },
