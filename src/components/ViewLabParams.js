@@ -165,7 +165,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                     background: "#F1F1F5",
                                                 }}
                                             >
-                                                {dayjs(entry?.date).format("DD MMM, YY")}
+                                                {dayjs(entry?.date).format("DD MMM, YYYY")}
                                             </th>
                                             <th
                                                 key={entry.date}
@@ -199,7 +199,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                 borderBottomRightRadius: isLastCell ? "10px" : " ",
                                             }}
                                         >
-                                            {dayjs(entry?.date).format("DD MMM, YY")}
+                                            {dayjs(entry?.date).format("DD MMM, YYYY")}
                                         </th>
                                     );
                                 })

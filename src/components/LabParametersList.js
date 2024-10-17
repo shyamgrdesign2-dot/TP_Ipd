@@ -58,7 +58,7 @@ const LabParametersList = ({labParamsData}) => {
             }}
             
           >
-            {dayjs(entry?.date).format("DD MMM, YY")}
+            {dayjs(entry?.date).format("DD MMM, YYYY")}
           </th>
         ))}
       </tr>
