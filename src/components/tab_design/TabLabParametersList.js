@@ -18,7 +18,9 @@ const TabLabParametersList = ({ handleCollapsed, labParamsData, handleAddLabPara
         <div style={{ fontSize: "14px", fontWeight: "600" }}>
           {dayjs(labParamsdeatils?.date).format("DD MMM, YYYY")}
         </div>
-        {labParamsdeatils?.inputs?.map((labParamItem, index) => {
+        {labParamsdeatils?.inputs
+          ?.filter((labParamItem) => labParamItem?.testName !== "Remarks") // Filter out "Remarks"
+          .map((labParamItem, index) => {
           return (
             <React.Fragment key={index}>
               <div

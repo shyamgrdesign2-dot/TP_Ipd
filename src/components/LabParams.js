@@ -71,12 +71,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         return grouped;
     };
 
-    // useEffect(() => {
-    //     if (!isBackModalOpen) {
-    //       setSearchQuery(''); // Reset the search query when the drawer closes
-    //     }
-    // }, [isBackModalOpen]);
-
     useEffect(() => {
         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
         if (token) {
@@ -189,7 +183,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         };
         fetchLabParams(); 
     }, [searchQuery]);
-
+    
     useEffect(() => {
         const timeOutId = setTimeout(async () => {
             const updatedResults = mergeSearchResults(existingResults, labParamsResults, searchQuery);
@@ -682,7 +676,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     } else {
             message.warning('Date already exists');
     }
-  };
+    };
 
   useEffect(() => {
     const sortedDates = dates.sort((a, b) => new Date(b) - new Date(a));
@@ -696,7 +690,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         const currentFilledData = assemblePayload(inputValues);
         const data = combineData(currentFilledData,filledData);
         
-        // setFilledData([])
+        setFilledData([])
 
         const payload = {
             patientId: patient_unique_id,
@@ -744,6 +738,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const handleMouseLeaveOrUp = () => {
         setIsDragging(false);
     };
+
+    const handleDeleteDataModal = () => {
+      setFilledData([]);
+      setInputValues([]);
+      handleAddLabParamsDrawer();
+      showHideBackModal();
+    }
 
     const tooltipTitle = (notes, reportName, testName, date) => {
       return (
@@ -796,10 +797,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                   <div className="mt-4">
                     <div className="d-flex align-items-center mt-2 justify-content-end">
                       <div
-                        onClick={() => {
-                          handleAddLabParamsDrawer();
-                          showHideBackModal();
-                        }}
+                        onClick={handleDeleteDataModal}
                         className="me-4 text-decoration-underline btn p-0 text-main"
                       >
                         Yes Leave
@@ -887,7 +885,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                     <th
                       key={date}
                       className="date-values"
-                      style={{ padding: "10px" }}
+                      style={{ padding: "10px",textWrap: "nowrap" }}
                     >
                       <span>{moment(date).format(showDateFormat)}</span>
                       <Tooltip
@@ -938,7 +936,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                   <th
                     key={date}
                     className="date-values"
-                    style={{ padding: "10px" }}
+                    style={{ padding: "10px",textWrap: "nowrap"}}
                   >
                     <span>{moment(date).format(showDateFormat)}</span>
                     <Tooltip
@@ -1396,13 +1394,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 </>
               ))}
             </tbody>
-        <div
+        <div 
           onClick={() => searchRef.current.focus()} // Step 3: Focus on input when the div is clicked
           style={{
             cursor: "pointer",
             marginLeft: "1.25rem",
             marginTop: "0.5rem",
-            marginBottom: "0.5rem",
+            marginBottom: "1rem",
           }}
         >
           Unable to find the parameter? Discover more by{" "}
