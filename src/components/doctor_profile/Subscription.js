@@ -20,8 +20,8 @@ function Subscription() {
     planStatus,
     expiry_reminder_days,
     is_pm_renew_requested,
+    expiresIn,
   } = planDetails || {};
-  // const expiresIn = moment(planDetails?.plan_expiry_date).diff(moment(), "days");
   const [showBillingHistory, setShowBillingHistory] = useState(false);
 
   const dispatch = useDispatch();
@@ -81,13 +81,13 @@ function Subscription() {
               </Col>
             </Row>
           </div>
-          {expiry_reminder_days <= 20 && !is_pm_renew_requested && (
+          {expiresIn <= expiry_reminder_days && !is_pm_renew_requested && (
             <>
               <Divider style={{ margin: "0 30px", width: "630px" }} />
               <div className="px-20 py-1">
                 <p className="mt-4 renew-btn">
-                  Your plan expires in <b>{expiry_reminder_days} days</b>. Renew
-                  now to ensure hassle-free access!
+                  Your plan expires in <b>{expiresIn} days</b>. Renew now to
+                  ensure hassle-free access!
                 </p>
                 <button
                   className="buyPlanButton mb-4"
@@ -112,7 +112,7 @@ function Subscription() {
           <>
             <div className="px-20 py-1">
               <p className="text-danger mt-4">
-                {expiry_reminder_days <= 20
+                {expiresIn <= expiry_reminder_days
                   ? "Your demo is expiring soon."
                   : ""}{" "}
                 Purchase a plan now to continue hassle-free consultation!

@@ -6,8 +6,13 @@ import { openModal } from "../redux/doctorModalSlice";
 
 const DemoExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
-  const { planStatus, expiry_reminder_days, is_owner, is_pm_renew_requested } =
-    planDetails || {};
+  const {
+    planStatus,
+    expiry_reminder_days,
+    expiresIn,
+    is_owner,
+    is_pm_renew_requested,
+  } = planDetails || {};
   const dispatch = useDispatch();
   const handleClick = () => {
     dispatch(openModal());
@@ -23,7 +28,9 @@ const DemoExpirationBanner = () => {
           <strong className="text-white">DEMO MODE</strong>
         </div>
         <p className="expirationMessage text-white">
-          {expiry_reminder_days <= 20 ? "Your demo is expiring soon." : ""}{" "}
+          {expiresIn <= expiry_reminder_days
+            ? "Your demo is expiring soon."
+            : ""}{" "}
           Purchase a plan now to continue hassle-free consultation!
         </p>
         <button className="buyPlanButton" onClick={handleClick}>

@@ -7,9 +7,13 @@ import { openModal } from "../redux/doctorModalSlice";
 
 const PlanExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
-  const { planStatus, is_owner, expiry_reminder_days, is_pm_renew_requested } =
-    planDetails || {};
-  // const expiresIn = moment(planDetails?.plan_expiry_date).diff(moment(), "days");
+  const {
+    planStatus,
+    is_owner,
+    expiry_reminder_days,
+    expiresIn,
+    is_pm_renew_requested,
+  } = planDetails || {};
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
@@ -21,15 +25,15 @@ const PlanExpirationBanner = () => {
     !is_pm_renew_requested &&
     planStatus === "PAID" &&
     is_owner &&
-    expiry_reminder_days <= 20 && (
+    expiresIn <= expiry_reminder_days && (
       <header className="plan-expiry-banner">
         <div className="demoModeWrapper">
           <div className="demoModeIndicator" />
           <strong className="text-white">PLAN EXPIRING SOON</strong>
         </div>
         <p className="expirationMessage text-white">
-          Your Pro plan expires in {expiry_reminder_days} days. Renew now to
-          ensure hassle-free access!
+          Your Pro plan expires in {expiresIn} days. Renew now to ensure
+          hassle-free access!
         </p>
         <button className="buyPlanButton" onClick={handleClick}>
           <img loading="lazy" src={crownIcon} className="buttonIcon" alt="" />
