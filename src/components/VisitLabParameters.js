@@ -108,21 +108,21 @@ const VisitLabParameters = ( {patient_unique_id, doc_id}) => {
           </Card>
           <Drawer
               closeIcon={false}
-              className="modalWidth-700"
+              width={880}
+              // className="modalWidth-700"
               placement="right"
               open={addlabparamsDrawer}
               onClose={showHideBackModal}
-              width="auto"
           >
               <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_unique_id} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal}/>
           </Drawer>
           <Drawer
               closeIcon={false}
+              width="auto"
               className="modalWidth-700"
               placement="right"
               open={viewlabparamsDrawer}
               onClose={handleViewLabParamsDrawer}
-              width="auto"
           >
               <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
           </Drawer>

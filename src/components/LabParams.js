@@ -6,6 +6,7 @@ import moment from "moment";
 import { jwtDecode } from 'jwt-decode';
 import { LAB_PARAMS_RESULTS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from '../utils/constants';
 import { DEFAULT_TESTS_DATA } from '../utils/labParamsConstants';
+import { isMobile } from "react-device-detect";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import CheckableTag from 'antd/es/tag/CheckableTag';
@@ -750,7 +751,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     };
     
     return (
-      <div>
+      <div style={{background:"#fff"}}>
         <div
           className="modalCard-header h-60 align-items-center justify-content-between d-flex"
           style={{ position: "sticky", top: "0", zIndex: "5" }}
@@ -845,6 +846,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             />
           </div>
         </div>
+
         <div style={{ overflowX: "auto", margin: "8px" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead style={{ backgroundColor: "#F1F1F5" }}>
@@ -866,7 +868,60 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                   {/* Set a fixed width here */}
                   <span>Name</span>
                 </th>
-                {dates.map((date, index) => (
+
+                {dates?.length < 2 ? (dates.map((date, index) => (
+                  <>
+                    <th
+                      key={date}
+                      className="date-values"
+                      style={{ padding: "10px" }}
+                    >
+                      <span>{moment(date).format(showDateFormat)}</span>
+                      <Tooltip
+                        trigger={"click"}
+                        placement="bottom"
+                        title={
+                          <>
+                            <div className="tooltip-content">
+                              <img className="me-2" src={editIcon} alt="Edit" />
+                              <span>Edit Date</span>
+                              <DatePicker
+                                key={Math.random()}
+                                suffixIcon={null}
+                                inputReadOnly
+                                onChange={(date, dateString) =>
+                                  handleDateChange(dateString, index)
+                                }
+                                disabledDate={disabledDate}
+                                className="calender-labparams"
+                              />
+                            </div>
+                            {dates.length > 1 && (
+                              <div
+                                className="tooltip-content"
+                                onClick={() => setShouldShowDeletePopup(date)}
+                              >
+                                <DeleteOutlined className="delete-icon" />
+                                <span>Delete</span>
+                              </div>
+                            )}
+                          </>
+                        }
+                        overlayClassName="custom-tooltip"
+                      >
+                        <EllipsisOutlined
+                          className="vertical-dots"
+                          style={{ fontSize: "16px" }}
+                        />
+                      </Tooltip>
+                    </th>
+                    <th
+                      className="date-values"
+                      style={{ padding: "10px" }}
+                    >
+                    </th>
+                  </>
+                ))):(dates.map((date, index) => (
                   <th
                     key={date}
                     className="date-values"
@@ -911,7 +966,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                       />
                     </Tooltip>
                   </th>
-                ))}
+                )))
+                }
               </tr>
             </thead>
             <div style={{ height: "15px" }}></div>
@@ -937,7 +993,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                         padding: "10px",
                         display: "flex",
                         alignItems: "center",
-                        width: "23rem",
+                        width: "29rem",
                         borderTopLeftRadius: "10px",
                         borderBottomLeftRadius: "10px",
                       }}
@@ -951,7 +1007,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                       {!!expandedReports[reportName] ? (
                         <button
                           className="btn p-0 ms-2 iconrotate270"
-                          style={{ position: "absolute", left: "816px" }}
+                          style={{ position: "absolute", left: isMobile? "635px" : "816px" }}
                         >
                           <i className="icon-right fs-5" />
                         </button>
@@ -1011,7 +1067,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                   {expandedReports[reportName] &&
                     Object.keys(inputValues[reportName]).map(
                       (testName, index) => (
-                        <tr key={testName}>
+                        <tr key={testName} style={{background: "#fff"}}>
                           {/* Test Name Column */}
                           <td
                             style={{
@@ -1294,6 +1350,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                 overflow: "hidden",
                                                 whiteSpace: "nowrap",
                                                 textOverflow: "ellipsis",
+                                                fontSize: "12px",
+                                                fontWeight: "600",
                                               }}
                                             >
                                               {inputValues[reportName][

@@ -238,7 +238,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         ];
     };
 
-    const transformLabParamsTable = labParamsData ? transformDataLabParams(labParamsData) : null;
+    const removeRemarks = (data) => {
+        return data.map(item => ({
+          ...item,
+          inputs: item.inputs.filter(input => input.testName !== "Remarks")
+        }));
+    };
+
+    const labParamsPatchData = labParamsData ? removeRemarks(labParamsData) : null;
+    const transformLabParamsTable = labParamsPatchData ? transformDataLabParams(labParamsPatchData) : null;
+
     return (
         <Document>
             <Page
@@ -3868,8 +3877,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 15 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
                                 <>
-                                    {labParamsData &&
-                                        labParamsData.length > 0 &&
+                                    {labParamsPatchData &&
+                                        labParamsPatchData.length > 0 &&
                                         (option?.format === "inline" ? (
                                             <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
                                                 <Text>
@@ -3885,7 +3894,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             Lab Results:&nbsp;
                                                         </Text>
 
-                                                        {labParamsData?.map((item, i) => {
+                                                        {labParamsPatchData?.map((item, i) => {
                                                             return (
                                                                 <>
                                                                     { i != 0 && 
@@ -3960,7 +3969,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             Lab Results:&nbsp;
                                                         </Text>
 
-                                                        {labParamsData?.map((item, i) => {
+                                                        {labParamsPatchData?.map((item, i) => {
                                                             return (
                                                                 <>
                                                                     <Text
