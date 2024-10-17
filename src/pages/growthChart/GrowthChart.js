@@ -294,8 +294,6 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     setVisibility(percentileVisibility);
   };
 
-  console.log("growthChartData", growthChartData)
-
   const getGrowthChartDetails = async () => {
     const allGrowthChartParams = await getAllGrowthChartParams({
       pm_id: patient_data?.pm_id || 0,
@@ -303,13 +301,13 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
     });
     if (allGrowthChartParams && patients_details?.pm_dob) {
       setAllGrowthChartParams(allGrowthChartParams);
-      const dataRes = getGrowthChartData(
-        allGrowthChartParams,
-        moment(patients_details?.pm_dob),
-        patientAgeInMonths
+      setGrowthChartData(
+        getGrowthChartData(
+          allGrowthChartParams,
+          moment(patients_details?.pm_dob),
+          patientAgeInMonths
+        )
       );
-      console.log("dataRes", dataRes);
-      setGrowthChartData(dataRes);
     }
   };
   const getGraphs = () => {
