@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Button, Card, DatePicker, Input, Popover, Tooltip, message } from 'antd';
+import { Button, Card, DatePicker, Input, Popover, Tooltip, message, Spin } from 'antd';
 import { EllipsisOutlined, DeleteOutlined, CaretRightOutlined, CaretDownOutlined } from "@ant-design/icons";
 import axios from 'axios';
 import moment from "moment";
@@ -33,6 +33,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
+    const [loading, setLoading] = useState(true);
     const scrollContainerRef = useRef(null);
     const inputRef = useRef([]);
     const scrollRefs = useRef([]);
@@ -88,6 +89,18 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             }
         }
     }, []);
+
+    useEffect(() => {
+
+      setLoading(true)
+      // Simulate a delay (2 seconds)
+      const timer = setTimeout(() => {
+        setLoading(false); // Hide the loader after 2 seconds
+      }, 1000);
+    
+      // Cleanup the timer when the component is unmounted
+      return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     useEffect(() => {
       document.addEventListener("mousedown", handleClickOutside);
@@ -596,7 +609,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 return units;
             }
         }
-        return "--";
+        return "";
     };
 
     const assemblePayload = () => {
@@ -970,6 +983,17 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 }
               </tr>
             </thead>
+            { loading ? (
+                  <div
+                    className="d-flex flex-column justify-content-center"
+                    style={{ height: "calc(100vh - 218px)" }}
+                  >
+                    <div style={{position:'absolute', left:"50%"}}>
+                      <Spin />
+                    </div>
+                  </div>
+                ) : (
+                  <>
             <div style={{ height: "15px" }}></div>
             <tbody>
               {Object.keys(inputValues).map((reportName) => (
@@ -1233,9 +1257,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                           placement="top"
                                         >
                                           <div
-                                            onClick={() =>
-                                              setShowEditTooltip(true)
-                                            }
+                                            // onClick={() =>
+                                            //   setShowEditTooltip(true)
+                                            // }
                                           >
                                             <div className="truncated">
                                               {
@@ -1343,8 +1367,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                 fontWeight: "600",
                                               }}
                                             >
-                                              {inputValues[reportName][testName][date]?.units ||
-                                                getUnitForTest(reportName, testName)}
+                                              {
+                                                inputValues[reportName][testName][date]?.units ||
+                                                getUnitForTest(reportName, testName) ||
+                                                "--"
+                                              }                                            
                                             </span>
                                           </div>
                                         }
@@ -1353,7 +1380,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                             reportName,
                                             testName,
                                             date,
-                                            e.target.value
+                                            e.target.value.trim()
                                           )
                                         }
                                       />
@@ -1369,9 +1396,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 </>
               ))}
             </tbody>
-          </table>
-        </div>
-
         <div
           onClick={() => searchRef.current.focus()} // Step 3: Focus on input when the div is clicked
           style={{
@@ -1384,7 +1408,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
           Unable to find the parameter? Discover more by{" "}
           <span className="hyperling-text-style">searching</span>
         </div>
-
+      </>
+    )
+}
+</table>
+</div>
         <CommonModal
           isModalOpen={isModalOpen}
           onCancel={handleCloseModal}
