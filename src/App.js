@@ -32,7 +32,7 @@ import DemoExpirationBanner from "./common/DemoExpirationBanner";
 import PlanExpirationBanner from "./common/PlanExpirationBanner";
 import SubscriptionDetails from "./components/SubscriptionDetails";
 import DoctorModal from "./common/DoctorModal";
-import ExpiredPlanModal from "./common/ExpiredPlanModal";
+import ExpiredPlanCard from "./common/ExpiredPlanCard";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -108,7 +108,8 @@ function App() {
               <SubscriptionDetails />
               <DemoExpirationBanner/>
               <PlanExpirationBanner/>
-              <ExpiredPlanModal />
+              {/* <ExpiredPlanModal /> */}
+              <ExpiredPlanCard />
               <DoctorModal />
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
