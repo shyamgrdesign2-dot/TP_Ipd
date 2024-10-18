@@ -71,6 +71,18 @@ const LANGUAGE_LIST = [
         value: 10,
         label: 'Tamil',
     },
+    {
+        value: 11,
+        label: 'Assamese',
+    },
+    {
+        value: 12,
+        label: 'Bengali',
+    },
+    {
+        value: 13,
+        label: 'Odia',
+    },
 ]
 function PrescriptionPrintView() {
 
