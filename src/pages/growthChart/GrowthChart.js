@@ -58,9 +58,9 @@ const GrowthChart = ({ handleDrawerVaccination }) => {
   );
 
   let ageInterval = "";
-  if (patientAgeInMonths >= 0 && patientAgeInMonths <= 24) {
+  if (patientAgeInMonths >= 0 && patientAgeInMonths < 24) {
     ageInterval = "0To2";
-  } else if (patientAgeInMonths > 24 && patientAgeInMonths <= 60) {
+  } else if (patientAgeInMonths >= 24 && patientAgeInMonths <= 60) {
     ageInterval = "2To5";
   } else {
     ageInterval = "5To18";

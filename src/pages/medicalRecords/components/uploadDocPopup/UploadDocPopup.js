@@ -1,13 +1,7 @@
 import { Card, Divider, Modal, Spin } from "antd";
 import "./UploadDocPopup.scss";
 import { db, storage } from "../../../../firebase";
-import {
-  doc,
-  getDoc,
-  onSnapshot,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { deleteDoc, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { getCorrectedFileName } from "../../utils/helper";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,7 +23,6 @@ const UploadDocPopup = ({
   const dispatch = useDispatch();
   const { isLoading } = useSelector((state) => state.uploadDoc);
   const deviceUid = localStorage.getItem("app_device_unique_id");
-  const [loading, setLoading] = useState(false);
   const handleClick = async (type) => {
     if (deviceUid) {
       const docRef = doc(db, "capturedImage", deviceUid);
@@ -180,7 +173,7 @@ const UploadDocPopup = ({
           </div>
         </Card>
       </Modal>
-      {loading ? (
+      {isLoading ? (
         <div>
           <Spin
             style={{

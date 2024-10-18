@@ -65,18 +65,18 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
     }, [searchTerm, labParamsData]);
 
     // Filter and group data based on search query
-   const filterDataBySearchKey = (data, searchKey) => {
-     return data
-       .map(({ date, inputs }) => ({
-         date,
-         inputs: inputs.filter(
-           ({ testName, reportName }) =>
-             testName.toLowerCase().includes(searchKey.toLowerCase()) ||
-             reportName.toLowerCase().includes(searchKey.toLowerCase())
-         ),
-       }))
-       .filter(({ inputs }) => inputs.length > 0); // Remove dates with no matching inputs
-   }
+    const filterDataBySearchKey = (data, searchKey) => {
+        return data
+        .map(({ date, inputs }) => ({
+            date,
+            inputs: inputs.filter(
+            ({ testName, reportName }) =>
+                testName.toLowerCase().includes(searchKey.toLowerCase()) ||
+                reportName.toLowerCase().includes(searchKey.toLowerCase())
+            ),
+        }))
+        .filter(({ inputs }) => inputs.length > 0); // Remove dates with no matching inputs
+    }
 
     // Handle horizontal scrolling via dragging
     const handleMouseDown = (e) => {
@@ -163,6 +163,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                     zIndex: "1",
                                                     fontWeight: "600",
                                                     background: "#F1F1F5",
+                                                    textWrap: "nowrap",
                                                 }}
                                             >
                                                 {dayjs(entry?.date).format("DD MMM, YYYY")}
@@ -177,6 +178,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                     background: "#F1F1F5",
                                                     borderTopRightRadius: "10px" ,
                                                     borderBottomRightRadius: "10px",
+                                                    textWrap: "nowrap",
                                                 }}
                                             >
                                             </th>
@@ -197,6 +199,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                 background: "#F1F1F5",
                                                 borderTopRightRadius: isLastCell ? "10px" : " ",
                                                 borderBottomRightRadius: isLastCell ? "10px" : " ",
+                                                textWrap: "nowrap",
                                             }}
                                         >
                                             {dayjs(entry?.date).format("DD MMM, YYYY")}

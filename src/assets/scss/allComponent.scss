@@ -1826,6 +1826,149 @@ body {
     overflow-x: hidden; /* Hide horizontal scrollbar */
 }
 
+.banner {
+    background-color: rgba(241, 82, 35, 1);
+    display: flex;
+    align-items: center;
+    // gap: 40px 100px;
+    overflow: hidden;
+    justify-content: space-between;
+    // flex-wrap: wrap;
+    padding: 9px 20px;
+    font: 500 16px/2 Roboto, sans-serif;
+    color: #fff !important;
+  }
+
+  .plan-expiry-banner {
+    background: #EE7200;
+    display: flex;
+    align-items: center;
+    // gap: 40px 100px;
+    overflow: hidden;
+    justify-content: space-between;
+    // flex-wrap: wrap;
+    padding: 9px 20px;
+    font: 500 16px/2 Roboto, sans-serif;
+    color: #fff !important;
+  }
+  
+  .demoModeWrapper {
+    align-self: stretch;
+    display: flex;
+    gap: 5px;
+    letter-spacing: 0.1px;
+    width: 194px;
+    margin: auto 0;
+    padding: 0 1px;
+  }
+  
+  .demoModeIndicator {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    display: flex;
+    width: 8px;
+    height: 8px;
+    margin: auto 0;
+  }
+
+  .demoModeIndicatorSmall {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    display: flex;
+    width: 4px;
+    height: 4px;
+    margin: auto 4px;
+  }
+
+  .gradientBackground {
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin-left: 6px;
+    background: linear-gradient(102.16deg, rgba(241, 82, 35, 0.12) 1.59%, rgba(192, 44, 0, 0.12) 119.61%);
+  }
+  
+  .expirationMessage {
+    letter-spacing: 0.1px;
+    align-self: stretch;
+    margin: auto 0;
+  }
+  
+  @media (max-width: 991px) {
+    .expirationMessage {
+      max-width: 100%;
+    }
+  }
+  
+  .buyPlanButton {
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    align-self: stretch;
+    display: flex;
+    min-height: 32px;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+    color: #fff !important;
+    justify-content: center;
+    margin: auto 0;
+    padding: 5px 15px;
+    font: 600 14px/2 Poppins, sans-serif;
+    border: 1px solid rgba(255, 255, 255, 1);
+  }
+  
+  .buttonIcon {
+    aspect-ratio: 1;
+    object-fit: contain;
+    object-position: center;
+    width: 20px;
+    align-self: stretch;
+    margin: auto 0;
+  }
+  
+  .buttonText {
+    font-feature-settings: "liga" off, "clig" off;
+    align-self: stretch;
+    margin: auto 0;
+  }
+  
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .demoModeLabel {
+    // align-self: stretch;
+    border-radius: 4px;
+    color: rgba(241, 82, 35, 1) !important;
+    font: 400 12px Roboto, sans-serif;
+    letter-spacing: 0.07px;
+    padding: 2px 0;
+  }
+
+  .badge-icon {
+    position: absolute;
+    top: 5px;
+    right: 12px;
+    background-color: #FDCB58;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .renew-btn {
+    color: #EE7200 !important;
+  }
+  
 
 // labparameters styles //
 .labparam-header{
@@ -1911,6 +2054,7 @@ body {
 .date-values{
     width: 247px;;
     margin-right: 1rem;
+    text-wrap: nowrap;
 }
 
 .remarks-text.truncated {

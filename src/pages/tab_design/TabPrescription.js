@@ -639,7 +639,7 @@ function TabPrescription() {
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData}/>
         <div className="w-100 bg-body wrapper2 prescription-wrapper p-0">
           <Layout>
             <div className="prescription-sidebar">
@@ -1119,17 +1119,16 @@ function TabPrescription() {
             />
           </Drawer>
         )}
-        {shouldShowUploadDocPopup ?
+        {shouldShowUploadDocPopup && (
           <UploadDocPopup
-            shouldShowUploadDocPopup={shouldShowUploadDocPopup}
             onCancel={handleUploadDocPopup}
             setFilesData={setFilesData}
             filesData={filesData}
             uploadDocDrawer={uploadDocDrawer}
             handleDrawerUploadDoc={handleDrawerUploadDoc}
-          /> 
-          : null}
-          {labParamsDrawer && (
+          />
+        )}
+        {labParamsDrawer && (
           <Drawer
             closeIcon={false}
             placement="right"
