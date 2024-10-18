@@ -39,6 +39,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const scrollRefs = useRef([]);
     const remarksRef = useRef(null);
     const scrollRef = useRef(null);
+    const [defaultTestData, setDefaultTestData] = useState([]);
+
+    useEffect(() => {
+      setDefaultTestData(JSON.parse(JSON.stringify(DEFAULT_TESTS_DATA)));
+    }, [])
 
     const currentDate = new Date().toISOString().split("T")[0];
     const dateFormat = 'YYYY-MM-DD';
@@ -70,12 +75,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         });
         return grouped;
     };
-
-    // useEffect(() => {
-    //     if (!isBackModalOpen) {
-    //       setSearchQuery(''); // Reset the search query when the drawer closes
-    //     }
-    // }, [isBackModalOpen]);
 
     useEffect(() => {
         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
@@ -156,7 +155,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             const cleanedToken = token.replace(/['"]+/g, '');
             const patientId = patient_unique_id;
             const doctorId = tokenData?.user_id;
-            const response = await axios.get(`https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-parameters/results/${doctorId}/${patientId}`, {
+            const response = await axios.get(`${baseUrl.customBaseUrl}/api/v1/lab-parameters/results/${doctorId}/${patientId}`, {
                 headers: {
                     'Authorization': `Bearer ${cleanedToken}`,
                 },
@@ -189,7 +188,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         };
         fetchLabParams(); 
     }, [searchQuery]);
-
+    
     useEffect(() => {
         const timeOutId = setTimeout(async () => {
             const updatedResults = mergeSearchResults(existingResults, labParamsResults, searchQuery);
@@ -350,7 +349,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
 
     const mergeSearchResults = (existingResults, labParamsResults, searchQuery) => {
         const tempResults = [];
-    
+      
         const currentFilledData = assemblePayload(inputValues);
         const data = combineData(currentFilledData, filledData);
     
@@ -363,7 +362,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 // No labParamsResults: return default data
                 const newEntry = {
                     date: new Date().toISOString().split('T')[0],
-                    inputs: [...DEFAULT_TESTS_DATA]
+                    inputs: [...defaultTestData]
                 };
 
                 // Call function to add 'Remarks'
@@ -424,14 +423,14 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             }
 
             // Append predefined lab parameters if not already present
-            if (DEFAULT_TESTS_DATA?.length > 0) {
+            if (defaultTestData?.length > 0) {
                 existingResults.forEach((entry) => {
                     const newEntry = {
                         date: entry.date,
                         inputs: [...entry.inputs]
                     };
 
-                    DEFAULT_TESTS_DATA.forEach((lab) => {
+                    defaultTestData.forEach((lab) => {
                         const existingInput = newEntry.inputs.find(
                             input => input.testName === lab.testName && input.reportName === lab.reportName
                         );
@@ -682,7 +681,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     } else {
             message.warning('Date already exists');
     }
-  };
+    };
 
   useEffect(() => {
     const sortedDates = dates.sort((a, b) => new Date(b) - new Date(a));
@@ -696,7 +695,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         const currentFilledData = assemblePayload(inputValues);
         const data = combineData(currentFilledData,filledData);
         
-        // setFilledData([])
+        setFilledData([])
 
         const payload = {
             patientId: patient_unique_id,
@@ -744,6 +743,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const handleMouseLeaveOrUp = () => {
         setIsDragging(false);
     };
+
+    const handleDeleteDataModal = () => {
+      setFilledData([]);
+      setInputValues([]);
+      handleAddLabParamsDrawer();
+      showHideBackModal();
+    }
 
     const tooltipTitle = (notes, reportName, testName, date) => {
       return (
@@ -796,10 +802,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                   <div className="mt-4">
                     <div className="d-flex align-items-center mt-2 justify-content-end">
                       <div
-                        onClick={() => {
-                          handleAddLabParamsDrawer();
-                          showHideBackModal();
-                        }}
+                        onClick={handleDeleteDataModal}
                         className="me-4 text-decoration-underline btn p-0 text-main"
                       >
                         Yes Leave
@@ -887,7 +890,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                     <th
                       key={date}
                       className="date-values"
-                      style={{ padding: "10px" }}
+                      style={{ padding: "10px",textWrap: "nowrap" }}
                     >
                       <span>{moment(date).format(showDateFormat)}</span>
                       <Tooltip
@@ -938,7 +941,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                   <th
                     key={date}
                     className="date-values"
-                    style={{ padding: "10px" }}
+                    style={{ padding: "10px",textWrap: "nowrap"}}
                   >
                     <span>{moment(date).format(showDateFormat)}</span>
                     <Tooltip
@@ -1396,13 +1399,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 </>
               ))}
             </tbody>
-        <div
+        <div 
           onClick={() => searchRef.current.focus()} // Step 3: Focus on input when the div is clicked
           style={{
             cursor: "pointer",
             marginLeft: "1.25rem",
             marginTop: "0.5rem",
-            marginBottom: "0.5rem",
+            marginBottom: "1rem",
           }}
         >
           Unable to find the parameter? Discover more by{" "}
