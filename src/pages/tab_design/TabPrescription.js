@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Layout, Drawer, DatePicker, Input, Button, Col, Row } from "antd";
+import { Layout, Drawer, DatePicker, Input, Button, Col, Row, Spin } from "antd";
 import { Content } from "antd/es/layout/layout";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -84,6 +84,7 @@ function TabPrescription() {
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
+  const { isLoading } = useSelector((state) => state.uploadDoc);
   const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
   const { examinationHistory = [] } = obstetricDetails;
@@ -1153,6 +1154,18 @@ function TabPrescription() {
               <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
           </Drawer>
       )}
+      {isLoading ? (
+        <div>
+          <Spin
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+            }}
+            size="large"
+          />
+        </div>
+      ) : null}
       </>
     </CashManagerContext.Provider>
   );
