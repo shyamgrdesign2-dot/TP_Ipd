@@ -523,7 +523,7 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "52px", height: "52px" }}
                 />
-              ) : planDetails?.planStatus === "PAID" ? (
+              ) : planDetails?.currentPlanStatus === "PAID" ? (
                 <PremiumUser />
               ) :
                 <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
@@ -574,12 +574,12 @@ function Header({ locationPath }) {
       },
       {
         label:
-          <a onClick={() => ["TRIAL","EXPIRED"].includes(planDetails?.planStatus) ? handleClick() : accountSettings()}>
+          <a onClick={() => ["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : accountSettings()}>
             <div className="title-common me-5 d-flex align-items-center">
-              {["TRIAL","EXPIRED"].includes(planDetails?.planStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
-              {planDetails?.planStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{filter: 'brightness(0%)'}} alt="" />}
-              {["TRIAL","EXPIRED"].includes(planDetails?.planStatus) ? "Upgrade Plan" : "Subscription"}
-              {["TRIAL","EXPIRED"].includes(planDetails?.planStatus) && <div className="gradientBackground d-flex">
+              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
+              {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{filter: 'brightness(0%)'}} alt="" />}
+              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
+              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) && <div className="gradientBackground d-flex">
                 <div className="demoModeIndicatorSmall bg-danger" />
                 <span className='demoModeLabel'>Demo mode</span>
               </div>}
@@ -880,7 +880,7 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "35px", height: "35px" }}
                 />
-              ) :  planDetails?.planStatus === "PAID" ? (
+              ) :  planDetails?.currentPlanStatus === "PAID" ? (
                 <PremiumUser />
               ) :
                 <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
