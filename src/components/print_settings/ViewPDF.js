@@ -123,8 +123,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData } = props
 
     const gynecHistoryData = caseManagerData?.gynecHistoryData
+    const labParamsData = caseManagerData?.labParamsData
 
-    const { growthChartData, growthChartImageData } = growthChartDetails || {};
+    const { growthChartData, growthChartImageData, todayGrowthChartData } =
+      growthChartDetails || {};
     let growthChartImageChunks = []
     if (growthChartImageData) {
         const growthChartOption = printSettings?.prescription?.case_option?.find(o => o.id === 12)?.growth_chart_option;
@@ -215,6 +217,36 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     let gynecListViewCounter = 1, medicalHistoryIndex = 1;
     const isSmartSyncPrescription = smartRxData && smartRxData[0]?.smart_prescription_file;
+
+    const transformDataLabParams = (data) => {
+        const parameterNames = [...new Set(data.flatMap(item => item.inputs.map(input => input.testName)))];      
+        const transformedData = data.map(entry => {
+            const result = {
+                date: entry.date,
+            };
+      
+            entry.inputs.forEach(input => {
+                result[input.testName] = `${input.value} ${input.units}`;
+            });
+      
+            return result;
+        });
+
+        return [
+            { parameters: parameterNames },
+            ...transformedData,
+        ];
+    };
+
+    const removeRemarks = (data) => {
+        return data.map(item => ({
+          ...item,
+          inputs: item.inputs.filter(input => input.testName !== "Remarks")
+        }));
+    };
+
+    const labParamsPatchData = labParamsData ? removeRemarks(labParamsData) : null;
+    const transformLabParamsTable = labParamsPatchData ? transformDataLabParams(labParamsPatchData) : null;
 
     return (
         <Document>
@@ -1462,7 +1494,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 12 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
-                                    {growthChartData?.length > 0 && (
+                                    {growthChartData?.length > 0 && Object.keys(growthChartImageData)?.length > 0 && todayGrowthChartData?.length > 0 && (
                                         option?.format === 'table' ? (
                                             <>
                                                 <View style={{ marginTop: PX_TO_PT * 15 }}>
@@ -3830,7 +3862,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         )
                                         )}
                                 </>
-                            ) : option?.id === 14 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                            ) : option?.id === 14 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     {isGynaecHistoryAccessable && obsHistoryData &&
                                         Object.keys(obsHistoryData).length > 2 &&
@@ -3840,6 +3872,262 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             <ObsHistoryListView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
                                         ) : (
                                             <ObsHistoryTableView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
+                                        ))
+                                    }
+                                </>
+                            ) : option?.id === 15 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                                <>
+                                    {labParamsPatchData &&
+                                        labParamsPatchData.length > 0 &&
+                                        (option?.format === "inline" ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text>
+                                                    <>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            Lab Results:&nbsp;
+                                                        </Text>
+
+                                                        {labParamsPatchData?.map((item, i) => {
+                                                            return (
+                                                                <>
+                                                                    { i != 0 && 
+                                                                        <Text style={{
+                                                                            color: '#171725',
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400
+                                                                        }}>,&nbsp;
+                                                                        </Text> 
+                                                                    }
+                                                                    <Text
+                                                                        key={i}
+                                                                        style={{
+                                                                            color: '#171725',
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500
+                                                                        }}>
+                                                                        {moment(item?.date).format('Do MMM YYYY')}&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >(
+                                                                    </Text>
+                                                                    {item?.inputs?.map((input, j) => {
+                                                                        return (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            { j != 0 && <Text>, </Text> }
+                                                                            {input?.testName}:&nbsp;{input?.value}&nbsp;{input?.units}
+                                                                        </Text>
+                                                                    )})}
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >)
+                                                                    </Text>
+                                                                </>
+                                                            )
+                                                        })}
+                                                    </>
+                                                </Text>                                                
+                                            </View>
+                                        ) : option?.format === "listview" ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text>
+                                                    <>
+                                                        <Text
+                                                            style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            Lab Results:&nbsp;
+                                                        </Text>
+
+                                                        {labParamsPatchData?.map((item, i) => {
+                                                            return (
+                                                                <>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        &nbsp;{"\n"}
+                                                                        &nbsp;&nbsp;&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        {i + 1}.&nbsp;&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        key={i}
+                                                                        style={{
+                                                                            color: '#171725',
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500
+                                                                        }}>
+                                                                        {moment(item?.date).format('Do MMM YYYY')}&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >(
+                                                                    </Text>
+                                                                    {item?.inputs?.map((input, j) => {
+                                                                        return (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            { j != 0 && <Text>, </Text> }
+                                                                            {input?.testName}:&nbsp;{input?.value}&nbsp;{input?.units}
+                                                                        </Text>
+                                                                    )})}
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >)
+                                                                    </Text>
+                                                                </>
+                                                            )
+                                                        })}
+                                                    </>
+                                                </Text>                                            
+                                            </View>
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text
+                                                    style={{
+                                                        color: "#171725",
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 700,
+                                                    }}
+                                                >
+                                                    Lab Results:&nbsp;
+                                                </Text>
+                                                
+                                                <View wrap={false} style={{ marginTop: PX_TO_PT * 6 }}>
+                                                    <View style={[styles.table, { marginTop: 0 }]}>
+                                                        <View style={[styles.row]}>
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        flex: 1,
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {"NAME"}
+                                                            </Text>
+                                                            {transformLabParamsTable?.slice(1)?.map((item, i) => (
+                                                                <Text
+                                                                    key={i}
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            flex: 1,
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        },
+                                                                    ]}
+                                                                >
+                                                                    {moment(item?.date).format('Do MMM YYYY')}
+                                                                </Text>
+                                                            ))}
+                                                        </View>
+
+                                                        {transformLabParamsTable[0]?.parameters.map((param, j) => (
+                                                            <View key={j} style={[styles.row]}>
+                                                                <Text                                                                    
+                                                                    style={[
+                                                                        styles.cell,
+                                                                        {
+                                                                            flex: 1,
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        },
+                                                                    ]}
+                                                                >
+                                                                    {param}
+                                                                </Text>
+                                                                {transformLabParamsTable?.slice(1)?.map((input, k) => (
+                                                                    <Text
+                                                                        key={k}
+                                                                        style={[
+                                                                            styles.cell,
+                                                                            {
+                                                                                flex: 1,
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                                color: "#000",
+                                                                            },
+                                                                        ]}
+                                                                    >
+                                                                        {input[param] || "--"}
+                                                                    </Text>
+                                                                ))}
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                </View>
+                                            </View>
                                         ))
                                     }
                                 </>

@@ -146,14 +146,14 @@ const prod = {
   firebaseMessagingSenderId: "601922359186",
   firebaseAppId: "1:601922359186:web:a3b9df05589faed1f5fb4b",
   growth_chart_api_url: `https://pm-prod-growth-chart.tatvacare.in`,
-  tatvaRedirect: "https://diginextloginprod.z10.web.core.windows.net/login/index.html#bypass_pedia=false",
+  tatvaRedirect: "https://health.tatvacare.in#bypass_pedia=false",
   gynec_api_url: "https://pm-medicalhistory-prod.tatvacare.in/api/v1/gynec-history",
   obstetric_api_url: "https://pm-medicalhistory-prod.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-prod.tatvacare.in`,
   zydus_business_id: '368451724046474',
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-prod.tatvacare.in",
-  lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
+  lab_params_api_url: "https://pm-patient-docs-prod.tatvacare.in/",
   opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in/"
 };

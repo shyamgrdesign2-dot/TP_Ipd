@@ -1,86 +1,26 @@
 import { Button, Divider } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-const mockData = [
-  {
-    date: "2024-09-23",
-    inputs: [
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85090",
-        reportName: "CBC",
-        name: "Red blood cell count",
-        value: "98.4",
-        arrowDirection: "",
-        unit: "Cells/L",
-      },
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85090",
-        reportName: "CBC",
-        name: "Hemoglobin",
-        value: "98.4",
-        arrowDirection: "",
-        unit: "dl",
-      },
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85090",
-        reportName: "CBC",
-        name: "Platelet Count",
-        value: "95",
-        arrowDirection: "down",
-        unit: "cmm",
-      },
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85090",
-        reportName: "CBC",
-        name: "Remarks",
-        value: "some random string is input here",
-        arrowDirection: "",
-        unit: "",
-      },
-    ],
-  },
-  {
-    date: "2024-09-24",
-    inputs: [
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85090",
-        reportName: "CBC",
-        name: "Red blood cell count",
-        value: "98.4",
-        arrowDirection: "down",
-        unit: "Cells/L",
-      },
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85090",
-        reportName: "CBC",
-        name: "Platelet Count",
-        value: "95",
-        arrowDirection: "up",
-        unit: "cmm",
-      },
-      {
-        labParametersMasterId: "66fb8f280f04df59a9d85093",
-        reportName: "Spot Urine Sodium",
-        name: "Remarks",
-        value: "some random string is input here",
-        arrowDirection: "down",
-        unit: "cmm",
-      },
-    ],
-  },
-];
+const TabLabParametersList = ({ handleCollapsed, labParamsData, handleAddLabParamsDrawer, handleViewLabParamsDrawer }) => {
 
-const TabLabParametersList = ({ handleCollapsed }) => {
-  const [labParamsData, setLabParamsData] = useState(mockData?.[0]);
+  const [labParamsdeatils, setLabParamsdeatils] = useState([]);
+
+  useEffect(() => {
+    const updatedLabParamsData= labParamsData?.sort((a, b) => new Date(b.date) - new Date(a.date))
+    setLabParamsdeatils(updatedLabParamsData?.[0]);
+  }, [labParamsData]);
+
   const measurementDetails = () => {
     return (
       <div style={{ display: "flex", flexDirection: "column", rowGap: "16px" }}>
         <div style={{ fontSize: "14px", fontWeight: "600" }}>
-          {dayjs(labParamsData?.date).format("DD MMM, YY")}
+          {dayjs(labParamsdeatils?.date).format("DD MMM, YYYY")}
         </div>
-        {labParamsData?.inputs?.map((labParamItem, index) => {
+        {labParamsdeatils?.inputs
+          ?.filter((labParamItem) => labParamItem?.testName !== "Remarks") // Filter out "Remarks"
+          .map((labParamItem, index) => {
           return (
             <React.Fragment key={index}>
               <div
@@ -92,8 +32,8 @@ const TabLabParametersList = ({ handleCollapsed }) => {
                   alignItems: "center",
                 }}
               >
-                <div style={{ fontWeight: "400" }}>{`${labParamItem?.name} ${
-                  labParamItem?.unit ? `(${labParamItem?.unit})` : ""
+                <div style={{ fontWeight: "400" }}>{`${labParamItem?.testName} ${
+                  labParamItem?.units ? `(${labParamItem?.units})` : ""
                 }`}</div>
                 <div
                   className={`${
@@ -102,7 +42,7 @@ const TabLabParametersList = ({ handleCollapsed }) => {
                       ? "lab-params-warning"
                       : ""
                   } ${labParamItem?.name === "Remarks" ? "remarks-style" : ""}`}
-                  style={{ fontWeight: "400", width: "20%", textAlign: "end" }}
+                  style={{ fontWeight: "400", width: "24%", textAlign: "end" }}
                 >
                   {labParamItem?.arrowDirection === "up" ? (
                     <ArrowUpOutlined
@@ -124,6 +64,7 @@ const TabLabParametersList = ({ handleCollapsed }) => {
       </div>
     );
   };
+
   return (
     <div>
       <div className="text-white align-items-center bg-secondary d-flex justify-content-between lh-lg px-2 py-2">
@@ -143,7 +84,7 @@ const TabLabParametersList = ({ handleCollapsed }) => {
         <div className="p-10">
           <Button
             className="btn btn-input d-flex w-100 align-items-center justify-content-center btn-41"
-            // onClick={handleAddClick}
+            onClick={handleAddLabParamsDrawer}
           >
             <i className="icon-Add me-2 fs-21"></i>
             Add or Edit
@@ -161,7 +102,7 @@ const TabLabParametersList = ({ handleCollapsed }) => {
           <Divider dashed style={{ color: "#D0D5DD", margin: "0 0 16px" }} />
           <div
             className="d-flex align-items-center"
-            // onClick={handleDrawerMedicalReport}
+            onClick={handleViewLabParamsDrawer}
           >
             <span className="view-all-txt">View All</span>
             <i className="icon-right view-all-icon" />

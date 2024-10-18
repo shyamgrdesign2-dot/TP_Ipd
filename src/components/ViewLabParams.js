@@ -1,6 +1,8 @@
-import { Button, Input } from 'antd';
-import React, { useState, useRef } from 'react';
+import { Button, Input, Tooltip } from 'antd';
+import React, { useState, useRef, useEffect } from 'react';
 import { CaretRightOutlined, CaretDownOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 
 const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitchToAddLabParams }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -9,6 +11,8 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
+    const [filteredReports, setFilteredReports] = useState([]);
+    const [groupedData, setGroupedData] = useState({});
 
     // Toggle report expansion/collapse
     const toggleReport = (reportName) => {
@@ -18,36 +22,61 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
         }));
     };
 
-    // Grouping tests by report name and test name
-    const groupedData = {};
-
-    labParamsData?.forEach((report) => {
-        report.inputs.forEach((input) => {
-            const reportKey = input.reportName;
-            const testKey = input.testName;
-
-            if (!groupedData[reportKey]) {
-                groupedData[reportKey] = {};
-            }
-
-            if (!groupedData[reportKey][testKey]) {
-                groupedData[reportKey][testKey] = [];
-            }
-
-            groupedData[reportKey][testKey].push({
-                date: report.date,
-                value: input.value,
-                unit: input.units,
-            });
+    useEffect(() => {
+        Object.keys(groupedData)?.forEach((reportName) => {
+            setExpandedReports((prevState) => ({
+                ...prevState,
+                [reportName]: true,
+            }));
         });
-    });
+    }, [labParamsData]);
 
-    // Filter data for search functionality
-    const filteredData = labParamsData?.filter((report) =>
-        report.inputs.some((input) =>
-            input.testName.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-    );
+    useEffect(() => {
+        if (labParamsData?.length > 0) {
+            const filteredResultData = filterDataBySearchKey(labParamsData, searchTerm);
+            setFilteredReports(filteredResultData);
+
+
+            const updatedData = {};
+
+              filteredResultData?.forEach((report) => {
+                report.inputs.forEach((input) => {
+                  const reportKey = input.reportName;
+                  const testKey = input.testName;
+
+                  if (!updatedData[reportKey]) {
+                    updatedData[reportKey] = {};
+                  }
+
+                  if (!updatedData[reportKey][testKey]) {
+                    updatedData[reportKey][testKey] = [];
+                  }
+
+                  updatedData[reportKey][testKey].push({
+                    date: report.date,
+                    value: input.value,
+                    unit: input.units,
+                    arrowDirection: input.arrowDirection,
+                  });
+                });
+              });
+              setGroupedData(updatedData);
+        }  
+    }, [searchTerm, labParamsData]);
+
+    // Filter and group data based on search query
+    const filterDataBySearchKey = (data, searchKey) => {
+        return data
+        .map(({ date, inputs }) => ({
+            date,
+            inputs: inputs.filter(
+            ({ testName, reportName }) =>
+                testName.toLowerCase().includes(searchKey.toLowerCase()) ||
+                reportName.toLowerCase().includes(searchKey.toLowerCase())
+            ),
+        }))
+        .filter(({ inputs }) => inputs.length > 0); // Remove dates with no matching inputs
+    }
 
     // Handle horizontal scrolling via dragging
     const handleMouseDown = (e) => {
@@ -67,8 +96,18 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
         setIsDragging(false);
     };
 
+    const tooltipTitle = (remarks) => {
+      return (
+        <div className="d-flex justify-content-between flex-column h-100 w-100">
+          <div className="h-80" style={{ overflow: "auto" }}>
+            {remarks}
+          </div>
+        </div>
+      );
+    };
+
     return (
-        <div>
+        <div style={{ backgroundColor: "#fff" }}>
             <div className='modalCard-header h-60 align-items-center justify-content-between d-flex' style={{ position: "sticky", top: "0", zIndex: "999" }}>
                 <div className='align-items-center d-flex'>
                     <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleViewLabParamsDrawer} >
@@ -81,59 +120,103 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                 </Button>
             </div>
             {/* Search Bar */}
-            <div className="align-items-center d-flex justify-content-between px-20 py-3 gap-4">
+            <div className="align-items-center d-flex justify-content-between px-20 py-3 gap-4" style={{ position: "sticky", top: "3.78rem", backgroundColor: "white", zIndex: "999" }}>
                 <Input
-                    // value={searchQuery}
                     placeholder="Search by test name or category"
                     className="inputheight38"
-                    style={{width:"18rem"}}
+                    style={{ width: "18rem" }}
                     prefix={<i className="icon-search" />}
-                    // suffix={searchQuery.length > 0 && <i className="icon-Cross" onClick={() => onSearch('')}></i>}
-                    // onChange={(e) => onSearch(e.target.value)}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
-        
+
             {/* Table Wrapper */}
             <div style={{ overflowX: 'auto', margin: "8px" }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     {/* Table Header */}
-                    <thead style={{ backgroundColor: '#d3d3d3' }}>
+                    <thead style={{ backgroundColor: "#F1F1F5" }}>
                         <tr>
                             <th
                                 style={{
                                     position: 'sticky',
                                     left: 0,
-                                    background: '#d3d3d3',
+                                    background: "#F1F1F5",
                                     width: "23rem",
                                     padding: '10px',
                                     borderTopLeftRadius: "10px",
                                     borderBottomLeftRadius: "10px",
+                                    fontWeight: "600",
                                 }}
                             >
                                 Name
                             </th>
-                            {filteredData.map((entry) => (
-                                <th
-                                    key={entry.date}
-                                    style={{
-                                        width: '160px',
-                                        padding: '10px',
-                                        zIndex: "1"
-                                    }}
-                                >
-                                    {entry.date}
-                                </th>
-                            ))}
+                            {filteredReports.length < 2 ? (
+                                filteredReports.map((entry, entryIndex) => {
+                                    const isLastCell = entryIndex === filteredReports.length - 1;
+                                    return (
+                                        <>
+                                            <th
+                                                key={entry.date}
+                                                style={{
+                                                    width: '160px',
+                                                    padding: '10px',
+                                                    zIndex: "1",
+                                                    fontWeight: "600",
+                                                    background: "#F1F1F5",
+                                                    textWrap: "nowrap",
+                                                }}
+                                            >
+                                                {dayjs(entry?.date).format("DD MMM, YYYY")}
+                                            </th>
+                                            <th
+                                                key={entry.date}
+                                                style={{
+                                                    width: '160px',
+                                                    padding: '10px',
+                                                    zIndex: "1",
+                                                    fontWeight: "600",
+                                                    background: "#F1F1F5",
+                                                    borderTopRightRadius: "10px" ,
+                                                    borderBottomRightRadius: "10px",
+                                                    textWrap: "nowrap",
+                                                }}
+                                            >
+                                            </th>
+                                        </>
+                                    );
+                                })
+                            ):(
+                                filteredReports.map((entry, entryIndex) => {
+                                    const isLastCell = entryIndex === filteredReports.length - 1;
+                                    return (
+                                        <th
+                                            key={entry.date}
+                                            style={{
+                                                width: '160px',
+                                                padding: '10px',
+                                                zIndex: "1",
+                                                fontWeight: "600",
+                                                background: "#F1F1F5",
+                                                borderTopRightRadius: isLastCell ? "10px" : " ",
+                                                borderBottomRightRadius: isLastCell ? "10px" : " ",
+                                                textWrap: "nowrap",
+                                            }}
+                                        >
+                                            {dayjs(entry?.date).format("DD MMM, YYYY")}
+                                        </th>
+                                    );
+                                })
+                            )}
                         </tr>
                     </thead>
-                    <div style={{ height: '10px' }}></div>
-        
+                    <div style={{ height: '15px' }}></div>
+
                     {/* Table Body */}
                     <tbody>
                         {Object.keys(groupedData).length > 0 ? (
                             Object.keys(groupedData).map((reportName, index) => {
                                 const isExpanded = expandedReports[reportName];
-        
+
                                 return (
                                     <React.Fragment key={index}>
                                         {/* Report Name Row (collapsible) */}
@@ -141,62 +224,68 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                             onClick={() => toggleReport(reportName)}
                                             style={{
                                                 cursor: 'pointer',
-                                                background: 'var(--T-BG-100, #FAFAFB)',
                                                 width: '100%',
                                             }}
                                         >
                                             <td
-                                                colSpan={filteredData.length + 1} // Span across all columns
+                                                colSpan={filteredReports.length + 1} // Span across all columns
                                                 style={{
                                                     position: 'sticky',
                                                     left: 0,  // Set the left position to make it stick on the left
                                                     zIndex: 2, // Ensure it stays above the other rows
-                                                    background: "var(--T-BG-100, #e8e8e8)", // Provide a background so it doesn't overlap
+                                                    background: " #FAFAFB", // Provide a background so it doesn't overlap
                                                     padding: '10px',
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'space-between',
-                                                    width: "23rem", // Set a fixed width
+                                                    width: "23rem",
                                                     borderTopLeftRadius: "10px",
                                                     borderBottomLeftRadius: "10px",
                                                 }}
-                                            >   
+                                            >
                                                 <span>{reportName}</span>
-                                                <div style={{position:"absolute",top:"27%",right:"-81%"}}>
+                                                <div style={{ position: "absolute", top: "16%", right: "-81%" }}>
                                                     {isExpanded ? (
-                                                        <CaretDownOutlined style={{ cursor: 'pointer' }} />
+                                                        <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right fs-5' /></button>
                                                     ) : (
-                                                        <CaretRightOutlined style={{ cursor: 'pointer' }} />
+                                                        <button className='btn p-0 ms-2 iconrotate180'><i className='icon-right fs-5' /></button>
                                                     )}
                                                 </div>
                                             </td>
-                                            {filteredData.map((entry, entryIndex) => {
-                                                const isLastCell = entryIndex === filteredData.length - 1;
-                                                return (
-                                                    <td
-                                                        key={entry.date}
-                                                        style={{
-                                                            background: "var(--T-BG-100, #e8e8e8)",
-                                                            width:"160px",
-                                                            padding: '10px',
-                                                            textAlign: 'right', // Right align the icon for the last cell
-                                                            borderTopRightRadius: isLastCell ? "10px" : " ",
-                                                            borderBottomRightRadius: isLastCell ? "10px" : " ",
-                                                        }}
-                                                    >
-                                                
-                                                    </td>
-                                                );
-                                            })}
+                                            {filteredReports.length < 2 ? (
+                                                // Render at least two empty <td>s if the length is less than 2
+                                                <>
+                                                    <td style={{ background: "#FAFAFB", width: "160px", padding: '10px', textAlign: 'right' }}></td>
+                                                    <td style={{ background: "#FAFAFB", width: "160px", padding: '10px', textAlign: 'right' }}></td>
+                                                </>
+                                            ) : (
+                                                filteredReports.map((entry, entryIndex) => {
+                                                    const isLastCell = entryIndex === filteredReports.length - 1;
+                                                    return (
+                                                        <td
+                                                            key={entry.date}
+                                                            style={{
+                                                                background: "#FAFAFB",
+                                                                width: "160px",
+                                                                padding: '10px',
+                                                                textAlign: 'right', // Right align the icon for the last cell
+                                                                borderTopRightRadius: isLastCell ? "10px" : " ",
+                                                                borderBottomRightRadius: isLastCell ? "10px" : " ",
+                                                            }}
+                                                        >
+                                                        </td>
+                                                    );
+                                                })
+                                            )}
                                         </tr>
 
-                                        {!isExpanded  && <div style={{ height: '10px' }}></div>}
-        
+                                        {!isExpanded && <div style={{ height: '10px' }}></div>}
+
                                         {/* Test Rows (expandable) */}
                                         {isExpanded &&
                                             Object.keys(groupedData[reportName]).map((testName, testIndex) => (
-                                                <>
-                                                    <tr key={testIndex}>
+                                                <React.Fragment key={testIndex}>
+                                                    <tr>
                                                         <td
                                                             style={{
                                                                 position: 'sticky',
@@ -205,11 +294,12 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                                 width: "23rem",
                                                                 padding: '10px',
                                                                 borderRight: '1px solid #ddd',
+                                                                overflow: "hidden",
                                                             }}
                                                         >
                                                             {testName}
                                                         </td>
-                                                        <td colSpan={filteredData.length} style={{ padding: 0 }}>
+                                                        <td colSpan={filteredReports.length} style={{ padding: 0 }}>
                                                             <div
                                                                 ref={scrollRef}
                                                                 onMouseDown={handleMouseDown}
@@ -220,43 +310,79 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                                     display: 'flex',
                                                                     overflowX: 'auto',
                                                                     cursor: isDragging ? 'grabbing' : 'grab',
-                                                                    whiteSpace: 'nowrap',
                                                                 }}
                                                             >
-                                                                {filteredData.map((entry) => {
+                                                                {filteredReports.map((entry) => {
                                                                     const testOnDate =
                                                                         groupedData[reportName][testName].find(
                                                                             (t) => t.date === entry.date
                                                                         );
-            
                                                                     return (
-                                                                        <div
-                                                                            key={entry.date}
+                                                                      <div
+                                                                        key={entry.date}
+                                                                        style={{width: "160px",
+                                                                          borderRight: "1px solid #ddd",
+                                                                          padding: "10px",
+                                                                          background: "white",
+                                                                          fontWeight: "400",
+                                                                        }}
+                                                                        className={`${
+                                                                          testOnDate?.arrowDirection ===
+                                                                            "up" ||
+                                                                          testOnDate?.arrowDirection ===
+                                                                            "down"
+                                                                            ? "lab-params-warning"
+                                                                            : ""
+                                                                        }`}
+                                                                      >
+                                                                        {testName === "Remarks" && testOnDate
+                                                                          ? (
+                                                                            <Tooltip
+                                                                                trigger={["hover"]}
+                                                                                title={tooltipTitle(testOnDate.value)}
+                                                                                overlayClassName="customTooltip"
+                                                                                placement="top"
+                                                                            >
+                                                                                <div className='truncated'>
+                                                                                    {testOnDate.value}
+                                                                                </div>
+                                                                            </Tooltip>
+                                                                          )
+                                                                          : testOnDate
+                                                                          ? `${testOnDate.value} ${testOnDate.unit}`
+                                                                          : "-"}
+                                                                        {testOnDate?.arrowDirection ===
+                                                                        "up" ? (
+                                                                          <ArrowUpOutlined
+                                                                            className="lab-params-warning"
                                                                             style={{
-                                                                                width:"160px",
-                                                                                borderRight: '1px solid #ddd',
-                                                                                padding: '10px',
-                                                                                background: 'white',
+                                                                              paddingLeft: 5,
                                                                             }}
-                                                                        >
-                                                                            {testOnDate
-                                                                                ? `${testOnDate.value} ${testOnDate.unit}`
-                                                                                : '-'}
-                                                                        </div>
+                                                                          />
+                                                                        ) : testOnDate?.arrowDirection ===
+                                                                          "down" ? (
+                                                                          <ArrowDownOutlined
+                                                                            className="lab-params-warning"
+                                                                            style={{
+                                                                              paddingLeft: 5,
+                                                                            }}
+                                                                          />
+                                                                        ) : null}
+                                                                      </div>
                                                                     );
                                                                 })}
                                                             </div>
                                                         </td>
                                                     </tr>
-                                                </>
-                                        ))}
-                                        <div style={{ height: '10px' }}></div>
+                                                </React.Fragment>
+                                            ))}
+                                        {isExpanded && <div style={{ height: '10px' }}></div>}
                                     </React.Fragment>
                                 );
                             })
                         ) : (
                             <tr>
-                                <td colSpan={filteredData.length + 1}>No results found.</td>
+                                <td colSpan={filteredReports.length + 1}>No results found.</td>
                             </tr>
                         )}
                     </tbody>
@@ -267,5 +393,3 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
 };
 
 export default LabResultsTable;
-
-

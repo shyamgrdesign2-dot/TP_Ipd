@@ -159,6 +159,7 @@ function Prescription() {
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
   const [medicalReportDrawer, setMedicalReportDrawer] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [filesData, setFilesData] = useState([]);
   const [isEditDocument, setIsEditDocument] = useState(false);
   const fileInputRef = useRef(null);
@@ -519,6 +520,7 @@ function Prescription() {
       fetchGynecHistory();
     }
   }, [isGynaecHistoryAccessable]);
+
   useEffect(() => {
     getLabParams();
   },[]);
@@ -602,8 +604,12 @@ const handleSwitchToAddLabParams = () => {
 };
 
 // Function to update lab params data in parent component when saved
-const handleLabParamsUpdate = (newLabParams) => {
-  setLabParamsData(newLabParams); // Update state with the new lab params data
+const handleLabParamsUpdate = () => {
+  getLabParams(); // Update state with the new lab params data
+};
+
+const showHideBackModal = () => {
+  setIsBackModalOpen(!isBackModalOpen);
 };
 
 const getLabParams = async () => {
@@ -619,7 +625,6 @@ const getLabParams = async () => {
       console.error("Error fetching lab params:", error);
   }
 };
-
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -793,81 +798,85 @@ const getLabParams = async () => {
                       examinationHistory?.length > 0) && <ObstetricList />}
                   </div>
                   ) : e.tmdpm_id === 18 &&
+                  e.tmdpm_status === 0 ? (
+                    <>
+                      <div className="prescription-box-sm p-14">
+                        <div className="d-flex align-items-center justify-content-between">
+                          <div className="d-flex align-items-center">
+                            <img
+                              src={uploadDocImg}
+                              alt="upload-document"
+                              className="me-3"
+                            />
+                            <div className="title-common">Medical Records {allUploadedDocs?.length > 0 ? `(${allUploadedDocs?.length})` : "" }</div>
+                          </div>
+                          <button
+                            className="btn d-flex align-items-center btn-text"
+                            style={{ paddingRight: allUploadedDocs.length > 0 ? 0 : 12 }}
+                            onClick={
+                              allUploadedDocs.length > 0
+                                ? handleDrawerMedicalReport
+                                : handleAddClick
+                            }
+                          >
+                            <input
+                              type="file"
+                              multiple
+                              ref={fileInputRef}
+                              onChange={handleFileUpload}
+                              accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
+                              style={{ display: "none" }}
+                            />
+                            {allUploadedDocs.length === 0 && (
+                              <i className="icon-Add me-1 fs-5" />
+                            )}
+                            <span>{`${
+                              allUploadedDocs.length > 0 ? "View All" : "Add"
+                            }`}</span>
+                            {allUploadedDocs.length > 0 && (
+                              <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                            )}
+                          </button>
+                        </div>
+                        <UploadDocumentList
+                          handleDrawerUploadDoc={handleDrawerUploadDoc}
+                          setFilesData={setFilesData}
+                          setIsEditDocument={setIsEditDocument}
+                          setUploadDocDrawer={setUploadDocDrawer}
+                        />
+                      </div>
+                    </>
+                  ) : e.tmdpm_id === 19 &&
                   e.tmdpm_status === 0 && (
                     <>
-                     <div className="prescription-box-sm" style={{overflow: 'hidden'}}>
-                      <div className="d-flex align-items-center justify-content-between p-14" style={{borderBottom: "1px solid #ddd"}}>
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={labResultImg}
-                            alt="upload-document"
-                            className="me-3"
-                          />
-                          <div className="title-common">Lab Results</div>
+                      <div className="prescription-box-sm" style={{overflow: 'hidden'}}>
+                        <div className="d-flex align-items-center justify-content-between p-14" style={{borderBottom: "1px solid #ddd"}}>
+                          <div className="d-flex align-items-center">
+                            <img
+                              src={labResultImg}
+                              alt="upload-document"
+                              className="me-3"
+                            />
+                            <div className="title-common">Lab Results</div>
+                          </div>
+                          <button
+                            className="btn d-flex align-items-center btn-text"
+                            style={{ paddingRight: labParamsData?.length > 0 ? 0 : 12 }}
+                            onClick={labParamsData?.length > 0 ? handleViewLabParamsDrawer : handleAddLabParamsDrawer }
+                          >
+                            {labParamsData?.length === 0 && (
+                              <i className="icon-Add me-1 fs-5" />
+                            )}
+                            <span>{`${
+                              labParamsData?.length > 0 ? "View All" : "Add"
+                            }`}</span>
+                            {labParamsData?.length > 0 && (
+                              <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                            )}
+                          </button>
                         </div>
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          style={{ paddingRight: labParamsData?.length > 0 ? 0 : 12 }}
-                          onClick={labParamsData?.length > 0 ? handleViewLabParamsDrawer : handleAddLabParamsDrawer }
-                        >
-                          {labParamsData?.length === 0 && (
-                            <i className="icon-Add me-1 fs-5" />
-                          )}
-                          <span>{`${
-                            labParamsData?.length > 0 ? "View All" : "Add"
-                          }`}</span>
-                          {labParamsData?.length > 0 && (
-                            <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
-                          )}
-                        </button>
+                        <LabParametersList labParamsData={labParamsData} patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} />
                       </div>
-                      <LabParametersList labParamsData={labParamsData} patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} />
-                      </div>
-                    <div className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={uploadDocImg}
-                            alt="upload-document"
-                            className="me-3"
-                          />
-                          <div className="title-common">Medical Records {allUploadedDocs?.length > 0 ? `(${allUploadedDocs?.length})` : "" }</div>
-                        </div>
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          style={{ paddingRight: allUploadedDocs.length > 0 ? 0 : 12 }}
-                          onClick={
-                            allUploadedDocs.length > 0
-                              ? handleDrawerMedicalReport
-                              : handleAddClick
-                          }
-                        >
-                          <input
-                            type="file"
-                            multiple
-                            ref={fileInputRef}
-                            onChange={handleFileUpload}
-                            accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
-                            style={{ display: "none" }}
-                          />
-                          {allUploadedDocs.length === 0 && (
-                            <i className="icon-Add me-1 fs-5" />
-                          )}
-                          <span>{`${
-                            allUploadedDocs.length > 0 ? "View All" : "Add"
-                          }`}</span>
-                          {allUploadedDocs.length > 0 && (
-                            <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
-                          )}
-                        </button>
-                      </div>
-                      <UploadDocumentList
-                        handleDrawerUploadDoc={handleDrawerUploadDoc}
-                        setFilesData={setFilesData}
-                        setIsEditDocument={setIsEditDocument}
-                        setUploadDocDrawer={setUploadDocDrawer}
-                      />
-                    </div>
                     </>
                   )
               })}
@@ -1043,26 +1052,31 @@ const getLabParams = async () => {
             />
           </Drawer>
         )}
-        <Drawer
+        { addlabparamsDrawer &&
+          <Drawer
             closeIcon={false}
-            className="modalWidth-700"
+            width={880}
             placement="right"
             open={addlabparamsDrawer}
-            onClose={handleAddLabParamsDrawer}
-            width="auto"
+            onClose={showHideBackModal}
+            bodyStyle={{ backgroundColor: "white" }}
         >
-            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_data={patient_data} onSave={handleLabParamsUpdate}/>
+            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_data?.patient_unique_id} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientGender={patient_data?.pm_gender}/>
         </Drawer>
-        <Drawer
+        }
+        { viewlabparamsDrawer &&
+          <Drawer
             closeIcon={false}
             className="modalWidth-700"
             placement="right"
             open={viewlabparamsDrawer}
+            bodyStyle={{ backgroundColor: "white" }}
             onClose={handleViewLabParamsDrawer}
             width="auto"
-        >
+          >
             <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
-        </Drawer>
+          </Drawer>
+        }
       </>
     </CashManagerContext.Provider>
   );
