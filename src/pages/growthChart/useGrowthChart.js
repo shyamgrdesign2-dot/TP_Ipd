@@ -40,7 +40,6 @@ export const useGrowthChart = (caseManagerData) => {
   };
 
     const getTodayGrowthChartDetails = async () => {
-      console.log("hello")
       const today = dayjs().format("YYYY-MM-DD");
       const todayGrowthChartParams = await getTodayGrowthChartParams({
         pm_id: caseManagerData?.patient_data?.pm_id || 0,
@@ -48,7 +47,6 @@ export const useGrowthChart = (caseManagerData) => {
         date: today,
         source: "GROWTH_CHART",
       });
-      console.log("todayGrowthChartParams", todayGrowthChartParams);
         setTodayGrowthChartData(todayGrowthChartParams);
     };
 
