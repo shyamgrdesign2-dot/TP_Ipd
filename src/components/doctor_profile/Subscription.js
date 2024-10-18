@@ -17,7 +17,7 @@ function Subscription() {
     plan_active_date,
     plan_expiry_date,
     productType,
-    planStatus,
+    currentPlanStatus,
     expiry_reminder_days,
     is_pm_renew_requested,
     expiresIn,
@@ -41,13 +41,13 @@ function Subscription() {
           </div>
 
           <div className="titleprint">Subscription</div>
-          {["TRIAL", "EXPIRED"].includes(planStatus) && (
+          {["TRIAL", "EXPIRED"].includes(currentPlanStatus) && (
             <div className="gradientBackground d-flex">
               <div className="demoModeIndicatorSmall bg-danger" />
               <span className="demoModeLabel">Demo mode</span>
             </div>
           )}
-          {planStatus === "PAID" && (
+          {currentPlanStatus === "PAID" && (
             <button
               className="btn d-flex align-items-center btn-text"
               onClick={() => setShowBillingHistory(true)}
@@ -63,7 +63,7 @@ function Subscription() {
           )}
         </div>
       </div>
-      {planStatus === "PAID" ? (
+      {currentPlanStatus === "PAID" ? (
         <>
           <div className="m-auto p-4">
             <Row>
@@ -107,8 +107,7 @@ function Subscription() {
           )}
         </>
       ) : (
-        ["TRIAL", "EXPIRED"].includes(planStatus) &&
-        !is_pm_renew_requested && (
+        ["TRIAL", "EXPIRED"].includes(currentPlanStatus) && (
           <>
             <div className="px-20 py-1">
               <p className="text-danger mt-4">
