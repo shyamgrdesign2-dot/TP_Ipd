@@ -1450,6 +1450,7 @@ function AppointmentData({ locationPath }) {
             )}
             {shouldShowUploadDocPopup && (
                 <UploadDocPopup
+                    shouldShowUploadDocPopup={shouldShowUploadDocPopup}
                     onCancel={() => setShowUploadDocPopup(false)}
                     setFilesData={setFilesData}
                     filesData={filesData}

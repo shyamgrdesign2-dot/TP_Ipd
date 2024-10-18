@@ -2,7 +2,6 @@ import { Card, Divider, Modal, Spin } from "antd";
 import "./UploadDocPopup.scss";
 import { db, storage } from "../../../../firebase";
 import {
-  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
@@ -13,7 +12,12 @@ import { useEffect, useState } from "react";
 import { getCorrectedFileName } from "../../utils/helper";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
-import { getStorage, ref, deleteObject, getBlob } from "firebase/storage";
+import {
+  getStorage,
+  ref,
+  deleteObject,
+  getDownloadURL,
+} from "firebase/storage";
 
 const UploadDocPopup = ({
   shouldShowUploadDocPopup,
@@ -50,17 +54,25 @@ const UploadDocPopup = ({
     onCancel();
   };
 
-  const downloadAndSetFile = async (pdfUrl, fileName, fileType) => {
+  async function getFileFromFirebase(filePath, fileName, fileType) {
     try {
-      const storageRef = ref(storage, pdfUrl);
-      const blob = await getBlob(storageRef);
+      const storage = getStorage();
+      const fileRef = ref(storage, filePath);
+
+      const downloadURL = await getDownloadURL(fileRef);
+
+      const response = await fetch(downloadURL);
+      const blob = await response.blob();
+
       const blobUrl = URL.createObjectURL(blob);
       console.log("blobUrl", blobUrl);
-      return new File([blob], fileName, { type: fileType });
+      const file = new File([blob], fileName, { type: fileType });
+      return file;
     } catch (error) {
-      console.error("Error downloading and setting file:", error);
+      console.error("Error fetching file from Firebase:", error);
+      return null;
     }
-  };
+  }
 
   useEffect(() => {
     const checkInFireBase = async () => {
@@ -68,53 +80,45 @@ const UploadDocPopup = ({
         const docCapturedImage = doc(db, "capturedImage", deviceUid);
         try {
           const docCapturedImageSnap = await getDoc(docCapturedImage);
-          console.log("docSnap", docCapturedImageSnap.exists());
           if (docCapturedImageSnap.exists()) {
-            console.log("coming here");
             onSnapshot(
               doc(db, "capturedImage", deviceUid),
               async (docSnapshotOfCapturedImage) => {
                 const res = docSnapshotOfCapturedImage?.data();
                 console.log("res", res);
-                if (res?.clicked === "no") {
+                if (res?.clicked === "no" && res?.filePath !== "") {
                   console.log("urls", res?.url);
-                  if (res?.filePath && res?.filePath?.length > 0) {
-                    const urls = res?.filePath?.split(",");
-                    const fileNames = res?.name?.split(",");
-                    const fileTypes = res?.type?.split(",");
+                  const urls = res?.filePath?.split(",");
+                  const fileNames = res?.name?.split(",");
+                  const fileTypes = res?.type?.split(",");
 
-                    console.log("harish", urls, fileNames, fileTypes);
-                    for (let i = 0; i < urls.length; i++) {
-                      console.log(urls[i], fileNames[i], fileTypes[i]);
-                      const newFile = await downloadAndSetFile(
-                        urls[i],
-                        getCorrectedFileName(fileNames[i]),
-                        fileTypes[i]
+                  for (let i = 0; i < urls.length; i++) {
+                    console.log(urls[i], fileNames[i], fileTypes[i]);
+                    const newFile = await getFileFromFirebase(
+                      urls[i],
+                      getCorrectedFileName(fileNames[i]),
+                      fileTypes[i]
+                    );
+                    setFilesData((prev) => {
+                      const isAlreadyAdded = prev.some(
+                        (file) => file.name === newFile.name
                       );
-                      console.log("newFile", newFile);
-                      setFilesData((prev) => {
-                        const isAlreadyAdded = prev.some(
-                          (file) => file.name === newFile.name
-                        );
-                        if (!isAlreadyAdded) {
-                          return [newFile, ...prev];
-                        }
-                        return prev;
-                      });
-                      // });
-
-                      const desertRef = ref(storage, urls[i]);
-                      deleteObject(desertRef);
-                    }
-                    if (!uploadDocDrawer) {
-                      handleDrawerUploadDoc();
-                    }
-                    dispatch(setLoadingStatus(false));
-
-                    deleteDoc(doc(db, "capturedImage", deviceUid));
-                  } else if (res?.filePath?.length === 0) {
-                    dispatch(setLoadingStatus(false));
+                      if (!isAlreadyAdded) {
+                        const desertRef = ref(storage, urls[i]);
+                        deleteObject(desertRef);
+                        return [newFile, ...prev];
+                      }
+                      return prev;
+                    });
                   }
+                  if (!uploadDocDrawer) {
+                    handleDrawerUploadDoc();
+                  }
+                  dispatch(setLoadingStatus(false));
+
+                  deleteDoc(doc(db, "capturedImage", deviceUid));
+                } else {
+                  dispatch(setLoadingStatus(false));
                 }
               }
             );
