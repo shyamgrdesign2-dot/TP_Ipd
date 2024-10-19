@@ -303,10 +303,10 @@ function MedicationsBox() {
         medicationData[i].tmm_freq_type_name = "";
         medicationData[i].tmf_block = 0;
         medicationData[i].tmm_freq_type = 0;
-        medicationData[i].tcm_tmm_freq_afternoon = frequencyQuery[1];
-        medicationData[i].tcm_tmm_freq_evening = frequencyQuery[2];
-        medicationData[i].tcm_tmm_freq_morning = frequencyQuery[0];
-        medicationData[i].tcm_tmm_freq_night = frequencyQuery[3];
+        medicationData[i].tcm_tmm_freq_afternoon = 0;
+        medicationData[i].tcm_tmm_freq_evening = 0;
+        medicationData[i].tcm_tmm_freq_morning = 0;
+        medicationData[i].tcm_tmm_freq_night = 0;
         setMedicationData((prev) => [...prev]);
       } else if (frequencyFormat(medicationData[i].tmm_freq_type_name)) {
         medicationData[i].tmm_freq_type_name = frequencyQuery;
@@ -391,6 +391,7 @@ function MedicationsBox() {
           medicationData[i].tcm_tmm_freq_night = objParse.tmf_id != 0 ? 0 : objParse.tmf_title.split("-")[2] ? objParse.tmf_title.split("-")[2] : 0;
         }
       } else {
+        setFrequencyQuery("")
         medicationData[i].tmm_freq_type_name = "";
         medicationData[i].tmf_block = 0;
         medicationData[i].tmm_freq_type = 0;
