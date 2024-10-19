@@ -21,7 +21,7 @@ instance.interceptors.request.use(
             config.baseURL = config.customBaseUrl;
         }
         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN));
-        if (token) {
+        if (token && !config.headers['api_key']) {
             config.headers['Authorization'] = `Bearer ${token}`;
         } else {
             console.log('Entry Route')

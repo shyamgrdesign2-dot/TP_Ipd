@@ -364,6 +364,7 @@ function Welcome1(props) {
             )}
             {shouldShowUploadDocPopup && (
                 <UploadDocPopup
+                    shouldShowUploadDocPopup={shouldShowUploadDocPopup}
                     onCancel={handleUploadDocPopup}
                     setFilesData={setFilesData}
                     filesData={filesData}

@@ -69,6 +69,10 @@ ApiMedication.addMedicine = function (data) {
   return api.post(`/api/v1/medicine/addMedicine`, data, baseUrl);
 };
 
+ApiMedication.editMedicine = function (data) {
+  return api.post(`/api/v1/medicine/editMedicine`, data, baseUrl);
+};
+
 ApiMedication.getLoadPreviousRx = function (data) {
   return api.post(`/api/v1/medicine/getLoadPreviousRx`, data, baseUrl);
 };

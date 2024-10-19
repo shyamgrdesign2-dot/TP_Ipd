@@ -16,6 +16,10 @@ import tutorial from '../assets/images/tutorial-icon.svg';
 import playIcons from '../assets/images/tube-icon.svg';
 import VideoModal from "./VideoModal";
 import videorotate from '../assets/images/videorotate.gif';
+import upgradeIcon from "../assets/images/upgrade.svg";
+import profileBg from "../assets/images/profile-bg.svg";
+import goldCrown from "../assets/images/gold-crown.svg";
+import crownIcon from "../assets/images/crown.svg";
 
 import config from "../config";
 import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo } from "../redux/doctorsSlice";
@@ -27,6 +31,8 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { errorMessage, getClinicName, makeDefaultLogo } from "../utils/utils";
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
+import PremiumUser from "./PremiumUser";
+import { openModal } from "../redux/doctorModalSlice";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -59,6 +65,8 @@ function Header({ locationPath }) {
   const navigate = useNavigate();
 
   const { profile, loading, videoList } = useSelector((state) => state.doctors);
+  const { planDetails } = useSelector((state) => state.subscription);
+  console.log({planDetails});
   const dispatch = useDispatch();
 
   const [clinicOptions, setClinicOptions] = useState([]);
@@ -474,6 +482,10 @@ function Header({ locationPath }) {
     });
   }
 
+  const handleClick = () => {
+    dispatch(openModal());
+  };
+
   const getMenuItems = () => {
     const items = [
       {
@@ -487,9 +499,11 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "52px", height: "52px" }}
                 />
-              ) : (
+              ) : planDetails?.currentPlanStatus === "PAID" ? (
+                <PremiumUser />
+              ) :
                 <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
-              )}
+              }
             </div>
             <div>
               <div className="text-black titleprint">{(profile?.um_name)}</div>
@@ -533,6 +547,22 @@ function Header({ locationPath }) {
             <i className="icon-right iconrotate180"></i>
           </a>,
         key: '5',
+      },
+      {
+        label:
+          <a onClick={() => ["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : accountSettings()}>
+            <div className="title-common me-5 d-flex align-items-center">
+              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
+              {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{filter: 'brightness(0%)'}} alt="" />}
+              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
+              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) && <div className="gradientBackground d-flex">
+                <div className="demoModeIndicatorSmall bg-danger" />
+                <span className='demoModeLabel'>Demo mode</span>
+              </div>}
+            </div>
+            <i className="icon-right iconrotate180"></i>
+          </a>,
+        key: '6',
       },
       // {
       //   label:
@@ -682,9 +712,11 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "35px", height: "35px" }}
                 />
-              ) : (
-                <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
-              )}
+              ) :  planDetails?.currentPlanStatus === "PAID" ? (
+                <PremiumUser />
+              ) :
+                <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
+              }
             </a>
           </Dropdown>
 

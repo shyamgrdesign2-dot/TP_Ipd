@@ -153,6 +153,19 @@ export const addMedicine = createAsyncThunk(
   }
 );
 
+export const editMedicine = createAsyncThunk(
+  "medication/editMedicine",
+  async (data) => {
+    let result = {};
+    result = await ApiMedication.editMedicine(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const medicationSlice = createSlice({
   name: "medication",
   initialState,
@@ -260,6 +273,15 @@ const medicationSlice = createSlice({
         state.loading = false
       })
       .addCase(addMedicine.rejected, (state) => {
+        state.loading = false
+      })
+      .addCase(editMedicine.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(editMedicine.fulfilled, (state) => {
+        state.loading = false
+      })
+      .addCase(editMedicine.rejected, (state) => {
         state.loading = false
       })
   },
