@@ -105,10 +105,8 @@ function App() {
           <TalkativeWidget region="au" configUuid="3f5d31d7-aae5-43f2-903a-2dc2d90a36f3" />
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
-              <SubscriptionDetails />
               <DemoExpirationBanner/>
               <PlanExpirationBanner/>
-              {/* <ExpiredPlanModal /> */}
               <ExpiredPlanCard />
               <DoctorModal />
               <Routes>
