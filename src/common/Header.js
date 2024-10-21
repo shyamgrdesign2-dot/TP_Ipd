@@ -22,6 +22,10 @@ import qrIcon from '../assets/images/qr-icon.svg';
 import logoIcom from '../assets/images/text-logo.svg';
 import VideoModal from "./VideoModal";
 import videorotate from '../assets/images/videorotate.gif';
+import upgradeIcon from "../assets/images/upgrade.svg";
+import profileBg from "../assets/images/profile-bg.svg";
+import goldCrown from "../assets/images/gold-crown.svg";
+import crownIcon from "../assets/images/crown.svg";
 
 import config from "../config";
 import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo } from "../redux/doctorsSlice";
@@ -33,10 +37,13 @@ import { OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constan
 import { errorMessage, getClinicName, makeDefaultLogo } from "../utils/utils";
 import { Modal, Card } from "antd";
 import alertIcon from '../assets/images/alertIcon.svg';
+
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { env } from "../EnvironmentConfig";
 import CommonModal from "./CommonModal";
 import { useReactToPrint } from 'react-to-print';
+import PremiumUser from "./PremiumUser";
+import { openModal } from "../redux/doctorModalSlice";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -79,6 +86,8 @@ function Header({ locationPath }) {
   const navigate = useNavigate();
 
   const { profile, loading, videoList } = useSelector((state) => state.doctors);
+  const { planDetails } = useSelector((state) => state.subscription);
+  console.log({planDetails});
   const dispatch = useDispatch();
 
   const [clinicOptions, setClinicOptions] = useState([]);
@@ -494,6 +503,10 @@ function Header({ locationPath }) {
     });
   }
 
+  const handleClick = () => {
+    dispatch(openModal());
+  };
+
   const getMenuItems = () => {
     const items = [
       {
@@ -507,9 +520,11 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "52px", height: "52px" }}
                 />
-              ) : (
+              ) : planDetails?.currentPlanStatus === "PAID" ? (
+                <PremiumUser />
+              ) :
                 <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
-              )}
+              }
             </div>
             <div>
               <div className="text-black titleprint">{(profile?.um_name)}</div>
@@ -859,9 +874,11 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "35px", height: "35px" }}
                 />
-              ) : (
-                <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
-              )}
+              ) :  planDetails?.currentPlanStatus === "PAID" ? (
+                <PremiumUser />
+              ) :
+                <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
+              }
             </a>
           </Dropdown>
 

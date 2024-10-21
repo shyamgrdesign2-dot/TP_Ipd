@@ -1,0 +1,154 @@
+.expiredPlanModal {
+
+    .ant-modal .ant-modal-content {
+        padding: 0px !important;
+    }
+    .ant-modal-content {
+      box-shadow: none;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: none !important;
+      background: linear-gradient(180deg, #EC6D62 0%, #680800 100%);
+    }
+  
+    .ant-modal-body {
+      padding: 0;
+    }
+  }
+  
+  .modalContent {
+    display: flex;
+    background: linear-gradient(135deg, #D74D42, #9E312E);
+    border-radius: 12px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .checkIcon {
+    width: 28px;
+    height: 28px;
+    padding: 5px;
+    border-radius: 14px 0px 0px 0px;
+  }
+
+  .sandClockIcon {
+    width: 350px;
+    height: 350px;
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .leftSection {
+    width: 42%;
+    padding: 60px 35px 60px 35px;
+    color: #FFF !important;
+    height: 500px;
+  
+    h2 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+  
+    p {
+      font-size: 16px;
+      margin-bottom: 24px;
+      strong {
+        font-weight: bold;
+      }
+    color: #FFF !important;
+    }
+  
+    .offerBox {
+      border-radius: 8px;
+      padding: 12px;
+      color: #3D2C00;
+      text-align: center;
+  
+      .offerText {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        .discount {
+          font-size: 24px;
+          font-weight: bold;
+          margin-bottom: 8px;
+        }
+      }
+  
+      .validity {
+        font-size: 14px;
+        margin-top: 8px;
+        font-weight: bold;
+      }
+    }
+  }
+  
+  .rightSection {
+    width: 50%;
+    padding: 24px;
+    background: #FFF;
+    border-radius: 12px;
+    // height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    // align-items: center;   
+  
+    h2 {
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 32px;
+        text-align: left;
+        color: #1F2933;
+    }
+  
+    p {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 24px;
+    }
+  
+    .benefitsList {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 24px;
+  
+      li {
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 12px;
+  
+        .anticon {
+          color: #4CAF50;
+          margin-right: 8px;
+        }
+      }
+    }
+  
+    .upgradeText {
+      font-size: 14px;
+      color: #4CAF50 !important;
+      margin-bottom: 16px;
+  
+      strong {
+        font-weight: bold;
+      }
+    }
+  
+    .contactButton {
+      width: 100%;
+      background-color: #5A5FFF;
+      border-color: #5A5FFF;
+      font-weight: bold;
+    height: 56px;
+    }
+  }
+  
+  // Blurred background styling
+  .ant-modal-mask {
+    backdrop-filter: blur(8px);
+    background-color: rgba(0, 0, 0, 0.4);
+  }

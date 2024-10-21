@@ -208,18 +208,8 @@ function Cardiology(props) {
       width: "110px",
       render: (text, record, index) => (
         <>
-          <div>{`${record.tmm_dosage
-            ? `${record.tmm_dosage} ${record?.medicineUnit &&
-              record?.medicineUnit.find(
-                (x) => x.tmu_id == record.tmm_unit
-              ) !== undefined
-              ? record?.medicineUnit.find(
-                (x) => x.tmu_id == record.tmm_unit
-              ).tmu_title
-              : ""
-            }`
-            : ""
-            }`}</div>
+          <div>{`${record.tmm_dosage && record.tmm_unit ? `${record.tmm_dosage} ${record?.medicineUnit && record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit) !== undefined ? record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit).tmu_title : ""}` : `${record?.medicineUnit && record?.medicineUnit.find((x) => x.tmu_id == record.default_tmm_unit) !== undefined ? record?.medicineUnit.find((x) => x.tmu_id == record.default_tmm_unit).tmu_title : ""}`}`}</div>
+
           {record?.tmm_id == medicationData[index - 1]?.tmm_id && (
             <div className="badge-then">Then</div>
           )}
