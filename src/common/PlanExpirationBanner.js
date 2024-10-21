@@ -1,8 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import crownIcon from "../assets/images/crown.svg";
-import { useNavigate } from "react-router-dom";
 import { openModal } from "../redux/doctorModalSlice";
 
 const PlanExpirationBanner = () => {
@@ -14,7 +12,6 @@ const PlanExpirationBanner = () => {
     expiresIn,
     is_pm_renew_requested,
   } = planDetails || {};
-  const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const handleClick = () => {

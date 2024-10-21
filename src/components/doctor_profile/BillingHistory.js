@@ -123,7 +123,9 @@ const SubscriptionTable = () => {
 
   return (
     <Table
-      dataSource={billingHistory}
+      dataSource={billingHistory?.filter(
+        (bill) => !!bill?.paymentDetails?.productType
+      )}
       columns={columns}
       rowKey="key"
       style={styles.table}
@@ -141,10 +143,6 @@ const SubscriptionTable = () => {
 };
 
 const BillingHistory = ({ show, setShow }) => {
-  const { planDetails } = useSelector((state) => state.subscription);
-  const { billingHistory = [] } = planDetails || {};
-  console.log({ billingHistory });
-
   return (
     <Modal
       width={"50%"}

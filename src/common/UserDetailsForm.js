@@ -3,9 +3,8 @@ import { Form, Input, Button, Row, Col, message } from "antd";
 import api from "../api/services/axiosService";
 import config from "../config";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import Header from "./Header";
 import { fetchSubscriptionDetails } from "../redux/subscriptionSlice";
+import { closeModal } from "../redux/doctorModalSlice";
 
 const UserDetailsForm = () => {
   const [form] = Form.useForm();
@@ -28,10 +27,8 @@ const UserDetailsForm = () => {
     country: "India",
   });
   const [loader, setLoader] = useState(false);
-  const navigate = useNavigate();
 
   const onFinish = async (values) => {
-    console.log("Form values:", values);
     setLoader(true);
     const res = await api.post("/user/pm/info/interest", formData, {
       customBaseUrl: config.user_management_api_url,
@@ -41,7 +38,6 @@ const UserDetailsForm = () => {
       },
     });
     setLoader(false);
-    console.log({ res });
     if (res?.status === 200) {
       message.open({
         type: "success",
@@ -49,9 +45,7 @@ const UserDetailsForm = () => {
           "Our sales team will get in touch with you within a few hours to guide you through the purchase.",
       });
       dispatch(fetchSubscriptionDetails());
-      setTimeout(() => {
-        navigate(-1);
-      }, 2000);
+      dispatch(closeModal());
     } else {
       message.open({
         type: "error",
@@ -62,12 +56,11 @@ const UserDetailsForm = () => {
 
   return (
     <>
-      <Header />
       {planDetails?.is_pm_renew_requested ? (
-        <h4 className="d-flex align-items-center justify-content-center m-auto mt-5 p-5">
+        <h5 className="d-flex align-items-center justify-content-center m-auto p-5">
           Your interest was already submitted. Our sales team will get in touch
           with you within a few hours to guide you through the purchase.
-        </h4>
+        </h5>
       ) : (
         <Form
           form={form}
@@ -205,14 +198,10 @@ const UserDetailsForm = () => {
   );
 };
 
-// Custom styles to match the uploaded image more closely
 const formStyle = {
   maxWidth: "600px",
-  margin: "30px auto",
-  padding: "30px",
+  marginTop: "20px",
   borderRadius: "12px",
-  backgroundColor: "#fff",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
 };
 
 const submitButtonStyle = {
