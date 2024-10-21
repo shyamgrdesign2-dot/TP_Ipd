@@ -368,8 +368,7 @@ function Welcome1(props) {
                     onCancel={handleUploadDocPopup}
                     setFilesData={setFilesData}
                     filesData={filesData}
-                    uploadDocDrawer={uploadDocDrawer}
-                    handleDrawerUploadDoc={handleDrawerUploadDoc}
+                    setUploadDocDrawer={setUploadDocDrawer}
                 />
             )}
         </>

@@ -1454,8 +1454,7 @@ function AppointmentData({ locationPath }) {
                     onCancel={() => setShowUploadDocPopup(false)}
                     setFilesData={setFilesData}
                     filesData={filesData}
-                    uploadDocDrawer={uploadDocDrawer}
-                    handleDrawerUploadDoc={handleDrawerUploadDoc}
+                    setUploadDocDrawer={setUploadDocDrawer}
                 />
             )}
         </>

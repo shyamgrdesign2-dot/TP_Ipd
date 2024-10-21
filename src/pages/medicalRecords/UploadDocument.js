@@ -69,7 +69,7 @@ const UploadDocument = ({
       filesData.map(async (item) => {
         let thumbnailUrl;
         let fileData;
-        if (!isEditDocument) {
+        if (!isEditDocument && !(isAndroid && !isBrowser)) {
           if (item && item.type === "application/pdf") {
             thumbnailUrl = await loadPdf(URL.createObjectURL(item));
             fileData = uploadDocURLtoFile(
@@ -160,7 +160,7 @@ const UploadDocument = ({
 
   const handleSubmit = async () => {
     setLoader(true);
-    if (isEditDocument) {
+    if (isEditDocument || (isAndroid && !isBrowser)) {
       const fileData = recordData?.[0];
       if (fileData) {
         const payload = {
@@ -172,9 +172,11 @@ const UploadDocument = ({
         const resultStatus = await updateDocument([payload]);
         if (resultStatus?.status === 204) {
           const response = await fetchDocById(fileData?.id);
-          const doctorUploadedDocs = allUploadedDocs.map((item) => {
-            if (item?.id) return item.id === fileData?.id ? response : item;
-          })?.filter((item) => item !== undefined);
+          const doctorUploadedDocs = allUploadedDocs
+            .map((item) => {
+              if (item?.id) return item.id === fileData?.id ? response : item;
+            })
+            ?.filter((item) => item !== undefined);
           dispatch(
             setAllUploadedDocs(
               mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
