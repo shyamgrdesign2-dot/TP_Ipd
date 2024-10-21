@@ -31,6 +31,7 @@ import CommonModal from "../common/CommonModal";
 import alertIcon from "../assets/images/alertIcon.svg";
 import FullPageLoader from "./vaccination/components/Loader";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import CvtKnowMore from "../components/CvtKnowMore";
 
 function SmartPrescription() {
   const {
@@ -125,6 +126,7 @@ function SmartPrescription() {
   );
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
+  const [cvtDrawer, setCvtDrawer] = useState(false);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -272,14 +274,22 @@ function SmartPrescription() {
     setVitalDrawer(!vitalDrawer);
   }, [vitalDrawer]);
 
+  // Drawer CVT Know more page
+  const handleDrawerCvtKnowMore = useCallback(() => {
+    setCvtDrawer(!cvtDrawer);
+  }, [cvtDrawer]);
+
   //Handle Sider
   const handleCollapsed = useCallback(
     (flag) => {
       if (flag === 1) {
         handleDrawerVital();
       }
+      if(flag === 2) {
+        handleDrawerCvtKnowMore();
+      }
     },
-    [vitalDrawer]
+    [vitalDrawer,cvtDrawer]
   );
 
   useEffect(() => {
@@ -729,7 +739,7 @@ useEffect(() => {
                     </span>
                     <span className="new-btn">New</span>
                   </div>
-                  <button className="know-more-btn">Know More</button>
+                  <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>Know More</button>
                 </div>
                 </div>
               }
@@ -863,6 +873,19 @@ useEffect(() => {
           width="auto"
         >
           <VitalsBox
+            handleDrawerVital={handleDrawerVital}
+            handleCollapsed={(flag) => handleCollapsed(flag)}
+          />
+        </Drawer>
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerCvtKnowMore}
+          open={cvtDrawer}
+          className="modalWidth-700"
+          width="auto"
+        >
+          <CvtKnowMore
             handleDrawerVital={handleDrawerVital}
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
