@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import crownIcon from "../assets/images/crown.svg";
 import { openModal } from "../redux/doctorModalSlice";
+import { fetchSubscriptionDetails } from "../redux/subscriptionSlice";
 
 const DemoExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
@@ -14,6 +15,11 @@ const DemoExpirationBanner = () => {
     is_pm_renew_requested,
   } = planDetails || {};
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchSubscriptionDetails()); // Fetch subscription details on every reload
+  }, [dispatch]);
+
   const handleClick = () => {
     dispatch(openModal());
   };

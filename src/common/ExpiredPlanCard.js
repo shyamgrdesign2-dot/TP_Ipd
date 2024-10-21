@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Button } from "antd";
+import { Card, Button, Divider } from "antd";
 import styles from "./ExpiredPlanCard.module.scss";
 import tagImg from "../assets/images/tag.png";
 import checkIcon from "../assets/images/check-icon.svg";
@@ -37,6 +37,12 @@ const ExpiredPlanCard = () => {
                             Exclusive, just for you!
                           </span>
                         </div>
+                        <hr
+                          style={{
+                            borderTop: "1.5px dotted #00000024",
+                            margin: "14px",
+                          }}
+                        />
                         <span className={styles.validity}>
                           Valid until 23 Aug 2024
                         </span>
