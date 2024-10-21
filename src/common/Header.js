@@ -556,11 +556,27 @@ function Header({ locationPath }) {
       },
       {
         label:
+          <a onClick={() => ["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : accountSettings()}>
+            <div className="title-common me-5 d-flex align-items-center">
+              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
+              {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{filter: 'brightness(0%)'}} alt="" />}
+              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
+              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) && <div className="gradientBackground d-flex">
+                <div className="demoModeIndicatorSmall bg-danger" />
+                <span className='demoModeLabel'>Demo mode</span>
+              </div>}
+            </div>
+            <i className="icon-right iconrotate180"></i>
+          </a>,
+        key: '6',
+      },
+      {
+        label:
           <a onClick={handleShowQRCode}>
             <div className="title-common me-5 d-flex align-items-center"><img src={qrIcon} className="me-3"></img>OPD Plan QR</div>
             <i className="icon-right iconrotate180"></i>
           </a>,
-        key: '6',
+        key: '7',
       },
       // {
       //   label:
