@@ -1154,7 +1154,7 @@ function TabPrescription() {
               <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
           </Drawer>
       )}
-      {isLoading && shouldShowUploadDocPopup ? (
+      {isLoading ? (
         <div>
           <Spin
             style={{

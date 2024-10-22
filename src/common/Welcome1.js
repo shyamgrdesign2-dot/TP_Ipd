@@ -372,19 +372,6 @@ function Welcome1(props) {
                     setUploadDocDrawer={setUploadDocDrawer}
                 />
             )}
-            {isLoading && shouldShowUploadDocPopup ? (
-                <div>
-                    <Spin
-                        style={{
-                        position: "absolute",
-                        left: "50%",
-                        top: "50%",
-                        zIndex: "9999",
-                        }}
-                        size="large"
-                    />
-                </div>
-            ) : null}
         </>
     )
 }
