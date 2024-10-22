@@ -1488,6 +1488,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onSelectGeneric = (item) => {
     setAddCustom({ ...addCustom, ...item });
+    setGenericQuery("")
     handleDrawerGeneric()
   }
 
