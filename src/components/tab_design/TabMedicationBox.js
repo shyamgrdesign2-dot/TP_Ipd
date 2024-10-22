@@ -2018,6 +2018,7 @@ function TabMedicationBox() {
 
   const onSelectGeneric = (item) => {
     setAddCustom({ ...addCustom, ...item });
+    setGenericQuery("")
     handleDrawerGeneric()
   }
 
