@@ -34,11 +34,10 @@
     padding: 32px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
   
     h2 {
       font-size: 28px;
-      font-weight: 700;
+      font-weight: 600;
       margin-bottom: 16px;
       color: #FFF;
     }
@@ -56,7 +55,6 @@
     .offerBox {
     //   background: linear-gradient(135deg, #FFC75F, #FF7D43);
       border-radius: 8px;
-      padding: 8px;
       color: #3D2C00;
       text-align: center;
       width: 300px;
@@ -68,20 +66,17 @@
   
         .discount {
           font-size: 24px;
-          font-weight: 700;
-          margin-bottom: 4px;
+          font-weight: 600;
         }
   
         .exclusive {
           font-size: 16px;
-          margin-bottom: 8px;
         }
       }
   
       .validity {
         font-size: 14px;
         font-weight: 500;
-        margin-top: 8px;
       }
     }
 
@@ -104,7 +99,7 @@
   
     h2 {
       font-size: 24px;
-      font-weight: 700;
+      font-weight: 600;
       color: #333;
       margin-bottom: 12px;
     }
@@ -126,7 +121,10 @@
         font-size: 16px;
         color: #333;
         margin-bottom: 12px;
-  
+        font-weight: 400;
+        line-height: 24px;
+        text-align: left;
+
         .anticon {
           color: #4CAF50;
           font-size: 18px;

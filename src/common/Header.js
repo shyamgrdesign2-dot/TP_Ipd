@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { Container, Navbar, Nav } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { Select, Button, Checkbox, Popover, Drawer, Dropdown } from "antd";
@@ -6,6 +6,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 import { isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
+import { QRCodeSVG } from 'qrcode.react';
+import { Button as ButtonOPD } from "antd";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 import Slider from "react-slick";
 
@@ -14,6 +18,8 @@ import playIconutube from '../assets/images/play-icon.png';
 import fullicon from '../assets/images/full-icon.svg';
 import tutorial from '../assets/images/tutorial-icon.svg';
 import playIcons from '../assets/images/tube-icon.svg';
+import qrIcon from '../assets/images/qr-icon.svg';
+import logoIcom from '../assets/images/text-logo.svg';
 import VideoModal from "./VideoModal";
 import videorotate from '../assets/images/videorotate.gif';
 import upgradeIcon from "../assets/images/upgrade.svg";
@@ -26,11 +32,16 @@ import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swt
 import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
-import { useLocalStorage, clearLocalStorage } from "../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { useLocalStorage, clearLocalStorage, getDecodedToken } from "../utils/localStorage";
+import { OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { errorMessage, getClinicName, makeDefaultLogo } from "../utils/utils";
-import CommonModal from './CommonModal';
+import { Modal, Card } from "antd";
 import alertIcon from '../assets/images/alertIcon.svg';
+
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { env } from "../EnvironmentConfig";
+import CommonModal from "./CommonModal";
+import { useReactToPrint } from 'react-to-print';
 import PremiumUser from "./PremiumUser";
 import { openModal } from "../redux/doctorModalSlice";
 
@@ -41,6 +52,16 @@ function Header({ locationPath }) {
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
   const [videoDrawer, setvideoDrawer] = useState(false);
+
+  const isOpdPlansAccessableFromGB = useFeatureIsOn(
+    "opd-plans"
+  );
+
+  const decodedToken = getDecodedToken();
+  const apiUrl = env.opd_encryption_url;
+  const [isQRCodeVisible, setQRCodeVisible] = useState(false);
+  const [opdPlansUrl, setOpdPlansUrl] = useState(null);
+  const printRef = useRef();
 
   const sliderSettings = {
     className: "center",
@@ -564,6 +585,14 @@ function Header({ locationPath }) {
           </a>,
         key: '6',
       },
+      {
+        label:
+          <a onClick={handleShowQRCode}>
+            <div className="title-common me-5 d-flex align-items-center"><img src={qrIcon} className="me-3"></img>OPD Plan QR</div>
+            <i className="icon-right iconrotate180"></i>
+          </a>,
+        key: '7',
+      },
       // {
       //   label:
       //     <a>
@@ -600,6 +629,89 @@ function Header({ locationPath }) {
     }
   };
 
+  // Handle opening the QR code modal
+  const handleShowQRCode = () => {
+    setQRCodeVisible(true);
+  };
+
+  const showHideBackModal = useCallback(() => {
+    setQRCodeVisible(false);
+  }, [isQRCodeVisible]);
+
+  useEffect(() => {
+    if (isQRCodeVisible && !opdPlansUrl) {
+      clickOpdPlans();  // Trigger the API call when QR modal is visible and URL isn't yet set
+    }
+  }, [isQRCodeVisible]);
+
+  const opdEncryptionApiCall = async (data) => {
+    const headers = {
+      'api-key': OPD_API_KEY,
+      'tatvapractice': 'true',
+      'Content-Type': 'application/json'
+    };
+    try {
+        const response = await axios.post(apiUrl, data, { headers });
+        return response.data
+    } catch (error) {
+        console.error('Error:', error);
+    }
+  };
+
+  const clickOpdPlans = async () => {
+    const clinic_Id = decodedToken?.result?.clinic_id;
+    const doc_Id = decodedToken?.result?.doctor_unique_id;
+    
+    const decryptData = { d_id: doc_Id ,clinic_Id: clinic_Id};
+
+    // Encrypt clinic and doctor ID
+    const encryptedCata = await opdEncryptionApiCall(decryptData);
+
+    const url = `https://visit-enrolment-tatva.getvisitapp.net/tatva-care?p_id=${encryptedCata}`
+    setOpdPlansUrl(url);
+  };
+  
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    pageStyle: `
+      @media print {
+        .opd-plans-inner-contianer {
+          font-size: 2.5rem; /* Enlarge the whole container content */
+          padding: 40px;
+        }
+        .opd-title {
+          font-size: 3rem; /* Enlarge title */
+        }
+        .opd-byline {
+          font-size: 2rem; /* Enlarge byline */
+        }
+        .opd-logo img {
+          height: 3rem; /* Enlarge logo */
+        }
+        .opd-qr-image {
+          width: 300px !important; /* Enlarge QR Code */
+          height: 300px !important;
+        }
+        .opd-scan-text {
+          font-size: 1.8rem; /* Enlarge scan text */
+        }
+      }
+    `
+  });
+
+  // Download as PDF functionality
+  const handleDownload = async () => {
+    const element = printRef.current;
+    const canvas = await html2canvas(element, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('OPD-Plans.pdf');
+  };
 
   return (
     <Navbar className="justify-content-between portal-header">
@@ -628,6 +740,56 @@ function Header({ locationPath }) {
               <span className="text-decoration-underline">Switch To Old View</span>
             </div>
           )}
+
+          <Modal
+            open={(isQRCodeVisible && opdPlansUrl)}
+            centered
+            closeIcon={false}
+            onCancel={showHideBackModal}
+            footer={null}
+            title={null}
+            destroyOnClose
+            className="opd-plan-qr"
+          >
+              <div className="opd-qr">
+                <button className="qr-close-btn" onClick={showHideBackModal}>
+                  <i style={{fontSize:"2rem"}} className="icon-Cross"></i>
+                </button>
+                <div ref={printRef} className="opd-plans-inner-contianer">
+                  <div className="opd-title" style={{ fontWeight: "700", fontSize: "2rem", color: "#1F2933 !important" }}>
+                    OPD Plans
+                  </div>
+                  <div className="opd-byline" style={{ marginBottom: "2rem", marginTop: "0.4rem" }}>
+                    by <strong>{profile?.um_name}</strong>
+                  </div>
+                  <div className="d-flex align-items-center justify-content-center">
+                    <div className="opd-logo log-holder">
+                      <img src={logoIcom} style={{ height: "1.8rem" }} className="logo-text-icon" alt="Logo" />
+                    </div>
+                    <QRCodeSVG className="opd-qr-image" value={opdPlansUrl} size={180} />
+                  </div>
+                  <div className="opd-scan-text" style={{ marginTop: "2rem", fontSize: "1.2rem", color: "#454551 !important" }}>
+                    Scan the QR to view & buy OPD plans
+                  </div>
+                </div>
+                  <div className="d-flex align-items-center mt-2 justify-content-between gap-4 mt-4">
+                    <ButtonOPD
+                      onClick={handlePrint}
+                      className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
+                      style={{width: "15rem",height: "3.3rem"}}
+                    >
+                      <span className="fs-18 align-items-center d-flex "><i className="icon-Print me-2"></i>Print</span>
+                    </ButtonOPD>
+                    <ButtonOPD
+                      onClick={handleDownload}
+                      className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
+                      style={{width: "15rem",height: "3.3rem"}}
+                    >
+                      <span className="fs-18 align-items-center d-flex"><i className="icon-download me-2"></i>Download</span>
+                    </ButtonOPD>
+                  </div>
+              </div>
+          </Modal>
 
           {locationPath == "/" ? (
             <div onClick={handleDrawervideo} className="cursor-pointer me-2 video-animat">
