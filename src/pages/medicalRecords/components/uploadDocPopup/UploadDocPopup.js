@@ -12,7 +12,9 @@ import {
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
-import { fetchDocById } from "../../service";
+import { useLocation } from "react-router-dom";
+import { fetchDocumentAsFile } from "../../../../utils/utils";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 
 const UploadDocPopup = ({
   shouldShowUploadDocPopup,
@@ -21,6 +23,8 @@ const UploadDocPopup = ({
   setUploadDocDrawer,
 }) => {
   const dispatch = useDispatch();
+  const { state } = useLocation();
+  const patient_data = state?.patient_data;
   const { isLoading } = useSelector((state) => state.uploadDoc);
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const handleClick = async (type) => {
@@ -28,15 +32,23 @@ const UploadDocPopup = ({
       const docRef = doc(db, "capturedImage", deviceUid);
       try {
         const docSnap = await getDoc(docRef);
+        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+        const cleanedToken = token.replace(/['"]+/g, "");
         if (docSnap.exists()) {
           await updateDoc(docRef, {
             clicked: "yes",
             type: type,
+            patient_unique_id:
+              patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            token: cleanedToken,
           });
         } else {
           await setDoc(doc(db, "capturedImage", deviceUid), {
             clicked: "yes",
             type: type,
+            patient_unique_id:
+              patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            token: cleanedToken,
           });
         }
       } catch (error) {
@@ -47,20 +59,23 @@ const UploadDocPopup = ({
     onCancel();
   };
 
-  const getFiles = async (files) => {
-    files?.map(async (item) => {
-      const fileResponse = await fetchDocById(item);
-      setFilesData((prev) => {
-        const isAlreadyAdded = prev.some((file) => file.id === fileResponse.id);
-        if (!isAlreadyAdded) {
-          return [fileResponse, ...prev];
-        }
-        return prev;
-      });
-    });
-    if (files?.length) {
+  const getFiles = async (urls, names) => {
+    if (urls?.length) {
+      for (const [index, url] of urls.entries()) {
+        const newFile = await fetchDocumentAsFile(url, names?.[index]);
+        setFilesData((prev) => {
+          const isAlreadyAdded = prev.some(
+            (file) => file.name === names?.[index]
+          );
+          if (!isAlreadyAdded) {
+            return [newFile, ...prev];
+          }
+          return prev;
+        });
+      }
       setUploadDocDrawer(true);
     }
+
     dispatch(setLoadingStatus(false));
     deleteDoc(doc(db, "capturedImage", deviceUid));
   };
@@ -77,7 +92,7 @@ const UploadDocPopup = ({
               async (docSnapshotOfCapturedImage) => {
                 const res = docSnapshotOfCapturedImage?.data();
                 if (res?.clicked === "no") {
-                  getFiles(res?.ids?.split(","));
+                  getFiles(res?.url?.split(","), res?.name?.split(","));
                 }
               }
             );
@@ -146,6 +161,7 @@ const UploadDocPopup = ({
               position: "absolute",
               left: "50%",
               top: "50%",
+              zIndex: "9999",
             }}
             size="large"
           />

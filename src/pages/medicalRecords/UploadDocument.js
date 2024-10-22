@@ -11,8 +11,8 @@ import visitEnd from "./../../assets/images/end-visit.svg";
 import imgCloseVisit from "./../../assets/images/close-visit.svg";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  deleteDocsUploadedFromAndroid,
   fetchAllPatientDocs,
-  fetchDocById,
   updateDocument,
   uploadDocument,
 } from "./service";
@@ -69,7 +69,7 @@ const UploadDocument = ({
       filesData.map(async (item) => {
         let thumbnailUrl;
         let fileData;
-        if (!isEditDocument && !(isAndroid && !isBrowser)) {
+        if (!isEditDocument) {
           if (item && item.type === "application/pdf") {
             thumbnailUrl = await loadPdf(URL.createObjectURL(item));
             fileData = uploadDocURLtoFile(
@@ -160,7 +160,7 @@ const UploadDocument = ({
 
   const handleSubmit = async () => {
     setLoader(true);
-    if (isEditDocument || (isAndroid && !isBrowser)) {
+    if (isEditDocument) {
       const fileData = recordData?.[0];
       if (fileData) {
         const payload = {
@@ -171,10 +171,17 @@ const UploadDocument = ({
         };
         const resultStatus = await updateDocument([payload]);
         if (resultStatus?.status === 204) {
-          const response = await fetchDocById(fileData?.id);
           const doctorUploadedDocs = allUploadedDocs
             .map((item) => {
-              if (item?.id) return item.id === fileData?.id ? response : item;
+              if (item?.id)
+                return item.id === fileData?.id
+                  ? {
+                      ...item,
+                      category_id: payload?.category_id,
+                      investigation_date: payload?.investigation_date,
+                      notes: payload?.notes,
+                    }
+                  : item;
             })
             ?.filter((item) => item !== undefined);
           dispatch(
@@ -267,6 +274,9 @@ const UploadDocument = ({
             duration: 5,
           });
         }
+      }
+      if (isAndroid && !isBrowser) {
+        deleteDocsUploadedFromAndroid(patient_data.patient_unique_id);
       }
       if (!isAppointmentData) {
         setTimeout(async () => {
@@ -374,6 +384,9 @@ const UploadDocument = ({
     toggleDeletePopup();
     setFilesData([]);
     setRecordData([]);
+    if (isAndroid && !isBrowser) {
+      deleteDocsUploadedFromAndroid(patient_data.patient_unique_id);
+    }
   };
 
   const handleFileInputClick = () => {

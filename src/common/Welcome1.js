@@ -362,15 +362,13 @@ function Welcome1(props) {
                 />
                 </Drawer>
             )}
-            {shouldShowUploadDocPopup && (
-                <UploadDocPopup
-                    shouldShowUploadDocPopup={shouldShowUploadDocPopup}
-                    onCancel={handleUploadDocPopup}
-                    setFilesData={setFilesData}
-                    filesData={filesData}
-                    setUploadDocDrawer={setUploadDocDrawer}
-                />
-            )}
+            <UploadDocPopup
+                shouldShowUploadDocPopup={shouldShowUploadDocPopup}
+                onCancel={handleUploadDocPopup}
+                setFilesData={setFilesData}
+                filesData={filesData}
+                setUploadDocDrawer={setUploadDocDrawer}
+            />
         </>
     )
 }
