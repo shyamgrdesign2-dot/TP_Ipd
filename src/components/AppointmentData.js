@@ -76,6 +76,7 @@ function AppointmentData({ locationPath }) {
     const { uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
     );
+    const { isLoading } = useSelector((state) => state.uploadDoc);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const from = searchParams.get("from");
@@ -1448,13 +1449,28 @@ function AppointmentData({ locationPath }) {
                     />
                 </Drawer>
             )}
-            <UploadDocPopup
-                shouldShowUploadDocPopup={shouldShowUploadDocPopup}
-                onCancel={() => setShowUploadDocPopup(false)}
-                setFilesData={setFilesData}
-                filesData={filesData}
-                setUploadDocDrawer={setUploadDocDrawer}
-            />
+            {shouldShowUploadDocPopup && (
+                <UploadDocPopup
+                    shouldShowUploadDocPopup={shouldShowUploadDocPopup}
+                    onCancel={() => setShowUploadDocPopup(false)}
+                    setFilesData={setFilesData}
+                    filesData={filesData}
+                    setUploadDocDrawer={setUploadDocDrawer}
+                />
+            )}
+            {isLoading && shouldShowUploadDocPopup ? (
+                <div>
+                    <Spin
+                        style={{
+                        position: "absolute",
+                        left: "50%",
+                        top: "50%",
+                        zIndex: "9999",
+                        }}
+                        size="large"
+                    />
+                </div>
+            ) : null}
         </>
     );
 }

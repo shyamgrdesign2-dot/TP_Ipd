@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Layout, Drawer, DatePicker, Input, Button, Col, Row } from "antd";
+import { Layout, Drawer, DatePicker, Input, Button, Col, Row, Spin } from "antd";
 import { Content } from "antd/es/layout/layout";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -90,6 +90,7 @@ function TabPrescription() {
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
+  const { isLoading } = useSelector((state) => state.uploadDoc);
   const dispatch = useDispatch();
 
   const { state } = useLocation();
@@ -1118,13 +1119,15 @@ function TabPrescription() {
             />
           </Drawer>
         )}
-        <UploadDocPopup
-          shouldShowUploadDocPopup={shouldShowUploadDocPopup}
-          onCancel={handleUploadDocPopup}
-          setFilesData={setFilesData}
-          filesData={filesData}
-          setUploadDocDrawer={setUploadDocDrawer}
-        />
+        {shouldShowUploadDocPopup && (
+          <UploadDocPopup
+            shouldShowUploadDocPopup={shouldShowUploadDocPopup}
+            onCancel={handleUploadDocPopup}
+            setFilesData={setFilesData}
+            filesData={filesData}
+            setUploadDocDrawer={setUploadDocDrawer}
+          />
+        )}
         {labParamsDrawer && (
           <Drawer
             closeIcon={false}
@@ -1151,6 +1154,19 @@ function TabPrescription() {
               <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
           </Drawer>
       )}
+      {isLoading && shouldShowUploadDocPopup ? (
+        <div>
+          <Spin
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              zIndex: "9999",
+            }}
+            size="large"
+          />
+        </div>
+      ) : null}
       </>
     </CashManagerContext.Provider>
   );
