@@ -66,6 +66,19 @@ export const deleteDocById = async function (id) {
   return res;
 };
 
+export const deleteDocsUploadedFromAndroid = async function (patient_unique_id) {
+  let res = [];
+  try {
+    res = await api.delete(
+      `/api/v1/docs/cleanup-temp?patient_unique_id=${patient_unique_id}`,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while deleting the document: ", e);
+  }
+  return res;
+};
+
 export const fetchDocsUploadedByPatient = async function (patientUniqueId) {
   let res = [];
   try {

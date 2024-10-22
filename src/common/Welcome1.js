@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useRef } from 'react';
-import { Popover, Drawer } from "antd";
+import { Popover, Drawer, Spin } from "antd";
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
@@ -38,6 +38,7 @@ function Welcome1(props) {
     const { allUploadedDocs } = useSelector(
       (state) => state.uploadDoc
     );
+    const { isLoading } = useSelector((state) => state.uploadDoc);
     const { locationPath, isMobile, patient_data, viewCaseManagerData, sidebarKey } = props
 
     const modifyFormat = useMemo(() => {
@@ -362,16 +363,28 @@ function Welcome1(props) {
                 />
                 </Drawer>
             )}
-            {shouldShowUploadDocPopup && (
+            {shouldShowUploadDocPopup && ( 
                 <UploadDocPopup
                     shouldShowUploadDocPopup={shouldShowUploadDocPopup}
                     onCancel={handleUploadDocPopup}
                     setFilesData={setFilesData}
                     filesData={filesData}
-                    uploadDocDrawer={uploadDocDrawer}
-                    handleDrawerUploadDoc={handleDrawerUploadDoc}
+                    setUploadDocDrawer={setUploadDocDrawer}
                 />
             )}
+            {isLoading && shouldShowUploadDocPopup ? (
+                <div>
+                    <Spin
+                        style={{
+                        position: "absolute",
+                        left: "50%",
+                        top: "50%",
+                        zIndex: "9999",
+                        }}
+                        size="large"
+                    />
+                </div>
+            ) : null}
         </>
     )
 }
