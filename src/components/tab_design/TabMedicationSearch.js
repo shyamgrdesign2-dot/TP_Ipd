@@ -1744,7 +1744,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           placeholder="Search Medicines by Name"
           searchQuery={searchChildQuery}
           onSearchParent={onSearchParent}
-          disabled={medicationData.length > 0 ? false : true}
+          disabled={medicationData.length > 0 && !addCustom ? false : true}
           onClose={onClose}
         />
         <div className="modalcard-body">
