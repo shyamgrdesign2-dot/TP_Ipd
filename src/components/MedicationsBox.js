@@ -23,7 +23,8 @@ import {
   getLoadPreviousRx,
   searchGeneric,
   addMedicine,
-  editMedicine
+  editMedicine,
+  updateFrequentlyMedication
 } from "../redux/medicationSlice";
 import { EXTRA_OPTIONS } from "../utils/constants";
 
@@ -1189,12 +1190,21 @@ function MedicationsBox() {
     if (action.meta.requestStatus === "fulfilled") {
       if (addCustom?.tmm_id) {
         const modifyData = action.payload[0]
+
+        await dispatch(updateFrequentlyMedication(modifyData))
+
         medicationData.map(item => {
           if (item.tmm_id == modifyData.tmm_id) {
             item.tmm_medicine_name = modifyData.tmm_medicine_name;
             item.tmm_generic = modifyData.tmm_generic;
             item.tmm_company = modifyData.tmm_company;
             item.tmm_type = modifyData.tmm_type;
+            item.tmm_dosage_unit_name = '';
+            item.tmm_dosage = '';
+            item.tmm_unit = 0;
+            item.tmm_unit_name = '';
+            item.tmu_id = 0;
+            item.medicineUnit = modifyData.medicineUnit;
           }
           return item;
         });
