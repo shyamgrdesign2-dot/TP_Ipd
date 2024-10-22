@@ -138,7 +138,7 @@ function PrescriptionPrintView() {
         try {
             const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN)
             const cleanedToken = token.replace(/['"]+/g, '');
-            const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${userId}/${patient_data?.patient_unique_id}`, {
+            const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${userId}/${patient_data?.patient_unique_id}?today=true`, {
                 headers: {
                     'Authorization': `Bearer ${cleanedToken}`,
                 },
