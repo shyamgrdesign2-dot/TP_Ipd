@@ -1723,7 +1723,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             </div>
             <div className="text-end">
               {addCustom?.tmm_id ? (
-                <Button className='me-4 btn p-0 text-main' onClick={() => setAddCustom(null)}>
+                <Button className='me-4 btn p-0 text-main btn-text' onClick={() => setAddCustom(null)}>
                   Cancel
                 </Button>
               ):null}
