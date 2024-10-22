@@ -261,7 +261,7 @@ const handleFileUpload = (event) => {
           setUploadDocDrawer={setUploadDocDrawer}
         />
       )}
-      {isLoading && shouldShowUploadDocPopup ? (
+      {isLoading ? (
         <div>
           <Spin
             style={{

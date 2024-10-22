@@ -1445,6 +1445,7 @@ function AppointmentData({ locationPath }) {
                         filesData={filesData}
                         setFilesData={setFilesData}
                         patientData={patientData}
+                        handleUploadDocPopup={() => setShowUploadDocPopup((prev) => !prev)}
                         isAppointmentData={true}
                     />
                 </Drawer>
@@ -1456,9 +1457,10 @@ function AppointmentData({ locationPath }) {
                     setFilesData={setFilesData}
                     filesData={filesData}
                     setUploadDocDrawer={setUploadDocDrawer}
+                    patientData={patientData}
                 />
             )}
-            {isLoading && shouldShowUploadDocPopup ? (
+            {isLoading ? (
                 <div>
                     <Spin
                         style={{
