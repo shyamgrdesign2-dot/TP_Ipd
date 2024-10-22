@@ -113,7 +113,9 @@ function TabSymptomsSearch({ passIndex, onClose }) {
     };
 
     // Tour Drag & Drop
+    const [open, setOpen] = useState();
     const tourRef = useRef(null);
+
     const steps = [
         {
             description:
@@ -158,7 +160,6 @@ function TabSymptomsSearch({ passIndex, onClose }) {
     // Drag & Drop
     const SortableItem = SortableElement(({ item }) => (
         <div
-            ref={tourRef}
             style={{
                 width: item.symptom_name.length > 12 && item.symptom_name.length < 24
                     ? `${item.symptom_name.length * 10.5}px`
@@ -445,9 +446,11 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                         <div className="title2">
                                             Added
                                         </div>
-                                        <div className="d-flex flex-wrap mt-3" >
-                                            {TABLE_SYMPTOMS}
-                                            <Tour open={true} steps={steps} />
+                                        <div className="d-flex flex-wrap">
+                                            <span ref={tourRef} className='pt-3'>
+                                                {TABLE_SYMPTOMS}
+                                            </span>
+                                            <Tour placement="rightTop" open={symptomsData.length > 1 && open} steps={steps} onClose={() => setOpen(false)}/>
                                         </div>
                                     </>
                                 )}

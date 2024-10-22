@@ -2218,4 +2218,5 @@ body {
 // Drag & Drop Tour
 .ant-tour {
     width: auto;
+    z-index: 9999 !important;
 }
