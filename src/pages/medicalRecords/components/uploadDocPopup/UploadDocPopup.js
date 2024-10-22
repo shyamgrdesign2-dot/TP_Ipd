@@ -25,7 +25,6 @@ const UploadDocPopup = ({
   const dispatch = useDispatch();
   const { state } = useLocation();
   const patient_data = state?.patient_data;
-  const { isLoading } = useSelector((state) => state.uploadDoc);
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const handleClick = async (type) => {
     if (deviceUid) {
@@ -154,19 +153,6 @@ const UploadDocPopup = ({
           </div>
         </Card>
       </Modal>
-      {isLoading ? (
-        <div>
-          <Spin
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: "50%",
-              zIndex: "9999",
-            }}
-            size="large"
-          />
-        </div>
-      ) : null}
     </div>
   );
 };
