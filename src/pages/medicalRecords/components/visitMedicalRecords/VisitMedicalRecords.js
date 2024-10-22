@@ -251,15 +251,13 @@ const handleFileUpload = (event) => {
           />
         </Drawer>
       )}
-      {shouldShowUploadDocPopup && (
-        <UploadDocPopup
-          onCancel={handleUploadDocPopup}
-          setFilesData={setFilesData}
-          filesData={filesData}
-          uploadDocDrawer={uploadDocDrawer}
-          handleDrawerUploadDoc={handleDrawerUploadDoc}
-        />
-      )}
+      <UploadDocPopup
+        shouldShowUploadDocPopup={shouldShowUploadDocPopup}
+        onCancel={handleUploadDocPopup}
+        setFilesData={setFilesData}
+        filesData={filesData}
+        setUploadDocDrawer={setUploadDocDrawer}
+      />
     </div>
   );
 };

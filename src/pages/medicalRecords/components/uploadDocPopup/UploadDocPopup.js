@@ -1,26 +1,30 @@
 import { Card, Divider, Modal, Spin } from "antd";
 import "./UploadDocPopup.scss";
-import { db, storage } from "../../../../firebase";
-import { deleteDoc, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { getCorrectedFileName } from "../../utils/helper";
+import { db } from "../../../../firebase";
+import {
+  deleteDoc,
+  doc,
+  getDoc,
+  onSnapshot,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
-import {
-  getStorage,
-  ref,
-  deleteObject,
-  getDownloadURL,
-} from "firebase/storage";
+import { useLocation } from "react-router-dom";
+import { fetchDocumentAsFile } from "../../../../utils/utils";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 
 const UploadDocPopup = ({
   shouldShowUploadDocPopup,
   onCancel,
   setFilesData,
-  uploadDocDrawer,
-  handleDrawerUploadDoc,
+  setUploadDocDrawer,
 }) => {
   const dispatch = useDispatch();
+  const { state } = useLocation();
+  const patient_data = state?.patient_data;
   const { isLoading } = useSelector((state) => state.uploadDoc);
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const handleClick = async (type) => {
@@ -28,44 +32,53 @@ const UploadDocPopup = ({
       const docRef = doc(db, "capturedImage", deviceUid);
       try {
         const docSnap = await getDoc(docRef);
+        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+        const cleanedToken = token.replace(/['"]+/g, "");
         if (docSnap.exists()) {
           await updateDoc(docRef, {
             clicked: "yes",
             type: type,
+            patient_unique_id:
+              patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            token: cleanedToken,
           });
         } else {
           await setDoc(doc(db, "capturedImage", deviceUid), {
             clicked: "yes",
             type: type,
+            patient_unique_id:
+              patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            token: cleanedToken,
           });
         }
       } catch (error) {
-        console.error("Error updating document:", error);
+        console.error("Error updating document: ", error);
       }
     }
     dispatch(setLoadingStatus(true));
     onCancel();
   };
 
-  async function getFileFromFirebase(filePath, fileName, fileType) {
-    try {
-      const storage = getStorage();
-      const fileRef = ref(storage, filePath);
-
-      const downloadURL = await getDownloadURL(fileRef);
-
-      const response = await fetch(downloadURL);
-      const blob = await response.blob();
-
-      const blobUrl = URL.createObjectURL(blob);
-      console.log("blobUrl", blobUrl);
-      const file = new File([blob], fileName, { type: fileType });
-      return file;
-    } catch (error) {
-      console.error("Error fetching file from Firebase:", error);
-      return null;
+  const getFiles = async (urls, names) => {
+    if (urls?.length) {
+      for (const [index, url] of urls.entries()) {
+        const newFile = await fetchDocumentAsFile(url, names?.[index]);
+        setFilesData((prev) => {
+          const isAlreadyAdded = prev.some(
+            (file) => file.name === names?.[index]
+          );
+          if (!isAlreadyAdded) {
+            return [newFile, ...prev];
+          }
+          return prev;
+        });
+      }
+      setUploadDocDrawer(true);
     }
-  }
+
+    dispatch(setLoadingStatus(false));
+    deleteDoc(doc(db, "capturedImage", deviceUid));
+  };
 
   useEffect(() => {
     const checkInFireBase = async () => {
@@ -78,40 +91,8 @@ const UploadDocPopup = ({
               doc(db, "capturedImage", deviceUid),
               async (docSnapshotOfCapturedImage) => {
                 const res = docSnapshotOfCapturedImage?.data();
-                console.log("res", res);
-                if (res?.clicked === "no" && res?.filePath !== "") {
-                  console.log("urls", res?.url);
-                  const urls = res?.filePath?.split(",");
-                  const fileNames = res?.name?.split(",");
-                  const fileTypes = res?.type?.split(",");
-
-                  for (let i = 0; i < urls.length; i++) {
-                    console.log(urls[i], fileNames[i], fileTypes[i]);
-                    const newFile = await getFileFromFirebase(
-                      urls[i],
-                      getCorrectedFileName(fileNames[i]),
-                      fileTypes[i]
-                    );
-                    setFilesData((prev) => {
-                      const isAlreadyAdded = prev.some(
-                        (file) => file.name === newFile.name
-                      );
-                      if (!isAlreadyAdded) {
-                        const desertRef = ref(storage, urls[i]);
-                        deleteObject(desertRef);
-                        return [newFile, ...prev];
-                      }
-                      return prev;
-                    });
-                  }
-                  if (!uploadDocDrawer) {
-                    handleDrawerUploadDoc();
-                  }
-                  dispatch(setLoadingStatus(false));
-
-                  deleteDoc(doc(db, "capturedImage", deviceUid));
-                } else {
-                  dispatch(setLoadingStatus(false));
+                if (res?.clicked === "no") {
+                  getFiles(res?.url?.split(","), res?.name?.split(","));
                 }
               }
             );
@@ -180,6 +161,7 @@ const UploadDocPopup = ({
               position: "absolute",
               left: "50%",
               top: "50%",
+              zIndex: "9999",
             }}
             size="large"
           />

@@ -1448,16 +1448,13 @@ function AppointmentData({ locationPath }) {
                     />
                 </Drawer>
             )}
-            {shouldShowUploadDocPopup && (
-                <UploadDocPopup
-                    shouldShowUploadDocPopup={shouldShowUploadDocPopup}
-                    onCancel={() => setShowUploadDocPopup(false)}
-                    setFilesData={setFilesData}
-                    filesData={filesData}
-                    uploadDocDrawer={uploadDocDrawer}
-                    handleDrawerUploadDoc={handleDrawerUploadDoc}
-                />
-            )}
+            <UploadDocPopup
+                shouldShowUploadDocPopup={shouldShowUploadDocPopup}
+                onCancel={() => setShowUploadDocPopup(false)}
+                setFilesData={setFilesData}
+                filesData={filesData}
+                setUploadDocDrawer={setUploadDocDrawer}
+            />
         </>
     );
 }
