@@ -329,13 +329,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
       // Check if refRange has conditional ranges
       if (refRange?.isConditional) {
         // Find the range that matches the provided gender (case-insensitive)
-        selectedRange = refRange.ranges.find(
-          (range) => range.gender.toLowerCase() === gender.toLowerCase()
-        ) || refRange.ranges[0]; // Default to the first range if no match
+        selectedRange = refRange?.ranges.length > 0 && refRange.ranges.find(
+          (range) => range?.gender.toLowerCase() === gender.toLowerCase()
+        ) || refRange?.ranges[0]; // Default to the first range if no match
       } else {
         // Single "All" range case
-        selectedRange = refRange.ranges.find(
-          (range) => range.gender.toLowerCase() === "all"
+        selectedRange = refRange?.ranges.length > 0 && refRange?.ranges?.find(
+          (range) => range?.gender.toLowerCase() === "all"
         ) || refRange.ranges[0];
       }
     
@@ -1141,11 +1141,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                           !hasRenderedRefRange
                                                         ) {
                                                           hasRenderedRefRange = true;
-                                                          if (refRange.isConditional) {
-                                                            const maleRange = refRange.ranges.find(
+                                                          if (refRange?.isConditional) {
+                                                            const maleRange = refRange?.ranges?.find(
                                                               (range) => range.gender.toLowerCase() === "male"
                                                             );
-                                                            const femaleRange = refRange.ranges.find(
+                                                            const femaleRange = refRange?.ranges?.find(
                                                               (range) => range.gender.toLowerCase() === "female"
                                                             );
                                                             return (
@@ -1170,14 +1170,14 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                               </div>
                                                             );
                                                           } else {
-                                                            const allRange = refRange.ranges.find(
+                                                            const allRange = refRange?.ranges.length > 0 && refRange.ranges.find(
                                                               (range) => range.gender.toLowerCase() === "all"
                                                             );
                                                             return (
                                                               <div key={index}>
                                                                 {allRange ? (
                                                                   <>
-                                                                    <strong>All:</strong> {`${allRange.min} - ${allRange.max} ${allRange.unit}`}
+                                                                    All:{`${allRange.min} - ${allRange.max} ${allRange.unit}`}
                                                                   </>
                                                                 ) : (
                                                                   <div>No reference range available</div>
