@@ -84,13 +84,13 @@ function TabPrescription() {
   } = useSelector((state) => state.doctors);
   const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
-  const { isLoading } = useSelector((state) => state.uploadDoc);
   const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
   const { examinationHistory = [] } = obstetricDetails;
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
+  const { isLoading } = useSelector((state) => state.uploadDoc);
   const dispatch = useDispatch();
 
   const { state } = useLocation();
@@ -1121,11 +1121,11 @@ function TabPrescription() {
         )}
         {shouldShowUploadDocPopup && (
           <UploadDocPopup
+            shouldShowUploadDocPopup={shouldShowUploadDocPopup}
             onCancel={handleUploadDocPopup}
             setFilesData={setFilesData}
             filesData={filesData}
-            uploadDocDrawer={uploadDocDrawer}
-            handleDrawerUploadDoc={handleDrawerUploadDoc}
+            setUploadDocDrawer={setUploadDocDrawer}
           />
         )}
         {labParamsDrawer && (
@@ -1161,6 +1161,7 @@ function TabPrescription() {
               position: "absolute",
               left: "50%",
               top: "50%",
+              zIndex: "9999",
             }}
             size="large"
           />

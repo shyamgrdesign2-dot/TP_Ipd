@@ -1,4 +1,4 @@
-import { Button, Card, Drawer } from "antd";
+import { Button, Card, Drawer, Spin } from "antd";
 import emptyDocument from "./../../../../assets/images/empty-document.png";
 import { useDispatch, useSelector } from "react-redux";
 import { setUploadDocCategories } from "../../../../redux/uploadDocSlice";
@@ -17,6 +17,7 @@ const VisitMedicalRecords = () => {
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
+  const { isLoading } = useSelector((state) => state.uploadDoc);
   const newCategory = {
     category_id: -1,
     category_name: "All",
@@ -253,13 +254,26 @@ const handleFileUpload = (event) => {
       )}
       {shouldShowUploadDocPopup && (
         <UploadDocPopup
+          shouldShowUploadDocPopup={shouldShowUploadDocPopup}
           onCancel={handleUploadDocPopup}
           setFilesData={setFilesData}
           filesData={filesData}
-          uploadDocDrawer={uploadDocDrawer}
-          handleDrawerUploadDoc={handleDrawerUploadDoc}
+          setUploadDocDrawer={setUploadDocDrawer}
         />
       )}
+      {isLoading ? (
+        <div>
+          <Spin
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              zIndex: "9999",
+            }}
+            size="large"
+          />
+        </div>
+      ) : null}
     </div>
   );
 };

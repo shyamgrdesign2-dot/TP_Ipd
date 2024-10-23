@@ -35,7 +35,8 @@ import {
   searchGeneric,
   addMedicine,
   editMedicine,
-  updateFrequentlyMedication
+  updateFrequentlyMedication,
+  clearGenericList
 } from "../../redux/medicationSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
@@ -1486,8 +1487,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
     [genericQuery]
   );
 
-  const onSelectGeneric = (item) => {
+  const onSelectGeneric = async (item) => {
     setAddCustom({ ...addCustom, ...item });
+    setGenericQuery("")
+    await dispatch(clearGenericList())
     handleDrawerGeneric()
   }
 
@@ -1722,6 +1725,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
               />
             </div>
             <div className="text-end">
+              {addCustom?.tmm_id ? (
+                <Button className='me-4 btn p-0 text-main btn-text' onClick={() => setAddCustom(null)}>
+                  Cancel
+                </Button>
+              ):null}
               <Button className='btn btn-primary3 btn-41 px-4' onClick={onAddEditMedicineClick} loading={loading} disabled={addCustom?.tmm_medicine_name && addCustom?.tmy_id ? false : true}>
                 {`${addCustom?.tmm_id ? 'Update' : 'Add'} Custom Medicine`}
               </Button>
@@ -1739,7 +1747,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           placeholder="Search Medicines by Name"
           searchQuery={searchChildQuery}
           onSearchParent={onSearchParent}
-          disabled={medicationData.length > 0 ? false : true}
+          disabled={medicationData.length > 0 && !addCustom ? false : true}
           onClose={onClose}
         />
         <div className="modalcard-body">

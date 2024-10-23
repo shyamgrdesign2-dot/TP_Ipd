@@ -181,6 +181,9 @@ const medicationSlice = createSlice({
       });
       state.parentOptionsList = [...updatedData]
     },
+    clearGenericList: (state, action) => {
+      state.genericList = []
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -300,5 +303,5 @@ const medicationSlice = createSlice({
   },
 });
 
-export const { updateFrequentlyMedication } = medicationSlice.actions
+export const { updateFrequentlyMedication, clearGenericList } = medicationSlice.actions
 export default medicationSlice.reducer;
