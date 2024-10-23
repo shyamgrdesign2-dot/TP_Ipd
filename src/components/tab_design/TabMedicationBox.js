@@ -56,7 +56,8 @@ import {
   getLoadPreviousRx,
   searchGeneric,
   editMedicine,
-  updateFrequentlyMedication
+  updateFrequentlyMedication,
+  clearGenericList
 } from "../../redux/medicationSlice";
 
 import TabMedicationSearch from "./TabMedicationSearch";
@@ -2016,9 +2017,10 @@ function TabMedicationBox() {
     [genericQuery]
   );
 
-  const onSelectGeneric = (item) => {
+  const onSelectGeneric = async (item) => {
     setAddCustom({ ...addCustom, ...item });
     setGenericQuery("")
+    await dispatch(clearGenericList())
     handleDrawerGeneric()
   }
 
@@ -2075,7 +2077,14 @@ function TabMedicationBox() {
       <>
         <Card bordered={false} className="search-modalCard">
           <div className="modalCard-header align-items-center justify-content-between d-flex">
-            <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
+            <div className="align-items-center d-flex text-truncate">
+              <Button
+                type="text"
+                className="btn btn-delete-prescription px-3 focus-none h-100"
+                onClick={() => setAddCustom(null)}
+              >
+                <i className="icon-Cross fs-3"></i>
+              </Button>
               <div className="text-truncate title-common fontroboto">
                 {`${addCustom?.tmm_id ? 'Edit' : 'Add'} Custom Medicine`}
               </div>

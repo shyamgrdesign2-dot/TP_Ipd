@@ -35,7 +35,8 @@ import {
   searchGeneric,
   addMedicine,
   editMedicine,
-  updateFrequentlyMedication
+  updateFrequentlyMedication,
+  clearGenericList
 } from "../../redux/medicationSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
@@ -1486,9 +1487,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
     [genericQuery]
   );
 
-  const onSelectGeneric = (item) => {
+  const onSelectGeneric = async (item) => {
     setAddCustom({ ...addCustom, ...item });
     setGenericQuery("")
+    await dispatch(clearGenericList())
     handleDrawerGeneric()
   }
 
