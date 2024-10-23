@@ -1,5 +1,6 @@
 import { Button, Card, Drawer, Spin } from "antd";
 import emptyDocument from "./../../../../assets/images/empty-document.png";
+import alertIcon from "./../../../../assets/images/alertIcon.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { setUploadDocCategories } from "../../../../redux/uploadDocSlice";
 import { fetchAllDocumentCategories } from "../../service";
@@ -10,7 +11,11 @@ import UploadDocument from "../../UploadDocument";
 import RecordCard from "../recordCard/RecordCard";
 import { isAndroid, isBrowser } from "react-device-detect";
 import UploadDocPopup from "../uploadDocPopup/UploadDocPopup";
-import { generateUniqueFileName, getCorrectedFileName } from "../../utils/helper";
+import {
+  generateUniqueFileName,
+  getCorrectedFileName,
+} from "../../utils/helper";
+import CommonModal from "../../../../common/CommonModal";
 
 const VisitMedicalRecords = () => {
   const dispatch = useDispatch();
@@ -31,6 +36,9 @@ const VisitMedicalRecords = () => {
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [isEditDocument, setIsEditDocument] = useState(false);
   const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
+  const [isFileSizeError, setIsFileSizeError] = useState(false);
+  const [isFileLimitError, setIsFileLimitError] = useState(false);
+  const [isFileTypeError, setIsFileTypeError] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -68,46 +76,53 @@ const VisitMedicalRecords = () => {
     setShowDeletePopup(true);
   };
 
-const handleFileUpload = (event) => {
-  const files = event.target.files;
-  if (files) {
-    const filesData = Array.from(files);
-    if (filesData.length > 0) {
-      const updatedFiles = [];
-      filesData.forEach((file) => {
-        const cleanFileName = getCorrectedFileName(file?.name || "");
-        // Check if the file is an image and if its name follows typical camera-captured file patterns
-        const isCapturedFromCamera =
-          (file.type === "image/jpeg" ||
-            file.type === "image/png" ||
-            file.type === "image/jpg") &&
-          (cleanFileName === "image.jpg" ||
-            cleanFileName === "image.png" ||
-            cleanFileName === "image.jpeg");
+  const handleFileUpload = (event) => {
+    const files = event.target.files;
+    if (files) {
+      const filesData = Array.from(files);
+      if (filesData.length > 0) {
+        const updatedFiles = [];
+        filesData.forEach((file) => {
+          const cleanFileName = getCorrectedFileName(file?.name || "");
+          // Check if the file is an image and if its name follows typical camera-captured file patterns
+          const isCapturedFromCamera =
+            (file.type === "image/jpeg" ||
+              file.type === "image/png" ||
+              file.type === "image/jpg") &&
+            (cleanFileName === "image.jpg" ||
+              cleanFileName === "image.png" ||
+              cleanFileName === "image.jpeg");
 
-        let newFile = file;
+          let newFile = file;
 
-        if (isCapturedFromCamera) {
-          // Generate a unique file name for camera-captured images
-          const uniqueFileName = generateUniqueFileName(file);
-          newFile = new File([file], uniqueFileName, { type: file.type });
-        } else {
-          // If the file name had spaces, create a new file with spaces removed
-          newFile = new File([file], cleanFileName, { type: file.type });
-        }
+          if (isCapturedFromCamera) {
+            // Generate a unique file name for camera-captured images
+            const uniqueFileName = generateUniqueFileName(file);
+            newFile = new File([file], uniqueFileName, { type: file.type });
+          } else {
+            // If the file name had spaces, create a new file with spaces removed
+            newFile = new File([file], cleanFileName, { type: file.type });
+          }
 
-        updatedFiles.push(newFile);
-      });
-      setFilesData(updatedFiles);
-      handleDrawerUploadDoc();
+          updatedFiles.push(newFile);
+        });
+        setFilesData(updatedFiles);
+        handleDrawerUploadDoc();
+      }
     }
-  }
-};
+  };
 
   const handleAddClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
+  };
+
+  const handleRetryBtn = () => {
+    setFilesData([]);
+    setIsFileSizeError(false);
+    setIsFileLimitError(false);
+    setIsFileTypeError(null);
   };
 
   return (
@@ -260,6 +275,9 @@ const handleFileUpload = (event) => {
           setFilesData={setFilesData}
           filesData={filesData}
           setUploadDocDrawer={setUploadDocDrawer}
+          setIsFileSizeError={setIsFileSizeError}
+          setIsFileLimitError={setIsFileLimitError}
+          setIsFileTypeError={setIsFileTypeError}
         />
       )}
       {isLoading ? (
@@ -274,6 +292,65 @@ const handleFileUpload = (event) => {
             size="large"
           />
         </div>
+      ) : null}
+      {isFileSizeError || isFileLimitError || isFileTypeError ? (
+        <CommonModal
+          isModalOpen={isFileSizeError || isFileLimitError || isFileTypeError}
+          onCancel={handleRetryBtn}
+          modalWidth={500}
+          title={
+            isFileSizeError
+              ? "Exceeded File Size"
+              : isFileLimitError
+              ? "Exceeded File Upload Limit"
+              : isFileTypeError
+              ? "File format not supported"
+              : "You may lose your data"
+          }
+          modalBody={
+            <>
+              <div className="alert-warning rounded-10px p-2 patient-details">
+                <div className="d-flex align-items-center">
+                  <img className="me-3" src={alertIcon} alt="Warning" />
+                  <span>
+                    {isFileSizeError ? (
+                      <>
+                        The file size exceeded{" "}
+                        <span style={{ fontWeight: 700 }}>8MB.</span> Please
+                        upload a file smaller than 8MB
+                      </>
+                    ) : isFileLimitError ? (
+                      <>
+                        You can only upload up to
+                        <span style={{ fontWeight: 700 }}> 5 files.</span>{" "}
+                        Please reduce the number of files and try again.
+                      </>
+                    ) : isFileTypeError ? (
+                      <>
+                        You can't upload
+                        <span style={{ fontWeight: 700 }}>
+                          {" "}
+                          {isFileTypeError}
+                        </span>{" "}
+                        file. Only PDF, JPG, JPEG, and PNG formats are accepted.
+                      </>
+                    ) : (
+                      "Are you sure you want to leave ?"
+                    )}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-4">
+                <Button
+                  onClick={handleRetryBtn}
+                  className="w-100 btn btn-primary3 btn-41 px-4"
+                >
+                  Retry
+                </Button>
+              </div>
+            </>
+          }
+        />
       ) : null}
     </div>
   );

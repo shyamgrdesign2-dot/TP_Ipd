@@ -1,4 +1,4 @@
-import { Card, Divider, Modal, Spin } from "antd";
+import { Card, Divider, Modal } from "antd";
 import "./UploadDocPopup.scss";
 import { db } from "../../../../firebase";
 import {
@@ -10,7 +10,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
 import { useLocation } from "react-router-dom";
 import { fetchDocumentAsFile } from "../../../../utils/utils";
@@ -22,8 +22,10 @@ const UploadDocPopup = ({
   onCancel,
   setFilesData,
   setUploadDocDrawer,
-  filesData,
   patientData,
+  setIsFileSizeError,
+  setIsFileLimitError,
+  setIsFileTypeError,
 }) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
@@ -78,14 +80,11 @@ const UploadDocPopup = ({
       }
       setUploadDocDrawer(true);
     }
-
-    dispatch(setLoadingStatus(false));
-    deleteDoc(doc(db, "capturedImage", deviceUid));
   };
 
   useEffect(() => {
     const checkInFireBase = async () => {
-      if (deviceUid && filesData?.length === 0) {
+      if (deviceUid) {
         const docCapturedImage = doc(db, "capturedImage", deviceUid);
         try {
           const docCapturedImageSnap = await getDoc(docCapturedImage);
@@ -95,7 +94,17 @@ const UploadDocPopup = ({
               async (docSnapshotOfCapturedImage) => {
                 const res = docSnapshotOfCapturedImage?.data();
                 if (res?.clicked === "no") {
-                  getFiles(res?.url?.split(","), res?.name?.split(","));
+                  if (res?.fileValidations === "above8mb") {
+                    setIsFileSizeError(true);
+                  } else if (res?.fileValidations === "above5files") {
+                    setIsFileLimitError(true);
+                  } else if (res?.fileValidations === "notsupported") {
+                    setIsFileTypeError(res?.type);
+                  } else {
+                    getFiles(res?.url?.split(","), res?.name?.split(","));
+                  }
+                  dispatch(setLoadingStatus(false));
+                  deleteDoc(doc(db, "capturedImage", deviceUid));
                 }
               }
             );
@@ -103,6 +112,8 @@ const UploadDocPopup = ({
         } catch (error) {
           console.error("Error updating document:", error);
         }
+      } else {
+        console.error("Device UID not found");
       }
     };
 

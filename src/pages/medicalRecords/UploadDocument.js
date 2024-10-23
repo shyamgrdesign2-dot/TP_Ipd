@@ -16,10 +16,7 @@ import {
   updateDocument,
   uploadDocument,
 } from "./service";
-import {
-  setAllUploadedDocs,
-  setLoadingStatus,
-} from "../../redux/uploadDocSlice";
+import { setAllUploadedDocs } from "../../redux/uploadDocSlice";
 import { useLocation } from "react-router-dom";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import { isAndroid, isBrowser } from "react-device-detect";
@@ -32,9 +29,6 @@ import {
   shortenText,
   uploadDocURLtoFile,
 } from "./utils/helper";
-import { db } from "../../firebase";
-import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
-import { fetchDocumentAsFile } from "../../utils/utils";
 
 const UploadDocument = ({
   onClose,
@@ -53,7 +47,6 @@ const UploadDocument = ({
   const { userId } = useSelector((state) => state.doctors);
   const { state } = useLocation();
   const patient_data = state?.patient_data || patientData;
-  const deviceUid = localStorage.getItem("app_device_unique_id");
   const { uploadDocCategories, allUploadedDocs, patientUploadedDocs } =
     useSelector((state) => state.uploadDoc);
   const documentOptions = uploadDocCategories.map((item) => {
@@ -111,78 +104,6 @@ const UploadDocument = ({
     );
     setRecordData(updatedRecord);
   };
-
-  const getFiles = async (urls, names) => {
-    if (urls?.length) {
-      for (const [index, url] of urls.entries()) {
-        const cleanFileName = getCorrectedFileName(names?.[index] || "");
-        const newFile = await fetchDocumentAsFile(url, cleanFileName);
-        const isAlreadyAdded = filesData?.some(
-          (file) => file.name === cleanFileName
-        );
-        if (!isAlreadyAdded) {
-          let thumbnailUrl;
-          let fileData;
-          if (newFile && newFile.type === "application/pdf") {
-            thumbnailUrl = await loadPdf(URL.createObjectURL(newFile));
-            fileData = uploadDocURLtoFile(
-              thumbnailUrl,
-              "thumbnail_" +
-                newFile?.name?.substring(0, newFile?.name?.lastIndexOf(".")) +
-                ".png"
-            );
-          } else {
-            thumbnailUrl = URL.createObjectURL(newFile);
-            fileData = new File(
-              [newFile],
-              "thumbnail_" +
-                newFile?.name?.substring(0, newFile?.name?.lastIndexOf(".")) +
-                ".png",
-              { type: "image/png" }
-            );
-          }
-          const newRecordData = {
-            name: newFile?.name,
-            recordType: undefined,
-            recordUploadDate: dayjs().format("YYYY-MM-DD"),
-            notes: "",
-            thumbnailUrl: thumbnailUrl,
-            thumbnailFile: fileData,
-          };
-          setFilesData([newFile, ...filesData]);
-          setRecordData([newRecordData, ...recordData]);
-        }
-      }
-    }
-    dispatch(setLoadingStatus(false));
-    deleteDoc(doc(db, "capturedImage", deviceUid));
-  };
-
-  useEffect(() => {
-    const checkInFireBase = async () => {
-      if (deviceUid && filesData?.length > 0) {
-        const docCapturedImage = doc(db, "capturedImage", deviceUid);
-        try {
-          const docCapturedImageSnap = await getDoc(docCapturedImage);
-          if (docCapturedImageSnap.exists()) {
-            onSnapshot(
-              doc(db, "capturedImage", deviceUid),
-              async (docSnapshotOfCapturedImage) => {
-                const res = docSnapshotOfCapturedImage?.data();
-                if (res?.clicked === "no") {
-                  getFiles(res?.url?.split(","), res?.name?.split(","));
-                }
-              }
-            );
-          }
-        } catch (error) {
-          console.error("Error updating document:", error);
-        }
-      }
-    };
-
-    return () => checkInFireBase();
-  }, [db, deviceUid]);
 
   useEffect(() => {
     if (filesData?.length !== recordData?.length) {
