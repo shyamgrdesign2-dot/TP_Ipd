@@ -10,6 +10,7 @@ import CashManagerContext from '../../context/CashManagerContext';
 import {
     searchSymptoms
 } from "../../redux/symptomsSlice";
+import { updateDragDrop } from "../../redux/doctorsSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
 import dragChips from '../../../src/assets/images/drag-chips.svg'
@@ -23,6 +24,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
         parentOptionsList,
         childOptionsList,
     } = useSelector((state) => state.symptoms);
+    const { dragDrop } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const { symptomsData, setSymptomsData } = useContext(CashManagerContext);
@@ -113,8 +115,23 @@ function TabSymptomsSearch({ passIndex, onClose }) {
     };
 
     // Tour Drag & Drop
-    const [open, setOpen] = useState();
+    const [tourOpen, setTourOpen] = useState(false);
     const tourRef = useRef(null);
+
+    useEffect(() => {
+        dispatch(updateDragDrop(''));
+        setTimeout(() => {
+            if (symptomsData?.length > 1 && !dragDrop?.symptoms) {
+                setTourOpen(true)
+                
+            }
+        }, 400);
+    }, [symptomsData]);
+
+    const onTourHandle = () => {
+        setTourOpen(!tourOpen)
+        dispatch(updateDragDrop('symptoms'));
+    }
 
     const steps = [
         {
@@ -126,6 +143,10 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                 </>
             ,
             target: () => tourRef.current,
+            nextButtonProps: {
+                children: 'Okay',
+                onClick: onTourHandle
+            }
         }
     ];
 
@@ -450,7 +471,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                             <span ref={tourRef} className='pt-3'>
                                                 {TABLE_SYMPTOMS}
                                             </span>
-                                            <Tour placement="rightTop" open={symptomsData.length > 1 && open} steps={steps} onClose={() => setOpen(false)}/>
+                                            <Tour placement="rightTop" open={tourOpen} steps={steps} onClose={onTourHandle} />
                                         </div>
                                     </>
                                 )}

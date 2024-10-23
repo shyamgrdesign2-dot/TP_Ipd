@@ -20,7 +20,8 @@ const initialState = {
   videoList: [],
   certificateList: [],
   patientCertificateList: [],
-  userId: null
+  userId: null,
+  dragDrop: {}
 };
 
 export const getProfile = createAsyncThunk(
@@ -317,7 +318,22 @@ const doctorsSlice = createSlice({
     updateWebsitePublish: (state, action) => {
       const { website_publish, publish_url } = action.payload
       state.profile = { ...state.profile, website_publish: website_publish, publish_url: publish_url }
-    }
+    },
+    updateDragDrop: (state, action) => {
+      if (action.payload == 'symptoms') {
+        state.dragDrop = { ...state.dragDrop, symptoms: true }
+      } else if (action.payload == 'diagnosis') {
+        state.dragDrop = { ...state.dragDrop, examinations: true }
+      } else if (action.payload == 'medications') {
+        state.dragDrop = { ...state.dragDrop, diagnosis: true }
+      } else if (action.payload == 'advices') {
+        state.dragDrop = { ...state.dragDrop, medications: true }
+      } else if (action.payload == 'lab_investigation') {
+        state.dragDrop = { ...state.dragDrop, lab_investigation: true }
+      } else {
+        state.dragDrop = {}
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -514,5 +530,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish } = doctorsSlice.actions
+export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop } = doctorsSlice.actions
 export default doctorsSlice.reducer;

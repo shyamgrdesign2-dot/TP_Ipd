@@ -548,15 +548,23 @@ function SymptomsBox() {
   //   );
   // }, [symptomsData, childSearchOptions]);
 
-  const TABLE_SYMPTOMS = useMemo(() => {
-    const onDragEnd = (result) => {
-      if (!result.destination) return;
-      const { source, destination } = result;
-      if (source.index !== destination.index) {
-        onReorderSymptoms(source.index, destination.index);
-      }
-    };
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+  const onDragEnd = (result) => {
+    if (!result.destination) return; // Dropped outside the list
+    const reorderedItems = reorder(
+      symptomsData,
+      result.source.index,
+      result.destination.index
+    );
+    setSymptomsData(reorderedItems);
+  };
 
+  const TABLE_SYMPTOMS = useMemo(() => {
     return (
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="symptoms" direction="vertical">
@@ -654,13 +662,6 @@ function SymptomsBox() {
       </DragDropContext>
     );
   }, [symptomsData, childSearchOptions]);
-
-  const onReorderSymptoms = (startIndex, endIndex) => {
-    const result = Array.from(symptomsData);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-    setSymptomsData(result); 
-  };
 
 
   //Template Componet
