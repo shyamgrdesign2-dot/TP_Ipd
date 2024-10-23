@@ -56,7 +56,8 @@ import {
   getLoadPreviousRx,
   searchGeneric,
   editMedicine,
-  updateFrequentlyMedication
+  updateFrequentlyMedication,
+  clearGenericList
 } from "../../redux/medicationSlice";
 
 import TabMedicationSearch from "./TabMedicationSearch";
@@ -2016,9 +2017,10 @@ function TabMedicationBox() {
     [genericQuery]
   );
 
-  const onSelectGeneric = (item) => {
+  const onSelectGeneric = async (item) => {
     setAddCustom({ ...addCustom, ...item });
     setGenericQuery("")
+    await dispatch(clearGenericList())
     handleDrawerGeneric()
   }
 
