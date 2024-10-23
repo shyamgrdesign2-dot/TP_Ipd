@@ -21,7 +21,7 @@ const VisitLabParameters = ( {patient_unique_id, doc_id, onSave}) => {
   const getLabParams = async () => {
     try {
         const cleanedToken = token.replace(/['"]+/g, '');
-        const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${doc_id}/${patient_unique_id}`, {
+        const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${patient_unique_id}`, {
             headers: {
                 'Authorization': `Bearer ${cleanedToken}`,
             },
