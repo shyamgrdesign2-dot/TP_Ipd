@@ -1,4 +1,4 @@
-import { Card, Divider, Modal, Spin } from "antd";
+import { Card, Divider, Modal } from "antd";
 import "./UploadDocPopup.scss";
 import { db } from "../../../../firebase";
 import {
@@ -10,11 +10,12 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
 import { useLocation } from "react-router-dom";
 import { fetchDocumentAsFile } from "../../../../utils/utils";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
+import { getCorrectedFileName } from "../../utils/helper";
 
 const UploadDocPopup = ({
   shouldShowUploadDocPopup,
@@ -22,6 +23,9 @@ const UploadDocPopup = ({
   setFilesData,
   setUploadDocDrawer,
   patientData,
+  setIsFileSizeError,
+  setIsFileLimitError,
+  setIsFileTypeError,
 }) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
@@ -62,10 +66,11 @@ const UploadDocPopup = ({
   const getFiles = async (urls, names) => {
     if (urls?.length) {
       for (const [index, url] of urls.entries()) {
-        const newFile = await fetchDocumentAsFile(url, names?.[index]);
+        const cleanFileName = getCorrectedFileName(names?.[index] || "");
+        const newFile = await fetchDocumentAsFile(url, cleanFileName);
         setFilesData((prev) => {
           const isAlreadyAdded = prev.some(
-            (file) => file.name === names?.[index]
+            (file) => file.name === cleanFileName
           );
           if (!isAlreadyAdded) {
             return [newFile, ...prev];
@@ -75,9 +80,6 @@ const UploadDocPopup = ({
       }
       setUploadDocDrawer(true);
     }
-
-    dispatch(setLoadingStatus(false));
-    deleteDoc(doc(db, "capturedImage", deviceUid));
   };
 
   useEffect(() => {
@@ -92,7 +94,17 @@ const UploadDocPopup = ({
               async (docSnapshotOfCapturedImage) => {
                 const res = docSnapshotOfCapturedImage?.data();
                 if (res?.clicked === "no") {
-                  getFiles(res?.url?.split(","), res?.name?.split(","));
+                  if (res?.fileValidations === "above8mb") {
+                    setIsFileSizeError(true);
+                  } else if (res?.fileValidations === "above5files") {
+                    setIsFileLimitError(true);
+                  } else if (res?.fileValidations === "notsupported") {
+                    setIsFileTypeError(res?.type);
+                  } else {
+                    getFiles(res?.url?.split(","), res?.name?.split(","));
+                  }
+                  dispatch(setLoadingStatus(false));
+                  deleteDoc(doc(db, "capturedImage", deviceUid));
                 }
               }
             );

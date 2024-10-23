@@ -100,6 +100,9 @@ function AppointmentData({ locationPath }) {
     );
     const [filesData, setFilesData] = useState([]);
     const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
+    const [isFileSizeError, setIsFileSizeError] = useState(false);
+    const [isFileLimitError, setIsFileLimitError] = useState(false);
+    const [isFileTypeError, setIsFileTypeError] = useState(null);
     const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [patientData, setPatientData] = useState(null);
@@ -111,6 +114,13 @@ function AppointmentData({ locationPath }) {
 
     const handleDeletePopup = () => {
         setShowDeletePopup(true);
+    };
+
+    const handleRetryBtn = () => {
+        setFilesData([]);
+        setIsFileSizeError(false);
+        setIsFileLimitError(false);
+        setIsFileTypeError(null);
     };
 
     const getAllDocumentCategories = async () => {
@@ -1458,6 +1468,9 @@ function AppointmentData({ locationPath }) {
                     filesData={filesData}
                     setUploadDocDrawer={setUploadDocDrawer}
                     patientData={patientData}
+                    setIsFileSizeError={setIsFileSizeError}
+                    setIsFileLimitError={setIsFileLimitError}
+                    setIsFileTypeError={setIsFileTypeError}
                 />
             )}
             {isLoading ? (
@@ -1472,6 +1485,65 @@ function AppointmentData({ locationPath }) {
                         size="large"
                     />
                 </div>
+            ) : null}
+            {isFileSizeError || isFileLimitError || isFileTypeError ? (
+                <CommonModal
+                isModalOpen={isFileSizeError || isFileLimitError || isFileTypeError}
+                onCancel={handleRetryBtn}
+                modalWidth={500}
+                title={
+                    isFileSizeError
+                    ? "Exceeded File Size"
+                    : isFileLimitError
+                    ? "Exceeded File Upload Limit"
+                    : isFileTypeError
+                    ? "File format not supported"
+                    : "You may lose your data"
+                }
+                modalBody={
+                    <>
+                    <div className="alert-warning rounded-10px p-2 patient-details">
+                        <div className="d-flex align-items-center">
+                        <img className="me-3" src={alertIcon} alt="Warning" />
+                        <span>
+                            {isFileSizeError ? (
+                            <>
+                                The file size exceeded{" "}
+                                <span style={{ fontWeight: 700 }}>8MB.</span> Please
+                                upload a file smaller than 8MB
+                            </>
+                            ) : isFileLimitError ? (
+                            <>
+                                You can only upload up to
+                                <span style={{ fontWeight: 700 }}> 5 files.</span>{" "}
+                                Please reduce the number of files and try again.
+                            </>
+                            ) : isFileTypeError ? (
+                            <>
+                                You can't upload
+                                <span style={{ fontWeight: 700 }}>
+                                {" "}
+                                {isFileTypeError}
+                                </span>{" "}
+                                file. Only PDF, JPG, JPEG, and PNG formats are accepted.
+                            </>
+                            ) : (
+                            "Are you sure you want to leave ?"
+                            )}
+                        </span>
+                        </div>
+                    </div>
+                    <div className="mt-4">
+                        <Button
+                        onClick={handleRetryBtn}
+                        className="w-100 btn btn-primary3 btn-41 px-4"
+                        >
+                        Retry
+                        </Button>
+                    </div>
+                    </>
+                }
+                />
             ) : null}
         </>
     );
