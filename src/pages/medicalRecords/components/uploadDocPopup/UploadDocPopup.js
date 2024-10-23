@@ -15,12 +15,14 @@ import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
 import { useLocation } from "react-router-dom";
 import { fetchDocumentAsFile } from "../../../../utils/utils";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
+import { getCorrectedFileName } from "../../utils/helper";
 
 const UploadDocPopup = ({
   shouldShowUploadDocPopup,
   onCancel,
   setFilesData,
   setUploadDocDrawer,
+  filesData,
   patientData,
 }) => {
   const dispatch = useDispatch();
@@ -62,10 +64,11 @@ const UploadDocPopup = ({
   const getFiles = async (urls, names) => {
     if (urls?.length) {
       for (const [index, url] of urls.entries()) {
-        const newFile = await fetchDocumentAsFile(url, names?.[index]);
+        const cleanFileName = getCorrectedFileName(names?.[index] || "");
+        const newFile = await fetchDocumentAsFile(url, cleanFileName);
         setFilesData((prev) => {
           const isAlreadyAdded = prev.some(
-            (file) => file.name === names?.[index]
+            (file) => file.name === cleanFileName
           );
           if (!isAlreadyAdded) {
             return [newFile, ...prev];
@@ -82,7 +85,7 @@ const UploadDocPopup = ({
 
   useEffect(() => {
     const checkInFireBase = async () => {
-      if (deviceUid) {
+      if (deviceUid && filesData?.length === 0) {
         const docCapturedImage = doc(db, "capturedImage", deviceUid);
         try {
           const docCapturedImageSnap = await getDoc(docCapturedImage);
@@ -100,8 +103,6 @@ const UploadDocPopup = ({
         } catch (error) {
           console.error("Error updating document:", error);
         }
-      } else {
-        console.error("Device UID not found");
       }
     };
 

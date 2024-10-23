@@ -360,6 +360,7 @@ function Welcome1(props) {
                     setShowDeletePopup={setShowDeletePopup}
                     filesData={filesData}
                     setFilesData={setFilesData}
+                    handleUploadDocPopup={handleUploadDocPopup}
                 />
                 </Drawer>
             )}

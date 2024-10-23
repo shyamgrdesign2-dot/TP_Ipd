@@ -249,6 +249,7 @@ const handleFileUpload = (event) => {
             setFilesData={setFilesData}
             isEditDocument={isEditDocument}
             setIsEditDocument={setIsEditDocument}
+            handleUploadDocPopup={handleUploadDocPopup}
           />
         </Drawer>
       )}
