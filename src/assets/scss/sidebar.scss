@@ -292,7 +292,17 @@ body {
             letter-spacing: 0.1px;
         }
     }
+    .prescription-sidebar-ai {
+        background-color: #22003C;
+    }
     .text-history {
         color: $historytext;
+    }
+
+    .know-more-txt {
+        color: #A461D8 !important;
+    }
+    .disclaimer-txt {
+        color: #A2A2A8 !important;
     }
 }

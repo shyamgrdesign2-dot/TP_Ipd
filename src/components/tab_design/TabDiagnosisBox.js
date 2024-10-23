@@ -22,6 +22,7 @@ import {
 } from "../../redux/diagnosisSlice";
 
 import TabDiagnosisSearch from "../../components/tab_design/TabDiagnosisSearch";
+import DifferentialDiagnosis from "../DifferentialDiagnosis";
 
 function TabDiagnosisBox() {
     const {
@@ -743,6 +744,7 @@ function TabDiagnosisBox() {
                         <i className='icon-search mx-2'></i>
                         <span className="fontroboto backbar fw-normal">Search Diagnosis</span>
                     </div>
+                    <DifferentialDiagnosis />
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
                     {parentDrawer && (<TabDiagnosisSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
