@@ -260,6 +260,11 @@ function SmartRxPreview() {
         // Append other fields to FormData
         formData.append('doctorId', data.result.user_id);
         formData.append('patientId', patient_data.patient_unique_id);
+        formData.append('appointmentId', patient_data !== undefined
+          ? patient_data.hasOwnProperty("pam_id")
+            ? patient_data.pam_id
+            : 0
+          : 0);
         formData.append('caseId', state.tcm_id);
         formData.append('ocrModel', 'docx');
     

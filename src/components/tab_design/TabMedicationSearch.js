@@ -34,7 +34,9 @@ import {
   searchMedication,
   searchGeneric,
   addMedicine,
-  editMedicine
+  editMedicine,
+  updateFrequentlyMedication,
+  clearGenericList
 } from "../../redux/medicationSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
@@ -1485,8 +1487,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
     [genericQuery]
   );
 
-  const onSelectGeneric = (item) => {
+  const onSelectGeneric = async (item) => {
     setAddCustom({ ...addCustom, ...item });
+    setGenericQuery("")
+    await dispatch(clearGenericList())
     handleDrawerGeneric()
   }
 
@@ -1502,12 +1506,28 @@ function TabMedicationSearch({ passIndex, onClose }) {
     if (action.meta.requestStatus === "fulfilled") {
       if (addCustom?.tmm_id) {
         const modifyData = action.payload[0]
+
+        await dispatch(updateFrequentlyMedication(modifyData))
+
+        const medicineUnit = modifyData?.medicineUnit.map((e1) => {
+          return {
+            key: JSON.stringify({ ...e1 }),
+            value: e1.tmu_id,
+            label: <>{e1.tmu_title}</>,
+          };
+        });
         medicationData.map(item => {
           if (item.tmm_id == modifyData.tmm_id) {
             item.tmm_medicine_name = modifyData.tmm_medicine_name;
             item.tmm_generic = modifyData.tmm_generic;
             item.tmm_company = modifyData.tmm_company;
             item.tmm_type = modifyData.tmm_type;
+            item.tmm_dosage_unit_name = '';
+            item.tmm_dosage = '';
+            item.tmm_unit = 0;
+            item.tmm_unit_name = '';
+            item.tmu_id = 0;
+            item.medicineUnit = medicineUnit;
           }
           return item;
         });
@@ -1705,6 +1725,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
               />
             </div>
             <div className="text-end">
+              {addCustom?.tmm_id ? (
+                <Button className='me-4 btn p-0 text-main btn-text' onClick={() => setAddCustom(null)}>
+                  Cancel
+                </Button>
+              ):null}
               <Button className='btn btn-primary3 btn-41 px-4' onClick={onAddEditMedicineClick} loading={loading} disabled={addCustom?.tmm_medicine_name && addCustom?.tmy_id ? false : true}>
                 {`${addCustom?.tmm_id ? 'Update' : 'Add'} Custom Medicine`}
               </Button>
@@ -1722,7 +1747,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           placeholder="Search Medicines by Name"
           searchQuery={searchChildQuery}
           onSearchParent={onSearchParent}
-          disabled={medicationData.length > 0 ? false : true}
+          disabled={medicationData.length > 0 && !addCustom ? false : true}
           onClose={onClose}
         />
         <div className="modalcard-body">

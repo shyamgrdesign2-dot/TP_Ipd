@@ -1,20 +1,17 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import crownIcon from "../assets/images/crown.svg";
-import { useNavigate } from "react-router-dom";
 import { openModal } from "../redux/doctorModalSlice";
 
 const PlanExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
   const {
-    planStatus,
+    currentPlanStatus,
     is_owner,
     expiry_reminder_days,
     expiresIn,
     is_pm_renew_requested,
   } = planDetails || {};
-  const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const handleClick = () => {
@@ -23,7 +20,7 @@ const PlanExpirationBanner = () => {
 
   return (
     !is_pm_renew_requested &&
-    planStatus === "PAID" &&
+    currentPlanStatus === "PAID" &&
     is_owner &&
     expiresIn <= expiry_reminder_days && (
       <header className="plan-expiry-banner">

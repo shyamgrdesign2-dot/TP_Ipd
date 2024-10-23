@@ -25,20 +25,27 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         },
       }
     );
-    console.log({ response });
     if (response.status === 200) {
-      console.log(response?.body?.plans?.content?.[0]);
       const {
-        planStatus: { code },
+        planStatus: { code: intialPlanStatus = "" },
         productType,
       } = response?.body?.plans?.content?.[0];
-      const { plan_expiry_date } = response?.body?.profile;
+      const {
+        plan_expiry_date,
+        planStatus: { code: currentPlanStatus = "" },
+        expiry_reminder_days,
+        is_owner,
+        is_pm_renew_requested,
+      } = response?.body?.profile;
 
       return {
-        planStatus: code,
+        intialPlanStatus,
+        currentPlanStatus,
         productType,
         billingHistory: response?.body?.plans?.content,
-        ...response?.body?.profile,
+        expiry_reminder_days,
+        is_owner,
+        is_pm_renew_requested,
         totalPages: response?.body?.plans?.totalPages,
         expiresIn: moment(plan_expiry_date).diff(moment(), "days"),
       };

@@ -169,6 +169,22 @@ export const editMedicine = createAsyncThunk(
 const medicationSlice = createSlice({
   name: "medication",
   initialState,
+  reducers: {
+    updateFrequentlyMedication: (state, action) => {
+      const modifyData = action.payload
+      const updatedData = state.parentOptionsList.map((item) => {
+        if (item?.tmm_id == modifyData.tmm_id) {
+          item.tmm_medicine_name = modifyData.tmm_medicine_name;
+          item.tmm_generic = modifyData.tmm_generic;
+        }
+        return item;
+      });
+      state.parentOptionsList = [...updatedData]
+    },
+    clearGenericList: (state, action) => {
+      state.genericList = []
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(addTemplate.pending, (state) => {
@@ -287,4 +303,5 @@ const medicationSlice = createSlice({
   },
 });
 
+export const { updateFrequentlyMedication, clearGenericList } = medicationSlice.actions
 export default medicationSlice.reducer;
