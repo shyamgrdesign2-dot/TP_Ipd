@@ -50,7 +50,7 @@ const ExpiredPlanCard = () => {
                     </>
                   )}
                 {currentPlanStatus === "EXPIRED" &&
-                  intialPlanStatus === "PAID" && (
+                  ["PAID", "EXPIRED"].includes(intialPlanStatus) && (
                     <>
                       <h2>Your Plan has Expired!</h2>
                       <p>
