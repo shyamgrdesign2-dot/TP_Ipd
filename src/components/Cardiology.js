@@ -61,7 +61,7 @@ function Cardiology(props) {
   );
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
-  const baseUrlRxDigitise = env.rx_digitization ;
+  const baseUrlRxDigitise = env.rx_digitization;
 
   useEffect(() => {
     setSmartRxFile([]);
@@ -165,19 +165,14 @@ function Cardiology(props) {
       dataIndex: "upd",
       key: "upd",
       width: "110px",
-      render: (text, record) => (
-        <div>{`${record.tmm_dosage
-          ? `${record.tmm_dosage} ${record?.medicineUnit &&
-            record?.medicineUnit.find(
-              (x) => x.tmu_id == record.tmm_unit
-            ) !== undefined
-            ? record?.medicineUnit.find(
-              (x) => x.tmu_id == record.tmm_unit
-            ).tmu_title
-            : ""
-          }`
-          : ""
-          }`}</div>
+      render: (text, record, index) => (
+        <>
+          <div>{`${record.tmm_dosage && record.tmm_unit ? `${record.tmm_dosage} ${record?.medicineUnit && record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit) !== undefined ? record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit).tmu_title : ""}` : `${record?.medicineUnit && record?.medicineUnit.find((x) => x.tmu_id == record.default_tmm_unit) !== undefined ? record?.medicineUnit.find((x) => x.tmu_id == record.default_tmm_unit).tmu_title : ""}`}`}</div>
+
+          {record?.tmm_id == medicationData[index - 1]?.tmm_id && (
+            <div className="badge-then">Then</div>
+          )}
+        </>
       ),
     },
     {

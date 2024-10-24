@@ -957,3 +957,34 @@ body {
         white-space: nowrap !important;
     }
 }
+
+.lab-params-warning {
+    color: #E54848 !important;
+}
+
+.remarks-style {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lab-params-tooltip-txt {
+    text-decoration: underline;
+    cursor: pointer;
+    color: #4B4AD5 !important;
+}
+
+.lab-params-input {
+    .ant-input-group >.ant-input {
+        height: 40px;
+    }
+    .ant-input-group .ant-input-affix-wrapper {
+        height: 40px;
+    }
+}
+
+.lab-params-intput-warning {
+    .ant-input-outlined {
+        border-color: #E54848 !important;
+    }
+}

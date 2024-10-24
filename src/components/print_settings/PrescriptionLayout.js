@@ -164,7 +164,7 @@ const obsHistoryCheckboxOptions = [
 ];
 
 function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetails }) {
-  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions } = useContext(PrintSettingsContext);
+  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions, labParamsData } = useContext(PrintSettingsContext);
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
@@ -202,6 +202,16 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
 
   const onMedicationWithGenericChange = (e, i) => {
     printSettings.prescription.case_option[i].medicine_with_generic =
+      e.target.value;
+    setPrintSettings((prev) => {
+      return {
+        ...prev,
+      };
+    });
+  };
+
+  const onMedicationWithNumericFormat = (e, i) => {
+    printSettings.prescription.case_option[i].numeric_frequency =
       e.target.value;
     setPrintSettings((prev) => {
       return {
@@ -276,6 +286,19 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                 Medicine with Generic Name
               </Radio>
               <Radio value={false}>Only Medicine Name</Radio>
+            </Radio.Group>
+          </div>
+          <hr />
+          <div className="fw-medium text-start py-2">FREQUENCY FORMAT</div>
+          <div className="d-flex align-items-center text-start">
+            <Radio.Group
+              value={record?.numeric_frequency}
+              onChange={(e) => onMedicationWithNumericFormat(e, i)}
+            >
+              <Radio className="mb-2" value={true}>
+                Numeric format (e.g., 1-0-0)
+              </Radio>
+              <Radio value={false}>Text format (e.g., Morning)</Radio>
             </Radio.Group>
           </div>
           <hr />
@@ -562,11 +585,13 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                     ({ ...option, key: option.id })
                                     : (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ?
                                       ({ ...option, key: option.id })
-                                      : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartData?.length) ?
+                                      : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0) ?
                                         ({ ...option, key: option.id })
                                         : (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ?
                                           ({ ...option, key: option.id })
-                                          : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?._id) && ({ ...option, key: option.id })
+                                          : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?._id) ?
+                                            ({ ...option, key: option.id })
+                                            : (caseManagerData.labParamsData?.length > 0 && option.id === 15) && ({ ...option, key: option.id })
               )}
               showHeader={false}
             />

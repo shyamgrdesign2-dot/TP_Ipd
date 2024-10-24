@@ -19,7 +19,7 @@ const showDateFormat = 'DD MMM, YY'
 
 function Quixote({ mode = NORMAL, ...props }) {
 
-    const { smartRxFile, divWidth, caseManagerData, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
+    const { smartRxFile, divWidth, caseManagerData, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, labParamsData } = useContext(PrintSettingsContext);
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
@@ -73,6 +73,10 @@ function Quixote({ mode = NORMAL, ...props }) {
         {
             key: '10',
             name: `BSA (m²)`,
+        },
+        {
+            key: '11',
+            name: `OFC (cms)`,
         }
     ];
 
@@ -105,6 +109,7 @@ function Quixote({ mode = NORMAL, ...props }) {
         initialRows[7][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
         initialRows[8][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
         initialRows[9][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
+        initialRows[10][index] = item.ofc ? item.ofc : "-";
     });
 
     const [pdfUrl, setPdfUrl] = useState(null)
@@ -149,6 +154,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 growthChartDetails={props.growthChartDetails}
                 isGynaecHistoryAccessable = {isGynaecHistoryAccessable}
                 obsHistoryData={props.obstetricDetails}
+                labParamsData={labParamsData}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
         }

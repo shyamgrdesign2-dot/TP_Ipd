@@ -663,3 +663,14 @@ export const groupArray = async (array) => {
   }, []);
   return updatedArray;
 }
+
+  export const fetchDocumentAsFile = async (url, fileName) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob(); // Convert response to a Blob
+      return new File([blob], fileName, { type: blob.type }); // Create a File object
+    } catch (error) {
+      console.error("Error fetching document: ", error);
+      return null;
+    }
+  };

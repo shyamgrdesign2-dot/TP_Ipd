@@ -10,7 +10,7 @@ import heartBeat from '../assets/images/heartBeat.svg';
 
 const showDateFormat = 'DD MMM, YY'
 
-function VitalsBodyComposition({ loading, passVitals }) {
+function VitalsBodyComposition({ loading, passVitals, patientBirthWeight }) {
 
     const initialRows = [
         {
@@ -60,6 +60,10 @@ function VitalsBodyComposition({ loading, passVitals }) {
         {
             key: '10',
             name: `BSA (m²)`,
+        },
+        {
+            key: '11',
+            name: `OFC (cms)`,
         }
     ];
 
@@ -97,6 +101,7 @@ function VitalsBodyComposition({ loading, passVitals }) {
         initialRows[7][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
         initialRows[8][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
         initialRows[9][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
+        initialRows[10][index] = item.ofc ? item.ofc : "-";
     });
 
     return (
@@ -107,6 +112,10 @@ function VitalsBodyComposition({ loading, passVitals }) {
                         <img src={vitals} alt="vitals" className='me-3' />
                         Vitals & Body Composition
                     </div>
+                    {patientBirthWeight ? <div className='fontroboto' style={{margin: "20px 0px 5px", fontSize: 14, fontWeight: 400}}>
+                        Patient Birth weight
+                        <span className="fontroboto" style={{marginLeft: 15}}>{patientBirthWeight}kg</span>
+                    </div> : null}
                 </Card.Header>
                 <Card.Body className='p-0'>
                     {passVitals && passVitals.length > 0 ? (

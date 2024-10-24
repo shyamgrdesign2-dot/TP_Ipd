@@ -500,6 +500,10 @@ function PrintHtmlPage() {
       key: "11",
       name: `BSA (m²)`,
     },
+    {
+      key: "12",
+      name: `OFC (cms)`,
+    },
   ];
 
   const initialColumns = [

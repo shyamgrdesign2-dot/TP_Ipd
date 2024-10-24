@@ -6,12 +6,15 @@ import { useSelector } from "react-redux";
 import CashManagerContext from '../../context/CashManagerContext';
 
 import moment from "moment";
+import { useLocation } from "react-router-dom";
 
 const showDateFormat = 'DD MMM, YY'
 
 function TabVitalsList(props) {
 
     const { handleDrawerVital, handleCollapsed } = props
+    const { state } = useLocation();
+    const { patient_data } = state;
 
     const { vitalsPastList } = useSelector((state) => state.vitals);
 
@@ -67,6 +70,12 @@ function TabVitalsList(props) {
                                     <div className="fontroboto">{item.spo2}</div>
                                 </div>
                             )}
+                            {item.ofc ? (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">OFC (cms)</div>
+                                    <div className="fontroboto">{item.ofc}</div>
+                                </div>
+                            ) : null}
                             {item.height && (
                                 <div className="d-flex align-items-center justify-content-between mb-12">
                                     <div className="fontroboto">Height (cms)</div>
@@ -150,6 +159,12 @@ function TabVitalsList(props) {
                                     <div className="fontroboto">{item.spo2}</div>
                                 </div>
                             )}
+                            {item.ofc ? (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">OFC (cms)</div>
+                                    <div className="fontroboto">{item.ofc}</div>
+                                </div>
+                            ) : null}
                             {item.height && (
                                 <div className="d-flex align-items-center justify-content-between mb-12">
                                     <div className="fontroboto">Height (cms)</div>
@@ -212,6 +227,12 @@ function TabVitalsList(props) {
                         Add or Edit Vitals
                     </Button>
                 </div>
+                {patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0 && (vitalsData?.[0]?.patient_birth_weight || vitalsPastList?.[0]?.patient_birth_weight) && (
+                    <div className="d-flex align-items-center justify-content-between mb-12 border-bottom" style={{padding: "15px 10px"}}>
+                        <div className="fontroboto">Patient Birth weight(kgs)</div>
+                        <div className="fontroboto">{vitalsData?.[0]?.patient_birth_weight || vitalsPastList?.[0]?.patient_birth_weight}</div>
+                    </div>
+                )}
                 {TODAY_VITALS}
                 {vitalsPastList.length > 0 && (
                     <div>

@@ -153,9 +153,38 @@ export const addMedicine = createAsyncThunk(
   }
 );
 
+export const editMedicine = createAsyncThunk(
+  "medication/editMedicine",
+  async (data) => {
+    let result = {};
+    result = await ApiMedication.editMedicine(data);
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const medicationSlice = createSlice({
   name: "medication",
   initialState,
+  reducers: {
+    updateFrequentlyMedication: (state, action) => {
+      const modifyData = action.payload
+      const updatedData = state.parentOptionsList.map((item) => {
+        if (item?.tmm_id == modifyData.tmm_id) {
+          item.tmm_medicine_name = modifyData.tmm_medicine_name;
+          item.tmm_generic = modifyData.tmm_generic;
+        }
+        return item;
+      });
+      state.parentOptionsList = [...updatedData]
+    },
+    clearGenericList: (state, action) => {
+      state.genericList = []
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(addTemplate.pending, (state) => {
@@ -262,7 +291,17 @@ const medicationSlice = createSlice({
       .addCase(addMedicine.rejected, (state) => {
         state.loading = false
       })
+      .addCase(editMedicine.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(editMedicine.fulfilled, (state) => {
+        state.loading = false
+      })
+      .addCase(editMedicine.rejected, (state) => {
+        state.loading = false
+      })
   },
 });
 
+export const { updateFrequentlyMedication, clearGenericList } = medicationSlice.actions
 export default medicationSlice.reducer;

@@ -726,7 +726,7 @@ useEffect(() => {
             <div
               className="col-lg-4 col-md-12 col-12"
               style={{
-                marginLeft: "4rem",
+                marginLeft: "3rem",
                 height: "100vh", /* Full height for independent scrolling */
               }}
             >

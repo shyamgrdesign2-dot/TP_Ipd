@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect,useState,useRef,useCallback } from "react";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -12,9 +12,9 @@ function Welcome(props) {
   const { locationPath, backVisible } = props;
 
   const { profile } = useSelector((state) => state.doctors);
+  const decodedToken = getDecodedToken();
 
   const clickWalkInConsultation = () => {
-    const decodedToken = getDecodedToken();
     const businessId = decodedToken?.result?.hospital_business_id;
     window.Moengage.track_event("walk_in_consultation_click", {
       "doctor_id": profile?.doctor_unique_id,
@@ -55,18 +55,20 @@ function Welcome(props) {
               alt="Welcome"
             />
           </div>
-          <div>
-            {locationPath == "/" && (
-              <div className="d-lg-flex d-block">
-                {/* <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => alert('Comming Soon')}> <i className={'icon-Add me-2'}></i> {'Add New Appointment'}</Button> */}
-                <Button
-                  variant="primary"
-                  className="px-3 btn-41"
-                  onClick={clickWalkInConsultation}>
-                  {"Start Walk-in Consultation"}
-                </Button>
-              </div>
-            )}
+          <div className="d-flex gap-1">
+            <div>
+              {locationPath == "/" && (
+                <div className="d-lg-flex d-block">
+                  {/* <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => alert('Comming Soon')}> <i className={'icon-Add me-2'}></i> {'Add New Appointment'}</Button> */}
+                  <Button
+                    variant="primary"
+                    className="px-3 btn-41"
+                    onClick={clickWalkInConsultation}>
+                    {"Start Walk-in Consultation"}
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="pb-5">&nbsp;</div>
