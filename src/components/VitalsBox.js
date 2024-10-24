@@ -27,9 +27,9 @@ function VitalsBox(props) {
     const { handleDrawerVital, handleCollapsed } = props
 
     const {
-        selectedVitalsList,
-        loading,
-        vitalsPastList
+      selectedVitalsList,
+      loading,
+      patientBirthWeight: storedPatientBirthWeight,
     } = useSelector((state) => state.vitals);
     const dispatch = useDispatch();
 
@@ -37,8 +37,7 @@ function VitalsBox(props) {
     const [childVitalsData, setChildVitalsData] = useState([]);
     const [dateString, setDateString] = useState(null);
     const [patientBirthWeight, setPatientBirthWeight] = useState(
-      vitalsData?.[0]?.patient_birth_weight ||
-        vitalsPastList?.[0]?.patient_birth_weight
+      vitalsData?.[0]?.patient_birth_weight || storedPatientBirthWeight
     );
     const { measurements } = useSelector((state) => state.growthChart);
     const isGowthChartAccessableFromGB = useFeatureIsOn(

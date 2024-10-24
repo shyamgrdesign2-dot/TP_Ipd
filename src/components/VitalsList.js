@@ -14,7 +14,9 @@ function VitalsList(props) {
 
     const { state } = useLocation();
     const { patient_data } = state;
-    const { vitalsPastList } = useSelector((state) => state.vitals);
+    const { vitalsPastList, patientBirthWeight } = useSelector(
+      (state) => state.vitals
+    );
 
     const { vitalsData } = useContext(CashManagerContext);
 
@@ -109,6 +111,7 @@ function VitalsList(props) {
         return (
             vitalsData.length > 0 &&
             vitalsData.map((item, i) => {
+                if (item.temp || item.pres || item.resp_rate || item.blood_press || item.spo2 || item.ofc || item.height || item.weight || item.bmi || item.bmr || item.bsa) {
                 return (
                     <div key={i} className={`${vitalsData.length - 1 != i && 'border-bottom'} pt-3 vitals-height input-readonly`}>
                         <div className="title-sami mb-3">
@@ -188,6 +191,7 @@ function VitalsList(props) {
                         )}
                     </div>
                 );
+            }
             })
         );
     }, [vitalsData]);
@@ -204,11 +208,11 @@ function VitalsList(props) {
     return (
         <>
             <div className="overflow-y-auto" style={{ maxHeight: "250px" }}>
-                {patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0 && (vitalsData?.[0]?.patient_birth_weight || vitalsPastList?.[0]?.patient_birth_weight) && (
-                    <div className="pt-3 vitals-height input-readonly" style={{borderBottom: "1px solid #d9d9d9"}}>
+                {patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0 && (vitalsData?.[0]?.patient_birth_weight || patientBirthWeight) && (
+                    <div className="pt-3 vitals-height input-readonly" style={{borderBottom:  "1px solid #d9d9d9"}}>
                         <div className="d-flex align-items-center justify-content-between mb-12">
                             <div className="fontroboto">Patient Birth weight</div>
-                            <Input className='inputheight41-group mx-2' value={vitalsData?.[0]?.patient_birth_weight || vitalsPastList?.[0]?.patient_birth_weight} addonAfter={'kgs'} readOnly />
+                            <Input className='inputheight41-group mx-2' value={vitalsData?.[0]?.patient_birth_weight || patientBirthWeight} addonAfter={'kgs'} readOnly />
                         </div>
                     </div>
                 )}

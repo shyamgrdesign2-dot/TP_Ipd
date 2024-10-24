@@ -16,7 +16,9 @@ function TabVitalsList(props) {
     const { state } = useLocation();
     const { patient_data } = state;
 
-    const { vitalsPastList } = useSelector((state) => state.vitals);
+    const { vitalsPastList, patientBirthWeight } = useSelector(
+      (state) => state.vitals
+    );
 
     const { vitalsData } = useContext(CashManagerContext);
 
@@ -117,6 +119,7 @@ function TabVitalsList(props) {
         return (
             vitalsData.length > 0 &&
             vitalsData.map((item, i) => {
+                if (item.temp || item.pres || item.resp_rate || item.blood_press || item.spo2 || item.ofc || item.height || item.weight || item.bmi || item.bmr || item.bsa) {
                 return (
                     <div key={i} className="p-10 border-bottom pb-0">
                         <div className="title-sami">
@@ -198,6 +201,7 @@ function TabVitalsList(props) {
                         </div>
                     </div>
                 );
+                }
             })
         );
     }, [vitalsData]);
@@ -227,10 +231,10 @@ function TabVitalsList(props) {
                         Add or Edit Vitals
                     </Button>
                 </div>
-                {patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0 && (vitalsData?.[0]?.patient_birth_weight || vitalsPastList?.[0]?.patient_birth_weight) && (
+                {patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0 && (vitalsData?.[0]?.patient_birth_weight || patientBirthWeight) && (
                     <div className="d-flex align-items-center justify-content-between mb-12 border-bottom" style={{padding: "15px 10px"}}>
                         <div className="fontroboto">Patient Birth weight(kgs)</div>
-                        <div className="fontroboto">{vitalsData?.[0]?.patient_birth_weight || vitalsPastList?.[0]?.patient_birth_weight}</div>
+                        <div className="fontroboto">{vitalsData?.[0]?.patient_birth_weight || patientBirthWeight}</div>
                     </div>
                 )}
                 {TODAY_VITALS}
