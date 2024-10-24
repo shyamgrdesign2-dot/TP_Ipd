@@ -235,7 +235,7 @@ function VitalsBox(props) {
             data: childVitalsData,
         };
         const action = await dispatch(addUpdateVitals(sendData));
-        if (patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
+        if (profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
           dispatch(
             getPatientBirthWeight({
               patient_unique_id:
@@ -324,7 +324,7 @@ function VitalsBox(props) {
                     </Button>
                 </div>
                 <div className="align-items-center d-flex justify-content-between px-20 py-3">
-                    {patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0 ? (
+                    {profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0 ? (
                         <div className="vitals-wrapper">
                             <div className='vitals-row d-flex align-items-center px-2'>
                                 Patient’s birth weight
