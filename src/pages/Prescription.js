@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, GB_GYNEC_HISTORY, GYNAECOLOGY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, GB_GYNEC_HISTORY, GYNAECOLOGY, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { getPatientBirthWeight, getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../redux/medicalhistorySlice";
@@ -468,7 +468,10 @@ function Prescription() {
         })
       );
 
-      if (patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
+      if (
+        profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 &&
+        patient_data?.ageYears === 0
+      ) {
         dispatch(
           getPatientBirthWeight({
             patient_unique_id:
