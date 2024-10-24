@@ -78,7 +78,7 @@ function SmartRxDigitise() {
             
             // Navigate to a different page on successful API call
             if(response.status === 204){
-                navigate('/print-smart-rx', { replace: true, state: { patient_data:patient_data, smartRxData:smartRxFilesData, tcm_id:tcm_id, print_url:print_url} })
+                navigate('/print-smart-rx', { replace: true, state: { patient_data:patient_data, smartRxData:smartRxFilesData, tcm_id:tcm_id, print_url:print_url, showProgressbar:false, page:"digitise"} })
             }
         } catch (error) {
             console.error('Error saving data:', error);

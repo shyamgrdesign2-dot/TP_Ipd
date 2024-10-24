@@ -45,6 +45,7 @@ function SmartPrescription() {
 
   const { state } = useLocation();
   const { patient_data, caseManagerData, smartRxFilesData } = state;
+  
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -397,39 +398,39 @@ function SmartPrescription() {
 
   // Handles Websocket Connection
   const connectWebSocket = () => {
-    // // WebSocket initialization (reconnectingwebsocket -> this package handles the reconnection)
-    // try {
-    //   socketRef.current = new ReconnectingWebSocket(WEBSOCKET_ADDRESS, null, {debug: true, reconnectInterval: 3000});
+    // WebSocket initialization (reconnectingwebsocket -> this package handles the reconnection)
+    try {
+      socketRef.current = new ReconnectingWebSocket(WEBSOCKET_ADDRESS, null, {debug: true, reconnectInterval: 3000});
       
-    //   socketRef.current.onopen = () => {
-    //     console.log("WebSocket connection opened");
-    //     setConnected(true);
-    //     setHasError(false); // Clear any previous error messages
-    //   };
+      socketRef.current.onopen = () => {
+        console.log("WebSocket connection opened");
+        setConnected(true);
+        setHasError(false); // Clear any previous error messages
+      };
 
-    //   socketRef.current.onclose = () => {
-    //     console.log("WebSocket connection closed");
-    //     setConnected(false);
-    //   };
+      socketRef.current.onclose = () => {
+        console.log("WebSocket connection closed");
+        setConnected(false);
+      };
       
-    //   socketRef.current.onmessage = (event) => {
-    //     const o = event.data.split("|");
-    //     drawRef.current(o[0], o[1], o[2], o[3], selectedPageRef.current);
-    //   };
+      socketRef.current.onmessage = (event) => {
+        const o = event.data.split("|");
+        drawRef.current(o[0], o[1], o[2], o[3], selectedPageRef.current);
+      };
 
-    //   socketRef.current.onerror = (error) => {
-    //     // Handle WebSocket errors
-    //     if (!hasError) {
-    //       wsError(WEBSOCKET_ERROR_MESSAGE);
-    //       setHasError(true); // Mark that an error has been displayed
-    //     }
-    //     console.log("WebSocket error", error);
-    //   };
-    // } catch (error) {
-    //   // Handle errors during WebSocket initialization
-    //   console.error("WebSocket connection failed", error);
-    //   wsError(WEBSOCKET_ERROR_MESSAGE);
-    // }
+      socketRef.current.onerror = (error) => {
+        // Handle WebSocket errors
+        if (!hasError) {
+          wsError(WEBSOCKET_ERROR_MESSAGE);
+          setHasError(true); // Mark that an error has been displayed
+        }
+        console.log("WebSocket error", error);
+      };
+    } catch (error) {
+      // Handle errors during WebSocket initialization
+      console.error("WebSocket connection failed", error);
+      wsError(WEBSOCKET_ERROR_MESSAGE);
+    }
   };
 
   const handleAddPage = () => {
