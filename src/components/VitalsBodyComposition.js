@@ -10,7 +10,7 @@ import heartBeat from '../assets/images/heartBeat.svg';
 
 const showDateFormat = 'DD MMM, YY'
 
-function VitalsBodyComposition({ loading, passVitals }) {
+function VitalsBodyComposition({ loading, passVitals, patientBirthWeight }) {
 
     const initialRows = [
         {
@@ -112,6 +112,10 @@ function VitalsBodyComposition({ loading, passVitals }) {
                         <img src={vitals} alt="vitals" className='me-3' />
                         Vitals & Body Composition
                     </div>
+                    {patientBirthWeight ? <div className='fontroboto' style={{margin: "20px 0px 5px", fontSize: 14, fontWeight: 400}}>
+                        Patient Birth weight
+                        <span className="fontroboto" style={{marginLeft: 15}}>{patientBirthWeight}kg</span>
+                    </div> : null}
                 </Card.Header>
                 <Card.Body className='p-0'>
                     {passVitals && passVitals.length > 0 ? (

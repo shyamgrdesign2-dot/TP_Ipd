@@ -318,7 +318,7 @@ function VitalsBox(props) {
                                 Patient’s birth weight
                             </div>
                             <div className='vitals-row d-flex align-items-center px-2'>
-                                <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={patientBirthWeight} addonAfter={'kgs'} onChange={(e) => setPatientBirthWeight(e.target.value)} />
+                                <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" maxLength={5} value={patientBirthWeight} addonAfter={'kgs'} onChange={(e) => setPatientBirthWeight(onlyDecimalFormat(e.target.value))} />
                             </div>
                         </div>
                     ) : null}
