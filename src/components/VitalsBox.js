@@ -10,6 +10,7 @@ import CashManagerContext from '../context/CashManagerContext';
 
 import {
     addUpdateVitals,
+    getPatientBirthWeight,
     getVitals,
 } from "../redux/vitalsSlice";
 import moment from "moment";
@@ -234,6 +235,18 @@ function VitalsBox(props) {
             data: childVitalsData,
         };
         const action = await dispatch(addUpdateVitals(sendData));
+        if (patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
+          dispatch(
+            getPatientBirthWeight({
+              patient_unique_id:
+                patient_data !== undefined ? patient_data.patient_unique_id : 0,
+              pam_id:
+                patient_data !== undefined && patient_data.pam_id !== undefined
+                  ? patient_data.pam_id
+                  : 0,
+            })
+          );
+        }
         if (action.meta.requestStatus === "fulfilled") {
             handleCollapsed(1)
         } else {
