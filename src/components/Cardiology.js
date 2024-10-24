@@ -81,10 +81,10 @@ function Cardiology(props) {
       // viewCaseManagerData.treatment
     ) {
       setIsSmartRxFile(true);
-      if (viewCaseManagerData?.tcm_id && isSmartSyncCVTAccessableFromGB) {
+      if(viewCaseManagerData?.tcm_id && isSmartSyncCVTAccessableFromGB){
         fetchRxDigitisedData(viewCaseManagerData?.tcm_id);
       }
-    } else {
+    }else {
       setIsSmartRxFile(false);
     }
   }, [viewCaseManagerData]);
@@ -94,7 +94,7 @@ function Cardiology(props) {
       tcm_id: viewCaseManagerData?.tcm_id,
     };
     try {
-      if (viewCaseManagerData?.smart_prescription_filename?.length) {
+        if(viewCaseManagerData?.smart_prescription_filename?.length){
         const response = await api.post(
           FETCH_SMART_RX,
           payload,
@@ -102,7 +102,7 @@ function Cardiology(props) {
         );
         if (response?.data?.length) {
           setSmartRxFile(response?.data);
-        } else {
+          } else{
           setSmartRxFile(null);
         }
       }
@@ -337,9 +337,9 @@ function Cardiology(props) {
           'Authorization': `Bearer ${cleanedToken}`,
         },
       });
-      if (response?.data?.data) {
+      if(response?.data?.data) {
         setRxDigitisedData(response?.data?.data);
-        if (response?.data?.data?.editedData) {
+        if(response?.data?.data?.editedData){
           setIsRxdigitised(true);
         } else {
           setIsRxdigitised(false);
@@ -468,7 +468,7 @@ function Cardiology(props) {
               </div>
             </Card.Header>
 
-            { isSmartSyncCVTAccessableFromGB && isSmartRxFile &&
+            { isSmartSyncCVTAccessableFromGB && isSmartRxFile && viewCaseManagerData?.smart_prescription_filename?.length > 0 &&
              ( isRxdigitised ?
               <div className="p-2 mb-2">
                 <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>

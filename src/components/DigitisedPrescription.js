@@ -23,21 +23,26 @@ const DigitisedPrescription = ({ data, setData}) => {
 
   // Handle input blur (closing edit mode)
   const handleInputBlur = (type, index) => {
-    setData((prevData) => {
-      const updatedData = { ...prevData };
-      if (type === 'medications' || type === 'tests') {
-        updatedData[type][index].refinedName = editableText; // Ensure editable text gets updated
-      } else if (type === 'symptoms') {
-        updatedData[type][index].name = editableText; // Update the name for symptoms
-      } else if (type === 'advice') {
-        updatedData[type][index] = editableText; // Update the advice text
-      }
-      return updatedData;
-    });
-    //   setShowSuggestions(false);
+    // Ensure we update the data only if there is a change
+    if (activeIndex !== null && activeType !== null) {
+      setData((prevData) => {
+        const updatedData = { ...prevData };
+        if (type === 'medications' || type === 'tests') {
+          updatedData[type][index].refinedName = editableText; // Ensure editable text gets updated
+        } else if (type === 'symptoms') {
+          updatedData[type][index].name = editableText; // Update the name for symptoms
+        } else if (type === 'advice') {
+          updatedData[type][index] = editableText; // Update the advice text
+        }
+        return updatedData;
+      });
+    }
+    setShowSuggestions(false);
     setActiveIndex(null);
     setActiveType(null);
+    setEditableText(''); // Clear editable text after blurring
   };
+
 
   // Handle click outside suggestion and input box
   useEffect(() => {
@@ -59,7 +64,6 @@ const DigitisedPrescription = ({ data, setData}) => {
 
   // Handle selecting an item from suggestions
   const handleSuggestionClick = (type, index, suggestion) => {
-    // Update the refinedName for the clicked suggestion
     setData((prevData) => {
       const updatedData = { ...prevData };
       if (type === 'medications' || type === 'tests') {
@@ -72,7 +76,6 @@ const DigitisedPrescription = ({ data, setData}) => {
       return updatedData;
     });
 
-    // Hide suggestions after selection
     setShowSuggestions(false);
     setEditableText(suggestion); // Update editableText to match the selected suggestion
     setActiveIndex(null);
@@ -102,6 +105,11 @@ const DigitisedPrescription = ({ data, setData}) => {
 
   // Handle click on an item (to edit)
   const handleItemClick = (type, index) => {
+    // If switching items, first blur the previous one to save changes
+    if (activeIndex !== null && activeType !== null) {
+      handleInputBlur(activeType, activeIndex); // Save changes for the active item
+    }
+
     if (type === 'medications' || type === 'tests') {
       setEditableText(data[type][index].refinedName);
       setShowSuggestions(true);
@@ -110,9 +118,11 @@ const DigitisedPrescription = ({ data, setData}) => {
     } else if (type === 'advice') {
       setEditableText(data[type][index]);
     }
+    
     setActiveIndex(index);
     setActiveType(type);
   };
+
 
   // Handle click on a lineItem (to edit)
   const handleLineItemClick = (type, index) => {

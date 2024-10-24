@@ -31,6 +31,7 @@ import CommonModal from "../common/CommonModal";
 import alertIcon from "../assets/images/alertIcon.svg";
 import FullPageLoader from "./vaccination/components/Loader";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import CvtKnowMore from "./smartSync/components/CvtKnowMore";
 
 function SmartPrescription() {
   const {
@@ -44,6 +45,7 @@ function SmartPrescription() {
 
   const { state } = useLocation();
   const { patient_data, caseManagerData, smartRxFilesData } = state;
+  
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -125,6 +127,7 @@ function SmartPrescription() {
   );
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
+  const [cvtDrawer, setCvtDrawer] = useState(false);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -272,14 +275,22 @@ function SmartPrescription() {
     setVitalDrawer(!vitalDrawer);
   }, [vitalDrawer]);
 
+  // Drawer CVT Know more page
+  const handleDrawerCvtKnowMore = useCallback(() => {
+    setCvtDrawer(!cvtDrawer);
+  }, [cvtDrawer]);
+
   //Handle Sider
   const handleCollapsed = useCallback(
     (flag) => {
       if (flag === 1) {
         handleDrawerVital();
       }
+      if(flag === 2) {
+        handleDrawerCvtKnowMore();
+      }
     },
-    [vitalDrawer]
+    [vitalDrawer,cvtDrawer]
   );
 
   useEffect(() => {
@@ -721,16 +732,16 @@ useEffect(() => {
             >
               { isSmartSyncCVTAccessableFromGB &&
                 <div className="know-more-cvt p-14">
-                  <div className="sparkle"></div>
-                  <div className="title-common">
-                    <div>
-                      <span className="me-2">
-                        AI-Powered Smart Rx Digitisation
-                      </span>
-                      <span className="new-btn">New</span>
-                    </div>
-                    <button className="know-more-btn">Know More</button>
+                <div className="sparkle"></div>
+                <div className="title-common">
+                  <div>
+                    <span className="me-2">
+                      AI-Powered Smart Rx Digitisation
+                    </span>
+                    <span className="new-btn">New</span>
                   </div>
+                  <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>Know More</button>
+                </div>
                 </div>
               }
               <div className="prescription-box-sm p-14">
@@ -863,6 +874,19 @@ useEffect(() => {
           width="auto"
         >
           <VitalsBox
+            handleDrawerVital={handleDrawerVital}
+            handleCollapsed={(flag) => handleCollapsed(flag)}
+          />
+        </Drawer>
+        <Drawer
+          closeIcon={false}
+          // placement="right"
+          onClose={handleDrawerCvtKnowMore}
+          open={cvtDrawer}
+          className=".modalWidth-800"
+          width={800}
+        >
+          <CvtKnowMore
             handleDrawerVital={handleDrawerVital}
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
