@@ -566,16 +566,18 @@ function TabPrescription() {
         })
       );
 
-      dispatch(
-        getPatientBirthWeight({
-          patient_unique_id:
-            patient_data !== undefined ? patient_data.patient_unique_id : 0,
-          pam_id:
-            patient_data !== undefined && patient_data.pam_id !== undefined
-              ? patient_data.pam_id
-              : 0,
-        })
-      );
+      if (patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
+        dispatch(
+          getPatientBirthWeight({
+            patient_unique_id:
+              patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            pam_id:
+              patient_data !== undefined && patient_data.pam_id !== undefined
+                ? patient_data.pam_id
+                : 0,
+          })
+        );
+      }
 
       const PN_action = await dispatch(
         listPrivateNotes({
