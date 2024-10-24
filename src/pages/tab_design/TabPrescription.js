@@ -92,7 +92,6 @@ function TabPrescription() {
     (state) => state.uploadDoc
   );
   const { profile } = useSelector((state) => state.doctors);
-  const { isLoading } = useSelector((state) => state.uploadDoc);
   const dispatch = useDispatch();
 
   const { state } = useLocation();
