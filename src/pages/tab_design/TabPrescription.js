@@ -9,7 +9,7 @@ import { env } from "../../EnvironmentConfig";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 
 import { getPatientBirthWeight, getVitals } from "../../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../../redux/medicalhistorySlice";
@@ -93,6 +93,7 @@ function TabPrescription() {
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
+  const { profile } = useSelector((state) => state.doctors);
   const { isLoading } = useSelector((state) => state.uploadDoc);
   const dispatch = useDispatch();
 
@@ -566,7 +567,10 @@ function TabPrescription() {
         })
       );
 
-      if (patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
+      if (
+        profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 &&
+        patient_data?.ageYears === 0
+      ) {
         dispatch(
           getPatientBirthWeight({
             patient_unique_id:
