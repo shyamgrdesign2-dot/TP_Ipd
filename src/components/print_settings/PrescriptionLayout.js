@@ -575,7 +575,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                           ({ ...option, key: option.id })
                           : (caseManagerData.investigation.length > 0 && option.id === 6) ?
                             ({ ...option, key: option.id })
-                            : (caseManagerData.vitals.length > 0 && option.id === 7) ?
+                            : ((caseManagerData.vitals.length > 0 || caseManagerData?.patient_birth_weight) && option.id === 7) ?
                               ({ ...option, key: option.id })
                               : (caseManagerData.medical_history.length > 0 && option.id === 8) ?
                                 ({ ...option, key: option.id })

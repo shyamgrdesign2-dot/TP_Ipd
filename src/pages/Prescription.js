@@ -6,9 +6,9 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, GB_GYNEC_HISTORY, GYNAECOLOGY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, GB_GYNEC_HISTORY, GYNAECOLOGY, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
-import { getVitals } from "../redux/vitalsSlice";
+import { getPatientBirthWeight, getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../redux/medicalhistorySlice";
 
 import CashManagerContext from "../context/CashManagerContext";
@@ -81,7 +81,8 @@ function Prescription() {
     timingList,
   } = useSelector((state) => state.doctors);
 
-  const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
+  const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
+    useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
   const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
@@ -467,6 +468,22 @@ function Prescription() {
         })
       );
 
+      if (
+        profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 &&
+        patient_data?.ageYears === 0
+      ) {
+        dispatch(
+          getPatientBirthWeight({
+            patient_unique_id:
+              patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            pam_id:
+              patient_data !== undefined && patient_data.pam_id !== undefined
+                ? patient_data.pam_id
+                : 0,
+          })
+        );
+      }
+
       const PN_action = await dispatch(
         listPrivateNotes({
           patient_unique_id:
@@ -657,7 +674,7 @@ const getLabParams = async () => {
                         }`}</span>
                       </button>
                     </div>
-                    {(vitalsData.length > 0 || vitalsPastList.length > 0) && (
+                    {(vitalsData.length > 0 || vitalsPastList.length > 0 || patientBirthWeight) && (
                       <VitalsList
                         mode={caseManagerData !== undefined ? EDIT : ADD}
                       />

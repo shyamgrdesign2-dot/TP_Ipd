@@ -54,7 +54,13 @@ const UpdateVaccine = ({
     { label: "1 month", value: 30 },
     { label: "2 months", value: 60 },
   ];
-  const [vaccineDetails, setVaccineDetails] = useState({});
+  const [vaccineDetails, setVaccineDetails] = useState(
+    selectedVaccines.reduce((acc, item) => {
+      acc[item.tvac_name] = undefined;
+      return acc;
+    }, {})
+  );
+  const [vaccineOptions, setVaccineOptions] = useState([]);
   const [updateLoader, setUpdateLoader] = useState(false);
   const [focusedIndexes, setFocusedIndexes] = useState([]);
   const [isOpen, setIsOpen] = useState(
@@ -100,6 +106,24 @@ const UpdateVaccine = ({
         )
       );
     }
+
+    const options = selectedVaccines.reduce((acc, vaccine) => {
+      const filteredBrands = brands?.filter((brand) =>
+        vaccine?.tvac_name === "Influenza"
+          ? brand?.tvc_default_vac === "Influenza-1"
+          : brand?.tvc_default_vac === vaccine?.tvac_name
+      );
+
+      acc[vaccine.tvac_name] = filteredBrands?.map((brand) => ({
+        label: brand?.tvc_name,
+        value: brand?.tvc_id,
+      }));
+
+      return acc;
+    }, {});
+
+    setVaccineOptions(options);
+
   }, []);
 
   const trackUpdateEvent = () => {
@@ -194,13 +218,45 @@ const UpdateVaccine = ({
     setShow(false);
   };
 
-  const handleDetails = (vaccineName, detail, value, index) => {
+  const handleDetails = (vaccineName, detail, value, option, index) => {
     setVaccineDetails((prev) => {
-      if (prev[vaccineName]) prev[vaccineName][detail] = value;
-      else prev[vaccineName] = { [detail]: value };
-      return prev;
+      const updatedDetails = { ...prev };
+
+      // Update the selected vaccine's detail
+      updatedDetails[vaccineName] = {
+        ...(updatedDetails[vaccineName] || {}),
+        [detail]: value,
+        brandName: option?.label,
+      };
+
+      // Check other vaccines with undefined values
+      for (const key in updatedDetails) {
+        if (
+          key !== vaccineName &&
+          updatedDetails[key] === undefined
+        ) {
+
+          // Check if the selected value matches any other vaccine brand
+          const hasMatchingBrand = vaccineOptions?.[key]?.find(
+            (item) => item?.label === option?.label
+          );
+
+          // If a matching brand is found, assign the value to the current vaccine
+          if (hasMatchingBrand) {
+            updatedDetails[key] = {
+              ...(updatedDetails[key] || {}),
+              [detail]: hasMatchingBrand?.value,
+              brandName: hasMatchingBrand?.label,
+            };
+          }
+        }
+      }
+
+      return updatedDetails;
     });
-    handleDropdownVisibleChange(index);
+
+    // Close dropdown after selection
+    handleDropdownVisibleChange(index, false);
   };
 
   const updateVaccineDueDate = async () => {
@@ -376,81 +432,85 @@ const UpdateVaccine = ({
           >
             {selectedDate === "given" ? (
               <>
-                {selectedVaccines?.map((vaccine, i) => (
-                  <>
-                    <label>
-                      {vaccine?.tvac_name}
-                      <div style={{ opacity: 0.5 }}>{`(Selected vaccine ${
-                        i + 1
-                      })`}</div>
-                    </label>
-                    <Select
-                      showSearch
-                      placeholder="Select vaccine brand"
-                      className="custom-select-style"
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        (option?.label ?? "")
+                {selectedVaccines?.map((vaccine, i) => {
+                  const selectedBrand = vaccineDetails?.[vaccine?.tvac_name]
+                    ?.vaccine_company_id
+                    ? vaccineOptions?.[vaccine?.tvac_name]?.find(
+                        (item) =>
+                          item.value ===
+                          vaccineDetails?.[vaccine?.tvac_name]
+                            ?.vaccine_company_id
+                      )?.label
+                    : undefined;
+                  return (
+                    <>
+                      <label>
+                        {vaccine?.tvac_name}
+                        <div style={{ opacity: 0.5 }}>{`(Selected vaccine ${
+                          i + 1
+                        })`}</div>
+                      </label>
+                      <Select
+                        showSearch
+                        placeholder="Select vaccine brand"
+                        className="custom-select-style"
+                        optionFilterProp="children"
+                        value={selectedBrand}
+                        filterOption={(input, option) =>
+                          (option?.label ?? "")
                           ?.toLowerCase()
                           .includes(input?.toLowerCase())
-                      }
-                      filterSort={(optionA, optionB) =>
+                        }
+                        filterSort={(optionA, optionB) =>
                         (optionA?.label ?? "")
                           .toLowerCase()
                           .localeCompare((optionB?.label ?? "").toLowerCase())
-                      }
-                      options={brands
-                        ?.filter((brand) =>
-                          vaccine?.tvac_name === "Influenza"
-                            ? brand?.tvc_default_vac === "Influenza-1"
-                            : brand?.tvc_default_vac === vaccine?.tvac_name
-                        )
-                        ?.map((brand) => ({
-                          label: brand?.tvc_name,
-                          value: brand?.tvc_id,
-                        }))}
-                      onChange={(value) => {
-                        handleDetails(
-                          vaccine?.tvac_name,
-                          "vaccine_company_id",
-                          value,
-                          i
-                        );
-                      }}
-                      defaultValue={vaccine?.brandId}
-                      ref={(ref) => {
-                        if (ref) selectRefs.current[i] = ref;
-                      }}
-                      open={isOpen[i]}
-                      onDropdownVisibleChange={(open) =>
-                        handleDropdownVisibleChange(i, open)
-                      }
-                      style={{
-                        border: focusedIndexes.includes(i)
-                          ? "1px solid blue"
-                          : "none",
-                        borderRadius: focusedIndexes.includes(i)
-                          ? "10px"
-                          : "none",
-                      }}
-                    />
-                    <label>Note</label>
-                    <TextArea
-                      onChange={(e) =>
-                        handleDetails(
-                          vaccine?.tvac_name,
-                          "remarks",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Add additional details"
-                      autoSize={{ minRows: 3, maxRows: 5 }}
-                      width={200}
-                      defaultValue={vaccine?.tvp_remarks ?? ""}
-                    />
-                    <Divider dashed style={{ width: "100%" }} />
-                  </>
-                ))}
+                        }
+                        options={vaccineOptions?.[vaccine?.tvac_name]}
+                        onChange={(value, option) =>
+                          handleDetails(
+                            vaccine?.tvac_name,
+                            "vaccine_company_id",
+                            value,
+                            option,
+                            i
+                          )
+                        }
+                        defaultValue={vaccine?.brandId}
+                        ref={(ref) => {
+                          if (ref) selectRefs.current[i] = ref;
+                        }}
+                        open={isOpen[i]}
+                        onDropdownVisibleChange={(open) =>
+                          handleDropdownVisibleChange(i, open)
+                        }
+                        style={{
+                          border: focusedIndexes.includes(i)
+                            ? "1px solid blue"
+                            : "none",
+                          borderRadius: focusedIndexes.includes(i)
+                            ? "10px"
+                            : "none",
+                        }}
+                      />
+                      <label>Note</label>
+                      <TextArea
+                        onChange={(e) =>
+                          handleDetails(
+                            vaccine?.tvac_name,
+                            "remarks",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Add additional details"
+                        autoSize={{ minRows: 3, maxRows: 5 }}
+                        width={200}
+                        defaultValue={vaccine?.tvp_remarks ?? ""}
+                      />
+                      <Divider dashed style={{ width: "100%" }} />
+                    </>
+                  );
+                })}
               </>
             ) : (
               <>

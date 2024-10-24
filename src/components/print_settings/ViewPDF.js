@@ -124,6 +124,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     const gynecHistoryData = caseManagerData?.gynecHistoryData
     const labParamsData = caseManagerData?.labParamsData
+    const patientBirthWeight = caseManagerData?.patient_birth_weight ?? null;
 
     const { growthChartData, growthChartImageData, todayGrowthChartData } =
       growthChartDetails || {};
@@ -157,6 +158,23 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         }
         return value
     }
+
+    const transformGivenVaccineData = (data) => {
+      const groupedData = {};
+
+      data?.forEach((item) => {
+        const { tvc_name, tvac_name, ...rest } = item;
+
+        if (!groupedData[tvc_name]) {
+          groupedData[tvc_name] = { ...rest, tvac_name, tvc_name };
+        } else {
+          groupedData[tvc_name].tvac_name += `, ${tvac_name}`;
+        }
+      });
+      return Object.values(groupedData);
+    };
+
+    const transformGivenVaccines = transformGivenVaccineData(todayVaccines?.given);
 
     const patientDataShow = (id) => {
         var value = ''
@@ -1014,11 +1032,31 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 7 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
-                                    {caseManagerData.vitals.length > 0 && (
+                                    {(caseManagerData.vitals.length > 0 || patientBirthWeight) &&  (
                                         option?.format === 'inline' ? (
                                             <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
-                                                {caseManagerData.vitals.map((item, i) => {
+                                                {patientBirthWeight && (
+                                                    <>
+                                                        <Text
+                                                            style={{ 
+                                                                color: '#171725',
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500
+                                                            }}>Patient’s birth weight:&nbsp;
+                                                        </Text>
+                                                        <Text
+                                                            style={{ 
+                                                                color: '#171725',
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 400
+                                                            }}>({patientBirthWeight}kg),&nbsp;
+                                                        </Text>
+                                                    </>
+                                                )}
+                                                {caseManagerData.vitals.length > 0 && caseManagerData.vitals.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{moment(item.date).format('DD/MM/YYYY')}&nbsp;</Text>
@@ -1061,8 +1099,31 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </Text>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
-                                                {caseManagerData.vitals.map((item, i) => {
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
+                                                    Vitals & Body Composition:&nbsp;
+
+                                                    {patientBirthWeight && (
+                                                        <>
+                                                            <Text
+                                                                style={{ 
+                                                                    color: '#171725',
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500
+                                                                }}>Patient’s birth weight:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{ 
+                                                                    color: '#171725',
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400
+                                                                }}>({patientBirthWeight}kg)
+                                                            </Text>
+                                                        </>
+                                                    )}
+                                                </Text>
+                                                {caseManagerData.vitals.length > 0 && caseManagerData.vitals.map((item, i) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
@@ -1106,8 +1167,31 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
-                                                <View style={styles.table}>
+                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>                                                    
+                                                    Vitals & Body Composition:&nbsp;
+
+                                                    {patientBirthWeight && (
+                                                        <>
+                                                            <Text
+                                                                style={{ 
+                                                                    color: '#171725',
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500
+                                                                }}>Patient’s birth weight:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{ 
+                                                                    color: '#171725',
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400
+                                                                }}>({patientBirthWeight}kg)
+                                                            </Text>
+                                                        </>
+                                                    )}
+                                                </Text>
+                                                {caseManagerData.vitals.length > 0 && (<View style={styles.table}>
                                                     <View style={styles.row}>
                                                         {columns.map((item, i) => {
                                                             return (
@@ -1131,7 +1215,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             )
                                                         )
                                                     })}
-                                                </View>
+                                                </View>)}
                                             </View>
                                         )
                                     )}
@@ -1373,12 +1457,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             ) : option?.id === 10 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     <>
-                                        {(todayVaccines?.given?.length > 0 || todayVaccines?.due?.length > 0) && (
+                                        {(transformGivenVaccines?.length > 0 || todayVaccines?.due?.length > 0) && (
                                             option?.format === 'inline' ? (
                                                 <>
-                                                    {todayVaccines?.given?.length > 0 && <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    {transformGivenVaccines?.length > 0 && <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
                                                         <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;{'\n'}</Text>
-                                                        {todayVaccines?.given?.map((item, i) => {
+                                                        {transformGivenVaccines?.map((item, i) => {
                                                             return (
                                                                 <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
                                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.tvac_name}&nbsp;</Text>
@@ -1433,9 +1517,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 </>
                                             ) : option?.format === 'listview' ? (
                                                 <>
-                                                    {todayVaccines?.given?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    {transformGivenVaccines?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
                                                         <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;{'\n'}</Text>
-                                                        {todayVaccines?.given?.map((item, i) => {
+                                                        {transformGivenVaccines?.map((item, i) => {
                                                             return (
                                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
                                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
@@ -1490,7 +1574,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 </>
                                             ) : (
                                                 <>
-                                                    {todayVaccines?.given?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    {transformGivenVaccines?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
                                                         <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;{'\n'}</Text>
                                                         <View style={styles.table}>
                                                             <View style={styles.row}>
@@ -1499,7 +1583,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>BRAND</Text>
                                                                 <Text style={[styles.cell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
                                                             </View>
-                                                            {todayVaccines?.given?.map((item, i) => (
+                                                            {transformGivenVaccines?.map((item, i) => (
                                                                 <View style={styles.row} key={i}>
                                                                     <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                         {item?.tvac_name || '-'}

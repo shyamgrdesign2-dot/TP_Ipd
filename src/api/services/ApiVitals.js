@@ -13,4 +13,8 @@ ApiVitals.getVitals = function (data) {
     return api.post(`/api/v1/vital/listVitals`, data, baseUrl);
 };
 
+ApiVitals.getPatientBirthWeight = function (data) {
+  return api.post(`/api/v1/vital/get-patient-birth-weight`, data, baseUrl);
+};
+
 export default ApiVitals;
