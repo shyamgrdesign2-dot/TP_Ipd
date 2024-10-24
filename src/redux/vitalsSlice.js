@@ -9,6 +9,7 @@ const initialState = {
     vitalsPastList: [],
     loading: false,
     error: null,
+    patientBirthWeight: null
 };
 
 export const addUpdateVitals = createAsyncThunk(
@@ -36,6 +37,16 @@ export const getVitals = createAsyncThunk(
         }
     }
 );
+
+export const getPatientBirthWeight = createAsyncThunk("vitals/getPatientBirthWeight", async (data) => {
+  let result = {};
+  result = await ApiVitals.getPatientBirthWeight(data);
+  if (result.status) {
+    return result.data;
+  } else {
+    throw Error(result.error);
+  }
+});
 
 const vitalsSlice = createSlice({
     name: "vitals",
@@ -75,6 +86,9 @@ const vitalsSlice = createSlice({
             })
             .addCase(getVitals.rejected, (state) => {
                 state.loading = false;
+            })
+            .addCase(getPatientBirthWeight.fulfilled, (state, action) => {
+                state.patientBirthWeight = action?.payload?.birth_weight;
             })
     },
 });

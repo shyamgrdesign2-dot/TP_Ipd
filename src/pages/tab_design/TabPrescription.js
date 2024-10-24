@@ -11,7 +11,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { ADD, EDIT, EXTRA_OPTIONS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 
-import { getVitals } from "../../redux/vitalsSlice";
+import { getPatientBirthWeight, getVitals } from "../../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../../redux/medicalhistorySlice";
 
 import CashManagerContext from "../../context/CashManagerContext";
@@ -82,7 +82,8 @@ function TabPrescription() {
     timingList,
     userId,
   } = useSelector((state) => state.doctors);
-  const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
+  const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
+    useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
   const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
@@ -560,6 +561,17 @@ function TabPrescription() {
         })
       );
 
+      dispatch(
+        getPatientBirthWeight({
+          patient_unique_id:
+            patient_data !== undefined ? patient_data.patient_unique_id : 0,
+          pam_id:
+            patient_data !== undefined && patient_data.pam_id !== undefined
+              ? patient_data.pam_id
+              : 0,
+        })
+      );
+
       const PN_action = await dispatch(
         listPrivateNotes({
           patient_unique_id:
@@ -650,7 +662,7 @@ function TabPrescription() {
                     type="button"
                     className="mb-3 text-center btn btn-action"
                     onClick={() =>
-                      vitalsData.length === 0 && vitalsPastList.length === 0
+                      vitalsData.length === 0 && vitalsPastList.length === 0 && !patientBirthWeight
                         ? handleDrawerVital()
                         : openCollapsed(1)
                     }

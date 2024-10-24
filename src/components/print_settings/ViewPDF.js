@@ -1032,7 +1032,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 7 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
-                                    {caseManagerData.vitals.length > 0 && (
+                                    {(caseManagerData.vitals.length > 0 || patientBirthWeight) &&  (
                                         option?.format === 'inline' ? (
                                             <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
@@ -1044,7 +1044,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontFamily: printSettings?.page_format?.font_family,
                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                 fontWeight: 500
-                                                            }}>Patients birth weight:&nbsp;
+                                                            }}>Patient’s birth weight:&nbsp;
                                                         </Text>
                                                         <Text
                                                             style={{ 
@@ -1056,7 +1056,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </Text>
                                                     </>
                                                 )}
-                                                {caseManagerData.vitals.map((item, i) => {
+                                                {caseManagerData.vitals.length > 0 && caseManagerData.vitals.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{moment(item.date).format('DD/MM/YYYY')}&nbsp;</Text>
@@ -1110,7 +1110,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                     fontWeight: 500
-                                                                }}>Patients birth weight:&nbsp;
+                                                                }}>Patient’s birth weight:&nbsp;
                                                             </Text>
                                                             <Text
                                                                 style={{ 
@@ -1123,7 +1123,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </>
                                                     )}
                                                 </Text>
-                                                {caseManagerData.vitals.map((item, i) => {
+                                                {caseManagerData.vitals.length > 0 && caseManagerData.vitals.map((item, i) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
@@ -1178,7 +1178,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                     fontWeight: 500
-                                                                }}>Patients birth weight:&nbsp;
+                                                                }}>Patient’s birth weight:&nbsp;
                                                             </Text>
                                                             <Text
                                                                 style={{ 
@@ -1191,7 +1191,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </>
                                                     )}
                                                 </Text>
-                                                <View style={styles.table}>
+                                                {caseManagerData.vitals.length > 0 && (<View style={styles.table}>
                                                     <View style={styles.row}>
                                                         {columns.map((item, i) => {
                                                             return (
@@ -1215,7 +1215,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             )
                                                         )
                                                     })}
-                                                </View>
+                                                </View>)}
                                             </View>
                                         )
                                     )}
