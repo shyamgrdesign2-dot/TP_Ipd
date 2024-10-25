@@ -11,7 +11,7 @@ import {
 import { updateDragDrop } from "../../redux/doctorsSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
-import dragChips from '../../../src/assets/images/drag-chips.svg'
+import dragChips from '../../../src/assets/images/drag-chips.gif'
 import tagNew from '../../../src/assets/images/tag-new.svg'
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
@@ -122,7 +122,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                 <>
                     <div className="fw-medium fs-18 pt-3">Reorder chips <img className="img-fluid ms-2" src={tagNew} /></div>
                     <div className="pt-1">Hold and drag the chips to reorder them.</div>
-                    <img className="img-fluid py-3" src={dragChips} />
+                    <img className="img-fluid bg-body my-2" width={329} height={107} src={dragChips} />
                 </>
             ,
             target: () => tourRef.current,
