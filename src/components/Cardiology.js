@@ -339,7 +339,7 @@ function Cardiology(props) {
       });
       if(response?.data?.data) {
         setRxDigitisedData(response?.data?.data);
-        if(response?.data?.data?.editedData){
+        if(response?.data?.data?.isDigitize){
           setIsRxdigitised(true);
         } else {
           setIsRxdigitised(false);
