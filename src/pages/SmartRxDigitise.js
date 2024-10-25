@@ -63,6 +63,7 @@ function SmartRxDigitise() {
             const cleanedToken = token.replace(/['"]+/g, '');
 
             const payload = {
+                isDigitize: true,
                 editedData: {
                     ...data
                 }
