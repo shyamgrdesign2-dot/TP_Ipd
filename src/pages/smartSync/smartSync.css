@@ -11,7 +11,6 @@
     background-color: white;
     z-index: 2;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    padding: 16px;
     position: relative; /* Keep header at the top */
   }
   
@@ -19,6 +18,7 @@
   .drawer-header-content {
     display: flex;
     align-items: center;
+    padding: 12px;
   }
   
   /* Close button */
@@ -30,6 +30,23 @@
   .drawer-tabs {
     margin-top: 16px;
   }
+
+  .drawer-tabs .ant-tabs {
+    border: none; /* Remove the default border if needed */
+  }
+
+  .drawer-tabs .ant-tabs-nav {
+      margin: 0; /* Remove margin if necessary */
+  }
+
+  .drawer-tabs .ant-tabs-nav .ant-tabs-tab {
+      border-bottom: 2px solid transparent; /* Ensure tabs have a bottom border on hover */
+  }
+
+  .drawer-tabs .ant-tabs-nav .ant-tabs-tab-active {
+      border-bottom: 2px solid #007bff; /* Change the active tab border color */
+  }
+
   .drawer-title{
     color: var(--T-Text-100, #171725) !important;
     font-size: 24px;
@@ -55,8 +72,21 @@
   .section {
     padding: 0 30px;
     width: 100%; /* Add padding to each section */
-    min-height: 200px; /* Make each section full height */
+    min-height: 200px;
   } 
+
+  .video-section{
+    padding: 0 30px;
+    width: 100%; /* Add padding to each section */
+    min-height: 350px;
+  }
+
+  .instruction-cvt-tutorial{
+    font-size: 14px;
+    color: #29292e !important;
+    margin-bottom: 10px;
+
+  }
 
   .section-side-header{
     color: var(--P-CTA--100, var(--P-CTA-100, #4B4AD5)) !important;
@@ -153,4 +183,104 @@
     font-weight: 500;
     line-height: 18px; /* 150% */
     text-align: left;
+  }
+
+  .cvt-play {
+    position: relative;
+    width: 447px;
+    height: 271.68px;
+    border-radius: 24px;
+    background: var(--S-BG-50, #FFE8AE);
+  }
+
+  .cvt-play button {
+    cursor: pointer !important;
+    border: 0px;
+    background: transparent;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    position: absolute;
+    outline: none;
+  }
+
+  .cvt-play button img {
+    max-width: 100%;
+    border-radius: 10px;
+  }
+
+  .thumbnail-title{
+    display: inline-flex;
+    padding: 5.353px 13.383px;
+    justify-content: center;
+    align-items: center;
+    color: white !important;
+    gap: 13.383px;
+    border-radius: 0px 10.707px 10.707px 0px;
+    background: rgba(23, 23, 37, 0.80);
+    position: absolute;
+    top: 15%;
+  }
+
+  .smartsync-video-title{
+    width: 244.913px;
+    color: var(--T-Text-80, #454551);
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: Poppins;
+    font-size: 32.12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 48.18px; /* 150% */
+    letter-spacing: 0.134px;
+    position: absolute;
+    top: 34%;
+    left: 6%;
+  }
+
+  .smartsync-video-length{
+    display: inline-flex;
+    padding: 5px 10px;
+    justify-content: center;
+    align-items: center;
+    gap: 13.383px;
+    border-radius: 8.03px;
+    color: #fff !important;
+    background: rgba(23, 23, 37, 0.70);
+    position: absolute;
+    bottom: 5%;
+    right: 5%;
+  }
+
+  .cvt-tips-content{
+    font-size: 14px;
+    padding: 25px;
+    text-align: left;
+    border-radius: 24px;
+    background: rgba(75, 74, 213, 0.10);
+  }
+
+  .tips-imgs-container{
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    margin-top: 3 0px;
+  }
+
+  .smartRx-cvt-img-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    flex: 1 ;
+    margin-top: 30px;
+  }
+
+  .cvt-tips-image{
+    height: 439px;
+    align-self: stretch;
+    border-radius: 24px;
+    border: 1px solid var(--T-Text-10, #E2E2EA);
+    background: #FFF;
+    margin-bottom: 20px;
   }
