@@ -7,9 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { onlyNumberFormat, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
-import {
-    searchSymptoms
-} from "../../redux/symptomsSlice";
+import { searchSymptoms } from "../../redux/symptomsSlice";
 import { updateDragDrop } from "../../redux/doctorsSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
@@ -119,11 +117,11 @@ function TabSymptomsSearch({ passIndex, onClose }) {
     const tourRef = useRef(null);
 
     useEffect(() => {
-        dispatch(updateDragDrop(''));
+        // dispatch(updateDragDrop(''));
         setTimeout(() => {
             if (symptomsData?.length > 1 && !dragDrop?.symptoms) {
                 setTourOpen(true)
-                
+
             }
         }, 400);
     }, [symptomsData]);

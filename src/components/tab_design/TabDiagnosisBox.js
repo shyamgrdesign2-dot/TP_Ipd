@@ -23,6 +23,8 @@ import {
 
 import TabDiagnosisSearch from "../../components/tab_design/TabDiagnosisSearch";
 
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+
 function TabDiagnosisBox() {
     const {
         selectedDiagnosisList,
@@ -156,19 +158,19 @@ function TabDiagnosisBox() {
 
     const loadPreviousClick = async () => {
         var sendData = {
-          patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
         };
         const action = await dispatch(getLoadPreviousDiagnosis(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-          const updatedData = action.payload.map(e => {
-            return { ...e, unique_id: uuidv4()}
-          })
-          setDiagnosisData([...diagnosisData, ...updatedData]);
-    
+            const updatedData = action.payload.map(e => {
+                return { ...e, unique_id: uuidv4() }
+            })
+            setDiagnosisData([...diagnosisData, ...updatedData]);
+
         } else {
-          errorMessage(action.error)
+            errorMessage(action.error)
         }
-      };
+    };
 
     const onTemplateSelected = (template) => {
         const updatedData = template.diagnosis.map(e => {
@@ -286,29 +288,87 @@ function TabDiagnosisBox() {
     }, [isModalOpen]);
 
     //Child Componet
+    // const TABLE_DIAGNOSIS = useMemo(() => {
+    //     return (
+    //         diagnosisData.length > 0 &&
+    //         diagnosisData.map((item, index) => {
+    //             return (
+    //                 <div key={index} style={{ width: item.tds_name.length > 12 && item.tds_name.length < 24 ? `${item.tds_name.length * 10.5}px` : item.tds_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active">
+    //                     <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
+    //                         <div className="text-truncate">{item.tds_name}
+    //                             {(item.since || item.status || item.note) ? (
+    //                                 <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.status ? item.status + ' | ' : ''}${item.note ? item.note : ''}`}</div>
+    //                             ) : (
+    //                                 <div className="text-truncate small">Add Details</div>
+    //                             )}
+    //                         </div>
+    //                     </div>
+    //                     <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
+    //                         <i className="icon-Cross"></i>
+    //                     </Button>
+    //                 </div>
+    //             );
+    //         })
+    //     );
+    // }, [diagnosisData]);
+
+    const SortableItem = SortableElement(({ item }) => (
+        <div
+            style={{
+                width: item.tds_name.length > 12 && item.tds_name.length < 24
+                    ? `${item.tds_name.length * 10.5}px`
+                    : item.tds_name.length >= 24
+                        ? '256px'
+                        : '150px'
+            }}
+            className={"d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active"}
+        >
+            <div className="text-truncate p-2" onClick={() => handleDrawerChild(item)}>
+                <div className="text-truncate">{item.tds_name}
+                    {(item.since || item.status || item.note) ? (
+                        <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.status ? item.status + ' | ' : ''}${item.note ? item.note : ''}`}</div>
+                    ) : (
+                        <div className="text-truncate small">Add Details</div>
+                    )}
+                </div>
+            </div>
+            <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(item.index)}>
+                <i className="icon-Cross"></i>
+            </Button>
+        </div>
+    ));
+
+    const SortableList = SortableContainer(({ items }) => {
+        return (
+            <div className="d-flex flex-wrap">
+                {items.map((item, index) => (
+                    <SortableItem
+                        key={`item-${index}`}
+                        index={index}
+                        item={{ ...item, index }}
+                    />
+                ))}
+            </div>
+        );
+    });
+
     const TABLE_DIAGNOSIS = useMemo(() => {
         return (
-            diagnosisData.length > 0 &&
-            diagnosisData.map((item, index) => {
-                return (
-                    <div key={index} style={{ width: item.tds_name.length > 12 && item.tds_name.length < 24 ? `${item.tds_name.length * 10.5}px` : item.tds_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active">
-                        <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
-                            <div className="text-truncate">{item.tds_name}
-                                {(item.since || item.status || item.note) ? (
-                                    <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.status ? item.status + ' | ' : ''}${item.note ? item.note : ''}`}</div>
-                                ) : (
-                                    <div className="text-truncate small">Add Details</div>
-                                )}
-                            </div>
-                        </div>
-                        <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
-                            <i className="icon-Cross"></i>
-                        </Button>
-                    </div>
-                );
-            })
+            diagnosisData.length > 0 && (
+                <SortableList
+                    items={diagnosisData}
+                    onSortEnd={({ oldIndex, newIndex }) => {
+                        const newDiagnosisData = [...diagnosisData];
+                        const [movedItem] = newDiagnosisData.splice(oldIndex, 1);
+                        newDiagnosisData.splice(newIndex, 0, movedItem);
+                        setDiagnosisData(newDiagnosisData);
+                    }}
+                    axis="xy"
+                    pressDelay={100}
+                />
+            )
         );
-    }, [diagnosisData]);
+    }, [diagnosisData, childDrawerData]);
 
     //Template Componet
     const TEMPLATE_CONTENT = useMemo(() => {

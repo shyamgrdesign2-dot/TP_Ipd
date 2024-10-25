@@ -555,7 +555,7 @@ function SymptomsBox() {
     return result;
   };
   const onDragEnd = (result) => {
-    if (!result.destination) return; // Dropped outside the list
+    if (!result.destination) return;
     const reorderedItems = reorder(
       symptomsData,
       result.source.index,

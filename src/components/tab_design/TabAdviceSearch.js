@@ -9,8 +9,9 @@ import { removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/uti
 import {
     searchAdvice
 } from "../../redux/adviceSlice";
-
+import { MenuOutlined } from '@ant-design/icons';
 import TabSearchHeader from "./TabSearchHeader";
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 function TabAdviceSearch({ passIndex, onClose }) {
 
@@ -88,17 +89,74 @@ function TabAdviceSearch({ passIndex, onClose }) {
     };
 
     //Child Componet
+    // const TABLE_ADVICE = useMemo(() => {
+    //     return (
+    //         adviceData.length > 0 &&
+    //         adviceData.map((item, index) => {
+    //             return (
+    //                 <div className={`${childDrawerData && childDrawerData.index == index && "bg-selected"} d-flex align-items-center justify-content-between border-bottom py-1 px-2`}>
+    //                     <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
+    //                     <Button className="focus-none btn px-1 btn-delete-prescription" onClick={() => childDrawerData && childDrawerData.index == index ? setChildDrawerData(null) : setChildDrawerData({ ...item, index: index })}><i className={`${childDrawerData && childDrawerData.index == index ? "icon-Cross" : "icon-Edit"} text-main fs-21`}></i></Button>
+    //                 </div>
+    //             );
+    //         })
+    //     );
+    // }, [adviceData, childDrawerData]);
+
+    const reorder = (list, startIndex, endIndex) => {
+        const result = Array.from(list);
+        const [removed] = result.splice(startIndex, 1);
+        result.splice(endIndex, 0, removed);
+        return result;
+    };
+    const onDragEnd = (result) => {
+        if (!result.destination) return;
+        const reorderedItems = reorder(
+            adviceData,
+            result.source.index,
+            result.destination.index
+        );
+        setAdviceData(reorderedItems);
+    };
+
     const TABLE_ADVICE = useMemo(() => {
         return (
-            adviceData.length > 0 &&
-            adviceData.map((item, index) => {
-                return (
-                    <div className={`${childDrawerData && childDrawerData.index == index && "bg-selected"} d-flex align-items-center justify-content-between border-bottom py-1 px-2`}>
-                        <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
-                        <Button className="focus-none btn px-1 btn-delete-prescription" onClick={() => childDrawerData && childDrawerData.index == index ? setChildDrawerData(null) : setChildDrawerData({ ...item, index: index })}><i className={`${childDrawerData && childDrawerData.index == index ? "icon-Cross" : "icon-Edit"} text-main fs-21`}></i></Button>
-                    </div>
-                );
-            })
+            <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="advice" direction="vertical">
+                    {(provided) => (
+                        <div {...provided.droppableProps} ref={provided.innerRef}>
+                            {adviceData.length > 0 &&
+                                adviceData.map((item, index) => (
+                                    <Draggable key={index} draggableId={`advice-${index}`} index={index}>
+                                        {(provided) => (
+                                            <Row
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                key={index}
+                                                gutter={[0]}
+                                                className="h-38 align-items-center"
+                                            >
+                                                <Col lg={1} md={1} sm={1} xs={1} className="text-center">
+                                                    <MenuOutlined
+                                                        {...provided.dragHandleProps}
+                                                        className="drag-handle"
+                                                        style={{ cursor: 'grab' }}
+                                                    >
+                                                    </MenuOutlined>
+                                                </Col>
+                                                <Col lg={23} md={23} sm={23} xs={23} className='px-2 d-flex justify-content-between align-items-center'>
+                                                    <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
+                                                    <Button className="btn btn-delete-prescription p-0" onClick={() => childDrawerData && childDrawerData.index == index ? setChildDrawerData(null) : setChildDrawerData({ ...item, index: index })}><i className={`${childDrawerData && childDrawerData.index == index ? "icon-Cross" : "icon-Edit"} text-main fs-21`}></i></Button>
+                                                </Col>
+                                            </Row>
+                                        )}
+                                    </Draggable>
+                                ))}
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
+            </DragDropContext>
         );
     }, [adviceData, childDrawerData]);
 
