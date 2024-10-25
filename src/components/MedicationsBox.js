@@ -11,6 +11,7 @@ import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
+import { MenuOutlined } from '@ant-design/icons';
 import {
   addTemplate,
   updateTemplate,
@@ -27,6 +28,8 @@ import {
   updateFrequentlyMedication
 } from "../redux/medicationSlice";
 import { EXTRA_OPTIONS } from "../utils/constants";
+
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const { TextArea } = Input;
 
@@ -718,7 +721,7 @@ function MedicationsBox() {
 
   const innerMedication = (index) => {
     const mainArray = []
-    for (var i = index; i < medicationData.length; i++) {
+    for (let i = index; i < medicationData.length; i++) {
       if (medicationData[i].tmm_id == medicationData[index].tmm_id) {
         mainArray.push(medicationData[i])
       } else {
@@ -758,7 +761,38 @@ function MedicationsBox() {
     setMedicationData((prev) => [...prev]);
   };
 
-  //Child Componet
+  const reorder = async (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+
+    const findMedicationIndex = medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], [])
+
+    const array = await innerMedication(findMedicationIndex[startIndex].index)
+    const array1 = await innerMedication(findMedicationIndex[endIndex].index)
+
+    const removedArray = result.filter(item => !array.some((x) => x.unique_id === item.unique_id));
+
+    if (findMedicationIndex[startIndex].index > findMedicationIndex[endIndex].index) {
+      const dragIndex = removedArray.findIndex(x => x.unique_id == array1.at(0).unique_id)
+      removedArray.splice(dragIndex, 0, ...array)
+    }
+    else {
+      const dragIndex = removedArray.findIndex(x => x.unique_id == array1.at(-1).unique_id)
+      removedArray.splice(dragIndex + 1, 0, ...array)
+    }
+
+    return removedArray;
+  };
+
+  const onDragEnd = async (result) => {
+    if (!result.destination) return;
+    const reorderedItems = await reorder(
+      medicationData,
+      result.source.index,
+      result.destination.index
+    );
+    setMedicationData(reorderedItems);
+  };
+
   const TABLE_MEDICATION = useMemo(() => {
     return (
       <>
@@ -767,12 +801,15 @@ function MedicationsBox() {
             gutter={[0]}
             className={`mt-14 border-top align-items-center`}
           >
+            <Col lg={1} md={1} sm={1} xs={1}>
+              &nbsp;
+            </Col>
             <Col lg={5} md={5} sm={5} xs={5}>
               <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
                 <label>MEDICINE</label>
               </div>
             </Col>
-            <Col lg={19} md={19} sm={19} xs={19}>
+            <Col lg={18} md={18} sm={18} xs={18}>
               <Row>
                 <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
                   <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
@@ -818,149 +855,371 @@ function MedicationsBox() {
             </Col>
           </Row>
         }
-        {medicationData.length > 0 &&
-          medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, i) => {
-            return (
-              <>
-                <Row
-                  key={i}
-                  gutter={[0]}
-                  align="middle"
-                  className={`taper-dose ${i === 0 && "border-top"} border-bottom`}
-                >
-                  <Col lg={5} md={5} sm={5} xs={5}>
-                    <div className="fontroboto fw-medium p-2 pe-3">
-                      <label>{item.tmm_medicine_name}</label>
-                      <Tooltip placement="bottom" title={item.tmm_generic}>
-                        <div className="text-truncate fw-normal me-1">{item.tmm_generic}</div>
-                      </Tooltip>
-                    </div>
-                  </Col>
-                  <Col lg={19} md={19} sm={19} xs={19}>
-                    {!item.pms_default &&
-                      <i className="icon-Edit fs-18 position-absolute" style={{ bottom: 0, left: -22 }}
-                        onClick={() => {
-                          const medicineType = medicineTypeList.find(x => x?.tmy_id == item?.tmm_type)
-                          const makeData = {
-                            unique_id: item.unique_id,
-                            tmm_id: item.tmm_id,
-                            tmm_medicine_name: item.tmm_medicine_name,
-                            tmm_generic: item.tmm_generic,
-                            tmm_company: item.tmm_company
-                          }
-                          const updateItem = medicineType !== undefined ? { ...makeData, ...medicineType } : makeData
-                          showHideAddMedicineModal()
-                          setAddCustom(updateItem);
-                        }}
-                      ></i>
-                    }
-                    {innerMedication(item.index).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) })).map((item, ii) => {
-                      return (
-                        <Row key={ii} className={`${ii != 0 && 'position-relative border-top'}`}>
-                          <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
-                            <AutoComplete
-                              defaultValue={item.tmm_dosage_unit_name}
-                              value={item.tmm_dosage_unit_name}
-                              placeholder="e.g 1 Tablet"
-                              bordered={false}
-                              defaultOpen={false}
-                              onSearch={(query) => onSearchUnitPerDoseChid(query, item?.index)}
-                              onBlur={() => onBlurUnitPerDoseChid(item?.index)}
-                              options={unitPerDoseOptions}
-                              // backfill={true}
-                              className="autocomplete-custom w-100 h-100 inputborder"
-                              defaultActiveFirstOption={true}
-                              onSelect={(data, e) => onSelectUnitPerDoseChild(data, e, item?.index)}
-                              onClear={() => onSearchUnitPerDoseChid("", item?.index)}
-                              allowClear
-                            />
-                          </Col>
-                          <Col lg={5} md={5} sm={5} xs={5} className="border-end">
-                            <Select
-                              showSearch
-                              className="autocomplete-custom w-100 h-100 inputborder"
-                              placeholder="e.g 1-0-1"
-                              defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
-                              value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
-                              onSearch={(query) => onSearchFrequencyChild(query, item?.index)}
-                              onFocus={() => onSearchFrequencyChild(item.tmm_freq_type_name, item?.index)}
-                              onBlur={() => onBlurFrequencyChild(item?.index)}
-                              onSelect={(data) => onSelectFrequencyChild(data, item?.index)}
-                              options={frequencyOptions}
-                              onClear={() => onSelectFrequencyChild("", item?.index)}
-                              allowClear
-                            />
-                          </Col>
-                          <Col lg={5} md={5} sm={5} xs={5} className="border-end">
-                            <Select
-                              className="autocomplete-custom w-100 h-100 inputborder"
-                              placeholder="e.g Before Food"
-                              defaultValue={item.tmm_time_name != "" ? item.tmm_time_name : null}
-                              value={item.tmm_time_name != "" ? item.tmm_time_name : null}
-                              onSelect={(data) => onSelectTimingChild(data, item?.index)}
-                              options={timingList.map((e) => {
-                                return {
-                                  value: JSON.stringify({ ...e, unique_id: uuidv4() }),
-                                  label: e.tmt_title,
-                                };
-                              })}
-                              onClear={() => onSelectTimingChild("", item?.index)}
-                              allowClear
-                            />
-                          </Col>
-                          <Col lg={3} md={3} sm={3} xs={3} className="border-end">
-                            <AutoComplete
-                              defaultValue={item.tmm_days_duration_type}
-                              value={hasNumber(item.tmm_days_duration_type) ? item.tmm_days_duration_type : capitalize(item.tmm_days_duration_type, true)}
-                              placeholder="e.g 1 Day"
-                              bordered={false}
-                              defaultOpen={false}
-                              onSearch={(query) => onSearchSinceChid(query, item?.index)}
-                              options={sinceOptions}
-                              className="autocomplete-custom h-100 w-100 inputborder truncate-autocomplete"
-                              popupClassName="option-truncate"
-                              defaultActiveFirstOption={true}
-                              onSelect={(data, e) => onSelectSinceChild(data, e, item?.index)}
-                              onClear={() => onSearchSinceChid("", item?.index)}
-                              allowClear
-                            />
-                          </Col>
-                          <Col lg={6} md={6} sm={6} xs={6} className="border-end">
-                            <TextArea
-                              className="notesinput border-0 h-100 align-self-center"
-                              placeholder="Notes"
-                              defaultValue={item.tmm_remarks}
-                              value={item.tmm_remarks}
-                              autoSize={{
-                                minRows: 1,
-                                maxRows: 2,
-                              }}
-                              onChange={(e) => onChangeNoteChild(e, item?.index)}
-                            />
-                          </Col>
-                          <Col lg={1} md={1} sm={2} xs={2} className="d-flex align-items-center justify-content-center">
-                            <Button
-                              className="btn py-0 btn-delete-prescription px-0"
-                              onClick={() => onRemoveRow(item?.index)}
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="medication" direction="vertical">
+            {(provided) => (
+              <div {...provided.droppableProps} ref={provided.innerRef}>
+                {medicationData.length > 0 &&
+                  medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, i) => (
+                    <Draggable key={i} draggableId={`medication-${i}`} index={i}>
+                      {(provided) => (
+                        <Row
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          key={i}
+                          gutter={[0]}
+                          className={`taper-dose align-items-center ${i === 0 && "border-top"} border-bottom`}
+                        >
+                          <Col lg={1} md={1} sm={1} xs={1} className="text-center">
+                            <MenuOutlined
+                              {...provided.dragHandleProps}
+                              className="drag-handle"
+                              style={{ cursor: 'grab' }}
                             >
-                              <i className="icon-delete"></i>
-                            </Button>
+                            </MenuOutlined>
                           </Col>
-                          {ii != 0 && (<div className="badge-then">Then</div>)}
+                          <Col lg={5} md={5} sm={5} xs={5}>
+                            <div className="fontroboto fw-medium p-2 pe-3">
+                              <label>{item.tmm_medicine_name}</label>
+                              <Tooltip placement="bottom" title={item.tmm_generic}>
+                                <div className="text-truncate fw-normal me-1">{item.tmm_generic}</div>
+                              </Tooltip>
+                            </div>
+                          </Col>
+                          <Col lg={18} md={18} sm={18} xs={18}>
+                            {!item.pms_default &&
+                              <i className="icon-Edit fs-18 position-absolute" style={{ bottom: 0, left: -22 }}
+                                onClick={() => {
+                                  const medicineType = medicineTypeList.find(x => x?.tmy_id == item?.tmm_type)
+                                  const makeData = {
+                                    unique_id: item.unique_id,
+                                    tmm_id: item.tmm_id,
+                                    tmm_medicine_name: item.tmm_medicine_name,
+                                    tmm_generic: item.tmm_generic,
+                                    tmm_company: item.tmm_company
+                                  }
+                                  const updateItem = medicineType !== undefined ? { ...makeData, ...medicineType } : makeData
+                                  showHideAddMedicineModal()
+                                  setAddCustom(updateItem);
+                                }}
+                              ></i>
+                            }
+                            {innerMedication(item.index).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) })).map((item, ii) => {
+                              return (
+                                <Row key={ii} className={`${ii != 0 && 'position-relative border-top'}`}>
+                                  <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
+                                    <AutoComplete
+                                      defaultValue={item.tmm_dosage_unit_name}
+                                      value={item.tmm_dosage_unit_name}
+                                      placeholder="e.g 1 Tablet"
+                                      bordered={false}
+                                      defaultOpen={false}
+                                      onSearch={(query) => onSearchUnitPerDoseChid(query, item?.index)}
+                                      onBlur={() => onBlurUnitPerDoseChid(item?.index)}
+                                      options={unitPerDoseOptions}
+                                      // backfill={true}
+                                      className="autocomplete-custom w-100 h-100 inputborder"
+                                      defaultActiveFirstOption={true}
+                                      onSelect={(data, e) => onSelectUnitPerDoseChild(data, e, item?.index)}
+                                      onClear={() => onSearchUnitPerDoseChid("", item?.index)}
+                                      allowClear
+                                    />
+                                  </Col>
+                                  <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+                                    <Select
+                                      showSearch
+                                      className="autocomplete-custom w-100 h-100 inputborder"
+                                      placeholder="e.g 1-0-1"
+                                      defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
+                                      value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
+                                      onSearch={(query) => onSearchFrequencyChild(query, item?.index)}
+                                      onFocus={() => onSearchFrequencyChild(item.tmm_freq_type_name, item?.index)}
+                                      onBlur={() => onBlurFrequencyChild(item?.index)}
+                                      onSelect={(data) => onSelectFrequencyChild(data, item?.index)}
+                                      options={frequencyOptions}
+                                      onClear={() => onSelectFrequencyChild("", item?.index)}
+                                      allowClear
+                                    />
+                                  </Col>
+                                  <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+                                    <Select
+                                      className="autocomplete-custom w-100 h-100 inputborder"
+                                      placeholder="e.g Before Food"
+                                      defaultValue={item.tmm_time_name != "" ? item.tmm_time_name : null}
+                                      value={item.tmm_time_name != "" ? item.tmm_time_name : null}
+                                      onSelect={(data) => onSelectTimingChild(data, item?.index)}
+                                      options={timingList.map((e) => {
+                                        return {
+                                          value: JSON.stringify({ ...e, unique_id: uuidv4() }),
+                                          label: e.tmt_title,
+                                        };
+                                      })}
+                                      onClear={() => onSelectTimingChild("", item?.index)}
+                                      allowClear
+                                    />
+                                  </Col>
+                                  <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+                                    <AutoComplete
+                                      defaultValue={item.tmm_days_duration_type}
+                                      value={hasNumber(item.tmm_days_duration_type) ? item.tmm_days_duration_type : capitalize(item.tmm_days_duration_type, true)}
+                                      placeholder="e.g 1 Day"
+                                      bordered={false}
+                                      defaultOpen={false}
+                                      onSearch={(query) => onSearchSinceChid(query, item?.index)}
+                                      options={sinceOptions}
+                                      className="autocomplete-custom h-100 w-100 inputborder truncate-autocomplete"
+                                      popupClassName="option-truncate"
+                                      defaultActiveFirstOption={true}
+                                      onSelect={(data, e) => onSelectSinceChild(data, e, item?.index)}
+                                      onClear={() => onSearchSinceChid("", item?.index)}
+                                      allowClear
+                                    />
+                                  </Col>
+                                  <Col lg={6} md={6} sm={6} xs={6} className="border-end">
+                                    <TextArea
+                                      className="notesinput border-0 h-100 align-self-center"
+                                      placeholder="Notes"
+                                      defaultValue={item.tmm_remarks}
+                                      value={item.tmm_remarks}
+                                      autoSize={{
+                                        minRows: 1,
+                                        maxRows: 2,
+                                      }}
+                                      onChange={(e) => onChangeNoteChild(e, item?.index)}
+                                    />
+                                  </Col>
+                                  <Col lg={1} md={1} sm={2} xs={2} className="d-flex align-items-center justify-content-center">
+                                    <Button
+                                      className="btn py-0 btn-delete-prescription px-0"
+                                      onClick={() => onRemoveRow(item?.index)}
+                                    >
+                                      <i className="icon-delete"></i>
+                                    </Button>
+                                  </Col>
+                                  {ii != 0 && (<div className="badge-then">Then</div>)}
+                                </Row>
+                              )
+                            })}
+                          </Col>
+                          <div className="badge-tapper" onClick={() => taperDoseAdd(item)}>
+                            <i className="icon-Add me-1"></i> Tapering Dose
+                          </div>
                         </Row>
-                      )
-                    })}
-                  </Col>
-                  <div className="badge-tapper" onClick={() => taperDoseAdd(item)}>
-                    <i className="icon-Add me-1"></i> Tapering Dose
-                  </div>
-                </Row>
-              </>
-            );
-          })}
+                      )}
+                    </Draggable>
+                  ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       </>
     );
   }, [medicationData, frequencyPopOver]);
+
+  //Child Component
+  // const TABLE_MEDICATION = useMemo(() => {
+  //   return (
+  //     <>
+  //       {medicationData.length > 0 &&
+  //         <Row
+  //           gutter={[0]}
+  //           className={`mt-14 border-top align-items-center`}
+  //         >
+  //           <Col lg={5} md={5} sm={5} xs={5}>
+  //             <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+  //               <label>MEDICINE</label>
+  //             </div>
+  //           </Col>
+  //           <Col lg={19} md={19} sm={19} xs={19}>
+  //             <Row>
+  //               <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
+  //                 <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+  //                   <label>UNIT PER DOSE</label>
+  //                 </div>
+  //               </Col>
+  //               <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+  //                 <div className="fontroboto fw-medium p-2 fs-12 text-welcome d-flex align-items-center">
+  //                   <label>FREQUENCY </label>
+  //                   <Popover
+  //                     open={frequencyPopOver}
+  //                     content={FREQUENCY_CONTENT}
+  //                     placement="rightTop"
+  //                     trigger="click"
+  //                     arrow={false}
+  //                     onOpenChange={showHideFrequencyPopOver}
+  //                     overlayClassName="pp-0">
+  //                     <i className='icon-info ms-1 fs-18'></i>
+  //                   </Popover>
+  //                 </div>
+  //               </Col>
+  //               <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+  //                 <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+  //                   <label>WHEN</label>
+  //                 </div>
+  //               </Col>
+  //               <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+  //                 <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+  //                   <label>DURATION</label>
+  //                 </div>
+  //               </Col>
+  //               <Col lg={6} md={6} sm={6} xs={6} className="border-end">
+  //                 <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+  //                   <label>NOTE</label>
+  //                 </div>
+  //               </Col>
+  //               <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+  //                 <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
+  //                   <label></label>
+  //                 </div>
+  //               </Col>
+  //             </Row>
+  //           </Col>
+  //         </Row>
+  //       }
+  //       {medicationData.length > 0 &&
+  //         medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, i) => {
+  //           return (
+  //             <>
+  //               <Row
+  //                 key={i}
+  //                 gutter={[0]}
+  //                 align="middle"
+  //                 className={`taper-dose ${i === 0 && "border-top"} border-bottom`}
+  //               >
+  //                 <Col lg={5} md={5} sm={5} xs={5}>
+  //                   <div className="fontroboto fw-medium p-2 pe-3">
+  //                     <label>{item.tmm_medicine_name}</label>
+  //                     <Tooltip placement="bottom" title={item.tmm_generic}>
+  //                       <div className="text-truncate fw-normal me-1">{item.tmm_generic}</div>
+  //                     </Tooltip>
+  //                   </div>
+  //                 </Col>
+  //                 <Col lg={19} md={19} sm={19} xs={19}>
+  //                   {!item.pms_default &&
+  //                     <i className="icon-Edit fs-18 position-absolute" style={{ bottom: 0, left: -22 }}
+  //                       onClick={() => {
+  //                         const medicineType = medicineTypeList.find(x => x?.tmy_id == item?.tmm_type)
+  //                         const makeData = {
+  //                           unique_id: item.unique_id,
+  //                           tmm_id: item.tmm_id,
+  //                           tmm_medicine_name: item.tmm_medicine_name,
+  //                           tmm_generic: item.tmm_generic,
+  //                           tmm_company: item.tmm_company
+  //                         }
+  //                         const updateItem = medicineType !== undefined ? { ...makeData, ...medicineType } : makeData
+  //                         showHideAddMedicineModal()
+  //                         setAddCustom(updateItem);
+  //                       }}
+  //                     ></i>
+  //                   }
+  //                   {innerMedication(item.index).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) })).map((item, ii) => {
+  //                     return (
+  //                       <Row key={ii} className={`${ii != 0 && 'position-relative border-top'}`}>
+  //                         <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
+  //                           <AutoComplete
+  //                             defaultValue={item.tmm_dosage_unit_name}
+  //                             value={item.tmm_dosage_unit_name}
+  //                             placeholder="e.g 1 Tablet"
+  //                             bordered={false}
+  //                             defaultOpen={false}
+  //                             onSearch={(query) => onSearchUnitPerDoseChid(query, item?.index)}
+  //                             onBlur={() => onBlurUnitPerDoseChid(item?.index)}
+  //                             options={unitPerDoseOptions}
+  //                             // backfill={true}
+  //                             className="autocomplete-custom w-100 h-100 inputborder"
+  //                             defaultActiveFirstOption={true}
+  //                             onSelect={(data, e) => onSelectUnitPerDoseChild(data, e, item?.index)}
+  //                             onClear={() => onSearchUnitPerDoseChid("", item?.index)}
+  //                             allowClear
+  //                           />
+  //                         </Col>
+  //                         <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+  //                           <Select
+  //                             showSearch
+  //                             className="autocomplete-custom w-100 h-100 inputborder"
+  //                             placeholder="e.g 1-0-1"
+  //                             defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
+  //                             value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
+  //                             onSearch={(query) => onSearchFrequencyChild(query, item?.index)}
+  //                             onFocus={() => onSearchFrequencyChild(item.tmm_freq_type_name, item?.index)}
+  //                             onBlur={() => onBlurFrequencyChild(item?.index)}
+  //                             onSelect={(data) => onSelectFrequencyChild(data, item?.index)}
+  //                             options={frequencyOptions}
+  //                             onClear={() => onSelectFrequencyChild("", item?.index)}
+  //                             allowClear
+  //                           />
+  //                         </Col>
+  //                         <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+  //                           <Select
+  //                             className="autocomplete-custom w-100 h-100 inputborder"
+  //                             placeholder="e.g Before Food"
+  //                             defaultValue={item.tmm_time_name != "" ? item.tmm_time_name : null}
+  //                             value={item.tmm_time_name != "" ? item.tmm_time_name : null}
+  //                             onSelect={(data) => onSelectTimingChild(data, item?.index)}
+  //                             options={timingList.map((e) => {
+  //                               return {
+  //                                 value: JSON.stringify({ ...e, unique_id: uuidv4() }),
+  //                                 label: e.tmt_title,
+  //                               };
+  //                             })}
+  //                             onClear={() => onSelectTimingChild("", item?.index)}
+  //                             allowClear
+  //                           />
+  //                         </Col>
+  //                         <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+  //                           <AutoComplete
+  //                             defaultValue={item.tmm_days_duration_type}
+  //                             value={hasNumber(item.tmm_days_duration_type) ? item.tmm_days_duration_type : capitalize(item.tmm_days_duration_type, true)}
+  //                             placeholder="e.g 1 Day"
+  //                             bordered={false}
+  //                             defaultOpen={false}
+  //                             onSearch={(query) => onSearchSinceChid(query, item?.index)}
+  //                             options={sinceOptions}
+  //                             className="autocomplete-custom h-100 w-100 inputborder truncate-autocomplete"
+  //                             popupClassName="option-truncate"
+  //                             defaultActiveFirstOption={true}
+  //                             onSelect={(data, e) => onSelectSinceChild(data, e, item?.index)}
+  //                             onClear={() => onSearchSinceChid("", item?.index)}
+  //                             allowClear
+  //                           />
+  //                         </Col>
+  //                         <Col lg={6} md={6} sm={6} xs={6} className="border-end">
+  //                           <TextArea
+  //                             className="notesinput border-0 h-100 align-self-center"
+  //                             placeholder="Notes"
+  //                             defaultValue={item.tmm_remarks}
+  //                             value={item.tmm_remarks}
+  //                             autoSize={{
+  //                               minRows: 1,
+  //                               maxRows: 2,
+  //                             }}
+  //                             onChange={(e) => onChangeNoteChild(e, item?.index)}
+  //                           />
+  //                         </Col>
+  //                         <Col lg={1} md={1} sm={2} xs={2} className="d-flex align-items-center justify-content-center">
+  //                           <Button
+  //                             className="btn py-0 btn-delete-prescription px-0"
+  //                             onClick={() => onRemoveRow(item?.index)}
+  //                           >
+  //                             <i className="icon-delete"></i>
+  //                           </Button>
+  //                         </Col>
+  //                         {ii != 0 && (<div className="badge-then">Then</div>)}
+  //                       </Row>
+  //                     )
+  //                   })}
+  //                 </Col>
+  //                 <div className="badge-tapper" onClick={() => taperDoseAdd(item)}>
+  //                   <i className="icon-Add me-1"></i> Tapering Dose
+  //                 </div>
+  //               </Row>
+  //             </>
+  //           );
+  //         })}
+  //     </>
+  //   );
+  // }, [medicationData, frequencyPopOver]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useCallback(() => {
