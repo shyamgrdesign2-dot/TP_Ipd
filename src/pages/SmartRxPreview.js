@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 // import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
-import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip, message, Checkbox} from "antd";
+import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip, message, Checkbox, Drawer} from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
@@ -31,6 +31,7 @@ import { pdfjs, Document, Page } from "react-pdf";
 import CommonModal from "../common/CommonModal";
 import { env } from "../EnvironmentConfig";
 import { getDecodedToken } from "../utils/localStorage";
+import CvtKnowMore from "./smartSync/components/CvtKnowMore";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -67,6 +68,7 @@ function SmartRxPreview() {
     const [isEditedData, setIsEditedData] = useState(null);
     const [rxDigitisedData, setRxDigitisedData] = useState(null);
     const [showDigitalRx, setShowDigitalRx] = useState(false);
+    const [cvtDrawer, setCvtDrawer] = useState(false);
     const progressRef = useRef(null);
     const progressValue = useRef(0);
 
@@ -187,6 +189,23 @@ function SmartRxPreview() {
         const blob = new Blob([data], { type: 'application/pdf' })
         setPrintBlob(blob)
     }
+
+    const handleDrawerCvtKnowMore = useCallback(() => {
+        setCvtDrawer(!cvtDrawer);
+      }, [cvtDrawer]);
+
+    //Handle Sider
+    const handleCollapsed = useCallback(
+        (flag) => {
+        // if (flag === 1) {
+        //     handleDrawerVital();
+        // }
+        if(flag === 2) {
+            handleDrawerCvtKnowMore();
+        }
+        },
+        [cvtDrawer]
+    );
 
     useEffect(() => {
         const fetchData = async () => {
@@ -434,7 +453,6 @@ function SmartRxPreview() {
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={7}>
-
                         {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
                             <i className="icon-setting me-2"></i>
                             <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
@@ -509,18 +527,33 @@ function SmartRxPreview() {
                                                         {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
                                                     </p>
                                                     <p className="digitise-info">
-                                                        Digitise Rx to enhances patient care, streamline workflow, and unlock new revenue. Know More
+                                                        Digitise Rx to enhances patient care, streamline workflow, and unlock new revenue.
+                                                        <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>Know More</button>
                                                     </p>
                                                 </div>
                                             </div>
                                             <button onClick={handleDigitiseRx} className="digitise-btn">
-                                                Digitise Rx Now
+                                                Digitise Rx Now <span>&#8594;</span> 
                                             </button>
                                         </div>
                                     )}
                                 </>
                             )}
                         </div>
+
+                        <Drawer
+                            closeIcon={false}
+                            // placement="right"
+                            onClose={handleDrawerCvtKnowMore}
+                            open={cvtDrawer}
+                            className=".modalWidth-800"
+                            width={800}
+                        >
+                            <CvtKnowMore
+                                handleDrawerCvtKnowMore={handleDrawerCvtKnowMore}
+                                handleCollapsed={(flag) => handleCollapsed(flag)}
+                            />
+                        </Drawer>
                     </Col>
                     <Col md={17} lg={17} xl={12}>
                         <div className={isMobile ? 'p-20' : ''}>

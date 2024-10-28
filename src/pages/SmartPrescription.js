@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useRef,
 } from "react";
+import "../pages/smartSync/smartSync.css";
 import { Button, Drawer,message } from "antd";
 import { useLocation } from "react-router-dom";
 import moment from "moment";
@@ -29,6 +30,8 @@ import { errorMessage } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
 import CommonModal from "../common/CommonModal";
 import alertIcon from "../assets/images/alertIcon.svg";
+import textLogo from "../assets/images/text-logo.svg";
+import sparkleGif from "../assets/images/aiSparkleLoader.gif";
 import FullPageLoader from "./vaccination/components/Loader";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import CvtKnowMore from "./smartSync/components/CvtKnowMore";
@@ -732,16 +735,19 @@ useEffect(() => {
             >
               { isSmartSyncCVTAccessableFromGB &&
                 <div className="know-more-cvt p-14">
-                <div className="sparkle"></div>
-                <div className="title-common">
-                  <div>
-                    <span className="me-2">
-                      AI-Powered Smart Rx Digitisation
-                    </span>
-                    <span className="new-btn">New</span>
+                  <div className="sparkle">
+                    <img src={sparkleGif} className="sparkel-loader"/>
+                    <img src={textLogo} alt="textLogo" className="text-logo-white" />
                   </div>
-                  <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>Know More</button>
-                </div>
+                  <div className="title-common">
+                    <div>
+                      <span className="me-2">
+                        AI-Powered Smart Rx Digitisation
+                      </span>
+                      <span className="new-btn">New</span>
+                    </div>
+                    <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>View Tips</button>
+                  </div>
                 </div>
               }
               <div className="prescription-box-sm p-14">
@@ -887,7 +893,7 @@ useEffect(() => {
           width={800}
         >
           <CvtKnowMore
-            handleDrawerVital={handleDrawerVital}
+            handleDrawerCvtKnowMore={handleDrawerCvtKnowMore}
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
         </Drawer>

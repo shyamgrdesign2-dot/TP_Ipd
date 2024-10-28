@@ -1641,6 +1641,9 @@ body {
     background: var(--S-Icon-100, #A461D8);
     width: 2.25rem;
     height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .new-btn{
        padding: 0.1rem 0.48rem;
