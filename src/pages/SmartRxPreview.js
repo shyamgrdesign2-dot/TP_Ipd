@@ -286,7 +286,6 @@ function SmartRxPreview() {
         formData.append('patientId', patient_data.patient_unique_id);
         formData.append('appointmentId', (digitisedData.data) ? appointmentId : state?.pam_id);
         formData.append('caseId', state.tcm_id);
-        formData.append('ocrModel', 'docx');
     
         try {
             const cleanedToken = token.replace(/['"]+/g, '');

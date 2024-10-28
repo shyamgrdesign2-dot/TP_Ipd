@@ -193,7 +193,7 @@ const DigitisedPrescription = ({ data, setData}) => {
                   }
     
                   {/* Editable input for lineItem */}
-                  {type === "medications" && item.lineItem && (
+                  {(type === "medications"|| type === "symptoms") && item.lineItem && (
                     activeIndex === index && activeType === `${type}-lineItem` ? (
                       <input
                         type="text"
