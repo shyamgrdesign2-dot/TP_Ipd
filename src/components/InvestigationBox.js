@@ -20,6 +20,7 @@ import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
 import Investigationicon from "../assets/images/Lab.svg";
+import { MenuOutlined } from '@ant-design/icons';
 import {
   addTemplate,
   updateTemplate,
@@ -28,6 +29,8 @@ import {
   getFrequentlySearchedInvestigation,
   searchInvestigation
 } from "../redux/investigationSlice";
+
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const { TextArea } = Input;
 
@@ -403,58 +406,151 @@ function InvestigationBox() {
   }, [isModalOpen]);
 
   //Child Componet
+  // const TABLE_INVESTIGATION = useMemo(() => {
+  //   return (
+  //     investigationData.length > 0 &&
+  //     investigationData.map((item, index) => {
+  //       return (
+  //         <Row
+  //           key={index}
+  //           gutter={[0]}
+  //           className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
+  //         >
+  //           <Col lg={9} md={9} sm={9} xs={9}>
+  //             <div className="fontroboto fw-medium">
+  //               <AutoComplete
+  //                 defaultValue={item.investigation_name}
+  //                 value={item.investigation_name}
+  //                 placeholder="Investigation Name"
+  //                 bordered={false}
+  //                 disabled={true}
+  //                 defaultOpen={false}
+  //                 onSearch={(query) => onSearchChild(query, index)}
+  //                 onFocus={() => onFocusChid(index)}
+  //                 options={childSearchOptions}
+  //                 className="autocomplete-custom w-100 inputborder"
+  //                 defaultActiveFirstOption={true}
+  //                 onSelect={(data, e) => onSelectChild(data, e, index)}
+  //               />
+  //             </div>
+  //           </Col>
+  //           <Col lg={14} md={14} sm={13} xs={13} className="border-start border-end">
+  //             <TextArea
+  //               className="notesinput border-0"
+  //               placeholder="Instruction"
+  //               defaultValue={item.note}
+  //               value={item.note}
+  //               autoSize={{
+  //                 minRows: 1,
+  //                 maxRows: 2,
+  //               }}
+  //               onChange={(e) => onChangeNoteChild(e, index)}
+  //             />
+  //           </Col>
+  //           <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+  //             <Button
+  //               className="btn py-0 btn-delete-prescription px-0"
+  //               onClick={() => onRemoveRow(index)}
+  //             >
+  //               <i className="icon-delete"></i>
+  //             </Button>
+  //           </Col>
+  //         </Row>
+  //       );
+  //     })
+  //   );
+  // }, [investigationData, childSearchOptions]);
+
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const reorderedItems = reorder(
+      investigationData,
+      result.source.index,
+      result.destination.index
+    );
+    setInvestigationData(reorderedItems);
+  };
+
   const TABLE_INVESTIGATION = useMemo(() => {
     return (
-      investigationData.length > 0 &&
-      investigationData.map((item, index) => {
-        return (
-          <Row
-            key={index}
-            gutter={[0]}
-            className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
-          >
-            <Col lg={9} md={9} sm={9} xs={9}>
-              <div className="fontroboto fw-medium">
-                <AutoComplete
-                  defaultValue={item.investigation_name}
-                  value={item.investigation_name}
-                  placeholder="Investigation Name"
-                  bordered={false}
-                  disabled={true}
-                  defaultOpen={false}
-                  onSearch={(query) => onSearchChild(query, index)}
-                  onFocus={() => onFocusChid(index)}
-                  options={childSearchOptions}
-                  className="autocomplete-custom w-100 inputborder"
-                  defaultActiveFirstOption={true}
-                  onSelect={(data, e) => onSelectChild(data, e, index)}
-                />
-              </div>
-            </Col>
-            <Col lg={14} md={14} sm={13} xs={13} className="border-start border-end">
-              <TextArea
-                className="notesinput border-0"
-                placeholder="Instruction"
-                defaultValue={item.note}
-                value={item.note}
-                autoSize={{
-                  minRows: 1,
-                  maxRows: 2,
-                }}
-                onChange={(e) => onChangeNoteChild(e, index)}
-              />
-            </Col>
-            <Col lg={1} md={1} sm={2} xs={2} className="text-center">
-              <Button
-                className="btn py-0 btn-delete-prescription px-0"
-                onClick={() => onRemoveRow(index)}
-              >
-                <i className="icon-delete"></i>
-              </Button>
-            </Col>
-          </Row>
-        );
-      })
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="investigation" direction="vertical">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              {investigationData.length > 0 &&
+                investigationData.map((item, index) => (
+                  <Draggable key={index} draggableId={`investigation-${index}`} index={index}>
+                    {(provided) => (
+                      <Row
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        key={index}
+                        gutter={[0]}
+                        className={`${index === 0 && 'mt-14 border-top'
+                          } align-items-center border-bottom`}
+                      >
+                        <Col lg={1} md={1} sm={1} xs={1} className="text-center">
+                          <MenuOutlined
+                            {...provided.dragHandleProps}
+                            className="drag-handle"
+                            style={{ cursor: 'grab' }}
+                          >
+                          </MenuOutlined>
+                        </Col>
+                        <Col lg={8} md={8} sm={8} xs={8}>
+                          <div className="fontroboto fw-medium">
+                            <AutoComplete
+                              defaultValue={item.investigation_name}
+                              value={item.investigation_name}
+                              placeholder="Investigation Name"
+                              bordered={false}
+                              disabled={true}
+                              defaultOpen={false}
+                              onSearch={(query) => onSearchChild(query, index)}
+                              onFocus={() => onFocusChid(index)}
+                              options={childSearchOptions}
+                              className="autocomplete-custom w-100 inputborder"
+                              defaultActiveFirstOption={true}
+                              onSelect={(data, e) => onSelectChild(data, e, index)}
+                            />
+                          </div>
+                        </Col>
+                        <Col lg={14} md={14} sm={13} xs={13} className="border-start border-end">
+                          <TextArea
+                            className="notesinput border-0"
+                            placeholder="Instruction"
+                            defaultValue={item.note}
+                            value={item.note}
+                            autoSize={{
+                              minRows: 1,
+                              maxRows: 2,
+                            }}
+                            onChange={(e) => onChangeNoteChild(e, index)}
+                          />
+                        </Col>
+                        <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+                          <Button
+                            className="btn py-0 btn-delete-prescription px-0"
+                            onClick={() => onRemoveRow(index)}
+                          >
+                            <i className="icon-delete"></i>
+                          </Button>
+                        </Col>
+                      </Row>
+                    )}
+                  </Draggable>
+                ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     );
   }, [investigationData, childSearchOptions]);
 

@@ -1,16 +1,12 @@
-import React, { useEffect,useState,useRef,useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getDecodedToken } from "../utils/localStorage";
 import config from "../config";
-import { env } from "../EnvironmentConfig";
-import { OPD_API_KEY } from "../utils/constants";
-import axios from "axios";
-import { QRCodeSVG } from 'qrcode.react';
-import { Button as ButtonOPD } from "antd";
-import CommonModal from "./CommonModal";
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import diwaliLight from "../assets/images/diwali-lamp.gif";
+import diwaliText from "../assets/images/text-happy-diwali.svg";
+import diwaliCrackers from "../assets/images/crackers-animation.gif";
 
 function Welcome(props) {
 
@@ -20,31 +16,16 @@ function Welcome(props) {
 
   const { profile } = useSelector((state) => state.doctors);
   const decodedToken = getDecodedToken();
-  const apiUrl = env.opd_encryption_url;
-  const [isQRCodeVisible, setQRCodeVisible] = useState(false);
-  const [opdPlansUrl, setOpdPlansUrl] = useState(null);
-  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
-  const printRef = useRef();
 
-  const isOpdPlansAccessableFromGB = useFeatureIsOn(
-    "opd-plans"
-  );
-
-  // Handle opening the QR code modal
-  const handleShowQRCode = () => {
-    setQRCodeVisible(true);
-  };
-
-  const showHideBackModal = useCallback(() => {
-    setQRCodeVisible(false);
-  }, [isQRCodeVisible]);
+  const [showGif, setShowGif] = useState(true);
 
   useEffect(() => {
-    if (isQRCodeVisible && !opdPlansUrl) {
-      clickOpdPlans();  // Trigger the API call when QR modal is visible and URL isn't yet set
-    }
-  }, [isQRCodeVisible]);
+    const timer = setTimeout(() => {
+      setShowGif(!showGif);
+    }, 3000);
 
+    return () => clearTimeout(timer);
+  }, [showGif]);
 
   const clickWalkInConsultation = () => {
     const businessId = decodedToken?.result?.hospital_business_id;
@@ -59,69 +40,12 @@ function Welcome(props) {
     }
   }
 
-  const opdEncryptionApiCall = async (data) => {
-    const headers = {
-      'api-key': OPD_API_KEY,
-      'tatvapractice': 'true',
-      'Content-Type': 'application/json'
-    };
-    try {
-        const response = await axios.post(apiUrl, data, { headers });
-        return response.data
-    } catch (error) {
-        console.error('Error:', error);
-    }
-  };
-
-  const clickOpdPlans = async () => {
-    const clinic_Id = decodedToken?.result?.clinic_id;
-    const doc_Id = decodedToken?.result?.doctor_unique_id;
-    
-    // const clinic_Data = { c_id: clinic_Id };
-    // const doc_Data = { d_id: doc_Id };
-    const decryptData = { d_id: doc_Id ,clinic_Id: clinic_Id};
-
-    // Encrypt clinic and doctor ID
-    const encryptedCata = await opdEncryptionApiCall(decryptData);
-
-    
-    // Generate and set the URL
-    // const url = `https://visit-enrolment-tatva.getvisitapp.net/tatva-care?d_id=${d_id}&c_id=${c_id}`
-    const url = `https://visit-enrolment-tatva.getvisitapp.net/tatva-care?p_id=${encryptedCata}`
-    setOpdPlansUrl(url);
-  };
-
-  // Handle print functionality
-  const handlePrint = () => {
-    const printContent = printRef.current.innerHTML;
-    const win = window.open('', '', 'height=500,width=500');
-    win.document.write(`
-      <html>
-        <head>
-          <title>Print QR Code</title>
-          <style>
-            @media print {
-              button {
-                display: none;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          ${printContent}
-        </body>
-      </html>
-    `);
-    win.document.close();
-    win.focus();
-    win.print();
-    win.close();
-  };
-
-
   return (
     <>
-      <div className="welcomesection position-relative">
+
+      {/* Below Code Commented for Diwali Wrap */}
+
+      {/* <div className="welcomesection position-relative">
         <div className="bg-welcome d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             {backVisible && (
@@ -149,20 +73,73 @@ function Welcome(props) {
           </div>
           <div className="d-flex gap-1">
             <div>
-              {locationPath == "/" && isOpdPlansAccessableFromGB && (
+              {locationPath == "/" && (
                 <div className="d-lg-flex d-block">
-                  {/* <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => alert('Comming Soon')}> <i className={'icon-Add me-2'}></i> {'Add New Appointment'}</Button> */}
                   <Button
                     variant="primary"
                     className="px-3 btn-41"
-                    // onClick={clickOpdPlans}
-                    onClick={handleShowQRCode}
-                  >
-                    {"OPD Plans"}
+                    onClick={clickWalkInConsultation}>
+                    {"Start Walk-in Consultation"}
                   </Button>
                 </div>
               )}
             </div>
+          </div>
+        </div>
+        <div className="pb-5">&nbsp;</div>
+      </div> */}
+
+      <div className={`welcomesection ${locationPath == "/" && 'wrapper-diwali'} position-relative`}>
+        {locationPath == "/" &&
+          <>
+            <div className="diwali-flower"></div>
+            <div>
+              {showGif && (
+                <div className="diwali-crackers">
+                  <img width='353.66' height='200' src={diwaliCrackers} />
+                </div>
+              )}
+              {/* <div className='diwali-text'>
+                <img width='164' height='193' src={diwaliLight} />
+                <img src={diwaliText} />
+                <img width='164' height='193' src={diwaliLight} />
+              </div> */}
+              {showGif && (
+                <div className="diwali-crackers" style={{ right: 0 }}>
+                  <img width='353.66' height='200' src={diwaliCrackers} />
+                </div>
+              )}
+            </div>
+          </>
+        }
+        <div className="bg-welcome d-flex justify-content-between align-items-center">
+          <div className="d-flex align-items-center">
+            {backVisible && (
+              <div onClick={() => navigate(-1)} className="lh-1 me-1 px-2 text-dark cursor-pointer">
+                <i className="fs-3 icon-right"></i>
+              </div>
+            )}
+            <div style={{ bottom: locationPath == "/" ? '-25px' : '0px', position: 'relative' }}>
+              {locationPath == "/add_patient" ? (
+                <h1>Add New Patient</h1>
+              ) : locationPath == "/edit_patient" ? (
+                <h1>Edit Patient Details</h1>
+              ) : (locationPath == "/walk_in_consultation" || locationPath == "/walk_in_consultation_zydus") ? (
+                <h1>Start Walk-In Consultation</h1>
+              ) : (<div className="d-flex align-items-center">
+                <span className="text-diwali happy-diwali mb-1 me-2">Happy Diwali</span>
+                <h1 className="text-diwali"> Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
+              </div>
+              )}
+              {locationPath == "/" && <p className="text-diwali">{"Your Appointments"}</p>}
+            </div>
+            {/* <img
+              src={require("../assets/images/bg-welcome.png")}
+              className="welcomeig d-inline-block align-top"
+              alt="Welcome"
+            /> */}
+          </div>
+          <div className="d-flex gap-1" style={{ marginBottom: -32 }}>
             <div>
               {locationPath == "/" && (
                 <div className="d-lg-flex d-block">
@@ -177,31 +154,6 @@ function Welcome(props) {
               )}
             </div>
           </div>
-          <CommonModal
-                  isModalOpen={(isQRCodeVisible && opdPlansUrl)}
-                  onCancel={showHideBackModal}
-                  modalWidth={500}
-                  title={"QR Code for OPD plans"}
-                  modalBody={
-                    <>
-                      <div className="alert-warning rounded-10px p-2 patient-details">
-                        <div ref={printRef} className="d-flex align-items-center justify-content-center">
-                          <QRCodeSVG  value={opdPlansUrl} size={256} />
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <div className="d-flex align-items-center mt-2 justify-content-center">
-                          <ButtonOPD
-                            onClick={handlePrint}
-                            className="lh-lg btn btn-primary3 btn-41 px-4"
-                          >
-                            <span>Print</span>
-                          </ButtonOPD>
-                        </div>
-                      </div>
-                    </>
-                  }
-                />
         </div>
         <div className="pb-5">&nbsp;</div>
       </div>

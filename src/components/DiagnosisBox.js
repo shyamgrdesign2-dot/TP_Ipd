@@ -26,6 +26,7 @@ import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from "../context/CashManagerContext";
 import { errorMessage, isNumeric, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Diagnosisicon from "../assets/images/Diagnosis.svg";
+import { MenuOutlined } from '@ant-design/icons';
 import {
   addTemplate,
   updateTemplate,
@@ -35,6 +36,8 @@ import {
   searchDiagnosis,
   getLoadPreviousDiagnosis,
 } from "../redux/diagnosisSlice";
+
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 function DiagnosisBox() {
   const {
@@ -347,7 +350,7 @@ function DiagnosisBox() {
     const action = await dispatch(getLoadPreviousDiagnosis(sendData));
     if (action.meta.requestStatus === "fulfilled") {
       const updatedData = action.payload.map(e => {
-        return { ...e, unique_id: uuidv4()}
+        return { ...e, unique_id: uuidv4() }
       })
       setDiagnosisData([...diagnosisData, ...updatedData]);
 
@@ -486,81 +489,196 @@ function DiagnosisBox() {
   }, [isModalOpen]);
 
   //Child Componet
+  // const TABLE_DIAGNOSIS = useMemo(() => {
+  //   return (
+  //     diagnosisData.length > 0 &&
+  //     diagnosisData.map((item, index) => {
+  //       return (
+  //         <Row
+  //           key={index}
+  //           gutter={[0]}
+  //           className={`${index === 0 && "mt-14 border-top"
+  //             } align-items-center border-bottom`}
+  //         >
+  //           <Col lg={7} md={7} sm={7} xs={7} className="border-end">
+  //             <div className="fontroboto fw-medium">
+  //               <AutoComplete
+  //                 defaultValue={item.tds_name}
+  //                 value={item.tds_name}
+  //                 placeholder="Diagnosis Name"
+  //                 bordered={false}
+  //                 defaultOpen={false}
+  //                 onSearch={(query) => onSearchChild(query, index)}
+  //                 onFocus={() => onFocusChid(index)}
+  //                 options={childSearchOptions}
+  //                 className="autocomplete-custom w-100 inputborder"
+  //                 defaultActiveFirstOption={true}
+  //                 onSelect={(data, e) => onSelectChild(data, e, index)}
+  //               />
+  //             </div>
+  //           </Col>
+  //           <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+  //             <AutoComplete
+  //               defaultValue={item.since}
+  //               value={item.since}
+  //               placeholder="Since"
+  //               bordered={false}
+  //               defaultOpen={false}
+  //               onSearch={(query) => onSearchSinceChid(query, index)}
+  //               onBlur={() => onBlurSinceChid(index)}
+  //               options={sinceOptions}
+  //               className="autocomplete-custom w-100 inputborder"
+  //               defaultActiveFirstOption={true}
+  //               onSelect={(data) => onSelectSinceChild(data, index)}
+  //             />
+  //           </Col>
+  //           <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+  //             <Select
+  //               className="autocomplete-custom w-100 inputborder"
+  //               placeholder="Status"
+  //               defaultValue={item.status != "" ? item.status : null}
+  //               value={item.status != "" ? item.status : null}
+  //               onSelect={(data) => onSelectStatusChild(data, index)}
+  //               options={STATUS_LIST}
+  //               onClear={() => onSelectStatusChild("", index)}
+  //               allowClear
+  //             />
+  //           </Col>
+  //           <Col lg={8} md={8} sm={7} xs={7} className="border-end">
+  //             <Input
+  //               className="notesinput border-0"
+  //               placeholder="Notes"
+  //               defaultValue={item.note}
+  //               value={item.note}
+  //               onChange={(e) => onChangeNoteChild(e, index)}
+  //             />
+  //           </Col>
+  //           <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+  //             <Button
+  //               className="btn py-0 btn-delete-prescription px-0"
+  //               onClick={() => onRemoveRow(index)}
+  //             >
+  //               <i className="icon-delete" />
+  //             </Button>
+  //           </Col>
+  //         </Row>
+  //       );
+  //     })
+  //   );
+  // }, [diagnosisData, childSearchOptions]);
+
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const reorderedItems = reorder(
+      diagnosisData,
+      result.source.index,
+      result.destination.index
+    );
+    setDiagnosisData(reorderedItems);
+  };
+
   const TABLE_DIAGNOSIS = useMemo(() => {
     return (
-      diagnosisData.length > 0 &&
-      diagnosisData.map((item, index) => {
-        return (
-          <Row
-            key={index}
-            gutter={[0]}
-            className={`${index === 0 && "mt-14 border-top"
-              } align-items-center border-bottom`}
-          >
-            <Col lg={7} md={7} sm={7} xs={7} className="border-end">
-              <div className="fontroboto fw-medium">
-                <AutoComplete
-                  defaultValue={item.tds_name}
-                  value={item.tds_name}
-                  placeholder="Diagnosis Name"
-                  bordered={false}
-                  defaultOpen={false}
-                  onSearch={(query) => onSearchChild(query, index)}
-                  onFocus={() => onFocusChid(index)}
-                  options={childSearchOptions}
-                  className="autocomplete-custom w-100 inputborder"
-                  defaultActiveFirstOption={true}
-                  onSelect={(data, e) => onSelectChild(data, e, index)}
-                />
-              </div>
-            </Col>
-            <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-              <AutoComplete
-                defaultValue={item.since}
-                value={item.since}
-                placeholder="Since"
-                bordered={false}
-                defaultOpen={false}
-                onSearch={(query) => onSearchSinceChid(query, index)}
-                onBlur={() => onBlurSinceChid(index)}
-                options={sinceOptions}
-                className="autocomplete-custom w-100 inputborder"
-                defaultActiveFirstOption={true}
-                onSelect={(data) => onSelectSinceChild(data, index)}
-              />
-            </Col>
-            <Col lg={4} md={4} sm={4} xs={4} className="border-end">
-              <Select
-                className="autocomplete-custom w-100 inputborder"
-                placeholder="Status"
-                defaultValue={item.status != "" ? item.status : null}
-                value={item.status != "" ? item.status : null}
-                onSelect={(data) => onSelectStatusChild(data, index)}
-                options={STATUS_LIST}
-                onClear={() => onSelectStatusChild("", index)}
-                allowClear
-              />
-            </Col>
-            <Col lg={8} md={8} sm={7} xs={7} className="border-end">
-              <Input
-                className="notesinput border-0"
-                placeholder="Notes"
-                defaultValue={item.note}
-                value={item.note}
-                onChange={(e) => onChangeNoteChild(e, index)}
-              />
-            </Col>
-            <Col lg={1} md={1} sm={2} xs={2} className="text-center">
-              <Button
-                className="btn py-0 btn-delete-prescription px-0"
-                onClick={() => onRemoveRow(index)}
-              >
-                <i className="icon-delete" />
-              </Button>
-            </Col>
-          </Row>
-        );
-      })
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="diagnosis" direction="vertical">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              {diagnosisData.length > 0 &&
+                diagnosisData.map((item, index) => (
+                  <Draggable key={index} draggableId={`diagnosis-${index}`} index={index}>
+                    {(provided) => (
+                      <Row
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        key={index}
+                        gutter={[0]}
+                        className={`${index === 0 && 'mt-14 border-top'
+                          } align-items-center border-bottom`}
+                      >
+                        <Col lg={1} md={1} sm={1} xs={1} className="text-center">
+                          <MenuOutlined
+                            {...provided.dragHandleProps}
+                            className="drag-handle"
+                            style={{ cursor: 'grab' }}
+                          >
+                          </MenuOutlined>
+                        </Col>
+                        <Col lg={6} md={6} sm={6} xs={6} className="border-end">
+                          <div className="fontroboto fw-medium">
+                            <AutoComplete
+                              defaultValue={item.tds_name}
+                              value={item.tds_name}
+                              placeholder="Diagnosis Name"
+                              bordered={false}
+                              defaultOpen={false}
+                              onSearch={(query) => onSearchChild(query, index)}
+                              onFocus={() => onFocusChid(index)}
+                              options={childSearchOptions}
+                              className="autocomplete-custom w-100 inputborder"
+                              defaultActiveFirstOption={true}
+                              onSelect={(data, e) => onSelectChild(data, e, index)}
+                            />
+                          </div>
+                        </Col>
+                        <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+                          <AutoComplete
+                            defaultValue={item.since}
+                            value={item.since}
+                            placeholder="Since"
+                            bordered={false}
+                            defaultOpen={false}
+                            onSearch={(query) => onSearchSinceChid(query, index)}
+                            onBlur={() => onBlurSinceChid(index)}
+                            options={sinceOptions}
+                            className="autocomplete-custom w-100 inputborder"
+                            defaultActiveFirstOption={true}
+                            onSelect={(data) => onSelectSinceChild(data, index)}
+                          />
+                        </Col>
+                        <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+                          <Select
+                            className="autocomplete-custom w-100 inputborder"
+                            placeholder="Status"
+                            defaultValue={item.status != "" ? item.status : null}
+                            value={item.status != "" ? item.status : null}
+                            onSelect={(data) => onSelectStatusChild(data, index)}
+                            options={STATUS_LIST}
+                            onClear={() => onSelectStatusChild("", index)}
+                            allowClear
+                          />
+                        </Col>
+                        <Col lg={8} md={8} sm={7} xs={7} className="border-end">
+                          <Input
+                            className="notesinput border-0"
+                            placeholder="Notes"
+                            defaultValue={item.note}
+                            value={item.note}
+                            onChange={(e) => onChangeNoteChild(e, index)}
+                          />
+                        </Col>
+                        <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+                          <Button
+                            className="btn py-0 btn-delete-prescription px-0"
+                            onClick={() => onRemoveRow(index)}
+                          >
+                            <i className="icon-delete" />
+                          </Button>
+                        </Col>
+                      </Row>
+                    )}
+                  </Draggable>
+                ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     );
   }, [diagnosisData, childSearchOptions]);
 

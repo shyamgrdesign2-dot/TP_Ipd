@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 // import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
-import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip, message, Checkbox} from "antd";
+import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip, message, Checkbox, Drawer} from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
@@ -31,6 +31,7 @@ import { pdfjs, Document, Page } from "react-pdf";
 import CommonModal from "../common/CommonModal";
 import { env } from "../EnvironmentConfig";
 import { getDecodedToken } from "../utils/localStorage";
+import CvtKnowMore from "./smartSync/components/CvtKnowMore";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -63,9 +64,11 @@ function SmartRxPreview() {
 
     const [isRxDigitiseComplete, setRxDigitiseComplete] = useState(false);
     const [rxDigitiseApiResponse, setRxDigitiseApiResponse] = useState(null);
+    const [showProgressbar, setShowProgressbar] = useState(true);
     const [isEditedData, setIsEditedData] = useState(null);
     const [rxDigitisedData, setRxDigitisedData] = useState(null);
     const [showDigitalRx, setShowDigitalRx] = useState(false);
+    const [cvtDrawer, setCvtDrawer] = useState(false);
     const progressRef = useRef(null);
     const progressValue = useRef(0);
 
@@ -153,6 +156,7 @@ function SmartRxPreview() {
             setToken(token)
             const decoded = jwtDecode(token);
             setTokenData(decoded.result)
+            setShowProgressbar(state?.showProgressbar === false ? false : true)
           } catch (e) {
             console.error(e);
           }
@@ -185,6 +189,23 @@ function SmartRxPreview() {
         const blob = new Blob([data], { type: 'application/pdf' })
         setPrintBlob(blob)
     }
+
+    const handleDrawerCvtKnowMore = useCallback(() => {
+        setCvtDrawer(!cvtDrawer);
+      }, [cvtDrawer]);
+
+    //Handle Sider
+    const handleCollapsed = useCallback(
+        (flag) => {
+        // if (flag === 1) {
+        //     handleDrawerVital();
+        // }
+        if(flag === 2) {
+            handleDrawerCvtKnowMore();
+        }
+        },
+        [cvtDrawer]
+    );
 
     useEffect(() => {
         const fetchData = async () => {
@@ -256,13 +277,15 @@ function SmartRxPreview() {
                 formData.append('files', file);
             }
         });
-    
+
+        const digitisedData = await fetchRxDigitisedData();
+        const appointmentId = digitisedData?.data?.appointmentId;
+
         // Append other fields to FormData
         formData.append('doctorId', data.result.user_id);
         formData.append('patientId', patient_data.patient_unique_id);
-        formData.append('appointmentId', patient_data.pam_id);
+        formData.append('appointmentId', (digitisedData.data) ? appointmentId : state?.pam_id);
         formData.append('caseId', state.tcm_id);
-        formData.append('ocrModel', 'docx');
     
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
@@ -279,7 +302,8 @@ function SmartRxPreview() {
                 clearInterval(interval);
         
                 // Set the response to state (this will trigger the success message)
-                setRxDigitiseApiResponse(response.data.data[0]);
+
+                setRxDigitiseApiResponse(response?.data?.data);
                 setRxDigitiseComplete(true); // Mark the digitisation as complete
         }catch (error) {
             console.error('Error uploading files:', error);
@@ -294,18 +318,17 @@ function SmartRxPreview() {
                 const viewCaseManagerData = await getCaseManagerData();
                 setViewCaseManagerData(viewCaseManagerData)
 
-                const digitisedData = await fetchRxDigitisedData();
-                if (digitisedData.data) {
-                    setRxDigitisedData(true);
-                    setRxDigitiseApiResponse(digitisedData.data);
-                    setIsEditedData(digitisedData.data)
-                } else {
-                    setRxDigitisedData(false);
-                }
+                // const digitisedData = await fetchRxDigitisedData();
+                // if (digitisedData.data) {
+                //     setRxDigitisedData(true);
+                //     setRxDigitiseApiResponse(digitisedData.data);
+                //     setIsEditedData(digitisedData.data)
+                // } else {
+                //     setRxDigitisedData(false);
+                // }
 
                 // After both API calls are completed, check their responses
-                // if (!viewCaseManagerData?.isRxDigitize && smartRxFile?.length > 0 && token) {
-                if (!viewCaseManagerData?.isRxDigitize && digitisedData.data === null && smartRxFile?.length > 0 && token) {
+                if (smartRxFile?.length > 0 && token && showProgressbar) {
                     // Proceed with the file upload
                     await uploadFiles();
                 }
@@ -340,7 +363,7 @@ function SmartRxPreview() {
             const updatedUrl = updateRxDigitizeInUrl(printUrl, showDigitalRx);
             setPreviewUrl(updatedUrl);
         }
-    }, [showDigitalRx, printUrl]);
+    }, [showDigitalRx]);
 
     const configurePrintUrl = async () => {
         var sendData = {
@@ -429,7 +452,6 @@ function SmartRxPreview() {
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={7}>
-
                         {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
                             <i className="icon-setting me-2"></i>
                             <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
@@ -482,40 +504,7 @@ function SmartRxPreview() {
                             </button>
                             { isSmartSyncCVTAccessableFromGB && (
                                 <>
-                                {/* This code is intended for future use. Please retain it for reference */}
-                                    {/* {!isRxDigitiseComplete ? (
-                                        <div className="digitise-container d-flex p-3 rounded-10px">
-                                            <div style={containerStyle}>
-                                                <div ref={progressRef} style={progressStyle}></div>
-                                            </div>
-                                            <p className="digitise-header" style={{ padding: "16px 0" }}>
-                                                {`${patient_data?.pm_fullname}'s Rx is getting Digitised!`}
-                                            </p>
-                                            <p className="digitise-info">
-                                                Our AI engine is converting handwritten Rx into digital Rx. This may take up to 30 sec
-                                            </p>
-                                        </div>
-                                    ):
-                                    (
-                                        <div className="digitise-container p-3 rounded-10px">
-                                            <div className="digitise-box-top">
-                                                <img src={successIcon} alt="success" width="40px" height="40px" />
-                                                <div>
-                                                    <p className="digitise-header">
-                                                        {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
-                                                    </p>
-                                                    <p className="digitise-info">
-                                                        Digitise Rx to enhances patient care, streamline workflow, and unlock new revenue. Know More
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <button onClick={handleDigitiseRx} className="digitise-btn">
-                                                Digitise Rx Now
-                                            </button>
-                                        </div>
-                                    )} */}
-
-                                    {!isRxDigitiseComplete && !rxDigitisedData && (
+                                    {!rxDigitiseApiResponse && showProgressbar && (
                                         <div className="digitise-container d-flex p-3 rounded-10px">
                                             <div style={containerStyle}>
                                                 <div ref={progressRef} style={progressStyle}></div>
@@ -528,7 +517,7 @@ function SmartRxPreview() {
                                             </p>
                                         </div>
                                     )}
-                                    {rxDigitiseApiResponse && !isEditedData?.editedData && (
+                                    {rxDigitiseApiResponse && (
                                         <div className="digitise-container p-3 rounded-10px">
                                             <div className="digitise-box-top">
                                                 <img src={successIcon} alt="success" width="40px" height="40px" />
@@ -537,24 +526,46 @@ function SmartRxPreview() {
                                                         {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
                                                     </p>
                                                     <p className="digitise-info">
-                                                        Digitise Rx to enhances patient care, streamline workflow, and unlock new revenue. Know More
+                                                        Digitise Rx to enhance patient care, streamline workflow, and unlock new revenue.
+                                                        <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>
+                                                            <span className="know-more-text" style={{
+                                                                color:"rgba(255, 255, 255, 0.80) !important",
+                                                                fontSize: "14px",
+                                                                textDecoration: "underline",
+                                                                textDecorationColor: "rgba(255, 255, 255, 0.80)"
+                                                            }}>Know More</span>
+                                                        </button>
                                                     </p>
                                                 </div>
                                             </div>
                                             <button onClick={handleDigitiseRx} className="digitise-btn">
-                                                Digitise Rx Now
+                                                Digitise Rx Now <span>&#8594;</span> 
                                             </button>
                                         </div>
                                     )}
                                 </>
                             )}
                         </div>
+
+                        <Drawer
+                            closeIcon={false}
+                            // placement="right"
+                            onClose={handleDrawerCvtKnowMore}
+                            open={cvtDrawer}
+                            className=".modalWidth-800"
+                            width={800}
+                        >
+                            <CvtKnowMore
+                                handleDrawerCvtKnowMore={handleDrawerCvtKnowMore}
+                                handleCollapsed={(flag) => handleCollapsed(flag)}
+                            />
+                        </Drawer>
                     </Col>
                     <Col md={17} lg={17} xl={12}>
                         <div className={isMobile ? 'p-20' : ''}>
                             <div className="d-flex align-itms-center justify-content-between">
                                 <div className="titleprint">Preview</div>
-                               { viewCaseManagerData?.isRxDigitize && isSmartSyncCVTAccessableFromGB &&
+                               { viewCaseManagerData?.isRxDigitize && isSmartSyncCVTAccessableFromGB && state?.page !== "prescription" &&
                                     <div>
                                         <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
                                         <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>

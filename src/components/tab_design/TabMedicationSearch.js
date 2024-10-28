@@ -35,7 +35,8 @@ import {
   searchGeneric,
   addMedicine,
   editMedicine,
-  updateFrequentlyMedication
+  updateFrequentlyMedication,
+  clearGenericList
 } from "../../redux/medicationSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
@@ -43,6 +44,8 @@ import TabMedicationMoreModal from "./TabMedicationMoreModal";
 
 import noRecordFound from '../../assets/images/no-record-round.svg';
 import { EXTRA_OPTIONS } from "../../utils/constants";
+
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 function TabMedicationSearch({ passIndex, onClose }) {
 
@@ -242,78 +245,193 @@ function TabMedicationSearch({ passIndex, onClose }) {
   };
 
   //Child Componet
+
+  const SortableItem = SortableElement(({ item }) => (
+    <div
+      style={{
+        width:
+          item.tmm_medicine_name.length > 12 &&
+            item.tmm_medicine_name.length < 24
+            ? `${item.tmm_medicine_name.length * 10.5}px`
+            : item.tmm_medicine_name.length >= 24
+              ? "256px"
+              : "150px",
+              zIndex: 9999,
+      }}
+      className={`${selectedIndex1 == item?.index1 && "closable-chips-active"
+        } d-flex align-items-center justify-content-between text-truncate closable-chips`}
+    >
+      <div
+        className="text-truncate p-2"
+        onClick={() => {
+          setSelectedIndex(item?.index);
+          setActiveKey(item?.unique_id);
+
+          setSelectedIndex1(item?.index1);
+          setChildIndex(item?.index);
+
+          setSinceValue(item.tmm_days ? parseInt(item.tmm_days) : 1);
+          setAddCustom(null);
+        }}
+      >
+        <div className="text-truncate">
+          {item.tmm_medicine_name}
+          {innerMedication(item?.index)?.length > 1 ? (
+            <div className="text-truncate small">Taper Dose</div>
+          ) : (
+            (item.tmm_dosage || item.tmm_unit_name) ? (
+              isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
+                <div className="text-truncate small">{`
+              ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
+              ${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
+              ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
+              ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}
+              ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}
+              ${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
+              ) : (
+                <div className="text-truncate small">{`
+                ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
+                ${item.tmm_freq_type_name ? item.tmm_freq_type_name + " | " : ""}
+                ${item.tmm_time_name ? item.tmm_time_name : ""}
+                `}</div>
+              )
+            ) : (
+              <div className="text-truncate small">Note</div>
+            )
+          )}
+
+        </div>
+      </div>
+      <Button
+        type="text"
+        className="rounded-0 btn-close-chips"
+        onClick={() => onRemoveRow(item?.index)}
+      >
+        <i className="icon-Cross"></i>
+      </Button>
+    </div>
+  ));
+
+  const SortableList = SortableContainer(({ items }) => {
+    return (
+      <div className="d-flex flex-wrap">
+        {medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, index) => (
+          <SortableItem
+            key={`item-${index}`}
+            index={index}
+            item={{ ...item, index1: index }}
+          />
+        ))}
+      </div>
+    );
+  });
+
   const TABLE_MEDICATION = useMemo(() => {
     return (
-      medicationData.length > 0 &&
-      medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, index) => {
-        return (
-          <div
-            key={index}
-            style={{
-              width:
-                item.tmm_medicine_name.length > 12 &&
-                  item.tmm_medicine_name.length < 24
-                  ? `${item.tmm_medicine_name.length * 10.5}px`
-                  : item.tmm_medicine_name.length >= 24
-                    ? "256px"
-                    : "150px",
-            }}
-            className={`${selectedIndex1 == index && "closable-chips-active"
-              } d-flex align-items-center justify-content-between text-truncate closable-chips`}
-          >
-            <div
-              className="text-truncate p-2"
-              onClick={() => {
-                setSelectedIndex(item?.index);
-                setActiveKey(item?.unique_id);
+      medicationData.length > 0 && (
+        <SortableList
+          items={medicationData}
+          onSortEnd={async ({ oldIndex, newIndex }) => {
 
-                setSelectedIndex1(index);
-                setChildIndex(item?.index);
+            const result = Array.from(medicationData);
 
-                setSinceValue(item.tmm_days ? parseInt(item.tmm_days) : 1);
-                setAddCustom(null);
-              }}
-            >
-              <div className="text-truncate">
-                {item.tmm_medicine_name}
-                {innerMedication(item?.index)?.length > 1 ? (
-                  <div className="text-truncate small">Taper Dose</div>
-                ) : (
-                  (item.tmm_dosage || item.tmm_unit_name) ? (
-                    isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
-                      <div className="text-truncate small">{`
-                      ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-                      ${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
-                      ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
-                      ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}
-                      ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}
-                      ${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
-                    ) : (
-                      <div className="text-truncate small">{`
-                        ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-                        ${item.tmm_freq_type_name ? item.tmm_freq_type_name + " | " : ""}
-                        ${item.tmm_time_name ? item.tmm_time_name : ""}
-                        `}</div>
-                    )
-                  ) : (
-                    <div className="text-truncate small">Note</div>
-                  )
-                )}
+            const findMedicationIndex = medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], [])
 
-              </div>
-            </div>
-            <Button
-              type="text"
-              className="rounded-0 btn-close-chips"
-              onClick={() => onRemoveRow(item?.index)}
-            >
-              <i className="icon-Cross"></i>
-            </Button>
-          </div>
-        );
-      })
+            const array = await innerMedication(findMedicationIndex[oldIndex].index)
+            const array1 = await innerMedication(findMedicationIndex[newIndex].index)
+
+            const removedArray = result.filter(item => !array.some((x) => x.unique_id === item.unique_id));
+
+            if (findMedicationIndex[oldIndex].index > findMedicationIndex[newIndex].index) {
+              const dragIndex = removedArray.findIndex(x => x.unique_id == array1.at(0).unique_id)
+              removedArray.splice(dragIndex, 0, ...array)
+            }
+            else {
+              const dragIndex = removedArray.findIndex(x => x.unique_id == array1.at(-1).unique_id)
+              removedArray.splice(dragIndex + 1, 0, ...array)
+            }
+
+            setMedicationData(removedArray);
+          }}
+          axis="xy"
+          pressDelay={100}
+        />
+      )
     );
   }, [medicationData, selectedIndex, selectedIndex1, childIndex, selectedTab]);
+
+  // const TABLE_MEDICATION = useMemo(() => {
+  //   return (
+  //     medicationData.length > 0 &&
+  //     medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, index) => {
+  //       return (
+  //         <div
+  //           key={index}
+  //           style={{
+  //             width:
+  //               item.tmm_medicine_name.length > 12 &&
+  //                 item.tmm_medicine_name.length < 24
+  //                 ? `${item.tmm_medicine_name.length * 10.5}px`
+  //                 : item.tmm_medicine_name.length >= 24
+  //                   ? "256px"
+  //                   : "150px",
+  //           }}
+  //           className={`${selectedIndex1 == index && "closable-chips-active"
+  //             } d-flex align-items-center justify-content-between text-truncate closable-chips`}
+  //         >
+  //           <div
+  //             className="text-truncate p-2"
+  //             onClick={() => {
+  //               setSelectedIndex(item?.index);
+  //               setActiveKey(item?.unique_id);
+
+  //               setSelectedIndex1(index);
+  //               setChildIndex(item?.index);
+
+  //               setSinceValue(item.tmm_days ? parseInt(item.tmm_days) : 1);
+  //               setAddCustom(null);
+  //             }}
+  //           >
+  //             <div className="text-truncate">
+  //               {item.tmm_medicine_name}
+  //               {innerMedication(item?.index)?.length > 1 ? (
+  //                 <div className="text-truncate small">Taper Dose</div>
+  //               ) : (
+  //                 (item.tmm_dosage || item.tmm_unit_name) ? (
+  //                   isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
+  //                     <div className="text-truncate small">{`
+  //                     ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
+  //                     ${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
+  //                     ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
+  //                     ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}
+  //                     ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}
+  //                     ${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
+  //                   ) : (
+  //                     <div className="text-truncate small">{`
+  //                       ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
+  //                       ${item.tmm_freq_type_name ? item.tmm_freq_type_name + " | " : ""}
+  //                       ${item.tmm_time_name ? item.tmm_time_name : ""}
+  //                       `}</div>
+  //                   )
+  //                 ) : (
+  //                   <div className="text-truncate small">Note</div>
+  //                 )
+  //               )}
+
+  //             </div>
+  //           </div>
+  //           <Button
+  //             type="text"
+  //             className="rounded-0 btn-close-chips"
+  //             onClick={() => onRemoveRow(item?.index)}
+  //           >
+  //             <i className="icon-Cross"></i>
+  //           </Button>
+  //         </div>
+  //       );
+  //     })
+  //   );
+  // }, [medicationData, selectedIndex, selectedIndex1, childIndex, selectedTab]);
 
   const onChangeDosageChild = useCallback(
     (e) => {
@@ -1486,9 +1604,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
     [genericQuery]
   );
 
-  const onSelectGeneric = (item) => {
+  const onSelectGeneric = async (item) => {
     setAddCustom({ ...addCustom, ...item });
     setGenericQuery("")
+    await dispatch(clearGenericList())
     handleDrawerGeneric()
   }
 
@@ -1727,7 +1846,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 <Button className='me-4 btn p-0 text-main btn-text' onClick={() => setAddCustom(null)}>
                   Cancel
                 </Button>
-              ):null}
+              ) : null}
               <Button className='btn btn-primary3 btn-41 px-4' onClick={onAddEditMedicineClick} loading={loading} disabled={addCustom?.tmm_medicine_name && addCustom?.tmy_id ? false : true}>
                 {`${addCustom?.tmm_id ? 'Update' : 'Add'} Custom Medicine`}
               </Button>

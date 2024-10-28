@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useRef } from 'react';
-import { Popover, Drawer } from "antd";
+import { Popover, Drawer, Spin } from "antd";
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 
 import playIcons from '../assets/images/tube-icon.svg';
 import tutorial from '../assets/images/tutorial-icon.svg';
-
+import alertIcon from "../assets/images/alertIcon.svg";
 import ProfilePopover from './ProfilePopover';
 import VideoModal from './VideoModal';
 import CreateCertificate from '../components/medical_certificate/CreateCertificate';
@@ -18,6 +18,7 @@ import UploadDocument from '../pages/medicalRecords/UploadDocument';
 import { isAndroid, isBrowser } from 'react-device-detect';
 import UploadDocPopup from '../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup';
 import { generateUniqueFileName, getCorrectedFileName } from '../pages/medicalRecords/utils/helper';
+import CommonModal from './CommonModal';
 
 function Welcome1(props) {
 
@@ -28,6 +29,9 @@ function Welcome1(props) {
     const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
     const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
     const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
+    const [isFileSizeError, setIsFileSizeError] = useState(false);
+    const [isFileLimitError, setIsFileLimitError] = useState(false);
+    const [isFileTypeError, setIsFileTypeError] = useState(null);
     const fileInputRef = useRef(null);
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
@@ -38,6 +42,7 @@ function Welcome1(props) {
     const { allUploadedDocs } = useSelector(
       (state) => state.uploadDoc
     );
+    const { isLoading } = useSelector((state) => state.uploadDoc);
     const { locationPath, isMobile, patient_data, viewCaseManagerData, sidebarKey } = props
 
     const modifyFormat = useMemo(() => {
@@ -170,6 +175,13 @@ function Welcome1(props) {
             </>
         );
     }, [popOverVideo]);
+
+    const handleRetryBtn = () => {
+        setFilesData([]);
+        setIsFileSizeError(false);
+        setIsFileLimitError(false);
+        setIsFileTypeError(null);
+    };
 
     return (
         <>
@@ -342,7 +354,7 @@ function Welcome1(props) {
                 </div>
             </div>
             {uploadDocDrawer && (
-                <Drawer
+            <Drawer
                 closeIcon={false}
                 placement="right"
                 bodyStyle={{backgroundColor: "white"}}
@@ -359,18 +371,81 @@ function Welcome1(props) {
                     setShowDeletePopup={setShowDeletePopup}
                     filesData={filesData}
                     setFilesData={setFilesData}
+                    handleUploadDocPopup={handleUploadDocPopup}
                 />
-                </Drawer>
+            </Drawer>
             )}
-            {shouldShowUploadDocPopup && (
+            {shouldShowUploadDocPopup && ( 
                 <UploadDocPopup
+                    shouldShowUploadDocPopup={shouldShowUploadDocPopup}
                     onCancel={handleUploadDocPopup}
                     setFilesData={setFilesData}
                     filesData={filesData}
-                    uploadDocDrawer={uploadDocDrawer}
-                    handleDrawerUploadDoc={handleDrawerUploadDoc}
+                    setUploadDocDrawer={setUploadDocDrawer}
+                    setIsFileSizeError={setIsFileSizeError}
+                    setIsFileLimitError={setIsFileLimitError}
+                    setIsFileTypeError={setIsFileTypeError}
                 />
             )}
+            {isFileSizeError || isFileLimitError || isFileTypeError ? (
+                <CommonModal
+                    isModalOpen={isFileSizeError || isFileLimitError || isFileTypeError}
+                    onCancel={handleRetryBtn}
+                    modalWidth={500}
+                    title={
+                        isFileSizeError
+                        ? "Exceeded File Size"
+                        : isFileLimitError
+                        ? "Exceeded File Upload Limit"
+                        : isFileTypeError
+                        ? "File format not supported"
+                        : "You may lose your data"
+                    }
+                    modalBody={
+                        <>
+                        <div className="alert-warning rounded-10px p-2 patient-details">
+                            <div className="d-flex align-items-center">
+                            <img className="me-3" src={alertIcon} alt="Warning" />
+                            <span>
+                                {isFileSizeError ? (
+                                <>
+                                    The file size exceeded{" "}
+                                    <span style={{ fontWeight: 700 }}>8MB.</span> Please
+                                    upload a file smaller than 8MB
+                                </>
+                                ) : isFileLimitError ? (
+                                <>
+                                    You can only upload up to
+                                    <span style={{ fontWeight: 700 }}> 5 files.</span>{" "}
+                                    Please reduce the number of files and try again.
+                                </>
+                                ) : isFileTypeError ? (
+                                <>
+                                    You can't upload
+                                    <span style={{ fontWeight: 700 }}>
+                                    {" "}
+                                    {isFileTypeError}
+                                    </span>{" "}
+                                    file. Only PDF, JPG, JPEG, and PNG formats are accepted.
+                                </>
+                                ) : (
+                                "Are you sure you want to leave ?"
+                                )}
+                            </span>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <Button
+                            onClick={handleRetryBtn}
+                            className="w-100 btn btn-primary3 btn-41 px-4"
+                            >
+                            Retry
+                            </Button>
+                        </div>
+                        </>
+                    }
+                />
+            ) : null}
         </>
     )
 }

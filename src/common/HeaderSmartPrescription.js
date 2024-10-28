@@ -363,7 +363,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
         : await dispatch(editCaseManager(sendData));
 
     if (action.meta.requestStatus === "fulfilled") {
-      navigate('/print-smart-rx', { replace: true, state: { ...action.payload, patient_data: patient_data, smartRxFile: smartRxFiles } })
+      navigate('/print-smart-rx', { replace: true, state: { ...action.payload, patient_data: patient_data, smartRxFile: smartRxFiles, page:"prescription" } })
     } else {
       errorMessage(action.error);
     }
@@ -448,7 +448,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                   }
                 />
               </div>
-              <div className="p-4">Write Smart Prescription</div>
+              <ProfilePopover patient_data={patient_data} />
             </div>
           </Col>
           <Col lg="auto">

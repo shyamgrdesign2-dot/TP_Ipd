@@ -1,5 +1,5 @@
 # Use the official Node.js runtime as the base image
-FROM node:18 as build
+FROM node:22 as build
 # ENV NODE_ENV production
 
 ##ARG REACT_APP_ENV
@@ -18,7 +18,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy the entire application code to the container
 COPY . .

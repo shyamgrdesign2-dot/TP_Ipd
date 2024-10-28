@@ -63,6 +63,7 @@ function SmartRxDigitise() {
             const cleanedToken = token.replace(/['"]+/g, '');
 
             const payload = {
+                isDigitize: true,
                 editedData: {
                     ...data
                 }
@@ -78,7 +79,7 @@ function SmartRxDigitise() {
             
             // Navigate to a different page on successful API call
             if(response.status === 204){
-                navigate('/print-smart-rx', { replace: true, state: { patient_data:patient_data, smartRxData:smartRxFilesData, tcm_id:tcm_id, print_url:print_url} })
+                navigate('/print-smart-rx', { replace: true, state: { patient_data:patient_data, smartRxData:smartRxFilesData, tcm_id:tcm_id, print_url:print_url, showProgressbar:false, page:"digitise"} })
             }
         } catch (error) {
             console.error('Error saving data:', error);
@@ -89,9 +90,10 @@ function SmartRxDigitise() {
         <>
             <HeaderSmartRxDigitise 
                 onSave={handleSave} 
+                patient_data={patient_data}
             />
             <div className="cvt-info">
-                <img src={cvtInfoIcon} alt="cvt-info-icon" />
+                <img src={cvtInfoIcon} alt="cvt-info-icon" className="me-2" />
                 <span className="cvt-info-text"><span className="title-common">Disclaimer:</span> Our AI model aims to be accurate, but sometimes it might make mistakes. Please double-check all details to ensure they are correct and complete.</span>
                 <i className='icon-Cross ms-1 fs-18' style={{color:"#FEF4E6"}}></i>
             </div>

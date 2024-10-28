@@ -250,9 +250,9 @@ function DoctorProfile() {
                       className="rounded-circle"
                       style={{ width: "90px" }}
                     />
-                  ) : (
-                    <div className='rounded-pill patientProfile patientProfile90 border'>{makeDefaultLogo(profile?.um_name)}</div>
-                  )}
+                  ) :
+                    <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
+                  }
                 </div>
                 <div>
                   <div className="title-hypertension text-welcome">{(profile?.um_name)}</div>
