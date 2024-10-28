@@ -152,7 +152,7 @@ function HeaderSmartRxDigitise({onSave, patient_data}) {
                   }
                 />
               </div>
-              <div className="p-4">{`Review & Save ${patient_data?.pm_fullname} Digital Rx`}</div>
+              <div className="p-4">{`Review & Save ${patient_data?.pm_fullname}'s Digital Rx`}</div>
             </div>
           </Col>
           <Col lg="auto">

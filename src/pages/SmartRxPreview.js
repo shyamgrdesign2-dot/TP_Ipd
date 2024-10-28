@@ -527,8 +527,15 @@ function SmartRxPreview() {
                                                         {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
                                                     </p>
                                                     <p className="digitise-info">
-                                                        Digitise Rx to enhances patient care, streamline workflow, and unlock new revenue.
-                                                        <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>Know More</button>
+                                                        Digitise Rx to enhance patient care, streamline workflow, and unlock new revenue.
+                                                        <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>
+                                                            <span className="know-more-text" style={{
+                                                                color:"rgba(255, 255, 255, 0.80) !important",
+                                                                fontSize: "14px",
+                                                                textDecoration: "underline",
+                                                                textDecorationColor: "rgba(255, 255, 255, 0.80)"
+                                                            }}>Know More</span>
+                                                        </button>
                                                     </p>
                                                 </div>
                                             </div>

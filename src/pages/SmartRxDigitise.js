@@ -93,7 +93,7 @@ function SmartRxDigitise() {
                 patient_data={patient_data}
             />
             <div className="cvt-info">
-                <img src={cvtInfoIcon} alt="cvt-info-icon" className="me-4" />
+                <img src={cvtInfoIcon} alt="cvt-info-icon" className="me-2" />
                 <span className="cvt-info-text"><span className="title-common">Disclaimer:</span> Our AI model aims to be accurate, but sometimes it might make mistakes. Please double-check all details to ensure they are correct and complete.</span>
                 <i className='icon-Cross ms-1 fs-18' style={{color:"#FEF4E6"}}></i>
             </div>

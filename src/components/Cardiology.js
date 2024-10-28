@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import Card from "react-bootstrap/Card";
-import { Table, Dropdown, Button, Spin } from "antd";
+import { Table, Dropdown, Button, Spin, Drawer } from "antd";
 import { useNavigate } from "react-router-dom";
 import { isChrome, isMobile, isSafari } from "react-device-detect";
 import { useSelector } from "react-redux";
@@ -25,6 +25,8 @@ import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, PERSISTANT
 import { capitalize, isNumeric, medicine_freq_format } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import CvtKnowMore from "../pages/smartSync/components/CvtKnowMore";
+import moment from "moment";
 
 function Cardiology(props) {
   const navigate = useNavigate();
@@ -49,6 +51,7 @@ function Cardiology(props) {
   const [showDigitalRx, setShowDigitalRx] = useState(null);
   const [rxDigitisedData, setRxDigitisedData] = useState(null);
   const [isRxdigitised, setIsRxdigitised] = useState(null);
+  const [cvtDrawer, setCvtDrawer] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -110,6 +113,23 @@ function Cardiology(props) {
       console.error("Error:", error);
     }
   };
+
+  const handleDrawerCvtKnowMore = useCallback(() => {
+    setCvtDrawer(!cvtDrawer);
+  }, [cvtDrawer]);
+
+  //Handle Sider
+  const handleCollapsed = useCallback(
+      (flag) => {
+      // if (flag === 1) {
+      //     handleDrawerVital();
+      // }
+      if(flag === 2) {
+          handleDrawerCvtKnowMore();
+      }
+      },
+      [cvtDrawer]
+  );
 
   async function printRxInAppContent() {
     navigate(
@@ -479,7 +499,15 @@ function Cardiology(props) {
                 <img src={successIcon} alt="success" width="40px" height="40px" />
                 <p>
                   <span className="digitise-info-header-cardiology">{`${patient_data?.pm_fullname}'s Digital Rx is ready!`}</span>
-                  Digitise Rx to enhance patient care, workflow efficiency, and revenue. Know More
+                  Digitise Rx to enhance patient care, workflow efficiency, and revenue. 
+                  <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>
+                    <span style={{
+                      fontSize: "14px",
+                      paddingLeft: "4px",
+                      textDecoration: "underline",
+                      textDecorationColor: "#454551"
+                    }}>Know More</span>
+                  </button>
                 </p>
                 {/* <button onClick={handleDigitiseRx} className=""> */}
                 <button className="digitise-info-btn-cardiology" onClick={handleDigitiseRx}>
@@ -487,6 +515,19 @@ function Cardiology(props) {
                 </button>
               </div>
             )}
+            <Drawer
+              closeIcon={false}
+              // placement="right"
+              onClose={handleDrawerCvtKnowMore}
+              open={cvtDrawer}
+              className=".modalWidth-800"
+              width={800}
+            >
+              <CvtKnowMore
+                  handleDrawerCvtKnowMore={handleDrawerCvtKnowMore}
+                  handleCollapsed={(flag) => handleCollapsed(flag)}
+              />
+            </Drawer>
             {
               loading ? (
                 <div
@@ -582,7 +623,9 @@ function Cardiology(props) {
                           <img className="me-3" src={followUp} alt="Symptoms" />
                           <div className="title-common">Follow-up:</div>
                           <div className="follow-up-date-text">
-                            {viewCaseManagerData?.follow_up_date}
+                            {viewCaseManagerData?.follow_up_date
+                              ? moment(viewCaseManagerData.follow_up_date).format("MM/DD/YYYY")
+                              : ""}
                           </div>
                         </>
                       )}
