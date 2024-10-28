@@ -155,8 +155,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
             const patientId = patient_unique_id;
-            const doctorId = tokenData?.user_id;
-            const response = await axios.get(`${labParamsBaseUrl}/api/v1/lab-parameters/results/${doctorId}/${patientId}`, {
+            const response = await axios.get(`${labParamsBaseUrl}/api/v1/lab-parameters/results/${patientId}`, {
                 headers: {
                     'Authorization': `Bearer ${cleanedToken}`,
                 },
@@ -337,7 +336,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
             const numericValue = parseFloat(value);
             const min = parseFloat(selectedRange.min);
             const max = parseFloat(selectedRange.max);
-    
+
             if (numericValue > max) {
                 return "up";
             } else if (numericValue < min) {
@@ -730,13 +729,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
 
     const handleMouseDown = (e) => {
         setIsDragging(true);
-        setStartX(e.pageX - scrollRef.current.offsetLeft);
-        setScrollLeft(scrollRef.current.scrollLeft);
+        setStartX(e.pageX - scrollRef?.current?.offsetLeft);
+        setScrollLeft(scrollRef?.current?.scrollLeft);
     };
 
     const handleMouseMove = (e) => {
         if (!isDragging) return;
-        const x = e.pageX - scrollRef.current.offsetLeft;
+        const x = e.pageX - scrollRef?.current.offsetLeft;
         const walk = x - startX; // Distance moved
         scrollRef.current.scrollLeft = scrollLeft - walk;
     };
@@ -886,12 +885,14 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                   <span>Name</span>
                 </th>
 
+                <th>
+                  <div className='d-flex'>
                 {dates?.length < 2 ? (dates.map((date, index) => (
                   <>
-                    <th
+                        <div
                       key={date}
                       className="date-values"
-                      style={{ padding: "10px",textWrap: "nowrap" }}
+                          style={{ padding: "10px 0",textWrap: "nowrap" }}
                     >
                       <span>{moment(date).format(showDateFormat)}</span>
                       <Tooltip
@@ -931,18 +932,18 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                           style={{ fontSize: "16px" }}
                         />
                       </Tooltip>
-                    </th>
-                    <th
+                        </div>
+                        <div
                       className="date-values"
-                      style={{ padding: "10px" }}
+                          style={{ padding: "10px 0" }}
                     >
-                    </th>
+                        </div>
                   </>
                 ))):(dates.map((date, index) => (
-                  <th
+                        <div
                     key={date}
                     className="date-values"
-                    style={{ padding: "10px",textWrap: "nowrap"}}
+                          style={{ padding: "10px 0",textWrap: "nowrap"}}
                   >
                     <span>{moment(date).format(showDateFormat)}</span>
                     <Tooltip
@@ -982,9 +983,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                         style={{ fontSize: "16px" }}
                       />
                     </Tooltip>
-                  </th>
+                        </div>
                 )))
                 }
+                  </div>
+                </th>
               </tr>
             </thead>
             { loading ? (
@@ -1092,10 +1095,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                             )}
                             {/* <div style="height: 15px;"></div> */}
                             {/* Test Name and Test Values Rows */}
-                            {expandedReports[reportName] &&
-                              Object.keys(inputValues[reportName]).map(
-                                (testName, index) => (
-                                  <tr key={testName} style={{background: "#fff"}}>
+                            {expandedReports[reportName] && (
+                              <>
+                                {/* Main Loop: Exclude "Remarks" */}
+                                {Object.keys(inputValues[reportName])
+                                  .filter((testName) => testName !== "Remarks") // Exclude "Remarks"
+                                  .map((testName, index) => (
+                                    <tr key={testName} style={{ background: "#fff" }}>
                                     {/* Test Name Column */}
                                     <td
                                       style={{
@@ -1124,11 +1130,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                     inputValues[reportName][testName]
                                                   ).map((date, index) => {
                                                     const testData =
-                                                      inputValues[reportName][testName][
-                                                        date
-                                                      ];
+                                                          inputValues[reportName][testName][date];
                                                     const refRange = testData?.refRange;
-
                                                     if (
                                                       refRange &&
                                                       refRange.ranges &&
@@ -1137,53 +1140,46 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                     ) {
                                                       hasRenderedRefRange = true;
                                                       if (refRange.isConditional) {
-                                                        const maleRange =
-                                                          refRange.ranges.find(
-                                                            (range) =>
-                                                              range.gender === "MALE"
+                                                            const maleRange = refRange.ranges.find(
+                                                              (range) => range.gender.toLowerCase() === "male"
                                                           );
-                                                        const femaleRange =
-                                                          refRange.ranges.find(
-                                                            (range) =>
-                                                              range.gender === "FEMALE"
+                                                            const femaleRange = refRange.ranges.find(
+                                                              (range) => range.gender.toLowerCase() === "female"
                                                           );
                                                         return (
                                                           <div key={index}>
-                                                            <strong>
-                                                              Reference Range:
-                                                            </strong>
+                                                                <strong>Reference Range:</strong>
                                                             {maleRange && femaleRange ? (
                                                               <div>
-                                                                Male:{" "}
-                                                                {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}{" "}
-                                                                <br />
-                                                                Female:{" "}
-                                                                {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                                    Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
+                                                                    Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
                                                               </div>
                                                             ) : maleRange ? (
                                                               <div>
-                                                                Male:{" "}
-                                                                {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
+                                                                    Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
                                                               </div>
                                                             ) : femaleRange ? (
                                                               <div>
-                                                                Female:{" "}
-                                                                {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                                    Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
                                                               </div>
                                                             ) : (
-                                                              <div>
-                                                                No reference range
-                                                                available
-                                                              </div>
+                                                                  <div>No reference range available</div>
                                                             )}
                                                           </div>
                                                         );
                                                       } else {
-                                                        const range = refRange.ranges[0];
+                                                            const allRange = refRange.ranges.find(
+                                                              (range) => range.gender.toLowerCase() === "all"
+                                                            );
                                                         return (
                                                           <div key={index}>
-                                                            All:{" "}
-                                                            {`${range?.min} - ${range?.max} ${range?.unit}`}
+                                                                {allRange ? (
+                                                                  <>
+                                                                    All:{`${allRange.min} - ${allRange.max} ${allRange.unit}`}
+                                                                  </>
+                                                                ) : (
+                                                                  <div>No reference range available</div>
+                                                                )}
                                                           </div>
                                                         );
                                                       }
@@ -1193,9 +1189,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                 );
                                               })()}
                                               <div className="disclaimer-text">
-                                                <span style={{ fontWeight: "600" }}>
-                                                  Disclaimer:
-                                                </span>{" "}
+                                                  <span style={{ fontWeight: "600" }}>Disclaimer:</span>{" "}
                                                 {`This range is only for reference and may vary between patients based on different conditions.`}
                                               </div>
                                             </div>
@@ -1239,87 +1233,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                       >
                                         {/* Test Value Columns (aligned with date columns in <thead>) */}
                                         {dates.map((date, inputIndex) => (
-                                          <div
-                                            key={inputIndex}
-                                            className="test-values-container"
-                                          >
-                                            {testName === "Remarks" ? (
-                                              <div>
-                                                {inputValues[reportName][testName][date]
-                                                  ?.value ? (
-                                                  <Tooltip
-                                                    title={tooltipTitle(
-                                                      inputValues?.[reportName]?.[
-                                                        testName
-                                                      ]?.[date]?.value,
-                                                      reportName,
-                                                      testName,
-                                                      date
-                                                    )}
-                                                    overlayClassName="customTooltip"
-                                                    open={showEditTooltip}
-                                                    placement="top"
-                                                  >
-                                                    <div
-                                                      // onClick={() =>
-                                                      //   setShowEditTooltip(true)
-                                                      // }
-                                                    >
-                                                      <div className="truncated">
-                                                        {
-                                                          inputValues[reportName][
-                                                            testName
-                                                          ][date]?.value
-                                                        }
-                                                      </div>
-                                                      <span
-                                                        style={{
-                                                          fontWeight: 500,
-                                                          color: "#171725",
-                                                          textDecoration: "underline",
-                                                          cursor: "pointer",
-                                                          fontSize: "14px",
-                                                        }}
-                                                      >
-                                                        View Remarks
-                                                      </span>
-                                                    </div>
-                                                  </Tooltip>
-                                                ) : (
-                                                  <Button
-                                                    className="remarks-btn"
-                                                    onClick={() =>
-                                                      handleOpenModal(
-                                                        reportName,
-                                                        testName,
-                                                        date
-                                                      )
-                                                    }
-                                                  >
-                                                    <span
-                                                      className="underline-button"
-                                                      style={{ fontWeight: 600 }}
-                                                    >
-                                                      Add Remarks
-                                                    </span>
-                                                  </Button>
-                                                )}
-                                                {isRemarksVisible[reportName]?.[
-                                                  testName
-                                                ]?.[date] && (
-                                                  <div className="full-remarks-container">
-                                                    <div className="full-remarks-content">
-                                                      {
-                                                        inputValues[reportName][testName][
-                                                          date
-                                                        ]?.value
-                                                      }
-                                                    </div>
-                                                  </div>
-                                                )}
-                                              </div>
-                                            ) : (
-                                              <div style={{width:"180px"}}>
+                                            <div key={inputIndex} className="test-values-container">
+                                              {/* Test Values Rendering */}
+                                              {/* Use your test values rendering logic here */}
+                                              {testName !== "Remarks" && (
+                                                <div style={{ width: "180px" }}>
                                                 <Input
                                                   style={{
                                                     width: "100%",
@@ -1336,7 +1254,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                   className={`lab-params-input
                                               ${
                                                 inputValues[reportName][testName][date]
-                                                  ?.arrowDirection !== ""
+                                                  ?.arrowDirection !== "" && inputValues[reportName][testName][date]?.value
                                                   ? "lab-params-intput-warning"
                                                   : ""
                                               }`}
@@ -1395,7 +1313,101 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                       </div>
                                     </td>
                                   </tr>
-                                )
+                                  ))}
+
+                                {/* Render Remarks row at the end */}
+                                {Object.keys(inputValues[reportName])
+                                  .filter((testName) => testName === "Remarks")
+                                  .map((testName, index) => (
+                                    <tr key={testName} style={{ background: "#fff" }}>
+                                      {/* Remarks Test Name Column */}
+                                      <td
+                                        style={{
+                                          position: "sticky",
+                                          left: 0,
+                                          background: "#fff",
+                                          width: "23rem",
+                                          padding: "10px",
+                                          overflow: "hidden",
+                                          zIndex: 3,
+                                        }}
+                                      >
+                                        {testName}
+                                      </td>
+
+                                      <td colSpan={Object.keys(inputValues).length} style={{ padding: 0 }}>
+                                        <div
+                                          ref={scrollRef}
+                                          onMouseDown={handleMouseDown}
+                                          onMouseLeave={handleMouseLeaveOrUp}
+                                          onMouseUp={handleMouseLeaveOrUp}
+                                          onMouseMove={handleMouseMove}
+                                          style={{
+                                            display: "flex",
+                                            overflowX: "auto",
+                                            cursor: isDragging ? "grabbing" : "grab",
+                                          }}
+                                        >
+                                          {dates.map((date, inputIndex) => (
+                                            <div key={inputIndex} className="test-values-container">
+                                              {/* Remarks Values Rendering */}
+                                              <div>
+                                                {inputValues[reportName][testName][date]?.value ? (
+                                                  <Tooltip
+                                                    title={tooltipTitle(
+                                                      inputValues?.[reportName]?.[testName]?.[date]?.value,
+                                                      reportName,
+                                                      testName,
+                                                      date
+                                                    )}
+                                                    overlayClassName="customTooltip"
+                                                    placement="top"
+                                                  >
+                                                    <div className="truncated">
+                                                      {inputValues[reportName][testName][date]?.value}
+                                                    </div>
+                                                    <span
+                                                      style={{
+                                                        fontWeight: 500,
+                                                        color: "#171725",
+                                                        textDecoration: "underline",
+                                                        cursor: "pointer",
+                                                        fontSize: "14px",
+                                                      }}
+                                                    >
+                                                      View Remarks
+                                                    </span>
+                                                  </Tooltip>
+                                                ) : (
+                                                  <Button
+                                                    className="remarks-btn"
+                                                    onClick={() =>
+                                                      handleOpenModal(reportName, testName, date)
+                                                    }
+                                                  >
+                                                    <span
+                                                      className="underline-button"
+                                                      style={{ fontWeight: 600 }}
+                                                    >
+                                                      Add Remarks
+                                                    </span>
+                                                  </Button>
+                                                )}
+                                                {isRemarksVisible[reportName]?.[testName]?.[date] && (
+                                                  <div className="full-remarks-container">
+                                                    <div className="full-remarks-content">
+                                                      {inputValues[reportName][testName][date]?.value}
+                                                    </div>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  ))}
+                              </>
                               )}
                           </>
                         ))}
@@ -1421,6 +1433,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
               }
             </table>
           </div>
+
         <CommonModal
           isModalOpen={isModalOpen}
           onCancel={handleCloseModal}

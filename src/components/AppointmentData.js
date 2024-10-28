@@ -100,6 +100,9 @@ function AppointmentData({ locationPath }) {
     );
     const [filesData, setFilesData] = useState([]);
     const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
+    const [isFileSizeError, setIsFileSizeError] = useState(false);
+    const [isFileLimitError, setIsFileLimitError] = useState(false);
+    const [isFileTypeError, setIsFileTypeError] = useState(null);
     const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [patientData, setPatientData] = useState(null);
@@ -111,6 +114,13 @@ function AppointmentData({ locationPath }) {
 
     const handleDeletePopup = () => {
         setShowDeletePopup(true);
+    };
+
+    const handleRetryBtn = () => {
+        setFilesData([]);
+        setIsFileSizeError(false);
+        setIsFileLimitError(false);
+        setIsFileTypeError(null);
     };
 
     const getAllDocumentCategories = async () => {
@@ -310,6 +320,7 @@ function AppointmentData({ locationPath }) {
         { value: 3, label: "Next 30 Days" },
         { value: 4, label: "Last 7 Days" },
         { value: 5, label: "Last 30 Days" },
+        { value: 6, label: "Till Date" },
     ];
     const [selectedCalanderOptions, setSelectedCalanderOptions] = useState(1);
 
@@ -478,6 +489,7 @@ function AppointmentData({ locationPath }) {
     const handleDateChange = useCallback(
         (value) => {
             setSelectedCalanderOptions(value)
+            const today = "2024-10-28"
             const updatedate = {
                 startDate: moment().format(dateFormat),
                 endDate: moment().format(dateFormat),
@@ -503,6 +515,11 @@ function AppointmentData({ locationPath }) {
             } else if (value === 5) {
                 setDate({
                     startDate: moment(updatedate.startDate).subtract(30, 'day').format(dateFormat),
+                    endDate: moment(updatedate.endDate).format(dateFormat),
+                })
+            } else if (value === 6) {
+                setDate({
+                    startDate: moment(today).format(dateFormat),
                     endDate: moment(updatedate.endDate).format(dateFormat),
                 })
             } else {
@@ -1263,7 +1280,7 @@ function AppointmentData({ locationPath }) {
                                     placeholder="Select Period"
                                     className="ms-3 appointmentselect"
                                     value={selectedCalanderOptions}
-                                    options={selectedTab === TAB_QUEUE ? calanderOptions.filter(e => [1, 2, 3].includes(e.value)) : calanderOptions.filter(e => [1, 4, 5].includes(e.value))}
+                                    options={selectedTab === TAB_QUEUE ? calanderOptions.filter(e => [1, 2, 3, 6].includes(e.value)) : calanderOptions.filter(e => [1, 4, 5, 6].includes(e.value))}
                                     onChange={handleDateChange}
                                 />
                                 {/* <Segmented
@@ -1458,6 +1475,9 @@ function AppointmentData({ locationPath }) {
                     filesData={filesData}
                     setUploadDocDrawer={setUploadDocDrawer}
                     patientData={patientData}
+                    setIsFileSizeError={setIsFileSizeError}
+                    setIsFileLimitError={setIsFileLimitError}
+                    setIsFileTypeError={setIsFileTypeError}
                 />
             )}
             {isLoading ? (
@@ -1472,6 +1492,65 @@ function AppointmentData({ locationPath }) {
                         size="large"
                     />
                 </div>
+            ) : null}
+            {isFileSizeError || isFileLimitError || isFileTypeError ? (
+                <CommonModal
+                isModalOpen={isFileSizeError || isFileLimitError || isFileTypeError}
+                onCancel={handleRetryBtn}
+                modalWidth={500}
+                title={
+                    isFileSizeError
+                    ? "Exceeded File Size"
+                    : isFileLimitError
+                    ? "Exceeded File Upload Limit"
+                    : isFileTypeError
+                    ? "File format not supported"
+                    : "You may lose your data"
+                }
+                modalBody={
+                    <>
+                    <div className="alert-warning rounded-10px p-2 patient-details">
+                        <div className="d-flex align-items-center">
+                        <img className="me-3" src={alertIcon} alt="Warning" />
+                        <span>
+                            {isFileSizeError ? (
+                            <>
+                                The file size exceeded{" "}
+                                <span style={{ fontWeight: 700 }}>8MB.</span> Please
+                                upload a file smaller than 8MB
+                            </>
+                            ) : isFileLimitError ? (
+                            <>
+                                You can only upload up to
+                                <span style={{ fontWeight: 700 }}> 5 files.</span>{" "}
+                                Please reduce the number of files and try again.
+                            </>
+                            ) : isFileTypeError ? (
+                            <>
+                                You can't upload
+                                <span style={{ fontWeight: 700 }}>
+                                {" "}
+                                {isFileTypeError}
+                                </span>{" "}
+                                file. Only PDF, JPG, JPEG, and PNG formats are accepted.
+                            </>
+                            ) : (
+                            "Are you sure you want to leave ?"
+                            )}
+                        </span>
+                        </div>
+                    </div>
+                    <div className="mt-4">
+                        <Button
+                        onClick={handleRetryBtn}
+                        className="w-100 btn btn-primary3 btn-41 px-4"
+                        >
+                        Retry
+                        </Button>
+                    </div>
+                    </>
+                }
+                />
             ) : null}
         </>
     );

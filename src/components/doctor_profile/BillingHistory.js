@@ -1,77 +1,74 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Table } from "antd";
 import "./billingHistory.scss";
-import { DownloadOutlined, CrownOutlined } from "@ant-design/icons";
+import { DownloadOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import billingsIcon from "../../assets/images/billings.svg";
 import { fetchSubscriptionDetails } from "../../redux/subscriptionSlice";
+import fileDownload from "js-file-download";
 
 const columns = [
   {
     title: "Plan",
     key: "productType",
-    render: (text, record) => (
+    dataIndex: "productType",
+    render: (text) => (
       <span style={{ fontWeight: "600", fontSize: "16px", color: "#333" }}>
-        {record.paymentDetails?.productType || "N/A"}
+        {text || ""}
       </span>
     ),
   },
   {
     title: "Reference",
     key: "txId",
-    render: (text, record) => (
-      <span style={{ fontSize: "14px", color: "#555" }}>
-        {record.paymentDetails?.txId || "N/A"}
-      </span>
+    dataIndex: "txId",
+    render: (text) => (
+      <span style={{ fontSize: "14px", color: "#555" }}>{text || ""}</span>
     ),
   },
   {
     title: "Amount Paid",
     key: "paymentAmount",
-    render: (text, record) => (
-      <span style={{ fontSize: "14px", color: "#555" }}>
-        {record.paymentDetails?.paymentAmount || "N/A"}
-      </span>
+    dataIndex: "paymentAmount",
+    render: (text) => (
+      <span style={{ fontSize: "14px", color: "#555" }}>{text || ""}</span>
     ),
   },
   {
     title: "Paid on",
     key: "paymentDate",
-    render: (text, record) => (
+    dataIndex: "paymentDate",
+    render: (text) => (
       <span style={{ fontSize: "14px", color: "#555" }}>
-        {record.paymentDetails?.paymentDate
-          ? moment(record.paymentDetails?.paymentDate).format("DD MMM YYYY")
-          : "N/A"}
+        {text ? moment(text).format("DD MMM YYYY") : ""}
       </span>
     ),
   },
   {
     title: "Plan Expires on",
     key: "planExpiryDate",
-    render: (text, record) => (
+    dataIndex: "planExpiryDate",
+    render: (text) => (
       <span style={{ fontSize: "14px", color: "#555" }}>
-        {record.paymentDetails?.planExpiryDate
-          ? moment(record.paymentDetails?.planExpiryDate).format("DD MMM YYYY")
-          : "N/A"}
+        {text ? moment(text).format("DD MMM YYYY") : ""}
       </span>
     ),
   },
   {
     title: "Invoice",
     key: "invoiceReceipt",
-    render: (text, record) =>
-      record.paymentDetails?.invoiceReceipt ? (
-        <a
-          href={record?.paymentDetails?.invoiceReceipt}
-          target="_blank"
-          download
-        >
-          <DownloadOutlined className="custom-icon" />
-        </a>
+    dataIndex: "invoiceReceipt",
+    render: (text) =>
+      text ? (
+        <DownloadOutlined
+          className="custom-icon"
+          onClick={() =>
+            fileDownload("https://www.orimi.com/pdf-test.pdf", "Invoice.pdf")
+          }
+        />
       ) : (
-        <span style={{ fontSize: "14px", color: "#bbb" }}>N/A</span>
+        ""
       ),
   },
 ];
@@ -79,20 +76,7 @@ const columns = [
 const styles = {
   table: {
     margin: "30px auto",
-  },
-  planText: {
-    fontWeight: "600",
-    fontSize: "16px",
-    color: "#333",
-  },
-  defaultText: {
-    fontSize: "14px",
-    color: "#555",
-  },
-  downloadIcon: {
-    fontSize: "18px",
-    color: "#5A5FFF",
-    cursor: "pointer",
+    textAlign: "center",
   },
 };
 
@@ -100,7 +84,7 @@ const SubscriptionTable = () => {
   const { planDetails } = useSelector((state) => state.subscription);
   const { billingHistory = [], totalPages } = planDetails || {};
   const [pagination, setPagination] = useState({
-    current: 1,
+    current: 0,
     pageSize: 5,
     total: totalPages || 0,
   });
@@ -109,7 +93,7 @@ const SubscriptionTable = () => {
 
   // Fetch data when the component mounts or when pagination changes
   useEffect(() => {
-    dispatch(fetchSubscriptionDetails(pagination.current, pagination.pageSize));
+    dispatch(fetchSubscriptionDetails(pagination));
   }, [pagination.current, pagination.pageSize]);
 
   // Handle pagination change
@@ -123,17 +107,13 @@ const SubscriptionTable = () => {
 
   return (
     <Table
-      dataSource={billingHistory?.filter(
-        (bill) => !!bill?.paymentDetails?.productType
-      )}
+      dataSource={billingHistory}
       columns={columns}
-      rowKey="key"
       style={styles.table}
       pagination={{
-        current: pagination.current,
+        current: pagination.current + 1,
         pageSize: pagination.pageSize,
         total: totalPages,
-        // showSizeChanger: true, // Allows changing page size
       }}
       loading={loading}
       onChange={handleTableChange}

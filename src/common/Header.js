@@ -87,7 +87,7 @@ function Header({ locationPath }) {
 
   const { profile, loading, videoList } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
-  console.log({planDetails});
+
   const dispatch = useDispatch();
 
   const [clinicOptions, setClinicOptions] = useState([]);

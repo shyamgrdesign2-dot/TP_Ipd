@@ -42,7 +42,9 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         intialPlanStatus,
         currentPlanStatus,
         productType,
-        billingHistory: response?.body?.plans?.content,
+        billingHistory: response?.body?.payments?.content?.filter(
+          (plan) => plan?.planStatus?.code !== "TRIAL"
+        ),
         expiry_reminder_days,
         is_owner,
         is_pm_renew_requested,

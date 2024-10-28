@@ -9,9 +9,9 @@ import { env } from "../../EnvironmentConfig";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 
-import { getVitals } from "../../redux/vitalsSlice";
+import { getPatientBirthWeight, getVitals } from "../../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../../redux/medicalhistorySlice";
 
 import CashManagerContext from "../../context/CashManagerContext";
@@ -38,6 +38,7 @@ import medicalHistoryWhite from "../../assets/images/medical-history-white.svg";
 import medicalHistoryDark from "../../assets/images/medical-history-dark.svg";
 import vaccinationWhite from "../../assets/images/vaccination-white.svg";
 import vaccinationDark from "../../assets/images/Vaccination.svg";
+import alertIcon from "../../assets/images/alertIcon.svg";
 import growthChart from "../../assets/images/growth-chart.svg";
 import growthChartDark from "../../assets/images/growth-chart-dark.svg";
 import privateNotesWhite from "../../assets/images/private-notes-white.svg";
@@ -73,6 +74,7 @@ import ViewLabParam from "../../components/ViewLabParams";
 import UploadDocPopup from "../medicalRecords/components/uploadDocPopup/UploadDocPopup";
 import { isAndroid, isBrowser } from "react-device-detect";
 import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "../medicalRecords/utils/helper";
+import CommonModal from "../../common/CommonModal";
 
 function TabPrescription() {
   const {
@@ -82,7 +84,8 @@ function TabPrescription() {
     timingList,
     userId,
   } = useSelector((state) => state.doctors);
-  const { selectedVitalsList, vitalsPastList } = useSelector((state) => state.vitals);
+  const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
+    useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
   const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
@@ -90,6 +93,7 @@ function TabPrescription() {
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
+  const { profile } = useSelector((state) => state.doctors);
   const { isLoading } = useSelector((state) => state.uploadDoc);
   const dispatch = useDispatch();
 
@@ -169,6 +173,9 @@ function TabPrescription() {
   const [filesData, setFilesData] = useState([]);
   const [isEditDocument, setIsEditDocument] = useState(false);
   const fileInputRef = useRef(null);
+  const [isFileSizeError, setIsFileSizeError] = useState(false);
+  const [isFileLimitError, setIsFileLimitError] = useState(false);
+  const [isFileTypeError, setIsFileTypeError] = useState(null);
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchAllObstetricDetails(
@@ -393,7 +400,7 @@ function TabPrescription() {
     try {
         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
         const cleanedToken = token.replace(/['"]+/g, '');
-        const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${userId}/${patient_data?.patient_unique_id}`, {
+        const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${patient_data?.patient_unique_id}`, {
             headers: {
                 'Authorization': `Bearer ${cleanedToken}`,
             },
@@ -560,6 +567,22 @@ function TabPrescription() {
         })
       );
 
+      if (
+        profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 &&
+        patient_data?.ageYears === 0
+      ) {
+        dispatch(
+          getPatientBirthWeight({
+            patient_unique_id:
+              patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            pam_id:
+              patient_data !== undefined && patient_data.pam_id !== undefined
+                ? patient_data.pam_id
+                : 0,
+          })
+        );
+      }
+
       const PN_action = await dispatch(
         listPrivateNotes({
           patient_unique_id:
@@ -636,6 +659,13 @@ function TabPrescription() {
     setLabParamsDrawer(true);
   };
 
+  const handleRetryBtn = () => {
+    setFilesData([]);
+    setIsFileSizeError(false);
+    setIsFileLimitError(false);
+    setIsFileTypeError(null);
+  };
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -650,7 +680,7 @@ function TabPrescription() {
                     type="button"
                     className="mb-3 text-center btn btn-action"
                     onClick={() =>
-                      vitalsData.length === 0 && vitalsPastList.length === 0
+                      vitalsData.length === 0 && vitalsPastList.length === 0 && !patientBirthWeight
                         ? handleDrawerVital()
                         : openCollapsed(1)
                     }
@@ -1126,6 +1156,9 @@ function TabPrescription() {
             setFilesData={setFilesData}
             filesData={filesData}
             setUploadDocDrawer={setUploadDocDrawer}
+            setIsFileSizeError={setIsFileSizeError}
+            setIsFileLimitError={setIsFileLimitError}
+            setIsFileTypeError={setIsFileTypeError}
           />
         )}
         {labParamsDrawer && (
@@ -1168,6 +1201,65 @@ function TabPrescription() {
         </div>
       ) : null}
       </>
+      {isFileSizeError || isFileLimitError || isFileTypeError ? (
+        <CommonModal
+          isModalOpen={isFileSizeError || isFileLimitError || isFileTypeError}
+          onCancel={handleRetryBtn}
+          modalWidth={500}
+          title={
+            isFileSizeError
+              ? "Exceeded File Size"
+              : isFileLimitError
+              ? "Exceeded File Upload Limit"
+              : isFileTypeError
+              ? "File format not supported"
+              : "You may lose your data"
+          }
+          modalBody={
+            <>
+              <div className="alert-warning rounded-10px p-2 patient-details">
+                <div className="d-flex align-items-center">
+                  <img className="me-3" src={alertIcon} alt="Warning" />
+                  <span>
+                    {isFileSizeError ? (
+                      <>
+                        The file size exceeded{" "}
+                        <span style={{ fontWeight: 700 }}>8MB.</span> Please
+                        upload a file smaller than 8MB
+                      </>
+                    ) : isFileLimitError ? (
+                      <>
+                        You can only upload up to
+                        <span style={{ fontWeight: 700 }}> 5 files.</span>{" "}
+                        Please reduce the number of files and try again.
+                      </>
+                    ) : isFileTypeError ? (
+                      <>
+                        You can't upload
+                        <span style={{ fontWeight: 700 }}>
+                          {" "}
+                          {isFileTypeError}
+                        </span>{" "}
+                        file. Only PDF, JPG, JPEG, and PNG formats are accepted.
+                      </>
+                    ) : (
+                      "Are you sure you want to leave ?"
+                    )}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-4">
+                <Button
+                  onClick={handleRetryBtn}
+                  className="w-100 btn btn-primary3 btn-41 px-4"
+                >
+                  Retry
+                </Button>
+              </div>
+            </>
+          }
+        />
+      ) : null}
     </CashManagerContext.Provider>
   );
 }
