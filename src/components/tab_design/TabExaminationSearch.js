@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext, useCallback, useMemo } from "react";
-import { Button, Card, Row, Col, Input } from 'antd';
+import React, { useState, useEffect, useContext, useCallback, useMemo, useRef } from "react";
+import { Button, Card, Row, Col, Input, Tour } from 'antd';
 
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
@@ -10,8 +10,14 @@ import CashManagerContext from '../../context/CashManagerContext';
 import {
     searchExamination
 } from "../../redux/examinationSlice";
+import { updateDragDrop } from "../../redux/doctorsSlice";
+
+import dragChips from '../../../src/assets/images/drag-chips.gif'
+import tagNew from '../../../src/assets/images/tag-new.svg'
 
 import TabSearchHeader from "./TabSearchHeader";
+
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 function TabExaminationSearch({ passIndex, onClose }) {
 
@@ -19,6 +25,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
         parentOptionsList,
         childOptionsList,
     } = useSelector((state) => state.examination);
+    const { dragDrop } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const { examinationData, setExaminationData } = useContext(CashManagerContext);
@@ -91,30 +98,128 @@ function TabExaminationSearch({ passIndex, onClose }) {
         setSelectedIndex(null)
     };
 
+    // Tour Drag & Drop
+    const [tourOpen, setTourOpen] = useState(false);
+    const tourRef = useRef(null);
+
+    useEffect(() => {
+        // dispatch(updateDragDrop(''));
+        setTimeout(() => {
+            if (examinationData?.length > 1 && !dragDrop?.examination) {
+                setTourOpen(true)
+
+            }
+        }, 400);
+    }, [examinationData]);
+
+    const onTourHandle = () => {
+        setTourOpen(!tourOpen)
+        dispatch(updateDragDrop('examination'));
+    }
+
+    const steps = [
+        {
+            description:
+                <>
+                    <div className="fw-medium fs-18 pt-3">Reorder chips <img className="img-fluid ms-2" src={tagNew} /></div>
+                    <div className="pt-1">Hold and drag the chips to reorder them.</div>
+                    <img className="img-fluid my-2 rounded-2" style={{backgroundColor: '#E2E2EA80'}} width={329} height={107} src={dragChips} />
+                </>
+            ,
+            target: () => tourRef.current,
+            nextButtonProps: {
+                children: 'Okay',
+                onClick: onTourHandle
+            }
+        }
+    ];
+
     //Child Componet
+    // const TABLE_EXAMINATION = useMemo(() => {
+    //     return (
+    //         examinationData.length > 0 &&
+    //         examinationData.map((item, index) => {
+    //             return (
+    //                 <div key={index} style={{ width: item.examination_name.length > 12 && item.examination_name.length < 24 ? `${item.examination_name.length * 10.5}px` : item.examination_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
+    //                     <div className="text-truncate p-2" onClick={() => {
+    //                         setSelectedIndex(index)
+    //                     }}>
+    //                         <div className="text-truncate">{item.examination_name}
+    //                             {item.note ? (
+    //                                 <div className="text-truncate small">{item.note}</div>
+    //                             ) : (
+    //                                 <div className="text-truncate small">Add Details</div>
+    //                             )}
+    //                         </div>
+    //                     </div>
+    //                     <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
+    //                         <i className="icon-Cross"></i>
+    //                     </Button>
+    //                 </div>
+    //             );
+    //         })
+    //     );
+    // }, [examinationData, selectedIndex]);
+
+    // Drag & Drop
+    const SortableItem = SortableElement(({ item }) => (
+        <div
+            style={{
+                width: item.examination_name.length > 12 && item.examination_name.length < 24
+                    ? `${item.examination_name.length * 10.5}px`
+                    : item.examination_name.length >= 24
+                        ? '256px'
+                        : '150px',
+                zIndex: 9999,
+            }}
+            className={`${selectedIndex == item.index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}
+        >
+            <div className="text-truncate p-2" onClick={() => {
+                setSelectedIndex(item.index)
+            }}>
+                <div className="text-truncate">{item.examination_name}
+                    {item.note ? (
+                        <div className="text-truncate small">{item.note}</div>
+                    ) : (
+                        <div className="text-truncate small">Add Details</div>
+                    )}
+                </div>
+            </div>
+            <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(item.index)}>
+                <i className="icon-Cross"></i>
+            </Button>
+        </div>
+    ));
+
+    const SortableList = SortableContainer(({ items }) => {
+        return (
+            <div className="d-flex flex-wrap">
+                {items.map((item, index) => (
+                    <SortableItem
+                        key={`item-${index}`}
+                        index={index}
+                        item={{ ...item, index }}
+                    />
+                ))}
+            </div>
+        );
+    });
+
     const TABLE_EXAMINATION = useMemo(() => {
         return (
-            examinationData.length > 0 &&
-            examinationData.map((item, index) => {
-                return (
-                    <div key={index} style={{ width: item.examination_name.length > 12 && item.examination_name.length < 24 ? `${item.examination_name.length * 10.5}px` : item.examination_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
-                        <div className="text-truncate p-2" onClick={() => {
-                            setSelectedIndex(index)
-                        }}>
-                            <div className="text-truncate">{item.examination_name}
-                                {item.note ? (
-                                    <div className="text-truncate small">{item.note}</div>
-                                ) : (
-                                    <div className="text-truncate small">Add Details</div>
-                                )}
-                            </div>
-                        </div>
-                        <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
-                            <i className="icon-Cross"></i>
-                        </Button>
-                    </div>
-                );
-            })
+            examinationData.length > 0 && (
+                <SortableList
+                    items={examinationData}
+                    onSortEnd={({ oldIndex, newIndex }) => {
+                        const newExaminationData = [...examinationData];
+                        const [movedItem] = newExaminationData.splice(oldIndex, 1);
+                        newExaminationData.splice(newIndex, 0, movedItem);
+                        setExaminationData(newExaminationData);
+                    }}
+                    axis="xy"
+                    pressDelay={100}
+                />
+            )
         );
     }, [examinationData, selectedIndex]);
 
@@ -167,8 +272,11 @@ function TabExaminationSearch({ passIndex, onClose }) {
                                         <div className="title2">
                                             Added
                                         </div>
-                                        <div className="d-flex flex-wrap mt-3">
-                                            {TABLE_EXAMINATION}
+                                        <div className="d-flex flex-wrap">
+                                            <span ref={tourRef} className='pt-3'>
+                                                {TABLE_EXAMINATION}
+                                            </span>
+                                            {/* <Tour placement="rightTop" closeIcon={false} open={tourOpen} steps={steps} onClose={onTourHandle} /> */}
                                         </div>
                                     </>
                                 )}

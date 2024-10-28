@@ -232,6 +232,8 @@ const RecordCard = ({
         className="image-container"
         style={{
           backgroundImage: `url('${thumbnailUrl || emptyBg}')`,
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
         }}
         onClick={handleThumbnailClick}
       >
