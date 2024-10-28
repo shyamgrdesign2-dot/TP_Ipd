@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext, useCallback, useMemo } from "react";
-import { Button, Card, Row, Col, Segmented, Input } from 'antd';
+import React, { useState, useEffect, useContext, useCallback, useMemo, useRef } from "react";
+import { Button, Card, Row, Col, Segmented, Input, Tour } from 'antd';
 
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
@@ -7,11 +7,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { onlyNumberFormat, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
-import {
-    searchSymptoms
-} from "../../redux/symptomsSlice";
+import { searchSymptoms } from "../../redux/symptomsSlice";
+import { updateDragDrop } from "../../redux/doctorsSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
+import dragChips from '../../../src/assets/images/drag-chips.gif'
+import tagNew from '../../../src/assets/images/tag-new.svg'
+
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 function TabSymptomsSearch({ passIndex, onClose }) {
 
@@ -19,6 +22,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
         parentOptionsList,
         childOptionsList,
     } = useSelector((state) => state.symptoms);
+    const { dragDrop } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const { symptomsData, setSymptomsData } = useContext(CashManagerContext);
@@ -108,34 +112,132 @@ function TabSymptomsSearch({ passIndex, onClose }) {
         setSelectedIndex(null)
     };
 
+    // Tour Drag & Drop
+    const [tourOpen, setTourOpen] = useState(false);
+    const tourRef = useRef(null);
+
+    useEffect(() => {
+        // dispatch(updateDragDrop(''));
+        setTimeout(() => {
+            if (symptomsData?.length > 1 && !dragDrop?.symptoms) {
+                setTourOpen(true)
+
+            }
+        }, 400);
+    }, [symptomsData]);
+
+    const onTourHandle = () => {
+        setTourOpen(!tourOpen)
+        dispatch(updateDragDrop('symptoms'));
+    }
+
+    const steps = [
+        {
+            description:
+                <>
+                    <div className="fw-medium fs-18 pt-3">Reorder chips <img className="img-fluid ms-2" src={tagNew} /></div>
+                    <div className="pt-1">Hold and drag the chips to reorder them.</div>
+                    <img className="img-fluid my-2 rounded-2" style={{backgroundColor: '#E2E2EA80'}} width={329} height={107} src={dragChips} />
+                </>
+            ,
+            target: () => tourRef.current,
+            nextButtonProps: {
+                children: 'Okay',
+                onClick: onTourHandle
+            }
+        }
+    ];
+
     //Child Componet
+    // const TABLE_SYMPTOMS = useMemo(() => {
+    //     return (
+    //         symptomsData.length > 0 &&
+    //         symptomsData.map((item, index) => {
+    //             return (
+    //                 <div key={index} style={{ width: item.symptom_name.length > 12 && item.symptom_name.length < 24 ? `${item.symptom_name.length * 10.5}px` : item.symptom_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
+    //                     <div className="text-truncate p-2" onClick={() => {
+    //                         setSelectedIndex(index)
+    //                         setSinceValue(item.since ? parseInt(item.since.split(" ")[0]) : 1)
+    //                     }}>
+    //                         <div className="text-truncate">{item.symptom_name}
+    //                             {(item.since || item.severity || item.note) ? (
+    //                                 <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.severity ? item.severity + ' | ' : ''}${item.note ? item.note : ''}`}</div>
+    //                             ) : (
+    //                                 <div className="text-truncate small">Add Details</div>
+    //                             )}
+    //                         </div>
+    //                     </div>
+    //                     <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
+    //                         <i className="icon-Cross"></i>
+    //                     </Button>
+    //                 </div>
+    //             );
+    //         })
+    //     );
+    // }, [symptomsData, selectedIndex]);
+
+    // Drag & Drop
+    const SortableItem = SortableElement(({ item }) => (
+        <div
+            style={{
+                width: item.symptom_name.length > 12 && item.symptom_name.length < 24
+                    ? `${item.symptom_name.length * 10.5}px`
+                    : item.symptom_name.length >= 24
+                        ? '256px'
+                        : '150px',
+                zIndex: 9999,
+            }}
+            className={`${selectedIndex == item.index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}
+        >
+            <div className="text-truncate p-2" onClick={() => {
+                setSelectedIndex(item.index)
+                setSinceValue(item.since ? parseInt(item.since.split(" ")[0]) : 1)
+            }}>
+                <div className="text-truncate">{item.symptom_name}
+                    {(item.since || item.severity || item.note) ? (
+                        <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.severity ? item.severity + ' | ' : ''}${item.note ? item.note : ''}`}</div>
+                    ) : (
+                        <div className="text-truncate small">Add Details</div>
+                    )}
+                </div>
+            </div>
+            <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(item.index)}>
+                <i className="icon-Cross"></i>
+            </Button>
+        </div>
+    ));
+
+    const SortableList = SortableContainer(({ items }) => {
+        return (
+            <div className="d-flex flex-wrap">
+                {items.map((item, index) => (
+                    <SortableItem
+                        key={`item-${index}`}
+                        index={index}
+                        item={{ ...item, index }}
+                    />
+                ))}
+            </div>
+        );
+    });
+
     const TABLE_SYMPTOMS = useMemo(() => {
         return (
-            symptomsData.length > 0 &&
-            symptomsData.map((item, index) => {
-                return (
-                    <div key={index} style={{ width: item.symptom_name.length > 12 && item.symptom_name.length < 24 ? `${item.symptom_name.length * 10.5}px` : item.symptom_name.length >= 24 ? '256px' : '150px' }} className={`${selectedIndex == index && "closable-chips-active"} d-flex align-items-center justify-content-between text-truncate closable-chips`}>
-                        <div className="text-truncate p-2" onClick={() => {
-                            setSelectedIndex(index)
-                            setSinceValue(item.since ? parseInt(item.since.split(" ")[0]) : 1)
-                        }}>
-                            <div className="text-truncate">{item.symptom_name}
-                                {(item.since || item.severity || item.note) ? (
-                                    <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.severity ? item.severity + ' | ' : ''}${item.note ? item.note : ''}`}</div>
-                                ) : (
-                                    <div className="text-truncate small">Add Details</div>
-                                )}
-                            </div>
-                        </div>
-                        <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
-                            <i className="icon-Cross"></i>
-                        </Button>
-                    </div>
-                );
-            })
+            symptomsData.length > 0 && (
+                <SortableList
+                    items={symptomsData}
+                    onSortEnd={({ oldIndex, newIndex }) => {
+                        const newSymptomsData = [...symptomsData];
+                        const [movedItem] = newSymptomsData.splice(oldIndex, 1);
+                        newSymptomsData.splice(newIndex, 0, movedItem);
+                        setSymptomsData(newSymptomsData);
+                    }}
+                    axis="xy"
+                    pressDelay={100}
+                />
+            )
         );
     }, [symptomsData, selectedIndex]);
-
 
     useEffect(() => {
         if (sinceValue !== -1) {
@@ -363,8 +465,11 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                         <div className="title2">
                                             Added
                                         </div>
-                                        <div className="d-flex flex-wrap mt-3">
-                                            {TABLE_SYMPTOMS}
+                                        <div className="d-flex flex-wrap">
+                                            <span ref={tourRef} className='pt-3'>
+                                                {TABLE_SYMPTOMS}
+                                            </span>
+                                            <Tour placement="rightTop" closeIcon={false} open={tourOpen} steps={steps} onClose={onTourHandle} />
                                         </div>
                                     </>
                                 )}

@@ -20,6 +20,8 @@ import {
 
 import TabInvestigationSearch from "../../components/tab_design/TabInvestigationSearch";
 
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+
 function TabInvestigationBox() {
 
     const {
@@ -260,29 +262,87 @@ function TabInvestigationBox() {
     }, [isModalOpen]);
 
     //Child Componet
+    // const TABLE_INVESTIGATION = useMemo(() => {
+    //     return (
+    //         investigationData.length > 0 &&
+    //         investigationData.map((item, index) => {
+    //             return (
+    //                 <div key={index} style={{ width: item.investigation_name.length > 12 && item.investigation_name.length < 24 ? `${item.investigation_name.length * 10.5}px` : item.investigation_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active">
+    //                     <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
+    //                         <div className="text-truncate">{item.investigation_name}
+    //                             {item.note ? (
+    //                                 <div className="text-truncate small">{item.note}</div>
+    //                             ) : (
+    //                                 <div className="text-truncate small">Add Details</div>
+    //                             )}
+    //                         </div>
+    //                     </div>
+    //                     <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
+    //                         <i className="icon-Cross"></i>
+    //                     </Button>
+    //                 </div>
+    //             );
+    //         })
+    //     );
+    // }, [investigationData]);
+
+    const SortableItem = SortableElement(({ item }) => (
+        <div
+            style={{
+                width: item.investigation_name.length > 12 && item.investigation_name.length < 24
+                    ? `${item.investigation_name.length * 10.5}px`
+                    : item.investigation_name.length >= 24
+                        ? '256px'
+                        : '150px'
+            }}
+            className={"d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active"}
+        >
+            <div className="text-truncate p-2" onClick={() => handleDrawerChild(item)}>
+                <div className="text-truncate">{item.investigation_name}
+                    {item.note ? (
+                        <div className="text-truncate small">{item.note}</div>
+                    ) : (
+                        <div className="text-truncate small">Add Details</div>
+                    )}
+                </div>
+            </div>
+            <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(item.index)}>
+                <i className="icon-Cross"></i>
+            </Button>
+        </div>
+    ));
+
+    const SortableList = SortableContainer(({ items }) => {
+        return (
+            <div className="d-flex flex-wrap">
+                {items.map((item, index) => (
+                    <SortableItem
+                        key={`item-${index}`}
+                        index={index}
+                        item={{ ...item, index }}
+                    />
+                ))}
+            </div>
+        );
+    });
+
     const TABLE_INVESTIGATION = useMemo(() => {
         return (
-            investigationData.length > 0 &&
-            investigationData.map((item, index) => {
-                return (
-                    <div key={index} style={{ width: item.investigation_name.length > 12 && item.investigation_name.length < 24 ? `${item.investigation_name.length * 10.5}px` : item.investigation_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active">
-                        <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
-                            <div className="text-truncate">{item.investigation_name}
-                                {item.note ? (
-                                    <div className="text-truncate small">{item.note}</div>
-                                ) : (
-                                    <div className="text-truncate small">Add Details</div>
-                                )}
-                            </div>
-                        </div>
-                        <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
-                            <i className="icon-Cross"></i>
-                        </Button>
-                    </div>
-                );
-            })
+            investigationData.length > 0 && (
+                <SortableList
+                    items={investigationData}
+                    onSortEnd={({ oldIndex, newIndex }) => {
+                        const newInvestigationData = [...investigationData];
+                        const [movedItem] = newInvestigationData.splice(oldIndex, 1);
+                        newInvestigationData.splice(newIndex, 0, movedItem);
+                        setInvestigationData(newInvestigationData);
+                    }}
+                    axis="xy"
+                    pressDelay={100}
+                />
+            )
         );
-    }, [investigationData]);
+    }, [investigationData, childDrawerData]);
 
     //Template Componet
     const TEMPLATE_CONTENT = useMemo(() => {

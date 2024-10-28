@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { Input, Button, Drawer, Tabs, Select, Card, Spin, Checkbox, Tooltip } from 'antd';
+import { Input, Button, Drawer, Tabs, Select, Card, Spin, Checkbox, Tooltip, Row, Col } from 'antd';
 
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,6 +10,7 @@ import alertIcon from '../../assets/images/alertIcon.svg';
 import CashManagerContext from '../../context/CashManagerContext';
 import { errorMessage, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../../utils/utils";
 import Adviceicon from "../../assets/images/advice.svg";
+import { MenuOutlined } from '@ant-design/icons';
 import {
     addTemplate,
     updateTemplate,
@@ -18,6 +19,7 @@ import {
     getFrequentlySearchedAdvice,
 } from "../../redux/adviceSlice";
 
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import TabAdviceSearch from "../../components/tab_design/TabAdviceSearch";
 
 function TabAdviceBox() {
@@ -248,19 +250,76 @@ function TabAdviceBox() {
     }, [isModalOpen]);
 
     //Child Componet
-    const TABLE_ADVICE = useMemo(() => {
-        return (
-            adviceData.length > 0 &&
-            adviceData.map((item, index) => {
-                return (
-                    <div className="d-flex align-items-center justify-content-between border-bottom py-1">
-                        <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
-                        <Button className="focus-none btn px-1 btn-delete-prescription" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit text-main fs-21"></i></Button>
-                    </div>
-                );
-            })
+    // const TABLE_ADVICE = useMemo(() => {
+    //     return (
+    //         adviceData.length > 0 &&
+    //         adviceData.map((item, index) => {
+    //             return (
+    //                 <div className="d-flex align-items-center justify-content-between border-bottom py-1">
+    //                     <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
+    //                     <Button className="focus-none btn px-1 btn-delete-prescription" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit text-main fs-21"></i></Button>
+    //                 </div>
+    //             );
+    //         })
+    //     );
+    // }, [adviceData]);
+
+    const reorder = (list, startIndex, endIndex) => {
+        const result = Array.from(list);
+        const [removed] = result.splice(startIndex, 1);
+        result.splice(endIndex, 0, removed);
+        return result;
+      };
+      const onDragEnd = (result) => {
+        if (!result.destination) return;
+        const reorderedItems = reorder(
+          adviceData,
+          result.source.index,
+          result.destination.index
         );
-    }, [adviceData]);
+        setAdviceData(reorderedItems);
+      };
+    
+      const TABLE_ADVICE = useMemo(() => {
+        return (
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="advice" direction="vertical">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef}>
+                  {adviceData.length > 0 &&
+                    adviceData.map((item, index) => (
+                      <Draggable key={index} draggableId={`advice-${index}`} index={index}>
+                        {(provided) => (
+                          <Row
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            key={index}
+                            gutter={[0]}
+                            className="h-38 align-items-center"
+                          >
+                            <Col lg={1} md={1} sm={1} xs={1} className="text-center">
+                              <MenuOutlined
+                                {...provided.dragHandleProps}
+                                className="drag-handle"
+                                style={{ cursor: 'grab' }}
+                              >
+                              </MenuOutlined>
+                            </Col>
+                            <Col lg={23} md={23} sm={23} xs={23} className='px-2 d-flex justify-content-between align-items-center'>
+                              <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
+                              <Button className="btn btn-delete-prescription p-0" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit text-main"></i></Button>
+                            </Col>
+                          </Row>
+                        )}
+                      </Draggable>
+                    ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        );
+      }, [adviceData]);
 
     //Template Componet
     const TEMPLATE_CONTENT = useMemo(() => {

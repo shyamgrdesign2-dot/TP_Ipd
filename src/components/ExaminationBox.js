@@ -20,6 +20,7 @@ import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
 import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Examinationicon from "../assets/images/Examination.svg";
+import { MenuOutlined } from '@ant-design/icons';
 import {
   addTemplate,
   updateTemplate,
@@ -28,6 +29,8 @@ import {
   getFrequentlySearchedExamination,
   searchExamination
 } from "../redux/examinationSlice";
+
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 function ExaminationBox() {
   const {
@@ -396,56 +399,144 @@ function ExaminationBox() {
     );
   }, [isModalOpen]);
 
-  //Child Componet
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const reorderedItems = reorder(
+      examinationData,
+      result.source.index,
+      result.destination.index
+    );
+    setExaminationData(reorderedItems);
+  };
+
   const TABLE_EXAMINATION = useMemo(() => {
     return (
-      examinationData.length > 0 &&
-      examinationData.map((item, index) => {
-        return (
-          <Row
-            key={index}
-            gutter={[0]}
-            className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
-          >
-            <Col lg={9} md={9} sm={9} xs={9} className="border-end">
-              <div className="fontroboto fw-medium">
-                <AutoComplete
-                  defaultValue={item.examination_name}
-                  value={item.examination_name}
-                  placeholder="Examination Name"
-                  bordered={false}
-                  defaultOpen={false}
-                  onSearch={(query) => onSearchChild(query, index)}
-                  onFocus={() => onFocusChid(index)}
-                  options={childSearchOptions}
-                  className="autocomplete-custom w-100 inputborder"
-                  defaultActiveFirstOption={true}
-                  onSelect={(data, e) => onSelectChild(data, e, index)}
-                />
-              </div>
-            </Col>
-            <Col lg={14} md={14} sm={13} xs={13} className="border-end">
-              <Input
-                className="notesinput border-0"
-                placeholder="Notes"
-                defaultValue={item.note}
-                value={item.note}
-                onChange={(e) => onChangeNoteChild(e, index)}
-              />
-            </Col>
-            <Col lg={1} md={1} sm={2} xs={2} className="text-center">
-              <Button
-                className="btn py-0 btn-delete-prescription px-0"
-                onClick={() => onRemoveRow(index)}
-              >
-                <i className="icon-delete"></i>
-              </Button>
-            </Col>
-          </Row>
-        );
-      })
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="examination" direction="vertical">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              {examinationData.length > 0 &&
+                examinationData.map((item, index) => (
+                  <Draggable key={index} draggableId={`examination-${index}`} index={index}>
+                    {(provided) => (
+                      <Row
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        key={index}
+                        gutter={[0]}
+                        className={`${index === 0 && 'mt-14 border-top'
+                          } align-items-center border-bottom`}
+                      >
+                        <Col lg={1} md={1} sm={1} xs={1} className="text-center">
+                          <MenuOutlined
+                            {...provided.dragHandleProps}
+                            className="drag-handle"
+                            style={{ cursor: 'grab' }}
+                          >
+                          </MenuOutlined>
+                        </Col>
+                        <Col lg={8} md={8} sm={8} xs={8} className="border-end">
+                          <div className="fontroboto fw-medium">
+                            <AutoComplete
+                              defaultValue={item.examination_name}
+                              value={item.examination_name}
+                              placeholder="Examination Name"
+                              bordered={false}
+                              defaultOpen={false}
+                              onSearch={(query) => onSearchChild(query, index)}
+                              onFocus={() => onFocusChid(index)}
+                              options={childSearchOptions}
+                              className="autocomplete-custom w-100 inputborder"
+                              defaultActiveFirstOption={true}
+                              onSelect={(data, e) => onSelectChild(data, e, index)}
+                            />
+                          </div>
+                        </Col>
+                        <Col lg={14} md={14} sm={13} xs={13} className="border-end">
+                          <Input
+                            className="notesinput border-0"
+                            placeholder="Notes"
+                            defaultValue={item.note}
+                            value={item.note}
+                            onChange={(e) => onChangeNoteChild(e, index)}
+                          />
+                        </Col>
+                        <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+                          <Button
+                            className="btn py-0 btn-delete-prescription px-0"
+                            onClick={() => onRemoveRow(index)}
+                          >
+                            <i className="icon-delete"></i>
+                          </Button>
+                        </Col>
+                      </Row>
+                    )}
+                  </Draggable>
+                ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     );
   }, [examinationData, childSearchOptions]);
+
+  //Child Componet
+  // const TABLE_EXAMINATION = useMemo(() => {
+  //   return (
+  //     examinationData.length > 0 &&
+  //     examinationData.map((item, index) => {
+  //       return (
+  //         <Row
+  //           key={index}
+  //           gutter={[0]}
+  //           className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
+  //         >
+  //           <Col lg={9} md={9} sm={9} xs={9} className="border-end">
+  //             <div className="fontroboto fw-medium">
+  //               <AutoComplete
+  //                 defaultValue={item.examination_name}
+  //                 value={item.examination_name}
+  //                 placeholder="Examination Name"
+  //                 bordered={false}
+  //                 defaultOpen={false}
+  //                 onSearch={(query) => onSearchChild(query, index)}
+  //                 onFocus={() => onFocusChid(index)}
+  //                 options={childSearchOptions}
+  //                 className="autocomplete-custom w-100 inputborder"
+  //                 defaultActiveFirstOption={true}
+  //                 onSelect={(data, e) => onSelectChild(data, e, index)}
+  //               />
+  //             </div>
+  //           </Col>
+  //           <Col lg={14} md={14} sm={13} xs={13} className="border-end">
+  //             <Input
+  //               className="notesinput border-0"
+  //               placeholder="Notes"
+  //               defaultValue={item.note}
+  //               value={item.note}
+  //               onChange={(e) => onChangeNoteChild(e, index)}
+  //             />
+  //           </Col>
+  //           <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+  //             <Button
+  //               className="btn py-0 btn-delete-prescription px-0"
+  //               onClick={() => onRemoveRow(index)}
+  //             >
+  //               <i className="icon-delete"></i>
+  //             </Button>
+  //           </Col>
+  //         </Row>
+  //       );
+  //     })
+  //   );
+  // }, [examinationData, childSearchOptions]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useCallback(() => {
