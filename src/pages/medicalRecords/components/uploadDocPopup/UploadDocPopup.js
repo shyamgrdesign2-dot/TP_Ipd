@@ -30,14 +30,13 @@ const UploadDocPopup = ({
   setIsFileTypeError,
 }) => {
   const dispatch = useDispatch();
-  const { state } = useLocation();
+  const { state, location } = useLocation();
   const patient_data = state?.patient_data;
   const patientUniqueId =
     patient_data?.patient_unique_id || patientData?.patient_unique_id || 0;
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const handleClick = async (type) => {
     if (deviceUid) {
-      hasCheckedFirebase = false;
       const docRef = doc(db, "capturedImage", deviceUid);
       try {
         const docSnap = await getDoc(docRef);
@@ -84,6 +83,10 @@ const UploadDocPopup = ({
       setUploadDocDrawer(true);
     }
   };
+
+  useEffect(() => {
+    hasCheckedFirebase = false;
+  }, [location]);
 
   useEffect(() => {
     const checkInFireBase = async () => {
