@@ -253,7 +253,7 @@ function DoctorProfile() {
                       className="rounded-circle"
                       style={{ width: "90px" }}
                     />
-                  ) : planDetails?.currentPlanStatus === "PAID" ? (
+                  ) : planDetails?.planStatus === "PAID" ? (
                     <PremiumUser />
                   ) :
                     <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
@@ -311,7 +311,7 @@ function DoctorProfile() {
           <div className="mb-4">
             <ProfileClinicView />
           </div>
-          {/* {planDetails?.currentPlanStatus === "PAID" && <div className="mb-4"> */}
+          {/* {planDetails?.planStatus === "PAID" && <div className="mb-4"> */}
             <Subscription />
           {/* </div>} */}
         </Container>

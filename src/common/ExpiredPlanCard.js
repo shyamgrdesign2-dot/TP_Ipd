@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, Button } from "antd";
+import { CheckCircleFilled } from "@ant-design/icons";
 import styles from "./ExpiredPlanCard.module.scss";
 import tagImg from "../assets/images/tag.png";
 import checkIcon from "../assets/images/check-icon.svg";
@@ -8,57 +9,55 @@ import { useSelector } from "react-redux";
 
 const ExpiredPlanCard = () => {
   const { planDetails } = useSelector((state) => state.subscription);
-  const { currentPlanStatus, expiresIn, intialPlanStatus } = planDetails || {};
+  const { planStatus, expiresIn } = planDetails || {};
   return (
-    currentPlanStatus === "EXPIRED" && (
+    planStatus === "EXPIRED" && (
       <div className={styles.backdrop}>
         <div className={styles.cardContainer}>
           <Card bordered={false} className={styles.expiredPlanCard}>
             <div className={styles.modalContent}>
               {/* Left Section */}
               <div className={styles.leftSection}>
-                {currentPlanStatus === "EXPIRED" &&
-                  intialPlanStatus === "TRIAL" && (
-                    <>
-                      <h2>Your Free Trial has Expired!</h2>
-                      <p>
-                        Your <strong>free trial</strong> has expired{" "}
-                        <strong>{Math.abs(expiresIn)} days</strong> ago. Upgrade
-                        now to continue a hassle-free access!
-                      </p>
+                {planStatus === "TRIAL" && (
+                  <>
+                    <h2>Your Free Trial has Expired!</h2>
+                    <p>
+                      Your <strong>free trial</strong> has expired{" "}
+                      <strong>{Math.abs(expiresIn)} days</strong> ago. Upgrade
+                      now to continue a hassle-free access!
+                    </p>
 
-                      <div
-                        className={styles.offerBox}
-                        style={{ backgroundImage: `url(${tagImg})` }}
-                      >
-                        <div className={styles.offerText}>
-                          <span className={styles.discount}>10% off</span>
-                          <span className={styles.exclusive}>
-                            Exclusive, just for you!
-                          </span>
-                        </div>
-                        <span className={styles.validity}>
-                          Valid until 23 Aug 2024
+                    <div
+                      className={styles.offerBox}
+                      style={{ backgroundImage: `url(${tagImg})` }}
+                    >
+                      <div className={styles.offerText}>
+                        <span className={styles.discount}>10% off</span>
+                        <span className={styles.exclusive}>
+                          Exclusive, just for you!
                         </span>
                       </div>
-                    </>
-                  )}
-                {currentPlanStatus === "EXPIRED" &&
-                  intialPlanStatus === "PAID" && (
-                    <>
-                      <h2>Your Plan has Expired!</h2>
-                      <p>
-                        Your <strong>Pro plan</strong> has expired{" "}
-                        <strong>{Math.abs(expiresIn)} days</strong> ago. Renew
-                        your plan now to continue a hassle free experience!
-                      </p>
-                      <img
-                        src={sandClockIcon}
-                        alt=""
-                        className={styles.sandClockIcon}
-                      />{" "}
-                    </>
-                  )}
+                      <span className={styles.validity}>
+                        Valid until 23 Aug 2024
+                      </span>
+                    </div>
+                  </>
+                )}
+                {planStatus === "EXPIRED" && (
+                  <>
+                    <h2>Your Plan has Expired!</h2>
+                    <p>
+                      Your <strong>Pro plan</strong> has expired{" "}
+                      <strong>{Math.abs(expiresIn)} days</strong> ago. Renew
+                      your plan now to continue a hassle free experience!
+                    </p>
+                    <img
+                      src={sandClockIcon}
+                      alt=""
+                      className={styles.sandClockIcon}
+                    />{" "}
+                  </>
+                )}
               </div>
 
               {/* Right Section */}
