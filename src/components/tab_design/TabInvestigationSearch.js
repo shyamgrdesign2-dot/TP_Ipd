@@ -271,7 +271,7 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                                             <span ref={tourRef} className='pt-3'>
                                                 {TABLE_INVESTIGATION}
                                             </span>
-                                            <Tour placement="rightTop" open={tourOpen} steps={steps} onClose={onTourHandle} />
+                                            {/* <Tour placement="rightTop" closeIcon={false} open={tourOpen} steps={steps} onClose={onTourHandle} /> */}
                                         </div>
                                     </>
                                 )}
