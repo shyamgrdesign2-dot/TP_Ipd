@@ -15,7 +15,6 @@
   
   .cardContainer {
     width: 900px;
-    height: 640px;
     pointer-events: auto; // Re-enable interactions for the card
   }
   
@@ -31,11 +30,10 @@
   }
   
   .leftSection {
-    width: 55%;
-    margin: 32px 32px 0px 32px;
+    width: 50%;
+    padding: 32px;
     display: flex;
     flex-direction: column;
-    position: relative; // This ensures the absolute positioning of the icon is relative to this container
   
     h2 {
       font-size: 28px;
@@ -55,6 +53,7 @@
     }
   
     .offerBox {
+    //   background: linear-gradient(135deg, #FFC75F, #FF7D43);
       border-radius: 8px;
       color: #3D2C00;
       text-align: center;
@@ -80,24 +79,23 @@
         font-weight: 500;
       }
     }
-  
+
     .sandClockIcon {
-      position: absolute;  // Make it position absolute within the relative left section
-      bottom: 0;           // Stick to the bottom of the section
-      left: 0;             // Stick to the left of the section
-      width: 300px;        // Adjust the size according to the design
-      height: auto;        // Maintain aspect ratio
-    }
+        position: relative;
+        width: 350px;
+        height: 350px;
+        bottom: 0 !important;
+      }
   }
   
   .rightSection {
+    width: 50%;
     padding: 32px;
     background: #FFF;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin: 24px;
   
     h2 {
       font-size: 24px;
@@ -120,7 +118,7 @@
       li {
         display: flex;
         align-items: center;
-        font-size: 14px;
+        font-size: 16px;
         color: #333;
         margin-bottom: 12px;
         font-weight: 400;
@@ -148,9 +146,8 @@
     .checkIcon {
         width: 28px;
         height: 28px;
-        padding: 5px 5px 5px 0;
+        padding: 5px;
         border-radius: 14px 0px 0px 0px;
-        margin-right: 5px;
       }
   
     .contactButton {

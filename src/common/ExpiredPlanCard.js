@@ -40,7 +40,7 @@ const ExpiredPlanCard = () => {
                         <hr
                           style={{
                             borderTop: "1.5px dotted #00000024",
-                            margin: "13px",
+                            margin: "14px",
                           }}
                         />
                         <span className={styles.validity}>
