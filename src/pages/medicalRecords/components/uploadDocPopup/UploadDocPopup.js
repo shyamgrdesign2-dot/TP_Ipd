@@ -37,6 +37,7 @@ const UploadDocPopup = ({
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const handleClick = async (type) => {
     if (deviceUid) {
+      hasCheckedFirebase = false;
       const docRef = doc(db, "capturedImage", deviceUid);
       try {
         const docSnap = await getDoc(docRef);
