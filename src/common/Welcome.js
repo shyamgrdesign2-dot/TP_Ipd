@@ -127,7 +127,7 @@ function Welcome(props) {
               ) : (locationPath == "/walk_in_consultation" || locationPath == "/walk_in_consultation_zydus") ? (
                 <h1>Start Walk-In Consultation</h1>
               ) : (<div className="d-flex align-items-center">
-                <span className="text-diwali happy-diwali me-2">Happy Diwali</span>
+                <span className="text-diwali happy-diwali mb-1 me-2">Happy Diwali</span>
                 <h1 className="text-diwali"> Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
               </div>
               )}
