@@ -99,11 +99,11 @@ function Welcome(props) {
                   <img width='353.66' height='200' src={diwaliCrackers} />
                 </div>
               )}
-              <div className='diwali-text'>
+              {/* <div className='diwali-text'>
                 <img width='164' height='193' src={diwaliLight} />
                 <img src={diwaliText} />
                 <img width='164' height='193' src={diwaliLight} />
-              </div>
+              </div> */}
               {showGif && (
                 <div className="diwali-crackers" style={{ right: 0 }}>
                   <img width='353.66' height='200' src={diwaliCrackers} />
@@ -126,8 +126,10 @@ function Welcome(props) {
                 <h1>Edit Patient Details</h1>
               ) : (locationPath == "/walk_in_consultation" || locationPath == "/walk_in_consultation_zydus") ? (
                 <h1>Start Walk-In Consultation</h1>
-              ) : (
-                <h1 className="text-diwali">Welcome Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
+              ) : (<div className="d-flex align-items-center">
+                <span className="text-diwali happy-diwali me-2">Happy Diwali</span>
+                <h1 className="text-diwali"> Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
+              </div>
               )}
               {locationPath == "/" && <p className="text-diwali">{"Your Appointments"}</p>}
             </div>

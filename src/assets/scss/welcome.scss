@@ -37,18 +37,23 @@
         height: 41px;
     }
     &.wrapper-diwali {
-        &:after {
-            background-image: url(../images/diwali-round.svg);
-            width: 166px;
-            height: 166px;
-            content: "";
-            display: block;
-            border-radius: 100%;
-            position: absolute;
-            top: 14px;
-            left: 41%;
-            z-index: -9;
+        .happy-diwali {
+            font-family: 'Berkshire Swash' !important;
+            font-weight: 400;
+            font-size: 24px;
         }
+        // &:after {
+        //     background-image: url(../images/diwali-round.svg);
+        //     width: 166px;
+        //     height: 166px;
+        //     content: "";
+        //     display: block;
+        //     border-radius: 100%;
+        //     position: absolute;
+        //     top: 14px;
+        //     left: 41%;
+        //     z-index: -9;
+        // }
         background-color: #FFCB46;
         background-image: url(../images/bg-diwali.svg);
         background-size: cover; 
@@ -64,7 +69,12 @@
             left: 0;
         }
         .text-diwali {
-            color: #651112 !important;
+            background: -webkit-linear-gradient(#510708, #B2330D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .your-appointment {
+            color: #651112;
         }
         .diwali-crackers {
             position: absolute;
