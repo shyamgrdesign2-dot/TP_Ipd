@@ -42,6 +42,8 @@ import growthChart from "../../assets/images/growth-chart.svg";
 import growthChartDark from "../../assets/images/growth-chart-dark.svg";
 import privateNotesWhite from "../../assets/images/private-notes-white.svg";
 import privateNotesDark from "../../assets/images/private-notes-dark.svg";
+import apexAIImg from "../../assets/images/apexAI.svg";
+import ddxImg from "../../assets/images/ddx.svg";
 import obstetricWhite from "../../assets/images/obstetric-white.svg";
 import obstetricDark from "../../assets/images/obstetric-dark.svg";
 import medicalRecordsWhite from "../../assets/images/upload-doc-white.svg";
@@ -121,6 +123,7 @@ function TabPrescription() {
   const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
   const [obstetricDrawer, setObstetricDrawer] = useState(false);
   const [isGrowthChart, setIsGrowthChart] = useState(false);
+  const [shouldShowApexPopup, setShowApexPopup] = useState(true)
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
@@ -694,7 +697,7 @@ function TabPrescription() {
                       }`}
                     >
                       <img
-                        src={collapsedFlag == 1 ? vitalsDark : vitalsWhite}
+                        src={ddxImg}
                         alt="Vitals"
                       />
                     </div>
@@ -721,7 +724,7 @@ function TabPrescription() {
                           }`}
                         >
                           <img
-                            src={collapsedFlag == 1 ? vitalsDark : vitalsWhite}
+                            src={apexAIImg}
                             alt="Vitals"
                           />
                         </div>
@@ -1044,7 +1047,7 @@ function TabPrescription() {
               style={{ height: "calc(100vh - 60px)" }}
             >
               <Content>
-                <ApexAIPopup />
+                {shouldShowApexPopup && <ApexAIPopup setShowApexPopup={setShowApexPopup} />}
                 {customizedPadRightList?.map((e, i) => {
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">

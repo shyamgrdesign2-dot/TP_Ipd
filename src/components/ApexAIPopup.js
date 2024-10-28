@@ -1,7 +1,7 @@
 import { Button } from "antd";
-import alertIcon from "../assets/images/alertIcon.svg";
+import apexAI from "../assets/images/apexAI.svg";
 
-const ApexAIPopup = () => {
+const ApexAIPopup = ({ setShowApexPopup }) => {
   return (
     <div
       className="d-flex justify-content-between align-items-center"
@@ -14,7 +14,7 @@ const ApexAIPopup = () => {
       }}
     >
       <div className="d-flex w-100">
-        <img className="me-3" src={alertIcon} alt="Warning" />
+        <img className="me-3" src={apexAI} alt="Warning" />
         <div style={{ fontSize: 16, fontWeight: 500 }}>
           <div>AI-Powered Differential Diagnosis (DDx)</div>
           <div className="know-more-txt">Know More</div>
@@ -24,6 +24,7 @@ const ApexAIPopup = () => {
         type="text"
         className="btn btn-delete-prescription focus-none h-100"
         style={{ paddingRight: 0 }}
+        onClick={() => setShowApexPopup(false)}
       >
         <i className="icon-Cross fs-3" style={{ color: "#A461D8" }} />
       </Button>
