@@ -84,7 +84,6 @@ function Header({ locationPath }) {
   const navigate = useNavigate();
 
   const { profile, loading, videoList } = useSelector((state) => state.doctors);
-  const { planDetails } = useSelector((state) => state.subscription);
 
   const dispatch = useDispatch();
 
@@ -563,27 +562,11 @@ function Header({ locationPath }) {
       },
       {
         label:
-          <a onClick={accountSettings}>
-            <div className="title-common me-5 d-flex align-items-center">
-              {["TRIAL","EXPIRED"].includes(planDetails?.planStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
-              {planDetails?.planStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{filter: 'brightness(0%)'}} alt="" />}
-              {["TRIAL","EXPIRED"].includes(planDetails?.planStatus) ? "Upgrade Plan" : "Subscription"}
-              {["TRIAL","EXPIRED"].includes(planDetails?.planStatus) && <div className="gradientBackground d-flex">
-                <div className="demoModeIndicatorSmall bg-danger" />
-                <span className='demoModeLabel'>Demo mode</span>
-              </div>}
-            </div>
-            <i className="icon-right iconrotate180"></i>
-          </a>,
-        key: '6',
-      },
-      {
-        label:
           <a onClick={handleShowQRCode}>
             <div className="title-common me-5 d-flex align-items-center"><img src={qrIcon} className="me-3"></img>OPD Plan QR</div>
             <i className="icon-right iconrotate180"></i>
           </a>,
-        key: '7',
+        key: '6',
       },
       // {
       //   label:
