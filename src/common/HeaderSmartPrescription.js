@@ -448,7 +448,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                   }
                 />
               </div>
-              <div className="p-4">Write Smart Prescription</div>
+              <ProfilePopover patient_data={patient_data} />
             </div>
           </Col>
           <Col lg="auto">

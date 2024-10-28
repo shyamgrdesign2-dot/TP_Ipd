@@ -45,7 +45,7 @@ import ReconnectingWebSocket from "reconnectingwebsocket";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_SMARTSYNC_CONNECT } from '../utils/constants';
 
-function HeaderSmartRxDigitise({onSave}) {
+function HeaderSmartRxDigitise({onSave, patient_data}) {
 
   const { templates, loading } = useSelector((state) => state.caseManager);
   const { videoList} = useSelector((state) => state.doctors);
@@ -152,7 +152,7 @@ function HeaderSmartRxDigitise({onSave}) {
                   }
                 />
               </div>
-              <div className="p-4">Review & Save Archana's Digital Rx</div>
+              <div className="p-4">{`Review & Save ${patient_data?.pm_fullname} Digital Rx`}</div>
             </div>
           </Col>
           <Col lg="auto">

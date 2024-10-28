@@ -284,3 +284,16 @@
     background: #FFF;
     margin-bottom: 20px;
   }
+
+  .text-logo-white {
+    filter: brightness(0) invert(1);
+    height: 21.857px;
+    flex-shrink: 0;
+    margin-left: -5px;
+  }
+  .sparkel-loader{
+    height: 20px;
+    position: absolute;
+    left: 33px;
+    bottom: 37px;
+  }

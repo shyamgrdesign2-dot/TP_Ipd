@@ -4,13 +4,13 @@ import "../smartSync.css";
 import { Card, Button, Tabs } from "antd";
 import knowMoreImage from "../../../assets/images/website-images/know-more.jpg";
 import unstructuredRxImage from "../../../assets/images/website-images/unstructured-rx.jpeg";
-// import structuredRxGif from "../../../assets/images/website-images/structured-rx.gif";
 import dataInsightIcon from "../../../assets/images/data-insight.svg";
 import monetiseIcon from "../../../assets/images/monetise-ven.svg";
 import loyalityIcon from "../../../assets/images/loyality.svg";
 import playIcons from "../../../assets/images/tube-icon.svg";
 import redCrossIcon from "../../../assets/images/red-cross.svg";
 import greenRightIcon from "../../../assets/images/green-right.svg";
+import structuredRxGif from "../../../assets/images/structuredRx.gif";
 
 const { TabPane } = Tabs;
 
@@ -33,7 +33,7 @@ const CvtKnowMore = ({ handleDrawerVital, handleCollapsed }) => {
           <Button
             type="text"
             className="close-drawer-btn"
-            onClick={() => console.log("Close drawer")}
+            onClick={() => handleCollapsed(2)}
           >
             <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
           </Button>
@@ -174,9 +174,9 @@ const CvtKnowMore = ({ handleDrawerVital, handleCollapsed }) => {
             <div className="smartRx-cvt-img-container">
               <div className="d-flex gap-2 align-items-center">
                 <img src={greenRightIcon} />
-                <span>Structured</span>
+                <span>Well structured</span>
               </div>
-              <img src={unstructuredRxImage} className="cvt-tips-image"/> 
+              <img src={structuredRxGif} className="cvt-tips-image"/> 
             </div>
           </div>
         </div>
