@@ -320,6 +320,7 @@ function AppointmentData({ locationPath }) {
         { value: 3, label: "Next 30 Days" },
         { value: 4, label: "Last 7 Days" },
         { value: 5, label: "Last 30 Days" },
+        { value: 6, label: "Till Date" },
     ];
     const [selectedCalanderOptions, setSelectedCalanderOptions] = useState(1);
 
@@ -488,6 +489,7 @@ function AppointmentData({ locationPath }) {
     const handleDateChange = useCallback(
         (value) => {
             setSelectedCalanderOptions(value)
+            const today = "2024-10-28"
             const updatedate = {
                 startDate: moment().format(dateFormat),
                 endDate: moment().format(dateFormat),
@@ -513,6 +515,11 @@ function AppointmentData({ locationPath }) {
             } else if (value === 5) {
                 setDate({
                     startDate: moment(updatedate.startDate).subtract(30, 'day').format(dateFormat),
+                    endDate: moment(updatedate.endDate).format(dateFormat),
+                })
+            } else if (value === 6) {
+                setDate({
+                    startDate: moment(today).format(dateFormat),
                     endDate: moment(updatedate.endDate).format(dateFormat),
                 })
             } else {
@@ -1273,7 +1280,7 @@ function AppointmentData({ locationPath }) {
                                     placeholder="Select Period"
                                     className="ms-3 appointmentselect"
                                     value={selectedCalanderOptions}
-                                    options={selectedTab === TAB_QUEUE ? calanderOptions.filter(e => [1, 2, 3].includes(e.value)) : calanderOptions.filter(e => [1, 4, 5].includes(e.value))}
+                                    options={selectedTab === TAB_QUEUE ? calanderOptions.filter(e => [1, 2, 3, 6].includes(e.value)) : calanderOptions.filter(e => [1, 4, 5, 6].includes(e.value))}
                                     onChange={handleDateChange}
                                 />
                                 {/* <Segmented
