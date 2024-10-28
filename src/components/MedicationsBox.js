@@ -22,7 +22,9 @@ import {
   getMedicineDetails,
   getLoadPreviousRx,
   searchGeneric,
-  addMedicine
+  addMedicine,
+  editMedicine,
+  updateFrequentlyMedication
 } from "../redux/medicationSlice";
 import { EXTRA_OPTIONS } from "../utils/constants";
 
@@ -302,10 +304,10 @@ function MedicationsBox() {
         medicationData[i].tmm_freq_type_name = "";
         medicationData[i].tmf_block = 0;
         medicationData[i].tmm_freq_type = 0;
-        medicationData[i].tcm_tmm_freq_afternoon = frequencyQuery[1];
-        medicationData[i].tcm_tmm_freq_evening = frequencyQuery[2];
-        medicationData[i].tcm_tmm_freq_morning = frequencyQuery[0];
-        medicationData[i].tcm_tmm_freq_night = frequencyQuery[3];
+        medicationData[i].tcm_tmm_freq_afternoon = 0;
+        medicationData[i].tcm_tmm_freq_evening = 0;
+        medicationData[i].tcm_tmm_freq_morning = 0;
+        medicationData[i].tcm_tmm_freq_night = 0;
         setMedicationData((prev) => [...prev]);
       } else if (frequencyFormat(medicationData[i].tmm_freq_type_name)) {
         medicationData[i].tmm_freq_type_name = frequencyQuery;
@@ -390,6 +392,7 @@ function MedicationsBox() {
           medicationData[i].tcm_tmm_freq_night = objParse.tmf_id != 0 ? 0 : objParse.tmf_title.split("-")[2] ? objParse.tmf_title.split("-")[2] : 0;
         }
       } else {
+        setFrequencyQuery("")
         medicationData[i].tmm_freq_type_name = "";
         medicationData[i].tmf_block = 0;
         medicationData[i].tmm_freq_type = 0;
@@ -829,11 +832,28 @@ function MedicationsBox() {
                     <div className="fontroboto fw-medium p-2 pe-3">
                       <label>{item.tmm_medicine_name}</label>
                       <Tooltip placement="bottom" title={item.tmm_generic}>
-                        <div className="text-truncate fw-normal">{item.tmm_generic}</div>
+                        <div className="text-truncate fw-normal me-1">{item.tmm_generic}</div>
                       </Tooltip>
                     </div>
                   </Col>
                   <Col lg={19} md={19} sm={19} xs={19}>
+                    {!item.pms_default &&
+                      <i className="icon-Edit fs-18 position-absolute" style={{ bottom: 0, left: -22 }}
+                        onClick={() => {
+                          const medicineType = medicineTypeList.find(x => x?.tmy_id == item?.tmm_type)
+                          const makeData = {
+                            unique_id: item.unique_id,
+                            tmm_id: item.tmm_id,
+                            tmm_medicine_name: item.tmm_medicine_name,
+                            tmm_generic: item.tmm_generic,
+                            tmm_company: item.tmm_company
+                          }
+                          const updateItem = medicineType !== undefined ? { ...makeData, ...medicineType } : makeData
+                          showHideAddMedicineModal()
+                          setAddCustom(updateItem);
+                        }}
+                      ></i>
+                    }
                     {innerMedication(item.index).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) })).map((item, ii) => {
                       return (
                         <Row key={ii} className={`${ii != 0 && 'position-relative border-top'}`}>
@@ -1157,51 +1177,75 @@ function MedicationsBox() {
     [addCustom]
   );
 
-  const onAddMedicineClick = async () => {
+  const onAddEditMedicineClick = async () => {
     var sendData = {
+      tmm_id: addCustom?.tmm_id,
       tmm_medicine_name: addCustom?.tmm_medicine_name,
       tmm_type: addCustom?.tmy_id,
       tmm_generic: addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : '',
       tmm_company: addCustom?.tmm_company !== undefined ? addCustom?.tmm_company : ''
     };
-    const action = await dispatch(addMedicine(sendData));
+
+    const action = addCustom?.tmm_id ? await dispatch(editMedicine(sendData)) : await dispatch(addMedicine(sendData))
     if (action.meta.requestStatus === "fulfilled") {
-      const updatedData = action.payload.map((e) => {
+      if (addCustom?.tmm_id) {
+        const modifyData = action.payload[0]
 
-        const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
-        const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
-        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+        await dispatch(updateFrequentlyMedication(modifyData))
 
-        return {
-          ...e,
-          tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-          tmm_freq_type_name:
-            e.tmf_block == 0
-              ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
-                ? e.tcm_tmm_freq_morning + " - "
-                : "0 -"
-              }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
-                ? e.tcm_tmm_freq_afternoon + " - "
-                : "0 -"
-              }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
-                ? e.tcm_tmm_freq_evening + " - "
-                : ""
-              }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
-                ? e.tcm_tmm_freq_night
-                : "0"}`
-              : frequencyObj !== undefined
-                ? frequencyObj.tmf_title
-                : "",
-          tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
-          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-          tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
-          tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
-          unique_id: uuidv4(),
-        };
-      });
-      medicationData.push({
-        ...updatedData[0],
-      });
+        medicationData.map(item => {
+          if (item.tmm_id == modifyData.tmm_id) {
+            item.tmm_medicine_name = modifyData.tmm_medicine_name;
+            item.tmm_generic = modifyData.tmm_generic;
+            item.tmm_company = modifyData.tmm_company;
+            item.tmm_type = modifyData.tmm_type;
+            item.tmm_dosage_unit_name = '';
+            item.tmm_dosage = '';
+            item.tmm_unit = 0;
+            item.tmm_unit_name = '';
+            item.tmu_id = 0;
+            item.medicineUnit = modifyData.medicineUnit;
+          }
+          return item;
+        });
+      } else {
+        const updatedData = action.payload.map((e) => {
+
+          const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+          const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+          const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+          return {
+            ...e,
+            tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+            tmm_freq_type_name:
+              e.tmf_block == 0
+                ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
+                  ? e.tcm_tmm_freq_morning + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
+                  ? e.tcm_tmm_freq_afternoon + " - "
+                  : "0 -"
+                }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
+                  ? e.tcm_tmm_freq_evening + " - "
+                  : ""
+                }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
+                  ? e.tcm_tmm_freq_night
+                  : "0"}`
+                : frequencyObj !== undefined
+                  ? frequencyObj.tmf_title
+                  : "",
+            tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+            tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+            tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+            tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
+            unique_id: uuidv4(),
+          };
+        });
+        medicationData.push({
+          ...updatedData[0],
+        });
+      }
       setMedicationData((prev) => [...prev]);
       setSearchParentQuery("");
       showHideAddMedicineModal()
@@ -1227,7 +1271,7 @@ function MedicationsBox() {
         isModalOpen={isAddMedicineOpen}
         onCancel={showHideAddMedicineModal}
         modalWidth={500}
-        title={"Add Custom Medicine"}
+        title={`${addCustom?.tmm_id ? 'Edit' : 'Add'} Custom Medicine`}
         modalBody={
           <>
             <div>
@@ -1310,8 +1354,8 @@ function MedicationsBox() {
                   className="me-4 btn p-0 text-main">
                   Cancel
                 </div>
-                <Button className="lh-lg btn btn-primary3 btn-41 px-4" onClick={onAddMedicineClick} loading={loading} disabled={addCustom?.tmm_medicine_name && addCustom?.tmy_id ? false : true}>
-                  <span>Add Custom Medicine</span>
+                <Button className="lh-lg btn btn-primary3 btn-41 px-4" onClick={onAddEditMedicineClick} loading={loading} disabled={addCustom?.tmm_medicine_name && addCustom?.tmy_id ? false : true}>
+                  <span>{`${addCustom?.tmm_id ? 'Update' : 'Add'} Custom Medicine`}</span>
                 </Button>
               </div>
             </div>

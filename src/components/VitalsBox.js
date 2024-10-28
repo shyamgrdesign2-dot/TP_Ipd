@@ -10,6 +10,7 @@ import CashManagerContext from '../context/CashManagerContext';
 
 import {
     addUpdateVitals,
+    getPatientBirthWeight,
     getVitals,
 } from "../redux/vitalsSlice";
 import moment from "moment";
@@ -27,14 +28,18 @@ function VitalsBox(props) {
     const { handleDrawerVital, handleCollapsed } = props
 
     const {
-        selectedVitalsList,
-        loading,
+      selectedVitalsList,
+      loading,
+      patientBirthWeight: storedPatientBirthWeight,
     } = useSelector((state) => state.vitals);
     const dispatch = useDispatch();
 
     const { patient_data, vitalsData, setVitalsData } = useContext(CashManagerContext);
     const [childVitalsData, setChildVitalsData] = useState([]);
     const [dateString, setDateString] = useState(null);
+    const [patientBirthWeight, setPatientBirthWeight] = useState(
+      vitalsData?.[0]?.patient_birth_weight || storedPatientBirthWeight
+    );
     const { measurements } = useSelector((state) => state.growthChart);
     const isGowthChartAccessableFromGB = useFeatureIsOn(
       "growth-chart-new-design"
@@ -226,9 +231,22 @@ function VitalsBox(props) {
             pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0,
             pm_id: patient_data !== undefined ? patient_data.pm_id : 0,
             pam_id: patient_data !== undefined && patient_data.pam_id !== undefined ? patient_data.pam_id : 0,
+            patient_birth_weight: patientBirthWeight,
             data: childVitalsData,
         };
         const action = await dispatch(addUpdateVitals(sendData));
+        if (profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
+          dispatch(
+            getPatientBirthWeight({
+              patient_unique_id:
+                patient_data !== undefined ? patient_data.patient_unique_id : 0,
+              pam_id:
+                patient_data !== undefined && patient_data.pam_id !== undefined
+                  ? patient_data.pam_id
+                  : 0,
+            })
+          );
+        }
         if (action.meta.requestStatus === "fulfilled") {
             handleCollapsed(1)
         } else {
@@ -306,16 +324,26 @@ function VitalsBox(props) {
                     </Button>
                 </div>
                 <div className="align-items-center d-flex justify-content-between px-20 py-3">
+                    {profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0 ? (
+                        <div className="vitals-wrapper">
+                            <div className='vitals-row d-flex align-items-center px-2'>
+                                Patient’s birth weight
+                            </div>
+                            <div className='vitals-row d-flex align-items-center px-2'>
+                                <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" maxLength={5} value={patientBirthWeight} addonAfter={'kgs'} onChange={(e) => setPatientBirthWeight(onlyDecimalFormat(e.target.value))} />
+                            </div>
+                        </div>
+                    ) : null}
                     <div className="position-relative">
                         <Button className='btn btn-primary2 btn-41'>
                             Add New Date
                         </Button>
                         <DatePicker key={Math.random()} suffixIcon={null} inputReadOnly onChange={onChange} disabledDate={disabledDate} className="calender-vitals w-100 h-100" />
                     </div>
-                    {/* <div className="float-end d-flex align-itms-center">
-                        <i className="icon-setting me-2"></i>
-                        <span className="text-decoration-underline fw-medium"> Add or Configure </span>
-                    </div> */}
+                        {/* <div className="float-end d-flex align-itms-center">
+                            <i className="icon-setting me-2"></i>
+                            <span className="text-decoration-underline fw-medium"> Add or Configure </span>
+                        </div> */}
                 </div>
                 {childVitalsData.length > 0 && (
                     <div className='px-20'>

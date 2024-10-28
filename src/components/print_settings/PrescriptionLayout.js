@@ -210,6 +210,16 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
     });
   };
 
+  const onMedicationWithNumericFormat = (e, i) => {
+    printSettings.prescription.case_option[i].numeric_frequency =
+      e.target.value;
+    setPrintSettings((prev) => {
+      return {
+        ...prev,
+      };
+    });
+  };
+
   const onMedicationOptionChange = (checkedValues, i) => {
     printSettings.prescription.case_option[i].medicine_option = checkedValues;
     setPrintSettings((prev) => {
@@ -276,6 +286,19 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                 Medicine with Generic Name
               </Radio>
               <Radio value={false}>Only Medicine Name</Radio>
+            </Radio.Group>
+          </div>
+          <hr />
+          <div className="fw-medium text-start py-2">FREQUENCY FORMAT</div>
+          <div className="d-flex align-items-center text-start">
+            <Radio.Group
+              value={record?.numeric_frequency}
+              onChange={(e) => onMedicationWithNumericFormat(e, i)}
+            >
+              <Radio className="mb-2" value={true}>
+                Numeric format (e.g., 1-0-0)
+              </Radio>
+              <Radio value={false}>Text format (e.g., Morning)</Radio>
             </Radio.Group>
           </div>
           <hr />
@@ -552,7 +575,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                           ({ ...option, key: option.id })
                           : (caseManagerData.investigation.length > 0 && option.id === 6) ?
                             ({ ...option, key: option.id })
-                            : (caseManagerData.vitals.length > 0 && option.id === 7) ?
+                            : ((caseManagerData.vitals.length > 0 || caseManagerData?.patient_birth_weight) && option.id === 7) ?
                               ({ ...option, key: option.id })
                               : (caseManagerData.medical_history.length > 0 && option.id === 8) ?
                                 ({ ...option, key: option.id })
@@ -566,9 +589,9 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                         ({ ...option, key: option.id })
                                         : (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ?
                                           ({ ...option, key: option.id })
-                                          : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?._id) ? 
-                                          ({ ...option, key: option.id }) 
-                                          : (caseManagerData.labParamsData?.length > 0 && option.id === 15) && ({ ...option, key: option.id }) 
+                                          : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?._id) ?
+                                            ({ ...option, key: option.id })
+                                            : (caseManagerData.labParamsData?.length > 0 && option.id === 15) && ({ ...option, key: option.id })
               )}
               showHeader={false}
             />
