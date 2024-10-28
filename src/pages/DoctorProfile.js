@@ -17,7 +17,6 @@ function DoctorProfile() {
 
   const navigate = useNavigate();
   const { profile } = useSelector((state) => state.doctors);
-  const { planDetails } = useSelector((state) => state.subscription);
 
   const { state } = useLocation();
   const { websiteData } = state
