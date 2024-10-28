@@ -21,7 +21,6 @@ function Subscription() {
     expiry_reminder_days,
     is_pm_renew_requested,
     expiresIn,
-    billingHistory,
   } = planDetails || {};
   const [showBillingHistory, setShowBillingHistory] = useState(false);
 
@@ -42,27 +41,27 @@ function Subscription() {
           </div>
 
           <div className="titleprint">Subscription</div>
-          {currentPlanStatus === "TRIAL" && (
+          {["TRIAL", "EXPIRED"].includes(currentPlanStatus) && (
             <div className="gradientBackground d-flex">
               <div className="demoModeIndicatorSmall bg-danger" />
               <span className="demoModeLabel">Demo mode</span>
             </div>
           )}
+          {currentPlanStatus === "PAID" && (
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={() => setShowBillingHistory(true)}
+            >
+              <img
+                loading="lazy"
+                src={billingsIcon}
+                style={{ color: "#EE7200", marginRight: "5px" }}
+                alt=""
+              />
+              <span> Billing History </span>
+            </button>
+          )}
         </div>
-        {!!billingHistory?.length && (
-          <button
-            className="btn d-flex align-items-center btn-text"
-            onClick={() => setShowBillingHistory(true)}
-          >
-            <img
-              loading="lazy"
-              src={billingsIcon}
-              style={{ color: "#EE7200", marginRight: "5px" }}
-              alt=""
-            />
-            <span> Billing History </span>
-          </button>
-        )}
       </div>
       {currentPlanStatus === "PAID" ? (
         <>

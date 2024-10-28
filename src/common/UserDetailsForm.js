@@ -28,7 +28,7 @@ const UserDetailsForm = () => {
   });
   const [loader, setLoader] = useState(false);
 
-  const onFinish = async () => {
+  const onFinish = async (values) => {
     setLoader(true);
     const res = await api.post("/user/pm/info/interest", formData, {
       customBaseUrl: config.user_management_api_url,
@@ -43,7 +43,6 @@ const UserDetailsForm = () => {
         type: "success",
         content:
           "Our sales team will get in touch with you within a few hours to guide you through the purchase.",
-        duration: 5,
       });
       dispatch(fetchSubscriptionDetails());
       dispatch(closeModal());
