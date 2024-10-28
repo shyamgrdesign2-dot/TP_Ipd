@@ -1,5 +1,5 @@
 # Use the official Node.js runtime as the base image
-FROM node:18 as build
+FROM node:22 as build
 # ENV NODE_ENV production
 
 ##ARG REACT_APP_ENV

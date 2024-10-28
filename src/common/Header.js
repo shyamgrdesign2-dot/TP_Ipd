@@ -42,8 +42,6 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { env } from "../EnvironmentConfig";
 import CommonModal from "./CommonModal";
 import { useReactToPrint } from 'react-to-print';
-import PremiumUser from "./PremiumUser";
-import { openModal } from "../redux/doctorModalSlice";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -503,10 +501,6 @@ function Header({ locationPath }) {
     });
   }
 
-  const handleClick = () => {
-    dispatch(openModal());
-  };
-
   const getMenuItems = () => {
     const items = [
       {
@@ -520,8 +514,6 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "52px", height: "52px" }}
                 />
-              ) : planDetails?.planStatus === "PAID" ? (
-                <PremiumUser />
               ) :
                 <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
               }
@@ -571,7 +563,7 @@ function Header({ locationPath }) {
       },
       {
         label:
-          <a onClick={() => ["TRIAL","EXPIRED"].includes(planDetails?.planStatus) ? handleClick() : accountSettings()}>
+          <a onClick={accountSettings}>
             <div className="title-common me-5 d-flex align-items-center">
               {["TRIAL","EXPIRED"].includes(planDetails?.planStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
               {planDetails?.planStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{filter: 'brightness(0%)'}} alt="" />}
@@ -874,8 +866,6 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "35px", height: "35px" }}
                 />
-              ) :  planDetails?.planStatus === "PAID" ? (
-                <PremiumUser />
               ) :
                 <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
               }
