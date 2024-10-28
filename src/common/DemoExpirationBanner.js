@@ -7,7 +7,7 @@ import { openModal } from "../redux/doctorModalSlice";
 const DemoExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
   const {
-    currentPlanStatus,
+    planStatus,
     expiry_reminder_days,
     expiresIn,
     is_owner,
@@ -20,7 +20,7 @@ const DemoExpirationBanner = () => {
 
   return (
     !is_pm_renew_requested &&
-    ["TRIAL", "EXPIRED"].includes(currentPlanStatus) &&
+    ["TRIAL", "EXPIRED"].includes(planStatus) &&
     is_owner && (
       <header className="banner">
         <div className="demoModeWrapper">
