@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Layout, Button } from "antd";
+import { Layout, Button, Spin, Drawer } from "antd";
 import { isMobile } from 'react-device-detect';
 
 import SidebarPatient from '../common/SidebarPatient'
@@ -11,6 +11,7 @@ import MedicalHistory from '../components/MedicalHistory';
 // import Vaccination from '../components/Vaccination';
 import Cardiology from '../components/Cardiology';
 import variables from '../assets/scss/variables.scss'
+import alertIcon from "../assets/images/alertIcon.svg";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -28,12 +29,16 @@ import { setAllUploadedDocs, setPatientUploadedDocs } from "../redux/uploadDocSl
 import { fetchAllPatientDocs, fetchDocsUploadedByPatient } from "./medicalRecords/service";
 import { mergeDocuments } from "./medicalRecords/utils/helper";
 import VisitLabParameters from "../components/VisitLabParameters";
+import UploadDocPopup from "./medicalRecords/components/uploadDocPopup/UploadDocPopup";
+import CommonModal from "../common/CommonModal";
+import UploadDocument from "./medicalRecords/UploadDocument";
 
 const { Sider, Content } = Layout;
 
 function PatientDetails() {
 
     const { profile, userId } = useSelector((state) => state.doctors);
+    const { isLoading } = useSelector((state) => state.uploadDoc);
     const {
         viewCaseManagerData,
         loading,
@@ -58,6 +63,14 @@ function PatientDetails() {
     const [locationPath, setLocationPath] = useState("/");
     const [collapsed, setCollapsed] = useState(isMobile ? true : false);
     const [tcmData, setTcmData] = useState({ tcm_id: 0, page: 1 });
+    const [filesData, setFilesData] = useState([]);
+    const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
+    const [isFileSizeError, setIsFileSizeError] = useState(false);
+    const [isFileLimitError, setIsFileLimitError] = useState(false);
+    const [isFileTypeError, setIsFileTypeError] = useState(null);
+    const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
+    const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+    const [isEditDocument, setIsEditDocument] = useState(false);
 
     useEffect(() => {
         setLocationPath(location.pathname);
@@ -126,6 +139,25 @@ function PatientDetails() {
         setSidebarKey(key)
     }, [sidebarKey])
 
+    const handleUploadDocPopup = () => {
+        setShowUploadDocPopup((prev) => !prev);
+    };
+
+    const handleRetryBtn = () => {
+        setFilesData([]);
+        setIsFileSizeError(false);
+        setIsFileLimitError(false);
+        setIsFileTypeError(null);
+    };
+
+   const handleDeletePopup = () => {
+     setShowDeletePopup(true);
+   };
+
+   const handleDrawerUploadDoc = () => {
+     setUploadDocDrawer(!uploadDocDrawer);
+   };
+
     return (
         <>
             <Layout>
@@ -151,7 +183,12 @@ function PatientDetails() {
                             isMobile={isMobile}
                             patient_data={patient_data}
                             viewCaseManagerData={viewCaseManagerData}
-                            sidebarKey={sidebarKey} />
+                            sidebarKey={sidebarKey}
+                            filesData={filesData}
+                            setFilesData={setFilesData}
+                            handleUploadDocPopup={handleUploadDocPopup}
+                            handleDrawerUploadDoc={handleDrawerUploadDoc}
+                         />
                         {sidebarKey === 1 ? (
                             <div className="appointment-wrap PatientDetailsPageWrap">
                                 <div className='row'>
@@ -182,13 +219,129 @@ function PatientDetails() {
                             </div>
                         ) : (
                             <div className="appointment-wrap PatientDetailswrap">
-                                <VisitMedicalRecords />
+                                <VisitMedicalRecords
+                                    filesData={filesData}
+                                    setUploadDocDrawer={setUploadDocDrawer}
+                                    setFilesData={setFilesData}
+                                    handleUploadDocPopup={handleUploadDocPopup}
+                                    setIsEditDocument={setIsEditDocument}
+                                    handleDrawerUploadDoc={handleDrawerUploadDoc}
+                                 />
                             </div>
                         )}
                     </div>
                 </Content>
 
             </Layout>
+            {uploadDocDrawer && (
+                <Drawer
+                    closeIcon={false}
+                    placement="right"
+                    bodyStyle={{ backgroundColor: "white" }}
+                    onClose={handleDeletePopup}
+                    open={uploadDocDrawer}
+                    className="modalWidth-700"
+                    width="auto"
+                    push={false}
+                >
+                    <UploadDocument
+                        onClose={handleDeletePopup}
+                        handleDrawerUploadDoc={handleDrawerUploadDoc}
+                        shouldShowDeletePopup={shouldShowDeletePopup}
+                        setShowDeletePopup={setShowDeletePopup}
+                        filesData={filesData}
+                        setFilesData={setFilesData}
+                        isEditDocument={isEditDocument}
+                        setIsEditDocument={setIsEditDocument}
+                        handleUploadDocPopup={handleUploadDocPopup}
+                    />
+                </Drawer>
+            )}
+            {shouldShowUploadDocPopup && (
+                <UploadDocPopup
+                    shouldShowUploadDocPopup={shouldShowUploadDocPopup}
+                    onCancel={handleUploadDocPopup}
+                    setFilesData={setFilesData}
+                    filesData={filesData}
+                    setUploadDocDrawer={setUploadDocDrawer}
+                    setIsFileSizeError={setIsFileSizeError}
+                    setIsFileLimitError={setIsFileLimitError}
+                    setIsFileTypeError={setIsFileTypeError}
+                />
+            )}
+            {isFileSizeError || isFileLimitError || isFileTypeError ? (
+                <CommonModal
+                    isModalOpen={isFileSizeError || isFileLimitError || isFileTypeError}
+                    onCancel={handleRetryBtn}
+                    modalWidth={500}
+                    title={
+                        isFileSizeError
+                        ? "Exceeded File Size"
+                        : isFileLimitError
+                        ? "Exceeded File Upload Limit"
+                        : isFileTypeError
+                        ? "File format not supported"
+                        : "You may lose your data"
+                    }
+                    modalBody={
+                        <>
+                        <div className="alert-warning rounded-10px p-2 patient-details">
+                            <div className="d-flex align-items-center">
+                            <img className="me-3" src={alertIcon} alt="Warning" />
+                            <span>
+                                {isFileSizeError ? (
+                                <>
+                                    The file size exceeded{" "}
+                                    <span style={{ fontWeight: 700 }}>8MB.</span> Please
+                                    upload a file smaller than 8MB
+                                </>
+                                ) : isFileLimitError ? (
+                                <>
+                                    You can only upload up to
+                                    <span style={{ fontWeight: 700 }}> 5 files.</span>{" "}
+                                    Please reduce the number of files and try again.
+                                </>
+                                ) : isFileTypeError ? (
+                                <>
+                                    You can't upload
+                                    <span style={{ fontWeight: 700 }}>
+                                    {" "}
+                                    {isFileTypeError}
+                                    </span>{" "}
+                                    file. Only PDF, JPG, JPEG, and PNG formats are accepted.
+                                </>
+                                ) : (
+                                "Are you sure you want to leave ?"
+                                )}
+                            </span>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <Button
+                            onClick={handleRetryBtn}
+                            className="w-100 btn btn-primary3 btn-41 px-4"
+                            >
+                            Retry
+                            </Button>
+                        </div>
+                        </>
+                    }
+                />
+            ) : null}
+
+            {isLoading ? (
+                <div>
+                    <Spin
+                        style={{
+                        position: "absolute",
+                        left: "50%",
+                        top: "50%",
+                        zIndex: "9999",
+                        }}
+                        size="large"
+                    />
+                </div>
+            ) : null}
         </>
     );
 }
