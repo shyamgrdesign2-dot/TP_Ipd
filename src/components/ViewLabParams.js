@@ -35,48 +35,60 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
         if (labParamsData?.length > 0) {
             const filteredResultData = filterDataBySearchKey(labParamsData, searchTerm);
             setFilteredReports(filteredResultData);
-
-
+    
+            // Initialize an object to store the grouped data
             const updatedData = {};
-
-              filteredResultData?.forEach((report) => {
+    
+            // Loop through each report in the filtered results
+            filteredResultData?.forEach((report) => {
                 report.inputs.forEach((input) => {
-                  const reportKey = input.reportName;
-                  const testKey = input.testName;
-
-                  if (!updatedData[reportKey]) {
-                    updatedData[reportKey] = {};
-                  }
-
-                  if (!updatedData[reportKey][testKey]) {
-                    updatedData[reportKey][testKey] = [];
-                  }
-
-                  updatedData[reportKey][testKey].push({
-                    date: report.date,
-                    value: input.value,
-                    unit: input.units,
-                    arrowDirection: input.arrowDirection,
-                  });
+                    const reportKey = input.reportName;
+                    const testKey = input.testName;
+    
+                    // Initialize objects to avoid undefined references
+                    if (!updatedData[reportKey]) {
+                        updatedData[reportKey] = {};
+                    }
+    
+                    if (!updatedData[reportKey][testKey]) {
+                        updatedData[reportKey][testKey] = [];
+                    }
+    
+                    // Push each entry to the respective test within the report, with the date
+                    updatedData[reportKey][testKey].push({
+                        date: report.date,
+                        value: input.value,
+                        unit: input.units,
+                        arrowDirection: input.arrowDirection,
+                    });
                 });
-              });
-              setGroupedData(updatedData);
-        }  
+            });
+            setGroupedData(updatedData);
+        }
     }, [searchTerm, labParamsData]);
-
-    // Filter and group data based on search query
+    
     const filterDataBySearchKey = (data, searchKey) => {
+        // If no search term, return the full data
+        if (!searchKey) return data;
+    
         return data
-        .map(({ date, inputs }) => ({
-            date,
-            inputs: inputs.filter(
-            ({ testName, reportName }) =>
-                testName.toLowerCase().includes(searchKey.toLowerCase()) ||
-                reportName.toLowerCase().includes(searchKey.toLowerCase())
-            ),
-        }))
-        .filter(({ inputs }) => inputs.length > 0); // Remove dates with no matching inputs
-    }
+            .map(({ date, inputs }) => {
+                // Filter inputs to only include those that match the search term
+                const matchingInputs = inputs.filter(
+                    ({ testName, reportName }) =>
+                        testName.toLowerCase().includes(searchKey.toLowerCase()) ||
+                        reportName.toLowerCase().includes(searchKey.toLowerCase())
+                );
+    
+                // If there are any matching inputs, keep this date with only those inputs
+                return matchingInputs.length > 0
+                    ? { date, inputs: matchingInputs }
+                    : null;
+            })
+            .filter(Boolean); // Remove null entries where there are no matches
+    };
+    
+    
 
     // Handle horizontal scrolling via dragging
     const handleMouseDown = (e) => {
@@ -146,67 +158,72 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                     borderTopLeftRadius: "10px",
                                     borderBottomLeftRadius: "10px",
                                     fontWeight: "600",
+                                    zIndex: "2",
                                 }}
                             >
                                 Name
                             </th>
-                            {filteredReports.length < 2 ? (
-                                filteredReports.map((entry, entryIndex) => {
-                                    const isLastCell = entryIndex === filteredReports.length - 1;
-                                    return (
-                                        <>
-                                            <th
-                                                key={entry.date}
-                                                style={{
-                                                    width: '160px',
-                                                    padding: '10px',
-                                                    zIndex: "1",
-                                                    fontWeight: "600",
-                                                    background: "#F1F1F5",
-                                                    textWrap: "nowrap",
-                                                }}
-                                            >
-                                                {dayjs(entry?.date).format("DD MMM, YYYY")}
-                                            </th>
-                                            <th
-                                                key={entry.date}
-                                                style={{
-                                                    width: '160px',
-                                                    padding: '10px',
-                                                    zIndex: "1",
-                                                    fontWeight: "600",
-                                                    background: "#F1F1F5",
-                                                    borderTopRightRadius: "10px" ,
-                                                    borderBottomRightRadius: "10px",
-                                                    textWrap: "nowrap",
-                                                }}
-                                            >
-                                            </th>
-                                        </>
-                                    );
-                                })
-                            ):(
-                                filteredReports.map((entry, entryIndex) => {
-                                    const isLastCell = entryIndex === filteredReports.length - 1;
-                                    return (
-                                        <th
-                                            key={entry.date}
-                                            style={{
-                                                width: '160px',
-                                                padding: '10px',
-                                                zIndex: "1",
-                                                fontWeight: "600",
-                                                background: "#F1F1F5",
-                                                borderTopRightRadius: isLastCell ? "10px" : " ",
-                                                borderBottomRightRadius: isLastCell ? "10px" : " ",
-                                                textWrap: "nowrap",
-                                            }}
-                                        >
-                                            {dayjs(entry?.date).format("DD MMM, YYYY")}
-                                        </th>
-                                    );
-                                })
-                            )}
+                            <th>
+                                <div className='d-flex'>
+                                    {filteredReports.length < 2 ? (
+                                        filteredReports.map((entry, entryIndex) => {
+                                            const isLastCell = entryIndex === filteredReports.length - 1;
+                                            return (
+                                                <>
+                                                    <div
+                                                        key={entry.date}
+                                                        style={{
+                                                            width: '160px',
+                                                            padding: '10px',
+                                                            zIndex: "1",
+                                                            fontWeight: "600",
+                                                            background: "#F1F1F5",
+                                                            textWrap: "nowrap",
+                                                        }}
+                                                    >
+                                                        {dayjs(entry?.date).format("DD MMM, YYYY")}
+                                                    </div>
+                                                    <div
+                                                        key={entry.date}
+                                                        style={{
+                                                            width: '160px',
+                                                            padding: '10px',
+                                                            zIndex: "1",
+                                                            fontWeight: "600",
+                                                            background: "#F1F1F5",
+                                                            borderTopRightRadius: "10px" ,
+                                                            borderBottomRightRadius: "10px",
+                                                            textWrap: "nowrap",
+                                                        }}
+                                                    >
+                                                    </div>
+                                                </>
+                                            );
+                                        })
+                                    ):(
+                                        filteredReports.map((entry, entryIndex) => {
+                                            const isLastCell = entryIndex === filteredReports.length - 1;
+                                            return (
+                                                <div
+                                                    key={entry.date}
+                                                    style={{
+                                                        width: '160px',
+                                                        padding: '10px',
+                                                        zIndex: "1",
+                                                        fontWeight: "600",
+                                                        background: "#F1F1F5",
+                                                        borderTopRightRadius: isLastCell ? "10px" : " ",
+                                                        borderBottomRightRadius: isLastCell ? "10px" : " ",
+                                                        textWrap: "nowrap",
+                                                    }}
+                                                >
+                                                    {dayjs(entry?.date).format("DD MMM, YYYY")}
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <div style={{ height: '15px' }}></div>

@@ -329,7 +329,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         handleCloseModal();
     };
 
-    const calculateArrowDirection = (value, refRange, gender = "Male") => {
+    const calculateArrowDirection = (value, refRange, gender) => {
         if (!value || isNaN(parseFloat(value))) {
             return "";
         }
@@ -338,7 +338,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     
         // Check if refRange has conditional ranges
         if (refRange?.isConditional) {
-            selectedRange = refRange.ranges.find(range => range.gender === gender) || refRange.ranges?.[0];
+            selectedRange = refRange.ranges.find(range => range.gender.toLowerCase() === gender.toLowerCase()) || refRange.ranges?.[0];
         } else {
             selectedRange = refRange?.ranges?.[0]; // Single range case
         }
