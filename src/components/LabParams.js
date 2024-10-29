@@ -337,10 +337,10 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         let selectedRange;
     
         // Check if refRange has conditional ranges
-        if (refRange?.isConditional) {
-            selectedRange = refRange.ranges.find(range => range.gender.toLowerCase() === gender.toLowerCase()) || refRange.ranges?.[0];
+        if (refRange?.gender?.toLowerCase() === "all") {
+          selectedRange = refRange?.ranges?.[0];
         } else {
-            selectedRange = refRange?.ranges?.[0]; // Single range case
+          selectedRange = refRange?.ranges.find(range => range.gender.toLowerCase() === gender.toLowerCase()) || refRange?.ranges?.[0];
         }
     
         if (selectedRange) {
@@ -1159,13 +1159,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                               {/* Logic for rendering the reference range */}
                                               {(() => {
                                                 let hasRenderedRefRange = false;
-                                                return (
-                                                  inputValues[reportName][testName] &&
-                                                  Object.keys(
-                                                    inputValues[reportName][testName]
-                                                  ).map((date, index) => {
-                                                    const testData =
-                                                          inputValues[reportName][testName][date];
+                                                return inputValues[reportName][testName] &&
+                                                  Object.keys(inputValues[reportName][testName]).map((date, index) => {
+                                                    const testData = inputValues[reportName][testName][date];
                                                     const refRange = testData?.refRange;
                                                     if (
                                                       refRange &&
@@ -1174,57 +1170,48 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                       !hasRenderedRefRange
                                                     ) {
                                                       hasRenderedRefRange = true;
-                                                      if (refRange.isConditional) {
-                                                            const maleRange = refRange.ranges.find(
-                                                              (range) => range.gender.toLowerCase() === "male"
-                                                          );
-                                                            const femaleRange = refRange.ranges.find(
-                                                              (range) => range.gender.toLowerCase() === "female"
-                                                          );
+                                                      if (refRange) {
+                                                        const maleRange = refRange.ranges.find(
+                                                          (range) => range.gender.toLowerCase() === "male"
+                                                        );
+                                                        const femaleRange = refRange.ranges.find(
+                                                          (range) => range.gender.toLowerCase() === "female"
+                                                        );
+                                                        const allRange = refRange.ranges.find(
+                                                          (range) => range.gender.toLowerCase() === "all"
+                                                        );
                                                         return (
                                                           <div key={index}>
-                                                                <strong>Reference Range:</strong>
+                                                            <strong>Reference Range:</strong>
                                                             {maleRange && femaleRange ? (
                                                               <div>
-                                                                    Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
-                                                                    Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                                Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
+                                                                Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
                                                               </div>
                                                             ) : maleRange ? (
                                                               <div>
-                                                                    Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
+                                                                Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
                                                               </div>
                                                             ) : femaleRange ? (
                                                               <div>
-                                                                    Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                                Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                              </div>
+                                                            ) : allRange ? (
+                                                              <div>
+                                                                All: {`${allRange.min} - ${allRange.max} ${allRange.unit}`}
                                                               </div>
                                                             ) : (
-                                                                  <div>No reference range available</div>
+                                                              <div>No reference range available</div>
                                                             )}
-                                                          </div>
-                                                        );
-                                                      } else {
-                                                            const allRange = refRange.ranges.find(
-                                                              (range) => range.gender.toLowerCase() === "all"
-                                                            );
-                                                        return (
-                                                          <div key={index}>
-                                                                {allRange ? (
-                                                                  <>
-                                                                    All:{`${allRange.min} - ${allRange.max} ${allRange.unit}`}
-                                                                  </>
-                                                                ) : (
-                                                                  <div>No reference range available</div>
-                                                                )}
                                                           </div>
                                                         );
                                                       }
                                                     }
                                                     return null;
-                                                  })
-                                                );
+                                                  });
                                               })()}
                                               <div className="disclaimer-text">
-                                                  <span style={{ fontWeight: "600" }}>Disclaimer:</span>{" "}
+                                                <span style={{ fontWeight: "600" }}>Disclaimer:</span>{" "}
                                                 {`This range is only for reference and may vary between patients based on different conditions.`}
                                               </div>
                                             </div>
@@ -1247,7 +1234,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                             }}
                                           ></i>
                                         </Tooltip>
-                                      )}
+                                    )}
                                     </td>
 
                                     <td
