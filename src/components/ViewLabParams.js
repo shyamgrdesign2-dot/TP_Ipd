@@ -246,9 +246,9 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                 <span>{reportName}</span>
                                                 <div style={{ position: "absolute", top: "16%", right: "-81%" }}>
                                                     {isExpanded ? (
-                                                        <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right fs-5' /></button>
-                                                    ) : (
                                                         <button className='btn p-0 ms-2 iconrotate180'><i className='icon-right fs-5' /></button>
+                                                    ) : (
+                                                        <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right fs-5' /></button>
                                                     )}
                                                 </div>
                                             </td>
@@ -349,7 +349,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                                                                             </Tooltip>
                                                                           )
                                                                           : testOnDate
-                                                                          ? `${testOnDate.value} ${testOnDate.unit}`
+                                                                          ? `${testOnDate.value} ${testOnDate.unit || ""}`
                                                                           : "-"}
                                                                         {testOnDate?.arrowDirection ===
                                                                         "up" ? (
