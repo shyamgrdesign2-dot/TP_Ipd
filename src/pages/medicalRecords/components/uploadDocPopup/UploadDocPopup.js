@@ -28,7 +28,7 @@ const UploadDocPopup = ({
   setIsFileTypeError,
 }) => {
   const dispatch = useDispatch();
-  const { state, location } = useLocation();
+  const { state } = useLocation();
   const patient_data = state?.patient_data;
   const patientUniqueId =
     patient_data?.patient_unique_id || patientData?.patient_unique_id || 0;
@@ -81,10 +81,6 @@ const UploadDocPopup = ({
       setUploadDocDrawer(true);
     }
   };
-
-  useEffect(() => {
-    hasCheckedFirebase = false;
-  }, [location]);
 
   useEffect(() => {
     const checkInFireBase = async () => {
