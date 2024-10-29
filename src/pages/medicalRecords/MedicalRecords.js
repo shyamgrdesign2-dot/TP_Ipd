@@ -76,6 +76,7 @@ const handleFileUpload = (event) => {
       handleDrawerUploadDoc();
     }
   }
+  event.target.value = null;
 };
 
   return (

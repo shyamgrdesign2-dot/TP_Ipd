@@ -470,6 +470,7 @@ function TabPrescription() {
         handleDrawerUploadDoc();
       }
     }
+    event.target.value = null;
   };
 
   // Drawer Upload Document

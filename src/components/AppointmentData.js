@@ -163,6 +163,7 @@ function AppointmentData({ locationPath }) {
             setPatientData(record);
         }
         }
+        event.target.value = null;
     };
 
     const handleAddClick = () => {
