@@ -1072,14 +1072,14 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                 )}
                                 {!!expandedReports[reportName] ? (
                                   <button
-                                    className="btn p-0 ms-2 iconrotate270"
+                                    className="btn p-0 ms-2 iconrotate180"
                                     style={{ position: "absolute", left: isMobile? "635px" : "816px" }}
                                   >
                                     <i className="icon-right fs-5" />
                                   </button>
                                 ) : (
                                   <button
-                                    className="btn p-0 ms-2 iconrotate180"
+                                    className="btn p-0 ms-2 iconrotate270"
                                     style={{ position: "absolute", left: "816px" }}
                                   >
                                     <i className="icon-right fs-5" />
