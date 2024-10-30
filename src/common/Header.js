@@ -42,8 +42,6 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { env } from "../EnvironmentConfig";
 import CommonModal from "./CommonModal";
 import { useReactToPrint } from 'react-to-print';
-import PremiumUser from "./PremiumUser";
-import { openModal } from "../redux/doctorModalSlice";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -86,7 +84,6 @@ function Header({ locationPath }) {
   const navigate = useNavigate();
 
   const { profile, loading, videoList } = useSelector((state) => state.doctors);
-  const { planDetails } = useSelector((state) => state.subscription);
 
   const dispatch = useDispatch();
 
@@ -503,10 +500,6 @@ function Header({ locationPath }) {
     });
   }
 
-  const handleClick = () => {
-    dispatch(openModal());
-  };
-
   const handleShowQRCode = () => {
     setQRCodeVisible(true);
   };
@@ -514,7 +507,7 @@ function Header({ locationPath }) {
   const getMenuItems = () => {
     const commonItems = [
       {
-        label: (
+        label:
           <>
             <div className="me-3">
               {profile?.um_image ? (
@@ -524,69 +517,51 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "52px", height: "52px" }}
                 />
-              ) : planDetails?.currentPlanStatus === "PAID" ? (
-                <PremiumUser />
-              ) : (
-                <div className="rounded-pill patientProfile patientProfile52 border">
-                  {makeDefaultLogo(profile?.um_name)}
-                </div>
-              )}
+              ) : 
+              <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
+            }
             </div>
             <div>
-              <div className="text-black titleprint">{profile?.um_name}</div>
-              <div className="title-common">{profile?.um_contact}</div>
+              <div className="text-black titleprint">{(profile?.um_name)}</div>
+              <div className="title-common">{(profile?.um_contact)}</div>
             </div>
           </>
-        ),
+        ,
         key: '0',
       },
-      { type: 'divider' },
+      { 
+        type: 'divider',
+      },
       {
-        label: (
+        label: 
           <a onClick={() => setUpWebsiteUrl(1)}>
-            <div className="title-common me-5 d-flex align-items-center">
-              <i className="icon-profile me-3"></i>My Profile
-            </div>
+            <div className="title-common me-5 d-flex align-items-center"><i className="icon-profile me-3"></i>My Profile</div>
             <i className="icon-right iconrotate180"></i>
-          </a>
-        ),
+          </a>,
         key: '2',
       },
       {
-        label: (
+        label:
           <a onClick={() => setUpWebsiteUrl(2)}>
-            <div className="title-common me-5 d-flex align-items-center">
-              <i className="icon-group me-3"></i>
-              {profile?.website_publish && profile?.publish_url
-                ? 'Visit'
-                : 'Setup'}{' '}
-              My Website
-            </div>
+            <div className="title-common me-5 d-flex align-items-center"><i className="icon-group me-3"></i>{`${profile?.website_publish && profile?.publish_url ? 'Visit' : 'Setup'} My Website`}</div>
             <i className="icon-right iconrotate180"></i>
-          </a>
-        ),
+          </a>,
         key: '3',
       },
       {
-        label: (
+        label:
           <a onClick={myAvailability}>
-            <div className="title-common me-5 d-flex align-items-center">
-              <i className="icon-calendar me-3"></i>My Availability
-            </div>
+            <div className="title-common me-5 d-flex align-items-center"><i className="icon-calendar me-3"></i>My Availability</div>
             <i className="icon-right iconrotate180"></i>
-          </a>
-        ),
+          </a>,
         key: '4',
       },
       {
-        label: (
+        label:
           <a onClick={accountSettings}>
-            <div className="title-common me-5 d-flex align-items-center">
-              <i className="icon-setting me-3"></i>Account Setting
-            </div>
+            <div className="title-common me-5 d-flex align-items-center"><i className="icon-setting me-3"></i>Account Setting</div>
             <i className="icon-right iconrotate180"></i>
-          </a>
-        ),
+          </a>,
         key: '5',
       },
     ];
@@ -855,8 +830,6 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "35px", height: "35px" }}
                 />
-              ) :  planDetails?.currentPlanStatus === "PAID" ? (
-                <PremiumUser />
               ) :
                 <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
               }
