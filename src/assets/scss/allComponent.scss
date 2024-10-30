@@ -2075,3 +2075,17 @@ body {
 .ddx-ready-txt {
     color: #A2A2A8 !important;
 }
+
+.test-name-btn {
+    &.btn.btn-input {
+        border-color: #7742FE !important;
+
+        span {
+            color: #7742FE !important;
+        }
+    }
+}
+
+.evidence {
+    color: rgba(29, 29, 29, 0.65) !important;
+}

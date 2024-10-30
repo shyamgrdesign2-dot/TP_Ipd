@@ -24,7 +24,7 @@ import {
 import TabDiagnosisSearch from "../../components/tab_design/TabDiagnosisSearch";
 import DifferentialDiagnosis from "../DifferentialDiagnosis";
 
-function TabDiagnosisBox() {
+function TabDiagnosisBox({handleDDxDrawer}) {
     const {
         selectedDiagnosisList,
         parentOptionsList,
@@ -744,7 +744,7 @@ function TabDiagnosisBox() {
                         <i className='icon-search mx-2'></i>
                         <span className="fontroboto backbar fw-normal">Search Diagnosis</span>
                     </div>
-                    <DifferentialDiagnosis />
+                    <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer}/>
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
                     {parentDrawer && (<TabDiagnosisSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}

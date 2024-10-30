@@ -14,7 +14,7 @@ const ApexAIPopup = ({ setShowApexPopup }) => {
       }}
     >
       <div className="d-flex w-100">
-        <img className="me-3" src={apexAI} alt="Warning" />
+        <img className="me-3" src={apexAI} alt="apex-AI" />
         <div style={{ fontSize: 16, fontWeight: 500 }}>
           <div>AI-Powered Differential Diagnosis (DDx)</div>
           <div className="know-more-txt">Know More</div>

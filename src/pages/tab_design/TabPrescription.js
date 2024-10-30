@@ -78,6 +78,7 @@ import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "..
 import ApexAIPopup from "../../components/ApexAIPopup";
 import TabDDxList from "../../components/tab_design/TabDDxList";
 import { setIsApexAISelected } from "../../redux/ddxSlice";
+import DifferentialDiagnosisDrawer from "../../components/DifferentialDiagnosisDrawer";
 
 function TabPrescription() {
   const {
@@ -174,6 +175,7 @@ function TabPrescription() {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
+  const [ddxDrawer, setDDxDrawer] = useState(false)
   const [filesData, setFilesData] = useState([]);
   const [isEditDocument, setIsEditDocument] = useState(false);
   const fileInputRef = useRef(null);
@@ -654,6 +656,10 @@ function TabPrescription() {
     setViewlabparamsDrawer((prev) => !prev);
   };
 
+  const handleDDxDrawer = () => {
+    setDDxDrawer((prev) => !prev);
+  };
+
   // Function to close "View Lab Params" and open "Add Lab Params"
   const handleSwitchToAddLabParams = () => {
     setViewlabparamsDrawer(false);
@@ -1059,7 +1065,7 @@ function TabPrescription() {
                     </div>
                   ) : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      <TabDiagnosisBox />
+                      <TabDiagnosisBox handleDDxDrawer={handleDDxDrawer}/>
                     </div>
                   ) : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1248,6 +1254,19 @@ function TabPrescription() {
             width="auto"
           >
               <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
+          </Drawer>
+        )}
+        {ddxDrawer && (
+          <Drawer
+            closeIcon={false}
+            className="modalWidth-700"
+            placement="right"
+            open={ddxDrawer}
+            bodyStyle={{ backgroundColor: "white" }}
+            onClose={handleDDxDrawer}
+            width="auto"
+          >
+              <DifferentialDiagnosisDrawer handleDDxDrawer={handleDDxDrawer} />
           </Drawer>
         )}
       </>
