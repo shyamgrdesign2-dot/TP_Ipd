@@ -1,4 +1,4 @@
-import { Button, Card, Drawer } from "antd";
+import { Button, Card } from "antd";
 import emptyDocument from "./../../../../assets/images/empty-document.png";
 import { useDispatch, useSelector } from "react-redux";
 import { setUploadDocCategories } from "../../../../redux/uploadDocSlice";
@@ -6,13 +6,21 @@ import { fetchAllDocumentCategories } from "../../service";
 import { useEffect, useRef, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import "./../../MedicalRecords.scss";
-import UploadDocument from "../../UploadDocument";
 import RecordCard from "../recordCard/RecordCard";
 import { isAndroid, isBrowser } from "react-device-detect";
-import UploadDocPopup from "../uploadDocPopup/UploadDocPopup";
-import { generateUniqueFileName, getCorrectedFileName } from "../../utils/helper";
+import {
+  generateUniqueFileName,
+  getCorrectedFileName,
+} from "../../utils/helper";
 
-const VisitMedicalRecords = () => {
+const VisitMedicalRecords = ({
+  filesData,
+  setUploadDocDrawer,
+  setFilesData,
+  handleUploadDocPopup,
+  setIsEditDocument,
+  handleDrawerUploadDoc,
+}) => {
   const dispatch = useDispatch();
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
@@ -25,11 +33,6 @@ const VisitMedicalRecords = () => {
 
   const [activeCategory, setActiveCategory] = useState(-1);
   const [activeCategoryDocs, setActiveCategoryDocs] = useState(allUploadedDocs);
-  const [filesData, setFilesData] = useState([]);
-  const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
-  const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
-  const [isEditDocument, setIsEditDocument] = useState(false);
-  const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -55,53 +58,42 @@ const VisitMedicalRecords = () => {
     setActiveCategory(index);
   };
 
-  const handleDrawerUploadDoc = () => {
-    setUploadDocDrawer(!uploadDocDrawer);
-  };
+  const handleFileUpload = (event) => {
+    const files = event.target.files;
+    if (files) {
+      const filesData = Array.from(files);
+      if (filesData.length > 0) {
+        const updatedFiles = [];
+        filesData.forEach((file) => {
+          const cleanFileName = getCorrectedFileName(file?.name || "");
+          // Check if the file is an image and if its name follows typical camera-captured file patterns
+          const isCapturedFromCamera =
+            (file.type === "image/jpeg" ||
+              file.type === "image/png" ||
+              file.type === "image/jpg") &&
+            (cleanFileName === "image.jpg" ||
+              cleanFileName === "image.png" ||
+              cleanFileName === "image.jpeg");
 
-  const handleUploadDocPopup = () => {
-    setShowUploadDocPopup((prev) => !prev);
-  };
+          let newFile = file;
 
-  const handleDeletePopup = () => {
-    setShowDeletePopup(true);
-  };
+          if (isCapturedFromCamera) {
+            // Generate a unique file name for camera-captured images
+            const uniqueFileName = generateUniqueFileName(file);
+            newFile = new File([file], uniqueFileName, { type: file.type });
+          } else {
+            // If the file name had spaces, create a new file with spaces removed
+            newFile = new File([file], cleanFileName, { type: file.type });
+          }
 
-const handleFileUpload = (event) => {
-  const files = event.target.files;
-  if (files) {
-    const filesData = Array.from(files);
-    if (filesData.length > 0) {
-      const updatedFiles = [];
-      filesData.forEach((file) => {
-        const cleanFileName = getCorrectedFileName(file?.name || "");
-        // Check if the file is an image and if its name follows typical camera-captured file patterns
-        const isCapturedFromCamera =
-          (file.type === "image/jpeg" ||
-            file.type === "image/png" ||
-            file.type === "image/jpg") &&
-          (cleanFileName === "image.jpg" ||
-            cleanFileName === "image.png" ||
-            cleanFileName === "image.jpeg");
-
-        let newFile = file;
-
-        if (isCapturedFromCamera) {
-          // Generate a unique file name for camera-captured images
-          const uniqueFileName = generateUniqueFileName(file);
-          newFile = new File([file], uniqueFileName, { type: file.type });
-        } else {
-          // If the file name had spaces, create a new file with spaces removed
-          newFile = new File([file], cleanFileName, { type: file.type });
-        }
-
-        updatedFiles.push(newFile);
-      });
-      setFilesData(updatedFiles);
-      handleDrawerUploadDoc();
+          updatedFiles.push(newFile);
+        });
+        setFilesData(updatedFiles);
+        handleDrawerUploadDoc();
+      }
     }
-  }
-};
+    event.target.value = null;
+  };
 
   const handleAddClick = () => {
     if (fileInputRef.current) {
@@ -228,38 +220,6 @@ const handleFileUpload = (event) => {
           )}
         </div>
       </Card>
-      {uploadDocDrawer && (
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          bodyStyle={{ backgroundColor: "white" }}
-          onClose={handleDeletePopup}
-          open={uploadDocDrawer}
-          className="modalWidth-700"
-          width="auto"
-          push={false}
-        >
-          <UploadDocument
-            onClose={handleDeletePopup}
-            handleDrawerUploadDoc={handleDrawerUploadDoc}
-            shouldShowDeletePopup={shouldShowDeletePopup}
-            setShowDeletePopup={setShowDeletePopup}
-            filesData={filesData}
-            setFilesData={setFilesData}
-            isEditDocument={isEditDocument}
-            setIsEditDocument={setIsEditDocument}
-          />
-        </Drawer>
-      )}
-      {shouldShowUploadDocPopup && (
-        <UploadDocPopup
-          onCancel={handleUploadDocPopup}
-          setFilesData={setFilesData}
-          filesData={filesData}
-          uploadDocDrawer={uploadDocDrawer}
-          handleDrawerUploadDoc={handleDrawerUploadDoc}
-        />
-      )}
     </div>
   );
 };

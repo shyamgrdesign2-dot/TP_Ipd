@@ -14,6 +14,8 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import editIcon from '../assets/images/edit.svg';
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
+import _ from 'lodash';
+
 
 const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal, patientGender  }) => {
 
@@ -48,6 +50,16 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const currentDate = new Date().toISOString().split("T")[0];
     const dateFormat = 'YYYY-MM-DD';
     const showDateFormat = 'DD MMM, YYYY';
+
+    const refRangeCache = {}; // Cache to store refRange data by reportName
+
+    // Throttled searchLabParams to avoid rapid API calls
+    const throttledSearchLabParams = _.throttle(async (reportName) => {
+        const labParamsData = await searchLabParams(reportName);
+        // Store fetched data in cache under the reportName key
+        refRangeCache[reportName] = labParamsData;
+        return labParamsData;
+    }, 2000); // Adjust throttle duration as needed
 
     //states for Remarks Functionality 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -155,8 +167,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
             const patientId = patient_unique_id;
-            const doctorId = tokenData?.user_id;
-            const response = await axios.get(`${labParamsBaseUrl}/api/v1/lab-parameters/results/${doctorId}/${patientId}`, {
+            const response = await axios.get(`${labParamsBaseUrl}/api/v1/lab-parameters/results/${patientId}`, {
                 headers: {
                     'Authorization': `Bearer ${cleanedToken}`,
                 },
@@ -207,7 +218,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     
         return () => clearTimeout(timeOutId);
     }, [labParamsResults, existingResults, searchQuery]);
-
 
     const combineData = (currentFilledData, filledData) => {
         const combinedResults = [...filledData];
@@ -319,7 +329,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         handleCloseModal();
     };
 
-    const calculateArrowDirection = (value, refRange, gender = "Male") => {
+    const calculateArrowDirection = (value, refRange, gender) => {
         if (!value || isNaN(parseFloat(value))) {
             return "";
         }
@@ -327,17 +337,17 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         let selectedRange;
     
         // Check if refRange has conditional ranges
-        if (refRange?.isConditional) {
-            selectedRange = refRange.ranges.find(range => range.gender === gender) || refRange.ranges?.[0];
+        if (refRange?.gender?.toLowerCase() === "all") {
+          selectedRange = refRange?.ranges?.[0];
         } else {
-            selectedRange = refRange?.ranges?.[0]; // Single range case
+          selectedRange = refRange?.ranges.find(range => range.gender.toLowerCase() === gender.toLowerCase()) || refRange?.ranges?.[0];
         }
     
         if (selectedRange) {
             const numericValue = parseFloat(value);
             const min = parseFloat(selectedRange.min);
             const max = parseFloat(selectedRange.max);
-    
+
             if (numericValue > max) {
                 return "up";
             } else if (numericValue < min) {
@@ -567,40 +577,64 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     };
 
     const handleInputChange = (reportName, testName, date, value) => {
+      setInputValues((prev) => {
+          const updatedData = { ...prev };
+  
+          if (!updatedData[reportName]) {
+              updatedData[reportName] = {};
+          }
+  
+          if (!updatedData[reportName][testName]) {
+              updatedData[reportName][testName] = {};
+          }
+  
+          if (!updatedData[reportName][testName][date]) {
+              updatedData[reportName][testName][date] = {
+                  reportName,
+                  testName,
+                  value: "",
+                  arrowDirection: "",
+                  refRange: "",
+                  units: getUnitForTest(reportName, testName),
+              };
+          }
+  
+          // Update value and calculate arrow direction using existing refRange if available
+          const existingRefRange = updatedData[reportName][testName][date].refRange;
+          const gender = patientGender || "Male"; // Assuming `patientGender` is available globally or passed in
+  
+          updatedData[reportName][testName][date].value = value;
+          updatedData[reportName][testName][date].arrowDirection = calculateArrowDirection(value, existingRefRange, gender);
+  
+          // Fetch refRange if not already available
+          if (!existingRefRange) {
+              fetchRefRange(reportName, testName, date);
+          }
+  
+          return updatedData;
+      });
+    };
+  
+    // Fetch refRange and update state if refRange is missing
+    const fetchRefRange = async (reportName, testName, date) => {
+        const labParamsData = await throttledSearchLabParams(reportName);
+    
+        const matchedParam = labParamsData.find((param) => param.testName === testName);
+        const refRange = matchedParam ? matchedParam.refRange : "";
+    
         setInputValues((prev) => {
             const updatedData = { ...prev };
-    
-            // Check if the reportName exists
-            if (!updatedData[reportName]) {
-                updatedData[reportName] = {};
+            if (updatedData[reportName] && updatedData[reportName][testName] && updatedData[reportName][testName][date]) {
+                updatedData[reportName][testName][date].refRange = refRange;
+                updatedData[reportName][testName][date].arrowDirection = calculateArrowDirection(
+                    updatedData[reportName][testName][date].value,
+                    refRange,
+                    patientGender || "Male"
+                );
             }
-    
-            // Check if the testName exists under the reportName
-            if (!updatedData[reportName][testName]) {
-                updatedData[reportName][testName] = {};
-            }
-
-            // Initialize the date for the testName if not present
-            if (!updatedData[reportName][testName][date]) {
-                updatedData[reportName][testName][date] = {
-                    reportName,
-                    testName,
-                    value: "",
-                    arrowDirection: "",
-                    refRange: updatedData?.[reportName]?.[testName]?.[date]?.refRange || "",
-                    units: getUnitForTest(reportName, testName),
-                };
-            }
-    
-            // Update the value and calculate the arrow direction
-            const refRange = updatedData[reportName][testName][date].refRange;
-            const gender = patientGender || "Male"; // Assuming `patientGender` is available globally or passed in
-    
-            updatedData[reportName][testName][date].value = value;
-            updatedData[reportName][testName][date].arrowDirection = calculateArrowDirection(value, refRange, gender);
             return updatedData;
         });
-    };    
+    };
     
     const getUnitForTest = (reportName, testName) => {
         for (const date of dates) {
@@ -730,13 +764,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
 
     const handleMouseDown = (e) => {
         setIsDragging(true);
-        setStartX(e.pageX - scrollRef.current.offsetLeft);
-        setScrollLeft(scrollRef.current.scrollLeft);
+        setStartX(e.pageX - scrollRef?.current?.offsetLeft);
+        setScrollLeft(scrollRef?.current?.scrollLeft);
     };
 
     const handleMouseMove = (e) => {
         if (!isDragging) return;
-        const x = e.pageX - scrollRef.current.offsetLeft;
+        const x = e.pageX - scrollRef?.current.offsetLeft;
         const walk = x - startX; // Distance moved
         scrollRef.current.scrollLeft = scrollLeft - walk;
     };
@@ -886,12 +920,14 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                   <span>Name</span>
                 </th>
 
+                <th>
+                  <div className='d-flex'>
                 {dates?.length < 2 ? (dates.map((date, index) => (
                   <>
-                    <th
+                        <div
                       key={date}
                       className="date-values"
-                      style={{ padding: "10px",textWrap: "nowrap" }}
+                          style={{ padding: "10px 0",textWrap: "nowrap" }}
                     >
                       <span>{moment(date).format(showDateFormat)}</span>
                       <Tooltip
@@ -931,18 +967,18 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                           style={{ fontSize: "16px" }}
                         />
                       </Tooltip>
-                    </th>
-                    <th
+                        </div>
+                        <div
                       className="date-values"
-                      style={{ padding: "10px" }}
+                          style={{ padding: "10px 0" }}
                     >
-                    </th>
+                        </div>
                   </>
                 ))):(dates.map((date, index) => (
-                  <th
+                        <div
                     key={date}
                     className="date-values"
-                    style={{ padding: "10px",textWrap: "nowrap"}}
+                          style={{ padding: "10px 0",textWrap: "nowrap"}}
                   >
                     <span>{moment(date).format(showDateFormat)}</span>
                     <Tooltip
@@ -982,9 +1018,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                         style={{ fontSize: "16px" }}
                       />
                     </Tooltip>
-                  </th>
+                        </div>
                 )))
                 }
+                  </div>
+                </th>
               </tr>
             </thead>
             { loading ? (
@@ -1034,14 +1072,14 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                 )}
                                 {!!expandedReports[reportName] ? (
                                   <button
-                                    className="btn p-0 ms-2 iconrotate270"
+                                    className="btn p-0 ms-2 iconrotate180"
                                     style={{ position: "absolute", left: isMobile? "635px" : "816px" }}
                                   >
                                     <i className="icon-right fs-5" />
                                   </button>
                                 ) : (
                                   <button
-                                    className="btn p-0 ms-2 iconrotate180"
+                                    className="btn p-0 ms-2 iconrotate270"
                                     style={{ position: "absolute", left: "816px" }}
                                   >
                                     <i className="icon-right fs-5" />
@@ -1092,10 +1130,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                             )}
                             {/* <div style="height: 15px;"></div> */}
                             {/* Test Name and Test Values Rows */}
-                            {expandedReports[reportName] &&
-                              Object.keys(inputValues[reportName]).map(
-                                (testName, index) => (
-                                  <tr key={testName} style={{background: "#fff"}}>
+                            {expandedReports[reportName] && (
+                              <>
+                                {/* Main Loop: Exclude "Remarks" */}
+                                {Object.keys(inputValues[reportName])
+                                  .filter((testName) => testName !== "Remarks") // Exclude "Remarks"
+                                  .map((testName, index) => (
+                                    <tr key={testName} style={{ background: "#fff" }}>
                                     {/* Test Name Column */}
                                     <td
                                       style={{
@@ -1118,17 +1159,10 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                               {/* Logic for rendering the reference range */}
                                               {(() => {
                                                 let hasRenderedRefRange = false;
-                                                return (
-                                                  inputValues[reportName][testName] &&
-                                                  Object.keys(
-                                                    inputValues[reportName][testName]
-                                                  ).map((date, index) => {
-                                                    const testData =
-                                                      inputValues[reportName][testName][
-                                                        date
-                                                      ];
+                                                return inputValues[reportName][testName] &&
+                                                  Object.keys(inputValues[reportName][testName]).map((date, index) => {
+                                                    const testData = inputValues[reportName][testName][date];
                                                     const refRange = testData?.refRange;
-
                                                     if (
                                                       refRange &&
                                                       refRange.ranges &&
@@ -1136,66 +1170,48 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                       !hasRenderedRefRange
                                                     ) {
                                                       hasRenderedRefRange = true;
-                                                      if (refRange.isConditional) {
-                                                        const maleRange =
-                                                          refRange.ranges.find(
-                                                            (range) =>
-                                                              range.gender === "MALE"
-                                                          );
-                                                        const femaleRange =
-                                                          refRange.ranges.find(
-                                                            (range) =>
-                                                              range.gender === "FEMALE"
-                                                          );
+                                                      if (refRange) {
+                                                        const maleRange = refRange.ranges.find(
+                                                          (range) => range.gender.toLowerCase() === "male"
+                                                        );
+                                                        const femaleRange = refRange.ranges.find(
+                                                          (range) => range.gender.toLowerCase() === "female"
+                                                        );
+                                                        const allRange = refRange.ranges.find(
+                                                          (range) => range.gender.toLowerCase() === "all"
+                                                        );
                                                         return (
                                                           <div key={index}>
-                                                            <strong>
-                                                              Reference Range:
-                                                            </strong>
+                                                            <strong>Reference Range:</strong>
                                                             {maleRange && femaleRange ? (
                                                               <div>
-                                                                Male:{" "}
-                                                                {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}{" "}
-                                                                <br />
-                                                                Female:{" "}
-                                                                {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                                Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
+                                                                Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
                                                               </div>
                                                             ) : maleRange ? (
                                                               <div>
-                                                                Male:{" "}
-                                                                {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
+                                                                Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
                                                               </div>
                                                             ) : femaleRange ? (
                                                               <div>
-                                                                Female:{" "}
-                                                                {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                                Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                              </div>
+                                                            ) : allRange ? (
+                                                              <div>
+                                                                All: {`${allRange.min} - ${allRange.max} ${allRange.unit}`}
                                                               </div>
                                                             ) : (
-                                                              <div>
-                                                                No reference range
-                                                                available
-                                                              </div>
+                                                              <div>No reference range available</div>
                                                             )}
-                                                          </div>
-                                                        );
-                                                      } else {
-                                                        const range = refRange.ranges[0];
-                                                        return (
-                                                          <div key={index}>
-                                                            All:{" "}
-                                                            {`${range?.min} - ${range?.max} ${range?.unit}`}
                                                           </div>
                                                         );
                                                       }
                                                     }
                                                     return null;
-                                                  })
-                                                );
+                                                  });
                                               })()}
                                               <div className="disclaimer-text">
-                                                <span style={{ fontWeight: "600" }}>
-                                                  Disclaimer:
-                                                </span>{" "}
+                                                <span style={{ fontWeight: "600" }}>Disclaimer:</span>{" "}
                                                 {`This range is only for reference and may vary between patients based on different conditions.`}
                                               </div>
                                             </div>
@@ -1218,7 +1234,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                             }}
                                           ></i>
                                         </Tooltip>
-                                      )}
+                                    )}
                                     </td>
 
                                     <td
@@ -1239,87 +1255,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                       >
                                         {/* Test Value Columns (aligned with date columns in <thead>) */}
                                         {dates.map((date, inputIndex) => (
-                                          <div
-                                            key={inputIndex}
-                                            className="test-values-container"
-                                          >
-                                            {testName === "Remarks" ? (
-                                              <div>
-                                                {inputValues[reportName][testName][date]
-                                                  ?.value ? (
-                                                  <Tooltip
-                                                    title={tooltipTitle(
-                                                      inputValues?.[reportName]?.[
-                                                        testName
-                                                      ]?.[date]?.value,
-                                                      reportName,
-                                                      testName,
-                                                      date
-                                                    )}
-                                                    overlayClassName="customTooltip"
-                                                    open={showEditTooltip}
-                                                    placement="top"
-                                                  >
-                                                    <div
-                                                      // onClick={() =>
-                                                      //   setShowEditTooltip(true)
-                                                      // }
-                                                    >
-                                                      <div className="truncated">
-                                                        {
-                                                          inputValues[reportName][
-                                                            testName
-                                                          ][date]?.value
-                                                        }
-                                                      </div>
-                                                      <span
-                                                        style={{
-                                                          fontWeight: 500,
-                                                          color: "#171725",
-                                                          textDecoration: "underline",
-                                                          cursor: "pointer",
-                                                          fontSize: "14px",
-                                                        }}
-                                                      >
-                                                        View Remarks
-                                                      </span>
-                                                    </div>
-                                                  </Tooltip>
-                                                ) : (
-                                                  <Button
-                                                    className="remarks-btn"
-                                                    onClick={() =>
-                                                      handleOpenModal(
-                                                        reportName,
-                                                        testName,
-                                                        date
-                                                      )
-                                                    }
-                                                  >
-                                                    <span
-                                                      className="underline-button"
-                                                      style={{ fontWeight: 600 }}
-                                                    >
-                                                      Add Remarks
-                                                    </span>
-                                                  </Button>
-                                                )}
-                                                {isRemarksVisible[reportName]?.[
-                                                  testName
-                                                ]?.[date] && (
-                                                  <div className="full-remarks-container">
-                                                    <div className="full-remarks-content">
-                                                      {
-                                                        inputValues[reportName][testName][
-                                                          date
-                                                        ]?.value
-                                                      }
-                                                    </div>
-                                                  </div>
-                                                )}
-                                              </div>
-                                            ) : (
-                                              <div style={{width:"180px"}}>
+                                            <div key={inputIndex} className="test-values-container">
+                                              {/* Test Values Rendering */}
+                                              {/* Use your test values rendering logic here */}
+                                              {testName !== "Remarks" && (
+                                                <div style={{ width: "180px" }}>
                                                 <Input
                                                   style={{
                                                     width: "100%",
@@ -1336,7 +1276,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                   className={`lab-params-input
                                               ${
                                                 inputValues[reportName][testName][date]
-                                                  ?.arrowDirection !== ""
+                                                  ?.arrowDirection !== "" && inputValues[reportName][testName][date]?.value
                                                   ? "lab-params-intput-warning"
                                                   : ""
                                               }`}
@@ -1395,7 +1335,101 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                       </div>
                                     </td>
                                   </tr>
-                                )
+                                  ))}
+
+                                {/* Render Remarks row at the end */}
+                                {Object.keys(inputValues[reportName])
+                                  .filter((testName) => testName === "Remarks")
+                                  .map((testName, index) => (
+                                    <tr key={testName} style={{ background: "#fff" }}>
+                                      {/* Remarks Test Name Column */}
+                                      <td
+                                        style={{
+                                          position: "sticky",
+                                          left: 0,
+                                          background: "#fff",
+                                          width: "23rem",
+                                          padding: "10px",
+                                          overflow: "hidden",
+                                          zIndex: 3,
+                                        }}
+                                      >
+                                        {testName}
+                                      </td>
+
+                                      <td colSpan={Object.keys(inputValues).length} style={{ padding: 0 }}>
+                                        <div
+                                          ref={scrollRef}
+                                          onMouseDown={handleMouseDown}
+                                          onMouseLeave={handleMouseLeaveOrUp}
+                                          onMouseUp={handleMouseLeaveOrUp}
+                                          onMouseMove={handleMouseMove}
+                                          style={{
+                                            display: "flex",
+                                            overflowX: "auto",
+                                            cursor: isDragging ? "grabbing" : "grab",
+                                          }}
+                                        >
+                                          {dates.map((date, inputIndex) => (
+                                            <div key={inputIndex} className="test-values-container">
+                                              {/* Remarks Values Rendering */}
+                                              <div>
+                                                {inputValues[reportName][testName][date]?.value ? (
+                                                  <Tooltip
+                                                    title={tooltipTitle(
+                                                      inputValues?.[reportName]?.[testName]?.[date]?.value,
+                                                      reportName,
+                                                      testName,
+                                                      date
+                                                    )}
+                                                    overlayClassName="customTooltip"
+                                                    placement="top"
+                                                  >
+                                                    <div className="truncated">
+                                                      {inputValues[reportName][testName][date]?.value}
+                                                    </div>
+                                                    <span
+                                                      style={{
+                                                        fontWeight: 500,
+                                                        color: "#171725",
+                                                        textDecoration: "underline",
+                                                        cursor: "pointer",
+                                                        fontSize: "14px",
+                                                      }}
+                                                    >
+                                                      View Remarks
+                                                    </span>
+                                                  </Tooltip>
+                                                ) : (
+                                                  <Button
+                                                    className="remarks-btn"
+                                                    onClick={() =>
+                                                      handleOpenModal(reportName, testName, date)
+                                                    }
+                                                  >
+                                                    <span
+                                                      className="underline-button"
+                                                      style={{ fontWeight: 600 }}
+                                                    >
+                                                      Add Remarks
+                                                    </span>
+                                                  </Button>
+                                                )}
+                                                {isRemarksVisible[reportName]?.[testName]?.[date] && (
+                                                  <div className="full-remarks-container">
+                                                    <div className="full-remarks-content">
+                                                      {inputValues[reportName][testName][date]?.value}
+                                                    </div>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  ))}
+                              </>
                               )}
                           </>
                         ))}
@@ -1421,6 +1455,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
               }
             </table>
           </div>
+
         <CommonModal
           isModalOpen={isModalOpen}
           onCancel={handleCloseModal}

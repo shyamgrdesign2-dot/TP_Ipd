@@ -7,16 +7,13 @@ import { useSelector } from "react-redux";
 
 import playIcons from '../assets/images/tube-icon.svg';
 import tutorial from '../assets/images/tutorial-icon.svg';
-
 import ProfilePopover from './ProfilePopover';
 import VideoModal from './VideoModal';
 import CreateCertificate from '../components/medical_certificate/CreateCertificate';
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_ISCRIBE } from '../utils/constants';
 import { getClinicName } from '../utils/utils';
-import UploadDocument from '../pages/medicalRecords/UploadDocument';
 import { isAndroid, isBrowser } from 'react-device-detect';
-import UploadDocPopup from '../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup';
 import { generateUniqueFileName, getCorrectedFileName } from '../pages/medicalRecords/utils/helper';
 
 function Welcome1(props) {
@@ -24,10 +21,6 @@ function Welcome1(props) {
     const [popOverVideo, setPopOverVideo] = useState(false);
     const [videoLink, setVideoLink] = useState(null);
     const [clickedDownArrow, setClickedDownArrow] = useState(false);
-    const [filesData, setFilesData] = useState([]);
-    const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
-    const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
-    const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
     const fileInputRef = useRef(null);
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
@@ -38,7 +31,17 @@ function Welcome1(props) {
     const { allUploadedDocs } = useSelector(
       (state) => state.uploadDoc
     );
-    const { locationPath, isMobile, patient_data, viewCaseManagerData, sidebarKey } = props
+    const {
+      locationPath,
+      isMobile,
+      patient_data,
+      viewCaseManagerData,
+      sidebarKey,
+      filesData,
+      setFilesData,
+      handleUploadDocPopup,
+      handleDrawerUploadDoc,
+    } = props;
 
     const modifyFormat = useMemo(() => {
         if (viewCaseManagerData) {
@@ -75,14 +78,6 @@ function Welcome1(props) {
         setPopOverVideo(!popOverVideo);
     }, [popOverVideo]);
 
-      const handleDrawerUploadDoc = () => {
-        setUploadDocDrawer(!uploadDocDrawer);
-      };
-
-      const handleDeletePopup = () => {
-        setShowDeletePopup(true);
-      };
-
   const handleFileUpload = (event) => {
     const files = event.target.files;
     if (files) {
@@ -117,17 +112,14 @@ function Welcome1(props) {
         handleDrawerUploadDoc();
       }
     }
+    event.target.value = null;
   };
 
-      const handleAddClick = () => {
+    const handleAddClick = () => {
         if (fileInputRef.current) {
-          fileInputRef.current.click();
+            fileInputRef.current.click();
         }
-      };
-
-      const handleUploadDocPopup = () => {
-         setShowUploadDocPopup((prev) => !prev);
-      };
+    };
 
     //Video Componet
     const VIDEO_CONTENT = useCallback(() => {
@@ -341,36 +333,6 @@ function Welcome1(props) {
                     &nbsp;
                 </div>
             </div>
-            {uploadDocDrawer && (
-                <Drawer
-                closeIcon={false}
-                placement="right"
-                bodyStyle={{backgroundColor: "white"}}
-                onClose={handleDeletePopup}
-                open={uploadDocDrawer}
-                className="modalWidth-700"
-                width="auto"
-                push={false}
-                >
-                <UploadDocument
-                    onClose={handleDeletePopup}
-                    handleDrawerUploadDoc={handleDrawerUploadDoc}
-                    shouldShowDeletePopup={shouldShowDeletePopup}
-                    setShowDeletePopup={setShowDeletePopup}
-                    filesData={filesData}
-                    setFilesData={setFilesData}
-                />
-                </Drawer>
-            )}
-            {shouldShowUploadDocPopup && (
-                <UploadDocPopup
-                    onCancel={handleUploadDocPopup}
-                    setFilesData={setFilesData}
-                    filesData={filesData}
-                    uploadDocDrawer={uploadDocDrawer}
-                    handleDrawerUploadDoc={handleDrawerUploadDoc}
-                />
-            )}
         </>
     )
 }

@@ -1,6 +1,6 @@
 // Appointment Component SCSS
 .appointment-wrap {
-    margin: -80px 30px 0;
+    margin: -60px 30px 0;
     background-color: $white;
     position: relative;
 
@@ -1383,7 +1383,6 @@ body {
 .cvt-info{
     display: flex;
     padding: 0.5rem 1.25rem;
-    justify-content: space-between;
     align-items: center;
     border-radius: 0rem 0rem 0.375rem 0.375rem;
     background: #FEF4E6;
@@ -1397,8 +1396,6 @@ body {
     font-weight: 400;
     line-height: 1.625rem;
     letter-spacing: 0.00625rem;
-    margin-left: -7rem;
-
 }
 .digital-rx-info{
     display: flex;
@@ -1641,6 +1638,9 @@ body {
     background: var(--S-Icon-100, #A461D8);
     width: 2.25rem;
     height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .new-btn{
        padding: 0.1rem 0.48rem;
@@ -1677,6 +1677,10 @@ body {
 .editable-digitised-item:focus {
     border-color: blue;
     caret-color:#BA7DE9;
+}
+
+.know-more-text{
+    color: rgba(255, 255, 255, 0.80) !important;
 }
 
 /* General hover effect for non-editable span */
@@ -1743,7 +1747,7 @@ body {
 // CSS for Shimmer
 .shimmer-container {
     width: 100%;
-    height: 50px; /* Adjust based on your container's size */
+    height: 50px;
     background-color: #d7d7d7; /* Background color similar to loading skeleton */
     position: relative;
     overflow: hidden;
@@ -1821,11 +1825,154 @@ body {
 }
 
 .scrollable-body {
-    max-height: 100vh; /* Set a fixed height as per your requirement */
-    overflow-y: auto;  /* Enable vertical scrolling */
-    overflow-x: hidden; /* Hide horizontal scrollbar */
+    max-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
+.banner {
+    background-color: rgba(241, 82, 35, 1);
+    display: flex;
+    align-items: center;
+    // gap: 40px 100px;
+    overflow: hidden;
+    justify-content: space-between;
+    // flex-wrap: wrap;
+    padding: 9px 20px;
+    font: 500 16px/2 Roboto, sans-serif;
+    color: #fff !important;
+  }
+
+  .plan-expiry-banner {
+    background: #EE7200;
+    display: flex;
+    align-items: center;
+    // gap: 40px 100px;
+    overflow: hidden;
+    justify-content: space-between;
+    // flex-wrap: wrap;
+    padding: 9px 20px;
+    font: 500 16px/2 Roboto, sans-serif;
+    color: #fff !important;
+  }
+  
+  .demoModeWrapper {
+    align-self: stretch;
+    display: flex;
+    gap: 5px;
+    letter-spacing: 0.1px;
+    width: 194px;
+    margin: auto 0;
+    padding: 0 1px;
+  }
+  
+  .demoModeIndicator {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    display: flex;
+    width: 8px;
+    height: 8px;
+    margin: auto 0;
+  }
+
+  .demoModeIndicatorSmall {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    display: flex;
+    width: 4px;
+    height: 4px;
+    margin: auto 4px;
+  }
+
+  .gradientBackground {
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin-left: 6px;
+    background: linear-gradient(102.16deg, rgba(241, 82, 35, 0.12) 1.59%, rgba(192, 44, 0, 0.12) 119.61%);
+  }
+  
+  .expirationMessage {
+    letter-spacing: 0.1px;
+    align-self: stretch;
+    margin: auto 0;
+  }
+  
+  @media (max-width: 991px) {
+    .expirationMessage {
+      max-width: 100%;
+    }
+  }
+  
+  .buyPlanButton {
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    align-self: stretch;
+    display: flex;
+    min-height: 32px;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+    color: #fff !important;
+    justify-content: center;
+    margin: auto 0;
+    padding: 5px 15px;
+    font: 600 14px/2 Poppins, sans-serif;
+    border: 1px solid rgba(255, 255, 255, 1);
+  }
+  
+  .buttonIcon {
+    aspect-ratio: 1;
+    object-fit: contain;
+    object-position: center;
+    width: 20px;
+    align-self: stretch;
+    margin: auto 0;
+  }
+  
+  .buttonText {
+    font-feature-settings: "liga" off, "clig" off;
+    align-self: stretch;
+    margin: auto 0;
+  }
+  
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .demoModeLabel {
+    // align-self: stretch;
+    border-radius: 4px;
+    color: rgba(241, 82, 35, 1) !important;
+    font: 400 12px Roboto, sans-serif;
+    letter-spacing: 0.07px;
+    padding: 2px 0;
+  }
+
+  .badge-icon {
+    position: absolute;
+    top: 5px;
+    right: 12px;
+    background-color: #FDCB58;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .renew-btn {
+    color: #EE7200 !important;
+  }
+  
 
 // labparameters styles //
 .labparam-header{
@@ -1856,6 +2003,7 @@ body {
     display: flex;
     align-items: center;
 }
+
 .labparam-head-dates{
     color: var(--T-Text-80, #454551);
     font-family: "Poppins";
@@ -1909,7 +2057,7 @@ body {
 }
 
 .date-values{
-    width: 247px;;
+    width: 180px;;
     margin-right: 1rem;
     text-wrap: nowrap;
 }
@@ -1931,13 +2079,13 @@ body {
 }
 
 .remarks-textarea:focus {
-    outline: none; /* Remove the default focus outline */
-    border: 1px solid #4242e5; /* Maintain the same border when focused */
+    outline: none; 
+    border: 1px solid #4242e5; 
 }
 
 .remarks-textarea::-webkit-scrollbar-thumb {
-    background-color: #a4a4a4; /* Scrollbar color */
-    border-radius: 1rem; /* Rounded edges */
+    background-color: #a4a4a4; 
+    border-radius: 1rem;
     height: 5rem;   
 }
 
@@ -2033,7 +2181,46 @@ body {
     flex: 2;
     padding: 5px;
 }
-  
+
+// OPD Plans styles
+.qr-close-btn{
+    position: absolute;
+    top: 1.5%;
+    background: none;
+    right: 2%;
+    color: white;
+    border: none;
+}
+
+.log-holder{
+    position: absolute;
+    height: 36px;
+    width: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 50%;
+}
+
+.opd-qr{
+    background-color: white;
+    border-radius: 1.8rem;
+    display: flex;
+    width: 31.4375rem;
+    height: 31rem;
+    padding: 2rem;
+    flex-direction: column;
+    align-items: center;
+}
+
+.opd-plans-inner-contianer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+// Taper Dose Styles
 .taper-dose {
     position: relative;
     &:hover {
@@ -2088,4 +2275,23 @@ body {
 
 .evidence {
     color: rgba(29, 29, 29, 0.65) !important;
+}
+
+// Drag & Drop Tour
+.ant-tour {
+    width: auto;
+    z-index: 9999 !important;
+    .ant-tour-footer {
+        margin-top: 0;
+        .ant-tour-buttons {
+            width: 100%;
+            .ant-btn-primary {
+                background-color: #000;
+                width: 100%;
+                padding: 8.5px 10px;
+                margin: 0;
+                height: auto;
+            }
+        }  
+    }
 }

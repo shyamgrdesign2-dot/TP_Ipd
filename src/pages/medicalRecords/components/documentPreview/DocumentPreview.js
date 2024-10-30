@@ -309,18 +309,27 @@ const DocumentPreview = ({
                 <>
                   <ImageControls />
                   <TransformComponent>
-                    <img
-                      ref={imgRef}
-                      src={cardData?.url}
-                      alt="image-url"
+                    <div
                       style={{
-                        transform: `rotate(${angle}deg)`,
-                        transition: "transform 0.5s",
-                        borderRadius: "12px",
                         width: "700px",
                         height: "600px",
+                        position: "relative",
+                        borderRadius: "12px",
                       }}
-                    />
+                    >
+                      <img
+                        ref={imgRef}
+                        src={cardData?.url}
+                        alt="image-url"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          transform: `rotate(${angle}deg)`,
+                          transition: "transform 0.5s",
+                        }}
+                      />
+                    </div>
                   </TransformComponent>
                 </>
               )}

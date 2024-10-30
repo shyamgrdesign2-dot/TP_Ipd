@@ -591,6 +591,7 @@ function Prescription() {
         handleDrawerUploadDoc();
       }
     }
+    event.target.value = null;
   };
 
   // Handle Add button click
@@ -632,7 +633,7 @@ const showHideBackModal = () => {
 const getLabParams = async () => {
   try {
       const cleanedToken = token.replace(/['"]+/g, '');
-      const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${userId}/${patient_data?.patient_unique_id}`, {
+      const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${patient_data?.patient_unique_id}`, {
           headers: {
               'Authorization': `Bearer ${cleanedToken}`,
           },

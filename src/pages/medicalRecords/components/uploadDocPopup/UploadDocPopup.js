@@ -1,99 +1,113 @@
 import { Card, Divider, Modal } from "antd";
 import "./UploadDocPopup.scss";
 import { db } from "../../../../firebase";
-import { doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import {
+  deleteDoc,
+  doc,
+  getDoc,
+  onSnapshot,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
+import { useLocation } from "react-router-dom";
+import { fetchDocumentAsFile } from "../../../../utils/utils";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { getCorrectedFileName } from "../../utils/helper";
 
 const UploadDocPopup = ({
+  shouldShowUploadDocPopup,
   onCancel,
   setFilesData,
-  uploadDocDrawer,
-  handleDrawerUploadDoc,
+  setUploadDocDrawer,
+  patientData,
+  setIsFileSizeError,
+  setIsFileLimitError,
+  setIsFileTypeError,
 }) => {
+  const dispatch = useDispatch();
+  const { state } = useLocation();
+  const patient_data = state?.patient_data;
+  const patientUniqueId =
+    patient_data?.patient_unique_id || patientData?.patient_unique_id || 0;
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const handleClick = async (type) => {
     if (deviceUid) {
       const docRef = doc(db, "capturedImage", deviceUid);
       try {
         const docSnap = await getDoc(docRef);
+        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+        const cleanedToken = token.replace(/['"]+/g, "");
         if (docSnap.exists()) {
           await updateDoc(docRef, {
             clicked: "yes",
             type: type,
-            uri: "",
-            fileName: "",
-            fileType: "",
+            patient_unique_id: patientUniqueId,
+            token: cleanedToken,
           });
         } else {
           await setDoc(doc(db, "capturedImage", deviceUid), {
             clicked: "yes",
             type: type,
-            uri: "",
-            fileName: "",
-            fileType: "",
+            patient_unique_id: patientUniqueId,
+            token: cleanedToken,
           });
         }
       } catch (error) {
-        console.error("Error updating document:", error);
+        console.error("Error updating document: ", error);
       }
     }
+    dispatch(setLoadingStatus(true));
     onCancel();
   };
 
-  function base64ToFile(base64String, fileName, fileType) {
-    const byteString = atob(base64String); // Decode base64 string
-
-    // Create an ArrayBuffer to hold the byte data
-    const arrayBuffer = new Uint8Array(byteString.length);
-    for (let i = 0; i < byteString.length; i++) {
-      arrayBuffer[i] = byteString.charCodeAt(i);
+  const getFiles = async (urls, names) => {
+    if (urls?.length) {
+      for (const [index, url] of urls.entries()) {
+        const cleanFileName = getCorrectedFileName(names?.[index] || "");
+        const newFile = await fetchDocumentAsFile(url, cleanFileName);
+        setFilesData((prev) => {
+          const isAlreadyAdded = prev.some(
+            (file) => file.name === cleanFileName
+          );
+          if (!isAlreadyAdded) {
+            return [newFile, ...prev];
+          }
+          return prev;
+        });
+      }
+      setUploadDocDrawer(true);
     }
-
-    // Create a blob from the ArrayBuffer
-    const fileBlob = new Blob([arrayBuffer], { type: fileType });
-
-    // Convert Blob to a File object
-    const file = new File([fileBlob], fileName, { type: fileType });
-
-    return file;
-  }
+  };
 
   useEffect(() => {
     const checkInFireBase = async () => {
       if (deviceUid) {
-        const docRef = doc(db, "capturedImage", deviceUid);
+        const docCapturedImage = doc(db, "capturedImage", deviceUid);
         try {
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            onSnapshot(doc(db, "capturedImage", deviceUid), (docSnapshot) => {
-              const res = docSnapshot?.data();
-              if (res?.uri != "") {
-                const newFile = base64ToFile(
-                  res?.uri,
-                  getCorrectedFileName(res?.fileName),
-                  res?.fileType
-                );
-                setFilesData((prev) => {
-                  const isAlreadyAdded = prev.some(
-                    (file) => file.name === newFile.name
-                  );
-                  if (!isAlreadyAdded) {
-                    return [newFile, ...prev];
+          const docCapturedImageSnap = await getDoc(docCapturedImage);
+          if (docCapturedImageSnap.exists()) {
+            onSnapshot(
+              doc(db, "capturedImage", deviceUid),
+              async (docSnapshotOfCapturedImage) => {
+                const res = docSnapshotOfCapturedImage?.data();
+                if (res?.clicked === "no") {
+                  if (res?.fileValidations === "above8mb") {
+                    setIsFileSizeError(true);
+                  } else if (res?.fileValidations === "above5files") {
+                    setIsFileLimitError(true);
+                  } else if (res?.fileValidations === "notsupported") {
+                    setIsFileTypeError(res?.type);
+                  } else {
+                    getFiles(res?.url?.split(","), res?.name?.split(","));
                   }
-                  return prev;
-                });
-                if (!uploadDocDrawer) {
-                  handleDrawerUploadDoc();
+                  dispatch(setLoadingStatus(false));
+                  deleteDoc(doc(db, "capturedImage", deviceUid));
                 }
               }
-            });
-            await updateDoc(docRef, {
-              clicked: "",
-              uri: "",
-              fileName: "",
-              fileType: "",
-            });
+            );
           }
         } catch (error) {
           console.error("Error updating document:", error);
@@ -109,7 +123,7 @@ const UploadDocPopup = ({
   return (
     <div>
       <Modal
-        open={true}
+        open={shouldShowUploadDocPopup}
         centered
         closeIcon={false}
         footer={null}
