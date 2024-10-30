@@ -560,14 +560,14 @@ function Header({ locationPath }) {
           </a>,
         key: '5',
       },
-      {
-        label:
-          <a onClick={handleShowQRCode}>
-            <div className="title-common me-5 d-flex align-items-center"><img src={qrIcon} className="me-3"></img>OPD Plan QR</div>
-            <i className="icon-right iconrotate180"></i>
-          </a>,
-        key: '6',
-      },
+      // {
+      //   label:
+      //     <a onClick={handleShowQRCode}>
+      //       <div className="title-common me-5 d-flex align-items-center"><img src={qrIcon} className="me-3"></img>OPD Plan QR</div>
+      //       <i className="icon-right iconrotate180"></i>
+      //     </a>,
+      //   key: '6',
+      // },
       // {
       //   label:
       //     <a>
