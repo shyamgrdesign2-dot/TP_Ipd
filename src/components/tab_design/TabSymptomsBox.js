@@ -20,6 +20,8 @@ import {
 
 import TabSymptomsSearch from "../../components/tab_design/TabSymptomsSearch";
 
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+
 function TabSymptomsBox() {
     const {
         selectedSymptomsList,
@@ -273,27 +275,85 @@ function TabSymptomsBox() {
     }, [isModalOpen]);
 
     //Child Componet
+    // const TABLE_SYMPTOMS = useMemo(() => {
+    //     return (
+    //         symptomsData.length > 0 &&
+    //         symptomsData.map((item, index) => {
+    //             return (
+    //                 <div key={index} style={{ width: item.symptom_name.length > 12 && item.symptom_name.length < 24 ? `${item.symptom_name.length * 10.5}px` : item.symptom_name.length >= 24 ? '256px' : '150px' }} className={"d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active"}>
+    //                     <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
+    //                         <div className="text-truncate">{item.symptom_name}
+    //                             {(item.since || item.severity || item.note) ? (
+    //                                 <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.severity ? item.severity + ' | ' : ''}${item.note ? item.note : ''}`}</div>
+    //                             ) : (
+    //                                 <div className="text-truncate small">Add Details</div>
+    //                             )}
+    //                         </div>
+    //                     </div>
+    //                     <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
+    //                         <i className="icon-Cross"></i>
+    //                     </Button>
+    //                 </div>
+    //             );
+    //         })
+    //     );
+    // }, [symptomsData, childDrawerData]);
+
+    const SortableItem = SortableElement(({ item }) => (
+        <div
+            style={{
+                width: item.symptom_name.length > 12 && item.symptom_name.length < 24
+                    ? `${item.symptom_name.length * 10.5}px`
+                    : item.symptom_name.length >= 24
+                        ? '256px'
+                        : '150px'
+            }}
+            className={"d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active"}
+        >
+            <div className="text-truncate p-2" onMouseEnter={() => handleDrawerChild(item)}>
+                <div className="text-truncate">{item.symptom_name}
+                    {(item.since || item.severity || item.note) ? (
+                        <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.severity ? item.severity + ' | ' : ''}${item.note ? item.note : ''}`}</div>
+                    ) : (
+                        <div className="text-truncate small">Add Details</div>
+                    )}
+                </div>
+            </div>
+            <Button type="text" className="rounded-0 btn-close-chips" onMouseEnter={() => onRemoveRow(item.index)}>
+                <i className="icon-Cross"></i>
+            </Button>
+        </div>
+    ));
+
+    const SortableList = SortableContainer(({ items }) => {
+        return (
+            <div className="d-flex flex-wrap">
+                {items.map((item, index) => (
+                    <SortableItem
+                        key={`item-${index}`}
+                        index={index}
+                        item={{ ...item, index }}
+                    />
+                ))}
+            </div>
+        );
+    });
+
     const TABLE_SYMPTOMS = useMemo(() => {
         return (
-            symptomsData.length > 0 &&
-            symptomsData.map((item, index) => {
-                return (
-                    <div key={index} style={{ width: item.symptom_name.length > 12 && item.symptom_name.length < 24 ? `${item.symptom_name.length * 10.5}px` : item.symptom_name.length >= 24 ? '256px' : '150px' }} className={"d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active"}>
-                        <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
-                            <div className="text-truncate">{item.symptom_name}
-                                {(item.since || item.severity || item.note) ? (
-                                    <div className="text-truncate small">{`${item.since ? item.since + ' | ' : ''}${item.severity ? item.severity + ' | ' : ''}${item.note ? item.note : ''}`}</div>
-                                ) : (
-                                    <div className="text-truncate small">Add Details</div>
-                                )}
-                            </div>
-                        </div>
-                        <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
-                            <i className="icon-Cross"></i>
-                        </Button>
-                    </div>
-                );
-            })
+            symptomsData.length > 0 && (
+                <SortableList
+                    items={symptomsData}
+                    onSortEnd={({ oldIndex, newIndex }) => {
+                        const newSymptomsData = [...symptomsData];
+                        const [movedItem] = newSymptomsData.splice(oldIndex, 1);
+                        newSymptomsData.splice(newIndex, 0, movedItem);
+                        setSymptomsData(newSymptomsData);
+                    }}
+                    axis="xy"
+                    pressDelay={100}
+                />
+            )
         );
     }, [symptomsData, childDrawerData]);
 

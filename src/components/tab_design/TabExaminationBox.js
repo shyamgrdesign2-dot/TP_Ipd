@@ -19,6 +19,7 @@ import {
 } from "../../redux/examinationSlice";
 
 import TabExaminationSearch from "../../components/tab_design/TabExaminationSearch";
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 function TabExaminationBox() {
     const {
@@ -253,29 +254,87 @@ function TabExaminationBox() {
     }, [isModalOpen]);
 
     //Child Componet
+    // const TABLE_EXAMINATION = useMemo(() => {
+    //     return (
+    //         examinationData.length > 0 &&
+    //         examinationData.map((item, index) => {
+    //             return (
+    //                 <div key={index} style={{ width: item.examination_name.length > 12 && item.examination_name.length < 24 ? `${item.examination_name.length * 10.5}px` : item.examination_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active">
+    //                     <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
+    //                         <div className="text-truncate">{item.examination_name}
+    //                             {item.note ? (
+    //                                 <div className="text-truncate small">{item.note}</div>
+    //                             ) : (
+    //                                 <div className="text-truncate small">Add Details</div>
+    //                             )}
+    //                         </div>
+    //                     </div>
+    //                     <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
+    //                         <i className="icon-Cross"></i>
+    //                     </Button>
+    //                 </div>
+    //             );
+    //         })
+    //     );
+    // }, [examinationData]);
+
+    const SortableItem = SortableElement(({ item }) => (
+        <div
+            style={{
+                width: item.examination_name.length > 12 && item.examination_name.length < 24
+                    ? `${item.examination_name.length * 10.5}px`
+                    : item.examination_name.length >= 24
+                        ? '256px'
+                        : '150px'
+            }}
+            className={"d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active"}
+        >
+            <div className="text-truncate p-2" onClick={() => handleDrawerChild(item)}>
+                <div className="text-truncate">{item.examination_name}
+                    {item.note ? (
+                        <div className="text-truncate small">{item.note}</div>
+                    ) : (
+                        <div className="text-truncate small">Add Details</div>
+                    )}
+                </div>
+            </div>
+            <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(item.index)}>
+                <i className="icon-Cross"></i>
+            </Button>
+        </div>
+    ));
+
+    const SortableList = SortableContainer(({ items }) => {
+        return (
+            <div className="d-flex flex-wrap">
+                {items.map((item, index) => (
+                    <SortableItem
+                        key={`item-${index}`}
+                        index={index}
+                        item={{ ...item, index }}
+                    />
+                ))}
+            </div>
+        );
+    });
+
     const TABLE_EXAMINATION = useMemo(() => {
         return (
-            examinationData.length > 0 &&
-            examinationData.map((item, index) => {
-                return (
-                    <div key={index} style={{ width: item.examination_name.length > 12 && item.examination_name.length < 24 ? `${item.examination_name.length * 10.5}px` : item.examination_name.length >= 24 ? '256px' : '150px' }} className="d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active">
-                        <div className="text-truncate p-2" onClick={() => handleDrawerChild({ ...item, index: index })}>
-                            <div className="text-truncate">{item.examination_name}
-                                {item.note ? (
-                                    <div className="text-truncate small">{item.note}</div>
-                                ) : (
-                                    <div className="text-truncate small">Add Details</div>
-                                )}
-                            </div>
-                        </div>
-                        <Button type="text" className="rounded-0 btn-close-chips" onClick={() => onRemoveRow(index)}>
-                            <i className="icon-Cross"></i>
-                        </Button>
-                    </div>
-                );
-            })
+            examinationData.length > 0 && (
+                <SortableList
+                    items={examinationData}
+                    onSortEnd={({ oldIndex, newIndex }) => {
+                        const newExaminationData = [...examinationData];
+                        const [movedItem] = newExaminationData.splice(oldIndex, 1);
+                        newExaminationData.splice(newIndex, 0, movedItem);
+                        setExaminationData(newExaminationData);
+                    }}
+                    axis="xy"
+                    pressDelay={100}
+                />
+            )
         );
-    }, [examinationData]);
+    }, [examinationData, childDrawerData]);
 
     //Template Componet
     const TEMPLATE_CONTENT = useMemo(() => {
