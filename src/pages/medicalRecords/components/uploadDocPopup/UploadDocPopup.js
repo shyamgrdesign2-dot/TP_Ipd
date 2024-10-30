@@ -17,8 +17,6 @@ import { fetchDocumentAsFile } from "../../../../utils/utils";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { getCorrectedFileName } from "../../utils/helper";
 
-let hasCheckedFirebase = false;
-
 const UploadDocPopup = ({
   shouldShowUploadDocPopup,
   onCancel,
@@ -30,7 +28,7 @@ const UploadDocPopup = ({
   setIsFileTypeError,
 }) => {
   const dispatch = useDispatch();
-  const { state, location } = useLocation();
+  const { state } = useLocation();
   const patient_data = state?.patient_data;
   const patientUniqueId =
     patient_data?.patient_unique_id || patientData?.patient_unique_id || 0;
@@ -85,12 +83,8 @@ const UploadDocPopup = ({
   };
 
   useEffect(() => {
-    hasCheckedFirebase = false;
-  }, [location]);
-
-  useEffect(() => {
     const checkInFireBase = async () => {
-      if (deviceUid && !hasCheckedFirebase) {
+      if (deviceUid) {
         const docCapturedImage = doc(db, "capturedImage", deviceUid);
         try {
           const docCapturedImageSnap = await getDoc(docCapturedImage);
@@ -100,7 +94,6 @@ const UploadDocPopup = ({
               async (docSnapshotOfCapturedImage) => {
                 const res = docSnapshotOfCapturedImage?.data();
                 if (res?.clicked === "no") {
-                  hasCheckedFirebase = true;
                   if (res?.fileValidations === "above8mb") {
                     setIsFileSizeError(true);
                   } else if (res?.fileValidations === "above5files") {

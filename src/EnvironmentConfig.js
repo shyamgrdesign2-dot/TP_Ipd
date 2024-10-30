@@ -174,7 +174,7 @@ const prod = {
   zydus_business_id: "368451724046474",
   rx_digitization: "https://pm-rxdigitization-prod.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-prod.tatvacare.in",
-  lab_params_api_url: "https://pm-patient-docs-prod.tatvacare.in/",
+  lab_params_api_url: "https://pm-patient-docs-prod.tatvacare.in",
   user_management_api_url: "https://user-management77913uat.azurewebsites.net",
   razorpay_integration_url: "https://pm-razorpay-uat-integration.tatvacare.in",
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",

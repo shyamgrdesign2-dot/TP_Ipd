@@ -14,6 +14,8 @@ import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import editIcon from '../assets/images/edit.svg';
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
+import _ from 'lodash';
+
 
 const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal, patientGender  }) => {
 
@@ -48,6 +50,16 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const currentDate = new Date().toISOString().split("T")[0];
     const dateFormat = 'YYYY-MM-DD';
     const showDateFormat = 'DD MMM, YYYY';
+
+    const refRangeCache = {}; // Cache to store refRange data by reportName
+
+    // Throttled searchLabParams to avoid rapid API calls
+    const throttledSearchLabParams = _.throttle(async (reportName) => {
+        const labParamsData = await searchLabParams(reportName);
+        // Store fetched data in cache under the reportName key
+        refRangeCache[reportName] = labParamsData;
+        return labParamsData;
+    }, 2000); // Adjust throttle duration as needed
 
     //states for Remarks Functionality 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -207,7 +219,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         return () => clearTimeout(timeOutId);
     }, [labParamsResults, existingResults, searchQuery]);
 
-
     const combineData = (currentFilledData, filledData) => {
         const combinedResults = [...filledData];
       
@@ -318,7 +329,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         handleCloseModal();
     };
 
-    const calculateArrowDirection = (value, refRange, gender = "Male") => {
+    const calculateArrowDirection = (value, refRange, gender) => {
         if (!value || isNaN(parseFloat(value))) {
             return "";
         }
@@ -326,10 +337,10 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         let selectedRange;
     
         // Check if refRange has conditional ranges
-        if (refRange?.isConditional) {
-            selectedRange = refRange.ranges.find(range => range.gender === gender) || refRange.ranges?.[0];
+        if (refRange?.gender?.toLowerCase() === "all") {
+          selectedRange = refRange?.ranges?.[0];
         } else {
-            selectedRange = refRange?.ranges?.[0]; // Single range case
+          selectedRange = refRange?.ranges.find(range => range.gender.toLowerCase() === gender.toLowerCase()) || refRange?.ranges?.[0];
         }
     
         if (selectedRange) {
@@ -566,40 +577,64 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     };
 
     const handleInputChange = (reportName, testName, date, value) => {
+      setInputValues((prev) => {
+          const updatedData = { ...prev };
+  
+          if (!updatedData[reportName]) {
+              updatedData[reportName] = {};
+          }
+  
+          if (!updatedData[reportName][testName]) {
+              updatedData[reportName][testName] = {};
+          }
+  
+          if (!updatedData[reportName][testName][date]) {
+              updatedData[reportName][testName][date] = {
+                  reportName,
+                  testName,
+                  value: "",
+                  arrowDirection: "",
+                  refRange: "",
+                  units: getUnitForTest(reportName, testName),
+              };
+          }
+  
+          // Update value and calculate arrow direction using existing refRange if available
+          const existingRefRange = updatedData[reportName][testName][date].refRange;
+          const gender = patientGender || "Male"; // Assuming `patientGender` is available globally or passed in
+  
+          updatedData[reportName][testName][date].value = value;
+          updatedData[reportName][testName][date].arrowDirection = calculateArrowDirection(value, existingRefRange, gender);
+  
+          // Fetch refRange if not already available
+          if (!existingRefRange) {
+              fetchRefRange(reportName, testName, date);
+          }
+  
+          return updatedData;
+      });
+    };
+  
+    // Fetch refRange and update state if refRange is missing
+    const fetchRefRange = async (reportName, testName, date) => {
+        const labParamsData = await throttledSearchLabParams(reportName);
+    
+        const matchedParam = labParamsData.find((param) => param.testName === testName);
+        const refRange = matchedParam ? matchedParam.refRange : "";
+    
         setInputValues((prev) => {
             const updatedData = { ...prev };
-    
-            // Check if the reportName exists
-            if (!updatedData[reportName]) {
-                updatedData[reportName] = {};
+            if (updatedData[reportName] && updatedData[reportName][testName] && updatedData[reportName][testName][date]) {
+                updatedData[reportName][testName][date].refRange = refRange;
+                updatedData[reportName][testName][date].arrowDirection = calculateArrowDirection(
+                    updatedData[reportName][testName][date].value,
+                    refRange,
+                    patientGender || "Male"
+                );
             }
-    
-            // Check if the testName exists under the reportName
-            if (!updatedData[reportName][testName]) {
-                updatedData[reportName][testName] = {};
-            }
-
-            // Initialize the date for the testName if not present
-            if (!updatedData[reportName][testName][date]) {
-                updatedData[reportName][testName][date] = {
-                    reportName,
-                    testName,
-                    value: "",
-                    arrowDirection: "",
-                    refRange: updatedData?.[reportName]?.[testName]?.[date]?.refRange || "",
-                    units: getUnitForTest(reportName, testName),
-                };
-            }
-    
-            // Update the value and calculate the arrow direction
-            const refRange = updatedData[reportName][testName][date].refRange;
-            const gender = patientGender || "Male"; // Assuming `patientGender` is available globally or passed in
-    
-            updatedData[reportName][testName][date].value = value;
-            updatedData[reportName][testName][date].arrowDirection = calculateArrowDirection(value, refRange, gender);
             return updatedData;
         });
-    };    
+    };
     
     const getUnitForTest = (reportName, testName) => {
         for (const date of dates) {
@@ -1037,14 +1072,14 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                 )}
                                 {!!expandedReports[reportName] ? (
                                   <button
-                                    className="btn p-0 ms-2 iconrotate270"
+                                    className="btn p-0 ms-2 iconrotate180"
                                     style={{ position: "absolute", left: isMobile? "635px" : "816px" }}
                                   >
                                     <i className="icon-right fs-5" />
                                   </button>
                                 ) : (
                                   <button
-                                    className="btn p-0 ms-2 iconrotate180"
+                                    className="btn p-0 ms-2 iconrotate270"
                                     style={{ position: "absolute", left: "816px" }}
                                   >
                                     <i className="icon-right fs-5" />
@@ -1124,13 +1159,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                               {/* Logic for rendering the reference range */}
                                               {(() => {
                                                 let hasRenderedRefRange = false;
-                                                return (
-                                                  inputValues[reportName][testName] &&
-                                                  Object.keys(
-                                                    inputValues[reportName][testName]
-                                                  ).map((date, index) => {
-                                                    const testData =
-                                                          inputValues[reportName][testName][date];
+                                                return inputValues[reportName][testName] &&
+                                                  Object.keys(inputValues[reportName][testName]).map((date, index) => {
+                                                    const testData = inputValues[reportName][testName][date];
                                                     const refRange = testData?.refRange;
                                                     if (
                                                       refRange &&
@@ -1139,57 +1170,48 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                       !hasRenderedRefRange
                                                     ) {
                                                       hasRenderedRefRange = true;
-                                                      if (refRange.isConditional) {
-                                                            const maleRange = refRange.ranges.find(
-                                                              (range) => range.gender.toLowerCase() === "male"
-                                                          );
-                                                            const femaleRange = refRange.ranges.find(
-                                                              (range) => range.gender.toLowerCase() === "female"
-                                                          );
+                                                      if (refRange) {
+                                                        const maleRange = refRange.ranges.find(
+                                                          (range) => range.gender.toLowerCase() === "male"
+                                                        );
+                                                        const femaleRange = refRange.ranges.find(
+                                                          (range) => range.gender.toLowerCase() === "female"
+                                                        );
+                                                        const allRange = refRange.ranges.find(
+                                                          (range) => range.gender.toLowerCase() === "all"
+                                                        );
                                                         return (
                                                           <div key={index}>
-                                                                <strong>Reference Range:</strong>
+                                                            <strong>Reference Range:</strong>
                                                             {maleRange && femaleRange ? (
                                                               <div>
-                                                                    Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
-                                                                    Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                                Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
+                                                                Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
                                                               </div>
                                                             ) : maleRange ? (
                                                               <div>
-                                                                    Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
+                                                                Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
                                                               </div>
                                                             ) : femaleRange ? (
                                                               <div>
-                                                                    Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                                Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                              </div>
+                                                            ) : allRange ? (
+                                                              <div>
+                                                                All: {`${allRange.min} - ${allRange.max} ${allRange.unit}`}
                                                               </div>
                                                             ) : (
-                                                                  <div>No reference range available</div>
+                                                              <div>No reference range available</div>
                                                             )}
-                                                          </div>
-                                                        );
-                                                      } else {
-                                                            const allRange = refRange.ranges.find(
-                                                              (range) => range.gender.toLowerCase() === "all"
-                                                            );
-                                                        return (
-                                                          <div key={index}>
-                                                                {allRange ? (
-                                                                  <>
-                                                                    All:{`${allRange.min} - ${allRange.max} ${allRange.unit}`}
-                                                                  </>
-                                                                ) : (
-                                                                  <div>No reference range available</div>
-                                                                )}
                                                           </div>
                                                         );
                                                       }
                                                     }
                                                     return null;
-                                                  })
-                                                );
+                                                  });
                                               })()}
                                               <div className="disclaimer-text">
-                                                  <span style={{ fontWeight: "600" }}>Disclaimer:</span>{" "}
+                                                <span style={{ fontWeight: "600" }}>Disclaimer:</span>{" "}
                                                 {`This range is only for reference and may vary between patients based on different conditions.`}
                                               </div>
                                             </div>
@@ -1212,7 +1234,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                             }}
                                           ></i>
                                         </Tooltip>
-                                      )}
+                                    )}
                                     </td>
 
                                     <td

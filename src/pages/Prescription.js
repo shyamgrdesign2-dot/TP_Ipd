@@ -591,6 +591,7 @@ function Prescription() {
         handleDrawerUploadDoc();
       }
     }
+    event.target.value = null;
   };
 
   // Handle Add button click
