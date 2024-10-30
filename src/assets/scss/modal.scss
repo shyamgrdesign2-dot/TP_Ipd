@@ -317,14 +317,14 @@ body {
     width: 45rem;
     .ant-modal-content {
         display: inline-flex;
-        padding: 3.875rem;
+        padding: 2.5rem;
         justify-content: center;
         align-items: center;
-        gap: 3.75rem;
+        /* gap: 3.75rem; */
         border-radius: 2rem;
         background: linear-gradient(180deg, #5958F8 0%, #0D0D66 100%);
         position: relative;
-        height: 42rem;
+        height: 35rem;
         left: -8%;
 
         .ant-card-head {

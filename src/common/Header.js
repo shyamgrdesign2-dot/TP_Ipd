@@ -500,8 +500,12 @@ function Header({ locationPath }) {
     });
   }
 
+  const handleShowQRCode = () => {
+    setQRCodeVisible(true);
+  };
+
   const getMenuItems = () => {
-    const items = [
+    const commonItems = [
       {
         label:
           <>
@@ -513,9 +517,9 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "52px", height: "52px" }}
                 />
-              ) :
-                <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
-              }
+              ) : 
+              <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
+            }
             </div>
             <div>
               <div className="text-black titleprint">{(profile?.um_name)}</div>
@@ -525,11 +529,11 @@ function Header({ locationPath }) {
         ,
         key: '0',
       },
-      {
+      { 
         type: 'divider',
       },
       {
-        label:
+        label: 
           <a onClick={() => setUpWebsiteUrl(1)}>
             <div className="title-common me-5 d-flex align-items-center"><i className="icon-profile me-3"></i>My Profile</div>
             <i className="icon-right iconrotate180"></i>
@@ -560,53 +564,30 @@ function Header({ locationPath }) {
           </a>,
         key: '5',
       },
+    ];
+  
+    const extraItems = [
       {
-        label:
+        label: (
           <a onClick={handleShowQRCode}>
-            <div className="title-common me-5 d-flex align-items-center"><img src={qrIcon} className="me-3"></img>OPD Plan QR</div>
+            <div className="title-common me-5 d-flex align-items-center">
+              <img src={qrIcon} className="me-3" alt="QR Icon" />
+              OPD Plan QR
+            </div>
             <i className="icon-right iconrotate180"></i>
-          </a>,
+          </a>
+        ),
         key: '6',
       },
-      // {
-      //   label:
-      //     <a>
-      //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-upgrade me-3"></i>Upgrade Plan</div>
-      //       <i className="icon-right iconrotate180"></i>
-      //     </a>,
-      //   key: '5',
-      // },
-      // {
-      //   label:
-      //     <a>
-      //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-help me-3"></i>Help Center</div>
-      //       <i className="icon-right iconrotate180"></i>
-      //     </a>,
-      //   key: '6',
-      // },
-
-
-      // CSS Also comment
-      // {
-      //   type: 'divider',
-      // },
-      // {
-      //   label: <><i className="icon-exit me-2"></i> Log Out</>,
-      //   key: '8',
-      // },
     ];
-
-    // if (!tokenData?.admin || process.env.REACT_APP_ENV === "prod") {
-    if (!tokenData?.admin) {
-      return items.filter((item) => item.key !== "5");
-    } else {
-      return items;
-    }
-  };
-
-  // Handle opening the QR code modal
-  const handleShowQRCode = () => {
-    setQRCodeVisible(true);
+  
+    // Combine common items with opd based on isOpdPlansAccessableFromGB
+    const items = isOpdPlansAccessableFromGB
+      ? [...commonItems, ...extraItems]
+      : commonItems;
+  
+    // If not admin, filter out account setting item, else return all items
+    return !tokenData?.admin ? items.filter((item) => item.key !== "5") : items;
   };
 
   const showHideBackModal = useCallback(() => {
@@ -747,18 +728,18 @@ function Header({ locationPath }) {
                     Scan the QR to view & buy OPD plans
                   </div>
                 </div>
-                  <div className="d-flex align-items-center mt-2 justify-content-between gap-4 mt-4">
+                  <div className="d-flex align-items-center justify-content-between gap-4 mt-4">
                     <ButtonOPD
                       onClick={handlePrint}
                       className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
-                      style={{width: "15rem",height: "3.3rem"}}
+                      style={{width: "13rem",height: "3rem"}}
                     >
                       <span className="fs-18 align-items-center d-flex "><i className="icon-Print me-2"></i>Print</span>
                     </ButtonOPD>
                     <ButtonOPD
                       onClick={handleDownload}
                       className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
-                      style={{width: "15rem",height: "3.3rem"}}
+                      style={{width: "13rem",height: "3rem"}}
                     >
                       <span className="fs-18 align-items-center d-flex"><i className="icon-download me-2"></i>Download</span>
                     </ButtonOPD>
