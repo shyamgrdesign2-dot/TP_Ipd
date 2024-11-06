@@ -1,7 +1,7 @@
 import { Button } from "antd";
 import apexAI from "../assets/images/apexAI.svg";
 
-const ApexAIPopup = ({ setShowApexPopup }) => {
+const ApexAIPopup = ({ setShowApexPopup, handleDDxKnowMore }) => {
   return (
     <div
       className="d-flex justify-content-between align-items-center"
@@ -17,7 +17,9 @@ const ApexAIPopup = ({ setShowApexPopup }) => {
         <img className="me-3" src={apexAI} alt="apex-AI" />
         <div style={{ fontSize: 16, fontWeight: 500 }}>
           <div>AI-Powered Differential Diagnosis (DDx)</div>
-          <div className="know-more-txt">Know More</div>
+          <div className="know-more-txt" onClick={handleDDxKnowMore}>
+            Know More
+          </div>
         </div>
       </div>
       <Button

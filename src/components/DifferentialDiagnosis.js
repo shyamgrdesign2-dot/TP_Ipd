@@ -3,53 +3,13 @@ import apexAI from "../assets/images/apexAI.svg";
 import arrow from "../assets/images/shaded-arrow.svg";
 import { useState } from "react";
 
-const DifferentialDiagnosis = ({ handleDDxDrawer }) => {
-  const [generatedDDx, setGeneratedDDx] = useState([
-    {
-      _id: "66867285cdbebbe52109f4d2",
-      testName: "Influenza Test",
-      rank: 1,
-      severity: "high",
-      likelihood: "most likely",
-      assocSymptoms: ["Fever", "Cold"],
-      treatmentOptions: ["Antiviral medication", "Rest", "Fluids"],
-      labTests: ["Complete Blood Count (CBC)"],
-      evidence:
-        "Patient has fever for 2 days, history of tobacco use which can increase susceptibility to respiratory infections.",
-      impression: "",
-    },
-    {
-      _id: "66867285cdbebbe52109f4d3",
-      testName: "COVID-19 Test",
-      rank: 2,
-      severity: "critical",
-      likelihood: "can't miss",
-      assocSymptoms: ["Fever"],
-      treatmentOptions: ["Isolation", "Supportive care", "Antiviral drugs"],
-      labTests: ["Arterial Blood Gases (ABG)"],
-      evidence:
-        "Fever lasting 2 days, with global pandemic considerations and patient's age.",
-      impression: "",
-    },
-    {
-      _id: "66867285cdbebbe52109f4d4",
-      testName: "Complete Blood Count (CBC)",
-      rank: 3,
-      severity: "medium",
-      likelihood: "extended",
-      assocSymptoms: ["Fever"],
-      treatmentOptions: [
-        "General monitoring",
-        "Antibiotics if bacterial infection detected",
-      ],
-      labTests: ["B-type Natriuretic Peptite (BNP)"],
-      evidence:
-        "Fever is often a sign of infection; tobacco use may increase risk of complications.",
-      impression: "",
-    },
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
-
+const DifferentialDiagnosis = ({
+  handleDDxDrawer,
+  ddxOptionsList,
+  getGenerateDDx,
+  isDDxLoading,
+  onSelectParent,
+}) => {
   return (
     <div className="d-flex" style={{ padding: "20px 0" }}>
       <div>
@@ -60,7 +20,7 @@ const DifferentialDiagnosis = ({ handleDDxDrawer }) => {
           alt="apex-AI"
         />
       </div>
-      {isLoading ? (
+      {isDDxLoading ? (
         <div
           className="d-flex flex-column"
           style={{
@@ -82,7 +42,7 @@ const DifferentialDiagnosis = ({ handleDDxDrawer }) => {
             width: "100%",
           }}
         >
-          {generatedDDx?.length > 0 ? (
+          {ddxOptionsList?.length > 0 ? (
             <>
               <div style={{ fontSize: 16, fontWeight: 500 }}>
                 Most Likely Differential Diagnosis
@@ -92,13 +52,13 @@ const DifferentialDiagnosis = ({ handleDDxDrawer }) => {
                 className="d-flex align-items-center"
                 style={{ padding: "15px 8px 0 8px", columnGap: 16 }}
               >
-                {generatedDDx.map((item) => (
+                {ddxOptionsList.map((item) => (
                   <Button
                     type="button"
                     className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between test-name-btn"
-                    // onClick={handleAnalysis}
+                    onClick={() => onSelectParent({ ...item })}
                   >
-                    <span>{item?.testName}</span>
+                    <span>{item?.tds_name}</span>
                   </Button>
                 ))}
               </div>
@@ -168,6 +128,7 @@ const DifferentialDiagnosis = ({ handleDDxDrawer }) => {
                     <Button
                       type="primary"
                       className="btn d-flex w-100 align-items-center justify-content-center btn-41"
+                      onClick={getGenerateDDx}
                     >
                       <i className="icon-Add me-2 fs-21"></i>
                       Generate DDx

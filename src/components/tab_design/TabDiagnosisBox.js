@@ -26,7 +26,7 @@ import DifferentialDiagnosis from "../DifferentialDiagnosis";
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
-function TabDiagnosisBox({handleDDxDrawer}) {
+function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoading}) {
     const {
         selectedDiagnosisList,
         parentOptionsList,
@@ -37,6 +37,21 @@ function TabDiagnosisBox({handleDDxDrawer}) {
 
     const { patient_data, diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
     // const [ diagnosisData, setDiagnosisData] = useState([]);
+
+    const ddxOptionsList = generatedDDx?.map((item) => {
+        return (
+            {
+                tds_id: item?._id,
+                unique_id: item?._id,
+                tds_name: item?.testName,
+                pms_default: 1,
+                usage_count: 0,
+                isDDx: true
+            }
+        )
+    });
+
+    const updatedOptions = [...parentOptionsList, ...ddxOptionsList];
 
     const [parentDrawer, setParentDrawer] = useState(false);
     const [childDrawer, setChildDrawer] = useState(false);
@@ -804,14 +819,14 @@ function TabDiagnosisBox({handleDDxDrawer}) {
                         <i className='icon-search mx-2'></i>
                         <span className="fontroboto backbar fw-normal">Search Diagnosis</span>
                     </div>
-                    <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer}/>
+                    <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={ddxOptionsList} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} onSelectParent={onSelectParent} />
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
-                    {parentDrawer && (<TabDiagnosisSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
+                    {parentDrawer && (<TabDiagnosisSearch passIndex={selectedIndex} onClose={handleDrawerParent} ddxOptionsList={ddxOptionsList} />)}
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
-                    {parentOptionsList.length > 0 &&
-                        parentOptionsList.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name)).map((item, i) => {
+                    {updatedOptions.length > 0 &&
+                        updatedOptions.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name) && !e?.isDDx).map((item, i) => {
                             return (
                                 <Button key={i} type="text" style={{ width: item.tds_name.length > 26 && '250px' }} className={`${item.tds_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{`${item.tds_name}`}</Button>
                             )

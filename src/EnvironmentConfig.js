@@ -41,7 +41,8 @@ const dev = {
   api_key: "TC_12o89l11327dfrt55",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
-  upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in/"
+  upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
+  ddx_api_url: "https://pm-patient-docs-uat.tatvacare.in"
 };
 
 const qa = {
@@ -87,7 +88,8 @@ const qa = {
   api_key: "TC_12o89l11327dfrt55",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
-  upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in/"
+  upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
+  ddx_api_url: "https://pm-patient-docs-uat.tatvacare.in"
 };
 
 const uat = {
@@ -136,7 +138,8 @@ const uat = {
   api_key: "TC_12o89l11327dfrt55",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
-  upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in/"
+  upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
+  ddx_api_url: "https://pm-patient-docs-uat.tatvacare.in"
 };
 
 const prod = {
@@ -180,7 +183,8 @@ const prod = {
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
   opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
-  upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in/"
+  upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in",
+  ddx_api_url: "https://pm-patient-docs-uat.tatvacare.in"
 };
 
 const getEnv = () => {

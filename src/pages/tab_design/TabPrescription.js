@@ -81,6 +81,8 @@ import TabDDxList from "../../components/tab_design/TabDDxList";
 import { setIsApexAISelected } from "../../redux/ddxSlice";
 import DifferentialDiagnosisDrawer from "../../components/DifferentialDiagnosisDrawer";
 import CommonModal from "../../common/CommonModal";
+import DDxKnowMore from "../../components/DDxKnowMore";
+import { getDDxDetails } from "../../api/services/ApiDDx";
 
 function TabPrescription() {
   const {
@@ -127,12 +129,15 @@ function TabPrescription() {
   const startTime = moment().format('YYYY-MM-DD HH:mm:ss');
   const [obstetricDrawer, setObstetricDrawer] = useState(false);
   const [isGrowthChart, setIsGrowthChart] = useState(false);
-  const [shouldShowApexPopup, setShowApexPopup] = useState(true)
+  const [shouldShowApexPopup, setShowApexPopup] = useState(true);
+  const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
   const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
   const [labParamsData, setLabParamsData] = useState(null);
+  const [generatedDDx, setGeneratedDDx] = useState([]);
+  const [isDDxLoading, setIsDDxLoading] = useState(false);
 
   const contextApi = {
     patient_data,
@@ -667,6 +672,10 @@ function TabPrescription() {
     setDDxDrawer((prev) => !prev);
   };
 
+  const handleDDxKnowMore = () => {
+    setDDxKnowMoreDrawer((prev) => !prev);
+  }
+
   // Function to close "View Lab Params" and open "Add Lab Params"
   const handleSwitchToAddLabParams = () => {
     setViewlabparamsDrawer(false);
@@ -679,6 +688,27 @@ function TabPrescription() {
     setIsFileLimitError(false);
     setIsFileTypeError(null);
   };
+
+  const getGenerateDDx = async () => {
+    setIsDDxLoading(true);
+    const payload = {
+      patientId: 567770111407,
+      businessId: 149831714557669,
+      symptoms: [
+        {
+          name: "Fever",
+          since: "2 Day(s)",
+          severity: "Moderate",
+          notes: "",
+        },
+      ],
+    };
+    const generatedDDxResponse = await getDDxDetails(payload);
+    if (generatedDDxResponse?.results?.length > 0) {
+      setGeneratedDDx(generatedDDxResponse.results);
+    }
+    setIsDDxLoading(false);
+  }
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -1067,7 +1097,7 @@ function TabPrescription() {
               style={{ height: "calc(100vh - 60px)" }}
             >
               <Content>
-                {shouldShowApexPopup && <ApexAIPopup setShowApexPopup={setShowApexPopup} />}
+                {shouldShowApexPopup && <ApexAIPopup setShowApexPopup={setShowApexPopup} handleDDxKnowMore={handleDDxKnowMore} />}
                 {customizedPadRightList?.map((e, i) => {
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1079,7 +1109,7 @@ function TabPrescription() {
                     </div>
                   ) : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      <TabDiagnosisBox handleDDxDrawer={handleDDxDrawer}/>
+                      <TabDiagnosisBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} />
                     </div>
                   ) : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1283,7 +1313,20 @@ function TabPrescription() {
             onClose={handleDDxDrawer}
             width="auto"
           >
-              <DifferentialDiagnosisDrawer handleDDxDrawer={handleDDxDrawer} />
+              <DifferentialDiagnosisDrawer handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} />
+          </Drawer>
+        )}
+
+        {ddxKnowMoreDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            open={ddxKnowMoreDrawer}
+            onClose={handleDDxKnowMore}
+            className=".modalWidth-800"
+            width={825}
+          >
+              <DDxKnowMore handleDDxKnowMore={handleDDxKnowMore} />
           </Drawer>
         )}
     
