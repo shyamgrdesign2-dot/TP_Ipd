@@ -84,10 +84,10 @@ function Cardiology(props) {
       // viewCaseManagerData.treatment
     ) {
       setIsSmartRxFile(true);
-      if(viewCaseManagerData?.tcm_id && isSmartSyncCVTAccessableFromGB){
+      if (viewCaseManagerData?.tcm_id && isSmartSyncCVTAccessableFromGB) {
         fetchRxDigitisedData(viewCaseManagerData?.tcm_id);
       }
-    }else {
+    } else {
       setIsSmartRxFile(false);
     }
   }, [viewCaseManagerData]);
@@ -97,7 +97,7 @@ function Cardiology(props) {
       tcm_id: viewCaseManagerData?.tcm_id,
     };
     try {
-        if(viewCaseManagerData?.smart_prescription_filename?.length){
+      if (viewCaseManagerData?.smart_prescription_filename?.length) {
         const response = await api.post(
           FETCH_SMART_RX,
           payload,
@@ -105,7 +105,7 @@ function Cardiology(props) {
         );
         if (response?.data?.length) {
           setSmartRxFile(response?.data);
-          } else{
+        } else {
           setSmartRxFile(null);
         }
       }
@@ -120,15 +120,15 @@ function Cardiology(props) {
 
   //Handle Sider
   const handleCollapsed = useCallback(
-      (flag) => {
+    (flag) => {
       // if (flag === 1) {
       //     handleDrawerVital();
       // }
-      if(flag === 2) {
-          handleDrawerCvtKnowMore();
+      if (flag === 2) {
+        handleDrawerCvtKnowMore();
       }
-      },
-      [cvtDrawer]
+    },
+    [cvtDrawer]
   );
 
   async function printRxInAppContent() {
@@ -340,6 +340,7 @@ function Cardiology(props) {
       navigate("/prescription", {
         state: {
           patient_data: patient_data,
+          send_path: "patient_details",
           caseManagerData: viewCaseManagerData,
         },
       });
@@ -357,9 +358,9 @@ function Cardiology(props) {
           'Authorization': `Bearer ${cleanedToken}`,
         },
       });
-      if(response?.data?.data) {
+      if (response?.data?.data) {
         setRxDigitisedData(response?.data?.data);
-        if(response?.data?.data?.isDigitize){
+        if (response?.data?.data?.isDigitize) {
           setIsRxdigitised(true);
         } else {
           setIsRxdigitised(false);
@@ -488,33 +489,33 @@ function Cardiology(props) {
               </div>
             </Card.Header>
 
-            { isSmartSyncCVTAccessableFromGB && isSmartRxFile && viewCaseManagerData?.smart_prescription_filename?.length > 0 &&
-             ( isRxdigitised ?
-              <div className="p-2 mb-2">
-                <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
-                <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>
-              </div>
-              :
-              <div className="digitise-info-cardiology">
-                <img src={successIcon} alt="success" width="40px" height="40px" />
-                <p>
-                  <span className="digitise-info-header-cardiology">{`${patient_data?.pm_fullname}'s Digital Rx is ready!`}</span>
-                  Digitise Rx to enhance patient care, workflow efficiency, and revenue. 
-                  <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>
-                    <span style={{
-                      fontSize: "14px",
-                      paddingLeft: "4px",
-                      textDecoration: "underline",
-                      textDecorationColor: "#454551"
-                    }}>Know More</span>
+            {isSmartSyncCVTAccessableFromGB && isSmartRxFile && viewCaseManagerData?.smart_prescription_filename?.length > 0 &&
+              (isRxdigitised ?
+                <div className="p-2 mb-2">
+                  <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
+                  <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>
+                </div>
+                :
+                <div className="digitise-info-cardiology">
+                  <img src={successIcon} alt="success" width="40px" height="40px" />
+                  <p>
+                    <span className="digitise-info-header-cardiology">{`${patient_data?.pm_fullname}'s Digital Rx is ready!`}</span>
+                    Digitise Rx to enhance patient care, workflow efficiency, and revenue.
+                    <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>
+                      <span style={{
+                        fontSize: "14px",
+                        paddingLeft: "4px",
+                        textDecoration: "underline",
+                        textDecorationColor: "#454551"
+                      }}>Know More</span>
+                    </button>
+                  </p>
+                  {/* <button onClick={handleDigitiseRx} className=""> */}
+                  <button className="digitise-info-btn-cardiology" onClick={handleDigitiseRx}>
+                    Digitise Rx Now
                   </button>
-                </p>
-                {/* <button onClick={handleDigitiseRx} className=""> */}
-                <button className="digitise-info-btn-cardiology" onClick={handleDigitiseRx}>
-                  Digitise Rx Now
-                </button>
-              </div>
-            )}
+                </div>
+              )}
             <Drawer
               closeIcon={false}
               // placement="right"
@@ -524,8 +525,8 @@ function Cardiology(props) {
               width={800}
             >
               <CvtKnowMore
-                  handleDrawerCvtKnowMore={handleDrawerCvtKnowMore}
-                  handleCollapsed={(flag) => handleCollapsed(flag)}
+                handleDrawerCvtKnowMore={handleDrawerCvtKnowMore}
+                handleCollapsed={(flag) => handleCollapsed(flag)}
               />
             </Drawer>
             {
@@ -837,7 +838,7 @@ function Cardiology(props) {
                           : 0,
                     });
                     navigate("/prescription", {
-                      state: { patient_data: patient_data },
+                      state: { patient_data: patient_data, send_path: "patient_details" },
                     });
                   }}
                 >

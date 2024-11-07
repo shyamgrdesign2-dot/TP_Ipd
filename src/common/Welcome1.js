@@ -29,18 +29,18 @@ function Welcome1(props) {
     const navigate = useNavigate();
     const { profile, videoList, patientCertificateList } = useSelector((state) => state.doctors);
     const { allUploadedDocs } = useSelector(
-      (state) => state.uploadDoc
+        (state) => state.uploadDoc
     );
     const {
-      locationPath,
-      isMobile,
-      patient_data,
-      viewCaseManagerData,
-      sidebarKey,
-      filesData,
-      setFilesData,
-      handleUploadDocPopup,
-      handleDrawerUploadDoc,
+        locationPath,
+        isMobile,
+        patient_data,
+        viewCaseManagerData,
+        sidebarKey,
+        filesData,
+        setFilesData,
+        handleUploadDocPopup,
+        handleDrawerUploadDoc,
     } = props;
 
     const modifyFormat = useMemo(() => {
@@ -62,7 +62,7 @@ function Welcome1(props) {
     };
 
     const onConsultClick = async (patient) => {
-        navigate("/prescription", { state: { patient_data: patient } });
+        navigate("/prescription", { state: { patient_data: patient, send_path: "patient_details" } });
     };
 
     const handleClickDownArrow = () => {
@@ -78,42 +78,42 @@ function Welcome1(props) {
         setPopOverVideo(!popOverVideo);
     }, [popOverVideo]);
 
-  const handleFileUpload = (event) => {
-    const files = event.target.files;
-    if (files) {
-      const filesData = Array.from(files);
-      if (filesData.length > 0) {
-        const updatedFiles = [];
-        filesData.forEach((file) => {
-          const cleanFileName = getCorrectedFileName(file?.name || "");
-          // Check if the file is an image and if its name follows typical camera-captured file patterns
-          const isCapturedFromCamera =
-            (file.type === "image/jpeg" ||
-              file.type === "image/png" ||
-              file.type === "image/jpg") &&
-            (cleanFileName === "image.jpg" ||
-              cleanFileName === "image.png" ||
-              cleanFileName === "image.jpeg");
+    const handleFileUpload = (event) => {
+        const files = event.target.files;
+        if (files) {
+            const filesData = Array.from(files);
+            if (filesData.length > 0) {
+                const updatedFiles = [];
+                filesData.forEach((file) => {
+                    const cleanFileName = getCorrectedFileName(file?.name || "");
+                    // Check if the file is an image and if its name follows typical camera-captured file patterns
+                    const isCapturedFromCamera =
+                        (file.type === "image/jpeg" ||
+                            file.type === "image/png" ||
+                            file.type === "image/jpg") &&
+                        (cleanFileName === "image.jpg" ||
+                            cleanFileName === "image.png" ||
+                            cleanFileName === "image.jpeg");
 
-          let newFile = file;
+                    let newFile = file;
 
-          if (isCapturedFromCamera) {
-            // Generate a unique file name for camera-captured images
-            const uniqueFileName = generateUniqueFileName(file);
-            newFile = new File([file], uniqueFileName, { type: file.type });
-          } else {
-            // If the file name had spaces, create a new file with spaces removed
-            newFile = new File([file], cleanFileName, { type: file.type });
-          }
+                    if (isCapturedFromCamera) {
+                        // Generate a unique file name for camera-captured images
+                        const uniqueFileName = generateUniqueFileName(file);
+                        newFile = new File([file], uniqueFileName, { type: file.type });
+                    } else {
+                        // If the file name had spaces, create a new file with spaces removed
+                        newFile = new File([file], cleanFileName, { type: file.type });
+                    }
 
-          updatedFiles.push(newFile);
-        });
-        setFilesData(updatedFiles);
-        handleDrawerUploadDoc();
-      }
-    }
-    event.target.value = null;
-  };
+                    updatedFiles.push(newFile);
+                });
+                setFilesData(updatedFiles);
+                handleDrawerUploadDoc();
+            }
+        }
+        event.target.value = null;
+    };
 
     const handleAddClick = () => {
         if (fileInputRef.current) {
@@ -211,7 +211,7 @@ function Welcome1(props) {
                                                 "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0,
                                                 "rx_date": viewCaseManagerData?.consultation_date
                                             });
-                                            navigate("/prescription", { state: { patient_data: patient_data, caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
+                                            navigate("/prescription", { state: { patient_data: patient_data, send_path: "patient_details", caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
                                         }}> <i className={'icon-reload me-2'}></i>Repeat {modifyFormat && modifyFormat.first}<sup>{modifyFormat && modifyFormat.second}</sup>&nbsp;{modifyFormat && modifyFormat.third} Rx</Button>
                                     }
                                     {isSmartSyncAccessableFromGB && !isMobile ? (
@@ -271,7 +271,7 @@ function Welcome1(props) {
                                                     "doctor_id": profile?.doctor_unique_id,
                                                     "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
                                                 });
-                                                navigate("/prescription", { state: { patient_data: patient_data } })
+                                                navigate("/prescription", { state: { patient_data: patient_data, send_path: "patient_details" } })
                                             }}>
                                             {'Start New Visit'}
                                         </Button>
@@ -301,7 +301,7 @@ function Welcome1(props) {
                                         onClick={handleUploadDocPopup}
                                         style={{ display: "none" }}
                                     />
-                                    ) : (
+                                ) : (
                                     <input
                                         type="file"
                                         multiple
@@ -311,7 +311,7 @@ function Welcome1(props) {
                                         style={{ display: "none" }}
                                         disabled={filesData.length >= 5}
                                     />
-                                    )}
+                                )}
                                 <i className="icon-upload" />
                                 {"Upload new report"}
                             </Button>
@@ -325,7 +325,7 @@ function Welcome1(props) {
                     closable
                     open={createCertificateDrawer}
                     onClose={handleCreateCertificateDrawer}
-                    // key="left"
+                // key="left"
                 >
                     <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={patient_data} replace={false} />
                 </Drawer>
