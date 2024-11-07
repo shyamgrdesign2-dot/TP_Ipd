@@ -644,7 +644,7 @@ function Cardiology(props) {
                           <div className="title-common">Follow-up:</div>
                           <div className="follow-up-date-text">
                             {viewCaseManagerData?.follow_up_date
-                              ? moment(viewCaseManagerData.follow_up_date).format("MM/DD/YYYY")
+                              ? moment(viewCaseManagerData.follow_up_date).format("DD/MM/YYYY")
                               : ""}
                           </div>
                         </>
