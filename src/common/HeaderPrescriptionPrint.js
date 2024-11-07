@@ -13,6 +13,7 @@ import { resetGrowthChartState } from '../redux/growthChartSlice';
 import { resetObstetricState } from '../redux/obstetricSlice';
 import { updateVisitStatus } from '../api/services/VisitService';
 import { resetUploadDocState } from '../redux/uploadDocSlice';
+import { resetDDxState } from '../redux/ddxSlice';
 
 function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl }) {
     const navigate = useNavigate();
@@ -43,6 +44,7 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl }) {
             dispatch(resetGrowthChartState());
             dispatch(resetObstetricState());
             dispatch(resetUploadDocState());
+            dispatch(resetDDxState());
             navigate('/', { replace: true });
         } else {
             errorMessage(action.error)

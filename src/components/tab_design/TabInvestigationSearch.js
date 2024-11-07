@@ -12,11 +12,12 @@ import { updateDragDrop } from "../../redux/doctorsSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
 import dragChips from '../../../src/assets/images/drag-chips.gif'
+import apexAI from "../../../src/assets/images/apexAI.svg";
 import tagNew from '../../../src/assets/images/tag-new.svg'
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
-function TabInvestigationSearch({ passIndex, onClose }) {
+function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
 
     const {
         parentOptionsList,
@@ -275,6 +276,46 @@ function TabInvestigationSearch({ passIndex, onClose }) {
                                         </div>
                                     </>
                                 )}
+                                <div className="d-flex" style={{ padding: "20px 0" }}>
+                                <div>
+                                    <img
+                                        style={{ backgroundColor: "#22003C", borderRadius: "10px 10px 0px" }}
+                                        className="me-3"
+                                        src={apexAI}
+                                        alt="apex-AI"
+                                    />
+                                </div>
+                                    <div
+                                    className="d-flex flex-column"
+                                    style={{
+                                        background: "rgba(119, 66, 254, 0.08)",
+                                        borderRadius: 12,
+                                        padding: "17px 20px",
+                                        width: "100%",
+                                    }}
+                                    >
+                                        <>
+                                            <div style={{ fontSize: 16, fontWeight: 500 }}>
+                                                Differential Diagnosis
+                                            </div>
+                                            <span className="ddx-ready-txt">These are symptoms associated with added diagnosis. Tap to add to EMR</span>
+                                            <div
+                                                className="d-flex align-items-center"
+                                                style={{ padding: "15px 8px 0 8px", flexWrap: "wrap", gap: 16 }}
+                                            >
+                                                {ddxOptionsList?.filter(e => ![...investigationData.map(e1 => e1.investigation_name)].includes(e.investigation_name))?.map((item) => (
+                                                <Button
+                                                    type="button"
+                                                    className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between test-name-btn"
+                                                    onClick={() => onSelectParent({ ...item })}
+                                                >
+                                                    <span>{item?.investigation_name}</span>
+                                                </Button>
+                                                ))}
+                                            </div>
+                                        </>
+                                    </div>
+                                </div>
                                 <div>
                                     <div className="title2">
                                         {searchChildQuery.length > 0 ? 'Search Results' : 'Frequently Used'}

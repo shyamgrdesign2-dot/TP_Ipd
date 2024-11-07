@@ -1,7 +1,7 @@
 import { Button, Divider, Spin } from "antd";
 import apexAI from "../assets/images/apexAI.svg";
 import arrow from "../assets/images/shaded-arrow.svg";
-import { useState } from "react";
+import { useSelector } from "react-redux";
 
 const DifferentialDiagnosis = ({
   handleDDxDrawer,
@@ -9,7 +9,11 @@ const DifferentialDiagnosis = ({
   getGenerateDDx,
   isDDxLoading,
   onSelectParent,
+  isDiagnosis,
+  handleDDxKnowMore,
 }) => {
+  const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
+
   return (
     <div className="d-flex" style={{ padding: "20px 0" }}>
       <div>
@@ -50,52 +54,75 @@ const DifferentialDiagnosis = ({
               <span className="ddx-ready-txt">Tap diagnosis to add to Rx</span>
               <div
                 className="d-flex align-items-center"
-                style={{ padding: "15px 8px 0 8px", columnGap: 16 }}
+                style={{ padding: "15px 8px 0 0px", gap: 16, flexWrap: "wrap" }}
               >
-                {ddxOptionsList.map((item) => (
+                {ddxOptionsList.map((item, index) => (
                   <Button
+                    key={index}
                     type="button"
                     className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between test-name-btn"
                     onClick={() => onSelectParent({ ...item })}
                   >
-                    <span>{item?.tds_name}</span>
+                    <span>
+                      {item?.tds_name ||
+                        item?.symptom_name ||
+                        item?.investigation_name}
+                    </span>
                   </Button>
                 ))}
               </div>
-              <Divider />
-              <div
-                className="d-flex align-items-center"
-                style={{ padding: "0 8px", columnGap: 16 }}
-              >
-                <div style={{ width: "160px" }}>
-                  <Button
-                    type="primary"
-                    className="btn d-flex w-100 align-items-center justify-content-center btn-41"
+              {isDiagnosis ? (
+                <>
+                  <Divider />
+                  <div
+                    className="d-flex align-items-center"
+                    style={{ padding: "0 8px", columnGap: 16 }}
                   >
-                    <i className="icon-Add me-2 fs-21"></i>
-                    Generate DDx
-                  </Button>
-                </div>
-                <Button
-                  type="button"
-                  className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between"
+                    <div style={{ width: "160px" }}>
+                      <Button
+                        className="btn btn-primary3 w-100 btn-41 px-4 me-20 d-flex align-items-center justify-content-center"
+                        disabled={!isDDxReadyToGenerate}
+                        onClick={getGenerateDDx}
+                      >
+                        <i className="icon-Add me-2 fs-21"></i>
+                        Generate DDx
+                      </Button>
+                    </div>
+                    <Button
+                      type="button"
+                      className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between"
+                      style={{
+                        background: "white",
+                      }}
+                      onClick={handleDDxDrawer}
+                    >
+                      <span>View Full Analysis</span>
+                    </Button>
+                    <div
+                      className="d-flex align-items-center"
+                      style={{ columnGap: 8 }}
+                      onClick={handleDDxKnowMore}
+                    >
+                      <div className="text-primary" style={{ fontWeight: 600 }}>
+                        Know More About DDx
+                      </div>
+                      <img src={arrow} alt="arrow" />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div
+                  className="text-primary"
                   style={{
-                    background: "white",
+                    fontWeight: 600,
+                    textDecoration: "underline",
+                    paddingTop: 16,
                   }}
                   onClick={handleDDxDrawer}
                 >
-                  <span>View Full Analysis</span>
-                </Button>
-                <div
-                  className="d-flex align-items-center"
-                  style={{ columnGap: 8 }}
-                >
-                  <div className="text-primary" style={{ fontWeight: 600 }}>
-                    Know More About DDx
-                  </div>
-                  <img src={arrow} alt="arrow" />
+                  View Full Analysis
                 </div>
-              </div>
+              )}
             </>
           ) : (
             <>
@@ -109,26 +136,33 @@ const DifferentialDiagnosis = ({
               </div>
               <div
                 className="d-flex align-items-center"
-                style={{ padding: "0 8px", marginTop: 16, columnGap: 16 }}
+                style={{
+                  padding: isDDxReadyToGenerate ? "0 8px" : "",
+                  marginTop: 16,
+                  columnGap: 16,
+                }}
               >
                 <div
                   className="d-flex align-items-center"
                   style={{
-                    width: 268,
+                    width: isDDxReadyToGenerate ? 268 : "",
                     height: 48,
-                    backgroundColor: "white",
-                    padding: "4px 4px 4px 12px",
+                    backgroundColor: isDDxReadyToGenerate ? "white" : "",
+                    padding: isDDxReadyToGenerate ? "4px 4px 4px 12px" : "",
                     borderRadius: 12,
                   }}
                 >
-                  <div className="ddx-ready-txt" style={{ fontSize: 12 }}>
-                    DDx ready to generate!
-                  </div>
+                  {isDDxReadyToGenerate && (
+                    <div className="ddx-ready-txt" style={{ fontSize: 12 }}>
+                      DDx ready to generate!
+                    </div>
+                  )}
                   <div style={{ width: "160px" }}>
                     <Button
                       type="primary"
-                      className="btn d-flex w-100 align-items-center justify-content-center btn-41"
+                      className="btn btn-primary3 btn-41 px-4 me-20 w-100 d-flex align-items-center justify-content-center"
                       onClick={getGenerateDDx}
+                      disabled={!isDDxReadyToGenerate}
                     >
                       <i className="icon-Add me-2 fs-21"></i>
                       Generate DDx
@@ -138,6 +172,7 @@ const DifferentialDiagnosis = ({
                 <div
                   className="d-flex align-items-center"
                   style={{ columnGap: 8 }}
+                  onClick={handleDDxKnowMore}
                 >
                   <div className="text-primary" style={{ fontWeight: 600 }}>
                     Know More About DDx

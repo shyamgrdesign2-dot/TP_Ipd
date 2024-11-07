@@ -6,64 +6,28 @@ import symptoms from "../assets/images/symptoms-white.svg";
 import lab from "../assets/images/Lab.svg";
 import tick from "../assets/images/mandatory-tick.svg";
 import selectedTick from "../assets/images/tick.svg";
+import {
+  setIsDiagnosisBox,
+  setIsLabTestBox,
+  setIsSymptomsBox,
+} from "../redux/ddxSlice";
+import { useDispatch } from "react-redux";
+import { useContext } from "react";
+import CashManagerContext from "../context/CashManagerContext";
 
-const WarningColor = {
+export const WarningColor = {
   1: "rgba(194, 159, 0, 1)",
   2: "rgba(194, 159, 0, 1)",
   3: "rgba(239, 125, 25, 1)",
   4: "rgba(239, 25, 65, 1)",
 };
 
-const addedDiagnosis = ["Influenza Test"];
-const addedSymptoms = ["Fever"];
-const addedLabTest = ["Complete Blood Count (CBC)"];
-
-// const generatedDDx = [
-//   {
-//     _id: "66867285cdbebbe52109f4d2",
-//     testName: "Influenza Test",
-//     rank: 1,
-//     severity: "high",
-//     likelihood: "most likely",
-//     assocSymptoms: ["Fever", "Cold"],
-//     treatmentOptions: ["Antiviral medication", "Rest", "Fluids"],
-//     labTests: ["Complete Blood Count (CBC)"],
-//     evidence:
-//       "Patient has fever for 2 days, history of tobacco use which can increase susceptibility to respiratory infections.",
-//     impression: "",
-//   },
-//   {
-//     _id: "66867285cdbebbe52109f4d3",
-//     testName: "COVID-19 Test",
-//     rank: 2,
-//     severity: "critical",
-//     likelihood: "can't miss",
-//     assocSymptoms: ["Fever"],
-//     treatmentOptions: ["Isolation", "Supportive care", "Antiviral drugs"],
-//     labTests: ["Arterial Blood Gases (ABG)"],
-//     evidence:
-//       "Fever lasting 2 days, with global pandemic considerations and patient's age.",
-//     impression: "",
-//   },
-//   {
-//     _id: "66867285cdbebbe52109f4d4",
-//     testName: "Complete Blood Count (CBC)",
-//     rank: 3,
-//     severity: "medium",
-//     likelihood: "extended",
-//     assocSymptoms: ["Fever"],
-//     treatmentOptions: [
-//       "General monitoring",
-//       "Antibiotics if bacterial infection detected",
-//     ],
-//     labTests: ["B-type Natriuretic Peptite (BNP)"],
-//     evidence:
-//       "Fever is often a sign of infection; tobacco use may increase risk of complications.",
-//     impression: "",
-//   },
-// ];
-
 const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
+  const dispatch = useDispatch();
+
+  const { diagnosisData, symptomsData, investigationData } =
+    useContext(CashManagerContext);
+
   return (
     <div className="upload-document">
       <Card bordered={false} className="search-modalCard">
@@ -169,7 +133,9 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                           </h6>
                         </div>
                       </div>
-                      {item?.testName?.includes(addedDiagnosis) ? (
+                      {diagnosisData
+                        ?.map((item) => item?.tds_name)
+                        ?.includes(item?.testName) ? (
                         <div className="d-flex align-items-center gap-2">
                           <img
                             src={selectedTick}
@@ -189,6 +155,7 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                           <Button
                             type="primary"
                             className="btn d-flex w-100 align-items-center justify-content-center btn-41"
+                            onClick={() => dispatch(setIsDiagnosisBox(true))}
                           >
                             Add to Rx
                           </Button>
@@ -235,7 +202,9 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                                 className="d-flex align-items-center gap-1"
                               >
                                 <span>{symptom}</span>
-                                {symptom.includes(addedSymptoms) ? (
+                                {symptomsData
+                                  ?.map((item) => item?.symptom_name)
+                                  ?.includes(symptom) ? (
                                   <img
                                     src={tick}
                                     alt="tick"
@@ -254,6 +223,7 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                           <div
                             className="text-primary"
                             style={{ fontWeight: 600 }}
+                            onClick={() => dispatch(setIsSymptomsBox(true))}
                           >
                             Add To Rx/Edit
                           </div>
@@ -289,7 +259,9 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                                 className="d-flex align-items-center gap-1"
                               >
                                 <span>{labTest}</span>
-                                {labTest.includes(addedLabTest) ? (
+                                {investigationData
+                                  ?.map((item) => item?.investigation_name)
+                                  ?.includes(labTest) ? (
                                   <img
                                     src={tick}
                                     alt="tick"
@@ -308,6 +280,7 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                           <div
                             className="text-primary"
                             style={{ fontWeight: 600 }}
+                            onClick={() => dispatch(setIsLabTestBox(true))}
                           >
                             Add To Rx/Edit
                           </div>

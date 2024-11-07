@@ -27,8 +27,6 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
 
     const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
 
-    const updatedOptions = [...parentOptionsList, ...ddxOptionsList];
-
     const [searchChildQuery, setSearchChildQuery] = useState("");
     const [childSearchOptions, setChildSearchOptions] = useState([]);
 
@@ -475,10 +473,10 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
                                 <div className="d-flex" style={{ padding: "20px 0" }}>
                                 <div>
                                     <img
-                                    style={{ backgroundColor: "#22003C", borderRadius: "10px 10px 0px" }}
-                                    className="me-3"
-                                    src={apexAI}
-                                    alt="apex-AI"
+                                        style={{ backgroundColor: "#22003C", borderRadius: "10px 10px 0px" }}
+                                        className="me-3"
+                                        src={apexAI}
+                                        alt="apex-AI"
                                     />
                                 </div>
                                     <div
@@ -491,24 +489,24 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
                                     }}
                                     >
                                         <>
-                                        <div style={{ fontSize: 16, fontWeight: 500 }}>
-                                            Differential Diagnosis
-                                        </div>
-                                        <span className="ddx-ready-txt">These are symptoms associated with added diagnosis. Tap to add to EMR</span>
-                                        <div
-                                            className="d-flex align-items-center"
-                                            style={{ padding: "15px 8px 0 8px", flexWrap: "wrap", gap: 16 }}
-                                        >
-                                            {updatedOptions?.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name) && e?.isDDx)?.map((item) => (
-                                            <Button
-                                                type="button"
-                                                className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between test-name-btn"
-                                                onClick={() => onSelectParent({ ...item })}
+                                            <div style={{ fontSize: 16, fontWeight: 500 }}>
+                                                Differential Diagnosis
+                                            </div>
+                                            <span className="ddx-ready-txt">These are symptoms associated with added diagnosis. Tap to add to EMR</span>
+                                            <div
+                                                className="d-flex align-items-center"
+                                                style={{ padding: "15px 8px 0 8px", flexWrap: "wrap", gap: 16 }}
                                             >
-                                                <span>{item?.tds_name}</span>
-                                            </Button>
-                                            ))}
-                                        </div>
+                                                {ddxOptionsList?.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name))?.map((item) => (
+                                                <Button
+                                                    type="button"
+                                                    className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between test-name-btn"
+                                                    onClick={() => onSelectParent({ ...item })}
+                                                >
+                                                    <span>{item?.tds_name}</span>
+                                                </Button>
+                                                ))}
+                                            </div>
                                         </>
                                     </div>
                                 </div>
@@ -542,8 +540,8 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
                                                 )
                                             })
                                         ) : (
-                                            updatedOptions.length > 0 &&
-                                            updatedOptions.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name) && !e?.isDDx).map((item, i) => {
+                                            parentOptionsList.length > 0 &&
+                                            parentOptionsList.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name)).map((item, i) => {
                                                 return (
                                                     <Button key={i} type="text" style={{ width: item?.tds_name?.length > 26 && '250px' }} className={`${item?.tds_name?.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item?.tds_name}</Button>
                                                 )

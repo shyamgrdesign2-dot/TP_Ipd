@@ -44,6 +44,7 @@ import growthChartDark from "../../assets/images/growth-chart-dark.svg";
 import privateNotesWhite from "../../assets/images/private-notes-white.svg";
 import privateNotesDark from "../../assets/images/private-notes-dark.svg";
 import apexAIImg from "../../assets/images/apexAI.svg";
+import blinkingDot from "../../assets/images/blinkingDot.png";
 import ddxImg from "../../assets/images/ddx.svg";
 import obstetricWhite from "../../assets/images/obstetric-white.svg";
 import obstetricDark from "../../assets/images/obstetric-dark.svg";
@@ -78,11 +79,13 @@ import { isAndroid, isBrowser } from "react-device-detect";
 import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "../medicalRecords/utils/helper";
 import ApexAIPopup from "../../components/ApexAIPopup";
 import TabDDxList from "../../components/tab_design/TabDDxList";
-import { setIsApexAISelected } from "../../redux/ddxSlice";
+import { setIsApexAISelected, setIsDDxReadyToGenerate } from "../../redux/ddxSlice";
 import DifferentialDiagnosisDrawer from "../../components/DifferentialDiagnosisDrawer";
 import CommonModal from "../../common/CommonModal";
 import DDxKnowMore from "../../components/DDxKnowMore";
 import { getDDxDetails } from "../../api/services/ApiDDx";
+import { getDecodedToken } from "../../utils/localStorage";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 function TabPrescription() {
   const {
@@ -92,6 +95,7 @@ function TabPrescription() {
     timingList,
     userId,
   } = useSelector((state) => state.doctors);
+  const isApexAIAccessable = useFeatureIsOn("cdss");
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -101,9 +105,12 @@ function TabPrescription() {
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
-  const { isApexAISelected } = useSelector((state) => state.ddx);
+  const { isApexAISelected, isDDxReadyToGenerate } = useSelector(
+    (state) => state.ddx
+  );
   const { profile } = useSelector((state) => state.doctors);
   const { isLoading } = useSelector((state) => state.uploadDoc);
+  const decodedToken = getDecodedToken();
   const dispatch = useDispatch();
 
   const { state } = useLocation();
@@ -692,22 +699,31 @@ function TabPrescription() {
   const getGenerateDDx = async () => {
     setIsDDxLoading(true);
     const payload = {
-      patientId: 567770111407,
-      businessId: 149831714557669,
-      symptoms: [
-        {
-          name: "Fever",
-          since: "2 Day(s)",
-          severity: "Moderate",
-          notes: "",
-        },
-      ],
+      patientId: patient_data?.patient_unique_id,
+      businessId: decodedToken?.result?.hospital_business_id,
+      symptoms: symptomsData?.map((symptom) => {
+        if (symptom) {
+          return {
+            name: symptom.symptom_name,
+            since: symptom.since,
+            severity: symptom.severity,
+            notes: symptom.note,
+          };
+        }
+      }) 
     };
     const generatedDDxResponse = await getDDxDetails(payload);
     if (generatedDDxResponse?.results?.length > 0) {
       setGeneratedDDx(generatedDDxResponse.results);
     }
+    dispatch(setIsDDxReadyToGenerate(false));
     setIsDDxLoading(false);
+  }
+
+  const handleApexAI = () => {
+    dispatch(setIsApexAISelected(false));
+    setCollapsedFlag(null);
+    setCollapsed(false);
   }
 
   return (
@@ -726,7 +742,7 @@ function TabPrescription() {
                   <button
                     type="button"
                     className="mb-3 text-center btn btn-action"
-                    onClick={() => dispatch(setIsApexAISelected(false))}
+                    onClick={handleApexAI}
                     style={{ padding: "6px 10px" }}
                   >
                     <div
@@ -758,7 +774,7 @@ function TabPrescription() {
                 customizedPadLeftList?.map((e, i) => {
                   return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
                     <>
-                      <button
+                      {isApexAIAccessable && <button
                         key={i}
                         type="button"
                         className="mb-3 text-center btn btn-action"
@@ -772,14 +788,22 @@ function TabPrescription() {
                           className={`prescription-tab-button rounded-10px ${
                             collapsedFlag == 1 && "active"
                           }`}
+                          style={{position: "relative"}}
                         >
                           <img
                             src={apexAIImg}
-                            alt="Vitals"
+                            alt="apex-AI"
                           />
+                          {isDDxReadyToGenerate && generatedDDx?.length > 0 && (<img
+                            src={blinkingDot}
+                            alt="blinking-dot"
+                            width={30}
+                            height={30}
+                            style={{position: "absolute", top: -15, right: -15}}
+                          />)}
                         </div>
                         <label className="text-white mt-1">Apex AI</label>
-                      </button>
+                      </button>}
                       <button
                         key={i}
                         type="button"
@@ -1089,7 +1113,7 @@ function TabPrescription() {
                   handleViewLabParamsDrawer={handleViewLabParamsDrawer}
                 />
               ) : (
-                collapsedFlag === 9 && <TabDDxList />
+                collapsedFlag === 9 && <TabDDxList generatedDDx={generatedDDx} handleDDxDrawer={handleDDxDrawer} isDDxLoading={isDDxLoading} handleDDxKnowMore={handleDDxKnowMore} getGenerateDDx={getGenerateDDx}/>
               )}
             </Sider>
             <div
@@ -1097,11 +1121,11 @@ function TabPrescription() {
               style={{ height: "calc(100vh - 60px)" }}
             >
               <Content>
-                {shouldShowApexPopup && <ApexAIPopup setShowApexPopup={setShowApexPopup} handleDDxKnowMore={handleDDxKnowMore} />}
+                {shouldShowApexPopup && isApexAIAccessable && <ApexAIPopup setShowApexPopup={setShowApexPopup} handleDDxKnowMore={handleDDxKnowMore} />}
                 {customizedPadRightList?.map((e, i) => {
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      <TabSymptomsBox />
+                      <TabSymptomsBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} />
                     </div>
                   ) : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1109,7 +1133,7 @@ function TabPrescription() {
                     </div>
                   ) : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      <TabDiagnosisBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} />
+                      <TabDiagnosisBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} handleDDxKnowMore={handleDDxKnowMore} />
                     </div>
                   ) : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1122,7 +1146,7 @@ function TabPrescription() {
                     </div>
                   ) : e.tmdpm_id === 14 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      <TabInvestigationBox />
+                      <TabInvestigationBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} />
                     </div>
                   ) : (
                     e.tmdpm_id === 15 &&
@@ -1312,6 +1336,7 @@ function TabPrescription() {
             bodyStyle={{ backgroundColor: "white" }}
             onClose={handleDDxDrawer}
             width="auto"
+            zIndex={999}
           >
               <DifferentialDiagnosisDrawer handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} />
           </Drawer>

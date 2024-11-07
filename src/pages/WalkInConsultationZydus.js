@@ -23,6 +23,7 @@ import { resetGrowthChartState } from "../redux/growthChartSlice";
 import { resetObstetricState } from "../redux/obstetricSlice";
 import moment from "moment";
 import { resetUploadDocState } from "../redux/uploadDocSlice";
+import { resetDDxState } from "../redux/ddxSlice";
 
 function WalkInConsultationZydus() {
     const navigate = useNavigate();
@@ -257,6 +258,7 @@ function WalkInConsultationZydus() {
         dispatch(resetGrowthChartState());
         dispatch(resetObstetricState());
         dispatch(resetUploadDocState());
+        dispatch(resetDDxState());
     }, [])
 
     useEffect(() => {

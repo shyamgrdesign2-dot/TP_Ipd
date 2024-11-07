@@ -25,14 +25,18 @@ import TabDiagnosisSearch from "../../components/tab_design/TabDiagnosisSearch";
 import DifferentialDiagnosis from "../DifferentialDiagnosis";
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { setIsDiagnosisBox } from "../../redux/ddxSlice";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
-function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoading}) {
+function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoading, handleDDxKnowMore}) {
     const {
         selectedDiagnosisList,
         parentOptionsList,
         templates,
         loading,
     } = useSelector((state) => state.diagnosis);
+    const { isDiagnosisBox } = useSelector((state) => state.ddx);
+    const isApexAIAccessable = useFeatureIsOn("cdss");
     const dispatch = useDispatch();
 
     const { patient_data, diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
@@ -50,8 +54,6 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
             }
         )
     });
-
-    const updatedOptions = [...parentOptionsList, ...ddxOptionsList];
 
     const [parentDrawer, setParentDrawer] = useState(false);
     const [childDrawer, setChildDrawer] = useState(false);
@@ -115,6 +117,9 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
     // Handle Parent Drawer
     const handleDrawerParent = useCallback(() => {
         setParentDrawer(!parentDrawer);
+        if (isDiagnosisBox) {
+          dispatch(setIsDiagnosisBox(false));
+        }
     }, [parentDrawer]);
 
     const onSelectParent = useCallback(
@@ -819,14 +824,14 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
                         <i className='icon-search mx-2'></i>
                         <span className="fontroboto backbar fw-normal">Search Diagnosis</span>
                     </div>
-                    <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={ddxOptionsList} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} onSelectParent={onSelectParent} />
+                    {isApexAIAccessable && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={ddxOptionsList?.filter((e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name)))} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} onSelectParent={onSelectParent} isDiagnosis={true} handleDDxKnowMore={handleDDxKnowMore} />}
                 </div>
-                <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
-                    {parentDrawer && (<TabDiagnosisSearch passIndex={selectedIndex} onClose={handleDrawerParent} ddxOptionsList={ddxOptionsList} />)}
+                <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer || isDiagnosisBox} width={'100%'} className="searchdrawer-content">
+                    {(parentDrawer || isDiagnosisBox) && (<TabDiagnosisSearch passIndex={selectedIndex} onClose={handleDrawerParent} ddxOptionsList={ddxOptionsList} />)}
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
-                    {updatedOptions.length > 0 &&
-                        updatedOptions.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name) && !e?.isDDx).map((item, i) => {
+                    {parentOptionsList.length > 0 &&
+                        parentOptionsList.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name)).map((item, i) => {
                             return (
                                 <Button key={i} type="text" style={{ width: item.tds_name.length > 26 && '250px' }} className={`${item.tds_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{`${item.tds_name}`}</Button>
                             )
