@@ -364,6 +364,8 @@ function Cardiology(props) {
         } else {
           setIsRxdigitised(false);
         }
+      } else{
+        setRxDigitisedData(null);
       }
 
       return response.data; // return the data after it's fetched
@@ -488,32 +490,50 @@ function Cardiology(props) {
               </div>
             </Card.Header>
 
-            { isSmartSyncCVTAccessableFromGB && isSmartRxFile && viewCaseManagerData?.smart_prescription_filename?.length > 0 &&
-             ( isRxdigitised ?
-              <div className="p-2 mb-2">
-                <button className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(true)}>Digital Rx</button>
-                <button className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`} onClick={() => setShowDigitalRx(false)}>Written Rx</button>
-              </div>
-              :
-              <div className="digitise-info-cardiology">
-                <img src={successIcon} alt="success" width="40px" height="40px" />
-                <p>
-                  <span className="digitise-info-header-cardiology">{`${patient_data?.pm_fullname}'s Digital Rx is ready!`}</span>
-                  Digitise Rx to enhance patient care, workflow efficiency, and revenue. 
-                  <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>
-                    <span style={{
-                      fontSize: "14px",
-                      paddingLeft: "4px",
-                      textDecoration: "underline",
-                      textDecorationColor: "#454551"
-                    }}>Know More</span>
+            { isSmartSyncCVTAccessableFromGB && isSmartRxFile && viewCaseManagerData?.smart_prescription_filename?.length > 0 && rxDigitisedData && (
+              isRxdigitised ? (
+                <div className="p-2 mb-2">
+                  <button
+                    className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`}
+                    onClick={() => setShowDigitalRx(true)}
+                  >
+                    Digital Rx
                   </button>
-                </p>
-                {/* <button onClick={handleDigitiseRx} className=""> */}
-                <button className="digitise-info-btn-cardiology" onClick={handleDigitiseRx}>
-                  Digitise Rx Now
-                </button>
-              </div>
+                  <button
+                    className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`}
+                    onClick={() => setShowDigitalRx(false)}
+                  >
+                    Written Rx
+                  </button>
+                </div>
+              ) : (
+                rxDigitisedData?.ocrData && (
+                  <div className="digitise-info-cardiology">
+                    <img src={successIcon} alt="success" width="40px" height="40px" />
+                    <p>
+                      <span className="digitise-info-header-cardiology">
+                        {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
+                      </span>
+                      Digitise Rx to enhance patient care, workflow efficiency, and revenue.
+                      <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>
+                        <span
+                          style={{
+                            fontSize: "14px",
+                            paddingLeft: "4px",
+                            textDecoration: "underline",
+                            textDecorationColor: "#454551",
+                          }}
+                        >
+                          Know More
+                        </span>
+                      </button>
+                    </p>
+                    <button className="digitise-info-btn-cardiology" onClick={handleDigitiseRx}>
+                      Digitise Rx Now
+                    </button>
+                  </div>
+                )
+              )
             )}
             <Drawer
               closeIcon={false}
