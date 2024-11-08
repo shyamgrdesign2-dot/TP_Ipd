@@ -95,7 +95,7 @@ function TabPrescription() {
     timingList,
     userId,
   } = useSelector((state) => state.doctors);
-  const isApexAIAccessable = useFeatureIsOn("cdss");
+  const isApexAIAccessable = useFeatureIsOn("cdss") || true;
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);

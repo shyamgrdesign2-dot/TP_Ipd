@@ -54,7 +54,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
   const { patient_data, diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
   // const [diagnosisData, setDiagnosisData] = useState([]);
 
-  const isApexAIAccessable = useFeatureIsOn("cdss");
+  const isApexAIAccessable = useFeatureIsOn("cdss") && false;
 
   const ddxOptionsList = generatedDDx?.map((item) => {
     return {
