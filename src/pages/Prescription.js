@@ -185,7 +185,7 @@ function Prescription() {
   const [generatedDDx, setGeneratedDDx] = useState([]);
   const [isDDxLoading, setIsDDxLoading] = useState(false);
   const [ddxDrawer, setDDxDrawer] = useState(false);
-  const isApexAIAccessable = useFeatureIsOn("cdss");
+  const isApexAIAccessable = useFeatureIsOn("cdss") && false;
   const {
     isVaccinationAccessable,
     isGrowthChartAccessable,

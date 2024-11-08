@@ -36,7 +36,7 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
         loading,
     } = useSelector((state) => state.diagnosis);
     const { isDiagnosisBox } = useSelector((state) => state.ddx);
-    const isApexAIAccessable = useFeatureIsOn("cdss");
+    const isApexAIAccessable = useFeatureIsOn("cdss") || true;
     const dispatch = useDispatch();
 
     const { patient_data, diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
