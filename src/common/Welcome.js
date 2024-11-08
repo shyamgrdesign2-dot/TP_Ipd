@@ -1,12 +1,9 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React from "react";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getDecodedToken } from "../utils/localStorage";
 import config from "../config";
-import diwaliLight from "../assets/images/diwali-lamp.gif";
-import diwaliText from "../assets/images/text-happy-diwali.svg";
-import diwaliCrackers from "../assets/images/crackers-animation.gif";
 
 function Welcome(props) {
 
@@ -16,16 +13,6 @@ function Welcome(props) {
 
   const { profile } = useSelector((state) => state.doctors);
   const decodedToken = getDecodedToken();
-
-  const [showGif, setShowGif] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowGif(!showGif);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [showGif]);
 
   const clickWalkInConsultation = () => {
     const businessId = decodedToken?.result?.hospital_business_id;
@@ -41,123 +28,49 @@ function Welcome(props) {
   }
 
   return (
-    <>
-
-      {/* Below Code Commented for Diwali Wrap */}
-
-      {/* <div className="welcomesection position-relative">
-        <div className="bg-welcome d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center">
-            {backVisible && (
-              <div onClick={() => navigate(-1)} className="lh-1 me-1 px-2 text-dark cursor-pointer">
-                <i className="fs-3 icon-right"></i>
+    <div className="welcomesection position-relative">
+      <div className="bg-welcome d-flex justify-content-between align-items-center">
+        <div className="d-flex align-items-center">
+          {backVisible && (
+            <div onClick={() => navigate(-1)} className="lh-1 me-1 px-2 text-dark cursor-pointer">
+              <i className="fs-3 icon-right"></i>
+            </div>
+          )}
+          <div>
+            {locationPath == "/add_patient" ? (
+              <h1>Add New Patient</h1>
+            ) : locationPath == "/edit_patient" ? (
+              <h1>Edit Patient Details</h1>
+            ) : (locationPath == "/walk_in_consultation" || locationPath == "/walk_in_consultation_zydus") ? (
+              <h1>Start Walk-In Consultation</h1>
+            ) : (
+              <h1>Welcome Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
+            )}
+            {locationPath == "/" && <p>{"Your Appointments"}</p>}
+          </div>
+          <img
+            src={require("../assets/images/bg-welcome.png")}
+            className="welcomeig d-inline-block align-top"
+            alt="Welcome"
+          />
+        </div>
+        <div className="d-flex gap-1">
+          <div>
+            {locationPath == "/" && (
+              <div className="d-lg-flex d-block">
+                <Button
+                  variant="primary"
+                  className="px-3 btn-41"
+                  onClick={clickWalkInConsultation}>
+                  {"Start Walk-in Consultation"}
+                </Button>
               </div>
             )}
-            <div>
-              {locationPath == "/add_patient" ? (
-                <h1>Add New Patient</h1>
-              ) : locationPath == "/edit_patient" ? (
-                <h1>Edit Patient Details</h1>
-              ) : (locationPath == "/walk_in_consultation" || locationPath == "/walk_in_consultation_zydus") ? (
-                <h1>Start Walk-In Consultation</h1>
-              ) : (
-                <h1>Welcome Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
-              )}
-              {locationPath == "/" && <p>{"Your Appointments"}</p>}
-            </div>
-            <img
-              src={require("../assets/images/bg-welcome.png")}
-              className="welcomeig d-inline-block align-top"
-              alt="Welcome"
-            />
-          </div>
-          <div className="d-flex gap-1">
-            <div>
-              {locationPath == "/" && (
-                <div className="d-lg-flex d-block">
-                  <Button
-                    variant="primary"
-                    className="px-3 btn-41"
-                    onClick={clickWalkInConsultation}>
-                    {"Start Walk-in Consultation"}
-                  </Button>
-                </div>
-              )}
-            </div>
           </div>
         </div>
-        <div className="pb-5">&nbsp;</div>
-      </div> */}
-
-      <div className={`welcomesection ${locationPath == "/" && 'wrapper-diwali'} position-relative`}>
-        {locationPath == "/" &&
-          <>
-            <div className="diwali-flower"></div>
-            <div>
-              {showGif && (
-                <div className="diwali-crackers">
-                  <img width='353.66' height='200' src={diwaliCrackers} />
-                </div>
-              )}
-              {/* <div className='diwali-text'>
-                <img width='164' height='193' src={diwaliLight} />
-                <img src={diwaliText} />
-                <img width='164' height='193' src={diwaliLight} />
-              </div> */}
-              {showGif && (
-                <div className="diwali-crackers" style={{ right: 0 }}>
-                  <img width='353.66' height='200' src={diwaliCrackers} />
-                </div>
-              )}
-            </div>
-          </>
-        }
-        <div className="bg-welcome d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center">
-            {backVisible && (
-              <div onClick={() => navigate(-1)} className="lh-1 me-1 px-2 text-dark cursor-pointer">
-                <i className="fs-3 icon-right"></i>
-              </div>
-            )}
-            <div style={{ bottom: locationPath == "/" ? '-25px' : '0px', position: 'relative' }}>
-              {locationPath == "/add_patient" ? (
-                <h1>Add New Patient</h1>
-              ) : locationPath == "/edit_patient" ? (
-                <h1>Edit Patient Details</h1>
-              ) : (locationPath == "/walk_in_consultation" || locationPath == "/walk_in_consultation_zydus") ? (
-                <h1>Start Walk-In Consultation</h1>
-              ) : (<div className="d-flex align-items-center">
-                <span className="text-diwali happy-diwali mb-1 me-2">Happy Diwali</span>
-                <h1 className="text-diwali"> Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
-              </div>
-              )}
-              {locationPath == "/" && <p className="text-diwali">{"Your Appointments"}</p>}
-            </div>
-            {/* <img
-              src={require("../assets/images/bg-welcome.png")}
-              className="welcomeig d-inline-block align-top"
-              alt="Welcome"
-            /> */}
-          </div>
-          <div className="d-flex gap-1" style={{ marginBottom: -32 }}>
-            <div>
-              {locationPath == "/" && (
-                <div className="d-lg-flex d-block">
-                  {/* <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => alert('Comming Soon')}> <i className={'icon-Add me-2'}></i> {'Add New Appointment'}</Button> */}
-                  <Button
-                    variant="primary"
-                    className="px-3 btn-41"
-                    onClick={clickWalkInConsultation}>
-                    {"Start Walk-in Consultation"}
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="pb-5">&nbsp;</div>
       </div>
-    </>
+      <div className="pb-5">&nbsp;</div>
+    </div>
   );
 }
 

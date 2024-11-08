@@ -179,14 +179,14 @@ const prod = {
   razorpay_integration_url: "https://pm-razorpay-uat-integration.tatvacare.in",
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
-  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
-  upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in",
+  opd_encryption_url:"https://api-prod.mytatva.in/api/v8/helper/encrypt_visit_data",
+  upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in/"
 };
 
 const getEnv = () => {
   switch (process.env.REACT_APP_ENV) {
     case "dev":
-      return dev;
+      return uat;
     case "qa":
       return qa;
     case "uat":
