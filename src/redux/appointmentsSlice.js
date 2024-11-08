@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import ApiAppointments from "../api/services/ApiAppointments";
 import { v4 as uuidv4 } from 'uuid';
+import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../utils/constants";
 
 const initialState = {
     loading: false,
@@ -196,6 +197,38 @@ export const viewPatient = createAsyncThunk(
             }
         } catch (error) {
             console.log("error: ", error);
+            throw Error(error);
+        }
+    }
+);
+
+export const ictAuthToken = createAsyncThunk(
+    "records/ictAuthToken",
+    async () => {
+        const result = await ApiAppointments.ictAuthToken();
+        if (result.status) {
+            return result.data;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
+export const consultations = createAsyncThunk(
+    "records/consultations",
+    async ({ siteId, empNo, date }, { dispatch }) => {
+        try {
+            const result = await ApiAppointments.consultations(siteId, empNo, date);
+            console.log(result)
+        } catch (error) {
+            if (error.response.status === 401) {
+                const action = await dispatch(ictAuthToken())
+                if (action.meta.requestStatus === "fulfilled") {
+                    await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.token))
+                    dispatch(consultations({ siteId, empNo, date }))
+                }
+            }
+            // console.log("error: ", error);
             throw Error(error);
         }
     }

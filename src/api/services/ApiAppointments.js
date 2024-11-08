@@ -5,6 +5,7 @@ import { IS_DEV } from "../../utils/constants";
 
 const baseUrl = { customBaseUrl: config.appointment_api_url };
 const baseZydusUrl = { customBaseUrl: config.zydus_api_url };
+const baseZydusProxyUrl = { customBaseUrl: config.zydus_proxy_url };
 
 const ApiAppointments = {};
 
@@ -65,10 +66,6 @@ ApiAppointments.searchPatients = function (query, company) {
   }
 };
 
-ApiAppointments.synczyduspatient = function (body) {
-  return api.post(`/appointment/synczyduspatient`, body, baseZydusUrl);
-};
-
 ApiAppointments.listSalutation = function () {
   return api.get(`/api/v1/appointment/showSalutation`, baseUrl);
 };
@@ -99,6 +96,22 @@ ApiAppointments.swtichLayout = function (data) {
 
 ApiAppointments.navigatetoTatvaPedia = function () {
   return api.post(`/api/v1/appointment/navigatetoTatvaPedia`, {}, baseUrl);
+};
+
+ApiAppointments.synczyduspatient = function (body) {
+  return api.post(`/appointment/synczyduspatient`, body, baseZydusUrl);
+};
+
+ApiAppointments.zydusRefIds = function () {
+  return api.get(`/appointment/zydusRefIds`, baseZydusUrl);
+};
+
+ApiAppointments.ictAuthToken = function () {
+  return api.get(`/appointment/ictAuthToken`, baseZydusUrl);
+};
+
+ApiAppointments.consultations = function (siteId, empNo, date) {
+  return api.get(`/ictApiProxy/emr/op/consultations/list?siteId=${siteId}&empNo=${empNo}&date=${date}`, baseZydusProxyUrl);
 };
 
 
