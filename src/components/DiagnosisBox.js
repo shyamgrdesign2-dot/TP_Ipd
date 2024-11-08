@@ -60,7 +60,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
     return {
       tds_id: item?._id,
       unique_id: item?._id,
-      tds_name: item?.testName,
+      tds_name: item?.differentialDiagnosisName,
       pms_default: 1,
       usage_count: 0,
       isDDx: true,

@@ -213,6 +213,7 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
     });
     setSymptomsData((prev) => [...prev]);
     setSearchParentQuery("");
+    dispatch(setIsDDxReadyToGenerate(true));
   };
 
   //Child AutoComplete

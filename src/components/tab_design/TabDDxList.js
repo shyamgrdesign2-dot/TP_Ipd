@@ -116,7 +116,9 @@ const TabDDxList = ({
                     borderRadius: 16,
                   }}
                 >
-                  <div className="patientName">{item?.testName}</div>
+                  <div className="patientName">
+                    {item?.differentialDiagnosisName}
+                  </div>
                   <div className="d-flex" style={{ columnGap: 2 }}>
                     {Array.from({ length: item?.rank || 0 }).map((_, index) => (
                       <div
@@ -145,7 +147,7 @@ const TabDDxList = ({
                   >
                     {diagnosisData
                       ?.map((item) => item?.tds_name)
-                      ?.includes(item?.testName) ? (
+                      ?.includes(item?.differentialDiagnosisName) ? (
                       <div className="d-flex align-items-center gap-2">
                         <img
                           src={selectedTick}

@@ -102,7 +102,7 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                             src={diagnoses}
                             alt="diagnosis"
                           />
-                          <div>{item?.testName}</div>
+                          <div>{item?.differentialDiagnosisName}</div>
                         </div>
                         <div className="d-flex align-items-center gap-2">
                           <div className="d-flex" style={{ columnGap: 2 }}>
@@ -135,7 +135,7 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                       </div>
                       {diagnosisData
                         ?.map((item) => item?.tds_name)
-                        ?.includes(item?.testName) ? (
+                        ?.includes(item?.differentialDiagnosisName) ? (
                         <div className="d-flex align-items-center gap-2">
                           <img
                             src={selectedTick}

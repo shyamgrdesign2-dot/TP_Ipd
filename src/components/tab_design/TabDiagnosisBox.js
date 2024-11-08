@@ -43,16 +43,14 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
     // const [ diagnosisData, setDiagnosisData] = useState([]);
 
     const ddxOptionsList = generatedDDx?.map((item) => {
-        return (
-            {
-                tds_id: item?._id,
-                unique_id: item?._id,
-                tds_name: item?.testName,
-                pms_default: 1,
-                usage_count: 0,
-                isDDx: true
-            }
-        )
+        return {
+          tds_id: item?._id,
+          unique_id: item?._id,
+          tds_name: item?.differentialDiagnosisName,
+          pms_default: 1,
+          usage_count: 0,
+          isDDx: true,
+        };
     });
 
     const [parentDrawer, setParentDrawer] = useState(false);

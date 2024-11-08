@@ -680,7 +680,6 @@ const getGenerateDDx = async () => {
   setIsDDxLoading(true);
   const payload = {
     patientId: patient_data?.patient_unique_id,
-    businessId: decodedToken?.result?.hospital_business_id,
     symptoms: symptomsData?.map((symptom) => {
       if (symptom) {
         return {
@@ -693,8 +692,8 @@ const getGenerateDDx = async () => {
     }),
   };
   const generatedDDxResponse = await getDDxDetails(payload);
-  if (generatedDDxResponse?.results?.length > 0) {
-    setGeneratedDDx(generatedDDxResponse.results);
+  if (generatedDDxResponse?.length > 0) {
+    setGeneratedDDx(generatedDDxResponse);
   }
   dispatch(setIsDDxReadyToGenerate(false));
   setIsDDxLoading(false);
