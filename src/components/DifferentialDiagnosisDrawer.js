@@ -222,7 +222,7 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                         >
                           <div
                             className="text-primary"
-                            style={{ fontWeight: 600 }}
+                            style={{ fontWeight: 600, cursor: "pointer" }}
                             onClick={() => dispatch(setIsSymptomsBox(true))}
                           >
                             Add To Rx/Edit
@@ -279,7 +279,7 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                         >
                           <div
                             className="text-primary"
-                            style={{ fontWeight: 600 }}
+                            style={{ fontWeight: 600, cursor: "pointer" }}
                             onClick={() => dispatch(setIsLabTestBox(true))}
                           >
                             Add To Rx/Edit

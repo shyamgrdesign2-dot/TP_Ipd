@@ -190,7 +190,7 @@ function TabPrescription() {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
-  const [ddxDrawer, setDDxDrawer] = useState(false)
+  const [ddxDrawer, setDDxDrawer] = useState(false);
   const [filesData, setFilesData] = useState([]);
   const [isEditDocument, setIsEditDocument] = useState(false);
   const fileInputRef = useRef(null);
@@ -700,7 +700,6 @@ function TabPrescription() {
     setIsDDxLoading(true);
     const payload = {
       patientId: patient_data?.patient_unique_id,
-      businessId: decodedToken?.result?.hospital_business_id,
       symptoms: symptomsData?.map((symptom) => {
         if (symptom) {
           return {
@@ -713,8 +712,8 @@ function TabPrescription() {
       }) 
     };
     const generatedDDxResponse = await getDDxDetails(payload);
-    if (generatedDDxResponse?.results?.length > 0) {
-      setGeneratedDDx(generatedDDxResponse.results);
+    if (generatedDDxResponse?.length > 0) {
+      setGeneratedDDx(generatedDDxResponse);
     }
     dispatch(setIsDDxReadyToGenerate(false));
     setIsDDxLoading(false);
@@ -771,51 +770,58 @@ function TabPrescription() {
                   </button>
                 </>
               ) : (
-                customizedPadLeftList?.map((e, i) => {
-                  return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
-                    <>
-                      {isApexAIAccessable && <button
-                        key={i}
-                        type="button"
-                        className="mb-3 text-center btn btn-action"
-                        onClick={() => {
-                          dispatch(setIsApexAISelected(true));
-                          openCollapsed(9);
-                        }}
-                        style={{ padding: "6px 10px" }}
+                <>
+                  {isApexAIAccessable && (
+                    <button
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={() => {
+                        dispatch(setIsApexAISelected(true));
+                        openCollapsed(9);
+                      }}
+                      style={{ padding: "6px 10px" }}
+                    >
+                      <div
+                        className={`prescription-tab-button rounded-10px ${
+                          collapsedFlag == 1 && "active"
+                        }`}
+                        style={{ position: "relative" }}
                       >
-                        <div
-                          className={`prescription-tab-button rounded-10px ${
-                            collapsedFlag == 1 && "active"
-                          }`}
-                          style={{position: "relative"}}
-                        >
+                        <img src={apexAIImg} alt="apex-AI" />
+                        {isDDxReadyToGenerate && generatedDDx?.length > 0 && (
                           <img
-                            src={apexAIImg}
-                            alt="apex-AI"
-                          />
-                          {isDDxReadyToGenerate && generatedDDx?.length > 0 && (<img
                             src={blinkingDot}
                             alt="blinking-dot"
                             width={30}
                             height={30}
-                            style={{position: "absolute", top: -15, right: -15}}
-                          />)}
-                        </div>
-                        <label className="text-white mt-1">Apex AI</label>
-                      </button>}
+                            style={{
+                              position: "absolute",
+                              top: -15,
+                              right: -15,
+                            }}
+                          />
+                        )}
+                      </div>
+                      <label className="text-white mt-1">Apex AI</label>
+                    </button>
+                  )}
+                  {customizedPadLeftList?.map((e, i) => {
+                    return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
                       <button
                         key={i}
                         type="button"
                         className="mb-3 text-center btn btn-action"
                         onClick={() =>
-                          vitalsData.length === 0 && vitalsPastList.length === 0 && !patientBirthWeight
+                          vitalsData.length === 0 &&
+                          vitalsPastList.length === 0 &&
+                          !patientBirthWeight
                             ? handleDrawerVital()
                             : openCollapsed(1)
                         }
                       >
                         <div
-                      className={`prescription-tab-button rounded-10px ${collapsedFlag == 1 && "active"
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag == 1 && "active"
                           }`}
                         >
                           <img
@@ -825,212 +831,228 @@ function TabPrescription() {
                         </div>
                         <label className="text-white mt-1">Vitals</label>
                       </button>
-                    </>
-                  ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
-                    <button
-                      key={i}
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={() =>
-                      (medicalHistoryData.length === 0 && !updatedGynecHistory)
-                          ? handleDrawerMedicalHistory()
-                          : openCollapsed(2)
-                      }
-                    >
-                      <div
-                      className={`prescription-tab-button rounded-10px ${collapsedFlag == 2 && "active"
-                        }`}
+                    ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
+                      <button
+                        key={i}
+                        type="button"
+                        className="mb-3 text-center btn btn-action"
+                        onClick={() =>
+                          medicalHistoryData.length === 0 &&
+                          !updatedGynecHistory
+                            ? handleDrawerMedicalHistory()
+                            : openCollapsed(2)
+                        }
                       >
-                        <img
-                          src={
-                            collapsedFlag == 2
-                              ? medicalHistoryDark
-                              : medicalHistoryWhite
-                          }
-                          alt="Medical History"
-                        />
-                      </div>
-                      <label className="text-white mt-1">History</label>
-                    </button>
-                  ) : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
-                    <button
-                      key={i}
-                      type="button"
-                      className="mb-3 text-center btn btn-action position-relative"
-                      onClick={() =>
-                        privateNotesList?.length === 0
-                          ? handleDrawerPrivateNotes()
-                          : openCollapsed(4)
-                      }
-                    >
-                      <div
-                      className={`prescription-tab-button rounded-10px  ${collapsedFlag == 4 && "active"
-                        }`}
+                        <div
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag == 2 && "active"
+                          }`}
+                        >
+                          <img
+                            src={
+                              collapsedFlag == 2
+                                ? medicalHistoryDark
+                                : medicalHistoryWhite
+                            }
+                            alt="Medical History"
+                          />
+                        </div>
+                        <label className="text-white mt-1">History</label>
+                      </button>
+                    ) : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
+                      <button
+                        key={i}
+                        type="button"
+                        className="mb-3 text-center btn btn-action position-relative"
+                        onClick={() =>
+                          privateNotesList?.length === 0
+                            ? handleDrawerPrivateNotes()
+                            : openCollapsed(4)
+                        }
                       >
-                        {privateNotesList?.length > 0 && (
-                          <div className="notes-dot">
-                            {privateNotesList?.length > 5
-                              ? "5+"
-                              : privateNotesList?.length}
-                          </div>
-                        )}
-                        <img
-                          src={
-                            collapsedFlag == 4
-                              ? privateNotesDark
-                              : privateNotesWhite
-                          }
-                          alt="Private Notes"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Private Notes</label>
-                    </button>
-                ) :
-                  e.tmdpm_id === 7 &&
-                    e.tmdpm_status === 0 &&
-                    isVaccinationAccessable ? (
-                    <button
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={handleDrawerVaccination}
-                    >
-                      <div
-                        className={`bg-secondary-light prescription-tab-button rounded-10px ${
-                          collapsedFlag === 3 && "active"
-                        }`}
+                        <div
+                          className={`prescription-tab-button rounded-10px  ${
+                            collapsedFlag == 4 && "active"
+                          }`}
+                        >
+                          {privateNotesList?.length > 0 && (
+                            <div className="notes-dot">
+                              {privateNotesList?.length > 5
+                                ? "5+"
+                                : privateNotesList?.length}
+                            </div>
+                          )}
+                          <img
+                            src={
+                              collapsedFlag == 4
+                                ? privateNotesDark
+                                : privateNotesWhite
+                            }
+                            alt="Private Notes"
+                          />
+                        </div>
+                        <label className="text-white mt-1">Private Notes</label>
+                      </button>
+                    ) : e.tmdpm_id === 7 &&
+                      e.tmdpm_status === 0 &&
+                      isVaccinationAccessable ? (
+                      <button
+                        type="button"
+                        className="mb-3 text-center btn btn-action"
+                        onClick={handleDrawerVaccination}
                       >
-                        <img
-                          src={
-                            collapsedFlag === 3
-                              ? vaccinationDark
-                              : vaccinationWhite
-                          }
-                          alt="Vitals"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Vaccine</label>
-                    </button>
-                  )
-                    :
-                    e.tmdpm_id === 16 &&
-                    e.tmdpm_status === 0 &&
-                    isGrowthChartAccessable ? (
-                    <button
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      onClick={handleDrawerGrowth}
-                    >
-                      <div
-                          className={`prescription-tab-button rounded-10px ${collapsedFlag === 5 && "active"
-                        }`}
+                        <div
+                          className={`bg-secondary-light prescription-tab-button rounded-10px ${
+                            collapsedFlag === 3 && "active"
+                          }`}
+                        >
+                          <img
+                            src={
+                              collapsedFlag === 3
+                                ? vaccinationDark
+                                : vaccinationWhite
+                            }
+                            alt="Vitals"
+                          />
+                        </div>
+                        <label className="text-white mt-1">Vaccine</label>
+                      </button>
+                    ) : e.tmdpm_id === 16 &&
+                      e.tmdpm_status === 0 &&
+                      isGrowthChartAccessable ? (
+                      <button
+                        type="button"
+                        className="mb-3 text-center btn btn-action"
+                        onClick={handleDrawerGrowth}
                       >
-                        <img
-                          src={
+                        <div
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag === 5 && "active"
+                          }`}
+                        >
+                          <img
+                            src={
                               collapsedFlag === 5
                                 ? growthChartDark
                                 : growthChart
-                          }
-                          alt="Growth"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Growth</label>
-                    </button>
-                    )
-                      :
-                      e.tmdpm_id === 17 &&
-                    e.tmdpm_status === 0 &&
-                    isGynaecHistoryAccessable ? (
-                    <button
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      style={{ padding: "0px" }}
-                          onClick={() => examinationHistory.length === 0 && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies ? handleDrawerObstetric() : openCollapsed(6)}
-                    >
-                      <div
-                            className={`prescription-tab-button rounded-10px ${collapsedFlag === 6 && "active"
-                        }`}
-                      >
-                        <img
-                          src={
-                                collapsedFlag === 6
-                                  ? obstetricDark
-                                  : obstetricWhite
-                          }
-                          alt="Obstetric"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Obstetric</label>
-                    </button>
-                      ) : e.tmdpm_id === 18 &&
-                      e.tmdpm_status === 0 ? (
-                    <button
-                      type="button"
-                      className="mb-3 text-center btn btn-action"
-                      style={{ padding: "0px" }}
-                          onClick={() => allUploadedDocs.length === 0 ? handleAddClick() : openCollapsed(7)}
-                    >
-                      {isAndroid && !isBrowser ? (
-                        <div
-                          ref={fileInputRef}
-                          onClick={handleUploadDocPopup}
-                          style={{ display: "none" }}
-                        />
-                      ) : (
-                        <input
-                          type="file"
-                          multiple
-                          ref={fileInputRef}
-                          onChange={handleFileUpload}
-                          accept="image/png, image/jpeg, image/jpg, application/pdf"
-                          style={{ display: "none" }}
-                        />
-                      )}
-                      <div
-                            className={`prescription-tab-button rounded-10px ${collapsedFlag === 7 && "active"
-                        }`}
-                      >
-                        <img
-                          src={
-                            collapsedFlag === 7
-                              ? medicalRecordsDark
-                              : medicalRecordsWhite
-                          }
-                          alt="records"
-                        />
-                      </div>
-                      <label className="text-white mt-1">Records</label>
-                    </button>
-                  ) : (
-                    e.tmdpm_id === 19 &&
-                    e.tmdpm_status === 0 && (
+                            }
+                            alt="Growth"
+                          />
+                        </div>
+                        <label className="text-white mt-1">Growth</label>
+                      </button>
+                    ) : e.tmdpm_id === 17 &&
+                      e.tmdpm_status === 0 &&
+                      isGynaecHistoryAccessable ? (
                       <button
                         type="button"
                         className="mb-3 text-center btn btn-action"
                         style={{ padding: "0px" }}
                         onClick={() =>
-                              (labParamsData?.length === 0)
-                            ? handleAddLabParamsDrawer()
-                            : openCollapsed(8)
+                          examinationHistory.length === 0 &&
+                          !obstetricDetails?.lmp &&
+                          !obstetricDetails?.edd &&
+                          !obstetricDetails?.gravidity &&
+                          !obstetricDetails?.parity &&
+                          !obstetricDetails?.livingChildren &&
+                          !obstetricDetails?.abortion &&
+                          !obstetricDetails?.ectopicPregnancies
+                            ? handleDrawerObstetric()
+                            : openCollapsed(6)
                         }
                       >
                         <div
-                              className={`prescription-tab-button rounded-10px ${collapsedFlag === 8 && "active"
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag === 6 && "active"
                           }`}
                         >
                           <img
                             src={
-                              collapsedFlag === 8
-                                ? labParamsDark
-                                : labParamsWhite
+                              collapsedFlag === 6
+                                ? obstetricDark
+                                : obstetricWhite
                             }
-                            alt="lab"
+                            alt="Obstetric"
                           />
                         </div>
-                        <label className="text-white mt-1">Lab</label>
+                        <label className="text-white mt-1">Obstetric</label>
                       </button>
-                    )
-                  );
-                })
+                    ) : e.tmdpm_id === 18 && e.tmdpm_status === 0 ? (
+                      <button
+                        type="button"
+                        className="mb-3 text-center btn btn-action"
+                        style={{ padding: "0px" }}
+                        onClick={() =>
+                          allUploadedDocs.length === 0
+                            ? handleAddClick()
+                            : openCollapsed(7)
+                        }
+                      >
+                        {isAndroid && !isBrowser ? (
+                          <div
+                            ref={fileInputRef}
+                            onClick={handleUploadDocPopup}
+                            style={{ display: "none" }}
+                          />
+                        ) : (
+                          <input
+                            type="file"
+                            multiple
+                            ref={fileInputRef}
+                            onChange={handleFileUpload}
+                            accept="image/png, image/jpeg, image/jpg, application/pdf"
+                            style={{ display: "none" }}
+                          />
+                        )}
+                        <div
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag === 7 && "active"
+                          }`}
+                        >
+                          <img
+                            src={
+                              collapsedFlag === 7
+                                ? medicalRecordsDark
+                                : medicalRecordsWhite
+                            }
+                            alt="records"
+                          />
+                        </div>
+                        <label className="text-white mt-1">Records</label>
+                      </button>
+                    ) : (
+                      e.tmdpm_id === 19 &&
+                      e.tmdpm_status === 0 && (
+                        <button
+                          type="button"
+                          className="mb-3 text-center btn btn-action"
+                          style={{ padding: "0px" }}
+                          onClick={() =>
+                            labParamsData?.length === 0
+                              ? handleAddLabParamsDrawer()
+                              : openCollapsed(8)
+                          }
+                        >
+                          <div
+                            className={`prescription-tab-button rounded-10px ${
+                              collapsedFlag === 8 && "active"
+                            }`}
+                          >
+                            <img
+                              src={
+                                collapsedFlag === 8
+                                  ? labParamsDark
+                                  : labParamsWhite
+                              }
+                              alt="lab"
+                            />
+                          </div>
+                          <label className="text-white mt-1">Lab</label>
+                        </button>
+                      )
+                    );
+                  })}
+                </>
               )}
               {/* <button type='button' className="mb-3 text-center btn btn-action">
                                 <div className="prescription-tab-button rounded-10px">
@@ -1091,7 +1113,8 @@ function TabPrescription() {
               ) : collapsedFlag === 6 ? (
                 <TabObstetricList
                   handleCollapsed={() => setCollapsed(!collapsed)}
-                  handleDrawerObstetric={handleDrawerObstetric} />
+                  handleDrawerObstetric={handleDrawerObstetric}
+                />
               ) : collapsedFlag === 7 ? (
                 <TabUploadDocumentList
                   handleCollapsed={() => setCollapsed(!collapsed)}
@@ -1113,7 +1136,15 @@ function TabPrescription() {
                   handleViewLabParamsDrawer={handleViewLabParamsDrawer}
                 />
               ) : (
-                collapsedFlag === 9 && <TabDDxList generatedDDx={generatedDDx} handleDDxDrawer={handleDDxDrawer} isDDxLoading={isDDxLoading} handleDDxKnowMore={handleDDxKnowMore} getGenerateDDx={getGenerateDDx}/>
+                collapsedFlag === 9 && (
+                  <TabDDxList
+                    generatedDDx={generatedDDx}
+                    handleDDxDrawer={handleDDxDrawer}
+                    isDDxLoading={isDDxLoading}
+                    handleDDxKnowMore={handleDDxKnowMore}
+                    getGenerateDDx={getGenerateDDx}
+                  />
+                )
               )}
             </Sider>
             <div
@@ -1121,11 +1152,19 @@ function TabPrescription() {
               style={{ height: "calc(100vh - 60px)" }}
             >
               <Content>
-                {shouldShowApexPopup && isApexAIAccessable && <ApexAIPopup setShowApexPopup={setShowApexPopup} handleDDxKnowMore={handleDDxKnowMore} />}
+                {shouldShowApexPopup && isApexAIAccessable && (
+                  <ApexAIPopup
+                    setShowApexPopup={setShowApexPopup}
+                    handleDDxKnowMore={handleDDxKnowMore}
+                  />
+                )}
                 {customizedPadRightList?.map((e, i) => {
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      <TabSymptomsBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} />
+                      <TabSymptomsBox
+                        handleDDxDrawer={handleDDxDrawer}
+                        generatedDDx={generatedDDx}
+                      />
                     </div>
                   ) : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1133,7 +1172,13 @@ function TabPrescription() {
                     </div>
                   ) : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      <TabDiagnosisBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} handleDDxKnowMore={handleDDxKnowMore} />
+                      <TabDiagnosisBox
+                        handleDDxDrawer={handleDDxDrawer}
+                        generatedDDx={generatedDDx}
+                        getGenerateDDx={getGenerateDDx}
+                        isDDxLoading={isDDxLoading}
+                        handleDDxKnowMore={handleDDxKnowMore}
+                      />
                     </div>
                   ) : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1146,7 +1191,10 @@ function TabPrescription() {
                     </div>
                   ) : e.tmdpm_id === 14 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      <TabInvestigationBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} />
+                      <TabInvestigationBox
+                        handleDDxDrawer={handleDDxDrawer}
+                        generatedDDx={generatedDDx}
+                      />
                     </div>
                   ) : (
                     e.tmdpm_id === 15 &&
@@ -1161,7 +1209,8 @@ function TabPrescription() {
             </div>
           </Layout>
         </div>
-        {vitalDrawer && (<Drawer
+        {vitalDrawer && (
+          <Drawer
             closeIcon={false}
             placement="right"
             onClose={handleDrawerVital}
@@ -1174,7 +1223,8 @@ function TabPrescription() {
               handleCollapsed={(flag) => handleCollapsed(flag)}
               isGrowthChart={isGrowthChart}
             />
-        </Drawer>)}
+          </Drawer>
+        )}
         <Drawer
           className="scroll-y-hidden"
           closeIcon={false}
@@ -1240,14 +1290,15 @@ function TabPrescription() {
           >
             <Obstetric
               handleDrawerObstetric={handleDrawerObstetric}
-              handleCollapsed={(flag) => handleCollapsed(flag)} />
+              handleCollapsed={(flag) => handleCollapsed(flag)}
+            />
           </Drawer>
         )}
         {uploadDocDrawer && (
           <Drawer
             closeIcon={false}
             placement="right"
-            bodyStyle={{backgroundColor: "white"}}
+            bodyStyle={{ backgroundColor: "white" }}
             onClose={handleDeletePopup}
             open={uploadDocDrawer}
             className="modalWidth-700"
@@ -1271,7 +1322,7 @@ function TabPrescription() {
           <Drawer
             closeIcon={false}
             placement="right"
-            bodyStyle={{backgroundColor: "white"}}
+            bodyStyle={{ backgroundColor: "white" }}
             onClose={handleDrawerMedicalReport}
             open={medicalReportDrawer}
             className="modalWidth-700"
@@ -1311,7 +1362,14 @@ function TabPrescription() {
             width={"auto"}
             push={false}
           >
-            <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={patient_data?.patient_unique_id} onSave={handleLabParamsUpdate} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientGender={patient_data?.pm_gender}/>
+            <LabParams
+              handleAddLabParamsDrawer={handleAddLabParamsDrawer}
+              patient_unique_id={patient_data?.patient_unique_id}
+              onSave={handleLabParamsUpdate}
+              isBackModalOpen={isBackModalOpen}
+              showHideBackModal={showHideBackModal}
+              patientGender={patient_data?.pm_gender}
+            />
           </Drawer>
         )}
         {viewlabparamsDrawer && (
@@ -1324,7 +1382,11 @@ function TabPrescription() {
             onClose={handleViewLabParamsDrawer}
             width="auto"
           >
-              <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData}  handleSwitchToAddLabParams={handleSwitchToAddLabParams}/>
+            <ViewLabParam
+              handleViewLabParamsDrawer={handleViewLabParamsDrawer}
+              labParamsData={labParamsData}
+              handleSwitchToAddLabParams={handleSwitchToAddLabParams}
+            />
           </Drawer>
         )}
         {ddxDrawer && (
@@ -1333,12 +1395,14 @@ function TabPrescription() {
             className="modalWidth-700"
             placement="right"
             open={ddxDrawer}
-            bodyStyle={{ backgroundColor: "white" }}
             onClose={handleDDxDrawer}
             width="auto"
             zIndex={999}
           >
-              <DifferentialDiagnosisDrawer handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} />
+            <DifferentialDiagnosisDrawer
+              handleDDxDrawer={handleDDxDrawer}
+              generatedDDx={generatedDDx}
+            />
           </Drawer>
         )}
 
@@ -1351,10 +1415,10 @@ function TabPrescription() {
             className=".modalWidth-800"
             width={825}
           >
-              <DDxKnowMore handleDDxKnowMore={handleDDxKnowMore} />
+            <DDxKnowMore handleDDxKnowMore={handleDDxKnowMore} />
           </Drawer>
         )}
-    
+
         {isLoading ? (
           <div>
             <Spin

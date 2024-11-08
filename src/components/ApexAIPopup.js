@@ -25,7 +25,7 @@ const ApexAIPopup = ({ setShowApexPopup, handleDDxKnowMore }) => {
       <Button
         type="text"
         className="btn btn-delete-prescription focus-none h-100"
-        style={{ paddingRight: 0 }}
+        style={{ padding: 5 }}
         onClick={() => setShowApexPopup(false)}
       >
         <i className="icon-Cross fs-3" style={{ color: "#A461D8" }} />

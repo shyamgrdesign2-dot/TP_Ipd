@@ -116,6 +116,7 @@ const DifferentialDiagnosis = ({
                   style={{
                     fontWeight: 600,
                     textDecoration: "underline",
+                    cursor: "pointer",
                     paddingTop: 16,
                   }}
                   onClick={handleDDxDrawer}
