@@ -46,7 +46,7 @@ import {
     getAllAppointment,
     cancelAppointments,
     endVisit,
-    consultations
+    zydusConsultAppoint
 } from "../redux/appointmentsSlice";
 
 import {
@@ -74,7 +74,7 @@ function AppointmentData({ locationPath }) {
 
     const navigate = useNavigate();
 
-    const { sort_order, profile } = useSelector((state) => state.doctors);
+    const { sort_order, profile, siteId, empNo } = useSelector((state) => state.doctors);
     const { uploadDocCategories } = useSelector(
         (state) => state.uploadDoc
     );
@@ -404,13 +404,16 @@ function AppointmentData({ locationPath }) {
                 // console.log(sendData)
                 dispatch(getAllAppointment(sendData));
             } else {
-                var sendZydusData = {
-                    siteId: 2,
-                    empNo: 31503015,
-                    date: '07-10-2024'
+                for (let i = 0; i < empNo?.length; i++) {
+                    var sendZydusData = {
+                        siteId: siteId,
+                        empNo: empNo[i],
+                        date: moment(date.startDate).format(showDateFormat),
+                        selectedTab: selectedTab,
+                        page: i,
+                    }
+                    dispatch(zydusConsultAppoint(sendZydusData));
                 }
-                dispatch(consultations(sendZydusData));
-                console.log(selectedTab)
             }
 
             // if (searchQuery) {
@@ -1274,14 +1277,16 @@ function AppointmentData({ locationPath }) {
                 <div className="appointment-data">
                     <Row className="justify-content-between align-items-center my-3 px-4">
                         <Col xl={4} sm={4}>
-                            <Input
-                                value={searchQuery}
-                                placeholder="Search patient by name and mobile number"
-                                className="inputheight38"
-                                prefix={<i className="icon-search" />}
-                                suffix={searchQuery.length > 0 && <i className="icon-Cross" onClick={() => onSearch('')}></i>}
-                                onChange={(e) => onSearch(e.target.value)}
-                            />
+                            {(selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT) && (
+                                <Input
+                                    value={searchQuery}
+                                    placeholder="Search patient by name and mobile number"
+                                    className="inputheight38"
+                                    prefix={<i className="icon-search" />}
+                                    suffix={searchQuery.length > 0 && <i className="icon-Cross" onClick={() => onSearch('')}></i>}
+                                    onChange={(e) => onSearch(e.target.value)}
+                                />
+                            )}
                         </Col>
                         <Col md="auto">
                             <div className="d-flex align-items-center">
@@ -1318,19 +1323,21 @@ function AppointmentData({ locationPath }) {
                                         <i className="icon-right text-main d-block iconrotate180"></i>
                                     </Button>
                                 </ButtonGroup>
-                                <Select
-                                    placeholder="Select Period"
-                                    className="ms-3 appointmentselect"
-                                    value={isDigitisationTab ? 6 : selectedCalanderOptions}
-                                    options={
-                                        selectedTab === TAB_QUEUE
-                                            ? calanderOptions.filter(e => [1, 2, 3].includes(e.value))
-                                            : isDigitisationTab
-                                                ? calanderOptions.filter(e => e.value === 6)
-                                                : calanderOptions.filter(e => [1, 4, 5].includes(e.value))
-                                    }
-                                    onChange={handleDateChange}
-                                />
+                                {(selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT) && (
+                                    <Select
+                                        placeholder="Select Period"
+                                        className="ms-3 appointmentselect"
+                                        value={isDigitisationTab ? 6 : selectedCalanderOptions}
+                                        options={
+                                            selectedTab === TAB_QUEUE
+                                                ? calanderOptions.filter(e => [1, 2, 3].includes(e.value))
+                                                : isDigitisationTab
+                                                    ? calanderOptions.filter(e => e.value === 6)
+                                                    : calanderOptions.filter(e => [1, 4, 5].includes(e.value))
+                                        }
+                                        onChange={handleDateChange}
+                                    />
+                                )}
                                 {/* <Segmented
                                 className="ms-3 appointment-segment"
                                 defaultValue={1}

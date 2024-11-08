@@ -2,7 +2,9 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import ApiAppointments from "../api/services/ApiAppointments";
 import { v4 as uuidv4 } from 'uuid';
-import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, TAB_ZYDUS_ENCOUNTER } from "../utils/constants";
+import moment from "moment";
+import { calculateAge } from "../utils/utils";
 
 const initialState = {
     loading: false,
@@ -214,18 +216,27 @@ export const ictAuthToken = createAsyncThunk(
     }
 );
 
-export const consultations = createAsyncThunk(
-    "records/consultations",
-    async ({ siteId, empNo, date }, { dispatch }) => {
+export const zydusConsultAppoint = createAsyncThunk(
+    "records/zydusConsultAppoint",
+    async ({ siteId, empNo, date, selectedTab }, { dispatch }) => {
         try {
-            const result = await ApiAppointments.consultations(siteId, empNo, date);
-            console.log(result)
+            let result = {};
+            if (selectedTab === TAB_ZYDUS_ENCOUNTER) {
+                result = await ApiAppointments.consultations(siteId, empNo, date);
+            } else {
+                result = await ApiAppointments.appointments(siteId, empNo, date);
+            }
+            if (result.status == 'success') {
+                return result.data;
+            } else {
+                throw Error(result.error);
+            }
         } catch (error) {
             if (error.response.status === 401) {
                 const action = await dispatch(ictAuthToken())
                 if (action.meta.requestStatus === "fulfilled") {
                     await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.token))
-                    dispatch(consultations({ siteId, empNo, date }))
+                    dispatch(zydusConsultAppoint({ siteId, empNo, date }))
                 }
             }
             // console.log("error: ", error);
@@ -368,6 +379,67 @@ const appointmentsSlice = createSlice({
             .addCase(viewPatient.rejected, (state) => {
                 state.loading = false;
                 state.patients_details = null
+            })
+            .addCase(zydusConsultAppoint.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(zydusConsultAppoint.fulfilled, (state, action) => {
+                state.loading = false;
+
+                let updatedData = []
+                if (action.meta.arg.selectedTab === TAB_ZYDUS_ENCOUNTER) {
+                    updatedData = action.payload.map((e) => {
+                        const age = calculateAge(moment(e.dob, 'DD-MM-YYYY').format('YYYY-MM-DD'));
+                        return {
+                            ...e, key: uuidv4(),
+                            pm_fullname: e.patientName,
+                            apTime: moment(e.encounterDateTime, 'DD-MM-YYYY HH:mm').format('hh:mm A'),
+                            apDate: moment(e.encounterDateTime, 'DD-MM-YYYY HH:mm').format('Do MMM YYYY'),
+                            DOB: moment(e.dob, 'DD-MM-YYYY').format('Do MMM YYYY'),
+                            ageYears: age?.years,
+                            ageMonths: age?.months,
+                            ageDays: age?.days,
+                            pm_gender: e.gender,
+                            pm_contact_no: e.mobileNo,
+                            patient_address: e.patientAddress,
+                        }
+                    });
+                } else {
+                    updatedData = action.payload.map((e) => {
+                        // const age = calculateAge(moment(e.dob, 'DD-MM-YYYY').format('YYYY-MM-DD'));
+                        return {
+                            ...e, key: uuidv4(),
+                            pm_fullname: e.patientName,
+                            apTime: moment(e.fromTime, 'DD-MM-YYYY HH:mm').format('hh:mm A'),
+                            apDate: moment(e.fromTime, 'DD-MM-YYYY HH:mm').format('Do MMM YYYY'),
+                            DOB: '',
+                            ageYears: 0,
+                            ageMonths: 0,
+                            ageDays: 0,
+                            pm_gender: e.gender,
+                            pm_contact_no: '',
+                            patient_address: e.location,
+                        }
+                    });
+                }
+
+                if (action.meta.arg.page == 0) {
+                    state.queueCount = 0;
+                    state.finishedCount = 0;
+                    state.cancelledCount = 0;
+                    state.appointmentsData = updatedData;
+                } else {
+                    state.appointmentsData = [...state.appointmentsData, ...updatedData];
+                }
+            })
+            .addCase(zydusConsultAppoint.rejected, (state, action) => {
+                state.loading = false;
+                if (action.meta.arg.page == 0) {
+                    state.queueCount = 0;
+                    state.finishedCount = 0;
+                    state.cancelledCount = 0;
+                    state.appointmentsData = [];
+                }
             })
     },
 });

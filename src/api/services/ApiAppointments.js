@@ -114,5 +114,9 @@ ApiAppointments.consultations = function (siteId, empNo, date) {
   return api.get(`/ictApiProxy/emr/op/consultations/list?siteId=${siteId}&empNo=${empNo}&date=${date}`, baseZydusProxyUrl);
 };
 
+ApiAppointments.appointments = function (siteId, empNo, date) {
+  return api.get(`/ictApiProxy/emr/op/appointments/list?siteId=${siteId}&empNo=${empNo}&date=${date}`, baseZydusProxyUrl);
+};
+
 
 export default ApiAppointments;
