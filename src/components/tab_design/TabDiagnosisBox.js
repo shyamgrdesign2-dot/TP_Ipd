@@ -22,20 +22,36 @@ import {
 } from "../../redux/diagnosisSlice";
 
 import TabDiagnosisSearch from "../../components/tab_design/TabDiagnosisSearch";
+import DifferentialDiagnosis from "../DifferentialDiagnosis";
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { setIsDiagnosisBox } from "../../redux/ddxSlice";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
-function TabDiagnosisBox() {
+function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoading, handleDDxKnowMore}) {
     const {
         selectedDiagnosisList,
         parentOptionsList,
         templates,
         loading,
     } = useSelector((state) => state.diagnosis);
+    const { isDiagnosisBox } = useSelector((state) => state.ddx);
+    const isApexAIAccessable = useFeatureIsOn("cdss") || true;
     const dispatch = useDispatch();
 
     const { patient_data, diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
     // const [ diagnosisData, setDiagnosisData] = useState([]);
+
+    const ddxOptionsList = generatedDDx?.map((item) => {
+        return {
+          tds_id: item?._id,
+          unique_id: item?._id,
+          tds_name: item?.differentialDiagnosisName,
+          pms_default: 1,
+          usage_count: 0,
+          isDDx: true,
+        };
+    });
 
     const [parentDrawer, setParentDrawer] = useState(false);
     const [childDrawer, setChildDrawer] = useState(false);
@@ -99,6 +115,9 @@ function TabDiagnosisBox() {
     // Handle Parent Drawer
     const handleDrawerParent = useCallback(() => {
         setParentDrawer(!parentDrawer);
+        if (isDiagnosisBox) {
+          dispatch(setIsDiagnosisBox(false));
+        }
     }, [parentDrawer]);
 
     const onSelectParent = useCallback(
@@ -803,9 +822,10 @@ function TabDiagnosisBox() {
                         <i className='icon-search mx-2'></i>
                         <span className="fontroboto backbar fw-normal">Search Diagnosis</span>
                     </div>
+                    {isApexAIAccessable && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={ddxOptionsList?.filter((e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name)))} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} onSelectParent={onSelectParent} isDiagnosis={true} handleDDxKnowMore={handleDDxKnowMore} />}
                 </div>
-                <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
-                    {parentDrawer && (<TabDiagnosisSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
+                <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer || isDiagnosisBox} width={'100%'} className="searchdrawer-content">
+                    {(parentDrawer || isDiagnosisBox) && (<TabDiagnosisSearch passIndex={selectedIndex} onClose={handleDrawerParent} ddxOptionsList={ddxOptionsList} />)}
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&

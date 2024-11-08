@@ -20,6 +20,7 @@ import growthChartSlice from './growthChartSlice';
 import doctorWebsiteSlice from './doctorWebsiteSlice';
 import obstetricSlice from './obstetricSlice';
 import uploadDocSlice from './uploadDocSlice';
+import ddxSlice from './ddxSlice';
 import subscriptionReducer from './subscriptionSlice';
 import doctorModalReducer from './doctorModalSlice';
 
@@ -47,6 +48,7 @@ const rootReducer = combineReducers({
   doctorWebsite: doctorWebsiteSlice,
   obstetric: obstetricSlice,
   uploadDoc: uploadDocSlice,
+  ddx: ddxSlice,
   subscription: subscriptionReducer,
   doctorModal: doctorModalReducer,
 });

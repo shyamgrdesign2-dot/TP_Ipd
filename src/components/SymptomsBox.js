@@ -31,8 +31,10 @@ import {
 } from "../redux/symptomsSlice";
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import DifferentialDiagnosis from "./DifferentialDiagnosis";
+import { setIsDDxReadyToGenerate } from "../redux/ddxSlice";
 
-function SymptomsBox() {
+function SymptomsBox({handleDDxDrawer, generatedDDx}) {
   const {
     selectedSymptomsList,
     parentOptionsList,
@@ -44,6 +46,27 @@ function SymptomsBox() {
 
   const { symptomsData, setSymptomsData } = useContext(CashManagerContext);
   // const [ symptomsData, setSymptomsData] = useState([]);
+
+  const associatedSymptoms = generatedDDx?.map(
+    (item) => item.assocSymptoms
+  );
+
+  const uniqueSymptoms = [...new Set(associatedSymptoms.flat())];
+
+  const ddxOptionsList = uniqueSymptoms
+    ?.map((item) => {
+      return {
+        symptom_name: item,
+        usage_count: 0,
+        isDDx: true,
+      };
+    })
+    ?.filter(
+      (e) =>
+        ![...symptomsData.map((e1) => e1.symptom_name)].includes(
+          e.symptom_name
+        )
+    );
 
   const SEVERITY_LIST = [
     { value: "Severe", label: "Severe" },
@@ -176,9 +199,22 @@ function SymptomsBox() {
       });
       setSymptomsData((prev) => [...prev]);
       setSearchParentQuery("");
+      dispatch(setIsDDxReadyToGenerate(true));
     },
     [searchParentQuery, symptomsData]
   );
+
+  const onSelectDDx = (e) => {
+    symptomsData.push({
+      ...e,
+      since: "",
+      severity: "",
+      note: "",
+    });
+    setSymptomsData((prev) => [...prev]);
+    setSearchParentQuery("");
+    dispatch(setIsDDxReadyToGenerate(true));
+  };
 
   //Child AutoComplete
   useEffect(() => {
@@ -293,6 +329,7 @@ function SymptomsBox() {
       setSinceOptions([]);
       symptomsData[i].since = data;
       setSymptomsData((prev) => [...prev]);
+      dispatch(setIsDDxReadyToGenerate(true));
     },
     [sinceOptions, symptomsData]
   );
@@ -301,6 +338,7 @@ function SymptomsBox() {
     (data, i) => {
       symptomsData[i].severity = data;
       setSymptomsData((prev) => [...prev]);
+      dispatch(setIsDDxReadyToGenerate(true));
     },
     [symptomsData]
   );
@@ -310,6 +348,7 @@ function SymptomsBox() {
       symptomsData[i].note = capitalizeAfterSentence(e.target.value);
       // ?.replace(/,/g, '')
       setSymptomsData((prev) => [...prev]);
+      dispatch(setIsDDxReadyToGenerate(true));
     },
     [symptomsData]
   );
@@ -317,6 +356,9 @@ function SymptomsBox() {
   const onRemoveRow = (index) => {
     symptomsData.splice(index, 1);
     setSymptomsData((prev) => [...prev]);
+    if (symptomsData?.length > 0) {
+      dispatch(setIsDDxReadyToGenerate(true));
+    }
   };
 
   //PopOver1 function
@@ -922,6 +964,15 @@ function SymptomsBox() {
         {REMOVE_ALL_ROWS}
         {TABLE_SYMPTOMS}
 
+        {ddxOptionsList?.length > 0 && (
+          <div style={{ padding: "0 14px" }}>
+            <DifferentialDiagnosis
+              handleDDxDrawer={handleDDxDrawer}
+              ddxOptionsList={ddxOptionsList}
+              onSelectParent={onSelectDDx}
+            />
+          </div>
+        )}
         <div className="p-14">
           <AutoComplete
             // defaultValue={searchParentQuery}

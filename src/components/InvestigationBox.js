@@ -31,10 +31,11 @@ import {
 } from "../redux/investigationSlice";
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import DifferentialDiagnosis from "./DifferentialDiagnosis";
 
 const { TextArea } = Input;
 
-function InvestigationBox() {
+function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   const {
     selectedInvestigationList,
     parentOptionsList,
@@ -46,6 +47,26 @@ function InvestigationBox() {
 
   const { investigationData, setInvestigationData } = useContext(CashManagerContext);
   // const [ investigationData, setInvestigationData] = useState([]);
+
+  const associatedLabTests = generatedDDx?.map((item) => item.labTests);
+
+  const uniqueLabTests = [...new Set(associatedLabTests.flat())];
+
+  const ddxOptionsList = uniqueLabTests
+    ?.map((item) => {
+      return {
+        investigation_name: item,
+        hm_type: 1,
+        pms_default: 1,
+        isDDx: true,
+      };
+    })
+    ?.filter(
+      (e) =>
+        ![...investigationData.map((e1) => e1.investigation_name)].includes(
+          e.investigation_name
+        )
+    );
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -165,6 +186,15 @@ function InvestigationBox() {
     },
     [searchParentQuery, investigationData]
   );
+
+  const onSelectDDx = (e) => {
+    investigationData.push({
+      ...e,
+      note: "",
+    });
+    setInvestigationData((prev) => [...prev]);
+    setSearchParentQuery("");
+  };
 
   //Child AutoComplete
   useEffect(() => {
@@ -810,6 +840,16 @@ function InvestigationBox() {
         {DELETE_MODAL}
         {REMOVE_ALL_ROWS}
         {TABLE_INVESTIGATION}
+
+        {ddxOptionsList?.length > 0 && (
+          <div style={{ padding: "0 14px" }}>
+            <DifferentialDiagnosis
+              handleDDxDrawer={handleDDxDrawer}
+              ddxOptionsList={ddxOptionsList}
+              onSelectParent={onSelectDDx}
+            />
+          </div>
+        )}
 
         <div className="p-14">
           <AutoComplete

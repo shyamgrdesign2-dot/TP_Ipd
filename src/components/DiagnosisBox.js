@@ -38,8 +38,10 @@ import {
 } from "../redux/diagnosisSlice";
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import DifferentialDiagnosis from "./DifferentialDiagnosis";
 
-function DiagnosisBox() {
+function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoading, handleDDxKnowMore}) {
   const {
     selectedDiagnosisList,
     parentOptionsList,
@@ -51,6 +53,19 @@ function DiagnosisBox() {
 
   const { patient_data, diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
   // const [diagnosisData, setDiagnosisData] = useState([]);
+
+  const isApexAIAccessable = useFeatureIsOn("cdss") && false;
+
+  const ddxOptionsList = generatedDDx?.map((item) => {
+    return {
+      tds_id: item?._id,
+      unique_id: item?._id,
+      tds_name: item?.differentialDiagnosisName,
+      pms_default: 1,
+      usage_count: 0,
+      isDDx: true,
+    };
+  });
 
   const STATUS_LIST = [
     { value: "Ruled Out", label: "Ruled Out" },
@@ -185,6 +200,15 @@ function DiagnosisBox() {
     },
     [searchParentQuery, diagnosisData]
   );
+
+  const onSelectDDx = (e) => {
+    diagnosisData.push({
+      ...e,
+      note: "",
+    });
+    setDiagnosisData((prev) => [...prev]);
+    setSearchParentQuery("");
+  };
 
   //Child AutoComplete
   useEffect(() => {
@@ -947,6 +971,24 @@ function DiagnosisBox() {
         {REMOVE_ALL_ROWS}
         {TABLE_DIAGNOSIS}
 
+        {isApexAIAccessable && (
+          <div style={{ padding: "0 14px" }}>
+            <DifferentialDiagnosis
+              handleDDxDrawer={handleDDxDrawer}
+              ddxOptionsList={ddxOptionsList?.filter(
+                (e) =>
+                  ![...diagnosisData.map((e1) => e1.tds_name)].includes(
+                    e.tds_name
+                  )
+              )}
+              getGenerateDDx={getGenerateDDx}
+              isDDxLoading={isDDxLoading}
+              onSelectParent={onSelectDDx}
+              isDiagnosis={true}
+              handleDDxKnowMore={handleDDxKnowMore}
+            />
+          </div>
+        )}
         <div className="p-14">
           <AutoComplete
             // defaultValue={searchParentQuery}
