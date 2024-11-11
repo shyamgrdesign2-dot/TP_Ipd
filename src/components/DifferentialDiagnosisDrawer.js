@@ -20,12 +20,13 @@ export const WarningColor = {
   2: "rgba(194, 159, 0, 1)",
   3: "rgba(239, 125, 25, 1)",
   4: "rgba(239, 25, 65, 1)",
+  5: "rgba(239, 25, 65, 1)",
 };
 
 const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
   const dispatch = useDispatch();
 
-  const { diagnosisData, symptomsData, investigationData } =
+  const { diagnosisData, setDiagnosisData, symptomsData, investigationData } =
     useContext(CashManagerContext);
 
   return (
@@ -155,7 +156,21 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                           <Button
                             type="primary"
                             className="btn d-flex w-100 align-items-center justify-content-center btn-41"
-                            onClick={() => dispatch(setIsDiagnosisBox(true))}
+                            onClick={() => {
+                              dispatch(setIsDiagnosisBox(true));
+                              diagnosisData.push({
+                                tds_id: item?._id,
+                                unique_id: item?._id,
+                                tds_name: item?.differentialDiagnosisName,
+                                pms_default: 1,
+                                usage_count: 0,
+                                isDDx: true,
+                                since: "",
+                                status: "",
+                                note: "",
+                              });
+                              setDiagnosisData((prev) => [...prev]);
+                            }}
                           >
                             Add to Rx
                           </Button>
@@ -218,11 +233,11 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                         </div>
                         <div
                           className="d-flex align-items-center"
-                          style={{ columnGap: 8 }}
+                          style={{ columnGap: 8, cursor: "pointer" }}
                         >
                           <div
                             className="text-primary"
-                            style={{ fontWeight: 600, cursor: "pointer" }}
+                            style={{ fontWeight: 600 }}
                             onClick={() => dispatch(setIsSymptomsBox(true))}
                           >
                             Add To Rx/Edit
@@ -275,11 +290,11 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                         </div>
                         <div
                           className="d-flex align-items-center"
-                          style={{ columnGap: 8 }}
+                          style={{ columnGap: 8, cursor: "pointer" }}
                         >
                           <div
                             className="text-primary"
-                            style={{ fontWeight: 600, cursor: "pointer" }}
+                            style={{ fontWeight: 600 }}
                             onClick={() => dispatch(setIsLabTestBox(true))}
                           >
                             Add To Rx/Edit

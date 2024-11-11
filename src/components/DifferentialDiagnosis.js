@@ -1,6 +1,7 @@
-import { Button, Divider, Spin } from "antd";
+import { Button, Divider } from "antd";
 import apexAI from "../assets/images/apexAI.svg";
 import arrow from "../assets/images/shaded-arrow.svg";
+import loading from "../assets/images/loading.gif";
 import { useSelector } from "react-redux";
 
 const DifferentialDiagnosis = ({
@@ -10,6 +11,7 @@ const DifferentialDiagnosis = ({
   isDDxLoading,
   onSelectParent,
   isDiagnosis,
+  isSymptoms,
   handleDDxKnowMore,
 }) => {
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
@@ -26,7 +28,7 @@ const DifferentialDiagnosis = ({
       </div>
       {isDDxLoading ? (
         <div
-          className="d-flex flex-column"
+          className="d-flex flex-column align-items-center justify-content-center"
           style={{
             background: "rgba(119, 66, 254, 0.08)",
             borderRadius: 12,
@@ -34,7 +36,13 @@ const DifferentialDiagnosis = ({
             width: "100%",
           }}
         >
-          <Spin />
+          <img
+            width={105}
+            height={105}
+            src={loading}
+            alt="loading"
+          />
+          <span className="title-common">Generating AI powered diagnosis</span>
         </div>
       ) : (
         <div
@@ -49,9 +57,19 @@ const DifferentialDiagnosis = ({
           {ddxOptionsList?.length > 0 ? (
             <>
               <div style={{ fontSize: 16, fontWeight: 500 }}>
-                Most Likely Differential Diagnosis
+                {isDiagnosis
+                  ? "Most Likely Differential Diagnosis"
+                  : isSymptoms
+                  ? "Associated Symptoms"
+                  : "Suggested Lab Test"}
               </div>
-              <span className="ddx-ready-txt">Tap diagnosis to add to Rx</span>
+              <span className="ddx-ready-txt">
+                {isDiagnosis
+                  ? "Tap diagnosis to add to Rx"
+                  : isSymptoms
+                  ? "These are symptoms associated with added diagnosis. Tap to add to Rx"
+                  : "Test suggestions are based on added diagnosis. Tap to add tp Rx"}
+              </span>
               <div
                 className="d-flex align-items-center"
                 style={{ padding: "15px 8px 0 0px", gap: 16, flexWrap: "wrap" }}
