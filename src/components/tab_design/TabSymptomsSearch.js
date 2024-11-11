@@ -500,7 +500,7 @@ function TabSymptomsSearch({ passIndex, onClose, ddxOptionsList }) {
                                     >
                                         <>
                                             <div style={{ fontSize: 16, fontWeight: 500 }}>
-                                                Differential Diagnosis
+                                                Associated Symptoms
                                             </div>
                                             <span className="ddx-ready-txt">These are symptoms associated with added diagnosis. Tap to add to EMR</span>
                                             <div

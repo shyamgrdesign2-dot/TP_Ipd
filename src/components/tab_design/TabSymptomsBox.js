@@ -815,7 +815,7 @@ function TabSymptomsBox({handleDDxDrawer, generatedDDx}) {
                         <i className='icon-search mx-2'></i>
                         <span className="fontroboto backbar fw-normal">Search Symptoms</span>
                     </div>
-                    { ddxOptionsList?.length > 0 && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={ddxOptionsList} onSelectParent={onSelectParent} />}
+                    { ddxOptionsList?.length > 0 && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={ddxOptionsList} onSelectParent={onSelectParent} isSymptoms={true} />}
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer || isSymptomsBox} width={'100%'} className="searchdrawer-content">
                     {(parentDrawer || isSymptomsBox) && (<TabSymptomsSearch passIndex={selectedIndex} onClose={handleDrawerParent} ddxOptionsList={ddxOptionsList} />)}

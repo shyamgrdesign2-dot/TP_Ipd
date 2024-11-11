@@ -970,6 +970,7 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
               handleDDxDrawer={handleDDxDrawer}
               ddxOptionsList={ddxOptionsList}
               onSelectParent={onSelectDDx}
+              isSymptoms={true}
             />
           </div>
         )}

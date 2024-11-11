@@ -296,9 +296,9 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
                                     >
                                         <>
                                             <div style={{ fontSize: 16, fontWeight: 500 }}>
-                                                Differential Diagnosis
+                                                Suggested Lab Test
                                             </div>
-                                            <span className="ddx-ready-txt">These are symptoms associated with added diagnosis. Tap to add to EMR</span>
+                                            <span className="ddx-ready-txt">These are suggested tests with added diagnosis. Tap to add to EMR</span>
                                             <div
                                                 className="d-flex align-items-center"
                                                 style={{ padding: "15px 8px 0 8px", flexWrap: "wrap", gap: 16 }}

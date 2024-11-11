@@ -44,7 +44,7 @@ import growthChartDark from "../../assets/images/growth-chart-dark.svg";
 import privateNotesWhite from "../../assets/images/private-notes-white.svg";
 import privateNotesDark from "../../assets/images/private-notes-dark.svg";
 import apexAIImg from "../../assets/images/apexAI.svg";
-import blinkingDot from "../../assets/images/blinkingDot.png";
+import blinkingDot from "../../assets/images/blinkingDot.gif";
 import ddxImg from "../../assets/images/ddx.svg";
 import obstetricWhite from "../../assets/images/obstetric-white.svg";
 import obstetricDark from "../../assets/images/obstetric-dark.svg";
