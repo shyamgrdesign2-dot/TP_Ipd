@@ -187,7 +187,7 @@ const DigitisedPrescription = ({ data, setData}) => {
                         onClick={() => handleItemClick(type, index)}
                         className="digitised-item"
                       >
-                        {type === "advice" ? item : type === "symptoms" ? item?.name?.[0]?.toUpperCase() + item?.name?.slice(1) : item?.refinedName}
+                        {type === "advice" ? item : type === "symptoms" && item?.name?.length > 0 ? item.name[0]?.toUpperCase() + item.name?.slice(1) : item?.refinedName}
                       </span>
                     )
                   }
