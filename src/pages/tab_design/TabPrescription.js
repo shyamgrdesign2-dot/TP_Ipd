@@ -712,8 +712,8 @@ function TabPrescription() {
       }) 
     };
     const generatedDDxResponse = await getDDxDetails(payload);
-    if (generatedDDxResponse?.length > 0) {
-      setGeneratedDDx(generatedDDxResponse);
+    if (generatedDDxResponse?.results?.length > 0) {
+      setGeneratedDDx(generatedDDxResponse.results);
     }
     dispatch(setIsDDxReadyToGenerate(false));
     setIsDDxLoading(false);
