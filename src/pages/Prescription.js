@@ -1031,7 +1031,13 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                         >                          
                         </button>
                       </div>
-                      <DDxList />
+                      <DDxList
+                        generatedDDx={generatedDDx}
+                        handleDDxDrawer={handleDDxDrawer}
+                        isDDxLoading={isDDxLoading}
+                        handleDDxKnowMore={handleDDxKnowMore}
+                        getGenerateDDx={getGenerateDDx}
+                      />
                     </div>
                   </TabPane>
                 </Tabs>

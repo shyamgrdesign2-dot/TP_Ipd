@@ -185,7 +185,7 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                       {item?.evidence}
                     </div>
                     <div className="d-flex gap-4">
-                      <div
+                      {/* <div
                         className="d-flex flex-column gap-4 w-100 justify-content-between"
                         style={{
                           backgroundColor: "#FAF8F6",
@@ -244,7 +244,7 @@ const DifferentialDiagnosisDrawer = ({ handleDDxDrawer, generatedDDx }) => {
                           </div>
                           <img src={arrow} alt="arrow" />
                         </div>
-                      </div>
+                      </div> */}
 
                       <div
                         className="d-flex flex-column justify-content-between gap-4 w-100"
