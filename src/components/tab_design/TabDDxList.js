@@ -1,6 +1,7 @@
 import { Button, Divider, Spin } from "antd";
 import arrow from "../../assets/images/shaded-arrow.svg";
 import selectedTick from "../../assets/images/tick.svg";
+import loading from "../../assets/images/loading.gif";
 import ddxIcon from "../../assets/images/ddxIcon.svg";
 import { WarningColor } from "../DifferentialDiagnosisDrawer";
 import { useContext } from "react";
@@ -32,7 +33,7 @@ const TabDDxList = ({
           className="d-flex align-items-center justify-content-center w-100 h-100"
           style={{ background: "rgba(119, 66, 254, 0.08)" }}
         >
-          <Spin />
+          <img width={105} height={105} src={loading} alt="loading" />
         </div>
       ) : (
         <>
