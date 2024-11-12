@@ -1,6 +1,7 @@
 import { Button, Divider, Spin } from "antd";
 import arrow from "../../assets/images/shaded-arrow.svg";
 import selectedTick from "../../assets/images/tick.svg";
+import ddxIcon from "../../assets/images/ddxIcon.svg";
 import { WarningColor } from "../DifferentialDiagnosisDrawer";
 import { useContext } from "react";
 import CashManagerContext from "../../context/CashManagerContext";
@@ -83,10 +84,11 @@ const TabDDxList = ({
             {(isDDxReadyToGenerate || generatedDDx?.length === 0) && (
               <Button
                 className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center"
+                style={{ gap: 10 }}
                 onClick={getGenerateDDx}
                 disabled={!isDDxReadyToGenerate}
               >
-                <i className="icon-Add me-2 fs-21"></i>
+                <img src={ddxIcon} alt="ddx-icon" />
                 Generate DDx
               </Button>
             )}

@@ -18,7 +18,7 @@ import tagNew from '../../../src/assets/images/tag-new.svg'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { setIsDDxReadyToGenerate } from "../../redux/ddxSlice";
 
-function TabSymptomsSearch({ passIndex, onClose, ddxOptionsList }) {
+function TabSymptomsSearch({ passIndex, onClose }) {
 
     const {
         parentOptionsList,
@@ -480,7 +480,7 @@ function TabSymptomsSearch({ passIndex, onClose, ddxOptionsList }) {
                                         </div>
                                     </>
                                 )}
-                                <div className="d-flex" style={{ padding: "20px 0" }}>
+                                {/* <div className="d-flex" style={{ padding: "20px 0" }}>
                                 <div>
                                     <img
                                         style={{ backgroundColor: "#22003C", borderRadius: "10px 10px 0px" }}
@@ -500,7 +500,7 @@ function TabSymptomsSearch({ passIndex, onClose, ddxOptionsList }) {
                                     >
                                         <>
                                             <div style={{ fontSize: 16, fontWeight: 500 }}>
-                                                Differential Diagnosis
+                                                Associated Symptoms
                                             </div>
                                             <span className="ddx-ready-txt">These are symptoms associated with added diagnosis. Tap to add to EMR</span>
                                             <div
@@ -519,7 +519,7 @@ function TabSymptomsSearch({ passIndex, onClose, ddxOptionsList }) {
                                             </div>
                                         </>
                                     </div>
-                                </div>
+                                </div> */}
                                 <div>
                                     <div className="title2">
                                         {searchChildQuery.length > 0 ? 'Search Results' : 'Frequently Used'}

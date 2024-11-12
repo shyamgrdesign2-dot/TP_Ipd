@@ -76,7 +76,7 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import DDxKnowMore from "../components/DDxKnowMore";
 import TabPane from "antd/es/tabs/TabPane";
 import apexAIImg from "../assets/images/apexAI.svg";
-import blinkingDot from "../assets/images/blinkingDot.png";
+import blinkingDot from "../assets/images/blinkingDot.gif";
 import ddxImg from "../assets/images/ddx.svg";
 import ddxTag from "../assets/images/ddx-tag.svg";
 import DifferentialDiagnosisDrawer from "../components/DifferentialDiagnosisDrawer";
@@ -185,7 +185,7 @@ function Prescription() {
   const [generatedDDx, setGeneratedDDx] = useState([]);
   const [isDDxLoading, setIsDDxLoading] = useState(false);
   const [ddxDrawer, setDDxDrawer] = useState(false);
-  const isApexAIAccessable = useFeatureIsOn("cdss") && false;
+  const isApexAIAccessable = useFeatureIsOn("cdss");
   const {
     isVaccinationAccessable,
     isGrowthChartAccessable,
@@ -1004,7 +1004,13 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                         >                          
                         </button>
                       </div>
-                      <DDxList />
+                      <DDxList
+                        generatedDDx={generatedDDx}
+                        handleDDxDrawer={handleDDxDrawer}
+                        isDDxLoading={isDDxLoading}
+                        handleDDxKnowMore={handleDDxKnowMore}
+                        getGenerateDDx={getGenerateDDx}
+                      />
                     </div>
                   </TabPane>
                 </Tabs>

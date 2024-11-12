@@ -47,26 +47,26 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
   const { symptomsData, setSymptomsData } = useContext(CashManagerContext);
   // const [ symptomsData, setSymptomsData] = useState([]);
 
-  const associatedSymptoms = generatedDDx?.map(
-    (item) => item.assocSymptoms
-  );
+  // const associatedSymptoms = generatedDDx?.map(
+  //   (item) => item.assocSymptoms
+  // );
 
-  const uniqueSymptoms = [...new Set(associatedSymptoms.flat())];
+  // const uniqueSymptoms = [...new Set(associatedSymptoms.flat())];
 
-  const ddxOptionsList = uniqueSymptoms
-    ?.map((item) => {
-      return {
-        symptom_name: item,
-        usage_count: 0,
-        isDDx: true,
-      };
-    })
-    ?.filter(
-      (e) =>
-        ![...symptomsData.map((e1) => e1.symptom_name)].includes(
-          e.symptom_name
-        )
-    );
+  // const ddxOptionsList = uniqueSymptoms
+  //   ?.map((item) => {
+  //     return {
+  //       symptom_name: item,
+  //       usage_count: 0,
+  //       isDDx: true,
+  //     };
+  //   })
+  //   ?.filter(
+  //     (e) =>
+  //       ![...symptomsData.map((e1) => e1.symptom_name)].includes(
+  //         e.symptom_name
+  //       )
+  //   );
 
   const SEVERITY_LIST = [
     { value: "Severe", label: "Severe" },
@@ -964,15 +964,16 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
         {REMOVE_ALL_ROWS}
         {TABLE_SYMPTOMS}
 
-        {ddxOptionsList?.length > 0 && (
+        {/* {ddxOptionsList?.length > 0 && (
           <div style={{ padding: "0 14px" }}>
             <DifferentialDiagnosis
               handleDDxDrawer={handleDDxDrawer}
               ddxOptionsList={ddxOptionsList}
               onSelectParent={onSelectDDx}
+              isSymptoms={true}
             />
           </div>
-        )}
+        )} */}
         <div className="p-14">
           <AutoComplete
             // defaultValue={searchParentQuery}

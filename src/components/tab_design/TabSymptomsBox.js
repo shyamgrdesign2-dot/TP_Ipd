@@ -37,26 +37,26 @@ function TabSymptomsBox({handleDDxDrawer, generatedDDx}) {
     const { symptomsData, setSymptomsData } = useContext(CashManagerContext);
     // const [ symptomsData, setSymptomsData] = useState([]);
 
-    const associatedSymptoms = generatedDDx?.map(
-        (item) => item.assocSymptoms
-    );
+    // const associatedSymptoms = generatedDDx?.map(
+    //     (item) => item.assocSymptoms
+    // );
 
-    const uniqueSymptoms = [...new Set(associatedSymptoms.flat())];
+    // const uniqueSymptoms = [...new Set(associatedSymptoms.flat())];
 
-    const ddxOptionsList = uniqueSymptoms
-        ?.map((item) => {
-        return {
-            symptom_name: item,
-            usage_count: 0,
-            isDDx: true,
-        };
-        })
-        ?.filter(
-        (e) =>
-            ![...symptomsData.map((e1) => e1.symptom_name)].includes(
-            e.symptom_name
-            )
-        );
+    // const ddxOptionsList = uniqueSymptoms
+    //     ?.map((item) => {
+    //     return {
+    //         symptom_name: item,
+    //         usage_count: 0,
+    //         isDDx: true,
+    //     };
+    //     })
+    //     ?.filter(
+    //     (e) =>
+    //         ![...symptomsData.map((e1) => e1.symptom_name)].includes(
+    //         e.symptom_name
+    //         )
+    //     );
 
     const [parentDrawer, setParentDrawer] = useState(false);
     const [childDrawer, setChildDrawer] = useState(false);
@@ -815,10 +815,10 @@ function TabSymptomsBox({handleDDxDrawer, generatedDDx}) {
                         <i className='icon-search mx-2'></i>
                         <span className="fontroboto backbar fw-normal">Search Symptoms</span>
                     </div>
-                    { ddxOptionsList?.length > 0 && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={ddxOptionsList} onSelectParent={onSelectParent} />}
+                    {/* { ddxOptionsList?.length > 0 && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={ddxOptionsList} onSelectParent={onSelectParent} isSymptoms={true} />} */}
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer || isSymptomsBox} width={'100%'} className="searchdrawer-content">
-                    {(parentDrawer || isSymptomsBox) && (<TabSymptomsSearch passIndex={selectedIndex} onClose={handleDrawerParent} ddxOptionsList={ddxOptionsList} />)}
+                    {(parentDrawer || isSymptomsBox) && (<TabSymptomsSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&

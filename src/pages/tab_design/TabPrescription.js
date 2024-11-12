@@ -44,7 +44,7 @@ import growthChartDark from "../../assets/images/growth-chart-dark.svg";
 import privateNotesWhite from "../../assets/images/private-notes-white.svg";
 import privateNotesDark from "../../assets/images/private-notes-dark.svg";
 import apexAIImg from "../../assets/images/apexAI.svg";
-import blinkingDot from "../../assets/images/blinkingDot.png";
+import blinkingDot from "../../assets/images/blinkingDot.gif";
 import ddxImg from "../../assets/images/ddx.svg";
 import obstetricWhite from "../../assets/images/obstetric-white.svg";
 import obstetricDark from "../../assets/images/obstetric-dark.svg";
@@ -95,7 +95,7 @@ function TabPrescription() {
     timingList,
     userId,
   } = useSelector((state) => state.doctors);
-  const isApexAIAccessable = useFeatureIsOn("cdss") || true;
+  const isApexAIAccessable = useFeatureIsOn("cdss");
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
