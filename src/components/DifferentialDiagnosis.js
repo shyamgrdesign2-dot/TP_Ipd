@@ -1,6 +1,7 @@
 import { Button, Divider } from "antd";
 import apexAI from "../assets/images/apexAI.svg";
 import arrow from "../assets/images/shaded-arrow.svg";
+import ddxIcon from "../assets/images/ddxIcon.svg";
 import loading from "../assets/images/loading.gif";
 import { useSelector } from "react-redux";
 
@@ -36,12 +37,7 @@ const DifferentialDiagnosis = ({
             width: "100%",
           }}
         >
-          <img
-            width={105}
-            height={105}
-            src={loading}
-            alt="loading"
-          />
+          <img width={105} height={105} src={loading} alt="loading" />
           <span className="title-common">Generating AI powered diagnosis</span>
         </div>
       ) : (
@@ -99,10 +95,11 @@ const DifferentialDiagnosis = ({
                     <div style={{ width: "160px" }}>
                       <Button
                         className="btn btn-primary3 w-100 btn-41 px-4 me-20 d-flex align-items-center justify-content-center"
+                        style={{ gap: 10 }}
                         disabled={!isDDxReadyToGenerate}
                         onClick={getGenerateDDx}
                       >
-                        <i className="icon-Add me-2 fs-21"></i>
+                        <img src={ddxIcon} alt="ddx-icon" />
                         Generate DDx
                       </Button>
                     </div>
@@ -118,7 +115,7 @@ const DifferentialDiagnosis = ({
                     </Button>
                     <div
                       className="d-flex align-items-center"
-                      style={{ columnGap: 8 }}
+                      style={{ columnGap: 8, cursor: "pointer" }}
                       onClick={handleDDxKnowMore}
                     >
                       <div className="text-primary" style={{ fontWeight: 600 }}>
@@ -180,10 +177,11 @@ const DifferentialDiagnosis = ({
                     <Button
                       type="primary"
                       className="btn btn-primary3 btn-41 px-4 me-20 w-100 d-flex align-items-center justify-content-center"
+                      style={{ gap: 10 }}
                       onClick={getGenerateDDx}
                       disabled={!isDDxReadyToGenerate}
                     >
-                      <i className="icon-Add me-2 fs-21"></i>
+                      <img src={ddxIcon} alt="ddx-icon" />
                       Generate DDx
                     </Button>
                   </div>
