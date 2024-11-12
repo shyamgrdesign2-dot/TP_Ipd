@@ -911,7 +911,13 @@ function AppointmentData({ locationPath }) {
             ellipsis: true,
             render: (text, record) => (
                 <div>
-                    <span className="text-primary"><Link to="/patient_details" state={{ patient_data: record }}>{record.pm_fullname}</Link></span>
+                    <span className="text-primary">
+                        {selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT ?
+                            <Link to="/patient_details" state={{ patient_data: record }}>{record.pm_fullname}</Link>
+                            :
+                            record.pm_fullname
+                        }
+                    </span>
                     <br />
                     <small>
                         {genderAge(record)}
