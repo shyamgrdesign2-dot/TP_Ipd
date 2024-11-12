@@ -245,6 +245,35 @@ export const zydusConsultAppoint = createAsyncThunk(
     }
 );
 
+export const syncZydusPatientAndAppointment = createAsyncThunk(
+    "records/syncZydusPatientAndAppointment",
+    async (data) => {
+        const result = await ApiAppointments.syncZydusPatientAndAppointment(data);
+        if (result.status) {
+            return result.pam_id;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
+export const copyGetAllAppointment = createAsyncThunk(
+    "records/copyGetAllAppointment",
+    async (data) => {
+        try {
+            const result = await ApiAppointments.getAllAppointment(data);
+            if (result.status) {
+                return result.data;
+            } else {
+                throw Error(result.error);
+            }
+        } catch (error) {
+            console.log("error: ", error);
+            throw Error(error);
+        }
+    }
+);
+
 const appointmentsSlice = createSlice({
     name: "records",
     initialState,

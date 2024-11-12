@@ -46,7 +46,9 @@ import {
     getAllAppointment,
     cancelAppointments,
     endVisit,
-    zydusConsultAppoint
+    zydusConsultAppoint,
+    syncZydusPatientAndAppointment,
+    copyGetAllAppointment
 } from "../redux/appointmentsSlice";
 
 import {
@@ -311,7 +313,7 @@ function AppointmentData({ locationPath }) {
 
         const decodedToken = getDecodedToken();
         const tokenData = decodedToken?.result;
-        if (tokenData?.hospital_business_id != config.zydus_business_id) {
+        if (tokenData?.hospital_business_id == config.zydus_business_id) {
             const zydusItems = [
                 {
                     key: TAB_ZYDUS_ENCOUNTER,
@@ -326,7 +328,7 @@ function AppointmentData({ locationPath }) {
                     key: TAB_ZYDUS_APPOINTMENT,
                     label: (
                         <div className="d-flex align-items-center">
-                            <i className="icon-Finished"></i>
+                            <i className="icon-Queue"></i>
                             Appointment
                         </div>
                     ),
@@ -681,6 +683,75 @@ function AppointmentData({ locationPath }) {
         navigate("/prescription", { state: { patient_data: record } })
     }
 
+    const onZydusConsultClick = async (record) => {
+        const decodedToken = getDecodedToken();
+        const tokenData = decodedToken?.result;
+
+        const listSalutation = [
+            "B/O",
+            "Baby",
+            "D/O",
+            "Dr",
+            "Master",
+            "Miss",
+            "Mr",
+            "Mrs",
+            "Ms.",
+            "S/O"
+        ];
+        const [title, ...rest] = record.patientName.split(" "); //patientName
+
+        let sendData = {
+            "source": "TP-React-FE", //Static
+            "business_id": tokenData?.hospital_business_id, //From Token
+            "hospital_id": siteId, // site_id
+            "doctor_ref_id": record.employeeId, // employeeId
+            "patient_ref_id": record.mrno, //mrno
+            "encounter_ref_id": record.encounterId, //encounterId
+            "visit_type": record.visitTypeCode, //visitTypeCode
+            "scheduled_date": moment(record.encounterDateTime, 'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'), //encounterDateTime
+            "scheduled_time": moment(record.encounterDateTime, 'DD-MM-YYYY HH:mm').format('HH:mm:ss'), //encounterDateTime
+            "scheduled_duration": "", //Static
+            "billing_status": "PAID", //Static
+            "patient_details": {
+                "salutation": listSalutation.some(e => e.toLowerCase() === title.toLowerCase()) ? title : "",
+                "first_name": listSalutation.some(e => e.toLowerCase() === title.toLowerCase()) ? rest.join(" ") : record.patientName,
+                "middle_name": "",
+                "last_name": "",
+                "date_of_birth": record.dob,
+                "gender": record.gender,
+                "contact_number": record.mobileNo,
+                "email_id": "noreply@zydushospitals.com"
+            }
+        }
+
+        const action = await dispatch(syncZydusPatientAndAppointment(sendData))
+        if (action.meta.requestStatus === "fulfilled") {
+
+            let sendData = {
+                startDate: date.startDate,
+                endDate: date.endDate,
+                apStatue: TAB_QUEUE,
+                page: 0
+            }
+
+            const action1 = await dispatch(copyGetAllAppointment(sendData))
+            console.log(action1)
+            if (action1.meta.requestStatus === "fulfilled") {
+                const find_record = action1.payload?.app_data?.find(e => e?.pam_id == action.payload)
+                if (find_record !== undefined) {
+                    navigate("/prescription", { state: { patient_data: find_record } })
+                }
+            } else {
+                errorMessage('Something went wrong! Please try again later')
+            }
+
+        } else {
+            errorMessage('Something went wrong! Please try again later')
+        }
+
+    }
+
     const onSmartRxClick = async (record) => {
         window.Moengage.track_event("patient_search_consult", {
             "doctor_id": profile?.doctor_unique_id,
@@ -890,74 +961,76 @@ function AppointmentData({ locationPath }) {
             ),
         },
         {
-            title: "Action",
+            title: selectedTab != TAB_ZYDUS_APPOINTMENT ? "Action" : "",
             key: "action",
             width: 170,
             render: (_, record, index) => (
-                <div size="middle" style={{ display: "flex" }}>
-                    {isSmartSyncAccessableFromGB && !isMobile ? (
-                        isDigitisationTab ?
+                selectedTab != TAB_ZYDUS_APPOINTMENT ?
+                    <div size="middle" style={{ display: "flex" }}>
+                        {isSmartSyncAccessableFromGB && !isMobile ? (
+                            isDigitisationTab ?
+                                <>
+                                    <button className="btn btn-outline-primary" style={{ fontSize: "13px !important" }} onClick={() => handleDigitiseRx(record, index)}>
+                                        {"Digitise Rx"}
+                                    </button>
+                                </> :
+                                <>
+                                    {selectedTab !== TAB_CANCELLED && (
+                                        <button
+                                            // className="btn btn-outline-primary btn-smart-rx" 
+                                            className={`btn btn-outline-primary ${selectedTab === TAB_FINISHED ? 'btn-print-rx' : 'btn-smart-rx'}`}
+                                            onClick={() => selectedTab === TAB_QUEUE ? onSmartRxClick(record) : onPrintRxUrlClick(record)}
+                                        >
+                                            {selectedTab === TAB_FINISHED ? "PrintRx" : "SmartRx"}
+                                        </button>
+                                    )}
+                                    {selectedTab === TAB_QUEUE && (
+                                        <button
+                                            className="btn btn-outline-primary btn-down-arrow"
+                                            onClick={() => setOpenRowIndex(openRowIndex === index ? null : index)}
+                                        >
+                                            <span role="img" aria-label="down" class="anticon anticon-down ant-select-suffix">
+                                                <i
+                                                    className="icon-right"
+                                                    style={{ display: "block", transform: `rotate(270deg)` }}
+                                                />
+                                            </span>
+                                        </button>
+                                    )}
+                                    {openRowIndex === index &&
+                                        <button ref={consultButtonRef} className="btn-consult" onClick={() => onConsultClick(record)}>
+                                            Consult
+                                        </button>
+                                    }
+                                </>
+                        ) : (
                             <>
-                                <button className="btn btn-outline-primary" style={{ fontSize: "13px !important" }} onClick={() => handleDigitiseRx(record, index)}>
-                                    {"Digitise Rx"}
-                                </button>
-                            </> :
-                            <>
-                                {selectedTab !== TAB_CANCELLED && (
-                                    <button
-                                        // className="btn btn-outline-primary btn-smart-rx" 
-                                        className={`btn btn-outline-primary ${selectedTab === TAB_FINISHED ? 'btn-print-rx' : 'btn-smart-rx'}`}
-                                        onClick={() => selectedTab === TAB_QUEUE ? onSmartRxClick(record) : onPrintRxUrlClick(record)}
-                                    >
-                                        {selectedTab === TAB_FINISHED ? "PrintRx" : "SmartRx"}
+                                {selectedTab !== TAB_CANCELLED && selectedTab != TAB_ZYDUS_APPOINTMENT && (
+                                    <button className="btn btn-outline-primary" onClick={() => selectedTab === TAB_QUEUE ? onConsultClick(record) : selectedTab === TAB_ZYDUS_ENCOUNTER ? onZydusConsultClick(record) : onPrintRxUrlClick(record)}>
+                                        {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
                                     </button>
                                 )}
-                                {selectedTab === TAB_QUEUE && (
-                                    <button
-                                        className="btn btn-outline-primary btn-down-arrow"
-                                        onClick={() => setOpenRowIndex(openRowIndex === index ? null : index)}
-                                    >
-                                        <span role="img" aria-label="down" class="anticon anticon-down ant-select-suffix">
-                                            <i
-                                                className="icon-right"
-                                                style={{ display: "block", transform: `rotate(270deg)` }}
-                                            />
-                                        </span>
-                                    </button>
-                                )}
-                                {openRowIndex === index &&
-                                    <button ref={consultButtonRef} className="btn-consult" onClick={() => onConsultClick(record)}>
-                                        Consult
-                                    </button>
-                                }
                             </>
-                    ) : (
-                        <>
-                            {selectedTab !== TAB_CANCELLED && (
-                                <button className="btn btn-outline-primary" onClick={() => selectedTab === TAB_QUEUE ? onConsultClick(record) : onPrintRxUrlClick(record)}>
-                                    {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
-                                </button>
-                            )}
-                        </>
-                    )}
-                    {!isDigitisationTab &&
-                        <Dropdown
-                            className="btn btn-outline btn-more ms-3"
-                            menu={{
-                                items: getMenuItems(record),
-                            }}
-                            trigger={["click"]}
-                        >
-                            <a
-                                onClick={(e) => {
-                                    e.preventDefault();
+                        )}
+                        {!isDigitisationTab && selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT &&
+                            <Dropdown
+                                className="btn btn-outline btn-more ms-3"
+                                menu={{
+                                    items: getMenuItems(record),
                                 }}
+                                trigger={["click"]}
                             >
-                                <i className="icon-More" />
-                            </a>
-                        </Dropdown>
-                    }
-                </div>
+                                <a
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                    }}
+                                >
+                                    <i className="icon-More" />
+                                </a>
+                            </Dropdown>
+                        }
+                    </div>
+                    : null
             ),
 
         },

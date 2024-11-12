@@ -118,5 +118,8 @@ ApiAppointments.appointments = function (siteId, empNo, date) {
   return api.get(`/ictApiProxy/emr/op/appointments/list?siteId=${siteId}&empNo=${empNo}&date=${date}`, baseZydusProxyUrl);
 };
 
+ApiAppointments.syncZydusPatientAndAppointment = function (body) {
+  return api.post(`/appointment/syncZydusPatientAndAppointment`, body, baseZydusUrl);
+};
 
 export default ApiAppointments;

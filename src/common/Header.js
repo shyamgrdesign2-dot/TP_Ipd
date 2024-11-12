@@ -102,7 +102,7 @@ function Header({ locationPath }) {
     dispatch(getMedicineType());
     dispatch(getDefaultPrintsettings({ default: false }));
     dispatch(listVideo());
-    !siteId && dispatch(zydusRefIds())
+    dispatch(zydusRefIds())
   }, []);
 
   useEffect(() => {
