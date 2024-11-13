@@ -40,7 +40,7 @@ function TabInvestigationBox({handleDDxDrawer, generatedDDx}) {
 
     const associatedLabTests = generatedDDx?.map((item) => item.labTests);
 
-    const uniqueLabTests = [...new Set(associatedLabTests.flat())];
+    const uniqueLabTests = [...new Set(associatedLabTests?.flat())];
 
     const ddxOptionsList = uniqueLabTests
       ?.map((item) => {

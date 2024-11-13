@@ -652,6 +652,84 @@
             }
         }
     }
+    &.cdss-collapse {
+        border-radius: 20px;
+        &.ant-collapse {
+            .ant-collapse-item {
+                .ant-collapse-header {
+                    padding: 0 !important;
+
+                    &[aria-expanded="false"] {
+                        background-color: white;
+                        border-radius: 20px !important;
+                    }
+
+                    &[aria-expanded="true"] {
+                        background: url("../images/cdss-wallpaper.gif");
+                        width: 100%;
+                        background-size: cover;
+                        background-repeat: no-repeat;
+                        background-position: center;
+                        border-radius: 20px !important;
+                    }
+                    .ant-collapse-expand-icon{
+                        margin: 30px;
+                        &:after {
+                            background-color: rgba(255, 255, 255, 0.5);
+                        }
+                    }
+                }
+            }
+            .ant-collapse-content {
+                border-radius: 0 0 20px 20px;
+                border-top: none;
+            }
+        }
+    }
+    &.ddx-collapse {
+        &.ant-collapse {
+            .ant-collapse-item {
+                .ant-collapse-header {           
+                    background-color: rgba(119, 66, 254, 0.08);
+                    padding: 17px 20px;
+
+                     &[aria-expanded="false"] {
+                        border-radius: 12px !important;
+                    }
+
+                    &[aria-expanded="true"] {
+                        border-radius: 12px 12px 0px 0px !important;
+                    }
+
+                    .ant-collapse-expand-icon{
+                        &:after {
+                            background-color: rgba(255, 255, 255, 0.5);
+                        }
+                    }
+                }
+            }
+            .ant-collapse-content {
+                border-top: none;
+                background-color: rgba(119, 66, 254, 0.08);
+                padding: 17px 20px;
+                border-radius: 0 0 12px 12px;
+            }
+        }
+    }
+    &.ddx-drawer-collapse {
+        &.ant-collapse {
+            .ant-collapse-item {
+                .ant-collapse-header {           
+                    .ant-collapse-expand-icon{
+                        &:after {
+                            font-size: 20px;
+                            border: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 // Tablet design
@@ -2294,4 +2372,18 @@ body {
             }
         }  
     }
+}
+
+.dislike-cdss {
+    color: red !important;
+    fill: red !important;
+}
+
+.like-cdss {
+    color: green !important;
+    fill: green !important;
+}
+
+.warning-txt-cdss {
+    color: #938120 !important;  
 }

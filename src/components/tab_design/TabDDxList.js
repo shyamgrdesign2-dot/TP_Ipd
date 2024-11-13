@@ -2,7 +2,9 @@ import { Button, Divider, Spin } from "antd";
 import arrow from "../../assets/images/shaded-arrow.svg";
 import selectedTick from "../../assets/images/tick.svg";
 import loading from "../../assets/images/loading.gif";
+import cdssWallpaper from "../../assets/images/cdss-wallpaper.gif";
 import ddxIcon from "../../assets/images/ddxIcon.svg";
+import ddxTag from "../../assets/images/ddx-tag.svg";
 import { WarningColor } from "../DifferentialDiagnosisDrawer";
 import { useContext } from "react";
 import CashManagerContext from "../../context/CashManagerContext";
@@ -30,10 +32,13 @@ const TabDDxList = ({
     >
       {isDDxLoading ? (
         <div
-          className="d-flex align-items-center justify-content-center w-100 h-100"
+          className="d-flex flex-column align-items-center justify-content-center w-100 h-100"
           style={{ background: "rgba(119, 66, 254, 0.08)" }}
         >
           <img width={105} height={105} src={loading} alt="loading" />
+          <span style={{ textAlign: "center" }} className="title-common">
+            Generating AI powered diagnosis
+          </span>
         </div>
       ) : (
         <>
@@ -42,19 +47,32 @@ const TabDDxList = ({
             style={{
               rowGap: "24px",
               padding: "24px 10px",
-              background: "rgba(119, 66, 254, 0.08)",
+              background: `url(${cdssWallpaper})`,
+              width: "100%",
+              backgroundSize: "cover",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
               borderRadius: "0 0 20px 20px",
             }}
           >
-            <div
-              style={{
-                fontSize: 24,
-                fontWeight: 600,
-                lineHeight: "32px",
-                textAlign: "center",
-              }}
-            >
-              Differential Diagnosis
+            <div className="d-flex flex-column align-items-center gap-2">
+              <img
+                src={ddxTag}
+                alt="ddx-img"
+                width={36}
+                height={16}
+                className="me-3"
+              />
+              <div
+                style={{
+                  fontSize: 24,
+                  fontWeight: 600,
+                  lineHeight: "32px",
+                  textAlign: "center",
+                }}
+              >
+                Differential Diagnosis
+              </div>
             </div>
             {generatedDDx?.length > 0 ? (
               <div className="d-flex justify-content-center">

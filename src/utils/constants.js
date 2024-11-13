@@ -66,5 +66,5 @@ export const EXTRA_OPTIONS = [
 
 export const ABORTION = "Abortion";
 export const MISCARRIAGE = "Miscarriage";
-
+export const IS_DDX_ACCORDIAN_OPEN = "isDdxAccordianOpen";
 

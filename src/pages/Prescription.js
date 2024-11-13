@@ -77,8 +77,6 @@ import DDxKnowMore from "../components/DDxKnowMore";
 import TabPane from "antd/es/tabs/TabPane";
 import apexAIImg from "../assets/images/apexAI.svg";
 import blinkingDot from "../assets/images/blinkingDot.gif";
-import ddxImg from "../assets/images/ddx.svg";
-import ddxTag from "../assets/images/ddx-tag.svg";
 import DifferentialDiagnosisDrawer from "../components/DifferentialDiagnosisDrawer";
 import { setIsDDxReadyToGenerate } from "../redux/ddxSlice";
 import { getDDxDetails } from "../api/services/ApiDDx";
@@ -181,7 +179,7 @@ function Prescription() {
   const [shouldShowApexPopup, setShowApexPopup] = useState(true);
   const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
   const [activeTab, setActiveTab] = useState("basicInfo");
-  const [generatedDDx, setGeneratedDDx] = useState([]);
+  const [generatedDDx, setGeneratedDDx] = useState({results: []});
   const [isDDxLoading, setIsDDxLoading] = useState(false);
   const [ddxDrawer, setDDxDrawer] = useState(false);
   const isApexAIAccessable = useFeatureIsOn("cdss");
@@ -693,7 +691,7 @@ const getGenerateDDx = async () => {
   };
   const generatedDDxResponse = await getDDxDetails(payload);
   if (generatedDDxResponse?.results?.length > 0) {
-    setGeneratedDDx(generatedDDxResponse.results);
+    setGeneratedDDx(generatedDDxResponse);
   }
   dispatch(setIsDDxReadyToGenerate(false));
   setIsDDxLoading(false);
@@ -1003,7 +1001,7 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                           style={{ marginRight: 8 }}
                         />
                         Apex AI
-                        {isDDxReadyToGenerate && generatedDDx?.length > 0 && (
+                        {isDDxReadyToGenerate && generatedDDx?.results?.length > 0 && (
                           <img
                               src={blinkingDot}
                               alt="blinking-dot"
@@ -1016,27 +1014,14 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                     }
                     key="apexAI"
                   >
-                    <div className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <img src={ddxImg} alt="ddx-img" width={48} height={48} className="me-3" />
-                          <div className="title-common d-flex flex-column" style={{gap: 4}}>
-                            <img src={ddxTag} alt="ddx-img" width={36} height={16} className="me-3" />
-                            <span>Differential Diagnosis</span>
-                          </div>
-                        </div>
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerVital}
-                        >                          
-                        </button>
-                      </div>
+                    <div className="prescription-box-sm">
                       <DDxList
-                        generatedDDx={generatedDDx}
+                        generatedDDx={generatedDDx?.results}
                         handleDDxDrawer={handleDDxDrawer}
                         isDDxLoading={isDDxLoading}
                         handleDDxKnowMore={handleDDxKnowMore}
                         getGenerateDDx={getGenerateDDx}
+                        handleDrawerVital={handleDrawerVital}
                       />
                     </div>
                   </TabPane>
@@ -1063,7 +1048,7 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                 {customizedPadRightList?.map((e, i) => {
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      <SymptomsBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} />
+                      <SymptomsBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
                     </div>
                   ) : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1071,7 +1056,7 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                     </div>
                   ) : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      <DiagnosisBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} handleDDxKnowMore={handleDDxKnowMore} />
+                      <DiagnosisBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} handleDDxKnowMore={handleDDxKnowMore} />
                     </div>
                   ) : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1084,7 +1069,7 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                   ) : e.tmdpm_id === 14 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       {" "}
-                      <InvestigationBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} />
+                      <InvestigationBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
                     </div>
                   ) : (
                     e.tmdpm_id === 15 &&
@@ -1268,7 +1253,7 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
             width="auto"
             zIndex={999}
           >
-              <DifferentialDiagnosisDrawer handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx} />
+              <DifferentialDiagnosisDrawer handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} includeExcludeInput={generatedDDx?.input} />
           </Drawer>
         )}
       </>
