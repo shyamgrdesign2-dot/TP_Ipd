@@ -1,12 +1,12 @@
-import { Button, Divider } from "antd";
+import { Button, Collapse, Divider } from "antd";
 import arrow from "../../assets/images/shaded-arrow.svg";
 import selectedTick from "../../assets/images/tick.svg";
 import ddxIcon from "../../assets/images/ddxIcon.svg";
 import loading from "../../assets/images/loading.gif";
+import ddxImg from "../../assets/images/ddx.svg";
+import ddxTag from "../../assets/images/ddx-tag.svg";
 import { WarningColor } from "../DifferentialDiagnosisDrawer";
-import { useDispatch } from "react-redux";
-import { setIsDiagnosisBox } from "../../redux/ddxSlice";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import CashManagerContext from "../../context/CashManagerContext";
 import { useSelector } from "react-redux";
 
@@ -16,32 +16,89 @@ const DDxList = ({
   isDDxLoading,
   handleDDxKnowMore,
   getGenerateDDx,
+  handleDrawerVital,
 }) => {
-  const dispatch = useDispatch();
-
   const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
+  const [isCollapseActive, setIsCollapseActive] = useState(true);
 
-  return (
-    <div>
-      {isDDxLoading ? (
+  const handlePanelChange = () => {
+    setIsCollapseActive((prev) => !prev);
+  };
+
+  const accordionItems = [
+    {
+      key: "1",
+      label: (
         <div
-          className="d-flex align-items-center justify-content-center w-100 h-100"
-          style={{ background: "rgba(119, 66, 254, 0.08)", borderRadius: 12 }}
+          style={{
+            borderRadius: "20px 20px 0 0",
+          }}
+          className="d-flex flex-column justify-content-between p-14"
         >
-          <img width={105} height={105} src={loading} alt="loading" />
+          <>
+            <div className="d-flex align-items-center">
+              <img
+                src={ddxImg}
+                alt="ddx-img"
+                width={48}
+                height={48}
+                className="me-3"
+              />
+              <div
+                className="title-common d-flex flex-column"
+                style={{ gap: 4 }}
+              >
+                <img
+                  src={ddxTag}
+                  alt="ddx-img"
+                  width={36}
+                  height={16}
+                  className="me-3"
+                />
+                <span>Differential Diagnosis</span>
+              </div>
+            </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerVital}
+            />
+          </>
+          {isCollapseActive && generatedDDx?.length === 0 ? (
+            <div
+              style={{
+                paddingTop: 10,
+              }}
+              className="p-14"
+            >
+              Enter key symptoms and patient history to generate a list of
+              possible diagnoses and recommended tests for confirmation. Ensure
+              accurate data for best results.
+            </div>
+          ) : isCollapseActive ? (
+            <div className="d-flex">
+              <Button
+                type="button"
+                className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between"
+                style={{
+                  background: "white",
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDDxDrawer();
+                }}
+              >
+                <span>View Full Analysis</span>
+              </Button>
+            </div>
+          ) : null}
         </div>
-      ) : (
+      ),
+      children: (
         <div>
-          <div>
-            Enter key symptoms and patient history to generate a list of
-            possible diagnoses and recommended tests for confirmation. Ensure
-            accurate data for best results.
-          </div>
-
           <div
             className="d-flex flex-column justify-content-center align-items-center"
-            style={{ padding: "0 10px", marginTop: 16, gap: 10 }}
+            style={{ gap: 10, padding: "18px 14px 0" }}
           >
             {(isDDxReadyToGenerate || generatedDDx?.length === 0) && (
               <Button
@@ -63,9 +120,10 @@ const DDxList = ({
             )}
           </div>
           <div
-            className="d-flex flex-column"
+            className="d-flex flex-column p-14"
             style={{
-              padding: generatedDDx?.length === 0 ? "" : "16px 10px 0px",
+              padding: generatedDDx?.length === 0 ? "0px" : "14px",
+              paddingBottom: 0,
               gap: 16,
             }}
           >
@@ -160,7 +218,7 @@ const DDxList = ({
             })}
           </div>
           <Divider />
-          <div style={{ padding: "0px 12px" }}>
+          <div className="p-14" style={{ paddingTop: 0 }}>
             <div
               className="d-flex align-items-center"
               style={{ paddingBottom: 10, columnGap: 8 }}
@@ -185,6 +243,34 @@ const DDxList = ({
               source for patient treatment decisions.
             </div>
           </div>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div>
+      {isDDxLoading ? (
+        <div
+          className="d-flex flex-column align-items-center justify-content-center w-100 h-100"
+          style={{
+            background: "rgba(119, 66, 254, 0.08)",
+            borderRadius: 12,
+            padding: "10px 0 20px",
+          }}
+        >
+          <img width={105} height={105} src={loading} alt="loading" />
+          <span className="title-common">Generating AI powered diagnosis</span>
+        </div>
+      ) : (
+        <div>
+          <Collapse
+            items={accordionItems}
+            defaultActiveKey={["1"]}
+            onChange={handlePanelChange}
+            className="prescriptiontab-accordian cdss-collapse"
+            expandIconPosition={"end"}
+          />
         </div>
       )}
     </div>

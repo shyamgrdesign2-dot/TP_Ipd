@@ -12,3 +12,11 @@ export const getDDxDetails = async function (payload) {
   }
   return res?.data;
 };
+
+export const addResultImpression = async function (payload) {
+  try {
+    await api.patch(`/api/v1/cdss/ai-diagnosis`, payload, baseUrl);
+  } catch (e) {
+    console.error("Error while adding Result Impression: ", e);
+  }
+};

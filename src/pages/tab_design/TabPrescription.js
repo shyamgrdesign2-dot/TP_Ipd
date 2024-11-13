@@ -143,7 +143,7 @@ function TabPrescription() {
   );
   const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
   const [labParamsData, setLabParamsData] = useState(null);
-  const [generatedDDx, setGeneratedDDx] = useState([]);
+  const [generatedDDx, setGeneratedDDx] = useState({ results: [] });
   const [isDDxLoading, setIsDDxLoading] = useState(false);
 
   const contextApi = {
@@ -713,7 +713,7 @@ function TabPrescription() {
     };
     const generatedDDxResponse = await getDDxDetails(payload);
     if (generatedDDxResponse?.results?.length > 0) {
-      setGeneratedDDx(generatedDDxResponse.results);
+      setGeneratedDDx(generatedDDxResponse);
     }
     dispatch(setIsDDxReadyToGenerate(false));
     setIsDDxLoading(false);
@@ -788,7 +788,7 @@ function TabPrescription() {
                         style={{ position: "relative" }}
                       >
                         <img src={apexAIImg} alt="apex-AI" />
-                        {isDDxReadyToGenerate && generatedDDx?.length > 0 && (
+                        {isDDxReadyToGenerate && generatedDDx?.results?.length > 0 && (
                           <img
                             src={blinkingDot}
                             alt="blinking-dot"
@@ -1138,7 +1138,7 @@ function TabPrescription() {
               ) : (
                 collapsedFlag === 9 && (
                   <TabDDxList
-                    generatedDDx={generatedDDx}
+                    generatedDDx={generatedDDx?.results}
                     handleDDxDrawer={handleDDxDrawer}
                     isDDxLoading={isDDxLoading}
                     handleDDxKnowMore={handleDDxKnowMore}
@@ -1163,7 +1163,7 @@ function TabPrescription() {
                     <div key={i} className="prescription-box-sm">
                       <TabSymptomsBox
                         handleDDxDrawer={handleDDxDrawer}
-                        generatedDDx={generatedDDx}
+                        generatedDDx={generatedDDx?.results}
                       />
                     </div>
                   ) : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? (
@@ -1174,7 +1174,7 @@ function TabPrescription() {
                     <div key={i} className="prescription-box-sm">
                       <TabDiagnosisBox
                         handleDDxDrawer={handleDDxDrawer}
-                        generatedDDx={generatedDDx}
+                        generatedDDx={generatedDDx?.results}
                         getGenerateDDx={getGenerateDDx}
                         isDDxLoading={isDDxLoading}
                         handleDDxKnowMore={handleDDxKnowMore}
@@ -1193,7 +1193,7 @@ function TabPrescription() {
                     <div key={i} className="prescription-box-sm">
                       <TabInvestigationBox
                         handleDDxDrawer={handleDDxDrawer}
-                        generatedDDx={generatedDDx}
+                        generatedDDx={generatedDDx?.results}
                       />
                     </div>
                   ) : (
@@ -1401,7 +1401,8 @@ function TabPrescription() {
           >
             <DifferentialDiagnosisDrawer
               handleDDxDrawer={handleDDxDrawer}
-              generatedDDx={generatedDDx}
+              generatedDDx={generatedDDx?.results}
+              includeExcludeInput={generatedDDx?.input}
             />
           </Drawer>
         )}

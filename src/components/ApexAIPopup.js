@@ -1,5 +1,6 @@
 import { Button } from "antd";
 import apexAI from "../assets/images/apexAI.svg";
+import newTag from "../assets/images/new-gif.gif";
 
 const ApexAIPopup = ({ setShowApexPopup, handleDDxKnowMore }) => {
   return (
@@ -16,7 +17,16 @@ const ApexAIPopup = ({ setShowApexPopup, handleDDxKnowMore }) => {
       <div className="d-flex w-100">
         <img className="me-3" src={apexAI} alt="apex-AI" />
         <div style={{ fontSize: 16, fontWeight: 500 }}>
-          <div>AI-Powered Differential Diagnosis (DDx)</div>
+          <div className="d-flex align-items-center">
+            AI-Powered Differential Diagnosis (DDx){" "}
+            <img
+              style={{ marginLeft: 10 }}
+              src={newTag}
+              alt="new-tag"
+              width={39}
+              height={16}
+            />
+          </div>
           <div className="know-more-txt" onClick={handleDDxKnowMore}>
             Know More
           </div>
