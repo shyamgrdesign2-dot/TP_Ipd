@@ -358,6 +358,8 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
     setSymptomsData((prev) => [...prev]);
     if (symptomsData?.length > 0) {
       dispatch(setIsDDxReadyToGenerate(true));
+    } else {
+      dispatch(setIsDDxReadyToGenerate(false));
     }
   };
 

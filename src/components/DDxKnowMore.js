@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Tabs } from "antd";
 import apexAI from "../assets/images/apexAI.svg";
 import codeIcon from "../assets/images/code.svg";
@@ -7,6 +7,7 @@ import compliantIcon from "../assets/images/compliant.svg";
 import validateHealthcareIcon from "../assets/images/validate-heathcare.svg";
 import playIcons from "../assets/images/tube-icon.svg";
 import { Col, Row } from "react-bootstrap";
+import VideoModal from "../common/VideoModal";
 
 const { TabPane } = Tabs;
 
@@ -38,6 +39,8 @@ const trustDetails = [
 ];
 
 const DDxKnowMore = ({ handleDDxKnowMore }) => {
+  const [shouldShowVideo, setShowVideo] = useState(false);
+
   const videoLink = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
     thumbnail: "https://i.ytimg.com/vi/o6ALwX9hPMM/hqdefault.jpg",
@@ -153,7 +156,9 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
                 width: 447,
                 height: 272,
                 borderRadius: 24,
+                cursor: "pointer",
               }}
+              onClick={() => setShowVideo(true)}
             >
               <img width={55} height={55} src={playIcons} />
             </div>
@@ -181,6 +186,12 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
           </div>
         </div>
       </div>
+      {shouldShowVideo && (
+        <VideoModal
+          videoLink={videoLink}
+          onCancel={() => setShowVideo(false)}
+        />
+      )}
     </div>
   );
 };
