@@ -221,7 +221,12 @@ const DDxList = ({
           <div className="p-14" style={{ paddingTop: 0 }}>
             <div
               className="d-flex align-items-center"
-              style={{ paddingBottom: 10, columnGap: 8 }}
+              style={{
+                paddingBottom: 10,
+                columnGap: 8,
+                cursor: "pointer",
+                width: "fit-content",
+              }}
               onClick={handleDDxKnowMore}
             >
               <div className="text-primary" style={{ fontWeight: 600 }}>

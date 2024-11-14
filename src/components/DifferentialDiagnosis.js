@@ -47,7 +47,7 @@ const DifferentialDiagnosis = ({
                 ? "Tap diagnosis to add to Rx"
                 : isSymptoms
                 ? "These are symptoms associated with added diagnosis. Tap to add to Rx"
-                : "Test suggestions are based on added diagnosis. Tap to add tp Rx"}
+                : "Test suggestions are based on added diagnosis. Tap to add to Rx"}
             </span>
             <div
               className="d-flex align-items-center"
@@ -168,7 +168,7 @@ const DifferentialDiagnosis = ({
               </div>
               <div
                 className="d-flex align-items-center"
-                style={{ columnGap: 8 }}
+                style={{ columnGap: 8, cursor: "pointer" }}
                 onClick={handleDDxKnowMore}
               >
                 <div className="text-primary" style={{ fontWeight: 600 }}>

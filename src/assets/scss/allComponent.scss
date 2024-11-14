@@ -728,6 +728,9 @@
                     }
                 }
             }
+            [aria-expanded="false"] {
+                border-bottom: 1px solid $bordercolor;
+            }
         }
     }
 }
