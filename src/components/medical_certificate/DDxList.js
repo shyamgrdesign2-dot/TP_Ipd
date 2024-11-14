@@ -88,7 +88,7 @@ const DDxList = ({
                   handleDDxDrawer();
                 }}
               >
-                <span>View Full Analysis</span>
+                <span>View Detailed Analysis</span>
               </Button>
             </div>
           ) : null}

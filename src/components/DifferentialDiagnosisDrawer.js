@@ -1,10 +1,13 @@
-import { Button, Card, Collapse, Tabs } from "antd";
+import { Button, Collapse, Tabs } from "antd";
 import apexAI from "../assets/images/apexAI.svg";
 import diagnoses from "../assets/images/diagnosis-white.svg";
 import arrow from "../assets/images/shaded-arrow.svg";
 import lab from "../assets/images/Lab.svg";
 import selectedTick from "../assets/images/tick.svg";
-import { LikeOutlined, DislikeOutlined } from "@ant-design/icons";
+import shadedLike from "../assets/images/shaded-like.svg";
+import shadedDislike from "../assets/images/shaded-dislike.svg";
+import like from "../assets/images/like.svg";
+import dislike from "../assets/images/dislike.svg";
 import { setIsDiagnosisBox, setIsLabTestBox } from "../redux/ddxSlice";
 import { useDispatch } from "react-redux";
 import { useContext, useState } from "react";
@@ -20,9 +23,9 @@ export const WarningColor = {
 };
 
 export const WarningRank = {
-  extended: 3,
-  "can't miss": 4,
-  "most likely": 5,
+  extended: 2,
+  "can't miss": 3,
+  "most likely": 4,
 };
 
 const ImpressionType = {
@@ -39,6 +42,8 @@ const DifferentialDiagnosisDrawer = ({
   handleDDxDrawer,
   generatedDDx,
   includeExcludeInput,
+  likeDislike,
+  setLikeDislike,
 }) => {
   const dispatch = useDispatch();
   const { included, excluded } = includeExcludeInput || {};
@@ -54,7 +59,10 @@ const DifferentialDiagnosisDrawer = ({
 
   const [shouldShowInputWarning, setShowInputWarning] = useState(true);
 
-  const handleLikeAndDislike = async (resultId, impression) => {
+  const handleLikeAndDislike = async (resultId, index, impression) => {
+    const updatedLikeDislike = [...likeDislike];
+    updatedLikeDislike[index] = impression;
+    setLikeDislike(updatedLikeDislike);
     const payload = {
       patientId: patient_data?.patient_unique_id,
       resultId: resultId,
@@ -298,7 +306,7 @@ const DifferentialDiagnosisDrawer = ({
                       >
                         {item?.evidence}
                       </div>
-                      {investigationData?.length > 0 && (
+                      {item?.labTests?.length > 0 && (
                         <div className="d-flex gap-4">
                           <div
                             className="d-flex flex-column justify-content-between gap-4 w-75"
@@ -388,22 +396,79 @@ const DifferentialDiagnosisDrawer = ({
                       )}
                       <div
                         className="d-flex align-items-center"
-                        style={{ gap: 10, marginTop: 10 }}
+                        style={{ gap: 10, marginTop: 15 }}
                       >
-                        <span>Was this result useful?</span>
-                        <DislikeOutlined
-                          style={{ color: "red" }}
-                          className="dislike-cdss"
-                          onClick={() =>
-                            handleLikeAndDislike(item?._id, "dislike")
-                          }
-                        />
-                        <LikeOutlined
-                          className="like-cdss"
-                          onClick={() =>
-                            handleLikeAndDislike(item?._id, "like")
-                          }
-                        />
+                        {likeDislike[index] === "dislike" ? (
+                          <>
+                            <img src={shadedDislike} alt="shaded-dislike" />
+                            <span className="likeDislike-text">
+                              Feedback Taken
+                            </span>
+                            <div
+                              className="likeDislike-text"
+                              style={{
+                                fontWeight: 600,
+                                textDecoration: "underline",
+                                cursor: "pointer",
+                              }}
+                              onClick={() =>
+                                handleLikeAndDislike(item?._id, index, "undo")
+                              }
+                            >
+                              Undo
+                            </div>
+                          </>
+                        ) : likeDislike[index] === "like" ? (
+                          <>
+                            <img src={shadedLike} alt="shaded-like" />
+                            <span className="likeDislike-text">
+                              Feedback Taken
+                            </span>
+                            <div
+                              className="likeDislike-text"
+                              style={{
+                                fontWeight: 600,
+                                textDecoration: "underline",
+                                cursor: "pointer",
+                              }}
+                              onClick={() =>
+                                handleLikeAndDislike(item?._id, index, "undo")
+                              }
+                            >
+                              Undo
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <span className="likeDislike-text">
+                              Was this result useful?
+                            </span>
+                            <img
+                              style={{ cursor: "pointer" }}
+                              src={dislike}
+                              alt="dislike"
+                              width={22}
+                              height={22}
+                              onClick={() =>
+                                handleLikeAndDislike(
+                                  item?._id,
+                                  index,
+                                  "dislike"
+                                )
+                              }
+                            />
+                            <img
+                              style={{ cursor: "pointer" }}
+                              src={like}
+                              alt="like"
+                              width={22}
+                              height={22}
+                              onClick={() =>
+                                handleLikeAndDislike(item?._id, index, "like")
+                              }
+                            />
+                          </>
+                        )}
                       </div>
                     </>
                   ),

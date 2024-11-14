@@ -183,6 +183,7 @@ function Prescription() {
   const [generatedDDx, setGeneratedDDx] = useState({results: []});
   const [isDDxLoading, setIsDDxLoading] = useState(false);
   const [ddxDrawer, setDDxDrawer] = useState(false);
+  const [likeDislike, setLikeDislike] = useState([]);
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const {
     isVaccinationAccessable,
@@ -693,6 +694,7 @@ const getGenerateDDx = async () => {
   const generatedDDxResponse = await getDDxDetails(payload);
   if (generatedDDxResponse?.results?.length > 0) {
     setGeneratedDDx(generatedDDxResponse);
+    setLikeDislike(generatedDDxResponse?.results?.map(() => ""));
   }
   dispatch(setIsDDxReadyToGenerate(false));
   setIsDDxLoading(false);
@@ -1226,7 +1228,7 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
             width="auto"
             zIndex={999}
           >
-              <DifferentialDiagnosisDrawer handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} includeExcludeInput={generatedDDx?.input} />
+              <DifferentialDiagnosisDrawer handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} includeExcludeInput={generatedDDx?.input} likeDislike={likeDislike} setLikeDislike={setLikeDislike} />
           </Drawer>
         )}
       </>
