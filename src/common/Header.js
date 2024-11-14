@@ -673,7 +673,7 @@ function Header({ locationPath }) {
     // Encrypt clinic and doctor ID
     const encryptedCata = await opdEncryptionApiCall(decryptData);
 
-    const url = `https://visit-enrolment-tatva.getvisitapp.net/tatva-care?p_id=${encryptedCata}`
+    const url = `https://visit-enrolment-tatva.getvisitapp.com/tatva-care?p_id=${encryptedCata}`
     setOpdPlansUrl(url);
   };
   
