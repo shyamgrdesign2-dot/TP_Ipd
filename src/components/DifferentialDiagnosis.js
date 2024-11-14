@@ -100,7 +100,7 @@ const DifferentialDiagnosis = ({
                 <Divider />
                 <div
                   className="d-flex align-items-center"
-                  style={{ padding: "0 8px", columnGap: 16 }}
+                  style={{ columnGap: 14 }}
                 >
                   <div style={{ width: "160px" }}>
                     <Button

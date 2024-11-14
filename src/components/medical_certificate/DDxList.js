@@ -5,7 +5,11 @@ import ddxIcon from "../../assets/images/ddxIcon.svg";
 import loading from "../../assets/images/loading.gif";
 import ddxImg from "../../assets/images/ddx.svg";
 import ddxTag from "../../assets/images/ddx-tag.svg";
-import { WarningColor } from "../DifferentialDiagnosisDrawer";
+import {
+  ImpressionText,
+  WarningColor,
+  WarningRank,
+} from "../DifferentialDiagnosisDrawer";
 import { useContext, useState } from "react";
 import CashManagerContext from "../../context/CashManagerContext";
 import { useSelector } from "react-redux";
@@ -142,13 +146,15 @@ const DDxList = ({
                     {item?.differentialDiagnosisName}
                   </div>
                   <div className="d-flex" style={{ columnGap: 2 }}>
-                    {Array.from({ length: item?.rank || 0 }).map((_, index) => (
+                    {Array.from({
+                      length: WarningRank[item?.likelihood] || 0,
+                    }).map((_, index) => (
                       <div
                         key={index}
                         style={{
                           width: 13,
                           height: 4,
-                          border: `2px solid ${WarningColor[item?.rank]}`,
+                          border: `2px solid ${WarningColor[item?.likelihood]}`,
                           borderRadius: 2,
                         }}
                       />
@@ -156,12 +162,12 @@ const DDxList = ({
                   </div>
                   <h6
                     style={{
-                      color: WarningColor[item?.rank],
+                      color: WarningColor[item?.likelihood],
                       fontSize: 12,
                       fontWeight: 500,
                     }}
                   >
-                    {item?.likelihood}
+                    {ImpressionText[item?.likelihood]}
                   </h6>
                   <div
                     className="d-flex align-items-center"

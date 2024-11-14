@@ -17,14 +17,14 @@ import { addResultImpression } from "../api/services/ApiDDx";
 import TabPane from "antd/es/tabs/TabPane";
 
 export const WarningColor = {
-  extended: "rgba(194, 159, 0, 1)",
-  "can't miss": "rgba(239, 125, 25, 1)",
+  "can't miss": "rgba(194, 159, 0, 1)",
+  extended: "rgba(239, 125, 25, 1)",
   "most likely": "rgba(239, 25, 65, 1)",
 };
 
 export const WarningRank = {
-  extended: 2,
-  "can't miss": 3,
+  "can't miss": 2,
+  extended: 3,
   "most likely": 4,
 };
 
@@ -32,6 +32,12 @@ const ImpressionType = {
   extended: "extended",
   "can't miss": "cantMiss",
   "most likely": "mostLikely",
+};
+
+export const ImpressionText = {
+  extended: "Extended Differential Diagnosis",
+  "can't miss": "Can’t Miss Differential Diagnosis",
+  "most likely": "Most Likely Diagnosis",
 };
 
 const formatItem = (item) => {
@@ -243,7 +249,7 @@ const DifferentialDiagnosisDrawer = ({
                               marginBottom: 0,
                             }}
                           >
-                            {item?.likelihood}
+                            {ImpressionText[item?.likelihood]}
                           </h6>
                         </div>
                       </div>

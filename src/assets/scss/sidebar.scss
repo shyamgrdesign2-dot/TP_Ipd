@@ -294,6 +294,21 @@ body {
     }
     .prescription-sidebar-ai {
         background-color: #22003C;
+        position: relative;
+
+        .prescription-sidebar-ai-vector {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+        .prescription-sidebar-ai-vector-reverse {
+            position: absolute;
+            bottom: 130px;
+            left: 0;
+            transform: rotate(180deg);
+        }
+
     }
     .text-history {
         color: $historytext;

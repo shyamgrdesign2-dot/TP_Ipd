@@ -45,6 +45,7 @@ import privateNotesWhite from "../../assets/images/private-notes-white.svg";
 import privateNotesDark from "../../assets/images/private-notes-dark.svg";
 import apexAIImg from "../../assets/images/apexAI.svg";
 import blinkingDot from "../../assets/images/blinkingDot.gif";
+import ddxVector from "../../assets/images/ddx-tab-vector.svg";
 import ddxImg from "../../assets/images/ddx.svg";
 import obstetricWhite from "../../assets/images/obstetric-white.svg";
 import obstetricDark from "../../assets/images/obstetric-dark.svg";
@@ -740,6 +741,14 @@ function TabPrescription() {
             >
               {isApexAISelected ? (
                 <>
+                  <img
+                    src={ddxVector}
+                    className="prescription-sidebar-ai-vector"
+                  />
+                  <img
+                    src={ddxVector}
+                    className="prescription-sidebar-ai-vector-reverse"
+                  />
                   <button
                     type="button"
                     className="mb-3 text-center btn btn-action"
@@ -791,18 +800,18 @@ function TabPrescription() {
                       >
                         <img src={apexAIImg} alt="apex-AI" />
                         {isDDxReadyToGenerate && generatedDDx?.results?.length > 0 && (
-                          <img
-                            src={blinkingDot}
-                            alt="blinking-dot"
-                            width={30}
-                            height={30}
-                            style={{
-                              position: "absolute",
-                              top: -15,
-                              right: -15,
-                            }}
-                          />
-                        )}
+                            <img
+                              src={blinkingDot}
+                              alt="blinking-dot"
+                              width={30}
+                              height={30}
+                              style={{
+                                position: "absolute",
+                                top: -15,
+                                right: -15,
+                              }}
+                            />
+                          )}
                       </div>
                       <label className="text-white mt-1">Apex AI</label>
                     </button>

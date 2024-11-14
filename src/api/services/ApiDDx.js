@@ -7,6 +7,14 @@ export const getDDxDetails = async function (payload) {
   let res = {};
   try {
     res = await api.post(`/api/v1/cdss/ai-diagnosis`, payload, baseUrl);
+    const likelihoodOrder = ["most likely", "extended", "can't miss"];
+
+    // Sort the results based on the likelihood order
+    res?.data?.results?.sort((a, b) => {
+      const likelihoodA = likelihoodOrder.indexOf(a.likelihood);
+      const likelihoodB = likelihoodOrder.indexOf(b.likelihood);
+      return likelihoodA - likelihoodB;
+    });
   } catch (error) {
     console.error("Error while generating ddx: ", error);
   }
