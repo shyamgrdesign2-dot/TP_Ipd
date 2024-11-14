@@ -144,6 +144,7 @@ function TabPrescription() {
   const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
   const [labParamsData, setLabParamsData] = useState(null);
   const [generatedDDx, setGeneratedDDx] = useState({ results: [] });
+  const [likeDislike, setLikeDislike] = useState([]);
   const [isDDxLoading, setIsDDxLoading] = useState(false);
 
   const contextApi = {
@@ -714,6 +715,7 @@ function TabPrescription() {
     const generatedDDxResponse = await getDDxDetails(payload);
     if (generatedDDxResponse?.results?.length > 0) {
       setGeneratedDDx(generatedDDxResponse);
+      setLikeDislike(generatedDDxResponse?.results?.map(() => ""));
     }
     dispatch(setIsDDxReadyToGenerate(false));
     setIsDDxLoading(false);
@@ -1403,6 +1405,8 @@ function TabPrescription() {
               handleDDxDrawer={handleDDxDrawer}
               generatedDDx={generatedDDx?.results}
               includeExcludeInput={generatedDDx?.input}
+              likeDislike={likeDislike}
+              setLikeDislike={setLikeDislike}
             />
           </Drawer>
         )}

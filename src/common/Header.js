@@ -57,6 +57,7 @@ function Header({ locationPath }) {
 
   const decodedToken = getDecodedToken();
   const apiUrl = env.opd_encryption_url;
+  const opdVisitUrl = env.opd_visit_url;
   const [isQRCodeVisible, setQRCodeVisible] = useState(false);
   const [opdPlansUrl, setOpdPlansUrl] = useState(null);
   const printRef = useRef();
@@ -623,7 +624,7 @@ function Header({ locationPath }) {
     // Encrypt clinic and doctor ID
     const encryptedCata = await opdEncryptionApiCall(decryptData);
 
-    const url = `https://visit-enrolment-tatva.getvisitapp.com/tatva-care?p_id=${encryptedCata}`
+    const url = `${opdVisitUrl}/tatva-care?p_id=${encryptedCata}`;
     setOpdPlansUrl(url);
   };
   

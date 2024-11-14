@@ -15,6 +15,7 @@ import dragChips from '../../../src/assets/images/drag-chips.gif'
 import tagNew from '../../../src/assets/images/tag-new.svg'
 import apexAI from "../../../src/assets/images/apexAI.svg";
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { WarningColor, WarningRank } from "../DifferentialDiagnosisDrawer";
 
 function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
 
@@ -500,10 +501,29 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
                                                 {ddxOptionsList?.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name))?.map((item) => (
                                                 <Button
                                                     type="button"
-                                                    className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between test-name-btn"
+                                                    className="btn-41 btn ant-btn-text btn-input d-flex flex-column align-items-start justify-content-start test-name-btn"
+                                                    style={{
+                                                        height: 50,
+                                                        gap: 8
+                                                    }}
                                                     onClick={() => onSelectParent({ ...item })}
                                                 >
                                                     <span>{item?.tds_name}</span>
+                                                    <div className="d-flex" style={{ columnGap: 2 }}>
+                                                        {Array.from({
+                                                        length: WarningRank[item?.likelihood] || 0,
+                                                        }).map((_, index) => (
+                                                        <div
+                                                            key={index}
+                                                            style={{
+                                                            width: 13,
+                                                            height: 4,
+                                                            border: `2px solid ${WarningColor[item?.likelihood]}`,
+                                                            borderRadius: 2,
+                                                            }}
+                                                        />
+                                                        ))}
+                                                    </div>
                                                 </Button>
                                                 ))}
                                             </div>

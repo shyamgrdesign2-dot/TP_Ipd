@@ -691,10 +691,11 @@
             .ant-collapse-item {
                 .ant-collapse-header {           
                     background-color: rgba(119, 66, 254, 0.08);
-                    padding: 17px 20px;
+                    padding: 17px 20px 5px;
 
                      &[aria-expanded="false"] {
                         border-radius: 12px !important;
+                        padding: 17px 20px;
                     }
 
                     &[aria-expanded="true"] {
@@ -711,7 +712,7 @@
             .ant-collapse-content {
                 border-top: none;
                 background-color: rgba(119, 66, 254, 0.08);
-                padding: 17px 20px;
+                padding: 0px 20px 17px;
                 border-radius: 0 0 12px 12px;
             }
         }
@@ -2377,16 +2378,10 @@ body {
     }
 }
 
-.dislike-cdss {
-    color: red !important;
-    fill: red !important;
-}
-
-.like-cdss {
-    color: green !important;
-    fill: green !important;
-}
-
 .warning-txt-cdss {
     color: #938120 !important;  
+}
+
+.likeDislike-text {
+    color: rgba(29, 29, 29, 0.65) !important;
 }
