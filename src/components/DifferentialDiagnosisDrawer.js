@@ -114,8 +114,8 @@ const DifferentialDiagnosisDrawer = ({
         <div className="drawer-tabs">
           <Tabs defaultActiveKey="1" onChange={(key) => scrollToSection(key)}>
             <TabPane tab="Most Likely" key="mostLikely" />
-            <TabPane tab="Can’t Miss " key="cantMiss" />
             <TabPane tab="Extended" key="extended" />
+            <TabPane tab="Can’t Miss " key="cantMiss" />
           </Tabs>
         </div>
       </div>
