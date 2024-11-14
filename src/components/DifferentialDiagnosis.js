@@ -6,6 +6,9 @@ import loading from "../assets/images/loading.gif";
 import { useSelector } from "react-redux";
 import { IS_DDX_ACCORDIAN_OPEN } from "../utils/constants";
 import { useState } from "react";
+import { useAccess } from "../pages/vaccination/useAccess";
+import { useLocation } from "react-router-dom";
+import { WarningColor, WarningRank } from "./DifferentialDiagnosisDrawer";
 
 const DifferentialDiagnosis = ({
   handleDDxDrawer,
@@ -19,6 +22,11 @@ const DifferentialDiagnosis = ({
 }) => {
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
 
+  const { state } = useLocation();
+  const { patient_data } = state;
+
+  const { isGynaecHistoryAccessable } = useAccess(patient_data?.ageYears);
+
   const [isCollapseActive, setIsCollapseActive] = useState(
     localStorage.getItem(IS_DDX_ACCORDIAN_OPEN)
       ? JSON.parse(localStorage.getItem(IS_DDX_ACCORDIAN_OPEN))
@@ -30,13 +38,11 @@ const DifferentialDiagnosis = ({
       key: "1",
       label: (
         <div style={{ fontSize: 16, fontWeight: 500 }}>
-          {ddxOptionsList?.length > 0
-            ? isDiagnosis
-              ? "Most Likely Differential Diagnosis"
-              : isSymptoms
-              ? "Associated Symptoms"
-              : "Suggested Lab Test"
-            : "Differential Diagnosis"}
+          {isDiagnosis
+            ? "Differential Diagnosis"
+            : isSymptoms
+            ? "Associated Symptoms"
+            : "Suggested Lab Test"}
         </div>
       ),
       children:
@@ -57,7 +63,13 @@ const DifferentialDiagnosis = ({
                 <Button
                   key={index}
                   type="button"
-                  className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between test-name-btn"
+                  className="btn-41 btn ant-btn-text btn-input d-flex flex-column test-name-btn"
+                  style={{
+                    gap: isDiagnosis ? 8 : "",
+                    height: isDiagnosis ? 50 : "",
+                    justifyContent: isDiagnosis ? "flex-start" : "center",
+                    alignItems: isDiagnosis ? "flex-start" : "center",
+                  }}
                   onClick={() => onSelectParent({ ...item })}
                 >
                   <span style={{ textTransform: "capitalize" }}>
@@ -65,6 +77,21 @@ const DifferentialDiagnosis = ({
                       item?.symptom_name ||
                       item?.investigation_name}
                   </span>
+                  <div className="d-flex" style={{ columnGap: 2 }}>
+                    {Array.from({
+                      length: WarningRank[item?.likelihood] || 0,
+                    }).map((_, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          width: 13,
+                          height: 4,
+                          border: `2px solid ${WarningColor[item?.likelihood]}`,
+                          borderRadius: 2,
+                        }}
+                      />
+                    ))}
+                  </div>
                 </Button>
               ))}
             </div>
@@ -94,7 +121,7 @@ const DifferentialDiagnosis = ({
                     }}
                     onClick={handleDDxDrawer}
                   >
-                    <span>View Full Analysis</span>
+                    <span>View Detailed Analysis</span>
                   </Button>
                   <div
                     className="d-flex align-items-center"
@@ -119,16 +146,19 @@ const DifferentialDiagnosis = ({
                 }}
                 onClick={handleDDxDrawer}
               >
-                View Full Analysis
+                View Detailed Analysis
               </div>
             )}
           </>
         ) : (
           <>
             <div>
-              Enter key symptoms and patient history to generate a list of
-              possible diagnoses and recommended tests for confirmation. Ensure
-              accurate data for best results.
+              {`Enter key symptoms to get possible diagnoses and recommended tests.
+            Adding additional details like medical history${
+              isGynaecHistoryAccessable
+                ? ", gynecological and obstetric history"
+                : ""
+            } and lab results can help improve accuracy.`}
             </div>
             <div
               className="d-flex align-items-center"
