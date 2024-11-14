@@ -187,7 +187,7 @@ const DifferentialDiagnosisDrawer = ({
               </Button>
             </div>
           )}
-          <div className="d-flex flex-column" style={{ rowGap: 44 }}>
+          <div className="d-flex flex-column w-100" style={{ rowGap: 44 }}>
             {generatedDDx.map((item, index) => {
               const accordionItems = [
                 {
@@ -298,90 +298,94 @@ const DifferentialDiagnosisDrawer = ({
                       >
                         {item?.evidence}
                       </div>
-                      <div className="d-flex gap-4">
-                        <div
-                          className="d-flex flex-column justify-content-between gap-4 w-75"
-                          style={{
-                            backgroundColor: "#FAF8F6",
-                            padding: "11px 15px 21px",
-                            borderRadius: 16,
-                          }}
-                        >
-                          <div>
-                            <div className="d-flex mb-4">
-                              <img className="me-2" src={lab} alt="lab" />
-                              <div
-                                className="modal-title"
-                                style={{ fontSize: 16 }}
-                              >
-                                Suggested Lab Tests
-                              </div>
-                            </div>
-                            <div
-                              className="d-flex flex-column"
-                              style={{ gap: 18 }}
-                            >
-                              {item?.labTests?.map((labTest) => (
+                      {investigationData?.length > 0 && (
+                        <div className="d-flex gap-4">
+                          <div
+                            className="d-flex flex-column justify-content-between gap-4 w-75"
+                            style={{
+                              backgroundColor: "#FAF8F6",
+                              padding: "11px 15px 21px",
+                              borderRadius: 16,
+                            }}
+                          >
+                            <div>
+                              <div className="d-flex mb-4">
+                                <img className="me-2" src={lab} alt="lab" />
                                 <div
-                                  key={labTest}
-                                  className="d-flex align-items-center justify-content-between"
+                                  className="modal-title"
+                                  style={{ fontSize: 16 }}
                                 >
-                                  <span style={{ textTransform: "capitalize" }}>
-                                    {labTest}
-                                  </span>
-                                  {investigationData
-                                    ?.map((item) => item?.investigation_name)
-                                    ?.includes(labTest) ? (
-                                    <div className="d-flex align-items-center gap-2">
-                                      <img
-                                        src={selectedTick}
-                                        alt="tick"
-                                        width={18}
-                                        height={18}
-                                      />
-                                      <div
-                                        className="document-date"
-                                        style={{ fontWeight: 600 }}
-                                      >
-                                        Added
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div
-                                      className="d-flex align-items-center"
-                                      style={{
-                                        columnGap: 8,
-                                        cursor: "pointer",
-                                      }}
+                                  Suggested Lab Tests
+                                </div>
+                              </div>
+                              <div
+                                className="d-flex flex-column"
+                                style={{ gap: 18 }}
+                              >
+                                {item?.labTests?.map((labTest) => (
+                                  <div
+                                    key={labTest}
+                                    className="d-flex align-items-center justify-content-between"
+                                  >
+                                    <span
+                                      style={{ textTransform: "capitalize" }}
                                     >
+                                      {labTest}
+                                    </span>
+                                    {investigationData
+                                      ?.map((item) => item?.investigation_name)
+                                      ?.includes(labTest) ? (
+                                      <div className="d-flex align-items-center gap-2">
+                                        <img
+                                          src={selectedTick}
+                                          alt="tick"
+                                          width={18}
+                                          height={18}
+                                        />
+                                        <div
+                                          className="document-date"
+                                          style={{ fontWeight: 600 }}
+                                        >
+                                          Added
+                                        </div>
+                                      </div>
+                                    ) : (
                                       <div
-                                        className="text-primary"
-                                        style={{ fontWeight: 600 }}
-                                        onClick={() => {
-                                          dispatch(setIsLabTestBox(true));
-                                          investigationData.push({
-                                            investigation_name: labTest,
-                                            hm_type: 1,
-                                            pms_default: 1,
-                                            isDDx: true,
-                                            notes: "",
-                                          });
-                                          setInvestigationData((prev) => [
-                                            ...prev,
-                                          ]);
+                                        className="d-flex align-items-center"
+                                        style={{
+                                          columnGap: 8,
+                                          cursor: "pointer",
                                         }}
                                       >
-                                        Add To Rx
+                                        <div
+                                          className="text-primary"
+                                          style={{ fontWeight: 600 }}
+                                          onClick={() => {
+                                            dispatch(setIsLabTestBox(true));
+                                            investigationData.push({
+                                              investigation_name: labTest,
+                                              hm_type: 1,
+                                              pms_default: 1,
+                                              isDDx: true,
+                                              notes: "",
+                                            });
+                                            setInvestigationData((prev) => [
+                                              ...prev,
+                                            ]);
+                                          }}
+                                        >
+                                          Add To Rx
+                                        </div>
+                                        <img src={arrow} alt="arrow" />
                                       </div>
-                                      <img src={arrow} alt="arrow" />
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      )}
                       <div
                         className="d-flex align-items-center"
                         style={{ gap: 10, marginTop: 10 }}

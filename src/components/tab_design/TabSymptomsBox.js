@@ -117,6 +117,8 @@ function TabSymptomsBox({handleDDxDrawer, generatedDDx}) {
         setSelectedIndex(null);
         if (symptomsData?.length > 0) {
             dispatch(setIsDDxReadyToGenerate(true));
+        } else {
+            dispatch(setIsDDxReadyToGenerate(false));
         }
     };
 
