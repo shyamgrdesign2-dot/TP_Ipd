@@ -689,6 +689,11 @@
     &.ddx-collapse {
         &.ant-collapse {
             .ant-collapse-item {
+                background: url("../images/ddx-vector.svg");
+                background-repeat: no-repeat;
+                background-position: right;
+                background-position-y: top;
+
                 .ant-collapse-header {           
                     background-color: rgba(119, 66, 254, 0.08);
                     padding: 17px 20px 5px;

@@ -5,7 +5,11 @@ import loading from "../../assets/images/loading.gif";
 import cdssWallpaper from "../../assets/images/cdss-wallpaper.gif";
 import ddxIcon from "../../assets/images/ddxIcon.svg";
 import ddxTag from "../../assets/images/ddx-tag.svg";
-import { WarningColor } from "../DifferentialDiagnosisDrawer";
+import {
+  ImpressionText,
+  WarningColor,
+  WarningRank,
+} from "../DifferentialDiagnosisDrawer";
 import { useContext } from "react";
 import CashManagerContext from "../../context/CashManagerContext";
 import { setIsDiagnosisBox } from "../../redux/ddxSlice";
@@ -81,7 +85,6 @@ const TabDDxList = ({
                   className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between"
                   style={{
                     background: "white",
-                    width: "156px",
                   }}
                   onClick={handleDDxDrawer}
                 >
@@ -141,13 +144,15 @@ const TabDDxList = ({
                     {item?.differentialDiagnosisName}
                   </div>
                   <div className="d-flex" style={{ columnGap: 2 }}>
-                    {Array.from({ length: item?.rank || 0 }).map((_, index) => (
+                    {Array.from({
+                      length: WarningRank[item?.likelihood] || 0,
+                    }).map((_, index) => (
                       <div
                         key={index}
                         style={{
                           width: 13,
                           height: 4,
-                          border: `2px solid ${WarningColor[item?.rank]}`,
+                          border: `2px solid ${WarningColor[item?.likelihood]}`,
                           borderRadius: 2,
                         }}
                       />
@@ -155,12 +160,12 @@ const TabDDxList = ({
                   </div>
                   <h6
                     style={{
-                      color: WarningColor[item?.rank],
+                      color: WarningColor[item?.likelihood],
                       fontSize: 12,
                       fontWeight: 500,
                     }}
                   >
-                    {item?.likelihood}
+                    {ImpressionText[item?.likelihood]}
                   </h6>
                   <div
                     className="d-flex align-items-center"
