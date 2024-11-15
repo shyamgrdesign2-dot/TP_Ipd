@@ -37,7 +37,10 @@ const TabDDxList = ({
       {isDDxLoading ? (
         <div
           className="d-flex flex-column align-items-center justify-content-center w-100 h-100"
-          style={{ background: "rgba(119, 66, 254, 0.08)" }}
+          style={{
+            background:
+              "linear-gradient(rgba(119, 66, 254, 0.4) 0%, rgba(119, 66, 254, 0.2) 50%, rgba(119, 66, 254, 0.1) 100%)",
+          }}
         >
           <img width={105} height={105} src={loading} alt="loading" />
           <span style={{ textAlign: "center" }} className="title-common">
@@ -51,7 +54,7 @@ const TabDDxList = ({
             style={{
               rowGap: "24px",
               padding: "24px 10px",
-              background: `url(${cdssWallpaper})`,
+              background: `linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(${cdssWallpaper})`,
               width: "100%",
               backgroundSize: "cover",
               backgroundRepeat: "no-repeat",
@@ -104,15 +107,20 @@ const TabDDxList = ({
             style={{ padding: "0 10px", marginTop: 16, gap: 10 }}
           >
             {(isDDxReadyToGenerate || generatedDDx?.length === 0) && (
-              <Button
-                className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center"
-                style={{ gap: 10 }}
-                onClick={getGenerateDDx}
-                disabled={!isDDxReadyToGenerate}
-              >
-                <img src={ddxIcon} alt="ddx-icon" />
-                Generate DDx
-              </Button>
+              <div style={{ position: "relative" }}>
+                <Button
+                  className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center"
+                  style={{ gap: 10 }}
+                  onClick={getGenerateDDx}
+                  disabled={!isDDxReadyToGenerate}
+                >
+                  <img src={ddxIcon} alt="ddx-icon" />
+                  Generate DDx
+                  {isDDxReadyToGenerate && (
+                    <div className="shimmer-overlay-cdss" />
+                  )}
+                </Button>
+              </div>
             )}
             {isDDxReadyToGenerate && (
               <span className="disclaimer-txt" style={{ fontSize: 12 }}>
