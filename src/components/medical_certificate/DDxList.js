@@ -105,15 +105,20 @@ const DDxList = ({
             style={{ gap: 10, padding: "18px 14px 0" }}
           >
             {(isDDxReadyToGenerate || generatedDDx?.length === 0) && (
-              <Button
-                className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center justify-content-center"
-                style={{ gap: 10 }}
-                onClick={getGenerateDDx}
-                disabled={!isDDxReadyToGenerate}
-              >
-                <img src={ddxIcon} alt="ddx-icon" />
-                <span>Generate DDx</span>
-              </Button>
+              <div style={{ position: "relative" }}>
+                <Button
+                  className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center justify-content-center"
+                  style={{ gap: 10 }}
+                  onClick={getGenerateDDx}
+                  disabled={!isDDxReadyToGenerate}
+                >
+                  <img src={ddxIcon} alt="ddx-icon" />
+                  <span>Generate DDx</span>
+                  {isDDxReadyToGenerate && (
+                    <div className="shimmer-overlay-cdss" />
+                  )}
+                </Button>
+              </div>
             )}
             {isDDxReadyToGenerate && (
               <span className="disclaimer-txt" style={{ fontSize: 12 }}>
@@ -265,8 +270,9 @@ const DDxList = ({
         <div
           className="d-flex flex-column align-items-center justify-content-center w-100 h-100"
           style={{
-            background: "rgba(119, 66, 254, 0.08)",
-            borderRadius: 12,
+            background:
+              "linear-gradient(rgba(119, 66, 254, 0.4) 0%, rgba(119, 66, 254, 0.2) 50%, rgba(119, 66, 254, 0.1) 100%)",
+            borderRadius: 18,
             padding: "10px 0 20px",
           }}
         >
