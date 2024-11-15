@@ -3,6 +3,7 @@ import apexAI from "../assets/images/apexAI.svg";
 import arrow from "../assets/images/shaded-arrow.svg";
 import ddxIcon from "../assets/images/ddxIcon.svg";
 import loading from "../assets/images/loading.gif";
+import ddxBg from "../assets/images/ddx-bg.png";
 import { useSelector } from "react-redux";
 import { IS_DDX_ACCORDIAN_OPEN } from "../utils/constants";
 import { useState } from "react";
@@ -30,7 +31,7 @@ const DifferentialDiagnosis = ({
   const [isCollapseActive, setIsCollapseActive] = useState(
     localStorage.getItem(IS_DDX_ACCORDIAN_OPEN)
       ? JSON.parse(localStorage.getItem(IS_DDX_ACCORDIAN_OPEN))
-      : false
+      : true
   );
 
   const accordionItems = [
@@ -95,60 +96,51 @@ const DifferentialDiagnosis = ({
                 </Button>
               ))}
             </div>
-            {isDiagnosis ? (
-              <>
-                <Divider />
-                <div
-                  className="d-flex align-items-center"
-                  style={{ columnGap: 14 }}
-                >
-                  <div style={{ width: "160px" }}>
-                    <Button
-                      className="btn btn-primary3 w-100 btn-41 px-4 me-20 d-flex align-items-center justify-content-center"
-                      style={{ gap: 10 }}
-                      disabled={!isDDxReadyToGenerate}
-                      onClick={getGenerateDDx}
-                    >
-                      <img src={ddxIcon} alt="ddx-icon" />
-                      Generate DDx
-                    </Button>
-                  </div>
+            <Divider />
+            <div
+              className="d-flex align-items-center"
+              style={{ columnGap: 14 }}
+            >
+              {isDiagnosis && (
+                <div style={{ width: "160px", position: "relative" }}>
                   <Button
-                    type="button"
-                    className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between"
-                    style={{
-                      background: "white",
-                    }}
-                    onClick={handleDDxDrawer}
+                    className="btn btn-primary3 w-100 btn-41 px-4 me-20 d-flex align-items-center justify-content-center"
+                    style={{ gap: 10 }}
+                    disabled={!isDDxReadyToGenerate}
+                    onClick={getGenerateDDx}
                   >
-                    <span>View Detailed Analysis</span>
+                    <img src={ddxIcon} alt="ddx-icon" />
+                    Generate DDx
+                    {/* Show shimmer overlay only when button is enabled */}
+                    {isDDxReadyToGenerate && (
+                      <div className="shimmer-overlay-cdss" />
+                    )}
                   </Button>
-                  <div
-                    className="d-flex align-items-center"
-                    style={{ columnGap: 8, cursor: "pointer" }}
-                    onClick={handleDDxKnowMore}
-                  >
-                    <div className="text-primary" style={{ fontWeight: 600 }}>
-                      Know More About DDx
-                    </div>
-                    <img src={arrow} alt="arrow" />
-                  </div>
                 </div>
-              </>
-            ) : (
-              <div
-                className="text-primary"
+              )}
+              <Button
+                type="button"
+                className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between"
                 style={{
-                  fontWeight: 600,
-                  textDecoration: "underline",
-                  cursor: "pointer",
-                  paddingTop: 16,
+                  background: "white",
                 }}
                 onClick={handleDDxDrawer}
               >
-                View Detailed Analysis
-              </div>
-            )}
+                <span>View Detailed Analysis</span>
+              </Button>
+              {isDiagnosis && (
+                <div
+                  className="d-flex align-items-center"
+                  style={{ columnGap: 8, cursor: "pointer" }}
+                  onClick={handleDDxKnowMore}
+                >
+                  <div className="text-primary" style={{ fontWeight: 600 }}>
+                    Know More About DDx
+                  </div>
+                  <img src={arrow} alt="arrow" />
+                </div>
+              )}
+            </div>
           </>
         ) : (
           <>
@@ -183,7 +175,7 @@ const DifferentialDiagnosis = ({
                     DDx ready to generate!
                   </div>
                 )}
-                <div style={{ width: "160px" }}>
+                <div style={{ width: "160px", position: "relative" }}>
                   <Button
                     type="primary"
                     className="btn btn-primary3 btn-41 px-4 me-20 w-100 d-flex align-items-center justify-content-center"
@@ -193,6 +185,10 @@ const DifferentialDiagnosis = ({
                   >
                     <img src={ddxIcon} alt="ddx-icon" />
                     Generate DDx
+                    {/* Show shimmer overlay only when button is enabled */}
+                    {isDDxReadyToGenerate && (
+                      <div className="shimmer-overlay-cdss" />
+                    )}
                   </Button>
                 </div>
               </div>
@@ -231,7 +227,11 @@ const DifferentialDiagnosis = ({
         <div
           className="d-flex flex-column align-items-center justify-content-center"
           style={{
-            background: "rgba(119, 66, 254, 0.08)",
+            background: `url(${ddxBg})`,
+            width: "100%",
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
             borderRadius: 12,
             padding: "17px 20px",
             width: "100%",
