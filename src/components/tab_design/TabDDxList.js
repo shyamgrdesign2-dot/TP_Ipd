@@ -107,20 +107,18 @@ const TabDDxList = ({
             style={{ padding: "0 10px", marginTop: 16, gap: 10 }}
           >
             {(isDDxReadyToGenerate || generatedDDx?.length === 0) && (
-              <div style={{ position: "relative" }}>
-                <Button
-                  className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center"
-                  style={{ gap: 10 }}
-                  onClick={getGenerateDDx}
-                  disabled={!isDDxReadyToGenerate}
-                >
-                  <img src={ddxIcon} alt="ddx-icon" />
-                  Generate DDx
-                  {isDDxReadyToGenerate && (
-                    <div className="shimmer-overlay-cdss" />
-                  )}
-                </Button>
-              </div>
+              <Button
+                className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center"
+                style={{ gap: 10 }}
+                onClick={getGenerateDDx}
+                disabled={!isDDxReadyToGenerate}
+              >
+                <img src={ddxIcon} alt="ddx-icon" />
+                Generate DDx
+                {isDDxReadyToGenerate && (
+                  <div className="shimmer-overlay-cdss" />
+                )}
+              </Button>
             )}
             {isDDxReadyToGenerate && (
               <span className="disclaimer-txt" style={{ fontSize: 12 }}>
