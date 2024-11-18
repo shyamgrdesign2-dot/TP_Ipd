@@ -3,8 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   isApexAISelected: false,
   isSymptomsBox: false,
-  isLabTestBox: false,
-  isDiagnosisBox: false,
+  isLabTestBox: null,
+  isDiagnosisBox: null,
   isDDxReadyToGenerate: false,
 };
 

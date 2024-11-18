@@ -280,7 +280,7 @@ const DifferentialDiagnosisDrawer = ({
                             className="btn d-flex w-100 align-items-center justify-content-center btn-41"
                             onClick={(e) => {
                               e.stopPropagation();
-                              dispatch(setIsDiagnosisBox(true));
+                              dispatch(setIsDiagnosisBox(item?.differentialDiagnosisName));
                               diagnosisData.push({
                                 tds_id: item?._id,
                                 unique_id: item?._id,
@@ -378,7 +378,7 @@ const DifferentialDiagnosisDrawer = ({
                                           className="text-primary"
                                           style={{ fontWeight: 600 }}
                                           onClick={() => {
-                                            dispatch(setIsLabTestBox(true));
+                                            dispatch(setIsLabTestBox(item?._id));
                                             investigationData.push({
                                               investigation_name: labTest,
                                               hm_type: 1,

@@ -199,7 +199,7 @@ const TabDDxList = ({
                         <div
                           className="text-primary"
                           style={{ fontWeight: 600 }}
-                          onClick={() => dispatch(setIsDiagnosisBox(true))}
+                          onClick={() => dispatch(setIsDiagnosisBox(item?.differentialDiagnosisName))}
                         >
                           Add To Rx
                         </div>
