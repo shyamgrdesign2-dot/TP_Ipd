@@ -5,7 +5,10 @@ import ddxIcon from "../assets/images/ddxIcon.svg";
 import loading from "../assets/images/loading.gif";
 import ddxBg from "../assets/images/ddx-bg.png";
 import { useSelector } from "react-redux";
-import { IS_DDX_ACCORDIAN_OPEN } from "../utils/constants";
+import {
+  IS_DDX_DIAGNOSIS_OPEN,
+  IS_DDX_LAB_INVESTIGATION_OPEN,
+} from "../utils/constants";
 import { useState } from "react";
 import { useAccess } from "../pages/vaccination/useAccess";
 import { useLocation } from "react-router-dom";
@@ -29,8 +32,14 @@ const DifferentialDiagnosis = ({
   const { isGynaecHistoryAccessable } = useAccess(patient_data?.ageYears);
 
   const [isCollapseActive, setIsCollapseActive] = useState(
-    localStorage.getItem(IS_DDX_ACCORDIAN_OPEN)
-      ? JSON.parse(localStorage.getItem(IS_DDX_ACCORDIAN_OPEN))
+    localStorage.getItem(
+      isDiagnosis ? IS_DDX_DIAGNOSIS_OPEN : IS_DDX_LAB_INVESTIGATION_OPEN
+    )
+      ? JSON.parse(
+          localStorage.getItem(
+            isDiagnosis ? IS_DDX_DIAGNOSIS_OPEN : IS_DDX_LAB_INVESTIGATION_OPEN
+          )
+        )
       : true
   );
 
@@ -58,7 +67,12 @@ const DifferentialDiagnosis = ({
             </span>
             <div
               className="d-flex align-items-center"
-              style={{ padding: "15px 8px 0 0px", gap: 16, flexWrap: "wrap" }}
+              style={{
+                padding: "15px 8px 0 0px",
+                gap: 16,
+                flexWrap: "wrap",
+                width: "90%",
+              }}
             >
               {ddxOptionsList.map((item, index) => (
                 <Button
@@ -70,10 +84,22 @@ const DifferentialDiagnosis = ({
                     height: isDiagnosis ? 50 : "",
                     justifyContent: isDiagnosis ? "flex-start" : "center",
                     alignItems: isDiagnosis ? "flex-start" : "center",
+                    background: "rgba(255, 255, 255, 0.6)",
                   }}
                   onClick={() => onSelectParent({ ...item })}
                 >
-                  <span style={{ textTransform: "capitalize" }}>
+                  <span
+                    style={{
+                      textTransform: "capitalize",
+                      lineHeight: "13px",
+                      display: "-webkit-box",
+                      "-webkit-line-clamp": 2,
+                      "-webkit-box-orient": "vertical",
+                      overflow: "hidden",
+                      textAlign: "left",
+                      whiteSpace: "initial",
+                    }}
+                  >
                     {item?.tds_name ||
                       item?.symptom_name ||
                       item?.investigation_name}
@@ -102,20 +128,37 @@ const DifferentialDiagnosis = ({
               style={{ columnGap: 14 }}
             >
               {isDiagnosis && (
-                <div style={{ width: "160px", position: "relative" }}>
-                  <Button
-                    className="btn btn-primary3 w-100 btn-41 px-4 me-20 d-flex align-items-center justify-content-center"
-                    style={{ gap: 10 }}
-                    disabled={!isDDxReadyToGenerate}
-                    onClick={getGenerateDDx}
-                  >
-                    <img src={ddxIcon} alt="ddx-icon" />
-                    Generate DDx
-                    {/* Show shimmer overlay only when button is enabled */}
-                    {isDDxReadyToGenerate && (
-                      <div className="shimmer-overlay-cdss" />
-                    )}
-                  </Button>
+                <div
+                  className="d-flex align-items-center"
+                  style={{
+                    width: isDDxReadyToGenerate ? 268 : "",
+                    height: 48,
+                    backgroundColor: isDDxReadyToGenerate ? "white" : "",
+                    padding: isDDxReadyToGenerate ? "4px 4px 4px 12px" : "",
+                    borderRadius: 12,
+                  }}
+                >
+                  {isDDxReadyToGenerate && (
+                    <div className="ddx-ready-txt" style={{ fontSize: 12 }}>
+                      Get updated diagnosis
+                    </div>
+                  )}
+                  <div style={{ width: "160px", position: "relative" }}>
+                    <Button
+                      type="primary"
+                      className="btn btn-primary3 btn-41 px-4 me-20 w-100 d-flex align-items-center justify-content-center"
+                      style={{ gap: 10 }}
+                      onClick={getGenerateDDx}
+                      disabled={!isDDxReadyToGenerate}
+                    >
+                      <img src={ddxIcon} alt="ddx-icon" />
+                      Generate DDx
+                      {/* Show shimmer overlay only when button is enabled */}
+                      {isDDxReadyToGenerate && (
+                        <div className="shimmer-overlay-cdss" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
               )}
               <Button
@@ -210,7 +253,10 @@ const DifferentialDiagnosis = ({
 
   const handlePanelChange = () => {
     setIsCollapseActive((prev) => !prev);
-    localStorage.setItem(IS_DDX_ACCORDIAN_OPEN, !isCollapseActive);
+    localStorage.setItem(
+      isDiagnosis ? IS_DDX_DIAGNOSIS_OPEN : IS_DDX_LAB_INVESTIGATION_OPEN,
+      !isCollapseActive
+    );
   };
 
   return (
