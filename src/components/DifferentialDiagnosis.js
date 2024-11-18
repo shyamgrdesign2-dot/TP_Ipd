@@ -88,37 +88,30 @@ const DifferentialDiagnosis = ({
                   }}
                   onClick={() => onSelectParent({ ...item })}
                 >
-                  <span
-                    style={{
-                      textTransform: "capitalize",
-                      lineHeight: "13px",
-                      display: "-webkit-box",
-                      "-webkit-line-clamp": 2,
-                      "-webkit-box-orient": "vertical",
-                      overflow: "hidden",
-                      textAlign: "left",
-                      whiteSpace: "initial",
-                    }}
-                  >
+                  <span className="ddx-btn">
                     {item?.tds_name ||
                       item?.symptom_name ||
                       item?.investigation_name}
                   </span>
-                  <div className="d-flex" style={{ columnGap: 2 }}>
-                    {Array.from({
-                      length: WarningRank[item?.likelihood] || 0,
-                    }).map((_, index) => (
-                      <div
-                        key={index}
-                        style={{
-                          width: 13,
-                          height: 4,
-                          border: `2px solid ${WarningColor[item?.likelihood]}`,
-                          borderRadius: 2,
-                        }}
-                      />
-                    ))}
-                  </div>
+                  {isDiagnosis && (
+                    <div className="d-flex" style={{ columnGap: 2 }}>
+                      {Array.from({
+                        length: WarningRank[item?.likelihood] || 0,
+                      }).map((_, index) => (
+                        <div
+                          key={index}
+                          style={{
+                            width: 13,
+                            height: 4,
+                            border: `2px solid ${
+                              WarningColor[item?.likelihood]
+                            }`,
+                            borderRadius: 2,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </Button>
               ))}
             </div>

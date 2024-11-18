@@ -2428,3 +2428,14 @@ body {
     transform: translateX(100%);
   }
 }
+
+.ddx-btn {
+    text-transform: capitalize;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    white-space: initial;
+}
