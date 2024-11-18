@@ -35,28 +35,43 @@ function TabInvestigationBox({handleDDxDrawer, generatedDDx}) {
     const dispatch = useDispatch();
 
     const { isLabTestBox } = useSelector((state) => state.ddx);
-    const { investigationData, setInvestigationData } = useContext(CashManagerContext);
+    const { investigationData, setInvestigationData, diagnosisData } =
+      useContext(CashManagerContext);
     // const [ investigationData, setInvestigationData] = useState([]);
 
-    const associatedLabTests = generatedDDx?.map((item) => item.labTests);
+    const [ddxInvestigationOptionsList, setDdxInvestigationOptionsList] =
+    useState([]);
 
-    const uniqueLabTests = [...new Set(associatedLabTests?.flat())];
+    const filteredDdxInvestigationOptionsList = ddxInvestigationOptionsList?.filter(
+            (e) =>
+            ![...investigationData.map((e1) => e1.investigation_name)].includes(
+                e.investigation_name
+            )
+        );
 
-    const ddxOptionsList = uniqueLabTests
-      ?.map((item) => {
-        return {
-          investigation_name: item,
-          hm_type: 1,
-          pms_default: 1,
-          isDDx: true,
-        };
-      })
-      ?.filter(
-        (e) =>
-          ![...investigationData.map((e1) => e1.investigation_name)].includes(
-            e.investigation_name
-          )
-      );
+    useEffect(() => {
+        if (diagnosisData?.length > 0) {
+            const associatedLabTestsData = diagnosisData?.map((diagnosis) => {
+            if (diagnosis?.isDDx) {
+                return generatedDDx?.find(
+                (item) => item?._id === diagnosis?.unique_id
+                )?.labTests;
+            }
+            });
+            const uniqueLabTests = [...new Set(associatedLabTestsData?.flat())];
+            const ddxOptionsList = uniqueLabTests?.map((item) => {
+            return {
+                investigation_name: item,
+                hm_type: 1,
+                pms_default: 1,
+                isDDx: true,
+            };
+            });
+            setDdxInvestigationOptionsList(ddxOptionsList);
+        } else if (diagnosisData?.length === 0) {
+            setDdxInvestigationOptionsList([]);
+        }
+    }, [diagnosisData]);
 
     const [parentDrawer, setParentDrawer] = useState(false);
     const [childDrawer, setChildDrawer] = useState(false);
@@ -619,10 +634,10 @@ function TabInvestigationBox({handleDDxDrawer, generatedDDx}) {
                         <i className='icon-search mx-2'></i>
                         <span className="fontroboto backbar fw-normal">Search Lab Investigation</span>
                     </div>
-                    { ddxOptionsList?.length > 0 && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={ddxOptionsList} onSelectParent={onSelectParent} />}
+                    { filteredDdxInvestigationOptionsList?.length > 0 && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={filteredDdxInvestigationOptionsList} onSelectParent={onSelectParent} />}
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer || isLabTestBox} width={'100%'} className="searchdrawer-content">
-                    {(parentDrawer || isLabTestBox) && (<TabInvestigationSearch passIndex={selectedIndex} onClose={handleDrawerParent} ddxOptionsList={ddxOptionsList} />)}
+                    {(parentDrawer || isLabTestBox) && (<TabInvestigationSearch passIndex={selectedIndex} onClose={handleDrawerParent} ddxOptionsList={filteredDdxInvestigationOptionsList} />)}
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&

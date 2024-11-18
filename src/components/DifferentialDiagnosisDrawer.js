@@ -342,7 +342,10 @@ const DifferentialDiagnosisDrawer = ({
                                     className="d-flex align-items-center justify-content-between"
                                   >
                                     <span
-                                      style={{ textTransform: "capitalize" }}
+                                      style={{
+                                        textTransform: "capitalize",
+                                        width: "75%",
+                                      }}
                                     >
                                       {labTest}
                                     </span>

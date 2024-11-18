@@ -45,28 +45,45 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   } = useSelector((state) => state.investigation);
   const dispatch = useDispatch();
 
-  const { investigationData, setInvestigationData } = useContext(CashManagerContext);
+  const { investigationData, setInvestigationData, diagnosisData } =
+    useContext(CashManagerContext);
   // const [ investigationData, setInvestigationData] = useState([]);
 
-  const associatedLabTests = generatedDDx?.map((item) => item.labTests);
+  const [ddxInvestigationOptionsList, setDdxInvestigationOptionsList] =
+    useState([]);
 
-  const uniqueLabTests = [...new Set(associatedLabTests?.flat())];
-
-  const ddxOptionsList = uniqueLabTests
-    ?.map((item) => {
-      return {
-        investigation_name: item,
-        hm_type: 1,
-        pms_default: 1,
-        isDDx: true,
-      };
-    })
-    ?.filter(
+  const filteredDdxInvestigationOptionsList =
+    ddxInvestigationOptionsList?.filter(
       (e) =>
         ![...investigationData.map((e1) => e1.investigation_name)].includes(
           e.investigation_name
         )
     );
+
+  useEffect(() => {
+    if (diagnosisData?.length > 0) {
+      const associatedLabTestsData = diagnosisData?.map((diagnosis) => {
+        if (diagnosis?.isDDx) {
+            return generatedDDx?.find(
+              (item) => item?._id === diagnosis?.unique_id
+            )?.labTests;
+        }
+      });
+      const uniqueLabTests = [...new Set(associatedLabTestsData?.flat())];
+      const ddxOptionsList = uniqueLabTests
+        ?.map((item) => {
+          return {
+            investigation_name: item,
+            hm_type: 1,
+            pms_default: 1,
+            isDDx: true,
+          };
+        });
+        setDdxInvestigationOptionsList(ddxOptionsList);
+      } else if (diagnosisData?.length === 0) {
+        setDdxInvestigationOptionsList([]);
+      }
+    }, [diagnosisData]);
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -815,10 +832,19 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
                 <i className="icon-template me-2"></i> <span>Templates</span>
               </button>
             </Popover>
-            <Tooltip placement="bottom" title={(investigationData.length > 0) ? "" : "Please enter some Investigation to save a template"}>
+            <Tooltip
+              placement="bottom"
+              title={
+                investigationData.length > 0
+                  ? ""
+                  : "Please enter some Investigation to save a template"
+              }
+            >
               <Popover
                 open={popOver2}
-                onOpenChange={() => (investigationData.length > 0) && showHideSaveTemplatePopOver()}
+                onOpenChange={() =>
+                  investigationData.length > 0 && showHideSaveTemplatePopOver()
+                }
                 // onOpenChange={showHideSaveTemplatePopOver}
                 content={SAVE_CONTENT}
                 trigger="click"
@@ -831,7 +857,11 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
                 </button>
               </Popover>
             </Tooltip>
-            <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={investigationData.length > 0 ? false : true}>
+            <button
+              onClick={showHideClearData}
+              className="btn btn-text clear-text d-flex align-items-center"
+              disabled={investigationData.length > 0 ? false : true}
+            >
               <i className="icon-eraser1 me-2"></i> <span>Clear</span>
             </button>
           </div>
@@ -841,11 +871,11 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
         {REMOVE_ALL_ROWS}
         {TABLE_INVESTIGATION}
 
-        {ddxOptionsList?.length > 0 && (
+        {ddxInvestigationOptionsList?.length > 0 && (
           <div style={{ padding: "0 14px" }}>
             <DifferentialDiagnosis
               handleDDxDrawer={handleDDxDrawer}
-              ddxOptionsList={ddxOptionsList}
+              ddxOptionsList={filteredDdxInvestigationOptionsList}
               onSelectParent={onSelectDDx}
             />
           </div>

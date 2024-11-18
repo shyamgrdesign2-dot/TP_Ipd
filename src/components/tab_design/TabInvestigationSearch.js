@@ -309,7 +309,19 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
                                                     className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between test-name-btn"
                                                     onClick={() => onSelectParent({ ...item })}
                                                 >
-                                                    <span>{item?.investigation_name}</span>
+                                                    <span 
+                                                        style={{
+                                                            textTransform: "capitalize",
+                                                            lineHeight: "13px",
+                                                            display: "-webkit-box",
+                                                            "-webkit-line-clamp": 2,
+                                                            "-webkit-box-orient": "vertical",
+                                                            overflow: "hidden",
+                                                            textAlign: "left",
+                                                            whiteSpace: "initial"
+                                                    }}>
+                                                        {item?.investigation_name}
+                                                    </span>
                                                 </Button>
                                                 ))}
                                             </div>
