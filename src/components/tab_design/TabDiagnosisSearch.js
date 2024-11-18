@@ -508,7 +508,17 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
                                                     }}
                                                     onClick={() => onSelectParent({ ...item })}
                                                 >
-                                                    <span>{item?.tds_name}</span>
+                                                    <span style={{
+                                                        textTransform: "capitalize",
+                                                        lineHeight: "13px",
+                                                        display: "-webkit-box",
+                                                        "-webkit-line-clamp": 2,
+                                                        "-webkit-box-orient": "vertical",
+                                                        overflow: "hidden",
+                                                        textAlign: "left",
+                                                        textOverflow: "ellipsis",
+                                                        whiteSpace: "nowrap"
+                                                    }}>{item?.tds_name}</span>
                                                     <div className="d-flex" style={{ columnGap: 2 }}>
                                                         {Array.from({
                                                         length: WarningRank[item?.likelihood] || 0,
