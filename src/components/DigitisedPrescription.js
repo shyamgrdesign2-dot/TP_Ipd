@@ -137,13 +137,13 @@ const DigitisedPrescription = ({ data, setData}) => {
         <div className="shimmer-container">
           <div className="shimmer"></div>
         </div>
-      ) : (
+      ) : data?.[type]?.length > 0 ? (
         <ul>
           {data[type].map((item, index) => {
             // Measure the width of the editable text
             let textWidth = 0;
             let lineItemWidth = 0;
-    
+
             // For refinedName or other primary data (editableText)
             if (activeIndex === index && activeType === type) {
               const tempSpan = document.createElement('span');
@@ -155,7 +155,7 @@ const DigitisedPrescription = ({ data, setData}) => {
               textWidth = tempSpan.offsetWidth;
               document.body.removeChild(tempSpan);
             }
-    
+
             // For lineItem (editableLineItem)
             if (activeIndex === index && activeType === `${type}-lineItem`) {
               const tempSpanLineItem = document.createElement('span');
@@ -167,7 +167,7 @@ const DigitisedPrescription = ({ data, setData}) => {
               lineItemWidth = tempSpanLineItem.offsetWidth;
               document.body.removeChild(tempSpanLineItem);
             }
-    
+
             return (
               <li key={index}>
                 <div className='medicine-item'>
@@ -191,7 +191,7 @@ const DigitisedPrescription = ({ data, setData}) => {
                       </span>
                     )
                   }
-    
+
                   {/* Editable input for lineItem */}
                   {(type === "medications"|| type === "symptoms") && item?.lineItem && (
                     activeIndex === index && activeType === `${type}-lineItem` ? (
@@ -213,7 +213,7 @@ const DigitisedPrescription = ({ data, setData}) => {
                       </span>
                     )
                   )}
-    
+
                   {
                     showSuggestions && activeIndex === index && activeType === type && (
                       <div className="suggestion-card" ref={suggestionRef}>
@@ -228,13 +228,13 @@ const DigitisedPrescription = ({ data, setData}) => {
                         </div>
                         <ul className="no-bullets">
                           {item.suggestions?.map((suggestion, suggestionIndex) => (
-                            <li
-                              key={suggestionIndex}
+                              <li
+                                key={suggestionIndex}
                               onClick={() => handleSuggestionClick(type, index, suggestion)}
-                              style={{ cursor: "pointer" }}
-                            >
-                              {suggestion}
-                            </li>
+                                style={{ cursor: "pointer" }}
+                              >
+                                {suggestion}
+                              </li>
                           ))}
                           <button
                             className="btn-outline-digitise"
@@ -251,12 +251,20 @@ const DigitisedPrescription = ({ data, setData}) => {
             );
           })}
         </ul>
-      )}
+        )
+      : null}
     </div>
   );
 
   return (
     <div className='digitised-container'>
+      {data?.symptoms && data.symptoms.length > 0 && (
+        <>
+          <div className='title-digitise-section mb-2'>Symptoms</div>
+          {renderItems('symptoms')}
+        </>
+      )}
+
       {data?.medications && data.medications.length > 0 && (
         <>
           <div className="title-digitise-section mb-2">Medicine</div>
@@ -268,13 +276,6 @@ const DigitisedPrescription = ({ data, setData}) => {
         <>
           <div className="title-digitise-section mb-2">Tests</div>
           {renderItems('tests')}
-        </>
-      )}
-
-      {data?.symptoms && data.symptoms.length > 0 && (
-        <>
-          <div className="title-digitise-section mb-2">Symptoms</div>
-          {renderItems('symptoms')}
         </>
       )}
 
