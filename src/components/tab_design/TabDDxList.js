@@ -15,6 +15,8 @@ import CashManagerContext from "../../context/CashManagerContext";
 import { setIsDiagnosisBox } from "../../redux/ddxSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import { getClinicName } from "../../utils/utils";
+import { useLocation } from "react-router-dom";
 
 const TabDDxList = ({
   generatedDDx,
@@ -26,6 +28,9 @@ const TabDDxList = ({
 }) => {
   const dispatch = useDispatch();
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
+  const { profile } = useSelector((state) => state.doctors);
+  const { state } = useLocation();
+  const { patient_data } = state;
   const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
 
   return (
@@ -90,7 +95,7 @@ const TabDDxList = ({
                   style={{
                     background: "white",
                   }}
-                  onClick={handleDDxDrawer}
+                  onClick={() => handleDDxDrawer("apexDDx")}
                 >
                   <span>View Detailed Analysis</span>
                 </Button>
@@ -118,7 +123,7 @@ const TabDDxList = ({
               <Button
                 className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center"
                 style={{ gap: 10 }}
-                onClick={getGenerateDDx}
+                onClick={() => getGenerateDDx("apexDDx")}
                 disabled={!isDDxReadyToGenerate}
               >
                 <img src={ddxIcon} alt="ddx-icon" />
@@ -223,6 +228,18 @@ const TabDDxList = ({
                               note: "",
                             });
                             setDiagnosisData((prev) => [...prev]);
+                            window.Moengage.track_event(
+                              "TP_CDSS_Ddx_selected",
+                              {
+                                clinic_name: getClinicName(
+                                  profile?.hospital_data
+                                ),
+                                doctor_id: profile?.doctor_unique_id,
+                                patient_number: patient_data?.pm_contact_no,
+                                patient_id: patient_data?.patient_unique_id,
+                                field: "apexDDx",
+                              }
+                            );
                           }}
                         >
                           Add To Rx
