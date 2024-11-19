@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip } from "antd";
+import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip, Drawer } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
@@ -11,6 +11,8 @@ import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
+import calculatorIcon from '../assets/images/calculator.svg';
+import calculatorIconBlue from '../assets/images/calculator-blue.svg';
 import { MenuOutlined } from '@ant-design/icons';
 import {
   addTemplate,
@@ -25,17 +27,20 @@ import {
   searchGeneric,
   addMedicine,
   editMedicine,
-  updateFrequentlyMedication
+  updateFrequentlyMedication,
+  getAllDoses
 } from "../redux/medicationSlice";
 import { EXTRA_OPTIONS } from "../utils/constants";
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import DoseCalculator from "./dose_calculator/doseCalculator";
 
 const { TextArea } = Input;
 
 function MedicationsBox() {
   const { frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
+    dosesList,
     selectedMedicationList,
     parentOptionsList,
     templates,
@@ -83,8 +88,21 @@ function MedicationsBox() {
   const [addCustom, setAddCustom] = useState(null);
   const [genericQuery, setGenericQuery] = useState('');
 
+  //Dose Calculator
+  const [activeTab, setActiveTab] = useState("1");
+  const [doseCalculatorDrawer, setDoseCalculatorDrawer] = useState(false);
+  const [searchMLQuery, setSearchMLQuery] = useState("");
+  const [medicationLibrary, setMedicationLibrary] = useState([]);
+
+  const handleViewDoseCalcDrawer = (value) => {
+    setDoseCalculatorDrawer(!doseCalculatorDrawer)
+    setActiveTab(value)
+    setMedicationLibrary([])
+  }
+
   useEffect(() => {
     dispatch(getMedicationTemplates());
+    dispatch(getAllDoses())
   }, []);
 
   useEffect(() => {
@@ -94,10 +112,10 @@ function MedicationsBox() {
 
   //Parent AutoComplete
   useEffect(() => {
-    if (searchParentQuery) {
+    if (searchParentQuery || searchMLQuery) {
       const timeOutId = setTimeout(() => {
         dispatch(
-          searchMedication({ searchQuery: searchParentQuery, type: "parent" })
+          searchMedication({ searchQuery: doseCalculatorDrawer ? searchMLQuery : searchParentQuery, type: "parent" })
         );
       }, 500);
       return () => {
@@ -106,7 +124,7 @@ function MedicationsBox() {
     } else {
       dispatch(getFrequentlySearchedMedication());
     }
-  }, [searchParentQuery]);
+  }, [doseCalculatorDrawer, searchMLQuery, searchParentQuery]);
 
   useEffect(() => {
     const data = [];
@@ -117,39 +135,69 @@ function MedicationsBox() {
         label: <div><span className="fw-medium">{e.tmm_medicine_name}</span>, <span>{e.tmm_generic}</span></div>,
       });
     });
-    if (searchParentQuery.length == 0) {
-      data.unshift({
-        key: -1,
-        label: (
-          <>
-            <div>FREQUENTLY USED</div>
-          </>
-        ),
-      });
-    } else {
-      searchParentQuery &&
-        data.push({
-          key: JSON.stringify({
-            unique_id: uuidv4(),
-            tmm_id: 0,
-            tmm_medicine_name: searchParentQuery
-          }),
-          value: `${searchParentQuery}${Math.random()}`,
+    if (doseCalculatorDrawer) {
+      if (searchMLQuery.length == 0) {
+        data.unshift({
+          key: -1,
           label: (
             <>
-              <div className="text-primary fontroboto fs-16"> <i className="icon-Add mx-1 fs-6"></i> Add <span className="fw-medium fontroboto text-primary">"{searchParentQuery}"</span> <a className="text-primary fontroboto">as a new medicine</a></div>
+              <div>FREQUENTLY USED</div>
             </>
           ),
         });
+      } else {
+        searchMLQuery &&
+          data.push({
+            key: JSON.stringify({
+              unique_id: uuidv4(),
+              tmm_id: 0,
+              tmm_medicine_name: searchMLQuery
+            }),
+            value: `${searchMLQuery}${Math.random()}`,
+            label: (
+              <>
+                <div className="text-primary fontroboto fs-16"> <i className="icon-Add mx-1 fs-6"></i> Add <span className="fw-medium fontroboto text-primary">"{searchMLQuery}"</span> <a className="text-primary fontroboto">as a new medicine</a></div>
+              </>
+            ),
+          });
+      }
+    } else {
+      if (searchParentQuery.length == 0) {
+        data.unshift({
+          key: -1,
+          label: (
+            <>
+              <div>FREQUENTLY USED</div>
+            </>
+          ),
+        });
+      } else {
+        searchParentQuery &&
+          data.push({
+            key: JSON.stringify({
+              unique_id: uuidv4(),
+              tmm_id: 0,
+              tmm_medicine_name: searchParentQuery
+            }),
+            value: `${searchParentQuery}${Math.random()}`,
+            label: (
+              <>
+                <div className="text-primary fontroboto fs-16"> <i className="icon-Add mx-1 fs-6"></i> Add <span className="fw-medium fontroboto text-primary">"{searchParentQuery}"</span> <a className="text-primary fontroboto">as a new medicine</a></div>
+              </>
+            ),
+          });
+      }
     }
     setParentSearchOptions(data);
-  }, [parentOptionsList]);
+  }, [doseCalculatorDrawer, parentOptionsList]);
 
   const onSearchParent = useCallback(
     (query) => {
-      setSearchParentQuery(removeBeforeWhiteSpace(query));
+      doseCalculatorDrawer ?
+        setSearchMLQuery(removeBeforeWhiteSpace(query)) :
+        setSearchParentQuery(removeBeforeWhiteSpace(query));
     },
-    [searchParentQuery]
+    [doseCalculatorDrawer, searchMLQuery, searchParentQuery]
   );
 
   const onSelectParent = async (data, item) => {
@@ -160,6 +208,16 @@ function MedicationsBox() {
       window.Moengage.track_event("medicine_select", {
         "value": JSON.parse(item.key).tmm_medicine_name
       });
+
+      if (doseCalculatorDrawer) {
+        const medicineExists = medicationLibrary.some((med) => med.tmm_id == JSON.parse(item.key).tmm_id);
+
+        if (medicineExists) {
+          errorMessage("Medicine already in library, skipping addition.")
+          return;
+        }
+      }
+
       const action = await dispatch(getMedicineDetails(JSON.parse(item.key).tmm_id));
       if (action.meta.requestStatus === "fulfilled") {
         const updatedData = action.payload.map((e) => {
@@ -196,12 +254,32 @@ function MedicationsBox() {
             unique_id: uuidv4(),
           };
         });
-        medicationData.push({
-          ...updatedData[0],
-        });
-        setMedicationData((prev) => [...prev]);
-        setSearchParentQuery("");
-        setAddCustom(null);
+        if (doseCalculatorDrawer) {
+          const modifyData = updatedData[0]
+          medicationLibrary.push({
+            ...modifyData,
+            id: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.id : "",
+            medicine_id: modifyData.tmm_id,
+            dosage: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.dosage : "",
+            dosage_unit: "mg/kg/dose",
+            concentration: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.concentration : "",
+            concentration_unit: "mg/ml",
+            medicine_name: modifyData.tmm_medicine_name,
+            medicine_generic_name: modifyData.tmm_generic,
+            exist: dosesList.some((e1) => e1.medicine_id == modifyData.tmm_id) ? true : false
+          });
+          setMedicationLibrary((prev) => [...prev]);
+          setSearchMLQuery("");
+          setAddCustom(null);
+        } else {
+          medicationData.push({
+            ...updatedData[0],
+          });
+          setMedicationData((prev) => [...prev]);
+          setSearchParentQuery("");
+          setAddCustom(null);
+        }
+
       } else {
         errorMessage(action.error)
       }
@@ -811,12 +889,12 @@ function MedicationsBox() {
             </Col>
             <Col lg={18} md={18} sm={18} xs={18}>
               <Row>
-                <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
+                <Col lg={5} md={5} sm={5} xs={5} className="border-end border-start">
                   <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
                     <label>UNIT PER DOSE</label>
                   </div>
                 </Col>
-                <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+                <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                   <div className="fontroboto fw-medium p-2 fs-12 text-welcome d-flex align-items-center">
                     <label>FREQUENCY </label>
                     <Popover
@@ -907,7 +985,7 @@ function MedicationsBox() {
                             {innerMedication(item.index).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) })).map((item, ii) => {
                               return (
                                 <Row key={ii} className={`${ii != 0 && 'position-relative border-top'}`}>
-                                  <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
+                                  <Col lg={5} md={5} sm={5} xs={5} className="border-end border-start">
                                     <AutoComplete
                                       defaultValue={item.tmm_dosage_unit_name}
                                       value={item.tmm_dosage_unit_name}
@@ -925,7 +1003,7 @@ function MedicationsBox() {
                                       allowClear
                                     />
                                   </Col>
-                                  <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+                                  <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                                     <Select
                                       showSearch
                                       className="autocomplete-custom w-100 h-100 inputborder"
@@ -997,6 +1075,13 @@ function MedicationsBox() {
                                     </Button>
                                   </Col>
                                   {ii != 0 && (<div className="badge-then">Then</div>)}
+                                  {ii === 0 && (
+                                    dosesList.some((e1) => e1.medicine_id == item.tmm_id) ? (
+                                      <div className="badge-tapper position-absolute" style={{ bottom: 0 }} onClick={() => handleViewDoseCalcDrawer("2")}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
+                                    ) : (
+                                      <div className="badge-tapper position-absolute" style={{ bottom: 0 }} onClick={() => handleViewDoseCalcDrawer("1")}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Dose Calculator</div>
+                                    )
+                                  )}
                                 </Row>
                               )
                             })}
@@ -1452,21 +1537,39 @@ function MedicationsBox() {
 
         await dispatch(updateFrequentlyMedication(modifyData))
 
-        medicationData.map(item => {
-          if (item.tmm_id == modifyData.tmm_id) {
-            item.tmm_medicine_name = modifyData.tmm_medicine_name;
-            item.tmm_generic = modifyData.tmm_generic;
-            item.tmm_company = modifyData.tmm_company;
-            item.tmm_type = modifyData.tmm_type;
-            item.tmm_dosage_unit_name = '';
-            item.tmm_dosage = '';
-            item.tmm_unit = 0;
-            item.tmm_unit_name = '';
-            item.tmu_id = 0;
-            item.medicineUnit = modifyData.medicineUnit;
-          }
-          return item;
-        });
+        if (doseCalculatorDrawer) {
+          medicationLibrary.map(item => {
+            if (item.tmm_id == modifyData.tmm_id) {
+              item.tmm_medicine_name = modifyData.tmm_medicine_name;
+              item.tmm_generic = modifyData.tmm_generic;
+              item.tmm_company = modifyData.tmm_company;
+              item.tmm_type = modifyData.tmm_type;
+              item.tmm_dosage_unit_name = '';
+              item.tmm_dosage = '';
+              item.tmm_unit = 0;
+              item.tmm_unit_name = '';
+              item.tmu_id = 0;
+              item.medicineUnit = modifyData.medicineUnit;
+            }
+            return item;
+          });
+        } else {
+          medicationData.map(item => {
+            if (item.tmm_id == modifyData.tmm_id) {
+              item.tmm_medicine_name = modifyData.tmm_medicine_name;
+              item.tmm_generic = modifyData.tmm_generic;
+              item.tmm_company = modifyData.tmm_company;
+              item.tmm_type = modifyData.tmm_type;
+              item.tmm_dosage_unit_name = '';
+              item.tmm_dosage = '';
+              item.tmm_unit = 0;
+              item.tmm_unit_name = '';
+              item.tmu_id = 0;
+              item.medicineUnit = modifyData.medicineUnit;
+            }
+            return item;
+          });
+        }
       } else {
         const updatedData = action.payload.map((e) => {
 
@@ -1501,12 +1604,23 @@ function MedicationsBox() {
             unique_id: uuidv4(),
           };
         });
-        medicationData.push({
-          ...updatedData[0],
-        });
+        if (doseCalculatorDrawer) {
+          medicationLibrary.push({
+            ...updatedData[0],
+          });
+        } else {
+          medicationData.push({
+            ...updatedData[0],
+          });
+        }
       }
-      setMedicationData((prev) => [...prev]);
-      setSearchParentQuery("");
+      if (doseCalculatorDrawer) {
+        setMedicationLibrary((prev) => [...prev]);
+        setSearchMLQuery("");
+      } else {
+        setMedicationData((prev) => [...prev]);
+        setSearchParentQuery("");
+      }
       showHideAddMedicineModal()
       setGenericQuery('');
       setAddCustom(null);
@@ -1679,6 +1793,13 @@ function MedicationsBox() {
           <div className="d-flex align-items-center">
             <button
               className="btn d-flex align-items-center btn-text"
+              onClick={handleViewDoseCalcDrawer}
+            >
+              {" "}
+              <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>Dose calculator</span>
+            </button>
+            <button
+              className="btn d-flex align-items-center btn-text"
               onClick={loadPreviousRxClick}
             >
               {" "}
@@ -1724,6 +1845,37 @@ function MedicationsBox() {
         {REMOVE_ALL_ROWS}
         {TABLE_MEDICATION}
         {isAddMedicineOpen && ADD_MEDICINE_DATA}
+
+        {doseCalculatorDrawer &&
+          <Drawer
+            closeIcon={false}
+            className="modalWidth-800"
+            placement="right"
+            open={doseCalculatorDrawer}
+            onClose={handleViewDoseCalcDrawer}
+            width="auto"
+            styles={{
+              body: {
+                backgroundColor: "white",
+              }
+            }}
+          >
+            <DoseCalculator
+              handleViewDoseCalcDrawer={handleViewDoseCalcDrawer}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              searchMLQuery={searchMLQuery}
+              setSearchMLQuery={setSearchMLQuery}
+              medicationLibrary={medicationLibrary}
+              setMedicationLibrary={setMedicationLibrary}
+              parentSearchOptions={parentSearchOptions}
+              onSearchParent={onSearchParent}
+              onSelectParent={onSelectParent}
+              showHideAddMedicineModal={showHideAddMedicineModal}
+              setAddCustom={setAddCustom}
+            />
+          </Drawer>
+        }
 
         <div className="p-14">
           <AutoComplete

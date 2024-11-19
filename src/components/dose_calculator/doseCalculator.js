@@ -1,0 +1,719 @@
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  useMemo,
+} from "react";
+import {
+  Button,
+  Input,
+  Tooltip,
+  Tabs,
+  Table,
+  AutoComplete,
+  message
+} from "antd";
+import "./doseCalculator.scss";
+import {
+  CheckOutlined,
+  CloseOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
+import { errorMessage, removeBeforeWhiteSpace } from "../../utils/utils";
+import { useDispatch, useSelector } from "react-redux";
+import CashManagerContext from "../../context/CashManagerContext";
+import { MESSAGE_KEY } from "../../utils/constants";
+import {
+  createDose,
+  updateDose,
+  deleteDose
+} from "../../redux/medicationSlice";
+import editIcon from "../../assets/images/edit.svg";
+import doseCalculatorImg from "../../assets/images/dose-calc.svg";
+import alertIcon from '../../assets/images/alertIcon.svg';
+import visitEnd from '../../assets/images/end-visit.svg';
+import imgCloseVisit from '../../assets/images/close-visit.svg';
+import CommonModal from "../../common/CommonModal";
+
+const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, searchMLQuery, setSearchMLQuery, medicationLibrary, setMedicationLibrary, parentSearchOptions, onSearchParent, onSelectParent, showHideAddMedicineModal, setAddCustom }) => {
+  const { medicineTypeList } = useSelector(
+    (state) => state.doctors
+  );
+  const {
+    dosesList
+  } = useSelector((state) => state.medication);
+  const dispatch = useDispatch();
+
+  const {
+    patient_data,
+    medicationData,
+    setMedicationData,
+    vitalsData,
+    setVitalsData,
+  } = useContext(CashManagerContext);
+
+  const { TabPane } = Tabs;
+
+  const [todayWeight, setTodayWeight] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [editedData, setEditedData] = useState(null);
+  const [deletedData, setDeletedData] = useState(null);
+  const [doseLibrary, setDoseLibrary] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen1, setIsModalOpen1] = useState(false);
+
+  useEffect(() => {
+    if (medicationData?.length > 0) {
+      const uniqueData = medicationData.reduce((acc, item) => acc.find(i => i.tmm_id == item.tmm_id) ? acc : [...acc, item], [])
+      const updatedData = uniqueData.map(e => {
+        return {
+          ...e,
+          id: dosesList.findIndex((e1) => e1.medicine_id == e.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == e.tmm_id)?.id : "",
+          medicine_id: e.tmm_id,
+          dosage: dosesList.findIndex((e1) => e1.medicine_id == e.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == e.tmm_id)?.dosage : "",
+          dosage_unit: "mg/kg/dose",
+          concentration: dosesList.findIndex((e1) => e1.medicine_id == e.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == e.tmm_id)?.concentration : "",
+          concentration_unit: "mg/ml",
+          medicine_name: e.tmm_medicine_name,
+          medicine_generic_name: e.tmm_generic,
+          exist: dosesList.some((e1) => e1.medicine_id == e.tmm_id) ? true : false
+        }
+      })
+      setMedicationLibrary(updatedData)
+    }
+  }, [medicationData]);
+
+  useEffect(() => {
+    const todayDate = new Date().toISOString().split("T")[0];
+    // Find today's entry in vitalsData and extract the weight
+    const todayVitals = vitalsData.find((vital) => vital.date === todayDate);
+    if (todayVitals && todayVitals.weight) {
+      setTodayWeight(todayVitals.weight);
+    }
+  }, [vitalsData]);
+
+
+  const calculateDose = (dosage, weight, concentration) => {
+    const dose = (parseFloat(dosage) * parseFloat(weight)) / parseFloat(concentration);
+    return dose.toFixed(2).replace(/\.00$/, '');
+  }
+
+  const clearData = () => {
+    setEditedData(null)
+    setSearchMLQuery("")
+    setSearchQuery("")
+    handleViewDoseCalcDrawer()
+  }
+
+  const handleSaveMedicineDoses = async () => {
+    const sanitizedDosesData = medicationLibrary?.filter(e => !e.exist)?.map(
+      ({ dosage, dosage_unit, concentration, concentration_unit, medicine_id }) => ({ dosage, dosage_unit, concentration, concentration_unit, medicine_id })
+    )
+    if (!todayWeight) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: '',
+        className: 'message-appointment',
+        content: (
+          <div className='d-flex align-items-center'>
+            <InfoCircleOutlined className="fs-21 me-2 circle-outlined-custom" />
+            <div>
+              <div className='text-start fs-18 fontroboto'>Please fill patient's current weight</div>
+            </div>
+            <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+          </div>
+        ),
+        duration: 3,
+      });
+    } else if (sanitizedDosesData.filter(e => !e.dosage)?.length > 0 || sanitizedDosesData.filter(e => !e.concentration)?.length > 0) {
+      errorMessage("")
+      message.open({
+        key: MESSAGE_KEY,
+        type: '',
+        className: 'message-appointment',
+        content: (
+          <div className='d-flex align-items-center'>
+            <InfoCircleOutlined className="fs-21 me-2 circle-outlined-custom" />
+            <div>
+              <div className='text-start fs-18 fontroboto'>Please fill in all required fields before saving</div>
+            </div>
+            <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+          </div>
+        ),
+        duration: 3,
+      });
+    } else if (sanitizedDosesData?.length > 0) {
+      const action = await dispatch(createDose(sanitizedDosesData))
+      if (action.meta.requestStatus === "fulfilled") {
+
+        const collectOriginalData = new Set(medicationData.map(item => parseInt(item.tmm_id)));
+        const findDataWithoutOriginalData = medicationLibrary.filter(item => !collectOriginalData.has(parseInt(item.medicine_id)));
+        medicationData.push(...findDataWithoutOriginalData);
+        setMedicationData((prev) => [...prev]);
+
+        sanitizedDosesData.map(e => {
+          const findTmmId = medicationData.findIndex(e1 => e1.tmm_id == e.medicine_id)
+          if (!medicationData[findTmmId].tmm_dosage) {
+            const dose = calculateDose(e.dosage, todayWeight, e.concentration)
+            medicationData[findTmmId].tmm_dosage_unit_name = `${dose} ${medicationData[findTmmId].medicineUnit[0].tmu_title}`;
+            medicationData[findTmmId].tmm_dosage = dose;
+            medicationData[findTmmId].tmm_unit = medicationData[findTmmId].medicineUnit[0].tmu_id;
+            medicationData[findTmmId].tmm_unit_name = medicationData[findTmmId].medicineUnit[0].tmu_title;
+            medicationData[findTmmId].tmu_id = medicationData[findTmmId].medicineUnit[0].tmu_id;
+          }
+        })
+        setMedicationData((prev) => [...prev]);
+
+        clearData()
+        message.open({
+          key: MESSAGE_KEY,
+          type: '',
+          className: 'message-appointment',
+          content: (
+            <div className='d-flex align-items-center'>
+              <img src={visitEnd} className='me-2' />
+              <div>
+                <div className='text-start fs-18 fontroboto'>Dose calculation saved successfully</div>
+              </div>
+              <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+            </div>
+          ),
+          duration: 3,
+        });
+      }
+    }
+  };
+
+  const onTabChange = (key) => {
+    if (key === "1" && medicationLibrary?.length > 0) {
+      const updatedData = medicationLibrary.map((e, i) => {
+        const findDoseData = dosesList.find((e1) => e1?.medicine_id == e?.tmm_id)
+        return findDoseData !== undefined ? { ...e, ...findDoseData, exist: true } : { ...e, exist: false };
+      });
+      setMedicationLibrary(updatedData)
+    }
+    setEditedData(null)
+    setSearchMLQuery("")
+    setSearchQuery("")
+    setActiveTab(key);
+  };
+
+  // First Tab
+  const tooltipTitle = (
+    <div>
+      <div className="fw-semibold fs-16 mb-3">How Dose calculator works?</div>
+      <img className="img-fluid mb-2" src={doseCalculatorImg} alt="Dose Calculator" />
+      <ul className="px-3 mb-0">
+        <li className="fw-normal mb-2 text-black"><span className="fw-semibold">Weight:</span> Auto-fetched from body composition, e.g., 10 kg. </li>
+        <li className="fw-normal mb-2 text-black"><span className="fw-semibold">Dosage:</span> Define for each medicine, e.g., 10 mg/kg for ibuprofen. </li>
+        <li className="fw-normal mb-2 text-black"><span className="fw-semibold">Concentration:</span> Set per medicine, e.g., ibuprofen 100 mg/tablet. </li>
+        <li className="fw-normal text-black"><span className="fw-semibold">Calculated Dose:</span> Auto-calculated by the system, e.g., 1 tablets. </li>
+      </ul>
+    </div>
+
+  );
+
+  const onChangeWeight = useCallback(
+    (e) => {
+      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      setTodayWeight(updateQuery);
+    },
+    [todayWeight]
+  );
+
+  const handleInputChange = (value, key, i) => {
+    medicationLibrary[i][key] = value;
+    setMedicationLibrary((prev) => [...prev]);
+  };
+
+  const deleteMedicine = (tmm_id) => {
+    setMedicationLibrary((prev) => prev.filter((e) => e.tmm_id !== tmm_id));
+  };
+
+  // Second Tab
+  useEffect(() => {
+    if (searchQuery) {
+      const searchTimeOutId = setTimeout(() => {
+        const newData = dosesList.filter((item) => {
+          return item.medicine_name.toLowerCase().includes(searchQuery.toLowerCase())
+        });
+        setDoseLibrary(newData)
+      }, 500);
+      return () => {
+        clearTimeout(searchTimeOutId);
+      };
+    } else {
+      setDoseLibrary(dosesList)
+    }
+
+    if (activeTab === "1" && medicationLibrary?.length > 0) {
+      const updatedData = medicationLibrary.map((e, i) => {
+        const findDoseData = dosesList.find((e1) => e1?.medicine_id == e?.tmm_id)
+        return findDoseData !== undefined ? { ...e, ...findDoseData, exist: true } : { ...e, exist: false };
+      });
+      setMedicationLibrary(updatedData)
+    }
+  }, [dosesList, searchQuery]);
+
+  const onSearch = useCallback(
+    (e) => {
+      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      setSearchQuery(updateQuery)
+    },
+    [searchQuery]
+  );
+
+  const handleSaveClick = async () => {
+    var sendData = {
+      id: editedData.id,
+      medicine_id: editedData.medicine_id,
+      dosage: editedData.dosage,
+      dosage_unit: editedData.dosage_unit,
+      concentration: editedData.concentration,
+      concentration_unit: editedData.concentration_unit,
+      medicine_name: editedData.medicine_name,
+      medicine_generic_name: editedData.medicine_generic_name
+    }
+    await dispatch(updateDose(sendData))
+    setEditedData(null);
+  };
+
+  const handleDoseLibInputChange = (value, field) => {
+    setEditedData((prevData) => ({ ...prevData, [field]: value }));
+  };
+
+  const handleCancelClick = () => {
+    setEditedData(null);
+  };
+
+  const deleteDoseLibMedicine = async (id) => {
+    await dispatch(deleteDose(id))
+    setDeletedData(null)
+    showHideModal()
+  };
+
+  const showHideModal = useCallback(() => {
+    setIsModalOpen(!isModalOpen);
+  }, [isModalOpen]);
+
+  const showHideModal1 = useCallback(() => {
+    setIsModalOpen1(!isModalOpen1);
+  }, [isModalOpen1]);
+
+
+  //Mixed Tab
+  const firstColumn = (text, record, index) => {
+    return (
+      <>
+        <div className="text-truncate">{record.medicine_name}</div>
+        <div className="text-truncate dose-generic">{record.medicine_generic_name}</div>
+      </>
+    )
+  }
+
+  const secondColumn = (text, record, index) => {
+    return (
+      editedData?.id === record.id ? (
+        <Input
+          className="inputheight41-group"
+          placeholder="00"
+          value={editedData?.dosage}
+          onChange={(e) => handleDoseLibInputChange(e.target.value, "dosage")}
+          addonAfter={record.dosage_unit}
+        />
+      ) : (
+        <Input className="inputheight41-group" value={text} addonAfter={record.dosage_unit} disabled />
+      )
+    )
+  }
+
+  const thirdColumn = (text, record, index) => {
+    return (
+      editedData?.id === record.id ? (
+        <Input
+          className="inputheight41-group"
+          placeholder="00"
+          value={editedData?.concentration}
+          onChange={(e) => handleDoseLibInputChange(e.target.value, "concentration")}
+          addonAfter={record.concentration_unit}
+        />
+      ) : (
+        <Input className="inputheight41-group" value={text} addonAfter={record.concentration_unit} disabled />
+      )
+    )
+  }
+
+  const fourColumn = (text, record, index) => {
+    return (
+      editedData?.id === record?.id ? (
+        <div className="d-flex">
+          <Button
+            icon={<CheckOutlined className="check-icon fs-20" />}
+            className="btn py-0 btn-delete-prescription px-0 me-2"
+            onClick={handleSaveClick}>
+          </Button>
+          <Button
+            icon={<CloseOutlined className="close-icon fs-20" />}
+            className="btn py-0 btn-delete-prescription px-0"
+            onClick={handleCancelClick}>
+          </Button>
+        </div>
+      ) : (
+        <div className="d-flex">
+          <Button
+            icon={<img src={editIcon} alt="edit" />}
+            className="btn py-0 btn-delete-prescription px-0 me-2"
+            onClick={() => setEditedData(record)}>
+          </Button>
+          <Button
+            icon={<i className="icon-delete text-main fs-20"></i>}
+            className="btn py-0 btn-delete-prescription px-0"
+            onClick={() => {
+              setDeletedData(record)
+              showHideModal()
+            }}>
+          </Button>
+        </div>
+      )
+    )
+  }
+
+  const addMedicineColumns = [
+    {
+      title: "Medicine",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record, index) =>
+        record.exist ?
+          firstColumn(text, record, index)
+          : (
+            <>
+              <div className="d-flex">
+                <div className="text-truncate">{record.tmm_medicine_name}</div>
+                {!record.pms_default &&
+                  <i className="icon-Edit fs-18"
+                    onClick={() => {
+                      const medicineType = medicineTypeList.find(x => x?.tmy_id == record?.tmm_type)
+                      const makeData = {
+                        unique_id: record.unique_id,
+                        tmm_id: record.tmm_id,
+                        tmm_medicine_name: record.tmm_medicine_name,
+                        tmm_generic: record.tmm_generic,
+                        tmm_company: record.tmm_company
+                      }
+                      const updateItem = medicineType !== undefined ? { ...makeData, ...medicineType } : makeData
+                      showHideAddMedicineModal()
+                      setAddCustom(updateItem);
+                    }}
+                  ></i>
+                }
+              </div>
+              <div className="text-truncate dose-generic">{record.tmm_generic}</div>
+            </>
+          ),
+    },
+    {
+      title: "Recommended Dose",
+      dataIndex: "dosage",
+      key: "dosage",
+      render: (text, record, index) =>
+        record.exist ?
+          secondColumn(text, record, index)
+          : (
+            <Input
+              className="inputheight41-group"
+              placeholder="00"
+              value={record.dosage}
+              onChange={(e) => handleInputChange(e.target.value, "dosage", index)}
+              addonAfter={record.dosage_unit}
+              style={{ width: "180px" }} // Styling for the input
+            />
+          ),
+    },
+    {
+      title: "Concentration",
+      dataIndex: "concentration",
+      key: "concentration",
+      render: (text, record, index) =>
+        record.exist ?
+          thirdColumn(text, record, index)
+          : (
+            <Input
+              className="inputheight41-group"
+              placeholder="00"
+              value={record.concentration}
+              onChange={(e) => handleInputChange(e.target.value, "concentration", index)}
+              addonAfter={record.concentration_unit}
+              style={{ width: "170px" }} // Inline styling for the input
+            />
+          ),
+    },
+    {
+      title: "",
+      key: "actions",
+      render: (text, record, index) =>
+        record.exist ?
+          fourColumn(text, record, index)
+          : (
+            <Button
+              className="btn py-0 btn-delete-prescription px-0"
+              onClick={() => deleteMedicine(record.tmm_id)}
+            >
+              <i className="icon-delete text-main"></i>
+            </Button>
+          ),
+    },
+  ];
+
+  //Sevond Tab
+  const doseLibraryColumns = [
+    {
+      title: "Medicine",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record, index) => firstColumn(text, record, index),
+    },
+    {
+      title: "Recommended Dose",
+      dataIndex: "dosage",
+      key: "dosage",
+      render: (text, record, index) => secondColumn(text, record, index),
+    },
+    {
+      title: "Concentration",
+      dataIndex: "concentration",
+      key: "concentration",
+      render: (text, record, index) => thirdColumn(text, record, index),
+    },
+    {
+      title: "",
+      key: "actions",
+      render: (text, record, index) => fourColumn(text, record, index),
+    },
+  ];
+
+  const CustomRow = useCallback((props) => {
+    const { children, ...restProps } = props;
+
+    if (props['data-row-key'] == medicationLibrary.sort((a, b) => a.exist - b.exist).find(e => e.exist)?.medicine_id) {
+      return (
+        <>
+          <tr>
+            <td className="text-start existing-doses-line" colSpan={addMedicineColumns?.length}>
+              <span className="badge-then">Existing Doses</span>
+            </td>
+          </tr>
+          <tr {...restProps}>{children}</tr>
+        </>
+      );
+    }
+
+    return <tr {...restProps}>{children}</tr>;
+  }, [medicationLibrary?.length]);
+
+  return (
+    <div>
+      <div
+        className="modalCard-header h-60 align-items-center justify-content-between d-flex"
+        style={{ position: "sticky", top: "0", zIndex: "999" }}
+      >
+        <div className="align-items-center d-flex">
+          <Button
+            type="text"
+            className="btn btn-delete-prescription px-3 focus-none h-100"
+            onClick={showHideModal1}
+          >
+            <i className="icon-Cross fs-3"></i>
+          </Button>
+          <div
+            className="modal-title d-flex align-items-center"
+            style={{ fontSize: "24px" }}
+          >
+            Dose Calculator
+            <Tooltip
+              title={tooltipTitle}
+              overlayClassName="dose-calc-tooltip"
+              placement="bottom"
+              autoAdjustOverflow={true}
+              getPopupContainer={(trigger) => trigger.parentElement}
+            >
+              <i
+                className="icon-info text-greycolor ms-2 fs-21"
+              />
+            </Tooltip>
+          </div>
+        </div>
+        {activeTab == "1" && (
+          <Button
+            className="btn btn-primary3 btn-41 px-4 me-20"
+            onClick={handleSaveMedicineDoses}
+          >
+            Save
+          </Button>
+        )}
+      </div>
+
+      <Tabs defaultActiveKey={activeTab} className="dose-tab" onChange={onTabChange}>
+        <TabPane
+          tab="Add new dose"
+          key="1"
+        >
+          <div style={{ marginTop: "-1rem" }}>
+            <div className="d-flex mt-5 ms-4 align-items-center">
+              <div className="px-2 fw-medium">
+                Patient’s Current weight
+              </div>
+              <div className="d-flex align-items-center px-2">
+                <Input
+                  className="inputheight41-group"
+                  placeholder="0"
+                  inputMode="numeric"
+                  value={todayWeight}
+                  addonAfter="kgs"
+                  onChange={onChangeWeight}
+                  style={{ width: 120 }}
+                />
+              </div>
+            </div>
+
+            {/* Search Bar */}
+            <div className="m-4">
+              <AutoComplete
+                // defaultValue={searchMLQuery}
+                value={searchMLQuery}
+                onSearch={onSearchParent}
+                options={parentSearchOptions}
+                className="autocomplete-custom w-100"
+                onSelect={onSelectParent}
+                defaultActiveFirstOption={true}
+                popupClassName={!searchMLQuery && "boxpopup"}
+              >
+                <Input
+                  placeholder="Search & add new medication"
+                  prefix={<i className="icon-search"></i>}
+                />
+              </AutoComplete>
+            </div>
+
+            {/* Medicines Table */}
+            {medicationLibrary?.length > 0 && (
+              <div className="m-4 mb-0">
+                <Table
+                  columns={addMedicineColumns}
+                  dataSource={medicationLibrary.sort((a, b) => a.exist - b.exist)}
+                  rowKey="medicine_id"
+                  pagination={false}
+                  className="dose-table"
+                  scroll={{
+                    y: `calc(100vh - 358px)`,
+                  }}
+                  components={{
+                    body: {
+                      row: CustomRow // Use the custom row component
+                    }
+                  }}
+                />
+                <div className="text-greycolor mt-3"><span className="text-greycolor fw-semibold">Note:</span> The Dose per unit is Auto-calculated by the system  based on above data.</div>
+              </div>
+            )}
+
+          </div>
+        </TabPane>
+        <TabPane
+          tab="Dose library"
+          key="2"
+        >
+          {/* Search Bar */}
+          <div className="m-4">
+            <Input
+              className="inputheight38"
+              placeholder="Search by medication name"
+              value={searchQuery}
+              prefix={<i className="icon-search" />}
+              onChange={onSearch}
+            />
+          </div>
+
+          {/* DoseLibrary Table */}
+          <div className="m-4 mb-0">
+            <Table
+              columns={doseLibraryColumns}
+              dataSource={doseLibrary}
+              rowKey="id"
+              pagination={false}
+              rowClassName={(record) => (editedData?.id === record.id ? 'edited-row' : '')}
+              className="dose-table"
+              scroll={{
+                y: `calc(100vh - 232px)`,
+              }}
+            />
+          </div>
+        </TabPane>
+      </Tabs>
+
+      <CommonModal
+        isModalOpen={isModalOpen}
+        onCancel={showHideModal}
+        modalWidth={500}
+        title={"You may lose your data"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className='me-3' src={alertIcon} alt="Warning" />
+                <span>
+                  Are you sure you want to delete ?
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div onClick={() => deleteDoseLibMedicine(deletedData?.id)}
+                  className="me-4 text-decoration-underline btn p-0 text-main">
+                  Yes Delete
+                </div>
+                <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                  <span>No</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+
+      <CommonModal
+        isModalOpen={isModalOpen1}
+        onCancel={showHideModal1}
+        modalWidth={500}
+        title={"You may lose your data"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className='me-3' src={alertIcon} alt="Warning" />
+                <span>
+                  Are you sure you want to close without saving?
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div onClick={clearData}
+                  className="me-4 text-decoration-underline btn p-0 text-main">
+                  Yes, Close
+                </div>
+                <Button onClick={showHideModal1} className="lh-lg btn btn-primary3 btn-41 px-4">
+                  <span>No</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+
+    </div>
+  );
+};
+
+export default React.memo(DoseCalculator);

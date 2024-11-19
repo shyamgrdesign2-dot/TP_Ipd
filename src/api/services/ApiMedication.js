@@ -2,6 +2,7 @@ import api from "./axiosService";
 import config from '../../config';
 
 const baseUrl = { customBaseUrl: config.medication_api_url }
+const doseBaseUrl = { customBaseUrl: config.upload_doc_api_url }
 
 const ApiMedication = {};
 
@@ -75,6 +76,22 @@ ApiMedication.editMedicine = function (data) {
 
 ApiMedication.getLoadPreviousRx = function (data) {
   return api.post(`/api/v1/medicine/getLoadPreviousRx`, data, baseUrl);
+};
+
+ApiMedication.getAllDoses = function () {
+  return api.get(`/api/v1/doses`, doseBaseUrl);
+};
+
+ApiMedication.createDose = function (data) {
+  return api.post(`/api/v1/doses`, data, doseBaseUrl);
+};
+
+ApiMedication.updateDose = function (data) {
+  return api.put(`/api/v1/doses/${data?.id}`, data, doseBaseUrl);
+};
+
+ApiMedication.deleteDose = function (id) {
+  return api.delete(`/api/v1/doses/${id}`, doseBaseUrl);
 };
 
 export default ApiMedication;
