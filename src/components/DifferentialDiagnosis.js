@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useAccess } from "../pages/vaccination/useAccess";
 import { useLocation } from "react-router-dom";
 import { WarningColor, WarningRank } from "./DifferentialDiagnosisDrawer";
+import { getClinicName } from "../utils/utils";
 
 const DifferentialDiagnosis = ({
   handleDDxDrawer,
@@ -26,6 +27,7 @@ const DifferentialDiagnosis = ({
   isDDxGenerated,
 }) => {
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
+  const { profile } = useSelector((state) => state.doctors);
 
   const { state } = useLocation();
   const { patient_data } = state;
@@ -87,7 +89,19 @@ const DifferentialDiagnosis = ({
                     alignItems: isDiagnosis ? "flex-start" : "center",
                     background: "rgba(255, 255, 255, 0.6)",
                   }}
-                  onClick={() => onSelectParent({ ...item })}
+                  onClick={() => {
+                    onSelectParent({ ...item });
+                    window.Moengage.track_event(
+                      isDiagnosis ? "TP_CDSS_Ddx_selected" : "TP_CDSS_addtoRx",
+                      {
+                        clinic_name: getClinicName(profile?.hospital_data),
+                        doctor_id: profile?.doctor_unique_id,
+                        patient_number: patient_data?.pm_contact_no,
+                        patient_id: patient_data?.patient_unique_id,
+                        field: "ddx",
+                      }
+                    );
+                  }}
                 >
                   <span className="ddx-btn">
                     {item?.tds_name ||
@@ -145,7 +159,7 @@ const DifferentialDiagnosis = ({
                       type="primary"
                       className="btn btn-primary3 btn-41 px-4 me-20 w-100 d-flex align-items-center justify-content-center"
                       style={{ gap: 10 }}
-                      onClick={getGenerateDDx}
+                      onClick={() => getGenerateDDx("ddx")}
                       disabled={!isDDxReadyToGenerate}
                     >
                       <img src={ddxIcon} alt="ddx-icon" />
@@ -164,7 +178,7 @@ const DifferentialDiagnosis = ({
                 style={{
                   background: "white",
                 }}
-                onClick={handleDDxDrawer}
+                onClick={() => handleDDxDrawer("ddx")}
               >
                 <span>View Detailed Analysis</span>
               </Button>
@@ -228,7 +242,7 @@ const DifferentialDiagnosis = ({
                     type="primary"
                     className="btn btn-primary3 btn-41 px-4 me-20 w-100 d-flex align-items-center justify-content-center"
                     style={{ gap: 10 }}
-                    onClick={getGenerateDDx}
+                    onClick={() => getGenerateDDx("ddx")}
                     disabled={!isDDxReadyToGenerate}
                   >
                     <img src={ddxIcon} alt="ddx-icon" />

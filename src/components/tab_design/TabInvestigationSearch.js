@@ -16,6 +16,8 @@ import apexAI from "../../../src/assets/images/apexAI.svg";
 import tagNew from '../../../src/assets/images/tag-new.svg'
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { getClinicName } from "../../utils/utils";
+import { useLocation } from "react-router-dom";
 
 function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
 
@@ -26,6 +28,10 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
     const { dragDrop } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
+    const { profile } = useSelector((state) => state.doctors);
+
+    const { state } = useLocation();
+    const { patient_data } = state;
     const { investigationData, setInvestigationData } = useContext(CashManagerContext);
 
     const [searchChildQuery, setSearchChildQuery] = useState("");
@@ -307,7 +313,16 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
                                                 <Button
                                                     type="button"
                                                     className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between test-name-btn"
-                                                    onClick={() => onSelectParent({ ...item })}
+                                                    onClick={() => {
+                                                        onSelectParent({ ...item });
+                                                        window.Moengage.track_event("TP_CDSS_addtoRx", {
+                                                            clinic_name: getClinicName(profile?.hospital_data),
+                                                            doctor_id: profile?.doctor_unique_id,
+                                                            patient_number: patient_data?.pm_contact_no,
+                                                            patient_id: patient_data?.patient_unique_id,
+                                                            field: "apexDDx",
+                                                        });
+                                                    }}
                                                 >
                                                     <span className="ddx-btn">
                                                         {item?.investigation_name}

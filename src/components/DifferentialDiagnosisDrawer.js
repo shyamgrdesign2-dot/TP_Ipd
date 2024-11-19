@@ -15,6 +15,8 @@ import CashManagerContext from "../context/CashManagerContext";
 import { useLocation } from "react-router-dom";
 import { addResultImpression } from "../api/services/ApiDDx";
 import TabPane from "antd/es/tabs/TabPane";
+import { getClinicName } from "../utils/utils";
+import { useSelector } from "react-redux";
 
 export const WarningColor = {
   "can't miss": "rgba(194, 159, 0, 1)",
@@ -59,7 +61,7 @@ const DifferentialDiagnosisDrawer = ({
     investigationData,
     setInvestigationData,
   } = useContext(CashManagerContext);
-
+  const { profile } = useSelector((state) => state.doctors);
   const { state } = useLocation();
   const { patient_data } = state;
 
@@ -293,6 +295,13 @@ const DifferentialDiagnosisDrawer = ({
                                 note: "",
                               });
                               setDiagnosisData((prev) => [...prev]);
+                              window.Moengage.track_event("TP_CDSS_Ddx_selected", {
+                                clinic_name: getClinicName(profile?.hospital_data),
+                                doctor_id: profile?.doctor_unique_id,
+                                patient_number: patient_data?.pm_contact_no,
+                                patient_id: patient_data?.patient_unique_id,
+                                field: "detailDrawer",
+                              });
                             }}
                           >
                             Add to Rx
@@ -389,6 +398,13 @@ const DifferentialDiagnosisDrawer = ({
                                             setInvestigationData((prev) => [
                                               ...prev,
                                             ]);
+                                            window.Moengage.track_event("TP_CDSS_addtoRx", {
+                                                clinic_name: getClinicName(profile?.hospital_data),
+                                                doctor_id: profile?.doctor_unique_id,
+                                                patient_number: patient_data?.pm_contact_no,
+                                                patient_id: patient_data?.patient_unique_id,
+                                                field: "detailDrawer",
+                                            });
                                           }}
                                         >
                                           Add To Rx

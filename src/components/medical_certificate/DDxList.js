@@ -13,6 +13,8 @@ import {
 import { useContext, useState } from "react";
 import CashManagerContext from "../../context/CashManagerContext";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+import { getClinicName } from "../../utils/utils";
 
 const DDxList = ({
   generatedDDx,
@@ -25,6 +27,11 @@ const DDxList = ({
 }) => {
   const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
+  const { profile } = useSelector((state) => state.doctors);
+
+  const { state } = useLocation();
+  const { patient_data } = state;
+
   const [isCollapseActive, setIsCollapseActive] = useState(true);
 
   const handlePanelChange = () => {
@@ -94,7 +101,7 @@ const DDxList = ({
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDDxDrawer();
+                  handleDDxDrawer("apexDDx");
                 }}
               >
                 <span>View Detailed Analysis</span>
@@ -113,7 +120,7 @@ const DDxList = ({
               <Button
                 className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center justify-content-center"
                 style={{ gap: 10 }}
-                onClick={getGenerateDDx}
+                onClick={() => getGenerateDDx("apexDDx")}
                 disabled={!isDDxReadyToGenerate}
               >
                 <img src={ddxIcon} alt="ddx-icon" />
@@ -139,9 +146,10 @@ const DDxList = ({
               gap: 16,
             }}
           >
-            {generatedDDx.map((item) => {
+            {generatedDDx.map((item, index) => {
               return (
                 <div
+                  key={index}
                   className="d-flex flex-column"
                   style={{
                     padding: "11px 15px",
@@ -215,6 +223,13 @@ const DDxList = ({
                             note: "",
                           });
                           setDiagnosisData((prev) => [...prev]);
+                          window.Moengage.track_event("TP_CDSS_Ddx_selected", {
+                            clinic_name: getClinicName(profile?.hospital_data),
+                            doctor_id: profile?.doctor_unique_id,
+                            patient_number: patient_data?.pm_contact_no,
+                            patient_id: patient_data?.patient_unique_id,
+                            field: "apexDDx",
+                          });
                         }}
                       >
                         <div
