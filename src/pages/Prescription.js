@@ -999,6 +999,7 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                         handleDDxKnowMore={handleDDxKnowMore}
                         getGenerateDDx={getGenerateDDx}
                         handleDrawerVital={handleDrawerVital}
+                        isDDxGenerated={isDDxGenerated}
                       />
                     </div>
                   </TabPane>

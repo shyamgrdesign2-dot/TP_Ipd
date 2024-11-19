@@ -1156,6 +1156,7 @@ function TabPrescription() {
                     isDDxLoading={isDDxLoading}
                     handleDDxKnowMore={handleDDxKnowMore}
                     getGenerateDDx={getGenerateDDx}
+                    isDDxGenerated={isDDxGenerated}
                   />
                 )
               )}

@@ -22,10 +22,11 @@ const TabDDxList = ({
   isDDxLoading,
   handleDDxKnowMore,
   getGenerateDDx,
+  isDDxGenerated,
 }) => {
   const dispatch = useDispatch();
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
-  const { diagnosisData } = useContext(CashManagerContext);
+  const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
 
   return (
     <div
@@ -95,10 +96,17 @@ const TabDDxList = ({
                 </Button>
               </div>
             ) : (
-              <span style={{ lineHeight: "26px", textAlign: "center" }}>
-                Enter key symptoms and patient history to generate a list of
-                possible diagnoses and recommended tests for confirmation.
-                Ensure accurate data for best results.
+              <span
+                style={{ lineHeight: "26px", textAlign: "center" }}
+                className={`${
+                  isDDxGenerated && generatedDDx?.length === 0
+                    ? "text-danger-custom"
+                    : ""
+                }`}
+              >
+                {isDDxGenerated
+                  ? "No results found! We couldn't generate any diagnosis due to incomplete or inaccurate information provided. Please review and update the details, then try again."
+                  : "Enter key symptoms and patient history to generate a list of possible diagnoses and recommended tests for confirmation. Ensure accurate data for best results."}
               </span>
             )}
           </div>
@@ -199,7 +207,23 @@ const TabDDxList = ({
                         <div
                           className="text-primary"
                           style={{ fontWeight: 600 }}
-                          onClick={() => dispatch(setIsDiagnosisBox(item?.differentialDiagnosisName))}
+                          onClick={() => {
+                            dispatch(
+                              setIsDiagnosisBox(item?.differentialDiagnosisName)
+                            );
+                            diagnosisData.push({
+                              tds_id: item?._id,
+                              unique_id: item?._id,
+                              tds_name: item?.differentialDiagnosisName,
+                              pms_default: 1,
+                              usage_count: 0,
+                              isDDx: true,
+                              since: "",
+                              status: "",
+                              note: "",
+                            });
+                            setDiagnosisData((prev) => [...prev]);
+                          }}
                         >
                           Add To Rx
                         </div>
