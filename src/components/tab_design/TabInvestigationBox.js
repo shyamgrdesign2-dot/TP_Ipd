@@ -50,28 +50,36 @@ function TabInvestigationBox({handleDDxDrawer, generatedDDx}) {
         );
 
     useEffect(() => {
-        if (diagnosisData?.length > 0) {
-            const associatedLabTestsData = diagnosisData?.map((diagnosis) => {
-            if (diagnosis?.isDDx) {
+      if (diagnosisData?.length > 0) {
+        let associatedLabTestsData = [];
+        if (isLabTestBox) {
+            associatedLabTestsData = generatedDDx?.find(
+              (item) => item._id === isLabTestBox
+            )?.labTests;
+        } else {
+            associatedLabTestsData = diagnosisData?.map((diagnosis) => {
+              if (diagnosis?.isDDx) {
                 return generatedDDx?.find(
-                (item) => item?._id === diagnosis?.unique_id
+                  (item) => item?._id === diagnosis?.unique_id
                 )?.labTests;
-            }
+              }
             });
-            const uniqueLabTests = [...new Set(associatedLabTestsData?.flat())];
-            const ddxOptionsList = uniqueLabTests?.map((item) => {
-            return {
-                investigation_name: item,
-                hm_type: 1,
-                pms_default: 1,
-                isDDx: true,
-            };
-            });
-            setDdxInvestigationOptionsList(ddxOptionsList);
-        } else if (diagnosisData?.length === 0) {
-            setDdxInvestigationOptionsList([]);
         }
-    }, [diagnosisData]);
+        
+        const uniqueLabTests = [...new Set(associatedLabTestsData?.flat())];
+        const ddxOptionsList = uniqueLabTests?.map((item) => {
+          return {
+            investigation_name: item,
+            hm_type: 1,
+            pms_default: 1,
+            isDDx: true,
+          };
+        });
+        setDdxInvestigationOptionsList(ddxOptionsList);
+      } else if (diagnosisData?.length === 0) {
+        setDdxInvestigationOptionsList([]);
+      }
+    }, [diagnosisData, isLabTestBox]);
 
     const [parentDrawer, setParentDrawer] = useState(false);
     const [childDrawer, setChildDrawer] = useState(false);
@@ -123,11 +131,12 @@ function TabInvestigationBox({handleDDxDrawer, generatedDDx}) {
 
     // Handle Parent Drawer
     const handleDrawerParent = useCallback(() => {
-        setParentDrawer(!parentDrawer);
         if (isLabTestBox) {
-          dispatch(setIsLabTestBox(false));
+          dispatch(setIsLabTestBox(null));
+        } else {
+          setParentDrawer(!parentDrawer);
         }
-    }, [parentDrawer]);
+    }, [parentDrawer, isLabTestBox]);
 
     const onSelectParent = useCallback(
         (e) => {
@@ -637,7 +646,7 @@ function TabInvestigationBox({handleDDxDrawer, generatedDDx}) {
                     { filteredDdxInvestigationOptionsList?.length > 0 && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={filteredDdxInvestigationOptionsList} onSelectParent={onSelectParent} />}
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer || isLabTestBox} width={'100%'} className="searchdrawer-content">
-                    {(parentDrawer || isLabTestBox) && (<TabInvestigationSearch passIndex={selectedIndex} onClose={handleDrawerParent} ddxOptionsList={filteredDdxInvestigationOptionsList} />)}
+                    {(parentDrawer || isLabTestBox) && (<TabInvestigationSearch passIndex={isLabTestBox ? investigationData?.length - 1 : selectedIndex} onClose={handleDrawerParent} ddxOptionsList={filteredDdxInvestigationOptionsList} />)}
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&

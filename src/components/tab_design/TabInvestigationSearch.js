@@ -276,15 +276,15 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
                                         </div>
                                     </>
                                 )}
-                                <div className="d-flex" style={{ padding: "20px 0" }}>
-                                <div>
-                                    <img
-                                        style={{ backgroundColor: "#22003C", borderRadius: "10px 10px 0px" }}
-                                        className="me-3"
-                                        src={apexAI}
-                                        alt="apex-AI"
-                                    />
-                                </div>
+                                {ddxOptionsList?.length > 0 && <div className="d-flex" style={{ padding: "20px 0" }}>
+                                    <div>
+                                        <img
+                                            style={{ backgroundColor: "#22003C", borderRadius: "10px 10px 0px" }}
+                                            className="me-3"
+                                            src={apexAI}
+                                            alt="apex-AI"
+                                        />
+                                    </div>
                                     <div
                                     className="d-flex flex-column"
                                     style={{
@@ -309,17 +309,7 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
                                                     className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-between test-name-btn"
                                                     onClick={() => onSelectParent({ ...item })}
                                                 >
-                                                    <span 
-                                                        style={{
-                                                            textTransform: "capitalize",
-                                                            lineHeight: "13px",
-                                                            display: "-webkit-box",
-                                                            "-webkit-line-clamp": 2,
-                                                            "-webkit-box-orient": "vertical",
-                                                            overflow: "hidden",
-                                                            textAlign: "left",
-                                                            whiteSpace: "initial"
-                                                    }}>
+                                                    <span className="ddx-btn">
                                                         {item?.investigation_name}
                                                     </span>
                                                 </Button>
@@ -327,7 +317,7 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
                                             </div>
                                         </>
                                     </div>
-                                </div>
+                                </div>}
                                 <div>
                                     <div className="title2">
                                         {searchChildQuery.length > 0 ? 'Search Results' : 'Frequently Used'}

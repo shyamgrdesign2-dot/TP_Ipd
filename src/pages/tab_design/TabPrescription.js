@@ -146,6 +146,7 @@ function TabPrescription() {
   const [labParamsData, setLabParamsData] = useState(null);
   const [generatedDDx, setGeneratedDDx] = useState({ results: [] });
   const [likeDislike, setLikeDislike] = useState([]);
+  const [isDDxGenerated, setIsDDxGenerated] = useState(false);
   const [isDDxLoading, setIsDDxLoading] = useState(false);
 
   const contextApi = {
@@ -700,6 +701,7 @@ function TabPrescription() {
 
   const getGenerateDDx = async () => {
     setIsDDxLoading(true);
+    setIsDDxGenerated(true);
     const payload = {
       patientId: patient_data?.patient_unique_id,
       symptoms: symptomsData?.map((symptom) => {
@@ -714,7 +716,7 @@ function TabPrescription() {
       }) 
     };
     const generatedDDxResponse = await getDDxDetails(payload);
-    if (generatedDDxResponse?.results?.length > 0) {
+    if (generatedDDxResponse?.results) {
       setGeneratedDDx(generatedDDxResponse);
       setLikeDislike(generatedDDxResponse?.results?.map(() => ""));
     }
@@ -1189,6 +1191,7 @@ function TabPrescription() {
                         getGenerateDDx={getGenerateDDx}
                         isDDxLoading={isDDxLoading}
                         handleDDxKnowMore={handleDDxKnowMore}
+                        isDDxGenerated={isDDxGenerated}
                       />
                     </div>
                   ) : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? (

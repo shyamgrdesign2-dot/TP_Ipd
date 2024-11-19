@@ -4,6 +4,7 @@ import arrow from "../assets/images/shaded-arrow.svg";
 import ddxIcon from "../assets/images/ddxIcon.svg";
 import loading from "../assets/images/loading.gif";
 import ddxBg from "../assets/images/ddx-bg.png";
+import alertIcon from "../assets/images/alert.svg";
 import { useSelector } from "react-redux";
 import {
   IS_DDX_DIAGNOSIS_OPEN,
@@ -23,6 +24,7 @@ const DifferentialDiagnosis = ({
   isDiagnosis,
   isSymptoms,
   handleDDxKnowMore,
+  isDDxGenerated,
 }) => {
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
 
@@ -47,12 +49,26 @@ const DifferentialDiagnosis = ({
     {
       key: "1",
       label: (
-        <div style={{ fontSize: 16, fontWeight: 500 }}>
-          {isDiagnosis
-            ? "Differential Diagnosis"
-            : isSymptoms
-            ? "Associated Symptoms"
-            : "Suggested Lab Test"}
+        <div
+          style={{ fontSize: 16, fontWeight: 500 }}
+          className={`${
+            isDDxGenerated && ddxOptionsList?.length === 0
+              ? "text-danger-custom"
+              : ""
+          }`}
+        >
+          {isDDxGenerated && ddxOptionsList?.length === 0 ? (
+            <>
+              <img className="me-3" src={alertIcon} alt="Warning" />
+              {"No Results found!"}
+            </>
+          ) : isDiagnosis ? (
+            "Differential Diagnosis"
+          ) : isSymptoms ? (
+            "Associated Symptoms"
+          ) : (
+            "Suggested Lab Test"
+          )}
         </div>
       ),
       children:
@@ -74,7 +90,7 @@ const DifferentialDiagnosis = ({
                 width: "90%",
               }}
             >
-              {ddxOptionsList.map((item, index) => (
+              {ddxOptionsList?.map((item, index) => (
                 <Button
                   key={index}
                   type="button"
@@ -88,37 +104,30 @@ const DifferentialDiagnosis = ({
                   }}
                   onClick={() => onSelectParent({ ...item })}
                 >
-                  <span
-                    style={{
-                      textTransform: "capitalize",
-                      lineHeight: "13px",
-                      display: "-webkit-box",
-                      "-webkit-line-clamp": 2,
-                      "-webkit-box-orient": "vertical",
-                      overflow: "hidden",
-                      textAlign: "left",
-                      whiteSpace: "initial",
-                    }}
-                  >
+                  <span className="ddx-btn">
                     {item?.tds_name ||
                       item?.symptom_name ||
                       item?.investigation_name}
                   </span>
-                  <div className="d-flex" style={{ columnGap: 2 }}>
-                    {Array.from({
-                      length: WarningRank[item?.likelihood] || 0,
-                    }).map((_, index) => (
-                      <div
-                        key={index}
-                        style={{
-                          width: 13,
-                          height: 4,
-                          border: `2px solid ${WarningColor[item?.likelihood]}`,
-                          borderRadius: 2,
-                        }}
-                      />
-                    ))}
-                  </div>
+                  {isDiagnosis && (
+                    <div className="d-flex" style={{ columnGap: 2 }}>
+                      {Array.from({
+                        length: WarningRank[item?.likelihood] || 0,
+                      }).map((_, index) => (
+                        <div
+                          key={index}
+                          style={{
+                            width: 13,
+                            height: 4,
+                            border: `2px solid ${
+                              WarningColor[item?.likelihood]
+                            }`,
+                            borderRadius: 2,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </Button>
               ))}
             </div>
@@ -188,7 +197,9 @@ const DifferentialDiagnosis = ({
         ) : (
           <>
             <div>
-              {`Enter key symptoms to get possible diagnoses and recommended tests.
+              {isDDxGenerated && ddxOptionsList?.length === 0
+                ? `We couldn't generate any diagnosis due to incomplete or inaccurate information provided. Please review and update the details, then try again.`
+                : `Enter key symptoms to get possible diagnoses and recommended tests.
             Adding additional details like medical history${
               isGynaecHistoryAccessable
                 ? ", gynecological and obstetric history"
