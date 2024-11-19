@@ -21,6 +21,7 @@ const DDxList = ({
   handleDDxKnowMore,
   getGenerateDDx,
   handleDrawerVital,
+  isDDxGenerated,
 }) => {
   const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
@@ -73,11 +74,15 @@ const DDxList = ({
               style={{
                 paddingTop: 10,
               }}
-              className="p-14"
+              className={`${
+                isDDxGenerated && generatedDDx?.length === 0
+                  ? "text-danger-custom"
+                  : ""
+              }`}
             >
-              Enter key symptoms and patient history to generate a list of
-              possible diagnoses and recommended tests for confirmation. Ensure
-              accurate data for best results.
+              {isDDxGenerated
+                ? "No results found! We couldn't generate any diagnosis due to incomplete or inaccurate information provided. Please review and update the details, then try again."
+                : "Enter key symptoms and patient history to generate a list of possible diagnoses and recommended tests for confirmation. Ensure accurate data for best results."}
             </div>
           ) : isCollapseActive ? (
             <div className="d-flex">

@@ -4,7 +4,6 @@ import arrow from "../assets/images/shaded-arrow.svg";
 import ddxIcon from "../assets/images/ddxIcon.svg";
 import loading from "../assets/images/loading.gif";
 import ddxBg from "../assets/images/ddx-bg.png";
-import alertIcon from "../assets/images/alert.svg";
 import { useSelector } from "react-redux";
 import {
   IS_DDX_DIAGNOSIS_OPEN,
@@ -49,26 +48,12 @@ const DifferentialDiagnosis = ({
     {
       key: "1",
       label: (
-        <div
-          style={{ fontSize: 16, fontWeight: 500 }}
-          className={`${
-            isDDxGenerated && ddxOptionsList?.length === 0
-              ? "text-danger-custom"
-              : ""
-          }`}
-        >
-          {isDDxGenerated && ddxOptionsList?.length === 0 ? (
-            <>
-              <img className="me-3" src={alertIcon} alt="Warning" />
-              {"No Results found!"}
-            </>
-          ) : isDiagnosis ? (
-            "Differential Diagnosis"
-          ) : isSymptoms ? (
-            "Associated Symptoms"
-          ) : (
-            "Suggested Lab Test"
-          )}
+        <div style={{ fontSize: 16, fontWeight: 500 }}>
+          {isDiagnosis
+            ? "Differential Diagnosis"
+            : isSymptoms
+            ? "Associated Symptoms"
+            : "Suggested Lab Test"}
         </div>
       ),
       children:
@@ -148,7 +133,10 @@ const DifferentialDiagnosis = ({
                   }}
                 >
                   {isDDxReadyToGenerate && (
-                    <div className="ddx-ready-txt" style={{ fontSize: 12 }}>
+                    <div
+                      className="ddx-ready-txt"
+                      style={{ fontSize: 12, width: 85 }}
+                    >
                       Get updated diagnosis
                     </div>
                   )}
@@ -196,9 +184,15 @@ const DifferentialDiagnosis = ({
           </>
         ) : (
           <>
-            <div>
+            <div
+              className={`${
+                isDDxGenerated && ddxOptionsList?.length === 0
+                  ? "text-danger-custom"
+                  : ""
+              }`}
+            >
               {isDDxGenerated && ddxOptionsList?.length === 0
-                ? `We couldn't generate any diagnosis due to incomplete or inaccurate information provided. Please review and update the details, then try again.`
+                ? `No results found! We couldn't generate any diagnosis due to incomplete or inaccurate information provided. Please review and update the details, then try again.`
                 : `Enter key symptoms to get possible diagnoses and recommended tests.
             Adding additional details like medical history${
               isGynaecHistoryAccessable
