@@ -4,7 +4,6 @@ import arrow from "../assets/images/shaded-arrow.svg";
 import ddxIcon from "../assets/images/ddxIcon.svg";
 import loading from "../assets/images/loading.gif";
 import ddxBg from "../assets/images/ddx-bg.png";
-import alertIcon from "../assets/images/alert.svg";
 import { useSelector } from "react-redux";
 import {
   IS_DDX_DIAGNOSIS_OPEN,
@@ -14,6 +13,7 @@ import { useState } from "react";
 import { useAccess } from "../pages/vaccination/useAccess";
 import { useLocation } from "react-router-dom";
 import { WarningColor, WarningRank } from "./DifferentialDiagnosisDrawer";
+import { getClinicName } from "../utils/utils";
 
 const DifferentialDiagnosis = ({
   handleDDxDrawer,
@@ -27,6 +27,7 @@ const DifferentialDiagnosis = ({
   isDDxGenerated,
 }) => {
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
+  const { profile } = useSelector((state) => state.doctors);
 
   const { state } = useLocation();
   const { patient_data } = state;
@@ -49,26 +50,12 @@ const DifferentialDiagnosis = ({
     {
       key: "1",
       label: (
-        <div
-          style={{ fontSize: 16, fontWeight: 500 }}
-          className={`${
-            isDDxGenerated && ddxOptionsList?.length === 0
-              ? "text-danger-custom"
-              : ""
-          }`}
-        >
-          {isDDxGenerated && ddxOptionsList?.length === 0 ? (
-            <>
-              <img className="me-3" src={alertIcon} alt="Warning" />
-              {"No Results found!"}
-            </>
-          ) : isDiagnosis ? (
-            "Differential Diagnosis"
-          ) : isSymptoms ? (
-            "Associated Symptoms"
-          ) : (
-            "Suggested Lab Test"
-          )}
+        <div style={{ fontSize: 16, fontWeight: 500 }}>
+          {isDiagnosis
+            ? "Differential Diagnosis"
+            : isSymptoms
+            ? "Associated Symptoms"
+            : "Suggested Lab Test"}
         </div>
       ),
       children:
@@ -102,7 +89,19 @@ const DifferentialDiagnosis = ({
                     alignItems: isDiagnosis ? "flex-start" : "center",
                     background: "rgba(255, 255, 255, 0.6)",
                   }}
-                  onClick={() => onSelectParent({ ...item })}
+                  onClick={() => {
+                    onSelectParent({ ...item });
+                    window.Moengage.track_event(
+                      isDiagnosis ? "TP_CDSS_Ddx_selected" : "TP_CDSS_addtoRx",
+                      {
+                        clinic_name: getClinicName(profile?.hospital_data),
+                        doctor_id: profile?.doctor_unique_id,
+                        patient_number: patient_data?.pm_contact_no,
+                        patient_id: patient_data?.patient_unique_id,
+                        field: "ddx",
+                      }
+                    );
+                  }}
                 >
                   <span className="ddx-btn">
                     {item?.tds_name ||
@@ -148,7 +147,10 @@ const DifferentialDiagnosis = ({
                   }}
                 >
                   {isDDxReadyToGenerate && (
-                    <div className="ddx-ready-txt" style={{ fontSize: 12 }}>
+                    <div
+                      className="ddx-ready-txt"
+                      style={{ fontSize: 12, width: 85 }}
+                    >
                       Get updated diagnosis
                     </div>
                   )}
@@ -157,7 +159,7 @@ const DifferentialDiagnosis = ({
                       type="primary"
                       className="btn btn-primary3 btn-41 px-4 me-20 w-100 d-flex align-items-center justify-content-center"
                       style={{ gap: 10 }}
-                      onClick={getGenerateDDx}
+                      onClick={() => getGenerateDDx("ddx")}
                       disabled={!isDDxReadyToGenerate}
                     >
                       <img src={ddxIcon} alt="ddx-icon" />
@@ -176,7 +178,7 @@ const DifferentialDiagnosis = ({
                 style={{
                   background: "white",
                 }}
-                onClick={handleDDxDrawer}
+                onClick={() => handleDDxDrawer("ddx")}
               >
                 <span>View Detailed Analysis</span>
               </Button>
@@ -196,9 +198,15 @@ const DifferentialDiagnosis = ({
           </>
         ) : (
           <>
-            <div>
+            <div
+              className={`${
+                isDDxGenerated && ddxOptionsList?.length === 0
+                  ? "text-danger-custom"
+                  : ""
+              }`}
+            >
               {isDDxGenerated && ddxOptionsList?.length === 0
-                ? `We couldn't generate any diagnosis due to incomplete or inaccurate information provided. Please review and update the details, then try again.`
+                ? `No results found! We couldn't generate any diagnosis due to incomplete or inaccurate information provided. Please review and update the details, then try again.`
                 : `Enter key symptoms to get possible diagnoses and recommended tests.
             Adding additional details like medical history${
               isGynaecHistoryAccessable
@@ -234,7 +242,7 @@ const DifferentialDiagnosis = ({
                     type="primary"
                     className="btn btn-primary3 btn-41 px-4 me-20 w-100 d-flex align-items-center justify-content-center"
                     style={{ gap: 10 }}
-                    onClick={getGenerateDDx}
+                    onClick={() => getGenerateDDx("ddx")}
                     disabled={!isDDxReadyToGenerate}
                   >
                     <img src={ddxIcon} alt="ddx-icon" />

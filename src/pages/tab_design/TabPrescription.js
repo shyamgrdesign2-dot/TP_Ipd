@@ -87,6 +87,7 @@ import DDxKnowMore from "../../components/DDxKnowMore";
 import { getDDxDetails } from "../../api/services/ApiDDx";
 import { getDecodedToken } from "../../utils/localStorage";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { getClinicName } from "../../utils/utils";
 
 function TabPrescription() {
   const {
@@ -678,8 +679,17 @@ function TabPrescription() {
     setViewlabparamsDrawer((prev) => !prev);
   };
 
-  const handleDDxDrawer = () => {
+  const handleDDxDrawer = (field) => {
     setDDxDrawer((prev) => !prev);
+    if (!ddxDrawer) {
+      window.Moengage.track_event("TP_CDSS_Ddx_reviewed", {
+        clinic_name: getClinicName(profile?.hospital_data),
+        doctor_id: profile?.doctor_unique_id,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+        field: field,
+      });
+    }
   };
 
   const handleDDxKnowMore = () => {
@@ -699,9 +709,16 @@ function TabPrescription() {
     setIsFileTypeError(null);
   };
 
-  const getGenerateDDx = async () => {
+  const getGenerateDDx = async (field) => {
     setIsDDxLoading(true);
     setIsDDxGenerated(true);
+    window.Moengage.track_event("TP_CDSS_Ack_GenDx", {
+      clinic_name: getClinicName(profile?.hospital_data),
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+      field: field,
+    });
     const payload = {
       patientId: patient_data?.patient_unique_id,
       symptoms: symptomsData?.map((symptom) => {
@@ -713,7 +730,7 @@ function TabPrescription() {
             notes: symptom.note,
           };
         }
-      }) 
+      }),
     };
     const generatedDDxResponse = await getDDxDetails(payload);
     if (generatedDDxResponse?.results) {
@@ -722,12 +739,23 @@ function TabPrescription() {
     }
     dispatch(setIsDDxReadyToGenerate(false));
     setIsDDxLoading(false);
-  }
+  };
 
-  const handleApexAI = () => {
+  const handleApexAIClose = () => {
     dispatch(setIsApexAISelected(false));
     setCollapsedFlag(null);
     setCollapsed(false);
+  }
+
+  const handleApexAI = () => {
+    dispatch(setIsApexAISelected(true));
+    openCollapsed(9);
+    window.Moengage.track_event("TP_Apex_AI_Ack", {
+      clinic_name: getClinicName(profile?.hospital_data),
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+    });
   }
 
   return (
@@ -754,7 +782,7 @@ function TabPrescription() {
                   <button
                     type="button"
                     className="mb-3 text-center btn btn-action"
-                    onClick={handleApexAI}
+                    onClick={handleApexAIClose}
                     style={{ padding: "6px 10px" }}
                   >
                     <div
@@ -788,10 +816,7 @@ function TabPrescription() {
                     <button
                       type="button"
                       className="mb-3 text-center btn btn-action"
-                      onClick={() => {
-                        dispatch(setIsApexAISelected(true));
-                        openCollapsed(9);
-                      }}
+                      onClick={handleApexAI}
                       style={{ padding: "6px 10px" }}
                     >
                       <div
@@ -1156,6 +1181,7 @@ function TabPrescription() {
                     isDDxLoading={isDDxLoading}
                     handleDDxKnowMore={handleDDxKnowMore}
                     getGenerateDDx={getGenerateDDx}
+                    isDDxGenerated={isDDxGenerated}
                   />
                 )
               )}

@@ -4,7 +4,7 @@ import { Button, Card, Row, Col, Segmented, Input, Tour } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { onlyNumberFormat, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
+import { onlyNumberFormat, hasNumber, capitalizeAfterSentence, getClinicName } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { searchDiagnosis } from "../../redux/diagnosisSlice";
@@ -16,6 +16,7 @@ import tagNew from '../../../src/assets/images/tag-new.svg'
 import apexAI from "../../../src/assets/images/apexAI.svg";
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { WarningColor, WarningRank } from "../DifferentialDiagnosisDrawer";
+import { useLocation } from "react-router-dom";
 
 function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
 
@@ -25,6 +26,9 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
     } = useSelector((state) => state.diagnosis);
     const { dragDrop } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
+    const { profile } = useSelector((state) => state.doctors);
+    const { state } = useLocation();
+    const { patient_data } = state;
 
     const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
 
@@ -506,7 +510,19 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
                                                         height: 50,
                                                         gap: 8
                                                     }}
-                                                    onClick={() => onSelectParent({ ...item })}
+                                                    onClick={() => {
+                                                        onSelectParent({ ...item });
+                                                        window.Moengage.track_event(
+                                                        "TP_CDSS_Ddx_selected",
+                                                        {
+                                                            clinic_name: getClinicName(profile?.hospital_data),
+                                                            doctor_id: profile?.doctor_unique_id,
+                                                            patient_number: patient_data?.pm_contact_no,
+                                                            patient_id: patient_data?.patient_unique_id,
+                                                            field: "ddx"
+                                                        }
+                                                    );
+                                                    }}
                                                 >
                                                     <span className="ddx-btn">{item?.tds_name}</span>
                                                     <div className="d-flex" style={{ columnGap: 2 }}>

@@ -673,13 +673,29 @@ const handleDDxKnowMore = () => {
   setDDxKnowMoreDrawer((prev) => !prev);
 };
 
-const handleDDxDrawer = () => {
+const handleDDxDrawer = (field) => {
   setDDxDrawer((prev) => !prev);
+  if (!ddxDrawer) {
+    window.Moengage.track_event("TP_CDSS_Ddx_reviewed", {
+      clinic_name: getClinicName(profile?.hospital_data),
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+      field: field,
+    });
+  }
 };
 
-const getGenerateDDx = async () => {
+const getGenerateDDx = async (field) => {
   setIsDDxLoading(true);
   setIsDDxGenerated(true);
+  window.Moengage.track_event("TP_CDSS_Ack_GenDx", {
+    clinic_name: getClinicName(profile?.hospital_data),
+    doctor_id: profile?.doctor_unique_id,
+    patient_number: patient_data?.pm_contact_no,
+    patient_id: patient_data?.patient_unique_id,
+    field: field,
+  });
   const payload = {
     patientId: patient_data?.patient_unique_id,
     symptoms: symptomsData?.map((symptom) => {
@@ -961,7 +977,17 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                 <Tabs
                   className="obstetricTab"
                   activeKey={activeTab}
-                  onChange={(key) => setActiveTab(key)}
+                  onChange={(key) => {
+                    setActiveTab(key);
+                    if (key === "apexAI") {
+                      window.Moengage.track_event("TP_Apex_AI_Ack", {
+                        clinic_name: getClinicName(profile?.hospital_data),
+                        doctor_id: profile?.doctor_unique_id,
+                        patient_number: patient_data?.pm_contact_no,
+                        patient_id: patient_data?.patient_unique_id,
+                      });
+                    }
+                  }}
                   centered
                 >
                   <TabPane tab="Basic Info" key="basicInfo">
@@ -999,6 +1025,7 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                         handleDDxKnowMore={handleDDxKnowMore}
                         getGenerateDDx={getGenerateDDx}
                         handleDrawerVital={handleDrawerVital}
+                        isDDxGenerated={isDDxGenerated}
                       />
                     </div>
                   </TabPane>
