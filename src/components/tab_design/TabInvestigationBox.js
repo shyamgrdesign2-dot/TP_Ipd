@@ -50,7 +50,7 @@ function TabInvestigationBox({handleDDxDrawer, generatedDDx}) {
         );
 
     useEffect(() => {
-      if (diagnosisData?.length > 0) {
+      if (diagnosisData?.length > 0 && generatedDDx?.length > 0) {
         let associatedLabTestsData = [];
         if (isLabTestBox) {
             associatedLabTestsData = generatedDDx?.find(
@@ -63,7 +63,7 @@ function TabInvestigationBox({handleDDxDrawer, generatedDDx}) {
                   (item) => item?._id === diagnosis?.unique_id
                 )?.labTests;
               }
-            });
+            })?.filter((item) => item);
         }
         
         const uniqueLabTests = [...new Set(associatedLabTestsData?.flat())];
