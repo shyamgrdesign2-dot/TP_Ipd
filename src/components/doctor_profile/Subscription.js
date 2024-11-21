@@ -7,7 +7,6 @@ import billingsIcon from "../../assets/images/billings.svg";
 import { Col, Row } from "react-bootstrap";
 import moment from "moment";
 import BillingHistory from "./BillingHistory";
-import { useNavigate } from "react-router-dom";
 import { openModal } from "../../redux/doctorModalSlice";
 import { Divider } from "antd";
 
