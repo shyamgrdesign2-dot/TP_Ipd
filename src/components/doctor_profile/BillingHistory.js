@@ -61,10 +61,9 @@ const columns = [
     dataIndex: "invoiceReceipt",
     render: (text) =>
       text ? (
-        <DownloadOutlined
-          className="custom-icon"
-          onClick={() => fileDownload(text, "Invoice.pdf")}
-        />
+        <a href={text} download rel="noopener noreferrer">
+          <DownloadOutlined className="custom-icon" />
+        </a>
       ) : (
         ""
       ),
@@ -127,6 +126,7 @@ const BillingHistory = ({ show, setShow }) => {
       open={show}
       footer={null}
       onCancel={() => setShow(false)}
+      centered
       title={
         <>
           <img
