@@ -48,7 +48,7 @@ function SmartPrescription() {
 
   const { state } = useLocation();
   const { patient_data, caseManagerData, smartRxFilesData } = state;
-  
+
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -57,6 +57,7 @@ function SmartPrescription() {
 
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
+  const [surgeriesData, setSurgeriesData] = useState([]);
   const [diagnosisData, setDiagnosisData] = useState([]);
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
@@ -105,6 +106,8 @@ function SmartPrescription() {
     setSymptomsData,
     examinationData,
     setExaminationData,
+    surgeriesData,
+    setSurgeriesData,
     diagnosisData,
     setDiagnosisData,
     adviceData,
@@ -174,6 +177,14 @@ function SmartPrescription() {
         ) !== -1
       ) {
         setExaminationData(caseManagerData.examination);
+      }
+      if (
+        caseManagerData.surgeries.length > 0 &&
+        customizedPadRightList.findIndex(
+          (e) => e.tmdpm_id === 21 && e.tmdpm_status === 0
+        ) !== -1
+      ) {
+        setSurgeriesData(caseManagerData.surgeries);
       }
       if (
         caseManagerData.diagnosis.length > 0 &&
@@ -323,7 +334,7 @@ function SmartPrescription() {
         };
       });
       setVitalsData(updatedData);
-    } 
+    }
   }, [selectedVitalsList]);
 
   useEffect(() => {
@@ -350,7 +361,7 @@ function SmartPrescription() {
   }, []);
 
   const toggleDeletePopup = () => {
-      setShowDeletePopup((prev) => !prev);
+    setShowDeletePopup((prev) => !prev);
   };
 
   const getCanvas = (id, index) => (
@@ -380,18 +391,18 @@ function SmartPrescription() {
   }, [selectedPage, refreshTrigger]);
 
   const wsError = (error) => {
-      message.open({
-        key: MESSAGE_KEY,
+    message.open({
+      key: MESSAGE_KEY,
         type: 'error',
         className: 'error-red',
-        content: (
+      content: (
             <div className='d-flex align-items-center'>
-                <div>
+          <div>
                     <div className='title-common text-start fontroboto'>{error}</div>
-                </div>
-            </div>
-        ),
-        duration: 3,
+          </div>
+        </div>
+      ),
+      duration: 3,
     });
   }
 
@@ -404,7 +415,7 @@ function SmartPrescription() {
     // WebSocket initialization (reconnectingwebsocket -> this package handles the reconnection)
     try {
       socketRef.current = new ReconnectingWebSocket(WEBSOCKET_ADDRESS, null, {debug: true, reconnectInterval: 3000});
-      
+
       socketRef.current.onopen = () => {
         console.log("WebSocket connection opened");
         setConnected(true);
@@ -415,7 +426,7 @@ function SmartPrescription() {
         console.log("WebSocket connection closed");
         setConnected(false);
       };
-      
+
       socketRef.current.onmessage = (event) => {
         const o = event.data.split("|");
         drawRef.current(o[0], o[1], o[2], o[3], selectedPageRef.current);
@@ -477,7 +488,7 @@ function SmartPrescription() {
     if(smartRxFiles?.length >= selectedPage+1){
       setDrawFunction(true)
     }
-    
+
     const canvas = canvasRefs.current[pages[updatedIndex]];
     if (canvas) {
       const ctx = canvas.getContext("2d");
@@ -511,9 +522,9 @@ function SmartPrescription() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     const scaleFactor = 1.5;
 
-     // Set consistent styles
+    // Set consistent styles
     ctx.strokeStyle = '#000'; // Example color for regular drawing
-    
+
     ctx.moveTo(t * scaleFactor, n * scaleFactor);
     ctx.lineTo(a * scaleFactor, c * scaleFactor);
     ctx.lineJoin = ctx.lineCap = "round";
@@ -672,47 +683,47 @@ function SmartPrescription() {
     }, interval);
   };
 
-// Load images for the edit flow
-const imageLoad = () => {
-  const loadedImages = {};
-  const totalImages = smartRxFilesData.length;
-  let loadedCount = 0;
+  // Load images for the edit flow
+  const imageLoad = () => {
+    const loadedImages = {};
+    const totalImages = smartRxFilesData.length;
+    let loadedCount = 0;
 
-  const newPageIds = smartRxFilesData.map(() => uuidv4());
-  setPages(newPageIds);
-  setDataPresentInCanvas(Array(smartRxFilesData.length).fill(true));
-  smartRxFilesData.forEach((imageObj, index) => {
-    const { smart_prescription_file: imageUrl } = imageObj;
-    const img = new Image();
-    img.src = imageUrl;
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      loadedImages[newPageIds[index]] = img;
+    const newPageIds = smartRxFilesData.map(() => uuidv4());
+    setPages(newPageIds);
+    setDataPresentInCanvas(Array(smartRxFilesData.length).fill(true));
+    smartRxFilesData.forEach((imageObj, index) => {
+      const { smart_prescription_file: imageUrl } = imageObj;
+      const img = new Image();
+      img.src = imageUrl;
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        loadedImages[newPageIds[index]] = img;
       setImageRefs((prevState) => ({ ...prevState, [newPageIds[index]]: img }));
-      setImageLoaded((prevState) => ({
-        ...prevState,
-        [newPageIds[index]]: true,
-      }));
-      loadedCount++;
+        setImageLoaded((prevState) => ({
+          ...prevState,
+          [newPageIds[index]]: true,
+        }));
+        loadedCount++;
 
-      // Hide loader when all images are loaded
-      if (loadedCount === totalImages) {
-        setLoading(false);
-      }
-    };
-  });
-};
+        // Hide loader when all images are loaded
+        if (loadedCount === totalImages) {
+          setLoading(false);
+        }
+      };
+    });
+  };
 
-useEffect(() => {
-  // Draw images on canvases when images are getting loaded
-  pages.forEach((pageId) => {
-    if (imageLoaded[pageId] && canvasRefs.current[pageId]) {
+  useEffect(() => {
+    // Draw images on canvases when images are getting loaded
+    pages.forEach((pageId) => {
+      if (imageLoaded[pageId] && canvasRefs.current[pageId]) {
       const ctx = canvasRefs.current[pageId].getContext('2d');
-      ctx.drawImage(imageRefs[pageId], 0, 0);
-      ctxGlobalRefs.current[pageId] = ctx;
-    }
-  });
-}, [imageLoaded]);
+        ctx.drawImage(imageRefs[pageId], 0, 0);
+        ctxGlobalRefs.current[pageId] = ctx;
+      }
+    });
+  }, [imageLoaded]);
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -786,7 +797,7 @@ useEffect(() => {
               style={{
                 width: "61%",
                 height: "100%",
-                marginLeft: "10px", 
+                marginLeft: "10px",
               }}
             >
               <div>

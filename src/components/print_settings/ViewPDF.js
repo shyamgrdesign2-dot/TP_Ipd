@@ -4028,7 +4028,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         ))
                                     }
                                 </>
-                            ) : option?.id === 15 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                            ) : option?.id === 15 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     {labParamsPatchData &&
                                         labParamsPatchData.length &&
@@ -4376,7 +4376,60 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         ))
                                     }
                                 </>
-                            )
+                            ) : option?.id === 16 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                                <>
+                                    {caseManagerData.surgeries.length > 0 && (
+                                        option?.format === 'inline' ? (
+                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Surgeries/Procedures:&nbsp;</Text>
+                                                {caseManagerData.surgeries.map((item, i) => {
+                                                    return (
+                                                        <Text key={i}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.name}&nbsp;</Text>
+                                                            {(item.notes) ?
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ notes }) => ({ notes }))(caseManagerData.surgeries[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.surgeries.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                :
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.surgeries.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                            }
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </Text>
+                                        ) : option?.format === 'listview' ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Surgeries/Procedures:&nbsp;</Text>
+                                                {caseManagerData.surgeries.map((item, i) => {
+                                                    return (
+                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.name}&nbsp;</Text>
+                                                            {(item.notes) &&
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ notes }) => ({ notes }))(caseManagerData.surgeries[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                            }
+                                                        </Text>
+                                                    )
+                                                })}
+                                            </View>
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Surgeries/Procedures:&nbsp;</Text>
+                                                <View style={styles.table}>
+                                                    <View style={styles.row}>
+                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                        <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                    </View>
+                                                    {caseManagerData.surgeries.map((item, i) => (
+                                                        <View style={styles.row} key={i}>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}</Text>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes ? item.notes : '-'}</Text>
+                                                        </View>
+                                                    ))}
+                                                </View>
+                                            </View>
+                                        )
+                                    )}
+                                </>
+                            ) 
                         )
                     })}
 
