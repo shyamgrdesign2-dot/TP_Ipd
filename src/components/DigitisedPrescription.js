@@ -173,27 +173,27 @@ const DigitisedPrescription = ({ data, setData}) => {
                 <div className='medicine-item'>
                   {
                     activeIndex === index && activeType === type ? (
-                    <input
-                      type="text"
-                      value={editableText}
-                      className="editable-digitised-item"
-                      onChange={handleInputChange}
-                      ref={inputRef}
-                      autoFocus
-                      style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
-                    />
-                  ) : (
-                    <span
-                      onClick={() => handleItemClick(type, index)}
-                      className="digitised-item"
-                    >
-                        {type === "advice" ? item : type === "symptoms" ? item.name[0].toUpperCase() + item.name.slice(1) : item.refinedName}
-                    </span>
+                      <input
+                        type="text"
+                        value={editableText}
+                        className="editable-digitised-item"
+                        onChange={handleInputChange}
+                        ref={inputRef}
+                        autoFocus
+                        style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
+                      />
+                    ) : (
+                      <span
+                        onClick={() => handleItemClick(type, index)}
+                        className="digitised-item"
+                      >
+                        {type === "advice" ? item : type === "symptoms" && item?.name?.length > 0 ? item.name[0]?.toUpperCase() + item.name?.slice(1) : item?.refinedName}
+                      </span>
                     )
                   }
 
                   {/* Editable input for lineItem */}
-                  {(type === "medications"|| type === "symptoms") && item.lineItem && (
+                  {(type === "medications"|| type === "symptoms") && item?.lineItem && (
                     activeIndex === index && activeType === `${type}-lineItem` ? (
                       <input
                         type="text"

@@ -181,7 +181,7 @@ const prod = {
   api_key: "TC_12o89l11327dfrt55",
   opd_encryption_url:"https://api.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.com",
-};
+};  
 
 const getEnv = () => {
   switch (process.env.REACT_APP_ENV) {

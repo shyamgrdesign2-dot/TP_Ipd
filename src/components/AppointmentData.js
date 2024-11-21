@@ -267,7 +267,7 @@ function AppointmentData({ locationPath }) {
             label: (
             <div className="d-flex align-items-center">
                 <i className="icon-Queue"></i>
-                Queue ({queueCount})
+                Queue ({isDigitisationTab? 0 : queueCount})
             </div>
             ),
         },
@@ -276,7 +276,7 @@ function AppointmentData({ locationPath }) {
             label: (
             <div className="d-flex align-items-center">
                 <i className="icon-Finished"></i>
-                Finished ({finishedCount})
+                Finished ({isDigitisationTab? 0 : finishedCount})
             </div>
             ),
         },
@@ -285,7 +285,7 @@ function AppointmentData({ locationPath }) {
             label: (
             <div className="d-flex align-items-center">
                 <i className="icon-Cancelled"></i>
-                Cancelled ({cancelledCount})
+                Cancelled ({isDigitisationTab? 0 : cancelledCount})
             </div>
             ),
         },
@@ -419,18 +419,22 @@ function AppointmentData({ locationPath }) {
         (key) => {
             setPageNo(0)
             setVisitTypeFilters('')
-            setDate({
-                startDate: moment().format(dateFormat),
-                endDate: moment().format(dateFormat),
-            })
             setSelectedCalanderOptions(1)
             setSelectedTab(key);
 
             if (key === 2){
                 setIsDigitisationTab(true)
+                setDate({
+                    startDate: moment(0).format(dateFormat),
+                    endDate: moment().format(dateFormat),
+                })
             }
             else{
-                setIsDigitisationTab(false)
+                setIsDigitisationTab(false);
+                setDate({
+                    startDate: moment().format(dateFormat),
+                    endDate: moment().format(dateFormat),
+                })
             }
         },
         [selectedTab]
@@ -1254,7 +1258,7 @@ function AppointmentData({ locationPath }) {
                                         onClick={backDatePress}>
                                         <i className="icon-right d-block text-main"></i>
                                     </Button>
-                                    <Button variant="outline-light" className="p-0 antround-0">
+                                    <Button variant="outline-light" className="p-0 antround-0" disabled={isDigitisationTab}>
                                         <DatePicker
                                             inputReadOnly
                                             format={showDateFormat}
@@ -1282,8 +1286,14 @@ function AppointmentData({ locationPath }) {
                                 <Select
                                     placeholder="Select Period"
                                     className="ms-3 appointmentselect"
-                                    value={selectedCalanderOptions}
-                                    options={selectedTab === TAB_QUEUE ? calanderOptions.filter(e => [1, 2, 3, 6].includes(e.value)) : calanderOptions.filter(e => [1, 4, 5, 6].includes(e.value))}
+                                    value={isDigitisationTab ? 6 : selectedCalanderOptions}
+                                    options={
+                                        selectedTab === TAB_QUEUE
+                                            ? calanderOptions.filter(e => [1, 2, 3].includes(e.value))
+                                            : isDigitisationTab
+                                            ? calanderOptions.filter(e => e.value === 6)
+                                            : calanderOptions.filter(e => [1, 4, 5].includes(e.value))
+                                    }
                                     onChange={handleDateChange}
                                 />
                                 {/* <Segmented
