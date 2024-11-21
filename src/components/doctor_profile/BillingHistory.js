@@ -63,9 +63,7 @@ const columns = [
       text ? (
         <DownloadOutlined
           className="custom-icon"
-          onClick={() =>
-            fileDownload("https://www.orimi.com/pdf-test.pdf", "Invoice.pdf")
-          }
+          onClick={() => fileDownload(text, "Invoice.pdf")}
         />
       ) : (
         ""
@@ -125,7 +123,7 @@ const SubscriptionTable = () => {
 const BillingHistory = ({ show, setShow }) => {
   return (
     <Modal
-      width={"50%"}
+      width={"auto"}
       open={show}
       footer={null}
       onCancel={() => setShow(false)}

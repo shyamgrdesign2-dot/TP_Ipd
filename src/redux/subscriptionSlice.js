@@ -29,8 +29,11 @@ export const fetchSubscriptionDetails = createAsyncThunk(
       const {
         planStatus: { code: intialPlanStatus = "" },
         productType,
-      } = response?.body?.plans?.content?.[0];
+      } = response?.body?.plans?.content?.find(
+        (plan) => plan?.productType === "Software"
+      );
       const {
+        plan_active_date,
         plan_expiry_date,
         planStatus: { code: currentPlanStatus = "" },
         expiry_reminder_days,
@@ -39,6 +42,8 @@ export const fetchSubscriptionDetails = createAsyncThunk(
       } = response?.body?.profile;
 
       return {
+        plan_active_date,
+        plan_expiry_date,
         intialPlanStatus,
         currentPlanStatus,
         productType,
