@@ -10,7 +10,7 @@ import { Button, Card, Row, Col, Input } from "antd";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { capitalizeAfterSentence } from "../../utils/utils";
+import { capitalizeAfterSentence, getClinicName } from "../../utils/utils";
 
 import CashManagerContext from "../../context/CashManagerContext";
 import { searchExamination } from "../../redux/surgicalSlice";
@@ -22,6 +22,7 @@ import tagNew from "../../../src/assets/images/tag-new.svg";
 import TabSearchHeader from "./TabSearchHeader";
 
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
+import { useLocation } from "react-router-dom";
 
 function TabSurgicalSearch({ passIndex, onClose }) {
   const { parentOptionsList, childOptionsList } = useSelector(
@@ -29,6 +30,11 @@ function TabSurgicalSearch({ passIndex, onClose }) {
   );
   const { dragDrop } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
+  const { profile } = useSelector((state) => state.doctors);
+
+  const { state } = useLocation();
+  const { patient_data } = state;
+
 
   const { surgeriesData, setSurgeriesData,  } =
     useContext(CashManagerContext);
@@ -84,11 +90,17 @@ function TabSurgicalSearch({ passIndex, onClose }) {
     (e) => {
       surgeriesData.push({
         ...e,
-        note: "",
+        notes: "",
       });
       setSurgeriesData((prev) => [...prev]);
       setSelectedIndex(surgeriesData.length - 1);
       setSearchChildQuery("");
+      window.Moengage.track_event("TP_Surgery_added", {
+        clinic_name: getClinicName(profile?.hospital_data),
+        doctor_id: profile?.doctor_unique_id,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+      });
     },
     [surgeriesData, selectedIndex]
   );
@@ -165,8 +177,8 @@ function TabSurgicalSearch({ passIndex, onClose }) {
       >
         <div className="text-truncate">
           {item.name}
-          {item.note ? (
-            <div className="text-truncate small">{item.note}</div>
+          {item.notes ? (
+            <div className="text-truncate small">{item.notes}</div>
           ) : (
             <div className="text-truncate small">Add Details</div>
           )}
@@ -216,7 +228,7 @@ function TabSurgicalSearch({ passIndex, onClose }) {
 
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      surgeriesData[selectedIndex].note = capitalizeAfterSentence(
+      surgeriesData[selectedIndex].notes = capitalizeAfterSentence(
         e.target.value
       );
       setSurgeriesData((prev) => [...prev]);
@@ -241,7 +253,7 @@ function TabSurgicalSearch({ passIndex, onClose }) {
               <label className="title-common">Add Details</label>
               <Input.TextArea
                 value={
-                  selectedIndex != null && surgeriesData[selectedIndex].note
+                  selectedIndex != null && surgeriesData[selectedIndex].notes
                 }
                 placeholder="Enter any specific details here"
                 className="textareaPlaceholder"

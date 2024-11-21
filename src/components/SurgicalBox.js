@@ -27,6 +27,7 @@ import {
   errorMessage,
   removeBeforeWhiteSpace,
   capitalizeAfterSentence,
+  getClinicName,
 } from "../utils/utils";
 import surgeryIcon from "../assets/images/surgery.svg";
 import { MenuOutlined } from "@ant-design/icons";
@@ -39,6 +40,7 @@ import {
 } from "../redux/surgicalSlice";
 
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { useLocation } from "react-router-dom";
 
 function SurgicalBox() {
   const {
@@ -49,6 +51,10 @@ function SurgicalBox() {
     loading,
   } = useSelector((state) => state.surgical);
   const dispatch = useDispatch();
+  const { profile } = useSelector((state) => state.doctors);
+
+  const { state } = useLocation();
+  const { patient_data } = state;
 
   const { surgeriesData, setSurgeriesData } = useContext(CashManagerContext);
 
@@ -106,6 +112,8 @@ function SurgicalBox() {
       return () => {
         clearTimeout(timeOutId);
       };
+    } else if (searchParentQuery === "") {
+      dispatch(searchExamination({ searchQuery: "", type: "parent" }));
     }
   }, [searchParentQuery]);
 
@@ -156,6 +164,12 @@ function SurgicalBox() {
       });
       setSurgeriesData((prev) => [...prev]);
       setSearchParentQuery("");
+      window.Moengage.track_event("TP_Surgery_added", {
+        clinic_name: getClinicName(profile?.hospital_data),
+        doctor_id: profile?.doctor_unique_id,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+      });
     },
     [searchParentQuery, surgeriesData]
   );
@@ -238,7 +252,7 @@ function SurgicalBox() {
       setSearchChildQuery({
         query: JSON.parse(e.key).name,
         index: i,
-      });
+      })
     },
     [searchChildQuery, surgeriesData]
   );
@@ -316,9 +330,9 @@ function SurgicalBox() {
 
   const onAddTemplateClicked = async () => {
     if (surgeriesData.length === 0) {
-      errorMessage("At least 1 surgery added");
+      errorMessage("At least 1 surgeries/procedures added");
     } else if (surgeriesData.filter((e) => e.name == "").length > 0) {
-      errorMessage("Please fillup surgery name");
+      errorMessage("Please fillup surgeries/procedures name");
     } else {
       var sendData = {
         name: inputTemplateName,
@@ -345,9 +359,9 @@ function SurgicalBox() {
 
   const onUpdateTemplateClicked = async () => {
     if (surgeriesData.length === 0) {
-      errorMessage("At least 1 surgery added");
+      errorMessage("At least 1 surgeries/procedures added");
     } else if (surgeriesData.filter((e) => e.name == "").length > 0) {
-      errorMessage("Please fillup surgery name");
+      errorMessage("Please fillup surgeries/procedures name");
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
@@ -472,7 +486,7 @@ function SurgicalBox() {
                             <AutoComplete
                               defaultValue={item.name}
                               value={item.name}
-                              placeholder="Surgery Name"
+                              placeholder="Surgeries/Procedures Name"
                               bordered={false}
                               defaultOpen={false}
                               onSearch={(query) => onSearchChild(query, index)}
@@ -718,7 +732,7 @@ function SurgicalBox() {
               <div className="d-flex align-items-center">
                 <img className="me-3" src={alertIcon} alt="Warning" />
                 <span>
-                  Are you sure you want to Clear Selected <b>Surgery</b>?
+                  Are you sure you want to Clear Selected <b>Surgeries/Procedures</b>?
                 </span>
               </div>
             </div>
@@ -771,7 +785,7 @@ function SurgicalBox() {
               title={
                 surgeriesData.length > 0
                   ? ""
-                  : "Please enter some Surgery to save a template"
+                  : "Please enter some Surgeries/Procedures to save a template"
               }
             >
               <Popover
@@ -814,10 +828,9 @@ function SurgicalBox() {
             className="autocomplete-custom w-100"
             onSelect={onSelectParent}
             defaultActiveFirstOption={true}
-            popupClassName={!searchParentQuery && "boxpopup"}
           >
             <Input
-              placeholder="Search Surgery"
+              placeholder="Search Surgeries/Procedures"
               prefix={<i className="icon-search"></i>}
             />
           </AutoComplete>
