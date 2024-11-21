@@ -705,6 +705,28 @@ function Cardiology(props) {
                             </div>
                           </div>
                         )}
+                        {viewCaseManagerData.surgeries.length > 0 && (
+                          <div className="d-flex align-items-start mb-4">
+                            <img
+                              className="me-2"
+                              src={Examinationsicon}
+                              alt="surgeries"
+                            />
+                            <div>
+                              <div className="title">Surgeries/Procedures</div>
+                              {viewCaseManagerData.surgeries.map((item, i) => {
+                                return (
+                                  <span key={i}>
+                                    <span>{item.name}</span> :{" "}
+                                    <label>{item.notes}</label>
+                                    {viewCaseManagerData.surgeries.length - 1 !=
+                                      i && " | "}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                         {viewCaseManagerData.diagnosis.length > 0 && (
                           <div className="d-flex align-items-start mb-4">
                             <img
