@@ -88,6 +88,7 @@ import { getDDxDetails } from "../../api/services/ApiDDx";
 import { getDecodedToken } from "../../utils/localStorage";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { getClinicName } from "../../utils/utils";
+import TabSurgicalBox from "../../components/tab_design/TabSurgicalBox";
 
 function TabPrescription() {
   const {
@@ -98,6 +99,7 @@ function TabPrescription() {
     userId,
   } = useSelector((state) => state.doctors);
   const isApexAIAccessable = useFeatureIsOn("cdss");
+  const isSurgeriesAccessable = useFeatureIsOn("surgeries");
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -126,6 +128,7 @@ function TabPrescription() {
 
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
+  const [surgeriesData, setSurgeriesData] = useState([]);
   const [diagnosisData, setDiagnosisData] = useState([]);
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
@@ -158,6 +161,8 @@ function TabPrescription() {
     setSymptomsData,
     examinationData,
     setExaminationData,
+    surgeriesData,
+    setSurgeriesData,
     diagnosisData,
     setDiagnosisData,
     adviceData,
@@ -300,6 +305,14 @@ function TabPrescription() {
         setExaminationData(caseManagerData.examination);
       }
       if (
+        caseManagerData?.surgeries?.length > 0 &&
+        customizedPadRightList.findIndex(
+          (e) => e.tmdpm_id === 21 && e.tmdpm_status === 0
+        ) !== -1
+      ) {
+        setSurgeriesData(caseManagerData.surgeries);
+      }
+      if (
         caseManagerData.diagnosis.length > 0 &&
         customizedPadRightList.findIndex(
           (e) => e.tmdpm_id === 11 && e.tmdpm_status === 0
@@ -426,7 +439,7 @@ function TabPrescription() {
       const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
         const cleanedToken = token.replace(/['"]+/g, '');
         const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${patient_data?.patient_unique_id}`, {
-            headers: {
+          headers: {
                 'Authorization': `Bearer ${cleanedToken}`,
           },
         });
@@ -1208,6 +1221,10 @@ function TabPrescription() {
                   ) : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       <TabExaminationBox />
+                    </div>
+                  ) : e.tmdpm_id === 21 && e.tmdpm_status === 0 && isSurgeriesAccessable ? (
+                    <div key={i} className="prescription-box-sm">
+                      <TabSurgicalBox />
                     </div>
                   ) : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">

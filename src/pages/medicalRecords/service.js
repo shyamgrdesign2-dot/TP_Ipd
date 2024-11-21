@@ -1,7 +1,7 @@
 import api from "../../api/services/axiosService";
 import config from "../../config";
 
-const baseUrl = { customBaseUrl: config.upload_doc_api_url };
+const baseUrl = { customBaseUrl: config.lab_params_api_url };
 
 export const fetchAllDocumentCategories = async function () {
   let res = [];

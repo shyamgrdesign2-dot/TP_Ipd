@@ -82,6 +82,7 @@ import { setIsDDxReadyToGenerate } from "../redux/ddxSlice";
 import { getDDxDetails } from "../api/services/ApiDDx";
 import { getDecodedToken } from "../utils/localStorage";
 import DDxList from "../components/medical_certificate/DDxList";
+import SurgicalBox from "../components/SurgicalBox";
 
 function Prescription() {
   const {
@@ -117,6 +118,7 @@ function Prescription() {
 
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
+  const [surgeriesData, setSurgeriesData] = useState([]);
   const [diagnosisData, setDiagnosisData] = useState([]);
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
@@ -140,6 +142,8 @@ function Prescription() {
     setSymptomsData,
     examinationData,
     setExaminationData,
+    surgeriesData,
+    setSurgeriesData,
     diagnosisData,
     setDiagnosisData,
     adviceData,
@@ -185,6 +189,7 @@ function Prescription() {
   const [likeDislike, setLikeDislike] = useState([]);
   const [isDDxGenerated, setIsDDxGenerated] = useState(false);
   const isApexAIAccessable = useFeatureIsOn("cdss");
+  const isSurgeriesAccessable = useFeatureIsOn("surgeries");
   const {
     isVaccinationAccessable,
     isGrowthChartAccessable,
@@ -307,6 +312,14 @@ function Prescription() {
         ) !== -1
       ) {
         setExaminationData(caseManagerData.examination);
+      }
+      if (
+        caseManagerData.surgeries.length > 0 &&
+        customizedPadRightList.findIndex(
+          (e) => e.tmdpm_id === 21 && e.tmdpm_status === 0
+        ) !== -1
+      ) {
+        setSurgeriesData(caseManagerData.surgeries);
       }
       if (
         caseManagerData.diagnosis.length > 0 &&
@@ -715,7 +728,7 @@ const getGenerateDDx = async (field) => {
   }
   dispatch(setIsDDxReadyToGenerate(false));
   setIsDDxLoading(false);
-};
+}
 
 const CUSTOMIZED_PAD_LEFT_LIST = () => {
   return customizedPadLeftList?.map((e, i) => {
@@ -1032,7 +1045,7 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                         />
                         Apex AI
                         {isDDxReadyToGenerate && generatedDDx?.results?.length > 0 && (
-                          <img
+                            <img
                               src={blinkingDot}
                               alt="blinking-dot"
                               width={20}
@@ -1082,9 +1095,13 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                       <SymptomsBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
                     </div>
                   ) : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? (
-                      <div key={i} className="prescription-box-sm">
-                        <ExaminationBox />
-                      </div>
+                    <div key={i} className="prescription-box-sm">
+                      <ExaminationBox />
+                    </div>
+                  ) : e.tmdpm_id === 21 && e.tmdpm_status === 0 && isSurgeriesAccessable ? (
+                    <div key={i} className="prescription-box-sm">
+                      <SurgicalBox />
+                    </div>
                   ) : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       <DiagnosisBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} handleDDxKnowMore={handleDDxKnowMore} isDDxGenerated={isDDxGenerated} />

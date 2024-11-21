@@ -64,6 +64,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
     consultationDate,
     symptomsData,
     examinationData,
+    surgeriesData,
     diagnosisData,
     adviceData,
     investigationData,
@@ -120,6 +121,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
     if (
       symptomsData.length > 0 ||
       examinationData.length > 0 ||
+      surgeriesData.length > 0 ||
       diagnosisData.length > 0 ||
       medicationData.length > 0 ||
       adviceData.length > 0 ||
@@ -346,6 +348,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
       consultation_date: consultationDate,
       symptoms: symptomsData,
       examination: examinationData,
+      surgeries: surgeriesData,
       diagnosis: diagnosisData,
       medicine: medicationData.map(({ medicineUnit, ...rest }) => rest),
       advice: adviceData,

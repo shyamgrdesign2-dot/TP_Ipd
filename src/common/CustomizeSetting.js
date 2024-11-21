@@ -18,6 +18,7 @@ import playIcons from '../assets/images/tube-icon.svg';
 import fullicon from '../assets/images/full-icon.svg';
 import VideoModal from './VideoModal';
 import { useAccess } from '../pages/vaccination/useAccess';
+import { useFeatureIsOn } from '@growthbook/growthbook-react';
 
 const CustomRow = ({ children, ...props }) => {
   const {
@@ -75,6 +76,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
   const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setMedicalHistoryData, setPrivateNotesData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
   const { loading, customizedPadLeftList, customizedPadRightList, videoList, profile } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
+  const isSurgeriesAccessable = useFeatureIsOn("surgeries");
 
   const [dataSourceLeft, setDataSourceLeft] = useState([]);
   const [dataSourceRight, setDataSourceRight] = useState([]);
@@ -97,8 +99,14 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
   useEffect(() => {
     if (customizedPadRightList.length > 0) {
       const updatedData = customizedPadRightList.map((e, i) => {
-        return { ...e };
-      });
+        if (e.tmdpm_id === 21 && e.tmdpm_status === 0) {
+          if (isSurgeriesAccessable) {
+            return { ...e };
+          }
+        } else {
+          return { ...e };
+        }
+      })?.filter((item) => item);
       setDataSourceRight(updatedData);
     }
   }, [handleDrawerCustomize]);
