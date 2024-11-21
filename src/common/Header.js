@@ -574,7 +574,7 @@ function Header({ locationPath }) {
       },
       {
         label:
-          <a onClick={() => ["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : accountSettings()}>
+          <a onClick={() => ["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : setUpWebsiteUrl(1)}>
             <div className="title-common me-5 d-flex align-items-center">
               {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
               {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{filter: 'brightness(0%)'}} alt="" />}
