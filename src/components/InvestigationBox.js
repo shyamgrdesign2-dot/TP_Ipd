@@ -61,14 +61,14 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
     );
 
   useEffect(() => {
-    if (diagnosisData?.length > 0) {
+    if (diagnosisData?.length > 0 && generatedDDx?.length > 0) {
       const associatedLabTestsData = diagnosisData?.map((diagnosis) => {
         if (diagnosis?.isDDx) {
             return generatedDDx?.find(
               (item) => item?._id === diagnosis?.unique_id
             )?.labTests;
         }
-      });
+      })?.filter((item) => item);
       const uniqueLabTests = [...new Set(associatedLabTestsData?.flat())];
       const ddxOptionsList = uniqueLabTests
         ?.map((item) => {
@@ -871,7 +871,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
         {REMOVE_ALL_ROWS}
         {TABLE_INVESTIGATION}
 
-        {ddxInvestigationOptionsList?.length > 0 && (
+        {filteredDdxInvestigationOptionsList?.length > 0 && (
           <div style={{ padding: "0 14px" }}>
             <DifferentialDiagnosis
               handleDDxDrawer={handleDDxDrawer}
