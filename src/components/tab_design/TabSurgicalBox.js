@@ -166,9 +166,9 @@ function TabSurgicalBox() {
 
   const onAddTemplateClicked = async () => {
     if (surgeriesData.length === 0) {
-      errorMessage("At least 1 surgery added");
+      errorMessage("At least 1 surgeries/procedures added");
     } else if (surgeriesData.filter((e) => e.name == "").length > 0) {
-      errorMessage("Please fillup surgery name");
+      errorMessage("Please fillup surgeries/procedures name");
     } else {
       var sendData = {
         name: inputTemplateName,
@@ -195,9 +195,9 @@ function TabSurgicalBox() {
 
   const onUpdateTemplateClicked = async () => {
     if (surgeriesData.length === 0) {
-      errorMessage("At least 1 surgery added");
+      errorMessage("At least 1 surgeries/procedures added");
     } else if (surgeriesData.filter((e) => e.name == "").length > 0) {
-      errorMessage("Please fillup surgery name");
+      errorMessage("Please fillup surgeries/procedures name");
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
@@ -619,7 +619,7 @@ function TabSurgicalBox() {
               title={
                 surgeriesData.length > 0
                   ? ""
-                  : "Please enter some Surgery to save a template"
+                  : "Please enter some Surgeries/Procedures to save a template"
               }
             >
               <button
