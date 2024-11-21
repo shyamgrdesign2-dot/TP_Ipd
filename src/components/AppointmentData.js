@@ -62,6 +62,7 @@ import axios from "axios";
 import LabParams from "./LabParams";
 import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup";
 import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
+import { resetDDxState } from "../redux/ddxSlice";
 
 const { TextArea } = Input;
 
@@ -356,6 +357,7 @@ function AppointmentData({ locationPath }) {
         dispatch(resetGrowthChartState());
         dispatch(resetObstetricState());
         dispatch(resetUploadDocState());
+        dispatch(resetDDxState());
     }, []);
 
     useEffect(() => {

@@ -31,10 +31,11 @@ import {
 } from "../redux/investigationSlice";
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import DifferentialDiagnosis from "./DifferentialDiagnosis";
 
 const { TextArea } = Input;
 
-function InvestigationBox() {
+function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   const {
     selectedInvestigationList,
     parentOptionsList,
@@ -44,8 +45,45 @@ function InvestigationBox() {
   } = useSelector((state) => state.investigation);
   const dispatch = useDispatch();
 
-  const { investigationData, setInvestigationData } = useContext(CashManagerContext);
+  const { investigationData, setInvestigationData, diagnosisData } =
+    useContext(CashManagerContext);
   // const [ investigationData, setInvestigationData] = useState([]);
+
+  const [ddxInvestigationOptionsList, setDdxInvestigationOptionsList] =
+    useState([]);
+
+  const filteredDdxInvestigationOptionsList =
+    ddxInvestigationOptionsList?.filter(
+      (e) =>
+        ![...investigationData.map((e1) => e1.investigation_name)].includes(
+          e.investigation_name
+        )
+    );
+
+  useEffect(() => {
+    if (diagnosisData?.length > 0 && generatedDDx?.length > 0) {
+      const associatedLabTestsData = diagnosisData?.map((diagnosis) => {
+        if (diagnosis?.isDDx) {
+            return generatedDDx?.find(
+              (item) => item?._id === diagnosis?.unique_id
+            )?.labTests;
+        }
+      })?.filter((item) => item);
+      const uniqueLabTests = [...new Set(associatedLabTestsData?.flat())];
+      const ddxOptionsList = uniqueLabTests
+        ?.map((item) => {
+          return {
+            investigation_name: item,
+            hm_type: 1,
+            pms_default: 1,
+            isDDx: true,
+          };
+        });
+        setDdxInvestigationOptionsList(ddxOptionsList);
+      } else if (diagnosisData?.length === 0) {
+        setDdxInvestigationOptionsList([]);
+      }
+    }, [diagnosisData]);
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -165,6 +203,15 @@ function InvestigationBox() {
     },
     [searchParentQuery, investigationData]
   );
+
+  const onSelectDDx = (e) => {
+    investigationData.push({
+      ...e,
+      note: "",
+    });
+    setInvestigationData((prev) => [...prev]);
+    setSearchParentQuery("");
+  };
 
   //Child AutoComplete
   useEffect(() => {
@@ -785,10 +832,19 @@ function InvestigationBox() {
                 <i className="icon-template me-2"></i> <span>Templates</span>
               </button>
             </Popover>
-            <Tooltip placement="bottom" title={(investigationData.length > 0) ? "" : "Please enter some Investigation to save a template"}>
+            <Tooltip
+              placement="bottom"
+              title={
+                investigationData.length > 0
+                  ? ""
+                  : "Please enter some Investigation to save a template"
+              }
+            >
               <Popover
                 open={popOver2}
-                onOpenChange={() => (investigationData.length > 0) && showHideSaveTemplatePopOver()}
+                onOpenChange={() =>
+                  investigationData.length > 0 && showHideSaveTemplatePopOver()
+                }
                 // onOpenChange={showHideSaveTemplatePopOver}
                 content={SAVE_CONTENT}
                 trigger="click"
@@ -801,7 +857,11 @@ function InvestigationBox() {
                 </button>
               </Popover>
             </Tooltip>
-            <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={investigationData.length > 0 ? false : true}>
+            <button
+              onClick={showHideClearData}
+              className="btn btn-text clear-text d-flex align-items-center"
+              disabled={investigationData.length > 0 ? false : true}
+            >
               <i className="icon-eraser1 me-2"></i> <span>Clear</span>
             </button>
           </div>
@@ -810,6 +870,16 @@ function InvestigationBox() {
         {DELETE_MODAL}
         {REMOVE_ALL_ROWS}
         {TABLE_INVESTIGATION}
+
+        {filteredDdxInvestigationOptionsList?.length > 0 && (
+          <div style={{ padding: "0 14px" }}>
+            <DifferentialDiagnosis
+              handleDDxDrawer={handleDDxDrawer}
+              ddxOptionsList={filteredDdxInvestigationOptionsList}
+              onSelectParent={onSelectDDx}
+            />
+          </div>
+        )}
 
         <div className="p-14">
           <AutoComplete

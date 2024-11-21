@@ -4,7 +4,7 @@ import { Button, Card, Row, Col, Segmented, Input, Tour } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { onlyNumberFormat, hasNumber, capitalizeAfterSentence } from "../../utils/utils";
+import { onlyNumberFormat, hasNumber, capitalizeAfterSentence, getClinicName } from "../../utils/utils";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { searchDiagnosis } from "../../redux/diagnosisSlice";
@@ -13,9 +13,12 @@ import { updateDragDrop } from "../../redux/doctorsSlice";
 import TabSearchHeader from "./TabSearchHeader";
 import dragChips from '../../../src/assets/images/drag-chips.gif'
 import tagNew from '../../../src/assets/images/tag-new.svg'
+import apexAI from "../../../src/assets/images/apexAI.svg";
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { WarningColor, WarningRank } from "../DifferentialDiagnosisDrawer";
+import { useLocation } from "react-router-dom";
 
-function TabDiagnosisSearch({ passIndex, onClose }) {
+function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
 
     const {
         parentOptionsList,
@@ -23,6 +26,9 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
     } = useSelector((state) => state.diagnosis);
     const { dragDrop } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
+    const { profile } = useSelector((state) => state.doctors);
+    const { state } = useLocation();
+    const { patient_data } = state;
 
     const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
 
@@ -469,6 +475,77 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                                         </div>
                                     </>
                                 )}
+                                <div className="d-flex" style={{ padding: "20px 0" }}>
+                                <div>
+                                    <img
+                                        style={{ backgroundColor: "#22003C", borderRadius: "10px 10px 0px" }}
+                                        className="me-3"
+                                        src={apexAI}
+                                        alt="apex-AI"
+                                    />
+                                </div>
+                                    <div
+                                    className="d-flex flex-column"
+                                    style={{
+                                        background: "rgba(119, 66, 254, 0.08)",
+                                        borderRadius: 12,
+                                        padding: "17px 20px",
+                                        width: "100%",
+                                    }}
+                                    >
+                                        <>
+                                            <div style={{ fontSize: 16, fontWeight: 500 }}>
+                                                Differential Diagnosis
+                                            </div>
+                                            <span className="ddx-ready-txt">These are symptoms associated with added diagnosis. Tap to add to EMR</span>
+                                            <div
+                                                className="d-flex align-items-center"
+                                                style={{ padding: "15px 8px 0 8px", flexWrap: "wrap", gap: 16 }}
+                                            >
+                                                {ddxOptionsList?.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name))?.map((item) => (
+                                                <Button
+                                                    type="button"
+                                                    className="btn-41 btn ant-btn-text btn-input d-flex flex-column align-items-start justify-content-start test-name-btn"
+                                                    style={{
+                                                        height: 50,
+                                                        gap: 8
+                                                    }}
+                                                    onClick={() => {
+                                                        onSelectParent({ ...item });
+                                                        window.Moengage.track_event(
+                                                        "TP_CDSS_Ddx_selected",
+                                                        {
+                                                            clinic_name: getClinicName(profile?.hospital_data),
+                                                            doctor_id: profile?.doctor_unique_id,
+                                                            patient_number: patient_data?.pm_contact_no,
+                                                            patient_id: patient_data?.patient_unique_id,
+                                                            field: "ddx"
+                                                        }
+                                                    );
+                                                    }}
+                                                >
+                                                    <span className="ddx-btn">{item?.tds_name}</span>
+                                                    <div className="d-flex" style={{ columnGap: 2 }}>
+                                                        {Array.from({
+                                                        length: WarningRank[item?.likelihood] || 0,
+                                                        }).map((_, index) => (
+                                                        <div
+                                                            key={index}
+                                                            style={{
+                                                            width: 13,
+                                                            height: 4,
+                                                            border: `2px solid ${WarningColor[item?.likelihood]}`,
+                                                            borderRadius: 2,
+                                                            }}
+                                                        />
+                                                        ))}
+                                                    </div>
+                                                </Button>
+                                                ))}
+                                            </div>
+                                        </>
+                                    </div>
+                                </div>
                                 <div>
                                     <div className="title2">
                                         {searchChildQuery.length > 0 ? 'Search Results' : 'Frequently Used'}
@@ -502,7 +579,7 @@ function TabDiagnosisSearch({ passIndex, onClose }) {
                                             parentOptionsList.length > 0 &&
                                             parentOptionsList.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name)).map((item, i) => {
                                                 return (
-                                                    <Button key={i} type="text" style={{ width: item.tds_name.length > 26 && '250px' }} className={`${item.tds_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.tds_name}</Button>
+                                                    <Button key={i} type="text" style={{ width: item?.tds_name?.length > 26 && '250px' }} className={`${item?.tds_name?.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item?.tds_name}</Button>
                                                 )
                                             })
                                         )}

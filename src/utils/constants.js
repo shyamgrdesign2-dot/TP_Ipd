@@ -66,5 +66,6 @@ export const EXTRA_OPTIONS = [
 
 export const ABORTION = "Abortion";
 export const MISCARRIAGE = "Miscarriage";
-
+export const IS_DDX_DIAGNOSIS_OPEN = "isDdxDiagnosisOpen";
+export const IS_DDX_LAB_INVESTIGATION_OPEN = "isDdxLabInvestigationOpen";
 

@@ -292,7 +292,34 @@ body {
             letter-spacing: 0.1px;
         }
     }
+    .prescription-sidebar-ai {
+        background-color: #22003C;
+        position: relative;
+
+        .prescription-sidebar-ai-vector {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+        .prescription-sidebar-ai-vector-reverse {
+            position: absolute;
+            bottom: 130px;
+            left: 0;
+            transform: rotate(180deg);
+        }
+
+    }
     .text-history {
         color: $historytext;
+    }
+
+    .know-more-txt {
+        color: #A461D8 !important;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    .disclaimer-txt {
+        color: #A2A2A8 !important;
     }
 }

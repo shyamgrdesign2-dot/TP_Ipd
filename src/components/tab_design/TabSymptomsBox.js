@@ -21,18 +21,42 @@ import {
 import TabSymptomsSearch from "../../components/tab_design/TabSymptomsSearch";
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import DifferentialDiagnosis from "../DifferentialDiagnosis";
+import { setIsDDxReadyToGenerate, setIsSymptomsBox } from "../../redux/ddxSlice";
 
-function TabSymptomsBox() {
+function TabSymptomsBox({handleDDxDrawer, generatedDDx}) {
     const {
         selectedSymptomsList,
         parentOptionsList,
         templates,
         loading,
     } = useSelector((state) => state.symptoms);
+    const { isSymptomsBox } = useSelector((state) => state.ddx);
     const dispatch = useDispatch();
 
     const { symptomsData, setSymptomsData } = useContext(CashManagerContext);
     // const [ symptomsData, setSymptomsData] = useState([]);
+
+    // const associatedSymptoms = generatedDDx?.map(
+    //     (item) => item.assocSymptoms
+    // );
+
+    // const uniqueSymptoms = [...new Set(associatedSymptoms.flat())];
+
+    // const ddxOptionsList = uniqueSymptoms
+    //     ?.map((item) => {
+    //     return {
+    //         symptom_name: item,
+    //         usage_count: 0,
+    //         isDDx: true,
+    //     };
+    //     })
+    //     ?.filter(
+    //     (e) =>
+    //         ![...symptomsData.map((e1) => e1.symptom_name)].includes(
+    //         e.symptom_name
+    //         )
+    //     );
 
     const [parentDrawer, setParentDrawer] = useState(false);
     const [childDrawer, setChildDrawer] = useState(false);
@@ -90,12 +114,20 @@ function TabSymptomsBox() {
     const onRemoveRow = (index) => {
         symptomsData.splice(index, 1);
         setSymptomsData((prev) => [...prev]);
-        setSelectedIndex(null)
+        setSelectedIndex(null);
+        if (symptomsData?.length > 0) {
+            dispatch(setIsDDxReadyToGenerate(true));
+        } else {
+            dispatch(setIsDDxReadyToGenerate(false));
+        }
     };
 
     // Handle Parent Drawer
     const handleDrawerParent = useCallback(() => {
-        setParentDrawer(!parentDrawer);
+      setParentDrawer(!parentDrawer);
+      if (isSymptomsBox) {
+        dispatch(setIsSymptomsBox(false));
+      }
     }, [parentDrawer]);
 
     const onSelectParent = useCallback(
@@ -603,7 +635,8 @@ function TabSymptomsBox() {
         const { index, ...updatedReqData } = item;
         symptomsData[item.index] = { ...symptomsData[item.index], ...updatedReqData };
         setSymptomsData((prev) => [...prev]);
-        handleDrawerChild()
+        handleDrawerChild();
+        dispatch(setIsDDxReadyToGenerate(true));
     }
 
     //Child Componet
@@ -784,9 +817,10 @@ function TabSymptomsBox() {
                         <i className='icon-search mx-2'></i>
                         <span className="fontroboto backbar fw-normal">Search Symptoms</span>
                     </div>
+                    {/* { ddxOptionsList?.length > 0 && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={ddxOptionsList} onSelectParent={onSelectParent} isSymptoms={true} />} */}
                 </div>
-                <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
-                    {parentDrawer && (<TabSymptomsSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
+                <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer || isSymptomsBox} width={'100%'} className="searchdrawer-content">
+                    {(parentDrawer || isSymptomsBox) && (<TabSymptomsSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&

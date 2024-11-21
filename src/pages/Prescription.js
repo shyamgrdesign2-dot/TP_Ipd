@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { Drawer } from "antd";
+import { Drawer, Tabs } from "antd";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 
@@ -71,6 +71,18 @@ import axios from 'axios';
 import { env } from "../EnvironmentConfig";
 import LabParams from "../components/LabParams";
 import ViewLabParam from "../components/ViewLabParams";
+import ApexAIPopup from "../components/ApexAIPopup";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import DDxKnowMore from "../components/DDxKnowMore";
+import TabPane from "antd/es/tabs/TabPane";
+import apexAIImg from "../assets/images/apexAI.svg";
+import blinkingDot from "../assets/images/blinkingDot.gif";
+import DifferentialDiagnosisDrawer from "../components/DifferentialDiagnosisDrawer";
+import { setIsDDxReadyToGenerate } from "../redux/ddxSlice";
+import { getDDxDetails } from "../api/services/ApiDDx";
+import { getDecodedToken } from "../utils/localStorage";
+import DDxList from "../components/medical_certificate/DDxList";
+import SurgicalBox from "../components/SurgicalBox";
 
 function Prescription() {
   const {
@@ -91,6 +103,7 @@ function Prescription() {
     (state) => state.uploadDoc
   );
   const dispatch = useDispatch();
+  const decodedToken = getDecodedToken();
 
   const { state } = useLocation();
   const { patient_data, send_path, caseManagerData } = state;
@@ -105,6 +118,7 @@ function Prescription() {
 
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
+  const [surgeriesData, setSurgeriesData] = useState([]);
   const [diagnosisData, setDiagnosisData] = useState([]);
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
@@ -129,6 +143,8 @@ function Prescription() {
     setSymptomsData,
     examinationData,
     setExaminationData,
+    surgeriesData,
+    setSurgeriesData,
     diagnosisData,
     setDiagnosisData,
     adviceData,
@@ -165,12 +181,25 @@ function Prescription() {
   const [filesData, setFilesData] = useState([]);
   const [isEditDocument, setIsEditDocument] = useState(false);
   const fileInputRef = useRef(null);
+  const [shouldShowApexPopup, setShowApexPopup] = useState(true);
+  const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
+  const [activeTab, setActiveTab] = useState("basicInfo");
+  const [generatedDDx, setGeneratedDDx] = useState({results: []});
+  const [isDDxLoading, setIsDDxLoading] = useState(false);
+  const [ddxDrawer, setDDxDrawer] = useState(false);
+  const [likeDislike, setLikeDislike] = useState([]);
+  const [isDDxGenerated, setIsDDxGenerated] = useState(false);
+  const isApexAIAccessable = useFeatureIsOn("cdss");
+  const isSurgeriesAccessable = useFeatureIsOn("surgeries");
   const {
     isVaccinationAccessable,
     isGrowthChartAccessable,
     isGynaecHistoryAccessable,
   } = useAccess(patient_data?.ageYears);
-
+  const { isDDxReadyToGenerate } = useSelector(
+    (state) => state.ddx
+  );
+  
   const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const baseUrl = env.lab_params_api_url;
 
@@ -284,6 +313,14 @@ function Prescription() {
         ) !== -1
       ) {
         setExaminationData(caseManagerData.examination);
+      }
+      if (
+        caseManagerData.surgeries.length > 0 &&
+        customizedPadRightList.findIndex(
+          (e) => e.tmdpm_id === 21 && e.tmdpm_status === 0
+        ) !== -1
+      ) {
+        setSurgeriesData(caseManagerData.surgeries);
       }
       if (
         caseManagerData.diagnosis.length > 0 &&
@@ -645,6 +682,325 @@ function Prescription() {
     }
   };
 
+const handleDDxKnowMore = () => {
+  setDDxKnowMoreDrawer((prev) => !prev);
+};
+
+const handleDDxDrawer = (field) => {
+  setDDxDrawer((prev) => !prev);
+  if (!ddxDrawer) {
+    window.Moengage.track_event("TP_CDSS_Ddx_reviewed", {
+      clinic_name: getClinicName(profile?.hospital_data),
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+      field: field,
+    });
+  }
+};
+
+const getGenerateDDx = async (field) => {
+  setIsDDxLoading(true);
+  setIsDDxGenerated(true);
+  window.Moengage.track_event("TP_CDSS_Ack_GenDx", {
+    clinic_name: getClinicName(profile?.hospital_data),
+    doctor_id: profile?.doctor_unique_id,
+    patient_number: patient_data?.pm_contact_no,
+    patient_id: patient_data?.patient_unique_id,
+    field: field,
+  });
+  const payload = {
+    patientId: patient_data?.patient_unique_id,
+    symptoms: symptomsData?.map((symptom) => {
+      if (symptom) {
+        return {
+          name: symptom.symptom_name,
+          since: symptom.since,
+          severity: symptom.severity,
+          notes: symptom.note,
+        };
+      }
+    }),
+  };
+  const generatedDDxResponse = await getDDxDetails(payload);
+  if (generatedDDxResponse?.results) {
+    setGeneratedDDx(generatedDDxResponse);
+    setLikeDislike(generatedDDxResponse?.results?.map(() => ""));
+  }
+  dispatch(setIsDDxReadyToGenerate(false));
+  setIsDDxLoading(false);
+}
+
+const CUSTOMIZED_PAD_LEFT_LIST = () => {
+  return customizedPadLeftList?.map((e, i) => {
+      return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
+        <div key={i} className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img src={vitals} alt="vitals" className="me-3" />
+              <div className="title-common">Vitals & Body Composition</div>
+            </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerVital}
+            >
+              {" "}
+              <i
+                className={`${
+                  vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                } me-1 fs-5`}
+              ></i>{" "}
+              <span>{`${vitalsData.length > 0 ? "Edit" : "Add"}`}</span>
+            </button>
+          </div>
+          {(vitalsData.length > 0 ||
+            vitalsPastList.length > 0 ||
+            patientBirthWeight) && (
+            <VitalsList mode={caseManagerData !== undefined ? EDIT : ADD} />
+          )}
+        </div>
+      ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
+        <div key={i} className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img
+                src={MedicalHistory}
+                alt="Medical History"
+                className="me-3"
+              />
+              <div className="title-common">
+                {isGynaecHistoryAccessable
+                  ? `Gynec History`
+                  : `Medical History`}
+              </div>
+              {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
+                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                          </Button> */}
+            </div>
+
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerMedicalHistory}
+            >
+              {" "}
+              <i
+                className={`${
+                  medicalHistoryData.length > 0 ||
+                  (updatedGynecHistory &&
+                    Object.keys(updatedGynecHistory).length > 0)
+                    ? "icon-Edit"
+                    : "icon-Add"
+                } me-1 fs-5`}
+              ></i>{" "}
+              <span>{`${
+                medicalHistoryData.length > 0 ||
+                (updatedGynecHistory &&
+                  Object.keys(updatedGynecHistory).length > 0)
+                  ? "Edit"
+                  : "Add"
+              }`}</span>
+            </button>
+          </div>
+          {(medicalHistoryData.length > 0 ||
+            (updatedGynecHistory &&
+              Object.keys(updatedGynecHistory).length > 0)) && (
+            <MedicalHistoryList gynecHistory={updatedGynecHistory} />
+          )}
+        </div>
+      ) : e.tmdpm_id === 7 &&
+        e.tmdpm_status === 0 &&
+        isVaccinationAccessable ? (
+        <div className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img src={vaccinationImg} alt="vitals" className="me-3" />
+              <div className="title-common">Vaccination</div>
+            </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerVaccination}
+            >
+              {" "}
+              <i className={`icon-Add me-1 fs-5`}></i> <span>Add</span>
+            </button>
+          </div>
+        </div>
+      ) : e.tmdpm_id === 16 &&
+        e.tmdpm_status === 0 &&
+        isGrowthChartAccessable ? (
+        <div className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img src={growthChartImg} alt="growth" className="me-3" />
+              <div className="title-common">Growth Chart</div>
+            </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerGrowth}
+            >
+              <i className={`icon-Add me-1 fs-5`}></i> <span>Add</span>
+            </button>
+          </div>
+        </div>
+      ) : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
+        <div key={i} className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img src={privateNotes} alt="Private Notes" className="me-3" />
+              <div className="title-common">Private Notes</div>
+            </div>
+            {!privateNotesData && (
+              <button
+                className="btn d-flex align-items-center btn-text"
+                onClick={handleDrawerPrivateNotes}
+              >
+                <i className="icon-Add me-1 fs-5"></i>
+                <span>Add</span>
+              </button>
+            )}
+          </div>
+          {privateNotesList.length > 0 && (
+            <PrivateNotesList
+              handleDrawerPrivateNotes={handleDrawerPrivateNotes}
+            />
+          )}
+        </div>
+      ) : e.tmdpm_id === 17 &&
+        e.tmdpm_status === 0 &&
+        isGynaecHistoryAccessable ? (
+        <div className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img src={obstetricImg} alt="obstetric" className="me-3" />
+              <div className="title-common">Obstetric History</div>
+            </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerObstetric}
+            >
+              <i
+                className={`${
+                  examinationHistory.length > 0 ? "icon-Edit" : "icon-Add"
+                } me-1 fs-5`}
+              ></i>
+              <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"}`}</span>
+            </button>
+          </div>
+          {(obstetricDetails?.lmp ||
+            obstetricDetails?.edd ||
+            obstetricDetails?.gravidity ||
+            obstetricDetails?.parity ||
+            obstetricDetails?.livingChildren ||
+            obstetricDetails?.abortion ||
+            obstetricDetails?.ectopicPregnancies ||
+            examinationHistory?.length > 0) && <ObstetricList />}
+        </div>
+      ) : e.tmdpm_id === 18 && e.tmdpm_status === 0 ? (
+        <>
+          <div className="prescription-box-sm p-14">
+            <div className="d-flex align-items-center justify-content-between">
+              <div className="d-flex align-items-center">
+                <img
+                  src={uploadDocImg}
+                  alt="upload-document"
+                  className="me-3"
+                />
+                <div className="title-common">
+                  Medical Records{" "}
+                  {allUploadedDocs?.length > 0
+                    ? `(${allUploadedDocs?.length})`
+                    : ""}
+                </div>
+              </div>
+              <button
+                className="btn d-flex align-items-center btn-text"
+                style={{
+                  paddingRight: allUploadedDocs.length > 0 ? 0 : 12,
+                }}
+                onClick={
+                  allUploadedDocs.length > 0
+                    ? handleDrawerMedicalReport
+                    : handleAddClick
+                }
+              >
+                <input
+                  type="file"
+                  multiple
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
+                  style={{ display: "none" }}
+                />
+                {allUploadedDocs.length === 0 && (
+                  <i className="icon-Add me-1 fs-5" />
+                )}
+                <span>{`${
+                  allUploadedDocs.length > 0 ? "View All" : "Add"
+                }`}</span>
+                {allUploadedDocs.length > 0 && (
+                  <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                )}
+              </button>
+            </div>
+            <UploadDocumentList
+              handleDrawerUploadDoc={handleDrawerUploadDoc}
+              setFilesData={setFilesData}
+              setIsEditDocument={setIsEditDocument}
+              setUploadDocDrawer={setUploadDocDrawer}
+            />
+          </div>
+        </>
+      ) : (
+        e.tmdpm_id === 19 &&
+        e.tmdpm_status === 0 && (
+          <>
+            <div className="prescription-box-sm" style={{ overflow: "hidden" }}>
+              <div
+                className="d-flex align-items-center justify-content-between p-14"
+                style={{ borderBottom: "1px solid #ddd" }}
+              >
+                <div className="d-flex align-items-center">
+                  <img
+                    src={labResultImg}
+                    alt="upload-document"
+                    className="me-3"
+                  />
+                  <div className="title-common">Lab Results</div>
+                </div>
+                <button
+                  className="btn d-flex align-items-center btn-text"
+                  style={{
+                    paddingRight: labParamsData?.length > 0 ? 0 : 12,
+                  }}
+                  onClick={
+                    labParamsData?.length > 0
+                      ? handleViewLabParamsDrawer
+                      : handleAddLabParamsDrawer
+                  }
+                >
+                  {labParamsData?.length === 0 && (
+                    <i className="icon-Add me-1 fs-5" />
+                  )}
+                  <span>{`${
+                    labParamsData?.length > 0 ? "View All" : "Add"
+                  }`}</span>
+                  {labParamsData?.length > 0 && (
+                    <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                  )}
+                </button>
+              </div>
+              <LabParametersList
+                labParamsData={labParamsData}
+                patient_unique_id={patient_data?.patient_unique_id}
+                doc_id={userId}
+              />
+            </div>
+          </>
+        )
+      );
+    });
+}
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -653,251 +1009,66 @@ function Prescription() {
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
             <div className="col-lg-4 col-md-12 col-12">
-              {customizedPadLeftList?.map((e, i) => {
-                return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
-                  <div key={i} className="prescription-box-sm p-14">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <div className="d-flex align-items-center">
-                        <img src={vitals} alt="vitals" className="me-3" />
-                        <div className="title-common">
-                          Vitals & Body Composition
-                        </div>
-                      </div>
-                      <button
-                        className="btn d-flex align-items-center btn-text"
-                        onClick={handleDrawerVital}
-                      >
-                        {" "}
-                        <i
-                          className={`${vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                            } me-1 fs-5`}
-                        ></i>{" "}
-                        <span>{`${vitalsData.length > 0 ? "Edit" : "Add"
-                          }`}</span>
-                      </button>
-                    </div>
-                    {(vitalsData.length > 0 || vitalsPastList.length > 0 || patientBirthWeight) && (
-                      <VitalsList
-                        mode={caseManagerData !== undefined ? EDIT : ADD}
-                      />
-                    )}
-                  </div>
-                ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
-                  <div key={i} className="prescription-box-sm p-14">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <div className="d-flex align-items-center">
+              {isApexAIAccessable ? (
+                <Tabs
+                  className="obstetricTab"
+                  activeKey={activeTab}
+                  onChange={(key) => {
+                    setActiveTab(key);
+                    if (key === "apexAI") {
+                      window.Moengage.track_event("TP_Apex_AI_Ack", {
+                        clinic_name: getClinicName(profile?.hospital_data),
+                        doctor_id: profile?.doctor_unique_id,
+                        patient_number: patient_data?.pm_contact_no,
+                        patient_id: patient_data?.patient_unique_id,
+                      });
+                    }
+                  }}
+                  centered
+                >
+                  <TabPane tab="Basic Info" key="basicInfo">
+                    {CUSTOMIZED_PAD_LEFT_LIST()}
+                  </TabPane>
+                  <TabPane
+                    tab={
+                      <div style={{position: "relative"}}>
                         <img
-                          src={MedicalHistory}
-                          alt="Medical History"
-                          className="me-3"
+                          src={apexAIImg}
+                          alt="apex-AI"
+                          width={20}
+                          height={20}
+                          style={{ marginRight: 8 }}
                         />
-                        <div className="title-common">{isGynaecHistoryAccessable ? `Gynec History` : `Medical History`}</div>
-                        {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
-                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
-                          </Button> */}
-                      </div>
-
-                      <button
-                        className="btn d-flex align-items-center btn-text"
-                        onClick={handleDrawerMedicalHistory}
-                      >
-                        {" "}
-                        <i
-                          className={`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)
-                            ? "icon-Edit"
-                            : "icon-Add"
-                            } me-1 fs-5`}
-                        ></i>{" "}
-                        <span>{`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ? "Edit" : "Add"
-                          }`}</span>
-                      </button>
-                    </div>
-                    {(medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)) && <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
-                  </div>
-                ) :
-                  e.tmdpm_id === 7 &&
-                    e.tmdpm_status === 0 &&
-                    isVaccinationAccessable ? (
-                    <div className="prescription-box-sm p-14">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={vaccinationImg}
-                            alt="vitals"
-                            className="me-3"
-                          />
-                          <div className="title-common">Vaccination</div>
-                        </div>
-                        <button
-                          className="btn d-flex align-items-center btn-text"
-                          onClick={handleDrawerVaccination}
-                        >
-                          {" "}
-                          <i className={`icon-Add me-1 fs-5`}></i>{" "}
-                          <span>Add</span>
-                        </button>
-                      </div>
-                    </div>
-                  )
-                    :
-                    e.tmdpm_id === 16 &&
-                      e.tmdpm_status === 0 &&
-                      isGrowthChartAccessable ? (
-                      <div className="prescription-box-sm p-14">
-                        <div className="d-flex align-items-center justify-content-between">
-                          <div className="d-flex align-items-center">
-                            <img src={growthChartImg} alt="growth" className="me-3" />
-                            <div className="title-common">Growth Chart</div>
-                          </div>
-                          <button
-                            className="btn d-flex align-items-center btn-text"
-                            onClick={handleDrawerGrowth}
-                          >
-                            <i className={`icon-Add me-1 fs-5`}></i> <span>Add</span>
-                          </button></div></div>
-                    )
-                      : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
-                        <div key={i} className="prescription-box-sm p-14">
-                          <div className="d-flex align-items-center justify-content-between">
-                            <div className="d-flex align-items-center">
-                              <img src={privateNotes} alt="Private Notes" className="me-3" />
-                              <div className="title-common">
-                                Private Notes
-                              </div>
-                            </div>
-                            {!privateNotesData && (
-                              <button
-                                className="btn d-flex align-items-center btn-text"
-                                onClick={handleDrawerPrivateNotes}
-                              >
-                                <i
-                                  className="icon-Add me-1 fs-5"></i>
-                                <span>Add</span>
-                              </button>
-                            )}
-                          </div>
-                          {privateNotesList.length > 0 && (
-                            <PrivateNotesList handleDrawerPrivateNotes={handleDrawerPrivateNotes} />
-                          )}
-                        </div>
-                      ) : e.tmdpm_id === 17 &&
-                        e.tmdpm_status === 0 &&
-                        isGynaecHistoryAccessable ? (
-                        <div className="prescription-box-sm p-14">
-                          <div className="d-flex align-items-center justify-content-between">
-                            <div className="d-flex align-items-center">
-                              <img
-                                src={obstetricImg}
-                                alt="obstetric"
-                                className="me-3"
-                              />
-                              <div className="title-common">Obstetric History</div>
-                            </div>
-                            <button
-                              className="btn d-flex align-items-center btn-text"
-                              onClick={handleDrawerObstetric}
-                            >
-                              <i
-                                className={`${examinationHistory.length > 0
-                                  ? "icon-Edit"
-                                  : "icon-Add"
-                                  } me-1 fs-5`}
-                              ></i>
-                              <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"
-                                }`}</span>
-                            </button>
-                          </div>
-                          {(obstetricDetails?.lmp ||
-                            obstetricDetails?.edd ||
-                            obstetricDetails?.gravidity ||
-                            obstetricDetails?.parity ||
-                            obstetricDetails?.livingChildren ||
-                            obstetricDetails?.abortion ||
-                            obstetricDetails?.ectopicPregnancies ||
-                            examinationHistory?.length > 0) && <ObstetricList />}
-                        </div>
-                      ) : e.tmdpm_id === 18 &&
-                        e.tmdpm_status === 0 ? (
-                        <>
-                          <div className="prescription-box-sm p-14">
-                            <div className="d-flex align-items-center justify-content-between">
-                              <div className="d-flex align-items-center">
-                                <img
-                                  src={uploadDocImg}
-                                  alt="upload-document"
-                                  className="me-3"
-                                />
-                                <div className="title-common">Medical Records {allUploadedDocs?.length > 0 ? `(${allUploadedDocs?.length})` : ""}</div>
-                              </div>
-                              <button
-                                className="btn d-flex align-items-center btn-text"
-                                style={{ paddingRight: allUploadedDocs.length > 0 ? 0 : 12 }}
-                                onClick={
-                                  allUploadedDocs.length > 0
-                                    ? handleDrawerMedicalReport
-                                    : handleAddClick
-                                }
-                              >
-                                <input
-                                  type="file"
-                                  multiple
-                                  ref={fileInputRef}
-                                  onChange={handleFileUpload}
-                                  accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
-                                  style={{ display: "none" }}
-                                />
-                                {allUploadedDocs.length === 0 && (
-                                  <i className="icon-Add me-1 fs-5" />
-                                )}
-                                <span>{`${allUploadedDocs.length > 0 ? "View All" : "Add"
-                                  }`}</span>
-                                {allUploadedDocs.length > 0 && (
-                                  <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
-                                )}
-                              </button>
-                            </div>
-                            <UploadDocumentList
-                              handleDrawerUploadDoc={handleDrawerUploadDoc}
-                              setFilesData={setFilesData}
-                              setIsEditDocument={setIsEditDocument}
-                              setUploadDocDrawer={setUploadDocDrawer}
+                        Apex AI
+                        {isDDxReadyToGenerate && generatedDDx?.results?.length > 0 && (
+                            <img
+                              src={blinkingDot}
+                              alt="blinking-dot"
+                              width={20}
+                              height={20}
+                              style={{position: "absolute", top: -12, right: -15}}
                             />
-                          </div>
-                        </>
-                      ) : e.tmdpm_id === 19 &&
-                      e.tmdpm_status === 0 && (
-                        <>
-                          <div className="prescription-box-sm" style={{ overflow: 'hidden' }}>
-                            <div className="d-flex align-items-center justify-content-between p-14" style={{ borderBottom: "1px solid #ddd" }}>
-                              <div className="d-flex align-items-center">
-                                <img
-                                  src={labResultImg}
-                                  alt="upload-document"
-                                  className="me-3"
-                                />
-                                <div className="title-common">Lab Results</div>
-                              </div>
-                              <button
-                                className="btn d-flex align-items-center btn-text"
-                                style={{ paddingRight: labParamsData?.length > 0 ? 0 : 12 }}
-                                onClick={labParamsData?.length > 0 ? handleViewLabParamsDrawer : handleAddLabParamsDrawer}
-                              >
-                                {labParamsData?.length === 0 && (
-                                  <i className="icon-Add me-1 fs-5" />
-                                )}
-                                <span>{`${labParamsData?.length > 0 ? "View All" : "Add"
-                                  }`}</span>
-                                {labParamsData?.length > 0 && (
-                                  <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
-                                )}
-                              </button>
-                            </div>
-                            <LabParametersList labParamsData={labParamsData} patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} />
-                          </div>
-                        </>
-                      )
-              })}
-
+                          )}
+                      </div>
+                    }
+                    key="apexAI"
+                  >
+                    <div className="prescription-box-sm">
+                      <DDxList
+                        generatedDDx={generatedDDx?.results}
+                        handleDDxDrawer={handleDDxDrawer}
+                        isDDxLoading={isDDxLoading}
+                        handleDDxKnowMore={handleDDxKnowMore}
+                        getGenerateDDx={getGenerateDDx}
+                        handleDrawerVital={handleDrawerVital}
+                        isDDxGenerated={isDDxGenerated}
+                      />
+                    </div>
+                  </TabPane>
+                </Tabs>
+              ) : (
+                CUSTOMIZED_PAD_LEFT_LIST()
+              )}
               {/* <div>
                 <button className="btn btn-parameters mx-auto w-100">
                   <div className="align-items-center d-flex justify-content-center">
@@ -908,18 +1079,28 @@ function Prescription() {
             </div>
             <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
               <Content>
+                {shouldShowApexPopup && isApexAIAccessable && (
+                  <ApexAIPopup
+                    setShowApexPopup={setShowApexPopup}
+                    handleDDxKnowMore={handleDDxKnowMore}
+                  />
+                )}
                 {customizedPadRightList?.map((e, i) => {
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      <SymptomsBox />
+                      <SymptomsBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
                     </div>
                   ) : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       <ExaminationBox />
                     </div>
+                  ) : e.tmdpm_id === 21 && e.tmdpm_status === 0 && isSurgeriesAccessable ? (
+                    <div key={i} className="prescription-box-sm">
+                      <SurgicalBox />
+                    </div>
                   ) : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      <DiagnosisBox />
+                      <DiagnosisBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} handleDDxKnowMore={handleDDxKnowMore} isDDxGenerated={isDDxGenerated} />
                     </div>
                   ) : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -932,7 +1113,7 @@ function Prescription() {
                   ) : e.tmdpm_id === 14 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       {" "}
-                      <InvestigationBox />
+                      <InvestigationBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
                     </div>
                   ) : (
                     e.tmdpm_id === 15 &&
@@ -1094,6 +1275,31 @@ function Prescription() {
             <ViewLabParam handleViewLabParamsDrawer={handleViewLabParamsDrawer} labParamsData={labParamsData} handleSwitchToAddLabParams={handleSwitchToAddLabParams} />
           </Drawer>
         }
+        {ddxKnowMoreDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            open={ddxKnowMoreDrawer}
+            onClose={handleDDxKnowMore}
+            className=".modalWidth-800"
+            width={825}
+          >
+            <DDxKnowMore handleDDxKnowMore={handleDDxKnowMore} />
+          </Drawer>
+        )}
+        {ddxDrawer && (
+          <Drawer
+            closeIcon={false}
+            className="modalWidth-700"
+            placement="right"
+            open={ddxDrawer}
+            onClose={handleDDxDrawer}
+            width="auto"
+            zIndex={999}
+          >
+              <DifferentialDiagnosisDrawer handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} includeExcludeInput={generatedDDx?.input} likeDislike={likeDislike} setLikeDislike={setLikeDislike} />
+          </Drawer>
+        )}
       </>
     </CashManagerContext.Provider>
   );

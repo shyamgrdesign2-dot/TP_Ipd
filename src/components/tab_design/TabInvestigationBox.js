@@ -21,8 +21,10 @@ import {
 import TabInvestigationSearch from "../../components/tab_design/TabInvestigationSearch";
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import DifferentialDiagnosis from "../DifferentialDiagnosis";
+import { setIsLabTestBox } from "../../redux/ddxSlice";
 
-function TabInvestigationBox() {
+function TabInvestigationBox({handleDDxDrawer, generatedDDx}) {
 
     const {
         selectedInvestigationList,
@@ -32,8 +34,52 @@ function TabInvestigationBox() {
     } = useSelector((state) => state.investigation);
     const dispatch = useDispatch();
 
-    const { investigationData, setInvestigationData } = useContext(CashManagerContext);
+    const { isLabTestBox } = useSelector((state) => state.ddx);
+    const { investigationData, setInvestigationData, diagnosisData } =
+      useContext(CashManagerContext);
     // const [ investigationData, setInvestigationData] = useState([]);
+
+    const [ddxInvestigationOptionsList, setDdxInvestigationOptionsList] =
+    useState([]);
+
+    const filteredDdxInvestigationOptionsList = ddxInvestigationOptionsList?.filter(
+            (e) =>
+            ![...investigationData.map((e1) => e1.investigation_name)].includes(
+                e.investigation_name
+            )
+        );
+
+    useEffect(() => {
+      if (diagnosisData?.length > 0 && generatedDDx?.length > 0) {
+        let associatedLabTestsData = [];
+        if (isLabTestBox) {
+            associatedLabTestsData = generatedDDx?.find(
+              (item) => item._id === isLabTestBox
+            )?.labTests;
+        } else {
+            associatedLabTestsData = diagnosisData?.map((diagnosis) => {
+              if (diagnosis?.isDDx) {
+                return generatedDDx?.find(
+                  (item) => item?._id === diagnosis?.unique_id
+                )?.labTests;
+              }
+            })?.filter((item) => item);
+        }
+        
+        const uniqueLabTests = [...new Set(associatedLabTestsData?.flat())];
+        const ddxOptionsList = uniqueLabTests?.map((item) => {
+          return {
+            investigation_name: item,
+            hm_type: 1,
+            pms_default: 1,
+            isDDx: true,
+          };
+        });
+        setDdxInvestigationOptionsList(ddxOptionsList);
+      } else if (diagnosisData?.length === 0) {
+        setDdxInvestigationOptionsList([]);
+      }
+    }, [diagnosisData, isLabTestBox]);
 
     const [parentDrawer, setParentDrawer] = useState(false);
     const [childDrawer, setChildDrawer] = useState(false);
@@ -85,8 +131,12 @@ function TabInvestigationBox() {
 
     // Handle Parent Drawer
     const handleDrawerParent = useCallback(() => {
-        setParentDrawer(!parentDrawer);
-    }, [parentDrawer]);
+        if (isLabTestBox) {
+          dispatch(setIsLabTestBox(null));
+        } else {
+          setParentDrawer(!parentDrawer);
+        }
+    }, [parentDrawer, isLabTestBox]);
 
     const onSelectParent = useCallback(
         (e) => {
@@ -593,9 +643,10 @@ function TabInvestigationBox() {
                         <i className='icon-search mx-2'></i>
                         <span className="fontroboto backbar fw-normal">Search Lab Investigation</span>
                     </div>
+                    { filteredDdxInvestigationOptionsList?.length > 0 && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={filteredDdxInvestigationOptionsList} onSelectParent={onSelectParent} />}
                 </div>
-                <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer} width={'100%'} className="searchdrawer-content">
-                    {parentDrawer && (<TabInvestigationSearch passIndex={selectedIndex} onClose={handleDrawerParent} />)}
+                <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer || isLabTestBox} width={'100%'} className="searchdrawer-content">
+                    {(parentDrawer || isLabTestBox) && (<TabInvestigationSearch passIndex={isLabTestBox ? investigationData?.length - 1 : selectedIndex} onClose={handleDrawerParent} ddxOptionsList={filteredDdxInvestigationOptionsList} />)}
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&

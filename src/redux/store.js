@@ -20,6 +20,8 @@ import growthChartSlice from './growthChartSlice';
 import doctorWebsiteSlice from './doctorWebsiteSlice';
 import obstetricSlice from './obstetricSlice';
 import uploadDocSlice from './uploadDocSlice';
+import ddxSlice from './ddxSlice';
+import surgicalSlice from './surgicalSlice';
 
 const persistConfig = {
   key: 'root',
@@ -32,6 +34,7 @@ const rootReducer = combineReducers({
   doctors: doctorsSlice,
   symptoms: symptomsSlice,
   examination: examinationSlice,
+  surgical: surgicalSlice,
   diagnosis: diagnosisSlice,
   advice: adviceSlice,
   investigation: investigationSlice,
@@ -44,7 +47,8 @@ const rootReducer = combineReducers({
   growthChart: growthChartSlice,
   doctorWebsite: doctorWebsiteSlice,
   obstetric: obstetricSlice,
-  uploadDoc: uploadDocSlice
+  uploadDoc: uploadDocSlice,
+  ddx: ddxSlice
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
