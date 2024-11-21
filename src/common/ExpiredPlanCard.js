@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 
 const ExpiredPlanCard = () => {
   const { planDetails } = useSelector((state) => state.subscription);
-  const { currentPlanStatus, expiresIn, intialPlanStatus } = planDetails || {};
+  const { currentPlanStatus, expiresIn, lastPlanStatus } = planDetails || {};
   return (
     currentPlanStatus === "EXPIRED" && (
       <div className={styles.backdrop}>
@@ -18,7 +18,7 @@ const ExpiredPlanCard = () => {
               {/* Left Section */}
               <div className={styles.leftSection}>
                 {currentPlanStatus === "EXPIRED" &&
-                  intialPlanStatus === "TRIAL" && (
+                  lastPlanStatus === "TRIAL" && (
                     <>
                       <h2>Your Free Trial has Expired!</h2>
                       <p>
@@ -50,7 +50,7 @@ const ExpiredPlanCard = () => {
                     </>
                   )}
                 {currentPlanStatus === "EXPIRED" &&
-                  ["PAID", "EXPIRED"].includes(intialPlanStatus) && (
+                  ["PAID", "EXPIRED"].includes(lastPlanStatus) && (
                     <>
                       <h2>Your Plan has Expired!</h2>
                       <p>

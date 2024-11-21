@@ -27,25 +27,27 @@ export const fetchSubscriptionDetails = createAsyncThunk(
     );
     if (response.status === 200) {
       const {
-        planStatus: { code: intialPlanStatus = "" },
-        productType,
-      } = response?.body?.plans?.content?.find(
-        (plan) => plan?.productType === "Software"
-      );
-      const {
         plan_active_date,
         plan_expiry_date,
         planStatus: { code: currentPlanStatus = "" },
+        lastPlanStatus: { code: lastPlanStatus = "" } = {
+          code: "",
+        },
+        last_plan_active_date = "",
+        last_plan_expiry_date = "",
         expiry_reminder_days,
         is_owner,
         is_pm_renew_requested,
+        product_type: productType,
       } = response?.body?.profile;
 
       return {
         plan_active_date,
         plan_expiry_date,
-        intialPlanStatus,
+        lastPlanStatus,
         currentPlanStatus,
+        last_plan_active_date,
+        last_plan_expiry_date,
         productType,
         billingHistory: response?.body?.payments?.content?.filter(
           (plan) => plan?.planStatus?.code !== "TRIAL"
@@ -53,7 +55,7 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         expiry_reminder_days,
         is_owner,
         is_pm_renew_requested,
-        totalPages: response?.body?.plans?.totalPages,
+        totalPages: response?.body?.payments?.totalPages,
         expiresIn: moment(plan_expiry_date).diff(moment(), "days"),
       };
     }
