@@ -18,6 +18,7 @@ import { isMobile } from "react-device-detect";
 import { useAccess } from "../../pages/vaccination/useAccess";
 import { graphsToPrintData } from "../../pages/growthChart/growthChartHelper";
 import { useSelector } from "react-redux";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 // const CustomRow = ({ children, ...props }) => {
 //     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
@@ -168,6 +169,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
+  const isSurgeriesAccessable = useFeatureIsOn("surgeries");
 
   const onMainCaseOptionChange = useCallback(
     (e) => {
@@ -423,7 +425,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                 className={`icon-Preview ${record.enable === "N" && "disable-preview"
                   } me-3`}
               ></i>
-              <span>{record.title}</span>
+              <span style={{ wordBreak: "break-word" }}>{record.title}</span>
             </div>
             <Form.Item className="mb-0 form_addnewpatient ">
               <Radio.Group
@@ -591,7 +593,9 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                           ({ ...option, key: option.id })
                                           : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?._id) ?
                                             ({ ...option, key: option.id })
-                                            : (caseManagerData.labParamsData?.length > 0 && option.id === 15) && ({ ...option, key: option.id })
+                                            : (caseManagerData.labParamsData?.length > 0 && option.id === 15) ? ({ ...option, key: option.id })
+                                             : (caseManagerData.surgeries.length > 0 && option.id === 16 && isSurgeriesAccessable) &&
+                                                ({ ...option, key: option.id })
               )}
               showHeader={false}
             />

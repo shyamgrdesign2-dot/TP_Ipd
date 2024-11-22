@@ -41,7 +41,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import DifferentialDiagnosis from "./DifferentialDiagnosis";
 
-function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoading, handleDDxKnowMore}) {
+function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoading, handleDDxKnowMore, isDDxGenerated}) {
   const {
     selectedDiagnosisList,
     parentOptionsList,
@@ -989,6 +989,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
               onSelectParent={onSelectDDx}
               isDiagnosis={true}
               handleDDxKnowMore={handleDDxKnowMore}
+              isDDxGenerated={isDDxGenerated}
             />
           </div>
         )}

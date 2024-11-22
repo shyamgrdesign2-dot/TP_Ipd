@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useContext,
+} from "react";
 import {
   AutoComplete,
   Input,
@@ -9,81 +15,48 @@ import {
   Popover,
   Tabs,
   Spin,
-  Tooltip
+  Tooltip,
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
-import { v4 as uuidv4 } from 'uuid';
 
-import CommonModal from '../common/CommonModal';
-import alertIcon from '../assets/images/alertIcon.svg';
-import CashManagerContext from '../context/CashManagerContext';
-import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace } from "../utils/utils";
-import Investigationicon from "../assets/images/Lab.svg";
-import { MenuOutlined } from '@ant-design/icons';
+import CommonModal from "../common/CommonModal";
+import alertIcon from "../assets/images/alertIcon.svg";
+import CashManagerContext from "../context/CashManagerContext";
+import {
+  errorMessage,
+  removeBeforeWhiteSpace,
+  capitalizeAfterSentence,
+  getClinicName,
+} from "../utils/utils";
+import surgeryIcon from "../assets/images/surgery.svg";
+import { MenuOutlined } from "@ant-design/icons";
 import {
   addTemplate,
   updateTemplate,
   deleteTemplate,
-  getInvestigationTemplates,
-  getFrequentlySearchedInvestigation,
-  searchInvestigation
-} from "../redux/investigationSlice";
+  getExaminationTemplates,
+  searchExamination,
+} from "../redux/surgicalSlice";
 
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import DifferentialDiagnosis from "./DifferentialDiagnosis";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { useLocation } from "react-router-dom";
 
-const { TextArea } = Input;
-
-function InvestigationBox({handleDDxDrawer, generatedDDx}) {
+function SurgicalBox() {
   const {
-    selectedInvestigationList,
+    selectedSurgicalList,
     parentOptionsList,
     childOptionsList,
     templates,
     loading,
-  } = useSelector((state) => state.investigation);
+  } = useSelector((state) => state.surgical);
   const dispatch = useDispatch();
+  const { profile } = useSelector((state) => state.doctors);
 
-  const { investigationData, setInvestigationData, diagnosisData } =
-    useContext(CashManagerContext);
-  // const [ investigationData, setInvestigationData] = useState([]);
+  const { state } = useLocation();
+  const { patient_data } = state;
 
-  const [ddxInvestigationOptionsList, setDdxInvestigationOptionsList] =
-    useState([]);
-
-  const filteredDdxInvestigationOptionsList =
-    ddxInvestigationOptionsList?.filter(
-      (e) =>
-        ![...investigationData.map((e1) => e1.investigation_name)].includes(
-          e.investigation_name
-        )
-    );
-
-  useEffect(() => {
-    if (diagnosisData?.length > 0 && generatedDDx?.length > 0) {
-      const associatedLabTestsData = diagnosisData?.map((diagnosis) => {
-        if (diagnosis?.isDDx) {
-            return generatedDDx?.find(
-              (item) => item?._id === diagnosis?.unique_id
-            )?.labTests;
-        }
-      })?.filter((item) => item);
-      const uniqueLabTests = [...new Set(associatedLabTestsData?.flat())];
-      const ddxOptionsList = uniqueLabTests
-        ?.map((item) => {
-          return {
-            investigation_name: item,
-            hm_type: 1,
-            pms_default: 1,
-            isDDx: true,
-          };
-        });
-        setDdxInvestigationOptionsList(ddxOptionsList);
-      } else if (diagnosisData?.length === 0) {
-        setDdxInvestigationOptionsList([]);
-      }
-    }, [diagnosisData]);
+  const { surgeriesData, setSurgeriesData } = useContext(CashManagerContext);
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -111,16 +84,16 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
 
   useEffect(() => {
-    if (selectedInvestigationList.length > 0) {
-      const updatedData = investigationData.map((e, i) => {
-        return { ...e, ...selectedInvestigationList[i] };
+    if (selectedSurgicalList?.length > 0) {
+      const updatedData = surgeriesData.map((e, i) => {
+        return { ...e, ...selectedSurgicalList[i] };
       });
-      setInvestigationData(updatedData);
+      setSurgeriesData(updatedData);
     }
-  }, [selectedInvestigationList]);
+  }, [selectedSurgicalList]);
 
   useEffect(() => {
-    dispatch(getInvestigationTemplates());
+    dispatch(getExaminationTemplates());
   }, []);
 
   useEffect(() => {
@@ -133,14 +106,14 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
     if (searchParentQuery) {
       const timeOutId = setTimeout(() => {
         dispatch(
-          searchInvestigation({ searchQuery: searchParentQuery, type: "parent" })
+          searchExamination({ searchQuery: searchParentQuery, type: "parent" })
         );
       }, 500);
       return () => {
         clearTimeout(timeOutId);
       };
-    } else {
-      dispatch(getFrequentlySearchedInvestigation());
+    } else if (searchParentQuery === "") {
+      dispatch(searchExamination({ searchQuery: "", type: "parent" }));
     }
   }, [searchParentQuery]);
 
@@ -148,37 +121,31 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
     const data = [];
     parentOptionsList.map((e) => {
       return data.push({
-        key: JSON.stringify({ ...e, unique_id: uuidv4() }),
-        value: e.investigation_name,
-        label: <div>{e.investigation_name}</div>,
+        key: JSON.stringify({ ...e }),
+        value: e.name,
+        label: <div>{e.name}</div>,
       });
     });
-    if (searchParentQuery.length === 0) {
-      data.unshift({
-        key: -1,
+    searchParentQuery &&
+      data.push({
+        key: JSON.stringify({
+          change: 1,
+          name: searchParentQuery,
+        }),
+        value: searchParentQuery,
         label: (
           <>
-            <div>FREQUENTLY USED</div>
+            <div>
+              {searchParentQuery}
+              <i className="icon-Add mx-1 text-primary fs-6"></i>{" "}
+              <a className="fw-medium text-decoration-underline text-primary">
+                {" "}
+                Add Custom
+              </a>
+            </div>
           </>
         ),
       });
-    }
-    else {
-      searchParentQuery && parentOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchParentQuery?.toLowerCase()?.trim()) === -1 &&
-        data.push({
-          key: JSON.stringify({
-            unique_id: uuidv4(),
-            change: 1,
-            investigation_name: searchParentQuery
-          }),
-          value: searchParentQuery,
-          label: (
-            <>
-              <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
-            </>
-          ),
-        });
-    }
     setParentSearchOptions(data);
   }, [parentOptionsList]);
 
@@ -191,34 +158,28 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
 
   const onSelectParent = useCallback(
     (data, e) => {
-      window.Moengage.track_event("investigation_select", {
-        "value": data
-      });
-      investigationData.push({
+      surgeriesData.push({
         ...JSON.parse(e.key),
-        note: "",
+        notes: "",
       });
-      setInvestigationData((prev) => [...prev]);
+      setSurgeriesData((prev) => [...prev]);
       setSearchParentQuery("");
+      window.Moengage.track_event("TP_Surgery_added", {
+        clinic_name: getClinicName(profile?.hospital_data),
+        doctor_id: profile?.doctor_unique_id,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+      });
     },
-    [searchParentQuery, investigationData]
+    [searchParentQuery, surgeriesData]
   );
-
-  const onSelectDDx = (e) => {
-    investigationData.push({
-      ...e,
-      note: "",
-    });
-    setInvestigationData((prev) => [...prev]);
-    setSearchParentQuery("");
-  };
 
   //Child AutoComplete
   useEffect(() => {
     if (searchChildQuery) {
       const timeOutId = setTimeout(() => {
         dispatch(
-          searchInvestigation({
+          searchExamination({
             searchQuery: searchChildQuery.query,
             type: "child",
           })
@@ -234,71 +195,79 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
     const data = [];
     childOptionsList.map((e) => {
       return data.push({
-        key: JSON.stringify({ ...e, unique_id: uuidv4() }),
-        value: e.investigation_name,
-        label: <div>{e.investigation_name}</div>,
+        key: JSON.stringify({ ...e }),
+        value: e.name,
+        label: <div>{e.name}</div>,
       });
     });
-    // if (searchChildQuery?.query) {
-    //   data.push({
-    //     key: JSON.stringify({
-    //       ...investigationData[searchChildQuery.index],
-    //       unique_id: uuidv4(),
-    //       change: 1,
-    //       investigation_name: searchChildQuery.query
-    //     }),
-    //     value: searchChildQuery.query,
-    //     label: (
-    //       <>
-    //         <div>{searchChildQuery.query}</div>
-    //       </>
-    //     ),
-    //   });
-    // }
+    if (searchChildQuery?.query) {
+      data.push({
+        key: JSON.stringify({
+          ...surgeriesData[searchChildQuery.index],
+          change: 1,
+          name: searchChildQuery.query,
+        }),
+        value: searchChildQuery.query,
+        label: (
+          <>
+            <div>{searchChildQuery.query}</div>
+          </>
+        ),
+      });
+    }
     setChildSearchOptions(data);
   }, [childOptionsList]);
 
   const onFocusChid = (i) => {
-    setSearchChildQuery({ query: investigationData[i].investigation_name, index: i });
+    setSearchChildQuery({
+      query: surgeriesData[i].name,
+      index: i,
+    });
     dispatch(
-      searchInvestigation({ searchQuery: investigationData[i].investigation_name, type: "child" })
+      searchExamination({
+        searchQuery: surgeriesData[i].name,
+        type: "child",
+      })
     );
   };
 
   const onSearchChild = useCallback(
     (query, i) => {
-      const updateQuery = removeBeforeWhiteSpace(query)
-      investigationData[i] = {
-        ...investigationData[i],
+      const updateQuery = removeBeforeWhiteSpace(query);
+      surgeriesData[i] = {
+        ...surgeriesData[i],
         change: 1,
-        investigation_name: updateQuery
+        name: updateQuery,
       };
-      setInvestigationData((prev) => [...prev]);
+      setSurgeriesData((prev) => [...prev]);
       setSearchChildQuery({ query: updateQuery, index: i });
     },
-    [searchChildQuery, investigationData]
+    [searchChildQuery, surgeriesData]
   );
 
   const onSelectChild = useCallback(
     (data, e, i) => {
-      investigationData[i] = { ...investigationData[i], ...JSON.parse(e.key) };
-      setInvestigationData((prev) => [...prev]);
-      setSearchChildQuery({ query: JSON.parse(e.key).investigation_name, index: i });
+      surgeriesData[i] = { ...surgeriesData[i], ...JSON.parse(e.key) };
+      setSurgeriesData((prev) => [...prev]);
+      setSearchChildQuery({
+        query: JSON.parse(e.key).name,
+        index: i,
+      })
     },
-    [searchChildQuery, investigationData]
+    [searchChildQuery, surgeriesData]
   );
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      investigationData[i].note = e.target.value;
-      setInvestigationData((prev) => [...prev]);
+      surgeriesData[i].notes = capitalizeAfterSentence(e.target.value);
+      setSurgeriesData((prev) => [...prev]);
     },
-    [investigationData]
+    [surgeriesData]
   );
 
   const onRemoveRow = (index) => {
-    investigationData.splice(index, 1);
-    setInvestigationData((prev) => [...prev]);
+    surgeriesData.splice(index, 1);
+    setSurgeriesData((prev) => [...prev]);
   };
 
   //PopOver1 function
@@ -310,9 +279,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
     const searchQuery = e.target.value;
     if (searchQuery) {
       let filteredTemplates = templates.filter((template) => {
-        return template.tit_template_name
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
+        return template.name.toLowerCase().includes(searchQuery.toLowerCase());
       });
       setMatchedTemplates(filteredTemplates);
     } else {
@@ -321,20 +288,21 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   };
 
   const onTemplateSelected = (template) => {
-    window.Moengage.track_event("investigation_template_used", {
-      "template_name": template.tit_template_name
+    const updatedData = template.surgeries.map((e) => {
+      return {
+        ...e,
+        masterId: e.masterId,
+        notes: e.notes ? e.notes : "",
+      };
     });
-    const updatedData = template.investigation.map(e => {
-      return { ...e, unique_id: uuidv4(), note: e.note ? e.note : "" }
-    })
-    setInvestigationData([...investigationData, ...updatedData]);
+    setSurgeriesData([...surgeriesData, ...updatedData]);
     showHideTemplatesListPopover();
   };
 
-  const onDeleteTemplateClicked = async (tit_id) => {
-    const action = await dispatch(deleteTemplate(tit_id));
+  const onDeleteTemplateClicked = async (id) => {
+    const action = await dispatch(deleteTemplate(id));
     if (action.meta.requestStatus === "rejected") {
-      errorMessage(action.error)
+      errorMessage(action.error);
     }
   };
 
@@ -354,21 +322,21 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
 
   const onChangeSaveTemplate = useCallback(
     (e) => {
-      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      const updateQuery = removeBeforeWhiteSpace(e.target.value);
       setInputTemplateName(updateQuery);
     },
     [inputTemplateName]
   );
 
   const onAddTemplateClicked = async () => {
-    if (investigationData.length === 0) {
-      errorMessage('At least 1 investigation added')
-    } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
-      errorMessage('Please fillup investigation name')
+    if (surgeriesData.length === 0) {
+      errorMessage("At least 1 surgeries/procedures added");
+    } else if (surgeriesData.filter((e) => e.name == "").length > 0) {
+      errorMessage("Please fillup surgeries/procedures name");
     } else {
       var sendData = {
-        tit_template_name: inputTemplateName,
-        investigation: investigationData,
+        name: inputTemplateName,
+        surgeries: surgeriesData,
       };
       const action = await dispatch(addTemplate(sendData));
       if (action.meta.requestStatus === "fulfilled") {
@@ -390,18 +358,19 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (investigationData.length === 0) {
-      errorMessage('At least 1 investigation added')
-    } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
-      errorMessage('Please fillup investigation name')
+    if (surgeriesData.length === 0) {
+      errorMessage("At least 1 surgeries/procedures added");
+    } else if (surgeriesData.filter((e) => e.name == "").length > 0) {
+      errorMessage("Please fillup surgeries/procedures name");
     } else {
       var data = JSON.parse(inputTemplateName);
       var sendData = {
-        tit_id: data.tit_id,
-        tit_template_name: data.tit_template_name,
-        investigation: investigationData,
+        name: data.name,
+        surgeries: surgeriesData,
       };
-      const action = await dispatch(updateTemplate(sendData));
+      const action = await dispatch(
+        updateTemplate({ template: sendData, templateId: data.id })
+      );
       if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
@@ -409,10 +378,15 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
     }
   };
 
-  const showHideModal = useCallback((template_id) => {
-    template_id !== undefined ? setRemoveTemplateId(template_id) : setRemoveTemplateId(null)
-    setIsModalOpen(!isModalOpen);
-  }, [isModalOpen]);
+  const showHideModal = useCallback(
+    (template_id) => {
+      template_id !== undefined
+        ? setRemoveTemplateId(template_id)
+        : setRemoveTemplateId(null);
+      setIsModalOpen(!isModalOpen);
+    },
+    [isModalOpen]
+  );
 
   //Template Remove
   const DELETE_MODAL = useMemo(() => {
@@ -426,22 +400,25 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
           <>
             <div className="alert-warning rounded-10px p-2 patient-details">
               <div className="d-flex align-items-center">
-                <img className='me-3' src={alertIcon} alt="Warning" />
-                <span>
-                  Are you sure you want to delete this template?
-                </span>
+                <img className="me-3" src={alertIcon} alt="Warning" />
+                <span>Are you sure you want to delete this template?</span>
               </div>
             </div>
             <div className="mt-4">
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={() => {
-                  onDeleteTemplateClicked(removeTemplateId)
-                  showHideModal()
-                }}
-                  className="me-4 text-decoration-underline btn p-0 text-main">
+                <div
+                  onClick={() => {
+                    onDeleteTemplateClicked(removeTemplateId);
+                    showHideModal();
+                  }}
+                  className="me-4 text-decoration-underline btn p-0 text-main"
+                >
                   Yes Delete
                 </div>
-                <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                <Button
+                  onClick={showHideModal}
+                  className="lh-lg btn btn-primary3 btn-41 px-4"
+                >
                   <span>No</span>
                 </Button>
               </div>
@@ -452,62 +429,6 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
     );
   }, [isModalOpen]);
 
-  //Child Componet
-  // const TABLE_INVESTIGATION = useMemo(() => {
-  //   return (
-  //     investigationData.length > 0 &&
-  //     investigationData.map((item, index) => {
-  //       return (
-  //         <Row
-  //           key={index}
-  //           gutter={[0]}
-  //           className={`${index === 0 && "mt-14 border-top"} align-items-center border-bottom`}
-  //         >
-  //           <Col lg={9} md={9} sm={9} xs={9}>
-  //             <div className="fontroboto fw-medium">
-  //               <AutoComplete
-  //                 defaultValue={item.investigation_name}
-  //                 value={item.investigation_name}
-  //                 placeholder="Investigation Name"
-  //                 bordered={false}
-  //                 disabled={true}
-  //                 defaultOpen={false}
-  //                 onSearch={(query) => onSearchChild(query, index)}
-  //                 onFocus={() => onFocusChid(index)}
-  //                 options={childSearchOptions}
-  //                 className="autocomplete-custom w-100 inputborder"
-  //                 defaultActiveFirstOption={true}
-  //                 onSelect={(data, e) => onSelectChild(data, e, index)}
-  //               />
-  //             </div>
-  //           </Col>
-  //           <Col lg={14} md={14} sm={13} xs={13} className="border-start border-end">
-  //             <TextArea
-  //               className="notesinput border-0"
-  //               placeholder="Instruction"
-  //               defaultValue={item.note}
-  //               value={item.note}
-  //               autoSize={{
-  //                 minRows: 1,
-  //                 maxRows: 2,
-  //               }}
-  //               onChange={(e) => onChangeNoteChild(e, index)}
-  //             />
-  //           </Col>
-  //           <Col lg={1} md={1} sm={2} xs={2} className="text-center">
-  //             <Button
-  //               className="btn py-0 btn-delete-prescription px-0"
-  //               onClick={() => onRemoveRow(index)}
-  //             >
-  //               <i className="icon-delete"></i>
-  //             </Button>
-  //           </Col>
-  //         </Row>
-  //       );
-  //     })
-  //   );
-  // }, [investigationData, childSearchOptions]);
-
   const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
@@ -517,71 +438,90 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   const onDragEnd = (result) => {
     if (!result.destination) return;
     const reorderedItems = reorder(
-      investigationData,
+      surgeriesData,
       result.source.index,
       result.destination.index
     );
-    setInvestigationData(reorderedItems);
+    setSurgeriesData(reorderedItems);
   };
 
-  const TABLE_INVESTIGATION = useMemo(() => {
+  const TABLE_EXAMINATION = useMemo(() => {
     return (
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="investigation" direction="vertical">
+        <Droppable droppableId="surgeries" direction="vertical">
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef}>
-              {investigationData.length > 0 &&
-                investigationData.map((item, index) => (
-                  <Draggable key={index} draggableId={`investigation-${index}`} index={index}>
+              {surgeriesData.length > 0 &&
+                surgeriesData.map((item, index) => (
+                  <Draggable
+                    key={index}
+                    draggableId={`surgeries-${index}`}
+                    index={index}
+                  >
                     {(provided) => (
                       <Row
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         key={index}
                         gutter={[0]}
-                        className={`${index === 0 && 'mt-14 border-top'
-                          } align-items-center border-bottom`}
+                        className={`${
+                          index === 0 && "mt-14 border-top"
+                        } align-items-center border-bottom`}
                       >
-                        <Col lg={1} md={1} sm={1} xs={1} className="text-center">
+                        <Col
+                          lg={1}
+                          md={1}
+                          sm={1}
+                          xs={1}
+                          className="text-center"
+                        >
                           <MenuOutlined
                             {...provided.dragHandleProps}
                             className="drag-handle"
-                            style={{ cursor: 'grab' }}
-                          >
-                          </MenuOutlined>
+                            style={{ cursor: "grab" }}
+                          ></MenuOutlined>
                         </Col>
-                        <Col lg={8} md={8} sm={8} xs={8}>
+                        <Col lg={8} md={8} sm={8} xs={8} className="border-end">
                           <div className="fontroboto fw-medium">
                             <AutoComplete
-                              defaultValue={item.investigation_name}
-                              value={item.investigation_name}
-                              placeholder="Investigation Name"
+                              defaultValue={item.name}
+                              value={item.name}
+                              placeholder="Surgeries/Procedures Name"
                               bordered={false}
-                              disabled={true}
                               defaultOpen={false}
                               onSearch={(query) => onSearchChild(query, index)}
                               onFocus={() => onFocusChid(index)}
                               options={childSearchOptions}
                               className="autocomplete-custom w-100 inputborder"
                               defaultActiveFirstOption={true}
-                              onSelect={(data, e) => onSelectChild(data, e, index)}
+                              onSelect={(data, e) =>
+                                onSelectChild(data, e, index)
+                              }
                             />
                           </div>
                         </Col>
-                        <Col lg={14} md={14} sm={13} xs={13} className="border-start border-end">
-                          <TextArea
+                        <Col
+                          lg={14}
+                          md={14}
+                          sm={13}
+                          xs={13}
+                          className="border-end"
+                        >
+                          <Input
                             className="notesinput border-0"
-                            placeholder="Instruction"
-                            defaultValue={item.note}
-                            value={item.note}
-                            autoSize={{
-                              minRows: 1,
-                              maxRows: 2,
-                            }}
+                            placeholder="Notes"
+                            defaultValue={item.notes}
+                            value={item.notes}
                             onChange={(e) => onChangeNoteChild(e, index)}
                           />
                         </Col>
-                        <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+                        <Col
+                          lg={1}
+                          md={1}
+                          sm={2}
+                          xs={2}
+                          className="text-center"
+                        >
                           <Button
                             className="btn py-0 btn-delete-prescription px-0"
                             onClick={() => onRemoveRow(index)}
@@ -599,15 +539,15 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
         </Droppable>
       </DragDropContext>
     );
-  }, [investigationData, childSearchOptions]);
+  }, [surgeriesData, childSearchOptions]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useCallback(() => {
     return (
       <>
-        <div className="pop-header" key="investigation-template">
+        <div className="pop-header" key="surgeries-template">
           <div className="align-items-center d-flex justify-content-between">
-            <div className="title-common">Investigation Templates</div>
+            <div className="title-common">Surgeries/Procedures Templates</div>
             <Button
               className="btn btn-delete-prescription p-0"
               onClick={showHideTemplatesListPopover}
@@ -615,7 +555,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
               <i className="icon-Cross" />
             </Button>
           </div>
-          <div className="mt-3" key="investigation-template-search">
+          <div className="mt-3" key="surgeries-template-search">
             <Input
               allowClear
               className="popinput"
@@ -643,12 +583,13 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
                     className="text-truncate w-100"
                     onClick={() => onTemplateSelected(template)}
                   >
-                    <div className="title text-main2">{template.tit_template_name}</div>
+                    <div className="title text-main2">{template.name}</div>
                     <div className="text-truncate">
-                      {template.investigation.map((item, ii) => {
+                      {template?.surgeries?.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.investigation_name}${template.investigation.length - 1 != ii ? ", " : ""
-                            }`}</span>
+                          <span key={ii}>{`${item.name}${
+                            template.surgeries.length - 1 != ii ? ", " : ""
+                          }`}</span>
                         );
                       })}
                     </div>
@@ -656,8 +597,8 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
                   <Button
                     className="btn btn-delete-prescription p-0 ms-2"
                     onClick={() => {
-                      showHideModal(template.tit_id)
-                      showHideTemplatesListPopover()
+                      showHideModal(template.id);
+                      showHideTemplatesListPopover();
                     }}
                   >
                     {template.loading ? (
@@ -718,7 +659,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
           <div className="pop-header d-flex">
             <Select
               showSearch
-              value={inputTemplateName && JSON.parse(inputTemplateName).tit_template_name}
+              value={inputTemplateName && JSON.parse(inputTemplateName).name}
               className="autocomplete-custom w-100 popinput inputheight41"
               placeholder="Select Template"
               onSearch={onSearchTemplate}
@@ -727,24 +668,26 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
               options={allTemplates.map((template) => {
                 return {
                   key: JSON.stringify(template),
-                  value: template.tit_template_name,
-                  label: (
-                    <div key={template.tit_id}>
-                      {template.tit_template_name}
-                    </div>
-                  ),
+                  value: template.name,
+                  label: <div key={template.id}>{template.name}</div>,
                 };
               })}
               optionRender={(option) => (
                 <div className="align-items-center d-flex text-truncate w-100">
-                  <div className="round-box"><i className="icon-template"></i></div>
+                  <div className="round-box">
+                    <i className="icon-template"></i>
+                  </div>
                   <div className="text-truncate w-100">
                     <div className="title text-main2">{option.data.value}</div>
                     <div className="text-truncate">
-                      {JSON.parse(option.data.key).investigation.map((item, ii) => {
+                      {JSON.parse(option.data.key).surgeries.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.investigation_name}${JSON.parse(option.data.key).investigation.length - 1 != ii ? ", " : ""
-                            }`}</span>
+                          <span key={ii}>{`${item.name}${
+                            JSON.parse(option.data.key).surgeries.length - 1 !=
+                            ii
+                              ? ", "
+                              : ""
+                          }`}</span>
                         );
                       })}
                     </div>
@@ -771,8 +714,8 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   }, [isModalOpen1]);
 
   const onRemoveRows = () => {
-    setInvestigationData([])
-    showHideClearData()
+    setSurgeriesData([]);
+    showHideClearData();
   };
 
   //Remove All Rows
@@ -787,19 +730,24 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
           <>
             <div className="alert-warning rounded-10px p-2 patient-details">
               <div className="d-flex align-items-center">
-                <img className='me-3' src={alertIcon} alt="Warning" />
+                <img className="me-3" src={alertIcon} alt="Warning" />
                 <span>
-                  Are you sure you want to Clear Selected <b>Lab Investigation</b>?
+                  Are you sure you want to Clear Selected <b>Surgeries/Procedures</b>?
                 </span>
               </div>
             </div>
             <div className="mt-4">
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={onRemoveRows}
-                  className="me-4 text-decoration-underline btn p-0 text-main">
+                <div
+                  onClick={onRemoveRows}
+                  className="me-4 text-decoration-underline btn p-0 text-main"
+                >
                   <span>Yes, Clear</span>
                 </div>
-                <Button onClick={showHideClearData} className="lh-lg btn btn-primary3 btn-41 px-4">
+                <Button
+                  onClick={showHideClearData}
+                  className="lh-lg btn btn-primary3 btn-41 px-4"
+                >
                   <span>No</span>
                 </Button>
               </div>
@@ -815,8 +763,8 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
       <div className="">
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
-            <img className="me-2" src={Investigationicon} alt="Investigation" />
-            <div className="title-common">Lab Investigation</div>
+            <img className="me-2" src={surgeryIcon} alt="surgery-icon" />
+            <div className="title-common">Surgeries/Procedures</div>
           </div>
           <div className="d-flex align-items-center">
             <Popover
@@ -835,17 +783,17 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
             <Tooltip
               placement="bottom"
               title={
-                investigationData.length > 0
+                surgeriesData.length > 0
                   ? ""
-                  : "Please enter some Investigation to save a template"
+                  : "Please enter some Surgeries/Procedures to save a template"
               }
             >
               <Popover
                 open={popOver2}
-                onOpenChange={() =>
-                  investigationData.length > 0 && showHideSaveTemplatePopOver()
-                }
                 // onOpenChange={showHideSaveTemplatePopOver}
+                onOpenChange={() =>
+                  surgeriesData.length > 0 && showHideSaveTemplatePopOver()
+                }
                 content={SAVE_CONTENT}
                 trigger="click"
                 overlayClassName="pop-450 pp-0"
@@ -860,7 +808,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
             <button
               onClick={showHideClearData}
               className="btn btn-text clear-text d-flex align-items-center"
-              disabled={investigationData.length > 0 ? false : true}
+              disabled={surgeriesData.length > 0 ? false : true}
             >
               <i className="icon-eraser1 me-2"></i> <span>Clear</span>
             </button>
@@ -869,17 +817,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
 
         {DELETE_MODAL}
         {REMOVE_ALL_ROWS}
-        {TABLE_INVESTIGATION}
-
-        {filteredDdxInvestigationOptionsList?.length > 0 && (
-          <div style={{ padding: "0 14px" }}>
-            <DifferentialDiagnosis
-              handleDDxDrawer={handleDDxDrawer}
-              ddxOptionsList={filteredDdxInvestigationOptionsList}
-              onSelectParent={onSelectDDx}
-            />
-          </div>
-        )}
+        {TABLE_EXAMINATION}
 
         <div className="p-14">
           <AutoComplete
@@ -890,10 +828,9 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
             className="autocomplete-custom w-100"
             onSelect={onSelectParent}
             defaultActiveFirstOption={true}
-            popupClassName={!searchParentQuery && "boxpopup"}
           >
             <Input
-              placeholder="Search Lab Investigation"
+              placeholder="Search Surgeries/Procedures"
               prefix={<i className="icon-search"></i>}
             />
           </AutoComplete>
@@ -903,4 +840,4 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   );
 }
 
-export default React.memo(InvestigationBox);
+export default React.memo(SurgicalBox);

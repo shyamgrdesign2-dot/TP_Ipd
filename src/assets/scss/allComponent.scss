@@ -687,7 +687,7 @@
                         z-index: 1;
                     }
                     .ant-collapse-expand-icon{
-                        margin: 30px;
+                        margin: 30px 25px 30px 0px;
                         &:after {
                             background-color: rgba(255, 255, 255, 0.5);
                         }
@@ -2428,4 +2428,15 @@ body {
   100% {
     transform: translateX(100%);
   }
+}
+
+.ddx-btn {
+    text-transform: capitalize;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    white-space: initial;
 }

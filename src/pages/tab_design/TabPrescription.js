@@ -87,6 +87,8 @@ import DDxKnowMore from "../../components/DDxKnowMore";
 import { getDDxDetails } from "../../api/services/ApiDDx";
 import { getDecodedToken } from "../../utils/localStorage";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { getClinicName } from "../../utils/utils";
+import TabSurgicalBox from "../../components/tab_design/TabSurgicalBox";
 
 function TabPrescription() {
   const {
@@ -97,6 +99,7 @@ function TabPrescription() {
     userId,
   } = useSelector((state) => state.doctors);
   const isApexAIAccessable = useFeatureIsOn("cdss");
+  const isSurgeriesAccessable = useFeatureIsOn("surgeries");
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -125,6 +128,7 @@ function TabPrescription() {
 
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
+  const [surgeriesData, setSurgeriesData] = useState([]);
   const [diagnosisData, setDiagnosisData] = useState([]);
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
@@ -146,6 +150,7 @@ function TabPrescription() {
   const [labParamsData, setLabParamsData] = useState(null);
   const [generatedDDx, setGeneratedDDx] = useState({ results: [] });
   const [likeDislike, setLikeDislike] = useState([]);
+  const [isDDxGenerated, setIsDDxGenerated] = useState(false);
   const [isDDxLoading, setIsDDxLoading] = useState(false);
 
   const contextApi = {
@@ -156,6 +161,8 @@ function TabPrescription() {
     setSymptomsData,
     examinationData,
     setExaminationData,
+    surgeriesData,
+    setSurgeriesData,
     diagnosisData,
     setDiagnosisData,
     adviceData,
@@ -298,6 +305,14 @@ function TabPrescription() {
         setExaminationData(caseManagerData.examination);
       }
       if (
+        caseManagerData?.surgeries?.length > 0 &&
+        customizedPadRightList.findIndex(
+          (e) => e.tmdpm_id === 21 && e.tmdpm_status === 0
+        ) !== -1
+      ) {
+        setSurgeriesData(caseManagerData.surgeries);
+      }
+      if (
         caseManagerData.diagnosis.length > 0 &&
         customizedPadRightList.findIndex(
           (e) => e.tmdpm_id === 11 && e.tmdpm_status === 0
@@ -424,7 +439,7 @@ function TabPrescription() {
       const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
         const cleanedToken = token.replace(/['"]+/g, '');
         const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${patient_data?.patient_unique_id}`, {
-            headers: {
+          headers: {
                 'Authorization': `Bearer ${cleanedToken}`,
           },
         });
@@ -677,8 +692,17 @@ function TabPrescription() {
     setViewlabparamsDrawer((prev) => !prev);
   };
 
-  const handleDDxDrawer = () => {
+  const handleDDxDrawer = (field) => {
     setDDxDrawer((prev) => !prev);
+    if (!ddxDrawer) {
+      window.Moengage.track_event("TP_CDSS_Ddx_reviewed", {
+        clinic_name: getClinicName(profile?.hospital_data),
+        doctor_id: profile?.doctor_unique_id,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+        field: field,
+      });
+    }
   };
 
   const handleDDxKnowMore = () => {
@@ -698,8 +722,16 @@ function TabPrescription() {
     setIsFileTypeError(null);
   };
 
-  const getGenerateDDx = async () => {
+  const getGenerateDDx = async (field) => {
     setIsDDxLoading(true);
+    setIsDDxGenerated(true);
+    window.Moengage.track_event("TP_CDSS_Ack_GenDx", {
+      clinic_name: getClinicName(profile?.hospital_data),
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+      field: field,
+    });
     const payload = {
       patientId: patient_data?.patient_unique_id,
       symptoms: symptomsData?.map((symptom) => {
@@ -711,21 +743,32 @@ function TabPrescription() {
             notes: symptom.note,
           };
         }
-      }) 
+      }),
     };
     const generatedDDxResponse = await getDDxDetails(payload);
-    if (generatedDDxResponse?.results?.length > 0) {
+    if (generatedDDxResponse?.results) {
       setGeneratedDDx(generatedDDxResponse);
       setLikeDislike(generatedDDxResponse?.results?.map(() => ""));
     }
     dispatch(setIsDDxReadyToGenerate(false));
     setIsDDxLoading(false);
-  }
+  };
 
-  const handleApexAI = () => {
+  const handleApexAIClose = () => {
     dispatch(setIsApexAISelected(false));
     setCollapsedFlag(null);
     setCollapsed(false);
+  }
+
+  const handleApexAI = () => {
+    dispatch(setIsApexAISelected(true));
+    openCollapsed(9);
+    window.Moengage.track_event("TP_Apex_AI_Ack", {
+      clinic_name: getClinicName(profile?.hospital_data),
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+    });
   }
 
   return (
@@ -752,7 +795,7 @@ function TabPrescription() {
                   <button
                     type="button"
                     className="mb-3 text-center btn btn-action"
-                    onClick={handleApexAI}
+                    onClick={handleApexAIClose}
                     style={{ padding: "6px 10px" }}
                   >
                     <div
@@ -786,10 +829,7 @@ function TabPrescription() {
                     <button
                       type="button"
                       className="mb-3 text-center btn btn-action"
-                      onClick={() => {
-                        dispatch(setIsApexAISelected(true));
-                        openCollapsed(9);
-                      }}
+                      onClick={handleApexAI}
                       style={{ padding: "6px 10px" }}
                     >
                       <div
@@ -1154,6 +1194,7 @@ function TabPrescription() {
                     isDDxLoading={isDDxLoading}
                     handleDDxKnowMore={handleDDxKnowMore}
                     getGenerateDDx={getGenerateDDx}
+                    isDDxGenerated={isDDxGenerated}
                   />
                 )
               )}
@@ -1181,6 +1222,10 @@ function TabPrescription() {
                     <div key={i} className="prescription-box-sm">
                       <TabExaminationBox />
                     </div>
+                  ) : e.tmdpm_id === 21 && e.tmdpm_status === 0 && isSurgeriesAccessable ? (
+                    <div key={i} className="prescription-box-sm">
+                      <TabSurgicalBox />
+                    </div>
                   ) : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       <TabDiagnosisBox
@@ -1189,6 +1234,7 @@ function TabPrescription() {
                         getGenerateDDx={getGenerateDDx}
                         isDDxLoading={isDDxLoading}
                         handleDDxKnowMore={handleDDxKnowMore}
+                        isDDxGenerated={isDDxGenerated}
                       />
                     </div>
                   ) : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? (

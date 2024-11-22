@@ -23,6 +23,7 @@ import uploadDocSlice from './uploadDocSlice';
 import ddxSlice from './ddxSlice';
 import subscriptionReducer from './subscriptionSlice';
 import doctorModalReducer from './doctorModalSlice';
+import surgicalSlice from './surgicalSlice';
 
 const persistConfig = {
   key: 'root',
@@ -35,6 +36,7 @@ const rootReducer = combineReducers({
   doctors: doctorsSlice,
   symptoms: symptomsSlice,
   examination: examinationSlice,
+  surgical: surgicalSlice,
   diagnosis: diagnosisSlice,
   advice: adviceSlice,
   investigation: investigationSlice,

@@ -61,12 +61,9 @@ const columns = [
     dataIndex: "invoiceReceipt",
     render: (text) =>
       text ? (
-        <DownloadOutlined
-          className="custom-icon"
-          onClick={() =>
-            fileDownload("https://www.orimi.com/pdf-test.pdf", "Invoice.pdf")
-          }
-        />
+        <a href={text} download rel="noopener noreferrer">
+          <DownloadOutlined className="custom-icon" />
+        </a>
       ) : (
         ""
       ),
@@ -125,10 +122,11 @@ const SubscriptionTable = () => {
 const BillingHistory = ({ show, setShow }) => {
   return (
     <Modal
-      width={"50%"}
+      width={"auto"}
       open={show}
       footer={null}
       onCancel={() => setShow(false)}
+      centered
       title={
         <>
           <img

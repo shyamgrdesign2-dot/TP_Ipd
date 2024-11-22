@@ -15,6 +15,8 @@ import CashManagerContext from "../../context/CashManagerContext";
 import { setIsDiagnosisBox } from "../../redux/ddxSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import { getClinicName } from "../../utils/utils";
+import { useLocation } from "react-router-dom";
 
 const TabDDxList = ({
   generatedDDx,
@@ -22,10 +24,14 @@ const TabDDxList = ({
   isDDxLoading,
   handleDDxKnowMore,
   getGenerateDDx,
+  isDDxGenerated,
 }) => {
   const dispatch = useDispatch();
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
-  const { diagnosisData } = useContext(CashManagerContext);
+  const { profile } = useSelector((state) => state.doctors);
+  const { state } = useLocation();
+  const { patient_data } = state;
+  const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
 
   return (
     <div
@@ -89,16 +95,23 @@ const TabDDxList = ({
                   style={{
                     background: "white",
                   }}
-                  onClick={handleDDxDrawer}
+                  onClick={() => handleDDxDrawer("apexDDx")}
                 >
                   <span>View Detailed Analysis</span>
                 </Button>
               </div>
             ) : (
-              <span style={{ lineHeight: "26px", textAlign: "center" }}>
-                Enter key symptoms and patient history to generate a list of
-                possible diagnoses and recommended tests for confirmation.
-                Ensure accurate data for best results.
+              <span
+                style={{ lineHeight: "26px", textAlign: "center" }}
+                className={`${
+                  isDDxGenerated && generatedDDx?.length === 0
+                    ? "text-danger-custom"
+                    : ""
+                }`}
+              >
+                {isDDxGenerated
+                  ? "No results found! We couldn't generate any diagnosis due to incomplete or inaccurate information provided. Please review and update the details, then try again."
+                  : "Enter key symptoms and patient history to generate a list of possible diagnoses and recommended tests for confirmation. Ensure accurate data for best results."}
               </span>
             )}
           </div>
@@ -110,7 +123,7 @@ const TabDDxList = ({
               <Button
                 className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center"
                 style={{ gap: 10 }}
-                onClick={getGenerateDDx}
+                onClick={() => getGenerateDDx("apexDDx")}
                 disabled={!isDDxReadyToGenerate}
               >
                 <img src={ddxIcon} alt="ddx-icon" />
@@ -199,7 +212,35 @@ const TabDDxList = ({
                         <div
                           className="text-primary"
                           style={{ fontWeight: 600 }}
-                          onClick={() => dispatch(setIsDiagnosisBox(true))}
+                          onClick={() => {
+                            dispatch(
+                              setIsDiagnosisBox(item?.differentialDiagnosisName)
+                            );
+                            diagnosisData.push({
+                              tds_id: item?._id,
+                              unique_id: item?._id,
+                              tds_name: item?.differentialDiagnosisName,
+                              pms_default: 1,
+                              usage_count: 0,
+                              isDDx: true,
+                              since: "",
+                              status: "",
+                              note: "",
+                            });
+                            setDiagnosisData((prev) => [...prev]);
+                            window.Moengage.track_event(
+                              "TP_CDSS_Ddx_selected",
+                              {
+                                clinic_name: getClinicName(
+                                  profile?.hospital_data
+                                ),
+                                doctor_id: profile?.doctor_unique_id,
+                                patient_number: patient_data?.pm_contact_no,
+                                patient_id: patient_data?.patient_unique_id,
+                                field: "apexDDx",
+                              }
+                            );
+                          }}
                         >
                           Add To Rx
                         </div>

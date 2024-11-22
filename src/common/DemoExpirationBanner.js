@@ -25,7 +25,6 @@ const DemoExpirationBanner = () => {
   };
 
   return (
-    !is_pm_renew_requested &&
     ["TRIAL", "EXPIRED"].includes(currentPlanStatus) &&
     is_owner && (
       <header className="banner">
@@ -41,7 +40,9 @@ const DemoExpirationBanner = () => {
         </p>
         <button className="buyPlanButton" onClick={handleClick}>
           <img loading="lazy" src={crownIcon} className="buttonIcon" alt="" />
-          <span className="buttonText text-white">Buy plan now</span>
+          <span className="buttonText text-white">
+            {is_pm_renew_requested ? "Interest submitted" : "Buy plan now"}
+          </span>
         </button>
       </header>
     )

@@ -10,11 +10,13 @@ import like from "../assets/images/like.svg";
 import dislike from "../assets/images/dislike.svg";
 import { setIsDiagnosisBox, setIsLabTestBox } from "../redux/ddxSlice";
 import { useDispatch } from "react-redux";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import CashManagerContext from "../context/CashManagerContext";
 import { useLocation } from "react-router-dom";
 import { addResultImpression } from "../api/services/ApiDDx";
 import TabPane from "antd/es/tabs/TabPane";
+import { getClinicName } from "../utils/utils";
+import { useSelector } from "react-redux";
 
 export const WarningColor = {
   "can't miss": "rgba(194, 159, 0, 1)",
@@ -59,11 +61,58 @@ const DifferentialDiagnosisDrawer = ({
     investigationData,
     setInvestigationData,
   } = useContext(CashManagerContext);
-
+  const { profile } = useSelector((state) => state.doctors);
   const { state } = useLocation();
   const { patient_data } = state;
 
   const [shouldShowInputWarning, setShowInputWarning] = useState(true);
+  const [activeKey, setActiveKey] = useState("mostLikely");
+
+  const sectionsRef = useRef({
+    mostLikely: null,
+    extended: null,
+    cantMiss: null,
+  });
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let closestSection = null;
+        let minDistance = Number.MAX_VALUE;
+
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const distance = Math.abs(entry.boundingClientRect.top); // Distance from the top of the viewport
+            if (distance < minDistance) {
+              minDistance = distance;
+              closestSection = entry.target.id; // Update the closest section
+            }
+          }
+        });
+
+        if (closestSection) {
+          setActiveKey(closestSection); // Update the active key
+        }
+      },
+      {
+        root: null, // Default is the viewport
+        threshold: 0, // Trigger as soon as the section starts intersecting
+        rootMargin: `0px`, // Focus on sections near the top of the viewport
+      }
+    );
+
+    // Observe all sections
+    Object.values(sectionsRef.current).forEach((section) => {
+      if (section) observer.observe(section);
+    });
+
+    return () => {
+      // Cleanup observer
+      Object.values(sectionsRef.current).forEach((section) => {
+        if (section) observer.unobserve(section);
+      });
+    };
+  }, []);
 
   const handleLikeAndDislike = async (resultId, index, impression) => {
     const updatedLikeDislike = [...likeDislike];
@@ -112,7 +161,7 @@ const DifferentialDiagnosisDrawer = ({
         </div>
 
         <div className="drawer-tabs">
-          <Tabs defaultActiveKey="1" onChange={(key) => scrollToSection(key)}>
+          <Tabs activeKey={activeKey} onChange={(key) => scrollToSection(key)}>
             <TabPane tab="Most Likely" key="mostLikely" />
             <TabPane tab="Extended" key="extended" />
             <TabPane tab="Can’t Miss " key="cantMiss" />
@@ -280,7 +329,11 @@ const DifferentialDiagnosisDrawer = ({
                             className="btn d-flex w-100 align-items-center justify-content-center btn-41"
                             onClick={(e) => {
                               e.stopPropagation();
-                              dispatch(setIsDiagnosisBox(true));
+                              dispatch(
+                                setIsDiagnosisBox(
+                                  item?.differentialDiagnosisName
+                                )
+                              );
                               diagnosisData.push({
                                 tds_id: item?._id,
                                 unique_id: item?._id,
@@ -293,6 +346,18 @@ const DifferentialDiagnosisDrawer = ({
                                 note: "",
                               });
                               setDiagnosisData((prev) => [...prev]);
+                              window.Moengage.track_event(
+                                "TP_CDSS_Ddx_selected",
+                                {
+                                  clinic_name: getClinicName(
+                                    profile?.hospital_data
+                                  ),
+                                  doctor_id: profile?.doctor_unique_id,
+                                  patient_number: patient_data?.pm_contact_no,
+                                  patient_id: patient_data?.patient_unique_id,
+                                  field: "detailDrawer",
+                                }
+                              );
                             }}
                           >
                             Add to Rx
@@ -378,17 +443,34 @@ const DifferentialDiagnosisDrawer = ({
                                           className="text-primary"
                                           style={{ fontWeight: 600 }}
                                           onClick={() => {
-                                            dispatch(setIsLabTestBox(true));
+                                            dispatch(
+                                              setIsLabTestBox(item?._id)
+                                            );
                                             investigationData.push({
                                               investigation_name: labTest,
                                               hm_type: 1,
                                               pms_default: 1,
                                               isDDx: true,
-                                              notes: "",
+                                              note: "",
                                             });
                                             setInvestigationData((prev) => [
                                               ...prev,
                                             ]);
+                                            window.Moengage.track_event(
+                                              "TP_CDSS_addtoRx",
+                                              {
+                                                clinic_name: getClinicName(
+                                                  profile?.hospital_data
+                                                ),
+                                                doctor_id:
+                                                  profile?.doctor_unique_id,
+                                                patient_number:
+                                                  patient_data?.pm_contact_no,
+                                                patient_id:
+                                                  patient_data?.patient_unique_id,
+                                                field: "detailDrawer",
+                                              }
+                                            );
                                           }}
                                         >
                                           Add To Rx
@@ -487,6 +569,9 @@ const DifferentialDiagnosisDrawer = ({
                 <div
                   key={index}
                   id={ImpressionType[item?.likelihood]}
+                  ref={(el) =>
+                    (sectionsRef.current[ImpressionType[item?.likelihood]] = el)
+                  }
                   className="d-flex"
                   style={{ columnGap: 24 }}
                 >

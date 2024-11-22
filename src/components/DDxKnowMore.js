@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, Tabs } from "antd";
 import apexAI from "../assets/images/apexAI.svg";
 import codeIcon from "../assets/images/code.svg";
@@ -40,18 +40,70 @@ const trustDetails = [
 
 const DDxKnowMore = ({ handleDDxKnowMore }) => {
   const [shouldShowVideo, setShowVideo] = useState(false);
+  const [activeKey, setActiveKey] = useState("basicInfo");
+
+  const sectionsRef = useRef({
+    basicInfo: null,
+    trust: null,
+    digitisationProcess: null,
+    tips: null,
+  });
 
   const videoLink = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
     thumbnail: "https://i.ytimg.com/vi/o6ALwX9hPMM/hqdefault.jpg",
   };
 
-  const scrollToSection = (sectionId) => {
-    const section = document.getElementById(sectionId);
+  const scrollToSection = (key) => {
+    const section = sectionsRef.current[key];
     if (section) {
       section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let closestSection = null;
+        let minDistance = Number.MAX_VALUE;
+
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const distance = Math.abs(entry.boundingClientRect.top); // Distance from the top of the viewport
+            if (distance < minDistance) {
+              minDistance = distance;
+              closestSection = entry.target.id; // Update the closest section
+            }
+          }
+        });
+
+        if (closestSection) {
+          setActiveKey(closestSection); // Update the active key
+        }
+      },
+      {
+        root: null, // Default is the viewport
+        threshold: 0, // Trigger as soon as the section starts intersecting
+        rootMargin: `0px 0px ${
+          activeKey === "basicInfo" || activeKey === "digitisationProcess"
+            ? "20%"
+            : "-20%"
+        } 0px`, // Focus on sections near the top of the viewport
+      }
+    );
+
+    // Observe all sections
+    Object.values(sectionsRef.current).forEach((section) => {
+      if (section) observer.observe(section);
+    });
+
+    return () => {
+      // Cleanup observer
+      Object.values(sectionsRef.current).forEach((section) => {
+        if (section) observer.unobserve(section);
+      });
+    };
+  }, []);
 
   return (
     <div className="drawer-container">
@@ -70,7 +122,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
 
         {/* Tabs */}
         <div className="drawer-tabs">
-          <Tabs defaultActiveKey="1" onChange={(key) => scrollToSection(key)}>
+          <Tabs activeKey={activeKey} onChange={scrollToSection}>
             <TabPane tab="Basic Info" key="basicInfo" />
             <TabPane tab="Trust Indicators" key="trust" />
             <TabPane tab="Diagnostic Process" key="digitisationProcess" />
@@ -81,8 +133,16 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
 
       {/* Scrollable Content */}
       <div className="drawer-scrollable-content">
-        <div id="basicInfo" className="section">
-          <span className="section-side-header">Basic Info</span>
+        <div
+          className="section"
+        >
+          <span
+            id="basicInfo"
+            ref={(el) => (sectionsRef.current.basicInfo = el)}
+            className="section-side-header"
+          >
+            Basic Info
+          </span>
           <div className="know-more-section-tilte">
             What is Differential Diagnosis
           </div>
@@ -98,8 +158,17 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
           </div>
         </div>
 
-        <div id="trust" className="section" style={{ minHeight: 430 }}>
-          <span className="section-side-header">Trust Indicators</span>
+        <div
+          className="section"
+          style={{ minHeight: 430 }}
+        >
+          <span
+            id="trust"
+            ref={(el) => (sectionsRef.current.trust = el)}
+            className="section-side-header"
+          >
+            Trust Indicators
+          </span>
           <div className="know-more-section-tilte">
             Why Trust Our AI-Powered Differential Diagnosis?
           </div>
@@ -138,8 +207,16 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
           </div>
         </div>
 
-        <div id="digitisationProcess" className="video-section">
-          <span className="section-side-header">Diagnostic Process</span>
+        <div
+          className="video-section"
+        >
+          <span
+            id="digitisationProcess"
+            ref={(el) => (sectionsRef.current.digitisationProcess = el)}
+            className="section-side-header"
+          >
+            Diagnostic Process
+          </span>
           <div className="know-more-section-tilte">
             How Differential Diagnosis Works
           </div>
@@ -165,8 +242,16 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
           </div>
         </div>
 
-        <div id="tips" className="section">
-          <span className="section-side-header">Tips</span>
+        <div
+          className="section"
+        >
+          <span
+            id="tips"
+            ref={(el) => (sectionsRef.current.tips = el)}
+            className="section-side-header"
+          >
+            Tips
+          </span>
           <div className="know-more-section-tilte">
             Tips to get the best results
           </div>
@@ -177,7 +262,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
             accuracy of the differential diagnosis results.
           </div>
           <div
-            style={{ padding: "60px 0 30px 0", textAlign: "center" }}
+            style={{ padding: "40px 0 80px 0", textAlign: "center" }}
             className="disclaimer-txt"
           >
             <b>Disclaimer</b>: These results are generated by AI and should be

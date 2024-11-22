@@ -75,6 +75,7 @@ function PrintHtmlPage() {
         change: 0,
       },
     ],
+    surgeries: [],
     diagnosis: [
       {
         unique_id: "b1b1a8ab-0cba-4e3e-bc3e-e6915405b9a3",
@@ -1548,6 +1549,193 @@ function PrintHtmlPage() {
                                       }}
                                     >
                                       {item.note ? item.note : "-"}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </table>
+                          </div>
+                        ))}
+
+                      {caseManagerData.surgeries.length > 0 &&
+                        printSettings?.prescription?.case_option[1]?.enable ===
+                        "Y" &&
+                        (printSettings?.prescription?.case_option[1]?.format ===
+                          "inline" ? (
+                          <div
+                            className="mb-15"
+                            style={{
+                              fontSize: printSettings.page_format.font_size,
+                            }}
+                          >
+                            <label
+                              className={`fw-bold ${printSettings.page_format.font_family}`}
+                              style={{
+                                fontSize: printSettings.page_format.font_size,
+                              }}
+                            >
+                              Surgeries/Procedures:&nbsp;
+                            </label>
+                            {caseManagerData.surgeries.map((item, i) => {
+                              return (
+                                <label
+                                  key={i}
+                                  className={`${printSettings.page_format.font_family}`}
+                                  style={{
+                                    fontSize:
+                                      printSettings.page_format.font_size,
+                                  }}
+                                >
+                                  <label className="fw-bold">
+                                    {item.name}&nbsp;
+                                  </label>
+                                  {item.notes ? (
+                                    <>
+                                      {`(${Object.values(
+                                        Object.fromEntries(
+                                          Object.entries(
+                                            (({ notes }) => ({ notes }))(
+                                              caseManagerData.surgeries[i]
+                                            )
+                                          ).filter(([_, v]) => v)
+                                        )
+                                      ).join(", ")})`}
+                                      {caseManagerData.surgeries.length - 1 !=
+                                        i
+                                        ? ","
+                                        : ""}
+                                      &nbsp;
+                                    </>
+                                  ) : (
+                                    <>
+                                      {caseManagerData.surgeries.length - 1 !=
+                                        i
+                                        ? ","
+                                        : ""}
+                                      &nbsp;
+                                    </>
+                                  )}
+                                </label>
+                              );
+                            })}
+                          </div>
+                        ) : printSettings?.prescription?.case_option[1]
+                          ?.format === "listview" ? (
+                          <div
+                            className="mb-15"
+                            style={{
+                              fontSize: printSettings.page_format.font_size,
+                            }}
+                          >
+                            <label
+                              className={`fw-bold ${printSettings.page_format.font_family}`}
+                              style={{
+                                fontSize: printSettings.page_format.font_size,
+                              }}
+                            >
+                              Surgeries/Procedures:&nbsp;
+                            </label>{" "}
+                            <br />
+                            <label
+                              className={`${printSettings.page_format.font_family}`}
+                              style={{
+                                fontSize: printSettings.page_format.font_size,
+                              }}
+                            >
+                              {caseManagerData.surgeries.map((item, i) => {
+                                return (
+                                  <>
+                                    <label
+                                      key={Math.random()}
+                                      className="fw-bold mt-1"
+                                    >
+                                      &nbsp;{i + 1}.&nbsp;
+                                    </label>
+                                    <label
+                                      key={Math.random()}
+                                      className="fw-bold"
+                                    >
+                                      {item.name}&nbsp;
+                                    </label>
+                                    {item.notes && (
+                                      <>
+                                        {`(${Object.values(
+                                          Object.fromEntries(
+                                            Object.entries(
+                                              (({ notes }) => ({ notes }))(
+                                                caseManagerData.surgeries[i]
+                                              )
+                                            ).filter(([_, v]) => v)
+                                          )
+                                        ).join(", ")})`}
+                                        <br />
+                                      </>
+                                    )}
+                                  </>
+                                );
+                              })}
+                            </label>
+                          </div>
+                        ) : (
+                          <div
+                            className="mb-15"
+                            style={{
+                              fontSize: printSettings.page_format.font_size,
+                            }}
+                          >
+                            <label
+                              className={`fw-bold mb-1 ${printSettings.page_format.font_family}`}
+                              style={{
+                                fontSize: printSettings.page_format.font_size,
+                              }}
+                            >
+                              Surgeries/Procedures:&nbsp;
+                            </label>
+                            <table
+                              className="w-100 mb-15 print_table"
+                              cellPadding={5}
+                              cellSpacing={5}
+                            >
+                              <tr>
+                                <th
+                                  className={`${printSettings.page_format.font_family}`}
+                                  style={{
+                                    fontSize:
+                                      printSettings.page_format.font_size,
+                                  }}
+                                >
+                                  NAME
+                                </th>
+                                <th
+                                  className={`${printSettings.page_format.font_family}`}
+                                  style={{
+                                    fontSize:
+                                      printSettings.page_format.font_size,
+                                  }}
+                                >
+                                  NOTE
+                                </th>
+                              </tr>
+                              {caseManagerData.surgeries.map((item, i) => {
+                                return (
+                                  <tr key={i}>
+                                    <td
+                                      className={`${printSettings.page_format.font_family}`}
+                                      style={{
+                                        fontSize:
+                                          printSettings.page_format.font_size,
+                                      }}
+                                    >
+                                      {item.name}
+                                    </td>
+                                    <td
+                                      className={`${printSettings.page_format.font_family}`}
+                                      style={{
+                                        fontSize:
+                                          printSettings.page_format.font_size,
+                                      }}
+                                    >
+                                      {item.notes ? item.notes : "-"}
                                     </td>
                                   </tr>
                                 );

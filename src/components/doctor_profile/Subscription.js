@@ -7,7 +7,6 @@ import billingsIcon from "../../assets/images/billings.svg";
 import { Col, Row } from "react-bootstrap";
 import moment from "moment";
 import BillingHistory from "./BillingHistory";
-import { useNavigate } from "react-router-dom";
 import { openModal } from "../../redux/doctorModalSlice";
 import { Divider } from "antd";
 
@@ -82,7 +81,7 @@ function Subscription() {
               </Col>
             </Row>
           </div>
-          {expiresIn <= expiry_reminder_days && !is_pm_renew_requested && (
+          {expiresIn <= expiry_reminder_days && (
             <>
               <Divider style={{ margin: "0 30px", width: "630px" }} />
               <div className="px-20 py-1">
@@ -101,7 +100,11 @@ function Subscription() {
                     style={{ color: "#EE7200" }}
                     alt=""
                   />
-                  <span className="renew-btn">Renew plan now</span>
+                  <span className="renew-btn">
+                    {is_pm_renew_requested
+                      ? "Interest submitted"
+                      : "Renew plan now"}
+                  </span>
                 </button>
               </div>
             </>
@@ -128,7 +131,11 @@ function Subscription() {
                   className="buttonIcon"
                   alt=""
                 />
-                <span className="buttonText text-danger">Buy plan now</span>
+                <span className="buttonText text-danger">
+                  {is_pm_renew_requested
+                    ? "Interest submitted"
+                    : "Buy plan now"}
+                </span>
               </button>
             </div>
           </>

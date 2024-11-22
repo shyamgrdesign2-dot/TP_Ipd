@@ -28,7 +28,7 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { setIsDiagnosisBox } from "../../redux/ddxSlice";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
-function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoading, handleDDxKnowMore}) {
+function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoading, handleDDxKnowMore, isDDxGenerated}) {
     const {
         selectedDiagnosisList,
         parentOptionsList,
@@ -115,11 +115,12 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
 
     // Handle Parent Drawer
     const handleDrawerParent = useCallback(() => {
-        setParentDrawer(!parentDrawer);
         if (isDiagnosisBox) {
-          dispatch(setIsDiagnosisBox(false));
+          dispatch(setIsDiagnosisBox(null));
+        } else {
+            setParentDrawer(!parentDrawer);
         }
-    }, [parentDrawer]);
+    }, [parentDrawer, isDiagnosisBox]);
 
     const onSelectParent = useCallback(
         (e) => {
@@ -823,10 +824,10 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
                         <i className='icon-search mx-2'></i>
                         <span className="fontroboto backbar fw-normal">Search Diagnosis</span>
                     </div>
-                    {isApexAIAccessable && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={ddxOptionsList?.filter((e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name)))} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} onSelectParent={onSelectParent} isDiagnosis={true} handleDDxKnowMore={handleDDxKnowMore} />}
+                    {isApexAIAccessable && <DifferentialDiagnosis handleDDxDrawer={handleDDxDrawer} ddxOptionsList={ddxOptionsList?.filter((e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.tds_name)))} getGenerateDDx={getGenerateDDx} isDDxLoading={isDDxLoading} onSelectParent={onSelectParent} isDiagnosis={true} handleDDxKnowMore={handleDDxKnowMore} isDDxGenerated={isDDxGenerated} />}
                 </div>
                 <Drawer closeIcon={false} placement="right" onClose={handleDrawerParent} open={parentDrawer || isDiagnosisBox} width={'100%'} className="searchdrawer-content">
-                    {(parentDrawer || isDiagnosisBox) && (<TabDiagnosisSearch passIndex={selectedIndex} onClose={handleDrawerParent} ddxOptionsList={ddxOptionsList} />)}
+                    {(parentDrawer || isDiagnosisBox) && (<TabDiagnosisSearch passIndex={isDiagnosisBox ? diagnosisData?.length - 1 : selectedIndex} onClose={handleDrawerParent} ddxOptionsList={ddxOptionsList} />)}
                 </Drawer>
                 <div className="d-flex flex-wrap p-14-pb0 overflow-hidden" style={{ maxHeight: '114px' }}>
                     {parentOptionsList.length > 0 &&
