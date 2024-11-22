@@ -37,6 +37,7 @@ import {
   deleteTemplate,
   getExaminationTemplates,
   searchExamination,
+  createSurgery,
 } from "../redux/surgicalSlice";
 
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -131,6 +132,7 @@ function SurgicalBox() {
         key: JSON.stringify({
           change: 1,
           name: searchParentQuery,
+          isCustom: true,
         }),
         value: searchParentQuery,
         label: (
@@ -156,10 +158,23 @@ function SurgicalBox() {
     [searchParentQuery]
   );
 
-  const onSelectParent = useCallback(
-    (data, e) => {
+  const createCustomSurgery = async (name) => {
+    const masterId = await createSurgery({ name: name });
+    return masterId;
+  }
+
+  const onSelectParent = useCallback (
+    async(data, e) => {
+      let surgeriesUpdatedData = { ...JSON.parse(e.key) };
+      if (surgeriesUpdatedData?.isCustom) {
+        const masterId = await createCustomSurgery(surgeriesUpdatedData.name);
+        surgeriesUpdatedData = {
+          ...surgeriesUpdatedData,
+          masterId: masterId,
+        };
+      }
       surgeriesData.push({
-        ...JSON.parse(e.key),
+        ...surgeriesUpdatedData,
         notes: "",
       });
       setSurgeriesData((prev) => [...prev]);
@@ -252,7 +267,7 @@ function SurgicalBox() {
       setSearchChildQuery({
         query: JSON.parse(e.key).name,
         index: i,
-      })
+      });
     },
     [searchChildQuery, surgeriesData]
   );
@@ -732,7 +747,8 @@ function SurgicalBox() {
               <div className="d-flex align-items-center">
                 <img className="me-3" src={alertIcon} alt="Warning" />
                 <span>
-                  Are you sure you want to Clear Selected <b>Surgeries/Procedures</b>?
+                  Are you sure you want to Clear Selected{" "}
+                  <b>Surgeries/Procedures</b>?
                 </span>
               </div>
             </div>

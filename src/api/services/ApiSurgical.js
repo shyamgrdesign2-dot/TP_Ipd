@@ -25,4 +25,8 @@ ApiSurgical.searchExamination = function (query) {
   return api.get(`/api/v1/surgeries/list?search=${query}`, baseUrl);
 };
 
+ApiSurgical.createSurgery = function (payload) {
+  return api.post(`/api/v1/surgeries`, payload, baseUrl);
+};
+
 export default ApiSurgical;
