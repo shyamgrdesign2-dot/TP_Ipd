@@ -50,8 +50,8 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
   });
 
   const videoLink = {
-    link: "https://www.youtube.com/embed/o6ALwX9hPMM",
-    thumbnail: "https://i.ytimg.com/vi/o6ALwX9hPMM/hqdefault.jpg",
+    link: "https://www.youtube.com/embed/mAZ7Sa86PnQ",
+    thumbnail: "https://i.ytimg.com/vi/mAZ7Sa86PnQ/hqdefault.jpg",
   };
 
   const scrollToSection = (key) => {
@@ -234,6 +234,9 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
                 height: 272,
                 borderRadius: 24,
                 cursor: "pointer",
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
               }}
               onClick={() => setShowVideo(true)}
             >
