@@ -44,7 +44,7 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         plan_active_date,
         plan_expiry_date,
         lastPlanStatus,
-        currentPlanStatus: "TRIAL",
+        currentPlanStatus,
         last_plan_active_date,
         last_plan_expiry_date,
         productType,
