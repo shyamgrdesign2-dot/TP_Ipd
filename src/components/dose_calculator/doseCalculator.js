@@ -20,6 +20,7 @@ import {
   CloseOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
+import { isMobile } from "react-device-detect";
 import { errorMessage, removeBeforeWhiteSpace } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import CashManagerContext from "../../context/CashManagerContext";
@@ -156,11 +157,20 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
           const findTmmId = medicationData.findIndex(e1 => e1.tmm_id == e.medicine_id)
           if (!medicationData[findTmmId].tmm_dosage) {
             const dose = calculateDose(e.dosage, todayWeight, e.concentration)
-            medicationData[findTmmId].tmm_dosage_unit_name = `${dose} ${medicationData[findTmmId].medicineUnit[0].tmu_title}`;
-            medicationData[findTmmId].tmm_dosage = dose;
-            medicationData[findTmmId].tmm_unit = medicationData[findTmmId].medicineUnit[0].tmu_id;
-            medicationData[findTmmId].tmm_unit_name = medicationData[findTmmId].medicineUnit[0].tmu_title;
-            medicationData[findTmmId].tmu_id = medicationData[findTmmId].medicineUnit[0].tmu_id;
+            if (isMobile) {
+              const objParse = JSON.parse(medicationData[findTmmId].medicineUnit[0].key);
+              medicationData[findTmmId].tmm_dosage = dose;
+              medicationData[findTmmId].tmm_unit = objParse.tmu_id;
+              medicationData[findTmmId].tmm_unit_name = objParse.tmu_title;
+              medicationData[findTmmId].tmu_id = objParse.tmu_id;
+            } else {
+              const objParse = medicationData[findTmmId]?.medicineUnit[0];
+              medicationData[findTmmId].tmm_dosage_unit_name = `${dose} ${objParse.tmu_title}`;
+              medicationData[findTmmId].tmm_dosage = dose;
+              medicationData[findTmmId].tmm_unit = objParse.tmu_id;
+              medicationData[findTmmId].tmm_unit_name = objParse.tmu_title;
+              medicationData[findTmmId].tmu_id = objParse.tmu_id;
+            }
           }
         })
         setMedicationData((prev) => [...prev]);
@@ -403,7 +413,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
                         tmm_company: record.tmm_company
                       }
                       const updateItem = medicineType !== undefined ? { ...makeData, ...medicineType } : makeData
-                      showHideAddMedicineModal()
+                      !isMobile && showHideAddMedicineModal()
                       setAddCustom(updateItem);
                     }}
                   ></i>

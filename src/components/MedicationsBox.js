@@ -96,8 +96,10 @@ function MedicationsBox() {
 
   const handleViewDoseCalcDrawer = (value) => {
     setDoseCalculatorDrawer(!doseCalculatorDrawer)
-    setActiveTab(value)
+    setActiveTab(typeof value == 'string' ? value : '1')
+    setSearchMLQuery("")
     setMedicationLibrary([])
+    setAddCustom(null)
   }
 
   useEffect(() => {
@@ -1605,8 +1607,18 @@ function MedicationsBox() {
           };
         });
         if (doseCalculatorDrawer) {
+          const modifyData = updatedData[0]
           medicationLibrary.push({
-            ...updatedData[0],
+            ...modifyData,
+            id: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.id : "",
+            medicine_id: modifyData.tmm_id,
+            dosage: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.dosage : "",
+            dosage_unit: "mg/kg/dose",
+            concentration: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.concentration : "",
+            concentration_unit: "mg/ml",
+            medicine_name: modifyData.tmm_medicine_name,
+            medicine_generic_name: modifyData.tmm_generic,
+            exist: dosesList.some((e1) => e1.medicine_id == modifyData.tmm_id) ? true : false
           });
         } else {
           medicationData.push({
