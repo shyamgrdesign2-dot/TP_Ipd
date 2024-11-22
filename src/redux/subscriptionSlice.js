@@ -4,12 +4,11 @@ import config from "../config";
 import { getDecodedToken } from "../utils/localStorage";
 import moment from "moment";
 
-const token = getDecodedToken();
-
 // Async thunk action to fetch subscription details from the API
 export const fetchSubscriptionDetails = createAsyncThunk(
   "subscription/fetchSubscriptionDetails",
   async (data) => {
+    const token = getDecodedToken();
     const response = await api.post(
       `/user/pm/info/plan`,
       {
@@ -45,7 +44,7 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         plan_active_date,
         plan_expiry_date,
         lastPlanStatus,
-        currentPlanStatus,
+        currentPlanStatus: "TRIAL",
         last_plan_active_date,
         last_plan_expiry_date,
         productType,
