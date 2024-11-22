@@ -6,7 +6,6 @@ import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import billingsIcon from "../../assets/images/billings.svg";
 import { fetchSubscriptionDetails } from "../../redux/subscriptionSlice";
-import fileDownload from "js-file-download";
 
 const columns = [
   {
@@ -31,6 +30,14 @@ const columns = [
     title: "Amount Paid",
     key: "paymentAmount",
     dataIndex: "paymentAmount",
+    render: (text) => (
+      <span style={{ fontSize: "14px", color: "#555" }}>{text || ""}</span>
+    ),
+  },
+  {
+    title: "Status",
+    key: "status",
+    dataIndex: "status",
     render: (text) => (
       <span style={{ fontSize: "14px", color: "#555" }}>{text || ""}</span>
     ),
