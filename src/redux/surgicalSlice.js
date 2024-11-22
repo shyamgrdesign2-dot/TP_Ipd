@@ -91,6 +91,16 @@ export const searchExamination = createAsyncThunk(
   }
 );
 
+export const createSurgery = async (template) => {
+  let result = {};
+    result = await ApiSurgical.createSurgery(template);
+  if (result?.id) {
+    return result.id;
+  } else {
+    throw Error(result.error);
+  }
+};
+
 const surgicalSlice = createSlice({
   name: "surgical",
   initialState,

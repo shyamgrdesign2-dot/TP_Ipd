@@ -209,7 +209,7 @@ const DifferentialDiagnosis = ({
                 ? `No results found! We couldn't generate any diagnosis due to incomplete or inaccurate information provided. Please review and update the details, then try again.`
                 : `Enter key symptoms to get possible diagnoses and recommended tests.
             Adding additional details like medical history${
-              isGynaecHistoryAccessable
+              isGynaecHistoryAccessable && patient_data?.pm_gender?.toLowerCase() === "female"
                 ? ", gynecological and obstetric history"
                 : ""
             } and lab results can help improve accuracy.`}
