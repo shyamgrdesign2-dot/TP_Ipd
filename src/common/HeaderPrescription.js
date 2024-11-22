@@ -190,7 +190,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     })
                     setExaminationData([...examinationData, ...updatedData]);
                 }
-                if (data.surgeriesData.length > 0) {
+                if (data?.surgeriesData && data.surgeriesData?.length > 0) {
                   const updatedData = data.surgeriesData.map((e) => {
                     return { ...e, unique_id: uuidv4(), note: "" };
                   });
