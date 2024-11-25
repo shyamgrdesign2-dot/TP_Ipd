@@ -128,6 +128,15 @@ function SidebarDoctor() {
                     )
                 })}
 
+                <NavLink to="bulk_messages" replace={true} className={({ isActive, isPending }) =>
+                    isPending ? "pending" : isActive ? "active" : ""
+                }>
+                    <i className='icon-calendarfill'></i>
+                    <div className='mt-1 px-2'>
+                        <div className='text-truncate'>Messages</div>
+                    </div>
+                </NavLink>
+
                 <Button className="btn btn-delete-prescription mx-auto d-block p-0 mt-2" onClick={() => window.Moengage.track_event("announcement_button_clicked")} id='beamerButton'>
                     <i className="icon-announcement fs-3"></i> <br />
                 </Button>

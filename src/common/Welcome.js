@@ -3,6 +3,7 @@ import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getDecodedToken } from "../utils/localStorage";
+import CreditImg from "../assets/images/credit_icon.svg"
 import config from "../config";
 
 function Welcome(props) {
@@ -43,10 +44,13 @@ function Welcome(props) {
               <h1>Edit Patient Details</h1>
             ) : (locationPath == "/walk_in_consultation" || locationPath == "/walk_in_consultation_zydus") ? (
               <h1>Start Walk-In Consultation</h1>
+            ) : locationPath == "/bulk_messages" ? (
+              <h1>Messages</h1>
             ) : (
               <h1>Welcome Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
             )}
             {locationPath == "/" && <p>{"Your Appointments"}</p>}
+            {locationPath == "/bulk_messages" && <p className="text-main fw-medium fs-14">{"Engage patients with timely updates and reminders"}</p>}
           </div>
           <img
             src={require("../assets/images/bg-welcome.png")}
@@ -56,7 +60,7 @@ function Welcome(props) {
         </div>
         <div className="d-flex gap-1">
           <div>
-            {locationPath == "/" && (
+            {locationPath == "/" &&
               <div className="d-lg-flex d-block">
                 <Button
                   variant="primary"
@@ -65,7 +69,23 @@ function Welcome(props) {
                   {"Start Walk-in Consultation"}
                 </Button>
               </div>
-            )}
+            }
+            {locationPath == "/bulk_messages" &&
+              <div className="d-lg-flex d-block">
+                <Button
+                  className="px-3 btn-41 btn-message d-flex align-items-center">
+                    <img src={CreditImg} width={19} className="me-2" />
+                  {"Available Credits: 2000"}
+                </Button>
+                <Button
+                  variant="primary"
+                  className="px-3 btn-41 ms-3 d-flex align-items-center"
+                  onClick={clickWalkInConsultation}>
+                  <i className="icon-Add me-2"></i>
+                  {"Create New Campaign"}
+                </Button>
+              </div>
+            }
           </div>
         </div>
       </div>

@@ -8,6 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import config from "./config";
 
 import AppointmentList from "./pages/AppointmentList";
+import MessagesList from "./pages/MessagesList";
 import PatientDetails from "./pages/PatientDetails";
 import Prescription from "./pages/Prescription";
 import SmartPrescription from "./pages/SmartPrescription";
@@ -111,6 +112,7 @@ function App() {
               <DoctorModal />
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
+                <Route path="bulk_messages" element={<MessagesList />} />
                 <Route path="patient_details" element={<PatientDetails />} />
                 <Route path="prescription" element={isMobile ? <TabPrescription /> : <Prescription />} />
                 <Route path="prescription_print_view" element={<PrescriptionPrintView />} />
