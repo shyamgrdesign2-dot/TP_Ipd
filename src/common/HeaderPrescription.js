@@ -119,6 +119,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
         setPrivateNotesData(null)
         setFollowUpDate(null)
         setAdditionalNote('')
+        setSurgeriesData([]);
     }
     // const languageItems = [
     //     {
@@ -194,7 +195,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                   const updatedData = data.surgeries.map((e) => {
                     return { ...e, unique_id: uuidv4() };
                   });
-                  setSurgeriesData([...data.surgeries, ...updatedData]);
+                  setSurgeriesData([...surgeriesData, ...updatedData]);
                 }
                 if (data.diagnosis.length > 0) {
                     const updatedData = data.diagnosis.map(e => {
