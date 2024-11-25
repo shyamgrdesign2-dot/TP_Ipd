@@ -17,12 +17,14 @@ import {
   Radio,
   Drawer,
   Tabs,
-  Dropdown
+  Dropdown,
+  message
 } from "antd";
 import {
   Button as BSButton,
   ButtonGroup as BSButtonGroup,
 } from "react-bootstrap";
+import { InfoCircleOutlined } from "@ant-design/icons";
 
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
@@ -46,7 +48,8 @@ import TabMedicationMoreModal from "./TabMedicationMoreModal";
 
 import noRecordFound from '../../assets/images/no-record-round.svg';
 import calculatorIconBlue from '../../assets/images/calculator-blue.svg';
-import { EXTRA_OPTIONS } from "../../utils/constants";
+import imgCloseVisit from '../../assets/images/close-visit.svg';
+import { EXTRA_OPTIONS, MESSAGE_KEY } from "../../utils/constants";
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import DoseCalculator from "../dose_calculator/doseCalculator";
@@ -92,10 +95,12 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const [doseCalculatorDrawer, setDoseCalculatorDrawer] = useState(false);
   const [searchMLQuery, setSearchMLQuery] = useState("");
   const [medicationLibrary, setMedicationLibrary] = useState([]);
+  const [editDoseId, setEditDoseId] = useState(0);
 
   const handleViewDoseCalcDrawer = (value) => {
     setDoseCalculatorDrawer(!doseCalculatorDrawer)
     setActiveTab(typeof value == 'string' ? value : '1')
+    setEditDoseId(typeof value == 'number' ? value : 0)
     setSearchMLQuery("")
     setMedicationLibrary([])
     setAddCustom(null)
@@ -247,7 +252,21 @@ function TabMedicationSearch({ passIndex, onClose }) {
         const medicineExists = medicationLibrary.some((med) => med.tmm_id == item.tmm_id);
 
         if (medicineExists) {
-          errorMessage("Medicine already in library, skipping addition.")
+          message.open({
+            key: MESSAGE_KEY,
+            type: '',
+            className: 'message-appointment',
+            content: (
+              <div className='d-flex align-items-center'>
+                <InfoCircleOutlined className="fs-21 me-2 circle-outlined-custom" />
+                <div>
+                  <div className='text-start fs-18 fontroboto'>This medicine is already added. You can't add it again</div>
+                </div>
+                <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+              </div>
+            ),
+            duration: 3,
+          });
           return;
         }
       }
@@ -949,10 +968,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const items = [
     {
       label: dosesList.some((e1) => e1.medicine_id == medicationData[selectedIndex]?.tmm_id) ?
-        <div onClick={() => handleViewDoseCalcDrawer("2")}>
+        <div onClick={() => handleViewDoseCalcDrawer("2", medicationData[selectedIndex]?.tmm_id)}>
           <img src={calculatorIconBlue} alt="Dose calcultor" className="me-2" width={16} />Edit Calculation</div>
         :
-        <div onClick={() => handleViewDoseCalcDrawer("1")}>
+        <div onClick={() => handleViewDoseCalcDrawer("1", 0)}>
           <img src={calculatorIconBlue} alt="Dose calcultor" className="me-2" width={16} />Dose Calculator</div>,
       key: 'Dose Calculator',
     },
@@ -2144,6 +2163,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 onSearchParent={onSearchParent}
                 onSelectParent={onParentSelectParent}
                 setAddCustom={setAddCustom}
+                editDoseId={editDoseId}
               />
             }
           </Drawer>
