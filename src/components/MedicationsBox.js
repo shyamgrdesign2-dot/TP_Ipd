@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip, Drawer } from "antd";
-import { LoadingOutlined } from "@ant-design/icons";
+import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip, Drawer, message } from "antd";
+import { InfoCircleOutlined, LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,6 +13,7 @@ import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
 import calculatorIcon from '../assets/images/calculator.svg';
 import calculatorIconBlue from '../assets/images/calculator-blue.svg';
+import imgCloseVisit from '../assets/images/close-visit.svg';
 import { MenuOutlined } from '@ant-design/icons';
 import {
   addTemplate,
@@ -30,7 +31,7 @@ import {
   updateFrequentlyMedication,
   getAllDoses
 } from "../redux/medicationSlice";
-import { EXTRA_OPTIONS } from "../utils/constants";
+import { EXTRA_OPTIONS, MESSAGE_KEY } from "../utils/constants";
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DoseCalculator from "./dose_calculator/doseCalculator";
@@ -93,10 +94,12 @@ function MedicationsBox() {
   const [doseCalculatorDrawer, setDoseCalculatorDrawer] = useState(false);
   const [searchMLQuery, setSearchMLQuery] = useState("");
   const [medicationLibrary, setMedicationLibrary] = useState([]);
+  const [editDoseId, setEditDoseId] = useState(0);
 
-  const handleViewDoseCalcDrawer = (value) => {
+  const handleViewDoseCalcDrawer = (tab, value) => {
     setDoseCalculatorDrawer(!doseCalculatorDrawer)
-    setActiveTab(typeof value == 'string' ? value : '1')
+    setActiveTab(typeof tab == 'string' ? tab : '1')
+    setEditDoseId(typeof value == 'number' ? value : 0)
     setSearchMLQuery("")
     setMedicationLibrary([])
     setAddCustom(null)
@@ -215,7 +218,21 @@ function MedicationsBox() {
         const medicineExists = medicationLibrary.some((med) => med.tmm_id == JSON.parse(item.key).tmm_id);
 
         if (medicineExists) {
-          errorMessage("Medicine already in library, skipping addition.")
+          message.open({
+            key: MESSAGE_KEY,
+            type: '',
+            className: 'message-appointment',
+            content: (
+              <div className='d-flex align-items-center'>
+                <InfoCircleOutlined className="fs-21 me-2 circle-outlined-custom" />
+                <div>
+                  <div className='text-start fs-18 fontroboto'>This medicine is already added. You can't add it again</div>
+                </div>
+                <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+              </div>
+            ),
+            duration: 3,
+          });
           return;
         }
       }
@@ -1079,9 +1096,9 @@ function MedicationsBox() {
                                   {ii != 0 && (<div className="badge-then">Then</div>)}
                                   {ii === 0 && (
                                     dosesList.some((e1) => e1.medicine_id == item.tmm_id) ? (
-                                      <div className="badge-tapper position-absolute" style={{ bottom: 0 }} onClick={() => handleViewDoseCalcDrawer("2")}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
+                                      <div className="badge-tapper position-absolute" style={{ bottom: 0 }} onClick={() => handleViewDoseCalcDrawer("2", item?.tmm_id)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
                                     ) : (
-                                      <div className="badge-tapper position-absolute" style={{ bottom: 0 }} onClick={() => handleViewDoseCalcDrawer("1")}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Dose Calculator</div>
+                                      <div className="badge-tapper position-absolute" style={{ bottom: 0 }} onClick={() => handleViewDoseCalcDrawer("1", 0)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Dose Calculator</div>
                                     )
                                   )}
                                 </Row>
@@ -1885,6 +1902,7 @@ function MedicationsBox() {
               onSelectParent={onSelectParent}
               showHideAddMedicineModal={showHideAddMedicineModal}
               setAddCustom={setAddCustom}
+              editDoseId={editDoseId}
             />
           </Drawer>
         }

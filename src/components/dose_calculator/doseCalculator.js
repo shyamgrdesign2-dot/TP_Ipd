@@ -21,7 +21,7 @@ import {
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import { isMobile } from "react-device-detect";
-import { errorMessage, removeBeforeWhiteSpace } from "../../utils/utils";
+import { errorMessage, onlyDecimalFormat, removeBeforeWhiteSpace } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import CashManagerContext from "../../context/CashManagerContext";
 import { MESSAGE_KEY } from "../../utils/constants";
@@ -37,7 +37,7 @@ import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
 import CommonModal from "../../common/CommonModal";
 
-const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, searchMLQuery, setSearchMLQuery, medicationLibrary, setMedicationLibrary, parentSearchOptions, onSearchParent, onSelectParent, showHideAddMedicineModal, setAddCustom }) => {
+const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, searchMLQuery, setSearchMLQuery, medicationLibrary, setMedicationLibrary, parentSearchOptions, onSearchParent, onSelectParent, showHideAddMedicineModal, setAddCustom, editDoseId }) => {
   const { medicineTypeList } = useSelector(
     (state) => state.doctors
   );
@@ -54,6 +54,9 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
     setVitalsData,
   } = useContext(CashManagerContext);
 
+  const { selectedVitalsList, vitalsPastList } =
+    useSelector((state) => state.vitals);
+
   const { TabPane } = Tabs;
 
   const [todayWeight, setTodayWeight] = useState("");
@@ -63,6 +66,15 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
   const [doseLibrary, setDoseLibrary] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen1, setIsModalOpen1] = useState(false);
+
+  useEffect(() => {
+    if (editDoseId) {
+      const data = dosesList.find((e) => e.medicine_id === editDoseId);
+      if (data && data !== undefined) {
+        setEditedData(data);
+      }
+    }
+  }, [editDoseId]);
 
   useEffect(() => {
     if (medicationData?.length > 0) {
@@ -88,7 +100,8 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
   useEffect(() => {
     const todayDate = new Date().toISOString().split("T")[0];
     // Find today's entry in vitalsData and extract the weight
-    const todayVitals = vitalsData.find((vital) => vital.date === todayDate);
+    // const todayVitals = vitalsData.find((vital) => vital.date === todayDate);
+    const todayVitals = [...vitalsPastList, ...selectedVitalsList].findLast((vital) => vital.date === todayDate);
     if (todayVitals && todayVitals.weight) {
       setTodayWeight(todayVitals.weight);
     }
@@ -111,6 +124,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
     const sanitizedDosesData = medicationLibrary?.filter(e => !e.exist)?.map(
       ({ dosage, dosage_unit, concentration, concentration_unit, medicine_id }) => ({ dosage, dosage_unit, concentration, concentration_unit, medicine_id })
     )
+
     if (!todayWeight) {
       message.open({
         key: MESSAGE_KEY,
@@ -144,8 +158,9 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         ),
         duration: 3,
       });
-    } else if (sanitizedDosesData?.length > 0) {
-      const action = await dispatch(createDose(sanitizedDosesData))
+    } else if (medicationLibrary?.length > 0) {
+
+      const action = sanitizedDosesData?.length > 0 ? await dispatch(createDose(sanitizedDosesData)) : { meta: { requestStatus: 'fulfilled' } }
       if (action.meta.requestStatus === "fulfilled") {
 
         const collectOriginalData = new Set(medicationData.map(item => parseInt(item.tmm_id)));
@@ -153,7 +168,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         medicationData.push(...findDataWithoutOriginalData);
         setMedicationData((prev) => [...prev]);
 
-        sanitizedDosesData.map(e => {
+        medicationLibrary?.map(e => {
           const findTmmId = medicationData.findIndex(e1 => e1.tmm_id == e.medicine_id)
           if (!medicationData[findTmmId].tmm_dosage) {
             const dose = calculateDose(e.dosage, todayWeight, e.concentration)
@@ -226,14 +241,14 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
 
   const onChangeWeight = useCallback(
     (e) => {
-      const updateQuery = removeBeforeWhiteSpace(e.target.value)
+      const updateQuery = removeBeforeWhiteSpace(onlyDecimalFormat(e.target.value))
       setTodayWeight(updateQuery);
     },
     [todayWeight]
   );
 
   const handleInputChange = (value, key, i) => {
-    medicationLibrary[i][key] = value;
+    medicationLibrary[i][key] = onlyDecimalFormat(value);
     setMedicationLibrary((prev) => [...prev]);
   };
 
@@ -275,22 +290,24 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
   );
 
   const handleSaveClick = async () => {
-    var sendData = {
-      id: editedData.id,
-      medicine_id: editedData.medicine_id,
-      dosage: editedData.dosage,
-      dosage_unit: editedData.dosage_unit,
-      concentration: editedData.concentration,
-      concentration_unit: editedData.concentration_unit,
-      medicine_name: editedData.medicine_name,
-      medicine_generic_name: editedData.medicine_generic_name
+    if (editedData.dosage && editedData.concentration) {
+      var sendData = {
+        id: editedData.id,
+        medicine_id: editedData.medicine_id,
+        dosage: editedData.dosage,
+        dosage_unit: editedData.dosage_unit,
+        concentration: editedData.concentration,
+        concentration_unit: editedData.concentration_unit,
+        medicine_name: editedData.medicine_name,
+        medicine_generic_name: editedData.medicine_generic_name
+      }
+      await dispatch(updateDose(sendData))
+      setEditedData(null);
     }
-    await dispatch(updateDose(sendData))
-    setEditedData(null);
   };
 
   const handleDoseLibInputChange = (value, field) => {
-    setEditedData((prevData) => ({ ...prevData, [field]: value }));
+    setEditedData((prevData) => ({ ...prevData, [field]: onlyDecimalFormat(value) }));
   };
 
   const handleCancelClick = () => {
@@ -331,6 +348,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
           value={editedData?.dosage}
           onChange={(e) => handleDoseLibInputChange(e.target.value, "dosage")}
           addonAfter={record.dosage_unit}
+          status={`${!editedData?.dosage && 'error'}`}
         />
       ) : (
         <Input className="inputheight41-group" value={text} addonAfter={record.dosage_unit} disabled />
@@ -347,6 +365,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
           value={editedData?.concentration}
           onChange={(e) => handleDoseLibInputChange(e.target.value, "concentration")}
           addonAfter={record.concentration_unit}
+          status={`${!editedData?.concentration && 'error'}`}
         />
       ) : (
         <Input className="inputheight41-group" value={text} addonAfter={record.concentration_unit} disabled />
@@ -424,7 +443,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
           ),
     },
     {
-      title: "Recommended Dose",
+      title: <>Recommended Dose <sup className="text-danger-custom">*</sup></>,
       dataIndex: "dosage",
       key: "dosage",
       render: (text, record, index) =>
@@ -442,7 +461,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
           ),
     },
     {
-      title: "Concentration",
+      title: <>Concentration <sup className="text-danger-custom">*</sup></>,
       dataIndex: "concentration",
       key: "concentration",
       render: (text, record, index) =>
@@ -476,7 +495,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
     },
   ];
 
-  //Sevond Tab
+  //Second Tab
   const doseLibraryColumns = [
     {
       title: "Medicine",
@@ -485,13 +504,13 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
       render: (text, record, index) => firstColumn(text, record, index),
     },
     {
-      title: "Recommended Dose",
+      title: <>Recommended Dose <sup className="text-danger-custom">*</sup></>,
       dataIndex: "dosage",
       key: "dosage",
       render: (text, record, index) => secondColumn(text, record, index),
     },
     {
-      title: "Concentration",
+      title: <>Concentration <sup className="text-danger-custom">*</sup></>,
       dataIndex: "concentration",
       key: "concentration",
       render: (text, record, index) => thirdColumn(text, record, index),
@@ -571,7 +590,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         >
           <div style={{ marginTop: "-1rem" }}>
             <div className="d-flex mt-5 ms-4 align-items-center">
-              <div className="px-2 fw-medium">
+              <div className={`px-2 fw-medium ${!todayWeight && 'text-danger-custom'}`}>
                 Patient’s Current weight
               </div>
               <div className="d-flex align-items-center px-2">
@@ -583,6 +602,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
                   addonAfter="kgs"
                   onChange={onChangeWeight}
                   style={{ width: 120 }}
+                  status={`${!todayWeight && 'error'}`}
                 />
               </div>
             </div>
