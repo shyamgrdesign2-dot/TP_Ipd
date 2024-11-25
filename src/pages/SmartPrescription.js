@@ -97,6 +97,7 @@ function SmartPrescription() {
   const [loading, setLoading] = useState(false); // State to track loading
   const drawRef = useRef(null);
   const [dataPresentInCanvas, setDataPresentInCanvas] = useState([]);
+  const [loader, setLoader] = useState(false);
 
   const contextApi = {
     patient_data,
@@ -592,7 +593,7 @@ function SmartPrescription() {
       console.error('Error converting canvas to JPEG:', error);
       errorMessage("Failed to generate image, Please Submit again");
     }
-
+    setLoader(true);
     // FormData to handle file upload
     const formData = new FormData();
     files.forEach((file, index) => {
@@ -613,6 +614,7 @@ function SmartPrescription() {
       errorMessage("Error Uploading the prescription, Please try again");
       console.error('Error Submitting the prescription:', error);
     }
+    setLoader(false);
   }
 
   const handleWrite = () => {
@@ -733,6 +735,7 @@ function SmartPrescription() {
           onClear={handleClearAllPages}
           onSubmit={handleSubmit}
           smartRxData={smartRxDetails}
+          loader={loader}
         />
         {loading && <FullPageLoader />}
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
