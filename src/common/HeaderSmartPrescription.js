@@ -50,7 +50,7 @@ import ReconnectingWebSocket from "reconnectingwebsocket";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_SMARTSYNC_CONNECT } from '../utils/constants';
 
-function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
+function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData, loader }) {
 
   const { templates, loading } = useSelector((state) => state.caseManager);
   const { videoList} = useSelector((state) => state.doctors);
@@ -630,8 +630,8 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData }) {
                 type="button"
                 className="btn align-items-center d-flex btn-41 btn-primary3 me-20"
                 onClick={handleSubmitClick}
-                loading={loading}
-                disabled={(!prescription && clicked)}
+                loading={loading || loader}
+                disabled={(!prescription && clicked) || loader}
               >
                 Submit
               </Button>
