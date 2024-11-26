@@ -639,7 +639,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
                     y: `calc(100vh - 358px)`,
                   }}
                   components={{
-                    body: {
+                    body: medicationLibrary?.filter(e => e.exist)?.length > 0 && {
                       row: CustomRow // Use the custom row component
                     }
                   }}
