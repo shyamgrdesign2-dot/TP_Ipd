@@ -77,7 +77,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
 
   useEffect(() => {
     if (editDoseId) {
-      const data = dosesList.find((e) => e.medicine_id === editDoseId);
+      const data = dosesList.find((e) => e.medicine_id == editDoseId);
       if (data && data !== undefined) {
         setEditedData(data);
       }
