@@ -311,6 +311,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
           const modifyData = updatedData[0]
           medicationLibrary.push({
             ...modifyData,
+            tmm_dosage_unit_name: "",
+            tmm_dosage: '',
+            tmm_unit: 0,
+            tmm_unit_name: '',
+            tmu_id: 0,
             id: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.id : "",
             medicine_id: modifyData.tmm_id,
             dosage: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.dosage : "",
@@ -1851,6 +1856,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
           const modifyData = updatedData[0]
           medicationLibrary.push({
             ...modifyData,
+            tmm_dosage_unit_name: "",
+            tmm_dosage: '',
+            tmm_unit: 0,
+            tmm_unit_name: '',
+            tmu_id: 0,
             id: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.id : "",
             medicine_id: modifyData.tmm_id,
             dosage: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.dosage : "",
