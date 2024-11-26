@@ -1913,6 +1913,7 @@ function MedicationsBox() {
               showHideAddMedicineModal={showHideAddMedicineModal}
               setAddCustom={setAddCustom}
               editDoseId={editDoseId}
+              setEditDoseId={setEditDoseId}
             />
           </Drawer>
         }
