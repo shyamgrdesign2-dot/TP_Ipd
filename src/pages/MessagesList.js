@@ -4,8 +4,8 @@ import { isMobile } from "react-device-detect";
 
 import Header from "../common/Header";
 import SidebarDoctor from "../common/SidebarDoctor";
-import Appointment from "../components/AppointmentData";
 import Welcome from "../common/Welcome";
+import MessagesData from "../components/bulk_messages/MessagesData";
 
 function MessagesList() {
   let location = useLocation();
@@ -28,7 +28,7 @@ function MessagesList() {
             />
           )}
           <Routes>
-            <Route path="/" element={<Appointment locationPath={locationPath} />} />
+            <Route path="/" element={<MessagesData locationPath={locationPath} />} />
           </Routes>
         </div>
       </div>

@@ -1,0 +1,41 @@
+@import '../../assets/scss/variables';
+.table-message {
+    .ant-table-tbody {
+        tr {
+            td {
+                &:first-child {
+                    font-weight: 400;
+                    font-size: 14px;
+                }
+                &:nth-child(2) {
+                    div {
+                        &:first-child {
+                            color: #000 !important;
+                            font-size: 14px;
+                            font-weight: 600;
+                        }
+                        &:nth-child(2) {
+                            font-size: 14px;
+                            font-weight: 400;
+                        }
+                    }
+                }
+                &:nth-child(6) {
+                    div {
+                        font-size: 14px;
+                        font-weight: 400; 
+                        &.text-delivered {
+                            color: #70BF73 !important;
+                        }
+                        &.text-scheduled {
+                            color: #ED8A00 !important;
+                        }
+                        &.text-faild {
+                            color: $alerText !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
