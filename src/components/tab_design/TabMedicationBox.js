@@ -2731,7 +2731,6 @@ function TabMedicationBox() {
                 onSelectParent={onParentSelectParent}
                 setAddCustom={setAddCustom}
                 editDoseId={editDoseId}
-                setEditDoseId={setEditDoseId}
               />
             }
           </Drawer>
