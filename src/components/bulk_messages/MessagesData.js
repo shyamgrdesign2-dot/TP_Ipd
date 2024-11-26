@@ -181,6 +181,7 @@ function MessagesData() {
                 <Tabs
                     defaultActiveKey={TAB_QUEUE}
                     items={tItems}
+                    className="tabs-massages"
                 />
                 <div>
                     <Table
