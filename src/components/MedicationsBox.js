@@ -99,7 +99,7 @@ function MedicationsBox() {
   const handleViewDoseCalcDrawer = (tab, value) => {
     setDoseCalculatorDrawer(!doseCalculatorDrawer)
     setActiveTab(typeof tab == 'string' ? tab : '1')
-    setEditDoseId(typeof value == 'number' ? value : 0)
+    setEditDoseId(isNumeric(value) ? value : 0)
     setSearchMLQuery("")
     setMedicationLibrary([])
     setAddCustom(null)

@@ -100,7 +100,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const handleViewDoseCalcDrawer = (value) => {
     setDoseCalculatorDrawer(!doseCalculatorDrawer)
     setActiveTab(typeof value == 'string' ? value : '1')
-    setEditDoseId(typeof value == 'number' ? value : 0)
+    setEditDoseId(isNumeric(value) ? value : 0)
     setSearchMLQuery("")
     setMedicationLibrary([])
     setAddCustom(null)
