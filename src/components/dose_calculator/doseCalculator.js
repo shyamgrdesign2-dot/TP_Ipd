@@ -232,7 +232,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         })
         setMedicationData((prev) => [...prev]);
 
-        onAddUpdateClicked()
+        vitalsUpdate?.weight != todayWeight && onAddUpdateClicked()
 
         clearData()
         message.open({
