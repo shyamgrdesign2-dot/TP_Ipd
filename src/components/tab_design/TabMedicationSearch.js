@@ -2174,6 +2174,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 onSelectParent={onParentSelectParent}
                 setAddCustom={setAddCustom}
                 editDoseId={editDoseId}
+                setEditDoseId={setEditDoseId}
               />
             }
           </Drawer>

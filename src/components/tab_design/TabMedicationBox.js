@@ -139,6 +139,7 @@ function TabMedicationBox() {
   const [doseCalculatorDrawer, setDoseCalculatorDrawer] = useState(false);
   const [searchMLQuery, setSearchMLQuery] = useState("");
   const [medicationLibrary, setMedicationLibrary] = useState([]);
+  const [editDoseId, setEditDoseId] = useState(0);
 
   const handleViewDoseCalcDrawer = (value) => {
     setDoseCalculatorDrawer(!doseCalculatorDrawer)
@@ -2729,7 +2730,8 @@ function TabMedicationBox() {
                 onSearchParent={onSearchParent}
                 onSelectParent={onParentSelectParent}
                 setAddCustom={setAddCustom}
-                editDoseId={0}
+                editDoseId={editDoseId}
+                setEditDoseId={setEditDoseId}
               />
             }
           </Drawer>

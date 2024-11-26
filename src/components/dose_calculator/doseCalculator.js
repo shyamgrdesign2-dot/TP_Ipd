@@ -41,7 +41,7 @@ import { addUpdateVitals, getPatientBirthWeight } from "../../redux/vitalsSlice"
 
 const dateFormat = 'YYYY-MM-DD'
 
-const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, searchMLQuery, setSearchMLQuery, medicationLibrary, setMedicationLibrary, parentSearchOptions, onSearchParent, onSelectParent, showHideAddMedicineModal, setAddCustom, editDoseId }) => {
+const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, searchMLQuery, setSearchMLQuery, medicationLibrary, setMedicationLibrary, parentSearchOptions, onSearchParent, onSelectParent, showHideAddMedicineModal, setAddCustom, editDoseId, setEditDoseId }) => {
 
   const { medicineTypeList } = useSelector((state) => state.doctors);
   const { profile, userId } = useSelector((state) => state.doctors);
@@ -74,15 +74,6 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
   const [doseLibrary, setDoseLibrary] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen1, setIsModalOpen1] = useState(false);
-
-  useEffect(() => {
-    if (editDoseId) {
-      const data = dosesList.find((e) => e.medicine_id == editDoseId);
-      if (data && data !== undefined) {
-        setEditedData(data);
-      }
-    }
-  }, [editDoseId]);
 
   useEffect(() => {
     if (medicationData?.length > 0) {
@@ -212,23 +203,23 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
 
         medicationLibrary?.map(e => {
           const findTmmId = medicationData.findIndex(e1 => e1.tmm_id == e.medicine_id)
-          if (!medicationData[findTmmId].tmm_dosage) {
-            const dose = calculateDose(e.dosage, todayWeight, e.concentration)
-            if (isMobile) {
-              const objParse = JSON.parse(medicationData[findTmmId].medicineUnit[0].key);
-              medicationData[findTmmId].tmm_dosage = dose;
-              medicationData[findTmmId].tmm_unit = objParse.tmu_id;
-              medicationData[findTmmId].tmm_unit_name = objParse.tmu_title;
-              medicationData[findTmmId].tmu_id = objParse.tmu_id;
-            } else {
-              const objParse = medicationData[findTmmId]?.medicineUnit[0];
-              medicationData[findTmmId].tmm_dosage_unit_name = `${dose} ${objParse.tmu_title}`;
-              medicationData[findTmmId].tmm_dosage = dose;
-              medicationData[findTmmId].tmm_unit = objParse.tmu_id;
-              medicationData[findTmmId].tmm_unit_name = objParse.tmu_title;
-              medicationData[findTmmId].tmu_id = objParse.tmu_id;
-            }
+          // if (!medicationData[findTmmId].tmm_dosage) {
+          const dose = calculateDose(e.dosage, todayWeight, e.concentration)
+          if (isMobile) {
+            const objParse = JSON.parse(medicationData[findTmmId].medicineUnit[0].key);
+            medicationData[findTmmId].tmm_dosage = dose;
+            medicationData[findTmmId].tmm_unit = objParse.tmu_id;
+            medicationData[findTmmId].tmm_unit_name = objParse.tmu_title;
+            medicationData[findTmmId].tmu_id = objParse.tmu_id;
+          } else {
+            const objParse = medicationData[findTmmId]?.medicineUnit[0];
+            medicationData[findTmmId].tmm_dosage_unit_name = `${dose} ${objParse.tmu_title}`;
+            medicationData[findTmmId].tmm_dosage = dose;
+            medicationData[findTmmId].tmm_unit = objParse.tmu_id;
+            medicationData[findTmmId].tmm_unit_name = objParse.tmu_title;
+            medicationData[findTmmId].tmu_id = objParse.tmu_id;
           }
+          // }
         })
         setMedicationData((prev) => [...prev]);
 
@@ -317,6 +308,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
     setSearchMLQuery("")
     setSearchQuery("")
     setActiveTab(key);
+    setEditDoseId(0)
   };
 
   // First Tab
@@ -351,6 +343,14 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
     setMedicationLibrary((prev) => prev.filter((e) => e.tmm_id !== tmm_id));
   };
 
+  // useEffect(() => {
+  //   if (editDoseId) {
+  //     const data = dosesList.find((e) => e.medicine_id == editDoseId);
+  //     if (data && data !== undefined) {
+  //       setEditedData(data);
+  //     }
+  //   }
+  // }, [editDoseId]);
   // Second Tab
   useEffect(() => {
     if (searchQuery) {
@@ -361,10 +361,21 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         setDoseLibrary(newData)
       }, 500);
       return () => {
+        setEditDoseId(0)
         clearTimeout(searchTimeOutId);
       };
     } else {
-      setDoseLibrary(dosesList)
+      if (editDoseId) {
+        const data = dosesList.find((e) => e.medicine_id == editDoseId);
+        if (data && data !== undefined) {
+          setDoseLibrary([data, ...dosesList.filter((e) => e.medicine_id != editDoseId)])
+          setEditedData(data);
+        } else {
+          setDoseLibrary(dosesList)
+        }
+      } else {
+        setDoseLibrary(dosesList)
+      }
     }
 
     if (activeTab === "1" && medicationLibrary?.length > 0) {
@@ -374,7 +385,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
       });
       setMedicationLibrary(updatedData)
     }
-  }, [dosesList, searchQuery]);
+  }, [dosesList, searchQuery, editDoseId]);
 
   const onSearch = useCallback(
     (e) => {
@@ -676,6 +687,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
           <Button
             className="btn btn-primary3 btn-41 px-4 me-20"
             onClick={handleSaveMedicineDoses}
+            disabled={!todayWeight}
           >
             Save
           </Button>
