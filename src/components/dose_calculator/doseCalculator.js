@@ -24,7 +24,7 @@ import { isMobile } from "react-device-detect";
 import { errorMessage, onlyDecimalFormat, removeBeforeWhiteSpace } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import CashManagerContext from "../../context/CashManagerContext";
-import { MESSAGE_KEY } from "../../utils/constants";
+import { MESSAGE_KEY, PAEDIATRICS } from "../../utils/constants";
 import {
   createDose,
   updateDose,
@@ -36,14 +36,16 @@ import alertIcon from '../../assets/images/alertIcon.svg';
 import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
 import CommonModal from "../../common/CommonModal";
+import moment from "moment";
+import { addUpdateVitals, getPatientBirthWeight } from "../../redux/vitalsSlice";
+
+const dateFormat = 'YYYY-MM-DD'
 
 const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, searchMLQuery, setSearchMLQuery, medicationLibrary, setMedicationLibrary, parentSearchOptions, onSearchParent, onSelectParent, showHideAddMedicineModal, setAddCustom, editDoseId }) => {
-  const { medicineTypeList } = useSelector(
-    (state) => state.doctors
-  );
-  const {
-    dosesList
-  } = useSelector((state) => state.medication);
+
+  const { medicineTypeList } = useSelector((state) => state.doctors);
+  const { profile, userId } = useSelector((state) => state.doctors);
+  const { dosesList } = useSelector((state) => state.medication);
   const dispatch = useDispatch();
 
   const {
@@ -54,10 +56,16 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
     setVitalsData,
   } = useContext(CashManagerContext);
 
-  const { selectedVitalsList, vitalsPastList } =
-    useSelector((state) => state.vitals);
+  const { selectedVitalsList,
+    vitalsPastList,
+    patientBirthWeight: storedPatientBirthWeight } = useSelector((state) => state.vitals);
 
   const { TabPane } = Tabs;
+
+  const [vitalsUpdate, setVitalsUpdate] = useState([]);
+  const [patientBirthWeight, setPatientBirthWeight] = useState(
+    vitalsData?.[0]?.patient_birth_weight || storedPatientBirthWeight
+  );
 
   const [todayWeight, setTodayWeight] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -100,9 +108,10 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
   useEffect(() => {
     const todayDate = new Date().toISOString().split("T")[0];
     // Find today's entry in vitalsData and extract the weight
-    // const todayVitals = vitalsData.find((vital) => vital.date === todayDate);
-    const todayVitals = [...vitalsPastList, ...selectedVitalsList].findLast((vital) => vital.date === todayDate);
+    const todayVitals = vitalsData.find((vital) => vital.date === todayDate);
+    // const todayVitals = [...vitalsPastList, ...selectedVitalsList].findLast((vital) => vital.date === todayDate);
     if (todayVitals && todayVitals.weight) {
+      setVitalsUpdate(todayVitals)
       setTodayWeight(todayVitals.weight);
     }
   }, [vitalsData]);
@@ -118,6 +127,39 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
     setSearchMLQuery("")
     setSearchQuery("")
     handleViewDoseCalcDrawer()
+  }
+
+  const calculate = (H, W) => {
+    var height = 0, weight = 0, bmi = "", bmr = "", bsa = ""
+
+    if (H != '' && H != 0) {
+      height = parseFloat(H)
+    } else {
+      height = 0
+    }
+
+    if (W != '' && W != 0) {
+      weight = parseFloat(W)
+    } else {
+      weight = 0
+    }
+
+    const calBMI = (weight / height / height) * 10000
+    bmi = weight && height ? isFinite(calBMI) ? calBMI.toFixed(2) : '' : '';
+
+    var age = patient_data !== undefined && patient_data.ageYears !== undefined ? patient_data.ageYears : 0
+    if (patient_data !== undefined && patient_data.pm_gender == 'Male') {
+      const calBMR = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+      bmr = weight && height ? isFinite(calBMR) ? calBMR.toFixed(2) : '' : '';
+    } else {
+      const calBMR = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+      bmr = weight && height ? isFinite(calBMR) ? calBMR.toFixed(2) : '' : '';
+    }
+
+    const calBSA = Math.sqrt(height * weight / 3600);
+    bsa = weight && height ? isFinite(calBSA) ? calBSA.toFixed(2) : '' : '';
+
+    return { bmi: bmi, bmr: bmr, bsa: bsa }
   }
 
   const handleSaveMedicineDoses = async () => {
@@ -190,6 +232,8 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         })
         setMedicationData((prev) => [...prev]);
 
+        onAddUpdateClicked()
+
         clearData()
         message.open({
           key: MESSAGE_KEY,
@@ -209,6 +253,57 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
       }
     }
   };
+
+  const onAddUpdateClicked = async () => {
+    let updateVitals = []
+    if (vitalsUpdate?.length > 0) {
+      updateVitals = vitalsData?.map(item =>
+        item.dev_unique_id === vitalsUpdate.dev_unique_id ? { ...item, weight: todayWeight } : item
+      );
+    } else {
+      let cal = calculate('', todayWeight);
+      updateVitals.push({
+        date: moment().format(dateFormat),
+        dev_unique_id: 0,
+        tcv_id: 0,
+        tcbc_id: 0,
+        temp: '',
+        pres: '',
+        resp_rate: '',
+        systolic: '',
+        diastolic: '',
+        spo2: '',
+        height: '',
+        weight: todayWeight || '',
+        ofc: '',
+        bmi: cal.bmi,
+        bmr: cal.bmr,
+        bsa: cal.bsa,
+      });
+    }
+
+    var sendData = {
+      patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0,
+      pm_id: patient_data !== undefined ? patient_data.pm_id : 0,
+      pam_id: patient_data !== undefined && patient_data.pam_id !== undefined ? patient_data.pam_id : 0,
+      patient_birth_weight: patientBirthWeight,
+      data: updateVitals,
+    };
+    const action = await dispatch(addUpdateVitals(sendData));
+    if (profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
+      dispatch(
+        getPatientBirthWeight({
+          patient_unique_id:
+            patient_data !== undefined ? patient_data.patient_unique_id : 0,
+          pam_id:
+            patient_data !== undefined && patient_data.pam_id !== undefined
+              ? patient_data.pam_id
+              : 0,
+        })
+      );
+    }
+  }
 
   const onTabChange = (key) => {
     if (key === "1" && medicationLibrary?.length > 0) {
@@ -399,8 +494,12 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
             icon={<i className="icon-delete text-main fs-20"></i>}
             className="btn py-0 btn-delete-prescription px-0"
             onClick={() => {
-              setDeletedData(record)
-              showHideModal()
+              if (activeTab === "1") {
+                deleteMedicine(record.tmm_id)
+              } else {
+                setDeletedData(record)
+                showHideModal()
+              }
             }}>
           </Button>
         </div>
