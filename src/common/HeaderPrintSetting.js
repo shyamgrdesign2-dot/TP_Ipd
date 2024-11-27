@@ -18,6 +18,7 @@ import tutorial from '../assets/images/tutorial-icon.svg';
 import playIcons from '../assets/images/tube-icon.svg';
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
+import { setCurrentSessionRx } from '../redux/obstetricSlice';
 
 function HeaderPrintSetting({ defaultPrintSettings }) {
     const navigate = useNavigate();
@@ -139,6 +140,7 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                 errorMessage(action.error)
             }
         }
+        dispatch(setCurrentSessionRx(null));
     };
 
     const checkDataFillOrNot = () => {
@@ -157,7 +159,7 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
     }, [isBackModalOpen]);
 
     const onYesLeaveClick = () => {
-        if (flag === 1) {
+        if (flag === 1 || flag === 3) {
             navigate(-1)
         } else {
             dispatch(getDefaultPrintsettings({ default: true }));
@@ -177,25 +179,30 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                             isModalOpen={isBackModalOpen}
                             onCancel={showHideBackModal}
                             modalWidth={500}
-                            title={"You may lose your data"}
+                            title={ flag === 3 ? "Save Print Settings" : "You may lose your data"}
                             modalBody={
                                 <>
                                     <div className="alert-warning rounded-10px p-2 patient-details">
                                         <div className="d-flex align-items-center">
                                             <img className='me-3' src={alertIcon} alt="Warning" />
                                             <span>
-                                                Are you sure you want to leave? <br />
-                                                You will permanently lose your data.
+                                                { flag === 3 ?
+                                                    `Do you want to set these changes as default for all future Rx’s?` :
+                                                    <>
+                                                        Are you sure you want to leave? <br />
+                                                        You will permanently lose your data.
+                                                    </>
+                                                }
                                             </span>
                                         </div>
                                     </div>
                                     <div className="mt-4">
                                         <div className="d-flex align-items-center mt-2 justify-content-end">
                                             <div onClick={onYesLeaveClick} className="me-4 text-decoration-underline btn p-0 text-main">
-                                                {flag == 1 ? 'Yes Leave' : 'Yes'}
+                                                {flag == 1 ? 'Yes Leave' : flag === 3 ? "No, Apply on This Rx Only" : 'Yes'}
                                             </div>
-                                            <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">
-                                                <span>{flag == 1 ? 'No, Stay' : 'No'}</span>
+                                            <Button onClick={flag === 3 ? onSavePrintSettingsClick : showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">
+                                                <span>{flag == 1 ? 'No, Stay' : flag === 3 ? "Yes, Set as Default for All Rx" : 'No'}</span>
                                             </Button>
                                         </div>
                                     </div>
@@ -224,9 +231,12 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                     <button className='btn btn-text me-14' onClick={onDefaultPrintsettings}>
                         <span>Default Settings</span>
                     </button>
-                    <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={onSavePrintSettingsClick} loading={loading}>
+                    <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={() => { 
+                            setFlag(3);
+                            showHideBackModal(); 
+                        }} loading={loading}>
                         Save
-                    </Button>
+                    </Button> 
                 </div>
             </div>
             {

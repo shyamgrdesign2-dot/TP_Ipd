@@ -84,6 +84,7 @@ const VaccineTable = ({ dataSource, columns, isPreview }) => {
                   ) : null}
                 </div>
               </td>
+              <td className="cell">{item.tvpv_site || ""}</td>
               <td className="cell">{item.tvp_remarks || item.tvd_remarks}</td>
             </tr>
           );
