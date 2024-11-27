@@ -75,14 +75,14 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen1, setIsModalOpen1] = useState(false);
 
-  useEffect(() => {
-    if (editDoseId) {
-      const data = dosesList.find((e) => e.medicine_id == editDoseId);
-      if (data && data !== undefined) {
-        setEditedData(data);
-      }
-    }
-  }, [editDoseId]);
+  // useEffect(() => {
+  //   if (editDoseId) {
+  //     const data = dosesList.find((e) => e.medicine_id == editDoseId);
+  //     if (data && data !== undefined) {
+  //       setEditedData(data);
+  //     }
+  //   }
+  // }, [editDoseId]);
 
   useEffect(() => {
     if (medicationData?.length > 0) {
@@ -98,12 +98,19 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
           concentration_unit: "mg/ml",
           medicine_name: e.tmm_medicine_name,
           medicine_generic_name: e.tmm_generic,
-          exist: dosesList.some((e1) => e1.medicine_id == e.tmm_id) ? true : false
+          exist: dosesList.some((e1) => e1.medicine_id == e.tmm_id) ? true : false,
+          edit: e.tmm_id == editDoseId ? true : false
         }
       })
+      if (editDoseId) {
+        const data = dosesList.find((e) => e.medicine_id == editDoseId);
+        if (data && data !== undefined) {
+          setEditedData(data);
+        }
+      }
       setMedicationLibrary(updatedData)
     }
-  }, [medicationData]);
+  }, [medicationData, editDoseId]);
 
   useEffect(() => {
     const todayDate = new Date().toISOString().split("T")[0];
@@ -213,21 +220,21 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         medicationLibrary?.map(e => {
           const findTmmId = medicationData.findIndex(e1 => e1.tmm_id == e.medicine_id)
           // if (!medicationData[findTmmId].tmm_dosage) {
-            const dose = calculateDose(e.dosage, todayWeight, e.concentration)
-            if (isMobile) {
-              const objParse = JSON.parse(medicationData[findTmmId].medicineUnit[0].key);
-              medicationData[findTmmId].tmm_dosage = dose;
-              medicationData[findTmmId].tmm_unit = objParse.tmu_id;
-              medicationData[findTmmId].tmm_unit_name = objParse.tmu_title;
-              medicationData[findTmmId].tmu_id = objParse.tmu_id;
-            } else {
-              const objParse = medicationData[findTmmId]?.medicineUnit[0];
-              medicationData[findTmmId].tmm_dosage_unit_name = `${dose} ${objParse.tmu_title}`;
-              medicationData[findTmmId].tmm_dosage = dose;
-              medicationData[findTmmId].tmm_unit = objParse.tmu_id;
-              medicationData[findTmmId].tmm_unit_name = objParse.tmu_title;
-              medicationData[findTmmId].tmu_id = objParse.tmu_id;
-            }
+          const dose = calculateDose(e.dosage, todayWeight, e.concentration)
+          if (isMobile) {
+            const objParse = JSON.parse(medicationData[findTmmId].medicineUnit[0].key);
+            medicationData[findTmmId].tmm_dosage = dose;
+            medicationData[findTmmId].tmm_unit = objParse.tmu_id;
+            medicationData[findTmmId].tmm_unit_name = objParse.tmu_title;
+            medicationData[findTmmId].tmu_id = objParse.tmu_id;
+          } else {
+            const objParse = medicationData[findTmmId]?.medicineUnit[0];
+            medicationData[findTmmId].tmm_dosage_unit_name = `${dose} ${objParse.tmu_title}`;
+            medicationData[findTmmId].tmm_dosage = dose;
+            medicationData[findTmmId].tmm_unit = objParse.tmu_id;
+            medicationData[findTmmId].tmm_unit_name = objParse.tmu_title;
+            medicationData[findTmmId].tmu_id = objParse.tmu_id;
+          }
           // }
         })
         setMedicationData((prev) => [...prev]);
@@ -331,7 +338,6 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         <li className="fw-normal text-black"><span className="fw-semibold">Calculated Dose:</span> Auto-calculated by the system, e.g., 1 tablets. </li>
       </ul>
     </div>
-
   );
 
   const onChangeWeight = useCallback(
@@ -731,7 +737,8 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
               <div className="m-4 mb-0">
                 <Table
                   columns={addMedicineColumns}
-                  dataSource={medicationLibrary.sort((a, b) => a.exist - b.exist)}
+                  // dataSource={medicationLibrary.sort((a, b) => a.exist - b.exist)}
+                  dataSource={medicationLibrary.sort((a, b) => (a.exist - b.exist) || (b.edit - a.edit))}
                   rowKey="medicine_id"
                   pagination={false}
                   className="dose-table"

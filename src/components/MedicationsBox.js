@@ -1100,9 +1100,8 @@ function MedicationsBox() {
                                   </Col>
                                   {ii != 0 && (<div className="badge-then">Then</div>)}
                                   {ii === 0 && (
-                                    //handleViewDoseCalcDrawer("2", item?.tmm_id)
                                     dosesList.some((e1) => e1.medicine_id == item.tmm_id) ? (
-                                      <div className="badge-tapper position-absolute" style={{ bottom: 0 }} onClick={() => handleViewDoseCalcDrawer("1", 0)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
+                                      <div className="badge-tapper position-absolute" style={{ bottom: 0 }} onClick={() => handleViewDoseCalcDrawer("1", item?.tmm_id)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
                                     ) : (
                                       <div className="badge-tapper position-absolute" style={{ bottom: 0 }} onClick={() => handleViewDoseCalcDrawer("1", 0)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Dose Calculator</div>
                                     )

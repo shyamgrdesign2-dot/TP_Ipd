@@ -971,10 +971,9 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   // Dose Calc Dropdown
   const items = [
-    //handleViewDoseCalcDrawer("2", medicationData[selectedIndex]?.tmm_id)
     {
       label: dosesList.some((e1) => e1.medicine_id == medicationData[selectedIndex]?.tmm_id) ?
-        <div onClick={() => handleViewDoseCalcDrawer("1", 0)}>
+        <div onClick={() => handleViewDoseCalcDrawer("1", medicationData[selectedIndex]?.tmm_id)}>
           <img src={calculatorIconBlue} alt="Dose calcultor" className="me-2" width={16} />Edit Calculation</div>
         :
         <div onClick={() => handleViewDoseCalcDrawer("1", 0)}>
