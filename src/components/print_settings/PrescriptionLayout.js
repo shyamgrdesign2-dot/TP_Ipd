@@ -169,7 +169,6 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
-  const isSurgeriesAccessable = useFeatureIsOn("surgeries");
 
   const onMainCaseOptionChange = useCallback(
     (e) => {
@@ -594,7 +593,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                           : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?._id) ?
                                             ({ ...option, key: option.id })
                                             : (caseManagerData.labParamsData?.length > 0 && option.id === 15) ? ({ ...option, key: option.id })
-                                             : (caseManagerData.surgeries.length > 0 && option.id === 16 && isSurgeriesAccessable) &&
+                                             : (caseManagerData?.surgeries?.length > 0 && option.id === 16) &&
                                                 ({ ...option, key: option.id })
               )}
               showHeader={false}

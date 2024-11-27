@@ -99,7 +99,6 @@ function TabPrescription() {
     userId,
   } = useSelector((state) => state.doctors);
   const isApexAIAccessable = useFeatureIsOn("cdss");
-  const isSurgeriesAccessable = useFeatureIsOn("surgeries");
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -1222,7 +1221,7 @@ function TabPrescription() {
                     <div key={i} className="prescription-box-sm">
                       <TabExaminationBox />
                     </div>
-                  ) : e.tmdpm_id === 21 && e.tmdpm_status === 0 && isSurgeriesAccessable ? (
+                  ) : e.tmdpm_id === 21 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       <TabSurgicalBox />
                     </div>
