@@ -41,7 +41,7 @@ import { addUpdateVitals, getPatientBirthWeight } from "../../redux/vitalsSlice"
 
 const dateFormat = 'YYYY-MM-DD'
 
-const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, searchMLQuery, setSearchMLQuery, medicationLibrary, setMedicationLibrary, parentSearchOptions, onSearchParent, onSelectParent, showHideAddMedicineModal, setAddCustom, editDoseId }) => {
+const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, searchMLQuery, setSearchMLQuery, medicationLibrary, setMedicationLibrary, parentSearchOptions, onSearchParent, onSelectParent, showHideAddMedicineModal, setAddCustom, editDoseId, isModalOpen2, showHideModal2 }) => {
 
   const { medicineTypeList } = useSelector((state) => state.doctors);
   const { profile, userId } = useSelector((state) => state.doctors);
@@ -73,7 +73,6 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
   const [deletedData, setDeletedData] = useState(null);
   const [doseLibrary, setDoseLibrary] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalOpen1, setIsModalOpen1] = useState(false);
 
   // useEffect(() => {
   //   if (editDoseId) {
@@ -425,10 +424,6 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
     setIsModalOpen(!isModalOpen);
   }, [isModalOpen]);
 
-  const showHideModal1 = useCallback(() => {
-    setIsModalOpen1(!isModalOpen1);
-  }, [isModalOpen1]);
-
 
   //Mixed Tab
   const firstColumn = (text, record, index) => {
@@ -656,7 +651,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
           <Button
             type="text"
             className="btn btn-delete-prescription px-3 focus-none h-100"
-            onClick={showHideModal1}
+            onClick={showHideModal2}
           >
             <i className="icon-Cross fs-3"></i>
           </Button>
@@ -682,7 +677,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
           <Button
             className="btn btn-primary3 btn-41 px-4 me-20"
             onClick={handleSaveMedicineDoses}
-            disabled={!todayWeight}
+            disabled={!todayWeight || medicationLibrary?.length === 0}
           >
             Save
           </Button>
@@ -820,8 +815,8 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
       />
 
       <CommonModal
-        isModalOpen={isModalOpen1}
-        onCancel={showHideModal1}
+        isModalOpen={isModalOpen2}
+        onCancel={showHideModal2}
         modalWidth={500}
         title={"You may lose your data"}
         modalBody={
@@ -836,11 +831,14 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
             </div>
             <div className="mt-4">
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={clearData}
+                <div onClick={() => {
+                  clearData()
+                  showHideModal2()
+                }}
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Close
                 </div>
-                <Button onClick={showHideModal1} className="lh-lg btn btn-primary3 btn-41 px-4">
+                <Button onClick={showHideModal2} className="lh-lg btn btn-primary3 btn-41 px-4">
                   <span>No</span>
                 </Button>
               </div>

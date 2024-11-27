@@ -95,6 +95,7 @@ function MedicationsBox() {
   const [searchMLQuery, setSearchMLQuery] = useState("");
   const [medicationLibrary, setMedicationLibrary] = useState([]);
   const [editDoseId, setEditDoseId] = useState(0);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
 
   const handleViewDoseCalcDrawer = (tab, value) => {
     setDoseCalculatorDrawer(!doseCalculatorDrawer)
@@ -1026,6 +1027,13 @@ function MedicationsBox() {
                                       onClear={() => onSearchUnitPerDoseChid("", item?.index)}
                                       allowClear
                                     />
+                                    {ii === 0 && (
+                                    dosesList.some((e1) => e1.medicine_id == item.tmm_id) ? (
+                                      <div className="badge-tapper position-absolute" style={{ bottom: 0, left: 20 }} onClick={() => handleViewDoseCalcDrawer("1", item?.tmm_id)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
+                                    ) : (
+                                      <div className="badge-tapper position-absolute" style={{ bottom: 0, left: 20 }} onClick={() => handleViewDoseCalcDrawer("1", 0)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Dose Calculator</div>
+                                    )
+                                  )}
                                   </Col>
                                   <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                                     <Select
@@ -1099,13 +1107,6 @@ function MedicationsBox() {
                                     </Button>
                                   </Col>
                                   {ii != 0 && (<div className="badge-then">Then</div>)}
-                                  {ii === 0 && (
-                                    dosesList.some((e1) => e1.medicine_id == item.tmm_id) ? (
-                                      <div className="badge-tapper position-absolute" style={{ bottom: 0 }} onClick={() => handleViewDoseCalcDrawer("1", item?.tmm_id)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
-                                    ) : (
-                                      <div className="badge-tapper position-absolute" style={{ bottom: 0 }} onClick={() => handleViewDoseCalcDrawer("1", 0)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Dose Calculator</div>
-                                    )
-                                  )}
                                 </Row>
                               )
                             })}
@@ -1821,6 +1822,10 @@ function MedicationsBox() {
     );
   }, [isModalOpen1]);
 
+  const showHideModal2 = useCallback(() => {
+    setIsModalOpen2(!isModalOpen2);
+  }, [isModalOpen2]);
+
   return (
     <>
       <div>
@@ -1891,7 +1896,7 @@ function MedicationsBox() {
             className="modalWidth-800"
             placement="right"
             open={doseCalculatorDrawer}
-            onClose={handleViewDoseCalcDrawer}
+            onClose={showHideModal2}
             width="auto"
             styles={{
               body: {
@@ -1913,6 +1918,8 @@ function MedicationsBox() {
               showHideAddMedicineModal={showHideAddMedicineModal}
               setAddCustom={setAddCustom}
               editDoseId={editDoseId}
+              isModalOpen2={isModalOpen2}
+              showHideModal2={showHideModal2}
             />
           </Drawer>
         }
