@@ -12,6 +12,8 @@ import { renderPDF } from '../components/print_settings/renderPDF';
 import { PDF } from '../components/print_settings/PDF';
 import { pdfjs, Document, Page } from "react-pdf";
 import { useAccess } from './vaccination/useAccess';
+import { setCurrentSessionRx } from '../redux/obstetricSlice';
+import { useDispatch } from 'react-redux';
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -24,6 +26,7 @@ function Quixote({ mode = NORMAL, ...props }) {
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
     const {isGynaecHistoryAccessable} = useAccess();
+    const dispatch = useDispatch();
 
     const initialRows = [
         {
@@ -157,6 +160,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 labParamsData={labParamsData}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
+            dispatch(setCurrentSessionRx(URL.createObjectURL(blob)));
         }
         caseManagerData && makePDFUrl()
         return () => {
