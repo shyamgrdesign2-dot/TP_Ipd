@@ -119,6 +119,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
         setPrivateNotesData(null)
         setFollowUpDate(null)
         setAdditionalNote('')
+        setSurgeriesData([]);
     }
     // const languageItems = [
     //     {
@@ -190,9 +191,9 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     })
                     setExaminationData([...examinationData, ...updatedData]);
                 }
-                if (data?.surgeriesData && data.surgeriesData?.length > 0) {
-                  const updatedData = data.surgeriesData.map((e) => {
-                    return { ...e, unique_id: uuidv4(), note: "" };
+                if (data?.surgeries && data.surgeries?.length > 0) {
+                  const updatedData = data.surgeries.map((e) => {
+                    return { ...e, unique_id: uuidv4() };
                   });
                   setSurgeriesData([...surgeriesData, ...updatedData]);
                 }
@@ -341,13 +342,13 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                 };
             });
         }
-
+        
         var sendData = {
             tmoc_template_name: inputTemplateName,
             data: {
                 symptoms: symptomsData.map(({ symptom_name, change }) => ({ symptom_name, ...(change !== undefined && { change }) })),
                 examination: examinationData.map(({ examination_name, change }) => ({ examination_name, ...(change !== undefined && { change }) })),
-                surgeries: surgeriesData.map(({ name, change }) => ({ name, ...(change !== undefined && { change }) })),
+                surgeries: surgeriesData.map(({ name, change, masterId, notes }) => ({ name, masterId, notes, ...(change !== undefined && { change }) })),
                 diagnosis: diagnosisData.map(({ tds_id, tds_name, status, pms_default }) => ({ tds_id, tds_name, status, pms_default })),
                 medicine: updatedMedication,
                 advice: adviceData.map(({ advice_name, change }) => ({ advice_name, ...(change !== undefined && { change }) })),
@@ -449,7 +450,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
             data: {
                 symptoms: symptomsData.map(({ symptom_name, change }) => ({ symptom_name, ...(change !== undefined && { change }) })),
                 examination: examinationData.map(({ examination_name, change }) => ({ examination_name, ...(change !== undefined && { change }) })),
-                surgeries: surgeriesData.map(({ name, change }) => ({ name, ...(change !== undefined && { change }) })),
+                surgeries: surgeriesData.map(({ name, change, masterId, notes }) => ({ name, masterId, notes, ...(change !== undefined && { change }) })),
                 diagnosis: diagnosisData.map(({ tds_id, tds_name, status, pms_default }) => ({ tds_id, tds_name, status, pms_default })),
                 medicine: updatedMedication,
                 advice: adviceData.map(({ advice_name, change }) => ({ advice_name, ...(change !== undefined && { change }) })),
