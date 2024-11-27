@@ -31,6 +31,7 @@ import {
 } from "../redux/examinationSlice";
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { setIsDDxReadyToGenerate } from "../redux/ddxSlice";
 
 function ExaminationBox() {
   const {
@@ -42,7 +43,7 @@ function ExaminationBox() {
   } = useSelector((state) => state.examination);
   const dispatch = useDispatch();
 
-  const { examinationData, setExaminationData } = useContext(CashManagerContext);
+  const { examinationData, setExaminationData, symptomsData } = useContext(CashManagerContext);
   // const [ examinationData, setExaminationData] = useState([]);
 
   //PopOver1
@@ -157,6 +158,7 @@ function ExaminationBox() {
       });
       setExaminationData((prev) => [...prev]);
       setSearchParentQuery("");
+      dispatch(setIsDDxReadyToGenerate(true));
     },
     [searchParentQuery, examinationData]
   );
@@ -233,6 +235,7 @@ function ExaminationBox() {
       examinationData[i] = { ...examinationData[i], ...JSON.parse(e.key) };
       setExaminationData((prev) => [...prev]);
       setSearchChildQuery({ query: JSON.parse(e.key).examination_name, index: i });
+      dispatch(setIsDDxReadyToGenerate(true));
     },
     [searchChildQuery, examinationData]
   );
@@ -242,6 +245,7 @@ function ExaminationBox() {
       examinationData[i].note = capitalizeAfterSentence(e.target.value);
       // ?.replace(/,/g, '')
       setExaminationData((prev) => [...prev]);
+      dispatch(setIsDDxReadyToGenerate(true));
     },
     [examinationData]
   );
@@ -249,6 +253,11 @@ function ExaminationBox() {
   const onRemoveRow = (index) => {
     examinationData.splice(index, 1);
     setExaminationData((prev) => [...prev]);
+    if (examinationData?.length > 0) {
+      dispatch(setIsDDxReadyToGenerate(true));
+    } else if (symptomsData?.length === 0) {
+      dispatch(setIsDDxReadyToGenerate(false));
+    }
   };
 
   //PopOver1 function

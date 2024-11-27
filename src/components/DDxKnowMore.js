@@ -150,7 +150,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
             <img src={apexAI} alt="apex-AI" width={72} height={72} />
             <div>
               Our AI tool helps you generate possible diagnoses by analyzing
-              patient symptoms, history, and clinical findings,
+              patient symptoms, examinations, history, and clinical findings,
               <b> including past patient data </b> for more accurate results.
               This feature speeds up diagnosis and assists in better
               decision-making for patient care.
@@ -261,7 +261,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
           <div className="know-more-section-content cvt-tips-content">
             <span style={{ fontWeight: "600" }}>Enter detailed Analysis: </span>
             The more detailed and structured the patient information you provide
-            (such as symptoms, history, and medications), the better the
+            (such as symptoms, examinations, history, and medications), the better the
             accuracy of the differential diagnosis results.
           </div>
           <div

@@ -20,6 +20,7 @@ import {
 
 import TabExaminationSearch from "../../components/tab_design/TabExaminationSearch";
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { setIsDDxReadyToGenerate } from "../../redux/ddxSlice";
 
 function TabExaminationBox() {
     const {
@@ -30,7 +31,7 @@ function TabExaminationBox() {
     } = useSelector((state) => state.examination);
     const dispatch = useDispatch();
 
-    const { examinationData, setExaminationData } = useContext(CashManagerContext);
+    const { examinationData, setExaminationData, symptomsData } = useContext(CashManagerContext);
     // const [ examinationData, setExaminationData] = useState([]);
 
     const [parentDrawer, setParentDrawer] = useState(false);
@@ -78,7 +79,12 @@ function TabExaminationBox() {
     const onRemoveRow = (index) => {
         examinationData.splice(index, 1);
         setExaminationData((prev) => [...prev]);
-        setSelectedIndex(null)
+        setSelectedIndex(null);
+        if (examinationData?.length > 0) {
+            dispatch(setIsDDxReadyToGenerate(true));
+        } else if (symptomsData?.length === 0) {
+            dispatch(setIsDDxReadyToGenerate(false));
+        }
     };
 
     // Handle Parent Drawer
@@ -476,7 +482,8 @@ function TabExaminationBox() {
         const { index, ...updatedReqData } = item;
         examinationData[item.index] = { ...examinationData[item.index], ...updatedReqData };
         setExaminationData((prev) => [...prev]);
-        handleDrawerChild()
+        handleDrawerChild();
+        dispatch(setIsDDxReadyToGenerate(true));
     }
 
     //Child Componet

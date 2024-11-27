@@ -55,7 +55,7 @@ const DifferentialDiagnosis = ({
             ? "Differential Diagnosis"
             : isSymptoms
             ? "Associated Symptoms"
-            : "Suggested Lab Test"}
+            : "Suggested Tests"}
         </div>
       ),
       children:
@@ -207,9 +207,10 @@ const DifferentialDiagnosis = ({
             >
               {isDDxGenerated && ddxOptionsList?.length === 0
                 ? `No results found! We couldn't generate any diagnosis due to incomplete or inaccurate information provided. Please review and update the details, then try again.`
-                : `Enter key symptoms to get possible diagnoses and recommended tests.
+                : `Enter key symptoms or examinations to get possible diagnoses and recommended tests.
             Adding additional details like medical history${
-              isGynaecHistoryAccessable && patient_data?.pm_gender?.toLowerCase() === "female"
+              isGynaecHistoryAccessable &&
+              patient_data?.pm_gender?.toLowerCase() === "female"
                 ? ", gynecological and obstetric history"
                 : ""
             } and lab results can help improve accuracy.`}
