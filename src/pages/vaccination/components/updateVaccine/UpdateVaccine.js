@@ -26,6 +26,13 @@ import {
 } from "../../../../redux/vaccineSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 
+const vaccineSites = [
+  { label: "Left Arm", value: "Left Arm" },
+  { label: "Right Arm", value: "Right Arm" },
+  { label: "Left Thigh", value: "Left Thigh" },
+  { label: "Right Thigh", value: "Right Thigh" },
+];
+
 const UpdateVaccine = ({
   show,
   setShow,
@@ -80,14 +87,12 @@ const UpdateVaccine = ({
     });
   };
 
-
   const scrollToIndex = (index) => {
     const element = selectRefs.current[index];
     if (element) {
       element.scrollTo({ behavior: "smooth", block: "center" });
       element.focus();
       handleDropdownVisibleChange(index, true);
-      
     }
   };
 
@@ -123,7 +128,6 @@ const UpdateVaccine = ({
     }, {});
 
     setVaccineOptions(options);
-
   }, []);
 
   const trackUpdateEvent = () => {
@@ -176,6 +180,7 @@ const UpdateVaccine = ({
           vaccineDetails[vaccine?.tvac_name]?.remarks !== vaccine?.tvp_remarks
             ? vaccineDetails[vaccine?.tvac_name]?.remarks
             : vaccine?.tvp_remarks || "",
+        vaccine_site: vaccineDetails[vaccine?.tvac_name]?.vaccine_site || "",
       };
 
       const result = updateVaccine(payload);
@@ -226,16 +231,29 @@ const UpdateVaccine = ({
       updatedDetails[vaccineName] = {
         ...(updatedDetails[vaccineName] || {}),
         [detail]: value,
-        brandName: option?.label,
+        ...(detail === "vaccine_company_id" && { brandName: option?.label }),
       };
+
+      // If `vaccine_site` is being updated, propagate the change
+      if (detail === "vaccine_site") {
+        const selectedBrandName = updatedDetails[vaccineName]?.brandName;
+        // Update `vaccine_site` for all vaccines with the same `brandName`
+        for (const key in updatedDetails) {
+          if (
+            key !== vaccineName &&
+            updatedDetails[key]?.brandName === selectedBrandName
+          ) {
+            updatedDetails[key] = {
+              ...(updatedDetails[key] || {}),
+              [detail]: value, // Assign the same `vaccine_site` value
+            };
+          }
+        }
+      }
 
       // Check other vaccines with undefined values
       for (const key in updatedDetails) {
-        if (
-          key !== vaccineName &&
-          updatedDetails[key] === undefined
-        ) {
-
+        if (key !== vaccineName) {
           // Check if the selected value matches any other vaccine brand
           const hasMatchingBrand = vaccineOptions?.[key]?.find(
             (item) => item?.label === option?.label
@@ -428,7 +446,11 @@ const UpdateVaccine = ({
           <div
             ref={formRef}
             className="d-flex flex-column gap-3"
-            style={{ maxHeight: "650px", overflowY: "auto", scrollbarWidth: "none" }}
+            style={{
+              maxHeight: "650px",
+              overflowY: "auto",
+              scrollbarWidth: "none",
+            }}
           >
             {selectedDate === "given" ? (
               <>
@@ -458,13 +480,13 @@ const UpdateVaccine = ({
                         value={selectedBrand}
                         filterOption={(input, option) =>
                           (option?.label ?? "")
-                          ?.toLowerCase()
-                          .includes(input?.toLowerCase())
+                            ?.toLowerCase()
+                            .includes(input?.toLowerCase())
                         }
                         filterSort={(optionA, optionB) =>
-                        (optionA?.label ?? "")
-                          .toLowerCase()
-                          .localeCompare((optionB?.label ?? "").toLowerCase())
+                          (optionA?.label ?? "")
+                            .toLowerCase()
+                            .localeCompare((optionB?.label ?? "").toLowerCase())
                         }
                         options={vaccineOptions?.[vaccine?.tvac_name]}
                         onChange={(value, option) =>
@@ -493,6 +515,34 @@ const UpdateVaccine = ({
                             : "none",
                         }}
                       />
+                      {(vaccineDetails?.[vaccine?.tvac_name]
+                        ?.vaccine_company_id ||
+                        vaccine?.tvpv_site) && (
+                        <>
+                          <label>SITE</label>
+                          <Select
+                            showSearch
+                            placeholder="Select vaccine site"
+                            className="custom-select-style"
+                            optionFilterProp="children"
+                            value={
+                              vaccineDetails?.[vaccine?.tvac_name]
+                                ?.vaccine_site ||
+                              vaccine?.tvpv_site ||
+                              undefined
+                            }
+                            options={vaccineSites}
+                            defaultValue={vaccine?.tvpv_site}
+                            onChange={(value, option) =>
+                              handleDetails(
+                                vaccine?.tvac_name,
+                                "vaccine_site",
+                                value
+                              )
+                            }
+                          />
+                        </>
+                      )}
                       <label>Note</label>
                       <TextArea
                         onChange={(e) =>
