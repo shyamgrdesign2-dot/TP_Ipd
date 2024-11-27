@@ -140,6 +140,7 @@ function TabMedicationBox() {
   const [searchMLQuery, setSearchMLQuery] = useState("");
   const [medicationLibrary, setMedicationLibrary] = useState([]);
   const [editDoseId, setEditDoseId] = useState(0);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
 
   const handleViewDoseCalcDrawer = (value) => {
     setDoseCalculatorDrawer(!doseCalculatorDrawer)
@@ -2561,6 +2562,10 @@ function TabMedicationBox() {
     );
   }, [addCustom, medicineTypeMoreOptionsVisible, genericDrawer, genericQuery, genericList, loading]);
 
+  const showHideModal2 = useCallback(() => {
+    setIsModalOpen2(!isModalOpen2);
+  }, [isModalOpen2]);
+
   return (
     <>
       <div>
@@ -2708,7 +2713,7 @@ function TabMedicationBox() {
             className="modalWidth-800"
             placement="right"
             open={doseCalculatorDrawer}
-            onClose={handleViewDoseCalcDrawer}
+            onClose={showHideModal2}
             width="auto"
             styles={{
               body: {
@@ -2731,6 +2736,8 @@ function TabMedicationBox() {
                 onSelectParent={onParentSelectParent}
                 setAddCustom={setAddCustom}
                 editDoseId={editDoseId}
+                isModalOpen2={isModalOpen2}
+                showHideModal2={showHideModal2}
               />
             }
           </Drawer>

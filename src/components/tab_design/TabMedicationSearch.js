@@ -96,6 +96,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const [searchMLQuery, setSearchMLQuery] = useState("");
   const [medicationLibrary, setMedicationLibrary] = useState([]);
   const [editDoseId, setEditDoseId] = useState(0);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
 
   const handleViewDoseCalcDrawer = (value) => {
     setDoseCalculatorDrawer(!doseCalculatorDrawer)
@@ -2069,6 +2070,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
     );
   }, [addCustom, medicineTypeMoreOptionsVisible, genericDrawer, genericQuery, genericList, loading]);
 
+  const showHideModal2 = useCallback(() => {
+    setIsModalOpen2(!isModalOpen2);
+  }, [isModalOpen2]);
+
   return (
     <>
       <Card bordered={false} className="search-modalCard h-100">
@@ -2151,7 +2156,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             className="modalWidth-800"
             placement="right"
             open={doseCalculatorDrawer}
-            onClose={handleViewDoseCalcDrawer}
+            onClose={showHideModal2}
             width="auto"
             styles={{
               body: {
@@ -2174,6 +2179,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 onSelectParent={onParentSelectParent}
                 setAddCustom={setAddCustom}
                 editDoseId={editDoseId}
+                isModalOpen2={isModalOpen2}
+                showHideModal2={showHideModal2}
               />
             }
           </Drawer>
