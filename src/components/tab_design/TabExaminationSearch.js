@@ -18,6 +18,7 @@ import tagNew from '../../../src/assets/images/tag-new.svg'
 import TabSearchHeader from "./TabSearchHeader";
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { setIsDDxReadyToGenerate } from "../../redux/ddxSlice";
 
 function TabExaminationSearch({ passIndex, onClose }) {
 
@@ -254,6 +255,13 @@ function TabExaminationSearch({ passIndex, onClose }) {
         );
     }, [selectedIndex, examinationData]);
 
+    const handleClose = () => {
+      onClose();
+      if(examinationData?.length > 0){
+        dispatch(setIsDDxReadyToGenerate(true));   
+      }
+    };
+
     return (
         <>
             <Card bordered={false} className="search-modalCard h-100">
@@ -262,7 +270,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
                     searchQuery={searchChildQuery}
                     onSearchParent={onSearchParent}
                     disabled={examinationData.length > 0 ? false : true}
-                    onClose={onClose} />
+                    onClose={handleClose} />
                 <div className="modalcard-body">
                     <Row gutter={0} className="h-100">
                         <Col md={14}>

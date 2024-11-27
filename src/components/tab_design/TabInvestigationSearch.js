@@ -302,7 +302,7 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
                                     >
                                         <>
                                             <div style={{ fontSize: 16, fontWeight: 500 }}>
-                                                Suggested Lab Test
+                                                Suggested Tests
                                             </div>
                                             <span className="ddx-ready-txt">These are suggested tests with added diagnosis. Tap to add to EMR</span>
                                             <div

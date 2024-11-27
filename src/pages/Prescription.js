@@ -721,6 +721,14 @@ const getGenerateDDx = async (field) => {
         };
       }
     }),
+    examinations: examinationData?.map((examination) => {
+      if (examination) {
+        return {
+          name: examination.examination_name,
+          notes: examination.note,
+        };
+      }
+    }),
   };
   const generatedDDxResponse = await getDDxDetails(payload);
   if (generatedDDxResponse?.results) {

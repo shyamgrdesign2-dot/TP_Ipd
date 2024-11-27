@@ -111,7 +111,7 @@ const TabDDxList = ({
               >
                 {isDDxGenerated
                   ? "No results found! We couldn't generate any diagnosis due to incomplete or inaccurate information provided. Please review and update the details, then try again."
-                  : "Enter key symptoms and patient history to generate a list of possible diagnoses and recommended tests for confirmation. Ensure accurate data for best results."}
+                  : "Enter key symptoms or examinations and patient history to generate a list of possible diagnoses and recommended tests for confirmation. Ensure accurate data for best results."}
               </span>
             )}
           </div>
