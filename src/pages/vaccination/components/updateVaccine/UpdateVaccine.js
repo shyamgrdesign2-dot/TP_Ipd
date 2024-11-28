@@ -165,7 +165,7 @@ const UpdateVaccine = ({
       return;
     }
     setUpdateLoader(true);
-    console.log({ selectedVaccines });
+
     const updatePromises = selectedVaccines.map(async (vaccine) => {
       const payload = {
         patient_pid: patientDetails?.vac_pid || patient_data?.pm_pid,
