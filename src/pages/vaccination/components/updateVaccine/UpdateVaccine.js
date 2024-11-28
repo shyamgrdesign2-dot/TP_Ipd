@@ -163,6 +163,7 @@ const UpdateVaccine = ({
       return;
     }
     setUpdateLoader(true);
+
     const updatePromises = selectedVaccines.map(async (vaccine) => {
       const payload = {
         patient_pid: patientDetails?.vac_pid || patient_data?.pm_pid,
@@ -177,10 +178,14 @@ const UpdateVaccine = ({
           vaccine?.brandId,
         vaccine_given_date: givenDate,
         remarks:
+          vaccineDetails[vaccine?.tvac_name]?.remarks &&
           vaccineDetails[vaccine?.tvac_name]?.remarks !== vaccine?.tvp_remarks
             ? vaccineDetails[vaccine?.tvac_name]?.remarks
             : vaccine?.tvp_remarks || "",
-        vaccine_site: vaccineDetails[vaccine?.tvac_name]?.vaccine_site || "",
+        vaccine_site:
+          vaccineDetails[vaccine?.tvac_name]?.vaccine_site ||
+          vaccine?.tvpv_site ||
+          "",
       };
 
       const result = updateVaccine(payload);
@@ -524,6 +529,7 @@ const UpdateVaccine = ({
                       />
                       {(vaccineDetails?.[vaccine?.tvac_name]
                         ?.vaccine_company_id ||
+                        vaccine?.brandId ||
                         vaccine?.tvpv_site) && (
                         <>
                           <label>Site</label>
@@ -539,8 +545,8 @@ const UpdateVaccine = ({
                               undefined
                             }
                             options={vaccineSites}
-                            defaultValue={vaccine?.tvpv_site}
-                            onChange={(value, option) =>
+                            defaultValue={vaccine?.tvpv_site || undefined}
+                            onChange={(value) =>
                               handleDetails(
                                 vaccine?.tvac_name,
                                 "vaccine_site",
