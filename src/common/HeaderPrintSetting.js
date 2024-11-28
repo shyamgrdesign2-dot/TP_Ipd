@@ -159,11 +159,15 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
     }, [isBackModalOpen]);
 
     const onYesLeaveClick = () => {
-        if (flag === 1 || flag === 3) {
-            navigate(-1)
+        if (flag === 1) {
+            navigate(-1);
+            dispatch(setCurrentSessionRx(null));
+        } else if (flag === 3) {
+            navigate(-1);
         } else {
             dispatch(getDefaultPrintsettings({ default: true }));
-            showHideBackModal()
+            showHideBackModal();
+            dispatch(setCurrentSessionRx(null));
         }
     }
 
