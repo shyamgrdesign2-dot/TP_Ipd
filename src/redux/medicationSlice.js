@@ -10,6 +10,7 @@ const initialState = {
   loading: false,
   error: null,
   genericList: [],
+  dosesList: []
 };
 
 export const addTemplate = createAsyncThunk(
@@ -166,6 +167,46 @@ export const editMedicine = createAsyncThunk(
   }
 );
 
+export const getAllDoses = createAsyncThunk(
+  "medication/getAllDoses",
+  async () => {
+    const result = await ApiMedication.getAllDoses();
+    return result;
+  }
+);
+
+export const createDose = createAsyncThunk(
+  "medication/createDose",
+  async (data) => {
+    const result = await ApiMedication.createDose(data);
+    return result;
+  }
+);
+
+export const updateDose = createAsyncThunk(
+  "medication/updateDose",
+  async (data) => {
+    const result = await ApiMedication.updateDose(data);
+    if (result.status === 204) {
+      return true;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
+export const deleteDose = createAsyncThunk(
+  "medication/deleteDose",
+  async (id) => {
+    const result = await ApiMedication.deleteDose(id);
+    if (result.status === 204) {
+      return true;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const medicationSlice = createSlice({
   name: "medication",
   initialState,
@@ -299,6 +340,20 @@ const medicationSlice = createSlice({
       })
       .addCase(editMedicine.rejected, (state) => {
         state.loading = false
+      })
+      .addCase(getAllDoses.fulfilled, (state, action) => {
+        state.dosesList = action.payload
+      })
+      .addCase(createDose.fulfilled, (state, action) => {
+        state.dosesList = [...state.dosesList, ...action.payload]
+      })
+      .addCase(updateDose.fulfilled, (state, action) => {
+        const data = action.meta.arg
+        state.dosesList = state.dosesList.map((row) => row.id === data?.id ? { ...row, ...data } : row)
+      })
+      .addCase(deleteDose.fulfilled, (state, action) => {
+        const id = action.meta.arg
+        state.dosesList = state.dosesList.filter((e) => e.id !== id)
       })
   },
 });

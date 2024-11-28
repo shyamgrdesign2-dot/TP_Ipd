@@ -20,17 +20,20 @@ import {
   Radio,
   Segmented,
   Tooltip,
+  message
 } from "antd";
 import {
   Button as BSButton,
   ButtonGroup as BSButtonGroup,
 } from "react-bootstrap";
-import { LoadingOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
+import calculatorIcon from '../../assets/images/calculator.svg';
+import imgCloseVisit from '../../assets/images/close-visit.svg';
 import CashManagerContext from "../../context/CashManagerContext";
 
 import {
@@ -42,12 +45,14 @@ import {
   hasNumber,
   capitalizeAfterSentence,
   capitalize,
-  replaceCommasAndSemicolons
+  replaceCommasAndSemicolons,
+  calculateDose
 } from "../../utils/utils";
 import Medicationicon from "../../assets/images/Medication.svg";
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 import {
+  searchMedication,
   addTemplate,
   updateTemplate,
   deleteTemplate,
@@ -57,25 +62,30 @@ import {
   getFrequentlySearchedMedication,
   getLoadPreviousRx,
   searchGeneric,
+  addMedicine,
   editMedicine,
   updateFrequentlyMedication,
-  clearGenericList
+  clearGenericList,
+  getAllDoses
 } from "../../redux/medicationSlice";
 
 import TabMedicationSearch from "./TabMedicationSearch";
 import TabMedicationMoreModal from "./TabMedicationMoreModal";
-import { EXTRA_OPTIONS } from "../../utils/constants";
+import { EXTRA_OPTIONS, MESSAGE_KEY } from "../../utils/constants";
+import DoseCalculator from "../dose_calculator/doseCalculator";
 
 function TabMedicationBox() {
 
   const { frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
+    dosesList,
     selectedMedicationList,
     parentOptionsList,
     templates,
     genericList,
     loading,
   } = useSelector((state) => state.medication);
+  const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
 
   const { patient_data, medicationData, setMedicationData } =
@@ -118,11 +128,29 @@ function TabMedicationBox() {
   const [frequencyMoreOptionsVisible, setFrequencyMoreOptionsVisible] = useState(false);
   const [durationMoreOptionsVisible, setDurationMoreOptionsVisible] = useState(false);
 
+  const [parentSearchOptions, setParentSearchOptions] = useState([]);
+
   //Add Custom
   const [addCustom, setAddCustom] = useState(null);
   const [medicineTypeMoreOptionsVisible, setMedicineTypeMoreOptionsVisible] = useState(false);
   const [genericDrawer, setGenericDrawer] = useState(false);
   const [genericQuery, setGenericQuery] = useState('');
+
+  //Dose Calculator
+  const [activeTab, setActiveTab] = useState("1");
+  const [doseCalculatorDrawer, setDoseCalculatorDrawer] = useState(false);
+  const [searchMLQuery, setSearchMLQuery] = useState("");
+  const [medicationLibrary, setMedicationLibrary] = useState([]);
+  const [editDoseId, setEditDoseId] = useState(0);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
+
+  const handleViewDoseCalcDrawer = (value) => {
+    setDoseCalculatorDrawer(!doseCalculatorDrawer)
+    setActiveTab(typeof value == 'string' ? value : '1')
+    setSearchMLQuery("")
+    setMedicationLibrary([])
+    setAddCustom(null)
+  }
 
   //Taper Dose
   const [childIndex, setChildIndex] = useState(null);
@@ -170,8 +198,71 @@ function TabMedicationBox() {
 
   useEffect(() => {
     dispatch(getMedicationTemplates());
+    dispatch(getAllDoses())
     dispatch(getFrequentlySearchedMedication());
   }, []);
+
+  //Parent AutoComplete
+  useEffect(() => {
+    if (searchMLQuery) {
+      const timeOutId = setTimeout(() => {
+        dispatch(
+          searchMedication({ searchQuery: searchMLQuery, type: "parent" })
+        );
+      }, 500);
+      return () => {
+        clearTimeout(timeOutId);
+      };
+    } else {
+      dispatch(getFrequentlySearchedMedication());
+    }
+  }, [doseCalculatorDrawer, searchMLQuery]);
+
+  useEffect(() => {
+    const data = [];
+    parentOptionsList.map((e) => {
+      return data.push({
+        key: JSON.stringify({ ...e, unique_id: uuidv4() }),
+        value: e.tmm_medicine_name,
+        label: <div><span className="fw-medium">{e.tmm_medicine_name}</span>, <span>{e.tmm_generic}</span></div>,
+      });
+    });
+    if (doseCalculatorDrawer) {
+      if (searchMLQuery.length == 0) {
+        data.unshift({
+          key: -1,
+          label: (
+            <>
+              <div>FREQUENTLY USED</div>
+            </>
+          ),
+        });
+      } else {
+        searchMLQuery &&
+          data.push({
+            key: JSON.stringify({
+              unique_id: uuidv4(),
+              tmm_id: 0,
+              tmm_medicine_name: searchMLQuery
+            }),
+            value: `${searchMLQuery}${Math.random()}`,
+            label: (
+              <>
+                <div className="text-primary fontroboto fs-16"> <i className="icon-Add mx-1 fs-6"></i> Add <span className="fw-medium fontroboto text-primary">"{searchMLQuery}"</span> <a className="text-primary fontroboto">as a new medicine</a></div>
+              </>
+            ),
+          });
+      }
+    }
+    setParentSearchOptions(data);
+  }, [doseCalculatorDrawer, parentOptionsList]);
+
+  const onSearchParent = useCallback(
+    (query) => {
+      doseCalculatorDrawer && setSearchMLQuery(query)
+    },
+    [doseCalculatorDrawer, searchMLQuery]
+  );
 
   useEffect(() => {
     setMatchedTemplates(templates);
@@ -210,54 +301,120 @@ function TabMedicationBox() {
     setParentDrawer(!parentDrawer);
   }, [parentDrawer]);
 
+  const onParentSelectParent = async (data, item) => {
+    onSelectParent({ ...JSON.parse(item.key) })
+  }
+
   const onSelectParent = async (item) => {
-    window.Moengage.track_event("medicine_select", {
-      "value": item.tmm_medicine_name
-    });
-    const action = await dispatch(getMedicineDetails(item.tmm_id));
-    if (action.meta.requestStatus === "fulfilled") {
-      const updatedData = action.payload.map((e) => {
-        const medicineUnit = e?.medicineUnit.map((e1) => {
+    if (item.tmm_id === 0) {
+      setAddCustom(item);
+    } else {
+      window.Moengage.track_event("medicine_select", {
+        "value": item.tmm_medicine_name
+      });
+
+      if (doseCalculatorDrawer) {
+        const medicineExists = medicationLibrary.some((med) => med.tmm_id == item.tmm_id);
+
+        if (medicineExists) {
+          message.open({
+            key: MESSAGE_KEY,
+            type: '',
+            className: 'message-appointment',
+            content: (
+              <div className='d-flex align-items-center'>
+                <InfoCircleOutlined className="fs-21 me-2 circle-outlined-custom" />
+                <div>
+                  <div className='text-start fs-18 fontroboto'>This medicine is already added. You can't add it again</div>
+                </div>
+                <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+              </div>
+            ),
+            duration: 3,
+          });
+          return;
+        }
+      }
+
+      const action = await dispatch(getMedicineDetails(item.tmm_id));
+      if (action.meta.requestStatus === "fulfilled") {
+        const updatedData = action.payload.map((e) => {
+          const medicineUnit = e?.medicineUnit.map((e1) => {
+            return {
+              key: JSON.stringify({ ...e1 }),
+              value: e1.tmu_id,
+              label: <>{e1.tmu_title}</>,
+            };
+          });
+
+          const unitObj = medicineUnit ? medicineUnit.find((x) => x.value == e.tmm_unit) : null;
+          const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+          const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+          let doseCalData = {}
+          const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
+          if (objDose !== undefined) {
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
+            doseCalData['tmm_dosage'] = dose ? dose : "";
+            doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
+            doseCalData['tmm_unit'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_id : "";
+            doseCalData['tmu_id'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_id : "";
+          } else {
+            doseCalData['tmm_dosage_unit_name'] = `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
+            doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
+          }
+
           return {
-            key: JSON.stringify({ ...e1 }),
-            value: e1.tmu_id,
-            label: <>{e1.tmu_title}</>,
+            ...e,
+            objectID: item.objectID,
+            // tmm_unit_name: unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "",
+            tmm_freq_type_name:
+              frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+            tmf_block_val:
+              frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+            tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+            medicineUnit: medicineUnit,
+            // tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`,
+            tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
+            unique_id: uuidv4(),
+            ...doseCalData
           };
         });
-
-        const unitObj = medicineUnit
-          ? medicineUnit.find((x) => x.value == e.tmm_unit)
-          : null;
-        const frequencyObj = frequencyList.find(
-          (x) => x.tmf_id == e.tmm_freq_type
-        );
-        const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
-
-        return {
-          ...e,
-          objectID: item.objectID,
-          tmm_unit_name:
-            unitObj && unitObj !== undefined
-              ? JSON.parse(unitObj.key).tmu_title
-              : "",
-          tmm_freq_type_name:
-            frequencyObj !== undefined ? frequencyObj.tmf_title : "",
-          tmf_block_val:
-            frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
-          tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-          medicineUnit: medicineUnit,
-          tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
-          unique_id: uuidv4(),
-        };
-      });
-      medicationData.push({
-        ...updatedData[0],
-      });
-      setMedicationData((prev) => [...prev]);
-      setSelectedIndex(medicationData.length - 1);
-      handleDrawerParent();
-    } else {
-      errorMessage(action.error)
+        if (doseCalculatorDrawer) {
+          const modifyData = updatedData[0]
+          const objDose = dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)
+          medicationLibrary.push({
+            ...modifyData,
+            tmm_dosage_unit_name: "",
+            tmm_dosage: '',
+            tmm_unit: 0,
+            tmm_unit_name: '',
+            tmu_id: 0,
+            id: objDose !== undefined ? objDose?.id : "",
+            medicine_id: modifyData.tmm_id,
+            dosage: objDose !== undefined ? objDose?.dosage : "",
+            dosage_unit: "mg/kg/dose",
+            concentration: objDose !== undefined ? objDose?.concentration : "",
+            concentration_unit: "mg/ml",
+            medicine_name: modifyData.tmm_medicine_name,
+            medicine_generic_name: modifyData.tmm_generic,
+            exist: dosesList.some((e1) => e1.medicine_id == modifyData.tmm_id) ? true : false
+          });
+          setMedicationLibrary((prev) => [...prev]);
+          setSearchMLQuery("");
+          setAddCustom(null);
+        } else {
+          medicationData.push({
+            ...updatedData[0],
+          });
+          setMedicationData((prev) => [...prev]);
+          setSelectedIndex(medicationData.length - 1);
+          handleDrawerParent();
+        }
+      } else {
+        errorMessage(action.error)
+      }
     }
   };
 
@@ -606,17 +763,17 @@ function TabMedicationBox() {
       medicationData.length > 0 && (
         <SortableList
           items={medicationData}
-          onSortEnd={async ({ oldIndex, newIndex  }) => {
+          onSortEnd={async ({ oldIndex, newIndex }) => {
 
             const result = Array.from(medicationData);
 
             const findMedicationIndex = medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], [])
-        
+
             const array = await innerMedication(findMedicationIndex[oldIndex].index)
             const array1 = await innerMedication(findMedicationIndex[newIndex].index)
-        
+
             const removedArray = result.filter(item => !array.some((x) => x.unique_id === item.unique_id));
-        
+
             if (findMedicationIndex[oldIndex].index > findMedicationIndex[newIndex].index) {
               const dragIndex = removedArray.findIndex(x => x.unique_id == array1.at(0).unique_id)
               removedArray.splice(dragIndex, 0, ...array)
@@ -625,7 +782,7 @@ function TabMedicationBox() {
               const dragIndex = removedArray.findIndex(x => x.unique_id == array1.at(-1).unique_id)
               removedArray.splice(dragIndex + 1, 0, ...array)
             }
-        
+
             setMedicationData(removedArray);
           }}
           axis="xy"
@@ -2128,16 +2285,16 @@ function TabMedicationBox() {
   }
 
   const onAddEditMedicineClick = async () => {
-    if (addCustom?.tmm_id) {
-      var sendData = {
-        tmm_id: addCustom?.tmm_id,
-        tmm_medicine_name: addCustom?.tmm_medicine_name,
-        tmm_type: addCustom?.tmy_id,
-        tmm_generic: addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : '',
-        tmm_company: addCustom?.tmm_company !== undefined ? addCustom?.tmm_company : ''
-      };
-      const action = await dispatch(editMedicine(sendData))
-      if (action.meta.requestStatus === "fulfilled") {
+    var sendData = {
+      tmm_id: addCustom?.tmm_id,
+      tmm_medicine_name: addCustom?.tmm_medicine_name,
+      tmm_type: addCustom?.tmy_id,
+      tmm_generic: addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : '',
+      tmm_company: addCustom?.tmm_company !== undefined ? addCustom?.tmm_company : ''
+    };
+    const action = addCustom?.tmm_id ? await dispatch(editMedicine(sendData)) : await dispatch(addMedicine(sendData))
+    if (action.meta.requestStatus === "fulfilled") {
+      if (addCustom?.tmm_id) {
         const modifyData = action.payload[0]
 
         await dispatch(updateFrequentlyMedication(modifyData))
@@ -2149,29 +2306,116 @@ function TabMedicationBox() {
             label: <>{e1.tmu_title}</>,
           };
         });
-        medicationData.map(item => {
-          if (item.tmm_id == modifyData.tmm_id) {
-            item.tmm_medicine_name = modifyData.tmm_medicine_name;
-            item.tmm_generic = modifyData.tmm_generic;
-            item.tmm_company = modifyData.tmm_company;
-            item.tmm_type = modifyData.tmm_type;
-            item.tmm_dosage_unit_name = '';
-            item.tmm_dosage = '';
-            item.tmm_unit = 0;
-            item.tmm_unit_name = '';
-            item.tmu_id = 0;
-            item.medicineUnit = medicineUnit;
-          }
-          return item;
-        });
 
+        if (doseCalculatorDrawer) {
+          medicationLibrary.map(item => {
+            if (item.tmm_id == modifyData.tmm_id) {
+              item.tmm_medicine_name = modifyData.tmm_medicine_name;
+              item.tmm_generic = modifyData.tmm_generic;
+              item.tmm_company = modifyData.tmm_company;
+              item.tmm_type = modifyData.tmm_type;
+              item.tmm_dosage_unit_name = '';
+              item.tmm_dosage = '';
+              item.tmm_unit = 0;
+              item.tmm_unit_name = '';
+              item.tmu_id = 0;
+              item.medicineUnit = medicineUnit;
+            }
+            return item;
+          });
+        } else {
+          medicationData.map(item => {
+            if (item.tmm_id == modifyData.tmm_id) {
+              item.tmm_medicine_name = modifyData.tmm_medicine_name;
+              item.tmm_generic = modifyData.tmm_generic;
+              item.tmm_company = modifyData.tmm_company;
+              item.tmm_type = modifyData.tmm_type;
+              item.tmm_dosage_unit_name = '';
+              item.tmm_dosage = '';
+              item.tmm_unit = 0;
+              item.tmm_unit_name = '';
+              item.tmu_id = 0;
+              item.medicineUnit = medicineUnit;
+            }
+            return item;
+          });
+        }
+      } else {
+        const updatedData = action.payload.map((e) => {
+          const medicineUnit = e?.medicineUnit.map((e1) => {
+            return {
+              key: JSON.stringify({ ...e1 }),
+              value: e1.tmu_id,
+              label: <>{e1.tmu_title}</>,
+            };
+          });
+
+          const unitObj = medicineUnit ? medicineUnit.find((x) => x.value == e.tmm_unit) : null;
+          const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+          const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+          let doseCalData = {}
+          const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
+          if (objDose !== undefined) {
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
+            doseCalData['tmm_dosage'] = dose ? dose : "";
+            doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
+            doseCalData['tmm_unit'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_id : "";
+            doseCalData['tmu_id'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_id : "";
+          } else {
+            doseCalData['tmm_dosage_unit_name'] = `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
+            doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
+          }
+
+          return {
+            ...e,
+            // tmm_unit_name: unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "",
+            tmm_freq_type_name:
+              frequencyObj !== undefined ? frequencyObj.tmf_title : "",
+            tmf_block_val:
+              frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+            tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+            medicineUnit: medicineUnit,
+            // tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`,
+            tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
+            unique_id: uuidv4(),
+            ...doseCalData
+          };
+        });
+        if (doseCalculatorDrawer) {
+          const modifyData = updatedData[0]
+          const objDose = dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)
+          medicationLibrary.push({
+            ...modifyData,
+            tmm_dosage_unit_name: "",
+            tmm_dosage: '',
+            tmm_unit: 0,
+            tmm_unit_name: '',
+            tmu_id: 0,
+            id: objDose !== undefined ? objDose?.id : "",
+            medicine_id: modifyData.tmm_id,
+            dosage: objDose !== undefined ? objDose?.dosage : "",
+            dosage_unit: "mg/kg/dose",
+            concentration: objDose !== undefined ? objDose?.concentration : "",
+            concentration_unit: "mg/ml",
+            medicine_name: modifyData.tmm_medicine_name,
+            medicine_generic_name: modifyData.tmm_generic,
+            exist: dosesList.some((e1) => e1.medicine_id == modifyData.tmm_id) ? true : false
+          });
+        }
+      }
+      if (doseCalculatorDrawer) {
+        setMedicationLibrary((prev) => [...prev]);
+        setSearchMLQuery("");
+      } else {
         setMedicationData((prev) => [...prev]);
-        setAddCustom(null);
         const childData = await innerMedication(selectedIndex)
         setChildDrawerData(childData);
-      } else {
-        errorMessage(action.error)
       }
+      setAddCustom(null);
+    } else {
+      errorMessage(action.error)
     }
   }
 
@@ -2340,6 +2584,10 @@ function TabMedicationBox() {
     );
   }, [addCustom, medicineTypeMoreOptionsVisible, genericDrawer, genericQuery, genericList, loading]);
 
+  const showHideModal2 = useCallback(() => {
+    setIsModalOpen2(!isModalOpen2);
+  }, [isModalOpen2]);
+
   return (
     <>
       <div>
@@ -2350,6 +2598,13 @@ function TabMedicationBox() {
           </div>
 
           <div className="d-flex align-items-center">
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleViewDoseCalcDrawer}
+            >
+              {" "}
+              <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>Dose calculator</span>
+            </button>
             <button
               className="btn d-flex align-items-center btn-text"
               onClick={loadPreviousRxClick}
@@ -2473,6 +2728,42 @@ function TabMedicationBox() {
         </div>
         {DELETE_MODAL}
         {REMOVE_ALL_ROWS}
+        {/* Dose Calc Drawer */}
+        {doseCalculatorDrawer &&
+          <Drawer
+            closeIcon={false}
+            className="modalWidth-800"
+            placement="right"
+            open={doseCalculatorDrawer}
+            onClose={showHideModal2}
+            width="auto"
+            styles={{
+              body: {
+                backgroundColor: "white",
+              }
+            }}
+          >
+            {addCustom ?
+              ADD_MEDICINE_DATA :
+              <DoseCalculator
+                handleViewDoseCalcDrawer={handleViewDoseCalcDrawer}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                searchMLQuery={searchMLQuery}
+                setSearchMLQuery={setSearchMLQuery}
+                medicationLibrary={medicationLibrary}
+                setMedicationLibrary={setMedicationLibrary}
+                parentSearchOptions={parentSearchOptions}
+                onSearchParent={onSearchParent}
+                onSelectParent={onParentSelectParent}
+                setAddCustom={setAddCustom}
+                editDoseId={editDoseId}
+                isModalOpen2={isModalOpen2}
+                showHideModal2={showHideModal2}
+              />
+            }
+          </Drawer>
+        }
       </div>
     </>
   );

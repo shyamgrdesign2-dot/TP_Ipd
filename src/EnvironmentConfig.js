@@ -186,7 +186,7 @@ const prod = {
 const getEnv = () => {
   switch (process.env.REACT_APP_ENV) {
     case "dev":
-      return dev;
+      return uat;
     case "qa":
       return qa;
     case "uat":

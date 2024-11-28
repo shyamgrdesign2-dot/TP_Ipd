@@ -44,7 +44,7 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
   } = useSelector((state) => state.symptoms);
   const dispatch = useDispatch();
 
-  const { symptomsData, setSymptomsData } = useContext(CashManagerContext);
+  const { symptomsData, setSymptomsData, examinationData } = useContext(CashManagerContext);
   // const [ symptomsData, setSymptomsData] = useState([]);
 
   // const associatedSymptoms = generatedDDx?.map(
@@ -288,6 +288,7 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
       symptomsData[i] = { ...symptomsData[i], ...JSON.parse(e.key) };
       setSymptomsData((prev) => [...prev]);
       setSearchChildQuery({ query: JSON.parse(e.key).symptom_name, index: i });
+      dispatch(setIsDDxReadyToGenerate(true));
     },
     [searchChildQuery, symptomsData]
   );
@@ -358,7 +359,7 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
     setSymptomsData((prev) => [...prev]);
     if (symptomsData?.length > 0) {
       dispatch(setIsDDxReadyToGenerate(true));
-    } else {
+    } else if (examinationData?.length === 0) {
       dispatch(setIsDDxReadyToGenerate(false));
     }
   };

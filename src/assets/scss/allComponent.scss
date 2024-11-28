@@ -2333,13 +2333,14 @@ body {
         position: absolute;
         bottom: 0;
         padding: 3px 8px;
-        font-size: 12px;
+        font-size: 11px;
         background-color: $drawerHeaderColor;
         color: $theme !important;
         font-weight: 500;
         font-family: 'Roboto' !important;
         align-items: center;
         display: none;
+        z-index: 9;
         cursor: pointer;
         i {
             font-size: 16px;

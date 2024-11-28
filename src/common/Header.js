@@ -37,6 +37,8 @@ import { OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constan
 import { errorMessage, getClinicName, makeDefaultLogo } from "../utils/utils";
 import { Modal, Card } from "antd";
 import alertIcon from '../assets/images/alertIcon.svg';
+import PremiumUser from "./PremiumUser";
+import { openModal } from "../redux/doctorModalSlice";
 
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { env } from "../EnvironmentConfig";
@@ -85,7 +87,7 @@ function Header({ locationPath }) {
   const navigate = useNavigate();
 
   const { profile, loading, videoList } = useSelector((state) => state.doctors);
-
+  const { planDetails } = useSelector((state) => state.subscription);
   const dispatch = useDispatch();
 
   const [clinicOptions, setClinicOptions] = useState([]);
@@ -503,6 +505,10 @@ function Header({ locationPath }) {
 
   const handleShowQRCode = () => {
     setQRCodeVisible(true);
+  }
+  
+  const handleClick = () => {
+    dispatch(openModal());
   };
 
   const getMenuItems = () => {
@@ -518,9 +524,11 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "52px", height: "52px" }}
                 />
-              ) : 
-              <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
-            }
+              ) : planDetails?.currentPlanStatus === "PAID" ? (
+                <PremiumUser />
+              ) :
+                <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
+              }
             </div>
             <div>
               <div className="text-black titleprint">{(profile?.um_name)}</div>
@@ -565,6 +573,32 @@ function Header({ locationPath }) {
           </a>,
         key: '5',
       },
+      // {
+      //   label:
+      //     <a>
+      //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-upgrade me-3"></i>Upgrade Plan</div>
+      //       <i className="icon-right iconrotate180"></i>
+      //     </a>,
+      //   key: '5',
+      // },
+      // {
+      //   label:
+      //     <a>
+      //       <div className="title-common me-5 d-flex align-items-center"><i className="icon-help me-3"></i>Help Center</div>
+      //       <i className="icon-right iconrotate180"></i>
+      //     </a>,
+      //   key: '6',
+      // },
+
+
+      // CSS Also comment
+      // {
+      //   type: 'divider',
+      // },
+      // {
+      //   label: <><i className="icon-exit me-2"></i> Log Out</>,
+      //   key: '8',
+      // },
     ];
   
     const extraItems = [
@@ -831,6 +865,8 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "35px", height: "35px" }}
                 />
+              ) :  planDetails?.currentPlanStatus === "PAID" ? (
+                <PremiumUser />
               ) :
                 <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
               }
