@@ -1537,6 +1537,19 @@ function MedicalHistoryBox(props) {
                                                                 )
                                                             })}
                                                         </div>
+                                                        {i===cloneMedicalHistoryData?.length-1 && (
+                                                            <div key={i} className="pt-3 pb-4">
+                                                            <div className="d-flex align-items-center justify-content-between mb-3">
+                                                            <div className="d-flex align-items-center">
+                                                                <div className="titleprint">Remarks</div>
+                                                                <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseClick(i)}>
+                                                                    <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${e?.isExpand ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                                                                </Button>
+                                                            </div>
+                                                            </div>
+                                                            <Input.TextArea value={""} placeholder="Write your remarks" className="textareaPlaceholder" rows={3} onChange={onChangeInputNote} />
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 )
                                             })
