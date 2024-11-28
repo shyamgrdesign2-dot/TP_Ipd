@@ -79,8 +79,6 @@ const UpdateVaccine = ({
   const formRef = useRef(null);
   const { profile } = useSelector((state) => state.doctors);
 
-  console.log({ vaccineDetails });
-
   const handleDropdownVisibleChange = (index, isFocused = false) => {
     setIsOpen((prev) => {
       const newState = [...prev];
