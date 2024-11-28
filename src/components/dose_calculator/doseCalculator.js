@@ -65,7 +65,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
 
   const { TabPane } = Tabs;
 
-  const [vitalsUpdate, setVitalsUpdate] = useState([]);
+  const [vitalsUpdate, setVitalsUpdate] = useState(null);
   const [patientBirthWeight, setPatientBirthWeight] = useState(
     vitalsData?.[0]?.patient_birth_weight || storedPatientBirthWeight
   );
