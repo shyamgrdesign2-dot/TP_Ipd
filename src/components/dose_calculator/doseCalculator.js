@@ -21,7 +21,7 @@ import {
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import { isMobile } from "react-device-detect";
-import { errorMessage, onlyDecimalFormat, removeBeforeWhiteSpace } from "../../utils/utils";
+import { calculateDose, errorMessage, onlyDecimalFormat, removeBeforeWhiteSpace } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import CashManagerContext from "../../context/CashManagerContext";
 import { MESSAGE_KEY, PAEDIATRICS } from "../../utils/constants";
@@ -30,6 +30,8 @@ import {
   updateDose,
   deleteDose
 } from "../../redux/medicationSlice";
+import { addUpdateVitals, getPatientBirthWeight, updateList, updateTodayWeight } from "../../redux/vitalsSlice";
+
 import editIcon from "../../assets/images/edit.svg";
 import doseCalculatorImg from "../../assets/images/dose-calc.svg";
 import alertIcon from '../../assets/images/alertIcon.svg';
@@ -37,14 +39,13 @@ import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
 import CommonModal from "../../common/CommonModal";
 import moment from "moment";
-import { addUpdateVitals, getPatientBirthWeight } from "../../redux/vitalsSlice";
 
 const dateFormat = 'YYYY-MM-DD'
 
 const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, searchMLQuery, setSearchMLQuery, medicationLibrary, setMedicationLibrary, parentSearchOptions, onSearchParent, onSelectParent, showHideAddMedicineModal, setAddCustom, editDoseId, isModalOpen2, showHideModal2 }) => {
 
   const { medicineTypeList } = useSelector((state) => state.doctors);
-  const { profile, userId } = useSelector((state) => state.doctors);
+  const { profile } = useSelector((state) => state.doctors);
   const { dosesList } = useSelector((state) => state.medication);
   const dispatch = useDispatch();
 
@@ -56,8 +57,10 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
     setVitalsData,
   } = useContext(CashManagerContext);
 
-  const { selectedVitalsList,
+  const {
+    selectedVitalsList,
     vitalsPastList,
+    todayData,
     patientBirthWeight: storedPatientBirthWeight } = useSelector((state) => state.vitals);
 
   const { TabPane } = Tabs;
@@ -74,14 +77,6 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
   const [doseLibrary, setDoseLibrary] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // useEffect(() => {
-  //   if (editDoseId) {
-  //     const data = dosesList.find((e) => e.medicine_id == editDoseId);
-  //     if (data && data !== undefined) {
-  //       setEditedData(data);
-  //     }
-  //   }
-  // }, [editDoseId]);
 
   useEffect(() => {
     if (medicationData?.length > 0) {
@@ -112,21 +107,19 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
   }, [medicationData, editDoseId]);
 
   useEffect(() => {
-    const todayDate = new Date().toISOString().split("T")[0];
-    // Find today's entry in vitalsData and extract the weight
-    const todayVitals = vitalsData.find((vital) => vital.date === todayDate);
-    // const todayVitals = [...vitalsPastList, ...selectedVitalsList].findLast((vital) => vital.date === todayDate);
-    if (todayVitals && todayVitals.weight) {
-      setVitalsUpdate(todayVitals)
-      setTodayWeight(todayVitals.weight);
+    // const todayDate = new Date().toISOString().split("T")[0];
+    // // Find today's entry in vitalsData and extract the weight
+    // const todayVitals = vitalsData.find((vital) => vital.date === todayDate);
+    // // const todayVitals = [...vitalsPastList, ...selectedVitalsList].findLast((vital) => vital.date === todayDate);
+    // if (todayVitals && todayVitals.weight) {
+    //   setVitalsUpdate(todayVitals)
+    //   setTodayWeight(todayVitals.weight);
+    // }
+    if (todayData) {
+      setVitalsUpdate(todayData)
+      setTodayWeight(todayData?.weight);
     }
-  }, [vitalsData]);
-
-
-  const calculateDose = (dosage, weight, concentration) => {
-    const dose = (parseFloat(dosage) * parseFloat(weight)) / parseFloat(concentration);
-    return dose.toFixed(2).replace(/\.00$/, '');
-  }
+  }, [todayData]);
 
   const clearData = () => {
     setEditedData(null)
@@ -190,7 +183,6 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         duration: 3,
       });
     } else if (sanitizedDosesData.filter(e => !e.dosage)?.length > 0 || sanitizedDosesData.filter(e => !e.concentration)?.length > 0) {
-      errorMessage("")
       message.open({
         key: MESSAGE_KEY,
         type: '',
@@ -219,20 +211,28 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         medicationLibrary?.map(e => {
           const findTmmId = medicationData.findIndex(e1 => e1.tmm_id == e.medicine_id)
           // if (!medicationData[findTmmId].tmm_dosage) {
+          const tmm_unit = medicationData[findTmmId]?.tmm_unit;
           const dose = calculateDose(e.dosage, todayWeight, e.concentration)
           if (isMobile) {
-            const objParse = JSON.parse(medicationData[findTmmId].medicineUnit[0].key);
-            medicationData[findTmmId].tmm_dosage = dose;
-            medicationData[findTmmId].tmm_unit = objParse.tmu_id;
-            medicationData[findTmmId].tmm_unit_name = objParse.tmu_title;
-            medicationData[findTmmId].tmu_id = objParse.tmu_id;
+            const unitObj = medicationData[findTmmId]?.medicineUnit.find((x) => x.value == tmm_unit) !== undefined ?
+              medicationData[findTmmId]?.medicineUnit.find((x) => x.value == tmm_unit) :
+              JSON.parse(medicationData[findTmmId].medicineUnit[0].key);
+
+            medicationData[findTmmId].tmm_dosage_unit_name = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
+            medicationData[findTmmId].tmm_dosage = dose ? dose : "";
+            medicationData[findTmmId].tmm_unit = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_id : "";
+            medicationData[findTmmId].tmm_unit_name = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
+            medicationData[findTmmId].tmu_id = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_id : "";
           } else {
-            const objParse = medicationData[findTmmId]?.medicineUnit[0];
-            medicationData[findTmmId].tmm_dosage_unit_name = `${dose} ${objParse.tmu_title}`;
-            medicationData[findTmmId].tmm_dosage = dose;
-            medicationData[findTmmId].tmm_unit = objParse.tmu_id;
-            medicationData[findTmmId].tmm_unit_name = objParse.tmu_title;
-            medicationData[findTmmId].tmu_id = objParse.tmu_id;
+            const unitObj = medicationData[findTmmId]?.medicineUnit.find((x) => x.tmu_id == tmm_unit) !== undefined ?
+              medicationData[findTmmId]?.medicineUnit.find((x) => x.tmu_id == tmm_unit) :
+              medicationData[findTmmId]?.medicineUnit[0];
+
+            medicationData[findTmmId].tmm_dosage_unit_name = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`;
+            medicationData[findTmmId].tmm_dosage = dose ? dose : "";
+            medicationData[findTmmId].tmm_unit = unitObj && unitObj !== undefined ? unitObj.tmu_id : "";
+            medicationData[findTmmId].tmm_unit_name = unitObj && unitObj !== undefined ? unitObj.tmu_title : "";
+            medicationData[findTmmId].tmu_id = unitObj && unitObj !== undefined ? unitObj.tmu_id : "";
           }
           // }
         })
@@ -262,10 +262,27 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
 
   const onAddUpdateClicked = async () => {
     let updateVitals = []
-    if (vitalsUpdate?.length > 0) {
-      updateVitals = vitalsData?.map(item =>
-        item.dev_unique_id === vitalsUpdate.dev_unique_id ? { ...item, weight: todayWeight } : item
-      );
+    if (vitalsUpdate) {
+      if (selectedVitalsList?.length > 0) {
+        updateVitals = selectedVitalsList?.map(item =>
+          item.dev_unique_id === vitalsUpdate.dev_unique_id ? { ...item, weight: todayWeight } : item
+        );
+        await dispatch(updateList({ status: 'selected', data: updateVitals, weight: todayWeight }))
+      } else {
+        updateVitals = vitalsPastList?.map(item =>
+          item.dev_unique_id === vitalsUpdate.dev_unique_id ? { ...item, weight: todayWeight } : item
+        );
+        await dispatch(updateList({ status: 'past', data: updateVitals, weight: todayWeight }))
+      }
+
+      var sendData = {
+        patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+        pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0,
+        pm_id: patient_data !== undefined ? patient_data.pm_id : 0,
+        pam_id: patient_data !== undefined && patient_data.pam_id !== undefined ? patient_data.pam_id : 0,
+        weight: todayWeight,
+      };
+      await dispatch(updateTodayWeight(sendData));
     } else {
       let cal = calculate('', todayWeight);
       updateVitals.push({
@@ -286,28 +303,28 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         bmr: cal.bmr,
         bsa: cal.bsa,
       });
-    }
 
-    var sendData = {
-      patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
-      pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0,
-      pm_id: patient_data !== undefined ? patient_data.pm_id : 0,
-      pam_id: patient_data !== undefined && patient_data.pam_id !== undefined ? patient_data.pam_id : 0,
-      patient_birth_weight: patientBirthWeight,
-      data: updateVitals,
-    };
-    const action = await dispatch(addUpdateVitals(sendData));
-    if (profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
-      dispatch(
-        getPatientBirthWeight({
-          patient_unique_id:
-            patient_data !== undefined ? patient_data.patient_unique_id : 0,
-          pam_id:
-            patient_data !== undefined && patient_data.pam_id !== undefined
-              ? patient_data.pam_id
-              : 0,
-        })
-      );
+      var sendData = {
+        patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+        pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0,
+        pm_id: patient_data !== undefined ? patient_data.pm_id : 0,
+        pam_id: patient_data !== undefined && patient_data.pam_id !== undefined ? patient_data.pam_id : 0,
+        patient_birth_weight: patientBirthWeight,
+        data: updateVitals,
+      };
+      const action = await dispatch(addUpdateVitals(sendData));
+      if (profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
+        dispatch(
+          getPatientBirthWeight({
+            patient_unique_id:
+              patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            pam_id:
+              patient_data !== undefined && patient_data.pam_id !== undefined
+                ? patient_data.pam_id
+                : 0,
+          })
+        );
+      }
     }
   }
 

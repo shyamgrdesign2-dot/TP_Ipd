@@ -602,6 +602,9 @@ function TabPrescription() {
               ? patient_data.pam_id
               : 0,
           mode: caseManagerData !== undefined && tcmId !== 0 ? EDIT : ADD,
+
+          pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0, //extra
+          pm_id: patient_data !== undefined ? patient_data.pm_id : 0, //extra
         })
       );
 
