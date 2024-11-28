@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber, isAlphabetExit } from "../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber, isAlphabetExit, calculateDose } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
@@ -48,6 +48,7 @@ function MedicationsBox() {
     genericList,
     loading,
   } = useSelector((state) => state.medication);
+  const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
 
   const { patient_data, medicationData, setMedicationData } = useContext(CashManagerContext);
@@ -246,10 +247,24 @@ function MedicationsBox() {
           const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
           const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
 
+          let doseCalData = {}
+          const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
+          if (objDose !== undefined) {
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`;
+            doseCalData['tmm_dosage'] = dose ? dose : "";
+            doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? unitObj.tmu_title : "";
+            doseCalData['tmm_unit'] = unitObj && unitObj !== undefined ? unitObj.tmu_id : "";
+            doseCalData['tmu_id'] = unitObj && unitObj !== undefined ? unitObj.tmu_id : "";
+          } else {
+            doseCalData['tmm_dosage_unit_name'] = `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`;
+            doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? unitObj.tmu_title : "";
+          }
+
           return {
             ...e,
             objectID: JSON.parse(item.key).objectID,
-            tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+            // tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
             tmm_freq_type_name:
               e.tmf_block == 0
                 ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
@@ -269,13 +284,15 @@ function MedicationsBox() {
                   : "",
             tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-            tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+            // tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
             tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
             unique_id: uuidv4(),
+            ...doseCalData
           };
         });
         if (doseCalculatorDrawer) {
           const modifyData = updatedData[0]
+          const objDose = dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)
           medicationLibrary.push({
             ...modifyData,
             tmm_dosage_unit_name: "",
@@ -283,11 +300,11 @@ function MedicationsBox() {
             tmm_unit: 0,
             tmm_unit_name: '',
             tmu_id: 0,
-            id: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.id : "",
+            id: objDose !== undefined ? objDose?.id : "",
             medicine_id: modifyData.tmm_id,
-            dosage: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.dosage : "",
+            dosage: objDose !== undefined ? objDose?.dosage : "",
             dosage_unit: "mg/kg/dose",
-            concentration: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.concentration : "",
+            concentration: objDose !== undefined ? objDose?.concentration : "",
             concentration_unit: "mg/ml",
             medicine_name: modifyData.tmm_medicine_name,
             medicine_generic_name: modifyData.tmm_generic,
@@ -1028,12 +1045,12 @@ function MedicationsBox() {
                                       allowClear
                                     />
                                     {ii === 0 && (
-                                    dosesList.some((e1) => e1.medicine_id == item.tmm_id) ? (
-                                      <div className="badge-tapper position-absolute" style={{ bottom: 0, left: 20 }} onClick={() => handleViewDoseCalcDrawer("1", item?.tmm_id)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
-                                    ) : (
-                                      <div className="badge-tapper position-absolute" style={{ bottom: 0, left: 20 }} onClick={() => handleViewDoseCalcDrawer("1", 0)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Dose Calculator</div>
-                                    )
-                                  )}
+                                      dosesList.some((e1) => e1.medicine_id == item.tmm_id) ? (
+                                        <div className="badge-tapper position-absolute" style={{ bottom: 0, left: 20 }} onClick={() => handleViewDoseCalcDrawer("1", item?.tmm_id)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
+                                      ) : (
+                                        <div className="badge-tapper position-absolute" style={{ bottom: 0, left: 20 }} onClick={() => handleViewDoseCalcDrawer("1", 0)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Dose Calculator</div>
+                                      )
+                                    )}
                                   </Col>
                                   <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                                     <Select
@@ -1602,9 +1619,23 @@ function MedicationsBox() {
           const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
           const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
 
+          let doseCalData = {}
+          const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
+          if (objDose !== undefined) {
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`;
+            doseCalData['tmm_dosage'] = dose ? dose : "";
+            doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? unitObj.tmu_title : "";
+            doseCalData['tmm_unit'] = unitObj && unitObj !== undefined ? unitObj.tmu_id : "";
+            doseCalData['tmu_id'] = unitObj && unitObj !== undefined ? unitObj.tmu_id : "";
+          } else {
+            doseCalData['tmm_dosage_unit_name'] = `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`;
+            doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? unitObj.tmu_title : "";
+          }
+
           return {
             ...e,
-            tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+            // tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
             tmm_freq_type_name:
               e.tmf_block == 0
                 ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
@@ -1624,13 +1655,15 @@ function MedicationsBox() {
                   : "",
             tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-            tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+            // tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
             tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
             unique_id: uuidv4(),
+            ...doseCalData
           };
         });
         if (doseCalculatorDrawer) {
           const modifyData = updatedData[0]
+          const objDose = dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)
           medicationLibrary.push({
             ...modifyData,
             tmm_dosage_unit_name: "",
@@ -1638,11 +1671,11 @@ function MedicationsBox() {
             tmm_unit: 0,
             tmm_unit_name: '',
             tmu_id: 0,
-            id: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.id : "",
+            id: objDose !== undefined ? objDose?.id : "",
             medicine_id: modifyData.tmm_id,
-            dosage: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.dosage : "",
+            dosage: objDose !== undefined ? objDose?.dosage : "",
             dosage_unit: "mg/kg/dose",
-            concentration: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.concentration : "",
+            concentration: objDose !== undefined ? objDose?.concentration : "",
             concentration_unit: "mg/ml",
             medicine_name: modifyData.tmm_medicine_name,
             medicine_generic_name: modifyData.tmm_generic,

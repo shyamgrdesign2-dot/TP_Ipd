@@ -179,7 +179,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     const patientDataShow = (id) => {
         var value = ''
         if (id == 1) {
-            value = `${caseManagerData?.patient_data?.patient_salutation ? `${caseManagerData?.patient_data?.patient_salutation} ${caseManagerData?.patient_data?.patient_name} ${caseManagerData?.patient_data?.patient_id}` : `${caseManagerData?.patient_data?.patient_name} ${caseManagerData?.patient_data?.patient_id}`}`
+            value = `${caseManagerData?.patient_data?.patient_salutation ? `${caseManagerData?.patient_data?.patient_salutation} ${caseManagerData?.patient_data?.patient_name}, ${caseManagerData?.patient_data?.patient_id}` : `${caseManagerData?.patient_data?.patient_name}, ${caseManagerData?.patient_data?.patient_id}`}`
         } else if (id == 2) {
             value = `${caseManagerData?.patient_data?.patient_consultaion_date ? moment(caseManagerData?.patient_data?.patient_consultaion_date).format('DD/MM/YYYY HH:mm') : '-'}`
         } else if (id == 3) {
