@@ -190,7 +190,6 @@ function Prescription() {
   const [likeDislike, setLikeDislike] = useState([]);
   const [isDDxGenerated, setIsDDxGenerated] = useState(false);
   const isApexAIAccessable = useFeatureIsOn("cdss");
-  const isSurgeriesAccessable = useFeatureIsOn("surgeries");
   const {
     isVaccinationAccessable,
     isGrowthChartAccessable,
@@ -721,6 +720,14 @@ const getGenerateDDx = async (field) => {
         };
       }
     }),
+    examinations: examinationData?.map((examination) => {
+      if (examination) {
+        return {
+          name: examination.examination_name,
+          notes: examination.note,
+        };
+      }
+    }),
   };
   const generatedDDxResponse = await getDDxDetails(payload);
   if (generatedDDxResponse?.results) {
@@ -1071,7 +1078,7 @@ const getGenerateDDx = async (field) => {
                     <div key={i} className="prescription-box-sm">
                       <ExaminationBox />
                     </div>
-                  ) : e.tmdpm_id === 21 && e.tmdpm_status === 0 && isSurgeriesAccessable ? (
+                  ) : e.tmdpm_id === 21 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       <SurgicalBox />
                     </div>

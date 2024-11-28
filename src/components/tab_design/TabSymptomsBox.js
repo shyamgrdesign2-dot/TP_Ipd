@@ -34,7 +34,7 @@ function TabSymptomsBox({handleDDxDrawer, generatedDDx}) {
     const { isSymptomsBox } = useSelector((state) => state.ddx);
     const dispatch = useDispatch();
 
-    const { symptomsData, setSymptomsData } = useContext(CashManagerContext);
+    const { symptomsData, setSymptomsData, examinationData } = useContext(CashManagerContext);
     // const [ symptomsData, setSymptomsData] = useState([]);
 
     // const associatedSymptoms = generatedDDx?.map(
@@ -117,7 +117,7 @@ function TabSymptomsBox({handleDDxDrawer, generatedDDx}) {
         setSelectedIndex(null);
         if (symptomsData?.length > 0) {
             dispatch(setIsDDxReadyToGenerate(true));
-        } else {
+        } else if (examinationData?.length === 0) {
             dispatch(setIsDDxReadyToGenerate(false));
         }
     };

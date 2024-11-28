@@ -163,6 +163,7 @@ const UpdateVaccine = ({
       return;
     }
     setUpdateLoader(true);
+
     const updatePromises = selectedVaccines.map(async (vaccine) => {
       const payload = {
         patient_pid: patientDetails?.vac_pid || patient_data?.pm_pid,
@@ -177,10 +178,14 @@ const UpdateVaccine = ({
           vaccine?.brandId,
         vaccine_given_date: givenDate,
         remarks:
+          vaccineDetails[vaccine?.tvac_name]?.remarks &&
           vaccineDetails[vaccine?.tvac_name]?.remarks !== vaccine?.tvp_remarks
             ? vaccineDetails[vaccine?.tvac_name]?.remarks
             : vaccine?.tvp_remarks || "",
-        vaccine_site: vaccineDetails[vaccine?.tvac_name]?.vaccine_site || "",
+        vaccine_site:
+          vaccineDetails[vaccine?.tvac_name]?.vaccine_site ||
+          vaccine?.tvpv_site ||
+          "",
       };
 
       const result = updateVaccine(payload);
@@ -232,20 +237,27 @@ const UpdateVaccine = ({
         ...(updatedDetails[vaccineName] || {}),
         [detail]: value,
         ...(detail === "vaccine_company_id" && { brandName: option?.label }),
+        ...(detail === "vaccine_site" &&
+          !updatedDetails[vaccineName]?.siteManuallyUpdated && {
+            siteManuallyUpdated: true,
+          }),
       };
 
-      // If `vaccine_site` is being updated, propagate the change
+      // If `vaccine_site` is being updated, propagate the change for the first time only
       if (detail === "vaccine_site") {
         const selectedBrandName = updatedDetails[vaccineName]?.brandName;
-        // Update `vaccine_site` for all vaccines with the same `brandName`
+
+        // Update `vaccine_site` for other vaccines with the same `brandName` if not manually updated
         for (const key in updatedDetails) {
           if (
             key !== vaccineName &&
-            updatedDetails[key]?.brandName === selectedBrandName
+            updatedDetails[key]?.brandName === selectedBrandName &&
+            !updatedDetails[key]?.siteManuallyUpdated // Propagate only if not manually updated
           ) {
             updatedDetails[key] = {
               ...(updatedDetails[key] || {}),
               [detail]: value, // Assign the same `vaccine_site` value
+              siteManuallyUpdated: true,
             };
           }
         }
@@ -253,7 +265,7 @@ const UpdateVaccine = ({
 
       // Check other vaccines with undefined values
       for (const key in updatedDetails) {
-        if (key !== vaccineName) {
+        if (key !== vaccineName && updatedDetails[key] === undefined) {
           // Check if the selected value matches any other vaccine brand
           const hasMatchingBrand = vaccineOptions?.[key]?.find(
             (item) => item?.label === option?.label
@@ -517,9 +529,10 @@ const UpdateVaccine = ({
                       />
                       {(vaccineDetails?.[vaccine?.tvac_name]
                         ?.vaccine_company_id ||
+                        vaccine?.brandId ||
                         vaccine?.tvpv_site) && (
                         <>
-                          <label>SITE</label>
+                          <label>Site</label>
                           <Select
                             showSearch
                             placeholder="Select vaccine site"
@@ -532,8 +545,8 @@ const UpdateVaccine = ({
                               undefined
                             }
                             options={vaccineSites}
-                            defaultValue={vaccine?.tvpv_site}
-                            onChange={(value, option) =>
+                            defaultValue={vaccine?.tvpv_site || undefined}
+                            onChange={(value) =>
                               handleDetails(
                                 vaccine?.tvac_name,
                                 "vaccine_site",

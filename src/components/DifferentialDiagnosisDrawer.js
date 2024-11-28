@@ -405,7 +405,7 @@ const DifferentialDiagnosisDrawer = ({
                                   className="modal-title"
                                   style={{ fontSize: 16 }}
                                 >
-                                  Suggested Lab Tests
+                                  Suggested Tests
                                 </div>
                               </div>
                               <div

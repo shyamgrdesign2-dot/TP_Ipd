@@ -23,6 +23,7 @@ import { pdfjs, Document, Page } from "react-pdf";
 import { getGynecDetails } from "../api/services/ApiGynec";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { env } from "../EnvironmentConfig";
+import { setCurrentSessionRx } from "../redux/obstetricSlice";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -225,6 +226,7 @@ function PrescriptionPrintView() {
     };
 
     const onEditPrescriptionClick = async () => {
+        dispatch(setCurrentSessionRx(null));
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
             tcm_id: state.tcm_id
