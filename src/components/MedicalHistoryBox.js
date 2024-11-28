@@ -108,6 +108,8 @@ function MedicalHistoryBox(props) {
     const { patient_data, caseManagerData } = state;
     const [gynecLoading, setGynecLoading] = useState(false);
     const [gynecHistory, setGynecHistory] = useState({});
+    const [expandRemarks,setExpandRemarks] = useState(false);
+    const [remarks,setRemarks] = useState("");
 
     const datePickerRef = useRef(null);
     // Function to handle custom input changes
@@ -1027,6 +1029,15 @@ function MedicalHistoryBox(props) {
             </>
         );
     }, [popOverVideo]);
+    
+    
+    const onExpandCollapseRemarks = () => {
+        setExpandRemarks(!expandRemarks);
+    }
+
+    const onRemarksChange = (e) => {
+        setRemarks(e.target.value);
+    }
 
     return (
         <>
@@ -1542,12 +1553,12 @@ function MedicalHistoryBox(props) {
                                                             <div className="d-flex align-items-center justify-content-between mb-3">
                                                             <div className="d-flex align-items-center">
                                                                 <div className="titleprint">Remarks</div>
-                                                                <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => onExpandCollapseClick(i)}>
-                                                                    <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${e?.isExpand ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                                                                <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={onExpandCollapseRemarks}>
+                                                                    <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${expandRemarks ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                                                                 </Button>
                                                             </div>
                                                             </div>
-                                                            <Input.TextArea value={""} placeholder="Write your remarks" className="textareaPlaceholder" rows={3} onChange={onChangeInputNote} />
+                                                            {expandRemarks && <Input.TextArea value={remarks} placeholder="Write your remarks" className="textareaPlaceholder" rows={3} onChange={onRemarksChange} />}
                                                             </div>
                                                         )}
                                                     </div>
