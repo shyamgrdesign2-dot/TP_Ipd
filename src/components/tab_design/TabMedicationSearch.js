@@ -56,7 +56,7 @@ import DoseCalculator from "../dose_calculator/doseCalculator";
 
 function TabMedicationSearch({ passIndex, onClose }) {
 
-  const { frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
+  const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const { dosesList, parentOptionsList, childOptionsList, genericList, loading } = useSelector((state) => state.medication);
   const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
@@ -983,7 +983,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   // Dose Calc Dropdown
   const items = [
-    {
+    profile?.dp_id === 9 && {
       label: dosesList.some((e1) => e1.medicine_id == medicationData[selectedIndex]?.tmm_id) ?
         <div onClick={() => handleViewDoseCalcDrawer("1", medicationData[selectedIndex]?.tmm_id)}>
           <img src={calculatorIconBlue} alt="Dose calcultor" className="me-2" width={16} />Edit Calculation</div>
@@ -1025,11 +1025,13 @@ function TabMedicationSearch({ passIndex, onClose }) {
                     medicationData[selectedIndex]?.tmm_generic}
                 </div>
               </div>
-              <Dropdown className='btn btn-outline btn-more pe-0' menu={{ items }} trigger={['click']}>
-                <a onClick={(e) => e.preventDefault()}>
-                  <i className='icon-More'></i>
-                </a>
-              </Dropdown>
+              {(profile?.dp_id === 9 || !medicationData[selectedIndex]?.pms_default) && (
+                <Dropdown className='btn btn-outline btn-more pe-0' menu={{ items }} trigger={['click']}>
+                  <a onClick={(e) => e.preventDefault()}>
+                    <i className='icon-More'></i>
+                  </a>
+                </Dropdown>
+              )}
             </div>
             <Tabs
               type="editable-card"
