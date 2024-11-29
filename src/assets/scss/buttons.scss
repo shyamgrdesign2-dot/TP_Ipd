@@ -502,6 +502,14 @@ body {
             }
         }
 
+        &.btn-54 {
+            height: 54px;
+            font-weight: 600 !important;
+            span {
+                font-weight: 600 !important;
+            }
+        }
+
         &.btnclose {
             i {
                 color: $grayColor;
@@ -663,6 +671,27 @@ body {
         }
         &.ant-btn-sm {
             padding: 1px 15px;
+        }
+        &.btn-message {
+            border-radius: 10px;
+            border: 1px solid $descpadcolor !important;
+            background-color: $descpadcolor !important;
+            height: 41px;
+            i {
+                font-size: 19px;
+            }
+            &:hover,
+            &:focus,
+            &:active {
+                background-color: $descpadcolor !important;
+            }
+            span {
+                font-weight: 500 !important;
+                font-family: 'Poppins';
+                letter-spacing: 0.1px;
+                font-size: 14px;
+                color: $themesecondary !important;
+            }
         }
     }
 

@@ -1,15 +1,28 @@
-import React, { useState, useCallback } from "react";
-import { Tabs, Table, Drawer } from "antd";
+import React, { useState, useEffect, useCallback } from "react";
+import { Tabs, Table, Drawer, Checkbox } from "antd";
 import Button from "react-bootstrap/Button";
-import emptyCampaign from '../../assets/images/empty-campaign-history.svg'
-import emptyPurchase from '../../assets/images/empty-purchase-history.svg'
-import "./messages.scss";
-import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../../utils/constants";
+import { useLocation } from "react-router-dom";
+import emptyCampaign from '../assets/images/empty-campaign-history.svg'
+import emptyPurchase from '../assets/images/empty-purchase-history.svg'
+import newGif from '../assets/images/new-gif.gif';
+import playcover2 from '../assets/images/play-cover2.png';
+// import "../components/bulk_messages/messages.scss";
+import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
 import Dropdown from "antd/es/dropdown/dropdown";
-import MessageDetailedView from "./MessageDetailedView";
+import MessageDetailedView from "../components/bulk_messages/MessageDetailedView";
+import CommonModal from "../common/CommonModal";
+
 function MessagesData() {
 
     const [messageDetailed, setMessageDetailed] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [locationPath, setLocationPath] = useState("/bulk_messages");
+    let location = useLocation();
+    useEffect(() => {
+        setLocationPath(location.pathname);
+        showHideModal()
+    }, [location]);
+
 
     const handleMessageDetailed = useCallback(
         () => {
@@ -78,7 +91,7 @@ function MessagesData() {
             key: "srno",
             ellipsis: true,
             width: 70,
-            render: (index) => (
+            render: (record, text, index) => (
                 <div>{index + 1}</div>
             ),
         },
@@ -86,12 +99,12 @@ function MessagesData() {
             title: "MESSAGE TEXT",
             dataIndex: "message_text",
             key: "message_text",
-            ellipsis: true,
+            width: 310,
             render: () => (
-                <div>
+                <div className="cursor-pointer" onClick={() => { handleMessageDetailed() }}>
                     <div>Medical Camp</div>
                     <div className="text-truncate-twolines">
-                        Hi, Ashish Clinic is holding a Diabetes camp from 26/11/2024 to 28/11/2024
+                        Hi, Ashish Clinic is holding a Diabetes camp from 26/11/2024 to 28/11/2024 between 6:00AM to 12:00PM at Koramangla . Ashish - TatvaPractice
                     </div>
                 </div>
             ),
@@ -101,6 +114,7 @@ function MessagesData() {
             dataIndex: "date_time",
             key: "date_time",
             ellipsis: true,
+            sorter: () => { },
             render: () => (
                 <div>
                     26 Nov 2023, <br />09:58 AM
@@ -121,6 +135,7 @@ function MessagesData() {
             dataIndex: "target_users",
             key: "target_users",
             ellipsis: true,
+            sorter: () => { },
             render: () => (
                 <div> 524 </div>
             ),
@@ -175,6 +190,11 @@ function MessagesData() {
         </div>
     );
 
+    const showHideModal = useCallback(() => {
+        setIsModalOpen(!isModalOpen);
+    }, [isModalOpen]);
+
+
     return (
         <>
             <div className="border rounded-4 appointment-wrap dateborder">
@@ -187,7 +207,7 @@ function MessagesData() {
                     <Table
                         className="px-xl-4 px-0 table-message"
                         columns={columns}
-                        dataSource={[{}, {}]}
+                        dataSource={[{}, {}, {}]}
                         pagination={false}
                         locale={{ emptyText: emptyText }}
                     />
@@ -203,6 +223,35 @@ function MessagesData() {
             >
                 <MessageDetailedView handleMessageDetailed={handleMessageDetailed} replace={false} />
             </Drawer>
+
+            <CommonModal
+                isModalOpen={isModalOpen}
+                onCancel={showHideModal}
+                modalWidth={520}
+                title={
+                    <>
+                        Messages
+                        <img src={newGif} width={38} className="ms-2" alt='New' />
+                    </>
+                }
+                modalBody={
+                    <>
+                        <img src={playcover2} className="img-fluid w-100" />
+                        <div className="titleprint fw-semibold mt-4">
+                            Reach Your Patients Easily with Messages!
+                        </div>
+                        <div className="mt-2">
+                            This feature allow you to send important updates, reminders, and personalized health tips to your patients all in one place! This feature is designed to save you time, improve communication, and keep your patients engaged in their health journey
+                        </div>
+                        <Checkbox className="switch-name-check mt-4">Don’t show this again</Checkbox>
+                        <div className="mt-4">
+                            <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 w-100">
+                                <span>Got it</span>
+                            </Button>
+                        </div>
+                    </>
+                }
+            />
         </>
     );
 }

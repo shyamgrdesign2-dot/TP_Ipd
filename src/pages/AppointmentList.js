@@ -9,12 +9,15 @@ import Appointment from "../components/AppointmentData";
 import AddNewPatient from "./AddNewPatient";
 import EditNewPatient from "./EditNewPatient";
 import WalkInConsultation from "./WalkInConsultation";
+import MessagesData from "./MessagesData";
+
 import { useSelector, useDispatch } from "react-redux";
 import WalkInConsultationZydus from "./WalkInConsultationZydus";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { setUserId } from "../redux/doctorsSlice";
 import { getClinicName } from "../utils/utils";
+
 
 function AppointmentList() {
   const dispatch = useDispatch();
@@ -60,6 +63,7 @@ function AppointmentList() {
             <Route path="walk_in_consultation_zydus" element={<WalkInConsultationZydus />} />
             <Route path="add_patient" element={<AddNewPatient />} />
             <Route path="edit_patient" element={<EditNewPatient />} />
+            <Route path="bulk_messages" element={<MessagesData />} />
           </Routes>
         </div>
       </div>

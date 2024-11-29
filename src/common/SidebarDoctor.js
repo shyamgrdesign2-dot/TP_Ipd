@@ -134,6 +134,7 @@ function SidebarDoctor() {
                     <i className='icon-calendarfill'></i>
                     <div className='mt-1 px-2'>
                         <div className='text-truncate'>Messages</div>
+                        <img src={newGif} width={35} className='mx-auto d-block text-center mb-2 position-absolute' style={{right: -4, top: 6, zIndex: -1}} alt='New' />
                     </div>
                 </NavLink>
 
