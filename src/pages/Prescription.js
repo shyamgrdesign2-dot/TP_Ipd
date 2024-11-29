@@ -236,16 +236,16 @@ function Prescription() {
     const clinic_name = getClinicName(profile?.hospital_data);
     tcmId == 0 ?
       window.Moengage.track_event("TP_Consultation_Started", {
-          clinic_name,
-          patient_number: patient_data?.pm_contact_no,
-          patient_id: patient_data?.patient_unique_id,
-          tcm_id: tcmId,
-        })
+        clinic_name,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+        tcm_id: tcmId,
+      })
       :
       window.Moengage.track_event("TP_Consultation_edit_started", {
-          clinic_name,
-          patient_number: patient_data?.pm_contact_no,
-          patient_id: patient_data?.patient_unique_id,
+        clinic_name,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
       })
     const sendData = {
       patient_unique_id: patient_data?.patient_unique_id,
@@ -351,28 +351,28 @@ function Prescription() {
             tmm_freq_type_name:
               e.tmf_block == 0
                 ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
-                      ? e.tcm_tmm_freq_morning + " - "
-                      : "0 -"
+                  ? e.tcm_tmm_freq_morning + " - "
+                  : "0 -"
                 }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
-                      ? e.tcm_tmm_freq_afternoon + " - "
-                      : "0 -"
+                  ? e.tcm_tmm_freq_afternoon + " - "
+                  : "0 -"
                 }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
-                      ? e.tcm_tmm_freq_evening + " - "
-                      : ""
+                  ? e.tcm_tmm_freq_evening + " - "
+                  : ""
                 }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
-                      ? e.tcm_tmm_freq_night
+                  ? e.tcm_tmm_freq_night
                   : "0"}`
                 : frequencyObj !== undefined
-                ? frequencyObj.tmf_title
-                : "",
+                  ? frequencyObj.tmf_title
+                  : "",
             tmf_block_val:
               frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             tmm_dosage_unit_name: `${e.tmm_dosage
               ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""
-                  }`
-                : ""
-            }`,
+              }`
+              : ""
+              }`,
             tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
             unique_id: uuidv4(),
           };
@@ -427,7 +427,7 @@ function Prescription() {
   // Drawer Private Notes
   const handleDrawerPrivateNotes = useCallback((data) => {
     setSelectPrivateNotes(data)
-      setPrivateNotesDrawer(!privateNotesDrawer);
+    setPrivateNotesDrawer(!privateNotesDrawer);
   }, [privateNotesDrawer, selectPrivateNotes]);
 
   // Drawer Vaccination
@@ -674,9 +674,9 @@ function Prescription() {
     try {
       const cleanedToken = token.replace(/['"]+/g, '');
       const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${patient_data?.patient_unique_id}`, {
-          headers: {
+        headers: {
           'Authorization': `Bearer ${cleanedToken}`,
-          },
+        },
       });
       setLabParamsData(response.data?.data?.results || []);
     } catch (error) {

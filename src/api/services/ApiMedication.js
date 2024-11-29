@@ -2,7 +2,7 @@ import api from "./axiosService";
 import config from '../../config';
 
 const baseUrl = { customBaseUrl: config.medication_api_url }
-const doseBaseUrl = { customBaseUrl: config.upload_doc_api_url }
+const doseBaseUrl = { customBaseUrl: config.lab_params_api_url };
 
 const ApiMedication = {};
 
