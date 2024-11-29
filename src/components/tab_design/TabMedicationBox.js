@@ -75,8 +75,7 @@ import { EXTRA_OPTIONS, MESSAGE_KEY } from "../../utils/constants";
 import DoseCalculator from "../dose_calculator/doseCalculator";
 
 function TabMedicationBox() {
-
-  const { frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
+  const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     dosesList,
     selectedMedicationList,
@@ -2598,13 +2597,15 @@ function TabMedicationBox() {
           </div>
 
           <div className="d-flex align-items-center">
-            <button
-              className="btn d-flex align-items-center btn-text"
-              onClick={handleViewDoseCalcDrawer}
-            >
-              {" "}
-              <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>Dose calculator</span>
-            </button>
+            {profile?.dp_id === 9 && (
+              <button
+                className="btn d-flex align-items-center btn-text"
+                onClick={handleViewDoseCalcDrawer}
+              >
+                {" "}
+                <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>Dose calculator</span>
+              </button>
+            )}
             <button
               className="btn d-flex align-items-center btn-text"
               onClick={loadPreviousRxClick}

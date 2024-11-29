@@ -39,7 +39,7 @@ import DoseCalculator from "./dose_calculator/doseCalculator";
 const { TextArea } = Input;
 
 function MedicationsBox() {
-  const { frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
+  const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     dosesList,
     selectedMedicationList,
@@ -1044,7 +1044,7 @@ function MedicationsBox() {
                                       onClear={() => onSearchUnitPerDoseChid("", item?.index)}
                                       allowClear
                                     />
-                                    {ii === 0 && (
+                                    {ii === 0 && profile?.dp_id === 9 && (
                                       dosesList.some((e1) => e1.medicine_id == item.tmm_id) ? (
                                         <div className="badge-tapper position-absolute" style={{ bottom: 0, left: 20 }} onClick={() => handleViewDoseCalcDrawer("1", item?.tmm_id)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
                                       ) : (
@@ -1868,13 +1868,15 @@ function MedicationsBox() {
             <div className="title-common">Medications (Rx)</div>
           </div>
           <div className="d-flex align-items-center">
-            <button
-              className="btn d-flex align-items-center btn-text"
-              onClick={handleViewDoseCalcDrawer}
-            >
-              {" "}
-              <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>Dose calculator</span>
-            </button>
+            {profile?.dp_id === 9 && (
+              <button
+                className="btn d-flex align-items-center btn-text"
+                onClick={handleViewDoseCalcDrawer}
+              >
+                {" "}
+                <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>Dose calculator</span>
+              </button>
+            )}
             <button
               className="btn d-flex align-items-center btn-text"
               onClick={loadPreviousRxClick}
