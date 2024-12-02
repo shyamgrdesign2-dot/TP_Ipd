@@ -700,7 +700,7 @@ function MedicalHistoryBox(props) {
                 tmmhs_id: e?.tmmhs_id,
                 no_know_history: e?.no_know_history !== undefined ? e?.no_know_history : false,
                 tags: !e?.no_know_history ? e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N') : [],
-                ...remarks && {medical_history_remarks: remarks}
+                ...remarks && {medical_history_remarks: remarks.trim()}
             }
         })
         if (medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length) {

@@ -79,8 +79,6 @@ const UpdateVaccine = ({
   const formRef = useRef(null);
   const { profile } = useSelector((state) => state.doctors);
 
-  console.log({ vaccineDetails });
-
   const handleDropdownVisibleChange = (index, isFocused = false) => {
     setIsOpen((prev) => {
       const newState = [...prev];
@@ -239,20 +237,27 @@ const UpdateVaccine = ({
         ...(updatedDetails[vaccineName] || {}),
         [detail]: value,
         ...(detail === "vaccine_company_id" && { brandName: option?.label }),
+        ...(detail === "vaccine_site" &&
+          !updatedDetails[vaccineName]?.siteManuallyUpdated && {
+            siteManuallyUpdated: true,
+          }),
       };
 
-      // If `vaccine_site` is being updated, propagate the change
+      // If `vaccine_site` is being updated, propagate the change for the first time only
       if (detail === "vaccine_site") {
         const selectedBrandName = updatedDetails[vaccineName]?.brandName;
-        // Update `vaccine_site` for all vaccines with the same `brandName`
+
+        // Update `vaccine_site` for other vaccines with the same `brandName` if not manually updated
         for (const key in updatedDetails) {
           if (
             key !== vaccineName &&
-            updatedDetails[key]?.brandName === selectedBrandName
+            updatedDetails[key]?.brandName === selectedBrandName &&
+            !updatedDetails[key]?.siteManuallyUpdated // Propagate only if not manually updated
           ) {
             updatedDetails[key] = {
               ...(updatedDetails[key] || {}),
               [detail]: value, // Assign the same `vaccine_site` value
+              siteManuallyUpdated: true,
             };
           }
         }
@@ -260,7 +265,7 @@ const UpdateVaccine = ({
 
       // Check other vaccines with undefined values
       for (const key in updatedDetails) {
-        if (key !== vaccineName) {
+        if (key !== vaccineName && updatedDetails[key] === undefined) {
           // Check if the selected value matches any other vaccine brand
           const hasMatchingBrand = vaccineOptions?.[key]?.find(
             (item) => item?.label === option?.label
@@ -527,7 +532,7 @@ const UpdateVaccine = ({
                         vaccine?.brandId ||
                         vaccine?.tvpv_site) && (
                         <>
-                          <label>SITE</label>
+                          <label>Site</label>
                           <Select
                             showSearch
                             placeholder="Select vaccine site"
