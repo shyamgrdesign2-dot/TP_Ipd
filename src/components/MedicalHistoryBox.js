@@ -108,8 +108,8 @@ function MedicalHistoryBox(props) {
     const { patient_data, caseManagerData } = state;
     const [gynecLoading, setGynecLoading] = useState(false);
     const [gynecHistory, setGynecHistory] = useState({});
-    const [expandRemarks,setExpandRemarks] = useState(false);
-    const [remarks,setRemarks] = useState("");
+    const [expandRemarks,setExpandRemarks] = useState(true);
+    const [remarks,setRemarks] = useState(medicalHistoryData?.[0]?.medical_history_remarks || "");
 
     const datePickerRef = useRef(null);
     // Function to handle custom input changes
@@ -699,7 +699,8 @@ function MedicalHistoryBox(props) {
                 title: e?.title,
                 tmmhs_id: e?.tmmhs_id,
                 no_know_history: e?.no_know_history !== undefined ? e?.no_know_history : false,
-                tags: !e?.no_know_history ? e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N') : []
+                tags: !e?.no_know_history ? e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N') : [],
+                ...remarks && {medical_history_remarks: remarks}
             }
         })
         if (medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length) {
