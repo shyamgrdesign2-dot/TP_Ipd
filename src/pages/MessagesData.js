@@ -6,7 +6,6 @@ import emptyCampaign from '../assets/images/empty-campaign-history.svg'
 import emptyPurchase from '../assets/images/empty-purchase-history.svg'
 import newGif from '../assets/images/new-gif.gif';
 import playcover2 from '../assets/images/play-cover2.png';
-// import "../components/bulk_messages/messages.scss";
 import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
 import Dropdown from "antd/es/dropdown/dropdown";
 import MessageDetailedView from "../components/bulk_messages/MessageDetailedView";
@@ -16,10 +15,8 @@ function MessagesData() {
 
     const [messageDetailed, setMessageDetailed] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [locationPath, setLocationPath] = useState("/bulk_messages");
     let location = useLocation();
     useEffect(() => {
-        setLocationPath(location.pathname);
         showHideModal()
     }, [location]);
 
