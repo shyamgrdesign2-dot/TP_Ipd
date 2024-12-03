@@ -83,6 +83,7 @@ import { getDDxDetails } from "../api/services/ApiDDx";
 import { getDecodedToken } from "../utils/localStorage";
 import DDxList from "../components/medical_certificate/DDxList";
 import SurgicalBox from "../components/SurgicalBox";
+import AddCustomModule from "../components/AddCustomModule";
 
 function Prescription() {
   const {
@@ -1111,6 +1112,7 @@ const getGenerateDDx = async (field) => {
                     )
                   );
                 })}
+                <AddCustomModule />
               </Content>
             </div>
           </div>
