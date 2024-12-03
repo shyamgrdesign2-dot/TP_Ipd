@@ -99,7 +99,6 @@ function TabPrescription() {
     userId,
   } = useSelector((state) => state.doctors);
   const isApexAIAccessable = useFeatureIsOn("cdss");
-  const isSurgeriesAccessable = useFeatureIsOn("surgeries");
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -603,6 +602,9 @@ function TabPrescription() {
               ? patient_data.pam_id
               : 0,
           mode: caseManagerData !== undefined && tcmId !== 0 ? EDIT : ADD,
+
+          pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0, //extra
+          pm_id: patient_data !== undefined ? patient_data.pm_id : 0, //extra
         })
       );
 
@@ -741,6 +743,14 @@ function TabPrescription() {
             since: symptom.since,
             severity: symptom.severity,
             notes: symptom.note,
+          };
+        }
+      }),
+      examinations: examinationData?.map((examination) => {
+        if (examination) {
+          return {
+            name: examination.examination_name,
+            notes: examination.note,
           };
         }
       }),
@@ -1222,7 +1232,7 @@ function TabPrescription() {
                     <div key={i} className="prescription-box-sm">
                       <TabExaminationBox />
                     </div>
-                  ) : e.tmdpm_id === 21 && e.tmdpm_status === 0 && isSurgeriesAccessable ? (
+                  ) : e.tmdpm_id === 21 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       <TabSurgicalBox />
                     </div>

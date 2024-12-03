@@ -9,14 +9,40 @@ const initialState = {
     vitalsPastList: [],
     loading: false,
     error: null,
-    patientBirthWeight: null
+    patientBirthWeight: null,
+    todayData: null
 };
+
+export const getTodayWeight = createAsyncThunk(
+    "growChart/getTodayWeight",
+    async (data) => {
+        const result = await ApiVitals.getTodayWeight(data?.pm_id, data?.pm_pid);
+        if (result.statusCode !== 404) {
+            return result;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
+export const updateTodayWeight = createAsyncThunk(
+    "growChart/updateTodayWeight",
+    async (data) => {
+        const result = await ApiVitals.updateTodayWeight(data);
+        // if (result.statusCode !== 400) {
+        //     return result;
+        // } else {
+        //     throw Error(result.error);
+        // }
+    }
+);
 
 export const addUpdateVitals = createAsyncThunk(
     "vitals/addUpdateVitals",
-    async (data) => {
+    async (data, { dispatch }) => {
         let result = {};
         result = await ApiVitals.addUpdateVitals(data);
+        await dispatch(getTodayWeight(data))
         if (result.status) {
             return result.data;
         } else {
@@ -27,9 +53,10 @@ export const addUpdateVitals = createAsyncThunk(
 
 export const getVitals = createAsyncThunk(
     "vitals/getVitals",
-    async (data) => {
+    async (data, { dispatch }) => {
         let result = {};
         result = await ApiVitals.getVitals(data);
+        await dispatch(getTodayWeight(data))
         if (result.status) {
             return result.data;
         } else {
@@ -39,18 +66,29 @@ export const getVitals = createAsyncThunk(
 );
 
 export const getPatientBirthWeight = createAsyncThunk("vitals/getPatientBirthWeight", async (data) => {
-  let result = {};
-  result = await ApiVitals.getPatientBirthWeight(data);
-  if (result.status) {
-    return result.data;
-  } else {
-    throw Error(result.error);
-  }
+    let result = {};
+    result = await ApiVitals.getPatientBirthWeight(data);
+    if (result.status) {
+        return result.data;
+    } else {
+        throw Error(result.error);
+    }
 });
 
 const vitalsSlice = createSlice({
     name: "vitals",
     initialState,
+    reducers: {
+        updateList: (state, action) => {
+            const { status, data, weight } = action.payload
+            if (status == 'selected') {
+                state.selectedVitalsList = data;
+            } else {
+                state.vitalsPastList = data;
+            }
+            state.todayData = { ...state.todayData, weight: weight };
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(addUpdateVitals.pending, (state) => {
@@ -90,7 +128,14 @@ const vitalsSlice = createSlice({
             .addCase(getPatientBirthWeight.fulfilled, (state, action) => {
                 state.patientBirthWeight = action?.payload?.birth_weight;
             })
+            .addCase(getTodayWeight.fulfilled, (state, action) => {
+                state.todayData = action.payload;
+            })
+            .addCase(getTodayWeight.rejected, (state) => {
+                state.todayData = null;
+            })
     },
 });
 
+export const { updateList } = vitalsSlice.actions
 export default vitalsSlice.reducer;

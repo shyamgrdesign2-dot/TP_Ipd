@@ -23,6 +23,7 @@ import { pdfjs, Document, Page } from "react-pdf";
 import { getGynecDetails } from "../api/services/ApiGynec";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { env } from "../EnvironmentConfig";
+import { setCurrentSessionRx } from "../redux/obstetricSlice";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -93,6 +94,7 @@ function PrescriptionPrintView() {
         loading,
     } = useSelector((state) => state.caseManager);
     const { userId } = useSelector((state) => state.doctors);
+    const { currentSessionRx } = useSelector((state) => state.obstetric);
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
@@ -178,7 +180,7 @@ function PrescriptionPrintView() {
     };
 
     const printInAppContent = async () => {
-        navigate(`/prescription_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
+        navigate(`/prescription_print_view/?url=${currentSessionRx || printUrl}&key=print`, { replace: true, state: state })
         navigate(0, { replace: true });
     };
 
@@ -195,7 +197,7 @@ function PrescriptionPrintView() {
     const onSelect = useCallback(
         (data) => {
             const encodedData = btoa(data.toString());
-            setPrintUrl(`${printUrl}&lg=${encodedData}`)
+            setPrintUrl(`${currentSessionRx || printUrl}&lg=${encodedData}`);
             setSelectedLang(data)
         },
         [selectedLang, printUrl]
@@ -205,7 +207,7 @@ function PrescriptionPrintView() {
         try {
             const response = await axios({
                 // url: "https://morth.nic.in/sites/default/files/dd12-13_0.pdf",
-                url: printUrl,
+                url: currentSessionRx || printUrl,
                 method: 'GET',
                 responseType: 'blob', // Important for binary data
             });
@@ -219,11 +221,12 @@ function PrescriptionPrintView() {
     };
 
     const handleInAppDownload = async () => {
-        navigate(`/prescription_print_view/?url=${printUrl}&key=download`, { replace: true, state: state })
+        navigate(`/prescription_print_view/?url=${currentSessionRx || printUrl}&key=download`, { replace: true, state: state })
         navigate(0, { replace: true });
     };
 
     const onEditPrescriptionClick = async () => {
+        dispatch(setCurrentSessionRx(null));
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
             tcm_id: state.tcm_id
@@ -262,7 +265,7 @@ function PrescriptionPrintView() {
 
     return (
         <>
-            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} printUrl={printUrl} />
+            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} printUrl={currentSessionRx || printUrl} />
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
@@ -353,7 +356,7 @@ function PrescriptionPrintView() {
                                             loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
                                             error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
                                             noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
-                                            file={printUrl}
+                                            file={currentSessionRx || printUrl}
                                             onLoadSuccess={onDocumentLoadSuccess}>
                                             {Array.apply(null, Array(numPages))
                                                 .map((x, i) => i + 1)

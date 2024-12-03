@@ -190,7 +190,6 @@ function Prescription() {
   const [likeDislike, setLikeDislike] = useState([]);
   const [isDDxGenerated, setIsDDxGenerated] = useState(false);
   const isApexAIAccessable = useFeatureIsOn("cdss");
-  const isSurgeriesAccessable = useFeatureIsOn("surgeries");
   const {
     isVaccinationAccessable,
     isGrowthChartAccessable,
@@ -199,7 +198,7 @@ function Prescription() {
   const { isDDxReadyToGenerate } = useSelector(
     (state) => state.ddx
   );
-  
+
   const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const baseUrl = env.lab_params_api_url;
 
@@ -503,6 +502,9 @@ function Prescription() {
               ? patient_data.pam_id
               : 0,
           mode: caseManagerData !== undefined && tcmId !== 0 ? EDIT : ADD,
+
+          pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0, //extra
+          pm_id: patient_data !== undefined ? patient_data.pm_id : 0, //extra
         })
       );
 
@@ -721,6 +723,14 @@ const getGenerateDDx = async (field) => {
         };
       }
     }),
+    examinations: examinationData?.map((examination) => {
+      if (examination) {
+        return {
+          name: examination.examination_name,
+          notes: examination.note,
+        };
+      }
+    }),
   };
   const generatedDDxResponse = await getDDxDetails(payload);
   if (generatedDDxResponse?.results) {
@@ -731,14 +741,16 @@ const getGenerateDDx = async (field) => {
   setIsDDxLoading(false);
 }
 
-const CUSTOMIZED_PAD_LEFT_LIST = () => {
-  return customizedPadLeftList?.map((e, i) => {
+  const CUSTOMIZED_PAD_LEFT_LIST = () => {
+  return  customizedPadLeftList?.map((e, i) => {
       return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
         <div key={i} className="prescription-box-sm p-14">
           <div className="d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center">
               <img src={vitals} alt="vitals" className="me-3" />
-              <div className="title-common">Vitals & Body Composition</div>
+            <div className="title-common">
+              Vitals & Body Composition
+            </div>
             </div>
             <button
               className="btn d-flex align-items-center btn-text"
@@ -746,17 +758,17 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
             >
               {" "}
               <i
-                className={`${
-                  vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+              className={`${vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
                 } me-1 fs-5`}
               ></i>{" "}
-              <span>{`${vitalsData.length > 0 ? "Edit" : "Add"}`}</span>
+            <span>{`${vitalsData.length > 0 ? "Edit" : "Add"
+              }`}</span>
             </button>
           </div>
-          {(vitalsData.length > 0 ||
-            vitalsPastList.length > 0 ||
-            patientBirthWeight) && (
-            <VitalsList mode={caseManagerData !== undefined ? EDIT : ADD} />
+        {(vitalsData.length > 0 || vitalsPastList.length > 0 || patientBirthWeight) && (
+          <VitalsList
+            mode={caseManagerData !== undefined ? EDIT : ADD}
+          />
           )}
         </div>
       ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
@@ -768,14 +780,10 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                 alt="Medical History"
                 className="me-3"
               />
-              <div className="title-common">
-                {isGynaecHistoryAccessable
-                  ? `Gynec History`
-                  : `Medical History`}
-              </div>
+            <div className="title-common">{isGynaecHistoryAccessable ? `Gynec History` : `Medical History`}</div>
               {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
-                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
-                          </Button> */}
+                <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+              </Button> */}
             </div>
 
             <button
@@ -784,36 +792,29 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
             >
               {" "}
               <i
-                className={`${
-                  medicalHistoryData.length > 0 ||
-                  (updatedGynecHistory &&
-                    Object.keys(updatedGynecHistory).length > 0)
+              className={`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)
                     ? "icon-Edit"
                     : "icon-Add"
                 } me-1 fs-5`}
               ></i>{" "}
-              <span>{`${
-                medicalHistoryData.length > 0 ||
-                (updatedGynecHistory &&
-                  Object.keys(updatedGynecHistory).length > 0)
-                  ? "Edit"
-                  : "Add"
+            <span>{`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ? "Edit" : "Add"
               }`}</span>
             </button>
           </div>
-          {(medicalHistoryData.length > 0 ||
-            (updatedGynecHistory &&
-              Object.keys(updatedGynecHistory).length > 0)) && (
-            <MedicalHistoryList gynecHistory={updatedGynecHistory} />
-          )}
+        {(medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)) && <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
         </div>
-      ) : e.tmdpm_id === 7 &&
+    ) :
+      e.tmdpm_id === 7 &&
         e.tmdpm_status === 0 &&
         isVaccinationAccessable ? (
         <div className="prescription-box-sm p-14">
           <div className="d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center">
-              <img src={vaccinationImg} alt="vitals" className="me-3" />
+              <img
+                src={vaccinationImg}
+                alt="vitals"
+                className="me-3"
+              />
               <div className="title-common">Vaccination</div>
             </div>
             <button
@@ -821,11 +822,14 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
               onClick={handleDrawerVaccination}
             >
               {" "}
-              <i className={`icon-Add me-1 fs-5`}></i> <span>Add</span>
+              <i className={`icon-Add me-1 fs-5`}></i>{" "}
+              <span>Add</span>
             </button>
           </div>
         </div>
-      ) : e.tmdpm_id === 16 &&
+      )
+        :
+        e.tmdpm_id === 16 &&
         e.tmdpm_status === 0 &&
         isGrowthChartAccessable ? (
         <div className="prescription-box-sm p-14">
@@ -839,30 +843,30 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
               onClick={handleDrawerGrowth}
             >
               <i className={`icon-Add me-1 fs-5`}></i> <span>Add</span>
-            </button>
-          </div>
-        </div>
-      ) : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
+              </button></div></div>
+        )
+          : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
         <div key={i} className="prescription-box-sm p-14">
           <div className="d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center">
               <img src={privateNotes} alt="Private Notes" className="me-3" />
-              <div className="title-common">Private Notes</div>
+                  <div className="title-common">
+                    Private Notes
+                  </div>
             </div>
             {!privateNotesData && (
               <button
                 className="btn d-flex align-items-center btn-text"
                 onClick={handleDrawerPrivateNotes}
               >
-                <i className="icon-Add me-1 fs-5"></i>
+                    <i
+                      className="icon-Add me-1 fs-5"></i>
                 <span>Add</span>
               </button>
             )}
           </div>
           {privateNotesList.length > 0 && (
-            <PrivateNotesList
-              handleDrawerPrivateNotes={handleDrawerPrivateNotes}
-            />
+                <PrivateNotesList handleDrawerPrivateNotes={handleDrawerPrivateNotes} />
           )}
         </div>
       ) : e.tmdpm_id === 17 &&
@@ -871,7 +875,11 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
         <div className="prescription-box-sm p-14">
           <div className="d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center">
-              <img src={obstetricImg} alt="obstetric" className="me-3" />
+                  <img
+                    src={obstetricImg}
+                    alt="obstetric"
+                    className="me-3"
+                  />
               <div className="title-common">Obstetric History</div>
             </div>
             <button
@@ -879,11 +887,13 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
               onClick={handleDrawerObstetric}
             >
               <i
-                className={`${
-                  examinationHistory.length > 0 ? "icon-Edit" : "icon-Add"
+                    className={`${examinationHistory.length > 0
+                      ? "icon-Edit"
+                      : "icon-Add"
                 } me-1 fs-5`}
               ></i>
-              <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"}`}</span>
+                  <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"
+                    }`}</span>
             </button>
           </div>
           {(obstetricDetails?.lmp ||
@@ -895,7 +905,8 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
             obstetricDetails?.ectopicPregnancies ||
             examinationHistory?.length > 0) && <ObstetricList />}
         </div>
-      ) : e.tmdpm_id === 18 && e.tmdpm_status === 0 ? (
+          ) : e.tmdpm_id === 18 &&
+            e.tmdpm_status === 0 ? (
         <>
           <div className="prescription-box-sm p-14">
             <div className="d-flex align-items-center justify-content-between">
@@ -905,18 +916,11 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                   alt="upload-document"
                   className="me-3"
                 />
-                <div className="title-common">
-                  Medical Records{" "}
-                  {allUploadedDocs?.length > 0
-                    ? `(${allUploadedDocs?.length})`
-                    : ""}
-                </div>
+                    <div className="title-common">Medical Records {allUploadedDocs?.length > 0 ? `(${allUploadedDocs?.length})` : ""}</div>
               </div>
               <button
                 className="btn d-flex align-items-center btn-text"
-                style={{
-                  paddingRight: allUploadedDocs.length > 0 ? 0 : 12,
-                }}
+                style={{ paddingRight: allUploadedDocs.length > 0 ? 0 : 12 }}
                 onClick={
                   allUploadedDocs.length > 0
                     ? handleDrawerMedicalReport
@@ -934,8 +938,7 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                 {allUploadedDocs.length === 0 && (
                   <i className="icon-Add me-1 fs-5" />
                 )}
-                <span>{`${
-                  allUploadedDocs.length > 0 ? "View All" : "Add"
+                    <span>{`${allUploadedDocs.length > 0 ? "View All" : "Add"
                 }`}</span>
                 {allUploadedDocs.length > 0 && (
                   <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
@@ -950,15 +953,11 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
             />
           </div>
         </>
-      ) : (
-        e.tmdpm_id === 19 &&
+          ) : e.tmdpm_id === 19 &&
         e.tmdpm_status === 0 && (
           <>
-            <div className="prescription-box-sm" style={{ overflow: "hidden" }}>
-              <div
-                className="d-flex align-items-center justify-content-between p-14"
-                style={{ borderBottom: "1px solid #ddd" }}
-              >
+              <div className="prescription-box-sm" style={{ overflow: 'hidden' }}>
+                <div className="d-flex align-items-center justify-content-between p-14" style={{ borderBottom: "1px solid #ddd" }}>
                 <div className="d-flex align-items-center">
                   <img
                     src={labResultImg}
@@ -969,36 +968,24 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                 </div>
                 <button
                   className="btn d-flex align-items-center btn-text"
-                  style={{
-                    paddingRight: labParamsData?.length > 0 ? 0 : 12,
-                  }}
-                  onClick={
-                    labParamsData?.length > 0
-                      ? handleViewLabParamsDrawer
-                      : handleAddLabParamsDrawer
-                  }
+                  style={{ paddingRight: labParamsData?.length > 0 ? 0 : 12 }}
+                    onClick={labParamsData?.length > 0 ? handleViewLabParamsDrawer : handleAddLabParamsDrawer}
                 >
                   {labParamsData?.length === 0 && (
                     <i className="icon-Add me-1 fs-5" />
                   )}
-                  <span>{`${
-                    labParamsData?.length > 0 ? "View All" : "Add"
+                    <span>{`${labParamsData?.length > 0 ? "View All" : "Add"
                   }`}</span>
                   {labParamsData?.length > 0 && (
                     <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
                   )}
                 </button>
               </div>
-              <LabParametersList
-                labParamsData={labParamsData}
-                patient_unique_id={patient_data?.patient_unique_id}
-                doc_id={userId}
-              />
+                <LabParametersList labParamsData={labParamsData} patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} />
             </div>
           </>
         )
-      );
-    });
+  })
 }
 
   return (
@@ -1094,7 +1081,7 @@ const CUSTOMIZED_PAD_LEFT_LIST = () => {
                     <div key={i} className="prescription-box-sm">
                       <ExaminationBox />
                     </div>
-                  ) : e.tmdpm_id === 21 && e.tmdpm_status === 0 && isSurgeriesAccessable ? (
+                  ) : e.tmdpm_id === 21 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       <SurgicalBox />
                     </div>

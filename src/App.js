@@ -1,5 +1,11 @@
 import React, { useEffect } from "react";
-import { Routes, Route, useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useSearchParams,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { isMobile } from "react-device-detect";
@@ -28,6 +34,10 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
 import TalkativeWidget from "./components/TalkativeWidget";
 import SmartRxDigitise from "./pages/SmartRxDigitise";
+import DemoExpirationBanner from "./common/DemoExpirationBanner";
+import PlanExpirationBanner from "./common/PlanExpirationBanner";
+import DoctorModal from "./common/DoctorModal";
+import ExpiredPlanCard from "./common/ExpiredPlanCard";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -56,7 +66,7 @@ function App() {
         const decodedToken = jwtDecode(token);
         growthbook?.setAttributes({
           doctorId: decodedToken?.result?.doctor_unique_id,
-          id: `${decodedToken?.result?.user_id}`
+          id: `${decodedToken?.result?.user_id}`,
         });
       } catch (e) {
         console.log(e);
@@ -75,10 +85,13 @@ function App() {
       const params = new URLSearchParams(location.search);
       params.delete("authToken");
 
-      navigate({
-        pathname: location.pathname,
-        search: params.toString(),
-      }, { replace: true }); // Ensure the URL is cleaned up, removing authToken
+      navigate(
+        {
+          pathname: location.pathname,
+          search: params.toString(),
+        },
+        { replace: true }
+      ); // Ensure the URL is cleaned up, removing authToken
     }
   }, [authToken, setToken, navigate, location]);
 
@@ -97,21 +110,46 @@ function App() {
             console.error(details);
           }}
         >
-          <TalkativeWidget region="au" configUuid="3f5d31d7-aae5-43f2-903a-2dc2d90a36f3" />
+          <TalkativeWidget
+            region="au"
+            configUuid="3f5d31d7-aae5-43f2-903a-2dc2d90a36f3"
+          />
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
+              <DemoExpirationBanner />
+              <PlanExpirationBanner />
+              <ExpiredPlanCard />
+              <DoctorModal />
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route path="patient_details" element={<PatientDetails />} />
-                <Route path="prescription" element={isMobile ? <TabPrescription /> : <Prescription />} />
-                <Route path="prescription_print_view" element={<PrescriptionPrintView />} />
-                <Route path="configure_print_setting" element={<ConfigurePrintSetting />} />
+                <Route
+                  path="prescription"
+                  element={isMobile ? <TabPrescription /> : <Prescription />}
+                />
+                <Route
+                  path="prescription_print_view"
+                  element={<PrescriptionPrintView />}
+                />
+                <Route
+                  path="configure_print_setting"
+                  element={<ConfigurePrintSetting />}
+                />
                 <Route path="certificate" element={<MedicalCertificate />} />
-                <Route path="certificate_print_view" element={<CertificatePrintView />} />
-                <Route path="smart-prescription" element={<SmartPrescription />} />
+                <Route
+                  path="certificate_print_view"
+                  element={<CertificatePrintView />}
+                />
+                <Route
+                  path="smart-prescription"
+                  element={<SmartPrescription />}
+                />
                 <Route path="print-smart-rx" element={<SmartRxPreview />} />
                 <Route path="doctor_profile" element={<DoctorProfile />} />
-                <Route path="doctor_website_setting" element={<DoctorWebsiteSetting />} />
+                <Route
+                  path="doctor_website_setting"
+                  element={<DoctorWebsiteSetting />}
+                />
                 <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
               </Routes>
             </PersistGate>
