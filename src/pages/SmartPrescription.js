@@ -530,6 +530,8 @@ function SmartPrescription() {
               ? patient_data.pam_id
               : 0,
           mode: caseManagerData !== undefined && tcmId !== 0 ? EDIT : ADD,
+          pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0,
+          pm_id: patient_data !== undefined ? patient_data.pm_id : 0,
         })
       );
 
@@ -990,23 +992,6 @@ function SmartPrescription() {
   const handleDrawerCvtKnowMore = useCallback(() => {
     setCvtDrawer(!cvtDrawer);
   }, [cvtDrawer]);
-
-  useEffect(() => {
-    const patientLastHistory = async () => {
-      const V_action = await dispatch(
-        getVitals({
-          patient_unique_id:
-            patient_data !== undefined ? patient_data.patient_unique_id : 0,
-          pam_id:
-            patient_data !== undefined && patient_data.pam_id !== undefined
-              ? patient_data.pam_id
-              : 0,
-          mode: caseManagerData !== undefined ? EDIT : ADD,
-        })
-      );
-    };
-    patientLastHistory();
-  }, []);
 
   useEffect(() => {
     if (caseManagerData === undefined) {
