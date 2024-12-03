@@ -702,7 +702,6 @@ function SmartPrescription() {
   const getLabParams = async () => {
     try {
       const cleanedToken = token.replace(/['"]+/g, "");
-      console.log('thisi= is getting called')
       const response = await axios.get(
         `${baseUrlLabParams}/api/v1/lab-parameters/results/${patient_data?.patient_unique_id}`,
         {
