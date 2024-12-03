@@ -7,7 +7,7 @@ function MessageAvailableCredits() {
     return (
         <>
             <div className="badge-discount py-2 w-100 rounded-0 text-center"> <img src={DiscountIcon} className="me-1" alt="Discount" />Get <span className="fw-medium">20% extra</span> credits on purchases over <span className="fw-medium">₹2000!</span></div>
-            <div className="bg-white overflow-y-auto p-20 d-flex flex-column justify-content-between" style={{ height: 'calc( 100vh - 98px)' }}>
+            <div className="bg-white overflow-y-auto p-20 d-flex flex-column justify-content-between" style={{ minHeight: 'calc( 100vh - 98px)' }}>
                 <div>
                     <div className="px-3 available-credits">
                         <img src={CreditImg} width={19} className="me-2" />
@@ -47,7 +47,7 @@ function MessageAvailableCredits() {
                     </div>
                 </div>
                 <div>
-                    <Button className="lh-lg btn btn-primary3 btn-54 w-100">
+                    <Button className="mt-5 lh-lg btn btn-primary3 btn-54 w-100">
                         <span>Buy Now</span>
                     </Button>
                 </div>

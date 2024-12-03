@@ -128,13 +128,13 @@ function SidebarDoctor() {
                     )
                 })}
 
-                <NavLink to="bulk_messages" replace={true} className={({ isActive, isPending }) =>
+                <NavLink to="/bulk_messages" replace={true} className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "active" : ""
                 }>
                     <i className='icon-calendarfill'></i>
                     <div className='mt-1 px-2'>
-                        <div className='text-truncate'>Messages</div>
-                        <img src={newGif} width={35} className='mx-auto d-block text-center mb-2 position-absolute' style={{right: -4, top: 6, zIndex: -1}} alt='New' />
+                        <div className='mt-1 px-2'>{isMobile ? 'Message' : <div className='text-truncate'>Messages</div>}</div>
+                        <img src={newGif} className='mx-auto d-block text-center mb-2 position-absolute sidebar-message' style={{right: -4, top: 6, zIndex: -1}} alt='New' />
                     </div>
                 </NavLink>
 

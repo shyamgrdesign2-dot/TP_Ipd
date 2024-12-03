@@ -47,14 +47,14 @@ function AppointmentList() {
 
   return (
     <>
-      {(!isMobile || locationPath == "/") && <Header locationPath={locationPath} />}
+      {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && <Header locationPath={locationPath} />}
       <div className="d-flex">
-        {(!isMobile || locationPath == "/") && <SidebarDoctor />}
-        <div className={`w-100 bg-body ${isMobile && locationPath != '/' ? 'vh-100' : 'wrapper'}`}>
-          {(!isMobile || locationPath == "/") && (
+        {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && <SidebarDoctor />}
+        <div className={`w-100 bg-body ${isMobile && locationPath != '/' && locationPath != '/bulk_messages' ? 'vh-100' : 'wrapper'}`}>
+          {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && (
             <Welcome
               locationPath={locationPath}
-              backVisible={locationPath == "/" ? false : true}
+              backVisible={locationPath == "/" || locationPath == "/bulk_messages" ? false : true}
             />
           )}
           <Routes>

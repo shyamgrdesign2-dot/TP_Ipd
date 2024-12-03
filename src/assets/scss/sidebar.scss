@@ -5,6 +5,17 @@ body {
         max-width: 110px;
         height: calc(100vh - 56px);
         padding: 20px 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        &::-webkit-scrollbar {
+            width: 0;
+        }
+        .sidebar-message {
+            width: 35px;
+            @media only screen and (max-width: 1400px) {
+                width: 26px;
+            }
+        }
         @media only screen and (max-width: 1400px) {
             max-width: 80px;
         }
