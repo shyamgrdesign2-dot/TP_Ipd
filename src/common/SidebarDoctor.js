@@ -15,6 +15,7 @@ import patientsIcon from '../assets/images/patients.svg';
 import analyticsIcon from '../assets/images/analytics.svg';
 import pharmacyIcon from '../assets/images/pharmacy.svg';
 import billingsIcon from '../assets/images/billings.svg';
+import followUpIcon from '../assets/images/followup-home.svg';
 
 function SidebarDoctor() {
 
@@ -106,7 +107,7 @@ function SidebarDoctor() {
             case 'opd_billing':
                 return billingsIcon;
             case 'dr_followup_appointment':
-                return billingsIcon;
+                return followUpIcon;
             default:
                 return "";
         }
