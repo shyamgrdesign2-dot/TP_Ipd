@@ -703,7 +703,7 @@ function MedicalHistoryBox(props) {
                 ...remarks && {medical_history_remarks: remarks.trim()}
             }
         })
-        if (medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length) {
+        if (!remarks && medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length) {
             setMedicalHistoryData([])
             handleDrawerMedicalHistory()
         } else {
@@ -1559,7 +1559,7 @@ function MedicalHistoryBox(props) {
                                                                 </Button>
                                                             </div>
                                                             </div>
-                                                            {expandRemarks && <Input.TextArea value={remarks} placeholder="Write your remarks" className="textareaPlaceholder" rows={3} onChange={onRemarksChange} />}
+                                                            {expandRemarks && <Input.TextArea value={remarks} placeholder="Write your remarks" className="textareaPlaceholder" rows={3} onChange={onRemarksChange} maxLength={500} />}
                                                             </div>
                                                         )}
                                                     </div>
