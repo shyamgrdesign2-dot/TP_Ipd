@@ -17,17 +17,19 @@ import {
   Radio,
   Drawer,
   Tabs,
-  Dropdown
+  Dropdown,
+  message
 } from "antd";
 import {
   Button as BSButton,
   ButtonGroup as BSButtonGroup,
 } from "react-bootstrap";
+import { InfoCircleOutlined } from "@ant-design/icons";
 
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
-import { errorMessage, onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize } from "../../utils/utils";
+import { errorMessage, onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, calculateDose } from "../../utils/utils";
 
 import CashManagerContext from "../../context/CashManagerContext";
 import {
@@ -46,15 +48,17 @@ import TabMedicationMoreModal from "./TabMedicationMoreModal";
 
 import noRecordFound from '../../assets/images/no-record-round.svg';
 import calculatorIconBlue from '../../assets/images/calculator-blue.svg';
-import { EXTRA_OPTIONS } from "../../utils/constants";
+import imgCloseVisit from '../../assets/images/close-visit.svg';
+import { EXTRA_OPTIONS, MESSAGE_KEY } from "../../utils/constants";
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import DoseCalculator from "../dose_calculator/doseCalculator";
 
 function TabMedicationSearch({ passIndex, onClose }) {
 
-  const { frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
+  const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const { dosesList, parentOptionsList, childOptionsList, genericList, loading } = useSelector((state) => state.medication);
+  const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
 
   const { medicationData, setMedicationData } = useContext(CashManagerContext);
@@ -92,10 +96,13 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const [doseCalculatorDrawer, setDoseCalculatorDrawer] = useState(false);
   const [searchMLQuery, setSearchMLQuery] = useState("");
   const [medicationLibrary, setMedicationLibrary] = useState([]);
+  const [editDoseId, setEditDoseId] = useState(0);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
 
   const handleViewDoseCalcDrawer = (value) => {
     setDoseCalculatorDrawer(!doseCalculatorDrawer)
     setActiveTab(typeof value == 'string' ? value : '1')
+    setEditDoseId(isNumeric(value) ? value : 0)
     setSearchMLQuery("")
     setMedicationLibrary([])
     setAddCustom(null)
@@ -247,7 +254,21 @@ function TabMedicationSearch({ passIndex, onClose }) {
         const medicineExists = medicationLibrary.some((med) => med.tmm_id == item.tmm_id);
 
         if (medicineExists) {
-          errorMessage("Medicine already in library, skipping addition.")
+          message.open({
+            key: MESSAGE_KEY,
+            type: '',
+            className: 'message-appointment',
+            content: (
+              <div className='d-flex align-items-center'>
+                <InfoCircleOutlined className="fs-21 me-2 circle-outlined-custom" />
+                <div>
+                  <div className='text-start fs-18 fontroboto'>This medicine is already added. You can't add it again</div>
+                </div>
+                <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+              </div>
+            ),
+            duration: 3,
+          });
           return;
         }
       }
@@ -263,40 +284,55 @@ function TabMedicationSearch({ passIndex, onClose }) {
             };
           });
 
-          const unitObj = medicineUnit
-            ? medicineUnit.find((x) => x.value == e.tmm_unit)
-            : null;
-          const frequencyObj = frequencyList.find(
-            (x) => x.tmf_id == e.tmm_freq_type
-          );
+          const unitObj = medicineUnit ? medicineUnit.find((x) => x.value == e.tmm_unit) : null;
+          const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
           const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+          let doseCalData = {}
+          const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
+          if (objDose !== undefined) {
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
+            doseCalData['tmm_dosage'] = dose ? dose : "";
+            doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
+            doseCalData['tmm_unit'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_id : "";
+            doseCalData['tmu_id'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_id : "";
+          } else {
+            doseCalData['tmm_dosage_unit_name'] = `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
+            doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
+          }
 
           return {
             ...e,
             objectID: item.objectID,
-            tmm_unit_name:
-              unitObj && unitObj !== undefined
-                ? JSON.parse(unitObj.key).tmu_title
-                : "",
+            // tmm_unit_name:unitObj && unitObj !== undefined? JSON.parse(unitObj.key).tmu_title : "",
             tmm_freq_type_name:
               frequencyObj !== undefined ? frequencyObj.tmf_title : "",
             tmf_block_val:
               frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             medicineUnit: medicineUnit,
+            // tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`,
             tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
             unique_id: uuidv4(),
+            ...doseCalData
           };
         });
         if (doseCalculatorDrawer) {
           const modifyData = updatedData[0]
+          const objDose = dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)
           medicationLibrary.push({
             ...modifyData,
-            id: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.id : "",
+            tmm_dosage_unit_name: "",
+            tmm_dosage: '',
+            tmm_unit: 0,
+            tmm_unit_name: '',
+            tmu_id: 0,
+            id: objDose !== undefined ? objDose?.id : "",
             medicine_id: modifyData.tmm_id,
-            dosage: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.dosage : "",
+            dosage: objDose !== undefined ? objDose?.dosage : "",
             dosage_unit: "mg/kg/dose",
-            concentration: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.concentration : "",
+            concentration: objDose !== undefined ? objDose?.concentration : "",
             concentration_unit: "mg/ml",
             medicine_name: modifyData.tmm_medicine_name,
             medicine_generic_name: modifyData.tmm_generic,
@@ -947,12 +983,12 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   // Dose Calc Dropdown
   const items = [
-    {
+    profile?.dp_id === 9 && {
       label: dosesList.some((e1) => e1.medicine_id == medicationData[selectedIndex]?.tmm_id) ?
-        <div onClick={() => handleViewDoseCalcDrawer("2")}>
+        <div onClick={() => handleViewDoseCalcDrawer("1", medicationData[selectedIndex]?.tmm_id)}>
           <img src={calculatorIconBlue} alt="Dose calcultor" className="me-2" width={16} />Edit Calculation</div>
         :
-        <div onClick={() => handleViewDoseCalcDrawer("1")}>
+        <div onClick={() => handleViewDoseCalcDrawer("1", 0)}>
           <img src={calculatorIconBlue} alt="Dose calcultor" className="me-2" width={16} />Dose Calculator</div>,
       key: 'Dose Calculator',
     },
@@ -989,11 +1025,13 @@ function TabMedicationSearch({ passIndex, onClose }) {
                     medicationData[selectedIndex]?.tmm_generic}
                 </div>
               </div>
-              <Dropdown className='btn btn-outline btn-more pe-0' menu={{ items }} trigger={['click']}>
-                <a onClick={(e) => e.preventDefault()}>
-                  <i className='icon-More'></i>
-                </a>
-              </Dropdown>
+              {(profile?.dp_id === 9 || !medicationData[selectedIndex]?.pms_default) && (
+                <Dropdown className='btn btn-outline btn-more pe-0' menu={{ items }} trigger={['click']}>
+                  <a onClick={(e) => e.preventDefault()}>
+                    <i className='icon-More'></i>
+                  </a>
+                </Dropdown>
+              )}
             </div>
             <Tabs
               type="editable-card"
@@ -1804,39 +1842,54 @@ function TabMedicationSearch({ passIndex, onClose }) {
             };
           });
 
-          const unitObj = medicineUnit
-            ? medicineUnit.find((x) => x.value == e.tmm_unit)
-            : null;
-          const frequencyObj = frequencyList.find(
-            (x) => x.tmf_id == e.tmm_freq_type
-          );
+          const unitObj = medicineUnit ? medicineUnit.find((x) => x.value == e.tmm_unit) : null;
+          const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
           const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+
+          let doseCalData = {}
+          const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
+          if (objDose !== undefined) {
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
+            doseCalData['tmm_dosage'] = dose ? dose : "";
+            doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
+            doseCalData['tmm_unit'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_id : "";
+            doseCalData['tmu_id'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_id : "";
+          } else {
+            doseCalData['tmm_dosage_unit_name'] = `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
+            doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
+          }
 
           return {
             ...e,
-            tmm_unit_name:
-              unitObj && unitObj !== undefined
-                ? JSON.parse(unitObj.key).tmu_title
-                : "",
+            // tmm_unit_name:unitObj && unitObj !== undefined? JSON.parse(unitObj.key).tmu_title : "",
             tmm_freq_type_name:
               frequencyObj !== undefined ? frequencyObj.tmf_title : "",
             tmf_block_val:
               frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             medicineUnit: medicineUnit,
+            // tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`,
             tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
             unique_id: uuidv4(),
+            ...doseCalData
           };
         });
         if (doseCalculatorDrawer) {
           const modifyData = updatedData[0]
+          const objDose = dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)
           medicationLibrary.push({
             ...modifyData,
-            id: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.id : "",
+            tmm_dosage_unit_name: "",
+            tmm_dosage: '',
+            tmm_unit: 0,
+            tmm_unit_name: '',
+            tmu_id: 0,
+            id: objDose !== undefined ? objDose?.id : "",
             medicine_id: modifyData.tmm_id,
-            dosage: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.dosage : "",
+            dosage: objDose !== undefined ? objDose?.dosage : "",
             dosage_unit: "mg/kg/dose",
-            concentration: dosesList.findIndex((e1) => e1.medicine_id == modifyData.tmm_id) !== -1 ? dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)?.concentration : "",
+            concentration: objDose !== undefined ? objDose?.concentration : "",
             concentration_unit: "mg/ml",
             medicine_name: modifyData.tmm_medicine_name,
             medicine_generic_name: modifyData.tmm_generic,
@@ -2040,6 +2093,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
     );
   }, [addCustom, medicineTypeMoreOptionsVisible, genericDrawer, genericQuery, genericList, loading]);
 
+  const showHideModal2 = useCallback(() => {
+    setIsModalOpen2(!isModalOpen2);
+  }, [isModalOpen2]);
+
   return (
     <>
       <Card bordered={false} className="search-modalCard h-100">
@@ -2122,7 +2179,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             className="modalWidth-800"
             placement="right"
             open={doseCalculatorDrawer}
-            onClose={handleViewDoseCalcDrawer}
+            onClose={showHideModal2}
             width="auto"
             styles={{
               body: {
@@ -2144,6 +2201,9 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 onSearchParent={onSearchParent}
                 onSelectParent={onParentSelectParent}
                 setAddCustom={setAddCustom}
+                editDoseId={editDoseId}
+                isModalOpen2={isModalOpen2}
+                showHideModal2={showHideModal2}
               />
             }
           </Drawer>

@@ -361,7 +361,9 @@ function TabSymptomsSearch({ passIndex, onClose }) {
 
     const handleClose = () => {
         onClose();
-        dispatch(setIsDDxReadyToGenerate(true));
+        if (symptomsData?.length > 0) {
+            dispatch(setIsDDxReadyToGenerate(true));   
+        }
     }
 
     //Child Componet

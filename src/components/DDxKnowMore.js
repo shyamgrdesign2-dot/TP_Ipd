@@ -50,8 +50,8 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
   });
 
   const videoLink = {
-    link: "https://www.youtube.com/embed/o6ALwX9hPMM",
-    thumbnail: "https://i.ytimg.com/vi/o6ALwX9hPMM/hqdefault.jpg",
+    link: "https://www.youtube.com/embed/mAZ7Sa86PnQ",
+    thumbnail: "https://i.ytimg.com/vi/mAZ7Sa86PnQ/hqdefault.jpg",
   };
 
   const scrollToSection = (key) => {
@@ -150,7 +150,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
             <img src={apexAI} alt="apex-AI" width={72} height={72} />
             <div>
               Our AI tool helps you generate possible diagnoses by analyzing
-              patient symptoms, history, and clinical findings,
+              patient symptoms, examinations, history, and clinical findings,
               <b> including past patient data </b> for more accurate results.
               This feature speeds up diagnosis and assists in better
               decision-making for patient care.
@@ -234,6 +234,9 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
                 height: 272,
                 borderRadius: 24,
                 cursor: "pointer",
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
               }}
               onClick={() => setShowVideo(true)}
             >
@@ -258,7 +261,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
           <div className="know-more-section-content cvt-tips-content">
             <span style={{ fontWeight: "600" }}>Enter detailed Analysis: </span>
             The more detailed and structured the patient information you provide
-            (such as symptoms, history, and medications), the better the
+            (such as symptoms, examinations, history, and medications), the better the
             accuracy of the differential diagnosis results.
           </div>
           <div

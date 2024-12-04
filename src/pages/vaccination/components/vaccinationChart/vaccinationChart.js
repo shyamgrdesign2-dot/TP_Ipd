@@ -13,13 +13,13 @@ const columns = [
     title: "Vaccine",
     dataIndex: "vaccine",
     key: "vaccine",
-    width: "16%",
+    width: "15%",
   },
   {
     title: "Brand",
     dataIndex: "brand",
     key: "brand",
-    width: "16%",
+    width: "15%",
   },
   {
     title: "Due Date",
@@ -34,10 +34,16 @@ const columns = [
     width: "16%",
   },
   {
+    title: "Site",
+    dataIndex: "site",
+    key: "site",
+    width: "10%",
+  },
+  {
     title: "Remarks",
     dataIndex: "remarks",
     key: "remarks",
-    width: "18%",
+    width: "20%",
   },
 ];
 

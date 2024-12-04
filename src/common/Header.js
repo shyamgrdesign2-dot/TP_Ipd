@@ -628,7 +628,7 @@ function Header({ locationPath }) {
             <i className="icon-right iconrotate180"></i>
           </a>
         ),
-        key: '6',
+        key: '7',
       },
     ];
   

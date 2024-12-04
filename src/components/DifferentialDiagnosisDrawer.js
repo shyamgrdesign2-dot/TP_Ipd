@@ -17,6 +17,7 @@ import { addResultImpression } from "../api/services/ApiDDx";
 import TabPane from "antd/es/tabs/TabPane";
 import { getClinicName } from "../utils/utils";
 import { useSelector } from "react-redux";
+import { useAccess } from "../pages/vaccination/useAccess";
 
 export const WarningColor = {
   "can't miss": "rgba(194, 159, 0, 1)",
@@ -64,6 +65,16 @@ const DifferentialDiagnosisDrawer = ({
   const { profile } = useSelector((state) => state.doctors);
   const { state } = useLocation();
   const { patient_data } = state;
+  const { isGynaecHistoryAccessable } = useAccess(patient_data?.ageYears);
+  let filteredExcluded = excluded;
+  if (
+    patient_data?.pm_gender?.toLowerCase() === "male" ||
+    !isGynaecHistoryAccessable && patient_data?.pm_gender?.toLowerCase() === "female"
+  ) {
+    filteredExcluded = excluded.filter(
+      (item) => item !== "gynecHistory" && item !== "obsHistory"
+    );
+  }
 
   const [shouldShowInputWarning, setShowInputWarning] = useState(true);
   const [activeKey, setActiveKey] = useState("mostLikely");
@@ -134,7 +145,7 @@ const DifferentialDiagnosisDrawer = ({
   };
 
   const formattedIncludedData = included?.map(formatItem);
-  const formattedExcludedData = excluded?.map(formatItem);
+  const formattedExcludedData = filteredExcluded?.map(formatItem);
 
   return (
     <div className="drawer-container">
@@ -394,7 +405,7 @@ const DifferentialDiagnosisDrawer = ({
                                   className="modal-title"
                                   style={{ fontSize: 16 }}
                                 >
-                                  Suggested Lab Tests
+                                  Suggested Tests
                                 </div>
                               </div>
                               <div

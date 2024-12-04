@@ -266,6 +266,10 @@ body {
         min-width: 64px;
         padding: 10px 0;
         text-align: center;
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-width: none; /* For Firefox */
+        -ms-overflow-style: none; /* For IE and Edge */
         .prescription-tab-button {
             width: 32px;
             height: 32px;
@@ -302,6 +306,9 @@ body {
             line-height: 18px;
             letter-spacing: 0.1px;
         }
+    }
+    .prescription-sidebar::-webkit-scrollbar {
+        display: none;
     }
     .prescription-sidebar-ai {
         background-color: #22003C;

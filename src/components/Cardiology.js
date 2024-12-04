@@ -564,6 +564,20 @@ function Cardiology(props) {
                   <div>
                     {isRxdigitised && showDigitalRx ? (
                       <div className="m-4">
+                        {rxDigitisedData?.editedData?.symptoms && rxDigitisedData?.editedData?.symptoms.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={Symptomsicon}
+                                alt="Symptoms"
+                              />
+                              <div className="title-digitise-section mb-1">Symptoms</div>
+                            </div>
+                            {renderItems('symptoms')}
+                          </>
+                        )}
+                        
                         {rxDigitisedData?.editedData?.medications && rxDigitisedData?.editedData?.medications.length > 0 && (
                           <>
                             <div className="d-flex align-items-start">
@@ -589,20 +603,6 @@ function Cardiology(props) {
                               <div className="title-digitise-section mb-1">Tests</div>
                             </div>
                             {renderItems('tests')}
-                          </>
-                        )}
-
-                        {rxDigitisedData?.editedData?.symptoms && rxDigitisedData?.editedData?.symptoms.length > 0 && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <img
-                                className="me-2"
-                                src={Symptomsicon}
-                                alt="Symptoms"
-                              />
-                              <div className="title-digitise-section mb-1">Symptoms</div>
-                            </div>
-                            {renderItems('symptoms')}
                           </>
                         )}
 

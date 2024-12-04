@@ -185,6 +185,11 @@ export const medicine_freq_format = (freq) => {
   return value
 }
 
+export const calculateDose = (dosage, weight, concentration) => {
+  const dose = (parseFloat(dosage) * parseFloat(weight)) / parseFloat(concentration);
+  return !isNaN(dose) ? dose.toFixed(2).replace(/\.00$/, '') : "";
+}
+
 export const dataUrlToFile = (url, fileName) => {
   const [mediaType, data] = url.split(",");
 
@@ -664,13 +669,13 @@ export const groupArray = async (array) => {
   return updatedArray;
 }
 
-  export const fetchDocumentAsFile = async (url, fileName) => {
-    try {
-      const response = await fetch(url);
-      const blob = await response.blob(); // Convert response to a Blob
-      return new File([blob], fileName, { type: blob.type }); // Create a File object
-    } catch (error) {
-      console.error("Error fetching document: ", error);
-      return null;
-    }
-  };
+export const fetchDocumentAsFile = async (url, fileName) => {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob(); // Convert response to a Blob
+    return new File([blob], fileName, { type: blob.type }); // Create a File object
+  } catch (error) {
+    console.error("Error fetching document: ", error);
+    return null;
+  }
+};
