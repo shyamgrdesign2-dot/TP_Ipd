@@ -703,7 +703,7 @@ function MedicalHistoryBox(props) {
                 ...remarks && {medical_history_remarks: remarks.trim()}
             }
         })
-        if (medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length) {
+        if (!remarks && medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length) {
             setMedicalHistoryData([])
             handleDrawerMedicalHistory()
         } else {
@@ -1553,13 +1553,13 @@ function MedicalHistoryBox(props) {
                                                             <div key={i} className="pt-3 pb-4">
                                                             <div className="d-flex align-items-center justify-content-between mb-3">
                                                             <div className="d-flex align-items-center">
-                                                                <div className="titleprint">Remarks</div>
+                                                                <div className="titleprint">Additional History</div>
                                                                 <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={onExpandCollapseRemarks}>
-                                                                    <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${expandRemarks ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                                                                    <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${!expandRemarks ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
                                                                 </Button>
                                                             </div>
                                                             </div>
-                                                            {expandRemarks && <Input.TextArea value={remarks} placeholder="Write your remarks" className="textareaPlaceholder" rows={3} onChange={onRemarksChange} />}
+                                                            {expandRemarks && <Input.TextArea value={remarks} placeholder="Write your additional history" className="textareaPlaceholder" rows={3} onChange={onRemarksChange} maxLength={500} />}
                                                             </div>
                                                         )}
                                                     </div>
