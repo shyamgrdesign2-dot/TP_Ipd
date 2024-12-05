@@ -33,6 +33,7 @@ import { CLOTS_LIST, CYCLE_KEY_LIST, FLOW_LIST, GYNEC_SECTION_ENABLE_LIST, PAIN_
 import { useAccess } from "../pages/vaccination/useAccess";
 import { getClinicName } from "../utils/utils";
 import VideoModal from "../common/VideoModal";
+import TextArea from "antd/es/input/TextArea";
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD-MM-YYYY'
@@ -1559,7 +1560,22 @@ function MedicalHistoryBox(props) {
                                                                 </Button>
                                                             </div>
                                                             </div>
-                                                            {expandRemarks && <Input.TextArea value={remarks} placeholder="Write your additional history" className="textareaPlaceholder" rows={3} onChange={onRemarksChange} maxLength={500} />}
+                                                            {expandRemarks && 
+                                                                <div style={{ position: "relative", width: "100%" }}>
+                                                                    <TextArea
+                                                                        value={remarks}
+                                                                        placeholder="Write your additional history"
+                                                                        className="textareaPlaceholder"
+                                                                        rows={3}
+                                                                        onChange={onRemarksChange}
+                                                                        maxLength={500}
+                                                                        autoSize={{ minRows: 3, maxRows: 6 }}
+                                                                    />
+                                                                    <div className="additional-history-count">
+                                                                        {remarks?.length || 0}/{500}
+                                                                    </div>
+                                                                </div>
+                                                            }
                                                             </div>
                                                         )}
                                                     </div>
