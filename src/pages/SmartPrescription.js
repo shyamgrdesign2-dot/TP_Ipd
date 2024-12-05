@@ -1,29 +1,51 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import "../pages/smartSync/smartSync.css";
-import { Button, Drawer,message } from "antd";
+import { Button, Drawer, message } from "antd";
 import { useLocation } from "react-router-dom";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, GB_SMARTSYNC_CVT, SMART_RX_UPLOAD, WEBSOCKET_ERROR_MESSAGE } from "../utils/constants";
+import {
+  ADD,
+  EDIT,
+  GB_SMARTSYNC_CVT,
+  SMART_RX_UPLOAD,
+  WEBSOCKET_ERROR_MESSAGE,
+  PAEDIATRICS,
+} from "../utils/constants";
 
-import { getVitals } from "../redux/vitalsSlice";
-import ReconnectingWebSocket from 'reconnectingwebsocket';
+import ReconnectingWebSocket from "reconnectingwebsocket";
 import CashManagerContext from "../context/CashManagerContext";
 import HeaderSmartPrescription from "../common/HeaderSmartPrescription";
+
 import VitalsBox from "../components/VitalsBox";
 import VitalsList from "../components/VitalsList";
+
+import MedicalHistoryBox from "../components/MedicalHistoryBox";
+import MedicalHistoryList from "../components/MedicalHistoryList";
+
+import PrivateNotesBox from "../components/PrivateNotesBox";
+import PrivateNotesList from "../components/PrivateNotesList";
+
 import vitals from "../assets/images/Vitals.svg";
+import MedicalHistory from "../assets/images/Medical-History.svg";
+import privateNotes from "../assets/images/private-notes.svg";
 import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
 
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, WEBSOCKET_ADDRESS } from "../utils/constants";
+import {
+  PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+  WEBSOCKET_ADDRESS,
+} from "../utils/constants";
+
+import { getPatientBirthWeight, getVitals } from "../redux/vitalsSlice";
+import {
+  getPatientLastHistory,
+  listPrivateNotes,
+} from "../redux/medicalhistorySlice";
+
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import { errorMessage } from "../utils/utils";
@@ -35,20 +57,69 @@ import sparkleGif from "../assets/images/aiSparkleLoader.gif";
 import FullPageLoader from "./vaccination/components/Loader";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import CvtKnowMore from "./smartSync/components/CvtKnowMore";
+import { Content } from "antd/es/layout/layout";
+import vaccinationImg from "../assets/images/Vaccination.svg";
+import growthChartImg from "../assets/images/growth-chart-dark.svg";
+import obstetricImg from "../assets/images/obstetric-dark.svg";
+import uploadDocImg from "../assets/images/upload-doc-dark.svg";
+import labResultImg from "../assets/images/Lab.svg";
+import Vaccination from "./vaccination/Vaccination";
+import GrowthChart from "./growthChart/GrowthChart";
+import { viewPatient } from "../redux/appointmentsSlice";
+import { useAccess } from "./vaccination/useAccess";
+import { getGynecDetails } from "../api/services/ApiGynec";
+import Obstetric from "./obstetric/Obstetric";
+import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
+import { fetchAllObstetricDetails } from "./obstetric/service";
+import {
+  addObstetricDetails,
+  navigateToObstetric,
+} from "../redux/obstetricSlice";
+import UploadDocument from "./medicalRecords/UploadDocument";
+import MedicalRecords from "./medicalRecords/MedicalRecords";
+import {
+  fetchAllDocumentCategories,
+  fetchAllPatientDocs,
+  fetchDocsUploadedByPatient,
+} from "./medicalRecords/service";
+import {
+  setAllUploadedDocs,
+  setPatientUploadedDocs,
+  setUploadDocCategories,
+} from "../redux/uploadDocSlice";
+import UploadDocumentList from "./medicalRecords/components/uploadDocumentList/UploadDocumentList";
+import {
+  generateUniqueFileName,
+  getCorrectedFileName,
+  mergeDocuments,
+} from "./medicalRecords/utils/helper";
+import LabParametersList from "../components/LabParametersList";
+import LabParams from "../components/LabParams";
+import ViewLabParam from "../components/ViewLabParams";
 
 function SmartPrescription() {
   const {
+    userId,
+    profile,
     customizedPadLeftList,
     customizedPadRightList,
     frequencyList,
     timingList,
   } = useSelector((state) => state.doctors);
-  const { selectedVitalsList } = useSelector((state) => state.vitals);
+  const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
+    useSelector((state) => state.vitals);
+  const { privateNotesList } = useSelector((state) => state.medicalhistory);
+  const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
+    useSelector((state) => state.obstetric);
+  const { examinationHistory = [] } = obstetricDetails;
+  const { allUploadedDocs, uploadDocCategories } = useSelector(
+    (state) => state.uploadDoc
+  );
   const dispatch = useDispatch();
 
   const { state } = useLocation();
-  const { patient_data, caseManagerData, smartRxFilesData } = state;
-
+  const { patient_data, send_path, caseManagerData, smartRxFilesData } = state;
+  const chartType = state?.chartType;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const consultationDate =
     caseManagerData !== undefined
@@ -65,8 +136,13 @@ function SmartPrescription() {
   const [followUpDate, setFollowUpDate] = useState(null);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
+  const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
+  const [viewlabparamsDrawer, setViewlabparamsDrawer] = useState(false);
+  const [privateNotesData, setPrivateNotesData] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
-  const [token, setToken] = useState(null);
+  const [isGrowthChart, setIsGrowthChart] = useState(false);
+  const [labParamsData, setLabParamsData] = useState([]);
+  // const [token, setToken] = useState(null);
   const [tokenData, setTokenData] = useState(null);
   const [prescription, setPrescription] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
@@ -98,9 +174,11 @@ function SmartPrescription() {
   const drawRef = useRef(null);
   const [dataPresentInCanvas, setDataPresentInCanvas] = useState([]);
   const [loader, setLoader] = useState(false);
+  const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
 
   const contextApi = {
     patient_data,
+    send_path,
     tcmId,
     consultationDate,
     symptomsData,
@@ -121,20 +199,88 @@ function SmartPrescription() {
     setVitalsData,
     medicalHistoryData,
     setMedicalHistoryData,
+    privateNotesData,
+    setPrivateNotesData,
     followUpDate,
     setFollowUpDate,
     additionalNote,
     setAdditionalNote,
+    startTime,
   };
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
-  const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
-    GB_SMARTSYNC_CVT
-  );
+  const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(GB_SMARTSYNC_CVT);
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
+  const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
+  const [privateNotesDrawer, setPrivateNotesDrawer] = useState(false);
+  const [selectPrivateNotes, setSelectPrivateNotes] = useState(null);
+  const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
+  const [growthDrawer, setGrowthDrawer] = useState(false);
+  const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
+  const [obstetricDrawer, setObstetricDrawer] = useState(false);
+  const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
+  const [medicalReportDrawer, setMedicalReportDrawer] = useState(false);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const [filesData, setFilesData] = useState([]);
+  const [isEditDocument, setIsEditDocument] = useState(false);
+  const fileInputRef = useRef(null);
   const [cvtDrawer, setCvtDrawer] = useState(false);
+
+  const {
+    isVaccinationAccessable,
+    isGrowthChartAccessable,
+    isGynaecHistoryAccessable,
+  } = useAccess(patient_data?.ageYears);
+
+  const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const baseUrlLabParams = env.lab_params_api_url;
+
+  const getAllObstetricDetails = async () => {
+    const obstetricResponse = await fetchAllObstetricDetails(
+      patient_data.patient_unique_id,
+      userId
+    );
+    if (obstetricResponse) {
+      dispatch(addObstetricDetails(obstetricResponse));
+    }
+  };
+
+  const getAllPatientDocs = async () => {
+    const doctorUploadedDocs = await fetchAllPatientDocs(
+      patient_data.patient_unique_id
+    );
+    const patientUploadedDocs = await fetchDocsUploadedByPatient(
+      patient_data.patient_unique_id
+    );
+    dispatch(setPatientUploadedDocs(patientUploadedDocs));
+    dispatch(
+      setAllUploadedDocs(
+        mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
+      )
+    );
+  };
+
+  const getAllDocumentCategories = async () => {
+    const response = await fetchAllDocumentCategories();
+    dispatch(setUploadDocCategories(response));
+  };
+
+  useEffect(() => {
+    if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
+      getAllObstetricDetails();
+    }
+  }, [isObstetricDetailsFetched, isGynaecHistoryAccessable]);
+
+  useEffect(() => {
+    if (uploadDocCategories.length === 0) {
+      getAllDocumentCategories();
+    }
+    if (patient_data.patient_unique_id && allUploadedDocs.length === 0) {
+      getAllPatientDocs();
+    }
+  }, []);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -290,22 +436,87 @@ function SmartPrescription() {
     setVitalDrawer(!vitalDrawer);
   }, [vitalDrawer]);
 
-  // Drawer CVT Know more page
-  const handleDrawerCvtKnowMore = useCallback(() => {
-    setCvtDrawer(!cvtDrawer);
-  }, [cvtDrawer]);
+  // Drawer Medical History
+  const handleDrawerMedicalHistory = useCallback(() => {
+    setMedicalHistoryDrawer(!medicalHistoryDrawer);
+  }, [medicalHistoryDrawer]);
+
+  // Drawer Private Notes
+  const handleDrawerPrivateNotes = useCallback(
+    (data) => {
+      setSelectPrivateNotes(data);
+      setPrivateNotesDrawer(!privateNotesDrawer);
+    },
+    [privateNotesDrawer, selectPrivateNotes]
+  );
+
+  // Drawer Vaccination
+  const handleDrawerVaccination = () => {
+    setVaccinationDrawer(!vaccinationDrawer);
+  };
+
+  // Drawer Growth Chart
+  const handleDrawerGrowth = () => {
+    setGrowthDrawer(!growthDrawer);
+    setIsGrowthChart(!isGrowthChart);
+  };
+
+  // Drawer Upload Document
+  const handleDrawerUploadDoc = () => {
+    setUploadDocDrawer(!uploadDocDrawer);
+  };
+
+  const handleDeletePopup = () => {
+    setShowDeletePopup(true);
+  };
+
+  // Drawer Medical Report
+  const handleDrawerMedicalReport = () => {
+    setMedicalReportDrawer(!medicalReportDrawer);
+  };
+
+  // Drawer Obstetric
+  const handleDrawerObstetric = () => {
+    setObstetricDrawer(!obstetricDrawer);
+  };
+
+  useEffect(() => {
+    if (chartType === "vaccination") {
+      handleDrawerVaccination();
+    } else if (chartType === "growthChart") {
+      handleDrawerGrowth();
+    }
+  }, [chartType]);
+
+  useEffect(() => {
+    if (isNavigateToObstetric) {
+      handleDrawerObstetric();
+      dispatch(navigateToObstetric());
+    }
+  }, [isNavigateToObstetric]);
 
   //Handle Sider
   const handleCollapsed = useCallback(
     (flag) => {
       if (flag === 1) {
         handleDrawerVital();
-      }
-      if(flag === 2) {
+      } else if (flag === 2) {
+        handleDrawerMedicalHistory();
+      } else if (flag === 3) {
+        handleDrawerVaccination();
+      } else if (flag === 4) {
+        handleDrawerPrivateNotes();
+      } else if (flag === 5) {
         handleDrawerCvtKnowMore();
       }
     },
-    [vitalDrawer,cvtDrawer]
+    [
+      vitalDrawer,
+      medicalHistoryDrawer,
+      vaccinationDrawer,
+      privateNotesDrawer,
+      cvtDrawer,
+    ]
   );
 
   useEffect(() => {
@@ -318,12 +529,469 @@ function SmartPrescription() {
             patient_data !== undefined && patient_data.pam_id !== undefined
               ? patient_data.pam_id
               : 0,
+          mode: caseManagerData !== undefined && tcmId !== 0 ? EDIT : ADD,
+          pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0,
+          pm_id: patient_data !== undefined ? patient_data.pm_id : 0,
+        })
+      );
+
+      if (
+        profile?.dp_name === PAEDIATRICS &&
+        patient_data?.ageMonths <= 12 &&
+        patient_data?.ageYears === 0
+      ) {
+        dispatch(
+          getPatientBirthWeight({
+            patient_unique_id:
+              patient_data !== undefined ? patient_data.patient_unique_id : 0,
+            pam_id:
+              patient_data !== undefined && patient_data.pam_id !== undefined
+                ? patient_data.pam_id
+                : 0,
+          })
+        );
+      }
+
+      const PN_action = await dispatch(
+        listPrivateNotes({
+          patient_unique_id:
+            patient_data !== undefined ? patient_data.patient_unique_id : 0,
           mode: caseManagerData !== undefined ? EDIT : ADD,
         })
       );
+
+      if (caseManagerData === undefined) {
+        const MH_action = await dispatch(
+          getPatientLastHistory({
+            patient_unique_id:
+              patient_data !== undefined ? patient_data.patient_unique_id : 0,
+          })
+        );
+        if (MH_action.meta.requestStatus === "fulfilled") {
+          setMedicalHistoryData(JSON.parse(JSON.stringify(MH_action.payload)));
+        }
+      }
     };
     patientLastHistory();
   }, []);
+
+  useEffect(() => {
+    if (caseManagerData === undefined || tcmId === 0) {
+      const updatedData = selectedVitalsList.map((e, i) => {
+        return {
+          ...e,
+          systolic: e.blood_press ? e.blood_press.split("/")[0] : "",
+          diastolic: e.blood_press ? e.blood_press.split("/")[1] : "",
+        };
+      });
+      setVitalsData(updatedData);
+    }
+  }, [selectedVitalsList]);
+
+  useEffect(() => {
+    if (caseManagerData !== undefined) {
+      if (
+        caseManagerData.private_notes &&
+        customizedPadLeftList.findIndex(
+          (e) => e.tmdpm_id === 8 && e.tmdpm_status === 0
+        ) !== -1 &&
+        privateNotesList.findIndex(
+          (e) => e.id === caseManagerData.private_notes.id
+        ) !== -1 &&
+        tcmId
+      ) {
+        setPrivateNotesData(caseManagerData.private_notes);
+      }
+    }
+  }, [privateNotesList]);
+
+  const handleSaveGynecHistory = (updatedGynecHistory) => {
+    setUpdatedGynecHistory(updatedGynecHistory);
+  };
+
+  useEffect(() => {
+    if (isGynaecHistoryAccessable) {
+      fetchGynecHistory();
+    }
+  }, [isGynaecHistoryAccessable]);
+
+  useEffect(() => {
+    getLabParams();
+  }, []);
+
+  const fetchGynecHistory = async () => {
+    try {
+      const data = await getGynecDetails(
+        patient_data.patient_unique_id,
+        userId
+      );
+      // Destructure to remove createdAt and createdBy
+      const { createdAt, createdBy, ...updatedData } = data;
+
+      setUpdatedGynecHistory(updatedData);
+    } catch (error) {
+      console.error("Error fetching gynec history:", error);
+    }
+  };
+
+  const handleFileUpload = (event) => {
+    const files = event.target.files;
+    if (files) {
+      const filesData = Array.from(files);
+      if (filesData.length > 0) {
+        const updatedFiles = [];
+        filesData.forEach((file) => {
+          const cleanFileName = getCorrectedFileName(file?.name || "");
+          // Check if the file is an image and if its name follows typical camera-captured file patterns
+          const isCapturedFromCamera =
+            (file.type === "image/jpeg" ||
+              file.type === "image/png" ||
+              file.type === "image/jpg") &&
+            (cleanFileName === "image.jpg" ||
+              cleanFileName === "image.png" ||
+              cleanFileName === "image.jpeg");
+
+          let newFile = file;
+
+          if (isCapturedFromCamera) {
+            // Generate a unique file name for camera-captured images
+            const uniqueFileName = generateUniqueFileName(file);
+            newFile = new File([file], uniqueFileName, { type: file.type });
+          } else {
+            // If the file name had spaces, create a new file with spaces removed
+            newFile = new File([file], cleanFileName, { type: file.type });
+          }
+
+          updatedFiles.push(newFile);
+        });
+        setFilesData(updatedFiles);
+        handleDrawerUploadDoc();
+      }
+    }
+    event.target.value = null;
+  };
+
+  // Handle Add button click
+  const handleAddClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleAddLabParamsDrawer = useCallback(() => {
+    setAddlabparamsDrawer(!addlabparamsDrawer);
+  }, [addlabparamsDrawer]);
+
+  const handleViewLabParamsDrawer = useCallback(() => {
+    setViewlabparamsDrawer(!viewlabparamsDrawer);
+  }, [viewlabparamsDrawer]);
+
+  // Function to close "View Lab Params" and open "Add Lab Params"
+  const handleSwitchToAddLabParams = () => {
+    setViewlabparamsDrawer(false);
+    setAddlabparamsDrawer(true);
+  };
+
+  // Function to update lab params data in parent component when saved
+  const handleLabParamsUpdate = () => {
+    getLabParams(); // Update state with the new lab params data
+  };
+
+  const showHideBackModal = () => {
+    setIsBackModalOpen(!isBackModalOpen);
+  };
+
+  const getLabParams = async () => {
+    try {
+      const cleanedToken = token.replace(/['"]+/g, "");
+      const response = await axios.get(
+        `${baseUrlLabParams}/api/v1/lab-parameters/results/${patient_data?.patient_unique_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${cleanedToken}`,
+          },
+        }
+      );
+      setLabParamsData(response.data?.data?.results || []);
+    } catch (error) {
+      console.error("Error fetching lab params:", error);
+    }
+  };
+
+  const CUSTOMIZED_PAD_LEFT_LIST = () => {
+    return customizedPadLeftList?.map((e, i) => {
+      return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
+        <div key={i} className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img src={vitals} alt="vitals" className="me-3" />
+              <div className="title-common">Vitals & Body Composition</div>
+            </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerVital}
+            >
+              {" "}
+              <i
+                className={`${
+                  vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
+                } me-1 fs-5`}
+              ></i>{" "}
+              <span>{`${vitalsData.length > 0 ? "Edit" : "Add"}`}</span>
+            </button>
+          </div>
+          {(vitalsData.length > 0 ||
+            vitalsPastList.length > 0 ||
+            patientBirthWeight) && (
+            <VitalsList mode={caseManagerData !== undefined ? EDIT : ADD} />
+          )}
+        </div>
+      ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
+        <div key={i} className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img
+                src={MedicalHistory}
+                alt="Medical History"
+                className="me-3"
+              />
+              <div className="title-common">
+                {isGynaecHistoryAccessable
+                  ? `Gynec History`
+                  : `Medical History`}
+              </div>
+              {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
+                              <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                            </Button> */}
+            </div>
+
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerMedicalHistory}
+            >
+              {" "}
+              <i
+                className={`${
+                  medicalHistoryData.length > 0 ||
+                  (updatedGynecHistory &&
+                    Object.keys(updatedGynecHistory).length > 0)
+                    ? "icon-Edit"
+                    : "icon-Add"
+                } me-1 fs-5`}
+              ></i>{" "}
+              <span>{`${
+                medicalHistoryData.length > 0 ||
+                (updatedGynecHistory &&
+                  Object.keys(updatedGynecHistory).length > 0)
+                  ? "Edit"
+                  : "Add"
+              }`}</span>
+            </button>
+          </div>
+          {(medicalHistoryData.length > 0 ||
+            (updatedGynecHistory &&
+              Object.keys(updatedGynecHistory).length > 0)) && (
+            <MedicalHistoryList gynecHistory={updatedGynecHistory} />
+          )}
+        </div>
+      ) : e.tmdpm_id === 7 &&
+        e.tmdpm_status === 0 &&
+        isVaccinationAccessable ? (
+        <div className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img src={vaccinationImg} alt="vitals" className="me-3" />
+              <div className="title-common">Vaccination</div>
+            </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerVaccination}
+            >
+              {" "}
+              <i className={`icon-Add me-1 fs-5`}></i> <span>Add</span>
+            </button>
+          </div>
+        </div>
+      ) : e.tmdpm_id === 16 &&
+        e.tmdpm_status === 0 &&
+        isGrowthChartAccessable ? (
+        <div className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img src={growthChartImg} alt="growth" className="me-3" />
+              <div className="title-common">Growth Chart</div>
+            </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerGrowth}
+            >
+              <i className={`icon-Add me-1 fs-5`}></i> <span>Add</span>
+            </button>
+          </div>
+        </div>
+      ) : e.tmdpm_id === 8 && e.tmdpm_status === 0 ? (
+        <div key={i} className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img src={privateNotes} alt="Private Notes" className="me-3" />
+              <div className="title-common">Private Notes</div>
+            </div>
+            {!privateNotesData && (
+              <button
+                className="btn d-flex align-items-center btn-text"
+                onClick={handleDrawerPrivateNotes}
+              >
+                <i className="icon-Add me-1 fs-5"></i>
+                <span>Add</span>
+              </button>
+            )}
+          </div>
+          {privateNotesList.length > 0 && (
+            <PrivateNotesList
+              handleDrawerPrivateNotes={handleDrawerPrivateNotes}
+            />
+          )}
+        </div>
+      ) : e.tmdpm_id === 17 &&
+        e.tmdpm_status === 0 &&
+        isGynaecHistoryAccessable ? (
+        <div className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img src={obstetricImg} alt="obstetric" className="me-3" />
+              <div className="title-common">Obstetric History</div>
+            </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerObstetric}
+            >
+              <i
+                className={`${
+                  examinationHistory.length > 0 ? "icon-Edit" : "icon-Add"
+                } me-1 fs-5`}
+              ></i>
+              <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"}`}</span>
+            </button>
+          </div>
+          {(obstetricDetails?.lmp ||
+            obstetricDetails?.edd ||
+            obstetricDetails?.gravidity ||
+            obstetricDetails?.parity ||
+            obstetricDetails?.livingChildren ||
+            obstetricDetails?.abortion ||
+            obstetricDetails?.ectopicPregnancies ||
+            examinationHistory?.length > 0) && <ObstetricList />}
+        </div>
+      ) : e.tmdpm_id === 18 && e.tmdpm_status === 0 ? (
+        <>
+          <div className="prescription-box-sm p-14">
+            <div className="d-flex align-items-center justify-content-between">
+              <div className="d-flex align-items-center">
+                <img
+                  src={uploadDocImg}
+                  alt="upload-document"
+                  className="me-3"
+                />
+                <div className="title-common">
+                  Medical Records{" "}
+                  {allUploadedDocs?.length > 0
+                    ? `(${allUploadedDocs?.length})`
+                    : ""}
+                </div>
+              </div>
+              <button
+                className="btn d-flex align-items-center btn-text"
+                style={{
+                  paddingRight: allUploadedDocs.length > 0 ? 0 : 12,
+                }}
+                onClick={
+                  allUploadedDocs.length > 0
+                    ? handleDrawerMedicalReport
+                    : handleAddClick
+                }
+              >
+                <input
+                  type="file"
+                  multiple
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
+                  style={{ display: "none" }}
+                />
+                {allUploadedDocs.length === 0 && (
+                  <i className="icon-Add me-1 fs-5" />
+                )}
+                <span>{`${
+                  allUploadedDocs.length > 0 ? "View All" : "Add"
+                }`}</span>
+                {allUploadedDocs.length > 0 && (
+                  <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                )}
+              </button>
+            </div>
+            <UploadDocumentList
+              handleDrawerUploadDoc={handleDrawerUploadDoc}
+              setFilesData={setFilesData}
+              setIsEditDocument={setIsEditDocument}
+              setUploadDocDrawer={setUploadDocDrawer}
+            />
+          </div>
+        </>
+      ) : (
+        e.tmdpm_id === 19 &&
+        e.tmdpm_status === 0 && (
+          <>
+            <div className="prescription-box-sm" style={{ overflow: "hidden" }}>
+              <div
+                className="d-flex align-items-center justify-content-between p-14"
+                style={{ borderBottom: "1px solid #ddd" }}
+              >
+                <div className="d-flex align-items-center">
+                  <img
+                    src={labResultImg}
+                    alt="upload-document"
+                    className="me-3"
+                  />
+                  <div className="title-common">Lab Results</div>
+                </div>
+                <button
+                  className="btn d-flex align-items-center btn-text"
+                  style={{
+                    paddingRight: labParamsData?.length > 0 ? 0 : 12,
+                  }}
+                  onClick={
+                    labParamsData?.length > 0
+                      ? handleViewLabParamsDrawer
+                      : handleAddLabParamsDrawer
+                  }
+                >
+                  {labParamsData?.length === 0 && (
+                    <i className="icon-Add me-1 fs-5" />
+                  )}
+                  <span>{`${
+                    labParamsData?.length > 0 ? "View All" : "Add"
+                  }`}</span>
+                  {labParamsData?.length > 0 && (
+                    <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                  )}
+                </button>
+              </div>
+              <LabParametersList
+                labParamsData={labParamsData}
+                patient_unique_id={patient_data?.patient_unique_id}
+                doc_id={userId}
+              />
+            </div>
+          </>
+        )
+      );
+    });
+  };
+
+  // Drawer CVT Know more page
+  const handleDrawerCvtKnowMore = useCallback(() => {
+    setCvtDrawer(!cvtDrawer);
+  }, [cvtDrawer]);
 
   useEffect(() => {
     if (caseManagerData === undefined) {
@@ -339,12 +1007,12 @@ function SmartPrescription() {
   }, [selectedVitalsList]);
 
   useEffect(() => {
-    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    setToken(token)
+    // const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+    // setToken(token);
     if (token !== undefined) {
       try {
         var decoded = jwtDecode(token);
-        setTokenData(decoded.result)
+        setTokenData(decoded.result);
       } catch (e) {
         console.error(e);
       }
@@ -352,12 +1020,12 @@ function SmartPrescription() {
   }, []);
 
   useEffect(() => {
-    if (pages.length === 0 || smartRxFilesData?.length === 0 ) {
+    if (pages.length === 0 || smartRxFilesData?.length === 0) {
       handleAddPage();
     }
-    if(smartRxFilesData?.length > 0){
+    if (smartRxFilesData?.length > 0) {
       setLoading(true);
-      setSmartRxFiles(smartRxFilesData)
+      setSmartRxFiles(smartRxFilesData);
     }
   }, []);
 
@@ -371,15 +1039,16 @@ function SmartPrescription() {
       id={id}
       width="720px"
       height="980px"
-      className={`canvas-style ${selectedPage === index ? "canvas-active" : ""}`}
+      className={`canvas-style ${
+        selectedPage === index ? "canvas-active" : ""
+      }`}
       ref={(el) => {
         if (el && smartRxFiles) {
           canvasRefs.current[id] = el;
           const ctx = el.getContext("2d");
           ctx.fillStyle = "white";
           ctxGlobalRefs.current[id] = ctx;
-        }
-        else{
+        } else {
           canvasRefs.current[id] = el;
         }
       }}
@@ -394,45 +1063,42 @@ function SmartPrescription() {
   const wsError = (error) => {
     message.open({
       key: MESSAGE_KEY,
-        type: 'error',
-        className: 'error-red',
+      type: "error",
+      className: "error-red",
       content: (
-            <div className='d-flex align-items-center'>
+        <div className="d-flex align-items-center">
           <div>
-                    <div className='title-common text-start fontroboto'>{error}</div>
+            <div className="title-common text-start fontroboto">{error}</div>
           </div>
         </div>
       ),
       duration: 3,
     });
-  }
+  };
 
   useEffect(() => {
-    drawRef.current = smartRxFiles?.length >= selectedPage+1 ? editDraw : draw;
-  },[selectedPage])
+    drawRef.current =
+      smartRxFiles?.length >= selectedPage + 1 ? editDraw : draw;
+  }, [selectedPage]);
 
   // Handles Websocket Connection
   const connectWebSocket = () => {
-    // WebSocket initialization (reconnectingwebsocket -> this package handles the reconnection)
+    // WebSocket initialization (reconnectingwebsocket : this package handles the reconnection)
     try {
       socketRef.current = new ReconnectingWebSocket(WEBSOCKET_ADDRESS, null, {debug: true, reconnectInterval: 3000});
-
       socketRef.current.onopen = () => {
         console.log("WebSocket connection opened");
         setConnected(true);
         setHasError(false); // Clear any previous error messages
       };
-
       socketRef.current.onclose = () => {
         console.log("WebSocket connection closed");
         setConnected(false);
       };
-
       socketRef.current.onmessage = (event) => {
         const o = event.data.split("|");
         drawRef.current(o[0], o[1], o[2], o[3], selectedPageRef.current);
       };
-
       socketRef.current.onerror = (error) => {
         // Handle WebSocket errors
         if (!hasError) {
@@ -466,15 +1132,21 @@ function SmartPrescription() {
   };
 
   const handleDeletePage = (index) => {
-    if(smartRxFiles){
-      setSmartRxFiles(smartRxFiles.filter((_,fileIndex)=> fileIndex !== index))
+    if (smartRxFiles) {
+      setSmartRxFiles(
+        smartRxFiles.filter((_, fileIndex) => fileIndex !== index)
+      );
     }
     const newPages = pages.filter((_, pageIndex) => pageIndex !== index);
-    setDataPresentInCanvas(dataPresentInCanvas.filter((_, pageIndex) => pageIndex !== index));
+    setDataPresentInCanvas(
+      dataPresentInCanvas.filter((_, pageIndex) => pageIndex !== index)
+    );
     setPages(newPages);
-    setRefreshTrigger(!refreshTrigger)
+    setRefreshTrigger(!refreshTrigger);
     if (selectedPage >= newPages.length) {
-      setSelectedPage(newPages.length ? Math.min(selectedPage, newPages.length - 1) : 0);
+      setSelectedPage(
+        newPages.length ? Math.min(selectedPage, newPages.length - 1) : 0
+      );
     }
   };
 
@@ -484,10 +1156,10 @@ function SmartPrescription() {
 
   const handleRefresh = () => {
     setSelectedPage(updatedIndex);
-    setRefreshTrigger(!refreshTrigger)
+    setRefreshTrigger(!refreshTrigger);
 
-    if(smartRxFiles?.length >= selectedPage+1){
-      setDrawFunction(true)
+    if (smartRxFiles?.length >= selectedPage + 1) {
+      setDrawFunction(true);
     }
 
     const canvas = canvasRefs.current[pages[updatedIndex]];
@@ -497,7 +1169,7 @@ function SmartPrescription() {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.beginPath();
       ctxGlobalRefs.current[pages[updatedIndex]] = ctx;
-      canvasRefs.current[pages[updatedIndex]] = ctx
+      canvasRefs.current[pages[updatedIndex]] = ctx;
     }
   };
 
@@ -524,7 +1196,7 @@ function SmartPrescription() {
     const scaleFactor = 1.5;
 
     // Set consistent styles
-    ctx.strokeStyle = '#000'; // Example color for regular drawing
+    ctx.strokeStyle = "#000"; // Example color for regular drawing
 
     ctx.moveTo(t * scaleFactor, n * scaleFactor);
     ctx.lineTo(a * scaleFactor, c * scaleFactor);
@@ -537,15 +1209,17 @@ function SmartPrescription() {
     }
   }
 
-  function editDraw(t, n, a, c,pageIndex) {
+  function editDraw(t, n, a, c, pageIndex) {
     const canvas = canvasRefs.current[pageIndex];
     if (!canvas) return;
     const scaleFactor = 1.5;
-    ctxGlobalRefs.current[pageIndex].strokeStyle = '#000';
+    ctxGlobalRefs.current[pageIndex].strokeStyle = "#000";
     ctxGlobalRefs.current[pageIndex].beginPath();
     ctxGlobalRefs.current[pageIndex].moveTo(t * scaleFactor, n * scaleFactor);
     ctxGlobalRefs.current[pageIndex].lineTo(a * scaleFactor, c * scaleFactor);
-    ctxGlobalRefs.current[pageIndex].lineJoin = ctxGlobalRefs.current[pageIndex].lineCap = "round";
+    ctxGlobalRefs.current[pageIndex].lineJoin = ctxGlobalRefs.current[
+      pageIndex
+    ].lineCap = "round";
     ctxGlobalRefs.current[pageIndex].stroke();
     if (!dataPresentInCanvas[selectedPage]) {
       let newDataPresentInCanvas = [...dataPresentInCanvas];
@@ -560,15 +1234,16 @@ function SmartPrescription() {
         if (blob) {
           resolve(blob);
         } else {
-          reject(new Error('Canvas to Blob conversion failed.'));
+          reject(new Error("Canvas to Blob conversion failed."));
         }
-      }, 'image/jpeg');
+      }, "image/jpeg");
     });
   };
 
   const handleSubmit = async () => {
-
-    const canvasArray = Object.values(canvasRefs.current).filter(canvas => canvas !== null);
+    const canvasArray = Object.values(canvasRefs.current).filter(
+      (canvas) => canvas !== null
+    );
     let blobs = [];
     let files = [];
 
@@ -578,44 +1253,46 @@ function SmartPrescription() {
         const canvas = canvasArray[i];
         if (!canvas) continue;
         const blob = await convertCanvasToJPEG(canvas);
-        const name = smartRxFiles && smartRxFiles[i] ? smartRxFiles[i].smart_prescription_filename : `${uuidv4()}.jpeg`;
+        const name =
+          smartRxFiles && smartRxFiles[i]
+            ? smartRxFiles[i].smart_prescription_filename
+            : `${uuidv4()}.jpeg`;
         // Create the File object
-        const file = new File([blob], name, { type: 'image/jpeg' });
+        const file = new File([blob], name, { type: "image/jpeg" });
 
-        if (file.size < 5 * 1000 && vitalsData.length === 0 && !followUpDate){
-          errorMessage("Please fill your prescription to submit")
-        } else if(file.size > 5 * 1000 ) { 
+        if (file.size < 5 * 1000 && vitalsData.length === 0 && !followUpDate) {
+          errorMessage("Please fill your prescription to submit");
+        } else if (file.size > 5 * 1000) {
           blobs.push(blob);
-          files.push(new File([blob], name, { type: 'image/jpeg' }));
+          files.push(new File([blob], name, { type: "image/jpeg" }));
         }
       }
     } catch (error) {
-      console.error('Error converting canvas to JPEG:', error);
+      console.error("Error converting canvas to JPEG:", error);
       errorMessage("Failed to generate image, Please Submit again");
     }
     setLoader(true);
     // FormData to handle file upload
     const formData = new FormData();
     files.forEach((file, index) => {
-      formData.append('smart_prescription_files', file);
-      formData.append('smart_prescription_filename[]', file.name);
+      formData.append("smart_prescription_files", file);
+      formData.append("smart_prescription_filename[]", file.name);
     });
-    formData.append('doctor_unique_id', tokenData?.doctor_unique_id);
-    formData.append('patient_unique_id', patient_data?.patient_unique_id);
+    formData.append("doctor_unique_id", tokenData?.doctor_unique_id);
+    formData.append("patient_unique_id", patient_data?.patient_unique_id);
 
     try {
-      if(files.length > 0){
+      if (files.length > 0) {
         const response = await api.post(SMART_RX_UPLOAD, formData, baseUrl);
         const data = response?.message;
       }
       setSmartRxDetails(files || []);
-
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");
-      console.error('Error Submitting the prescription:', error);
+      console.error("Error Submitting the prescription:", error);
     }
     setLoader(false);
-  }
+  };
 
   const handleWrite = () => {
     setPrescription(true);
@@ -701,7 +1378,10 @@ function SmartPrescription() {
       img.crossOrigin = "anonymous";
       img.onload = () => {
         loadedImages[newPageIds[index]] = img;
-      setImageRefs((prevState) => ({ ...prevState, [newPageIds[index]]: img }));
+        setImageRefs((prevState) => ({
+          ...prevState,
+          [newPageIds[index]]: img,
+        }));
         setImageLoaded((prevState) => ({
           ...prevState,
           [newPageIds[index]]: true,
@@ -720,7 +1400,7 @@ function SmartPrescription() {
     // Draw images on canvases when images are getting loaded
     pages.forEach((pageId) => {
       if (imageLoaded[pageId] && canvasRefs.current[pageId]) {
-      const ctx = canvasRefs.current[pageId].getContext('2d');
+        const ctx = canvasRefs.current[pageId].getContext("2d");
         ctx.drawImage(imageRefs[pageId], 0, 0);
         ctxGlobalRefs.current[pageId] = ctx;
       }
@@ -731,6 +1411,8 @@ function SmartPrescription() {
     <CashManagerContext.Provider value={contextApi}>
       <>
         <HeaderSmartPrescription
+          isVaccinationEnabled={isVaccinationAccessable}
+          isGrowthChartEnabled={isGrowthChartAccessable}
           prescription={prescription}
           onClear={handleClearAllPages}
           onSubmit={handleSubmit}
@@ -744,14 +1426,18 @@ function SmartPrescription() {
               className="col-lg-4 col-md-12 col-12"
               style={{
                 marginLeft: "3rem",
-                height: "100vh", /* Full height for independent scrolling */
+                height: "100vh" /* Full height for independent scrolling */,
               }}
             >
-              { isSmartSyncCVTAccessableFromGB &&
+              {isSmartSyncCVTAccessableFromGB && (
                 <div className="know-more-cvt p-14">
                   <div className="sparkle">
-                    <img src={sparkleGif} className="sparkel-loader"/>
-                    <img src={textLogo} alt="textLogo" className="text-logo-white" />
+                    <img src={sparkleGif} className="sparkel-loader" />
+                    <img
+                      src={textLogo}
+                      alt="textLogo"
+                      className="text-logo-white"
+                    />
                   </div>
                   <div className="title-common">
                     <div>
@@ -760,37 +1446,16 @@ function SmartPrescription() {
                       </span>
                       <span className="new-btn">New</span>
                     </div>
-                    <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>View Tips</button>
+                    <button
+                      className="know-more-btn"
+                      onClick={handleDrawerCvtKnowMore}
+                    >
+                      View Tips
+                    </button>
                   </div>
                 </div>
-              }
-              <div className="prescription-box-sm p-14">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div className="d-flex align-items-center">
-                    <img src={vitals} alt="vitals" className="me-3" />
-                    <div className="title-common">
-                      Vitals & Body Composition
-                    </div>
-                  </div>
-                  <button
-                    className="btn d-flex align-items-center btn-text"
-                    onClick={handleDrawerVital}
-                  >
-                    {" "}
-                    <i
-                      className={`${
-                        vitalsData.length > 0 ? "icon-Edit" : "icon-Add"
-                      } me-1 fs-5`}
-                    ></i>{" "}
-                    <span>{`${vitalsData.length > 0 ? "Edit" : "Add"}`}</span>
-                  </button>
-                </div>
-                {vitalsData.length > 0 && (
-                  <VitalsList
-                    mode={caseManagerData !== undefined ? EDIT : ADD}
-                  />
-                )}
-              </div>
+              )}
+              {CUSTOMIZED_PAD_LEFT_LIST()}
               <div className="prescription-box-sm p-14">
                 <SmartRxFollowUpBox />
               </div>
@@ -911,6 +1576,164 @@ function SmartPrescription() {
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
         </Drawer>
+        {vitalDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerVital}
+            open={vitalDrawer}
+            className="modalWidth-700"
+            width="auto"
+          >
+            <VitalsBox
+              handleDrawerVital={handleDrawerVital}
+              handleCollapsed={(flag) => handleCollapsed(flag)}
+              isGrowthChart={isGrowthChart}
+            />
+          </Drawer>
+        )}
+        <Drawer
+          className="scroll-y-hidden"
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerMedicalHistory}
+          open={medicalHistoryDrawer}
+          width="75%"
+        >
+          <MedicalHistoryBox
+            handleDrawerMedicalHistory={handleDrawerMedicalHistory}
+            handleCollapsed={(flag) => handleCollapsed(flag)}
+            onSave={handleSaveGynecHistory}
+          />
+        </Drawer>
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerPrivateNotes}
+          open={privateNotesDrawer}
+          className="modalWidth-563"
+          width="auto"
+        >
+          <PrivateNotesBox
+            handleDrawerPrivateNotes={handleDrawerPrivateNotes}
+            handleCollapsed={(flag) => handleCollapsed(flag)}
+            selectPrivateNotes={selectPrivateNotes}
+          />
+        </Drawer>
+        {vaccinationDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerVaccination}
+            open={vaccinationDrawer}
+            width="100%"
+          >
+            <Vaccination handleDrawerVaccination={handleDrawerVaccination} />
+          </Drawer>
+        )}
+        {growthDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerGrowth}
+            open={growthDrawer}
+            width="100%"
+            push={false}
+          >
+            <GrowthChart handleDrawerVaccination={handleDrawerGrowth} />
+          </Drawer>
+        )}
+        {obstetricDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerObstetric}
+            open={obstetricDrawer}
+            width="100%"
+            push={false}
+          >
+            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
+          </Drawer>
+        )}
+        {uploadDocDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            bodyStyle={{ backgroundColor: "white" }}
+            onClose={handleDeletePopup}
+            open={uploadDocDrawer}
+            className="modalWidth-700"
+            width="auto"
+            push={false}
+          >
+            <UploadDocument
+              onClose={handleDeletePopup}
+              handleDrawerUploadDoc={handleDrawerUploadDoc}
+              shouldShowDeletePopup={shouldShowDeletePopup}
+              setShowDeletePopup={setShowDeletePopup}
+              filesData={filesData}
+              setFilesData={setFilesData}
+              isEditDocument={isEditDocument}
+              setIsEditDocument={setIsEditDocument}
+            />
+          </Drawer>
+        )}
+        {medicalReportDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            bodyStyle={{ backgroundColor: "white" }}
+            onClose={handleDrawerMedicalReport}
+            open={medicalReportDrawer}
+            width="50%"
+            push={false}
+          >
+            <MedicalRecords
+              medicalReportDrawer={medicalReportDrawer}
+              onClose={handleDrawerMedicalReport}
+              handleDrawerUploadDoc={handleDrawerUploadDoc}
+              setFilesData={setFilesData}
+              setIsEditDocument={setIsEditDocument}
+              setUploadDocDrawer={setUploadDocDrawer}
+            />
+          </Drawer>
+        )}
+        {addlabparamsDrawer && (
+          <Drawer
+            closeIcon={false}
+            width={880}
+            placement="right"
+            open={addlabparamsDrawer}
+            onClose={showHideBackModal}
+            bodyStyle={{ backgroundColor: "white" }}
+          >
+            <LabParams
+              handleAddLabParamsDrawer={handleAddLabParamsDrawer}
+              patient_unique_id={patient_data?.patient_unique_id}
+              onSave={handleLabParamsUpdate}
+              isBackModalOpen={isBackModalOpen}
+              showHideBackModal={showHideBackModal}
+              patientGender={patient_data?.pm_gender}
+            />
+          </Drawer>
+        )}
+        {viewlabparamsDrawer && (
+          <Drawer
+            closeIcon={false}
+            className="modalWidth-700"
+            placement="right"
+            open={viewlabparamsDrawer}
+            bodyStyle={{ backgroundColor: "white" }}
+            onClose={handleViewLabParamsDrawer}
+            width="auto"
+          >
+            <ViewLabParam
+              handleViewLabParamsDrawer={handleViewLabParamsDrawer}
+              labParamsData={labParamsData}
+              handleSwitchToAddLabParams={handleSwitchToAddLabParams}
+            />
+          </Drawer>
+        )}
         <CommonModal
           isModalOpen={shouldShowDeletePopup}
           onCancel={toggleDeletePopup}

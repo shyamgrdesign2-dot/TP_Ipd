@@ -108,6 +108,8 @@ function MedicalHistoryBox(props) {
     const { patient_data, caseManagerData } = state;
     const [gynecLoading, setGynecLoading] = useState(false);
     const [gynecHistory, setGynecHistory] = useState({});
+    const [expandRemarks,setExpandRemarks] = useState(true);
+    const [remarks,setRemarks] = useState(medicalHistoryData?.[0]?.medical_history_remarks || "");
 
     const datePickerRef = useRef(null);
     // Function to handle custom input changes
@@ -697,10 +699,11 @@ function MedicalHistoryBox(props) {
                 title: e?.title,
                 tmmhs_id: e?.tmmhs_id,
                 no_know_history: e?.no_know_history !== undefined ? e?.no_know_history : false,
-                tags: !e?.no_know_history ? e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N') : []
+                tags: !e?.no_know_history ? e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N') : [],
+                ...remarks && {medical_history_remarks: remarks.trim()}
             }
         })
-        if (medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length) {
+        if (!remarks && medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length) {
             setMedicalHistoryData([])
             handleDrawerMedicalHistory()
         } else {
@@ -1027,6 +1030,15 @@ function MedicalHistoryBox(props) {
             </>
         );
     }, [popOverVideo]);
+    
+    
+    const onExpandCollapseRemarks = () => {
+        setExpandRemarks(!expandRemarks);
+    }
+
+    const onRemarksChange = (e) => {
+        setRemarks(e.target.value);
+    }
 
     return (
         <>
@@ -1537,6 +1549,19 @@ function MedicalHistoryBox(props) {
                                                                 )
                                                             })}
                                                         </div>
+                                                        {i===cloneMedicalHistoryData?.length-1 && (
+                                                            <div key={i} className="pt-3 pb-4">
+                                                            <div className="d-flex align-items-center justify-content-between mb-3">
+                                                            <div className="d-flex align-items-center">
+                                                                <div className="titleprint">Additional History</div>
+                                                                <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={onExpandCollapseRemarks}>
+                                                                    <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${!expandRemarks ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                                                                </Button>
+                                                            </div>
+                                                            </div>
+                                                            {expandRemarks && <Input.TextArea value={remarks} placeholder="Write your additional history" className="textareaPlaceholder" rows={3} onChange={onRemarksChange} maxLength={500} />}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 )
                                             })
