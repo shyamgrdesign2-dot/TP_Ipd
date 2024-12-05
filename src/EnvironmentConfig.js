@@ -40,8 +40,9 @@ const dev = {
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
-  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
+  opd_encryption_url: "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
+  bulk_messages: "https://pm-communication-uat.tatvacare.in"
 };
 
 const qa = {
@@ -86,8 +87,9 @@ const qa = {
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
-  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
+  opd_encryption_url: "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
+  bulk_messages: "https://pm-communication-uat.tatvacare.in"
 };
 
 const uat = {
@@ -135,8 +137,9 @@ const uat = {
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
-  opd_encryption_url:"https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
+  opd_encryption_url: "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
+  bulk_messages: "https://pm-communication-uat.tatvacare.in"
 };
 
 const prod = {
@@ -179,9 +182,10 @@ const prod = {
   razorpay_integration_url: "https://pm-razorpay-uat-integration.tatvacare.in",
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
-  opd_encryption_url:"https://api.mytatva.in/api/v8/helper/encrypt_visit_data",
+  opd_encryption_url: "https://api.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.com",
-};  
+  bulk_messages: "https://pm-communication-prod.tatvacare.in"
+};
 
 const getEnv = () => {
   switch (process.env.REACT_APP_ENV) {

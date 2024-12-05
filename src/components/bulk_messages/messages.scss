@@ -330,3 +330,40 @@
         }
     }
 }
+.massage-date {
+    .ant-picker-presets {
+        ul {
+            li {
+                padding: 0px !important;
+                &:hover {
+                    background-color: transparent;
+                }
+                div {
+                    padding: 4px 10px !important;
+                    border-radius: 6px !important;
+                    background-color: #F1F1F5;
+                    border: 1px solid #F1F1F5;
+                    &.active, &:hover {
+                        padding: 4px 10px !important;
+                        border-radius: 6px !important;
+                        border-color: $theme;
+                        background-color: #4B4AD514 !important;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.massage-input {
+    min-width: 108px;
+    border-radius: 12px;
+    height: 38px;
+    border: 1px solid #DCE4E8 !important;
+    .ant-picker-input, .ant-picker-range-separator {
+        display: none;
+    }
+    span.ant-picker-suffix {
+        order: 2;
+    }
+}

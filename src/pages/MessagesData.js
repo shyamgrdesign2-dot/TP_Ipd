@@ -1,59 +1,75 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Tabs, Table, Drawer, Checkbox } from "antd";
+import { Tabs, Table, Drawer, Checkbox, Dropdown } from "antd";
 import Button from "react-bootstrap/Button";
 import { useLocation } from "react-router-dom";
+import moment from "moment";
+import { DatePicker, Space } from 'antd';
+import dayjs from 'dayjs';
+
+import { useSelector, useDispatch } from "react-redux";
+import { userCampaign } from "../redux/bulkMessagesSlice";
+
 import emptyCampaign from '../assets/images/empty-campaign-history.svg'
 import emptyPurchase from '../assets/images/empty-purchase-history.svg'
 import newGif from '../assets/images/new-gif.gif';
-import playcover2 from '../assets/images/play-cover2.png';
-import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED } from "../utils/constants";
-import Dropdown from "antd/es/dropdown/dropdown";
+import messagesVideo from '../assets/images/messages-video.jpg';
+
 import MessageDetailedView from "../components/bulk_messages/MessageDetailedView";
 import CommonModal from "../common/CommonModal";
 
+import { TAB_CAMPAIGN, TAB_DRAFT, TAB_PURCHASE } from "../utils/constants";
+
+const { RangePicker } = DatePicker;
+
+const dateFormat = 'YYYY-MM-DD'
+const showDateFormat = 'MMM DD, YYYY'
+
 function MessagesData() {
 
-    const [messageDetailed, setMessageDetailed] = useState(false);
+    const { userCampaignList, loading, popup } = useSelector((state) => state.bulkMessages);
+    const dispatch = useDispatch();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedTab, setSelectedTab] = useState(TAB_CAMPAIGN);
+    const [date, setDate] = useState({
+        startDate: moment().format(dateFormat),
+        endDate: moment().format(dateFormat),
+    });
+    const [dateStatus, setDateStatus] = useState(null);
+    const [messageDetailed, setMessageDetailed] = useState(false);
+
     let location = useLocation();
+
     useEffect(() => {
-        showHideModal()
-    }, [location]);
+        if (popup) {
+            showHideModal()
+        }
+    }, []);
+    
+    const showHideModal = useCallback(() => {
+        setIsModalOpen(!isModalOpen);
+    }, [isModalOpen]);
 
+    useEffect(() => {
+        const timeOutId = setTimeout(() => {
+            var sendData = {
+                draft: selectedTab
+            }
+            if (date.startDate != date.endDate) {
+                sendData['start_date'] = date.startDate;
+                sendData['end_date'] = date.endDate;
+            }
+            // console.log(sendData)
+            dispatch(userCampaign(sendData));
+        }, 500);
+        return () => {
+            clearTimeout(timeOutId);
+        };
+    }, [selectedTab, date]);
 
-    const handleMessageDetailed = useCallback(
-        () => {
-            setMessageDetailed(!messageDetailed)
-        },
-        [messageDetailed]
-    );
-
-    const items = [
+    const [tabItems, setTabItems] = useState([
         {
-            label: <div
-                onClick={() => {
-                    handleMessageDetailed()
-                }}>Detailed View</div>,
-            key: 'detailed_view',
-        },
-        {
-            label: <div>Edit campaign</div>,
-            key: 'edit_campaign',
-        },
-        {
-            label: <div>Delete campaign</div>,
-            key: 'delete_campaign',
-        },
-        {
-            label: <div>Reuse campaign</div>,
-            key: 'reuse_campaign',
-        },
-    ];
-
-
-    const [tItems, setItems] = useState([
-        {
-            key: TAB_QUEUE,
+            key: TAB_CAMPAIGN,
             label: (
                 <div className="d-flex align-items-center">
                     <i className="icon-Queue"></i>
@@ -62,7 +78,7 @@ function MessagesData() {
             ),
         },
         {
-            key: TAB_FINISHED,
+            key: TAB_DRAFT,
             label: (
                 <div className="d-flex align-items-center">
                     <i className="icon-Finished"></i>
@@ -71,7 +87,7 @@ function MessagesData() {
             ),
         },
         {
-            key: TAB_CANCELLED,
+            key: TAB_PURCHASE,
             label: (
                 <div className="d-flex align-items-center">
                     <i className="icon-Cancelled"></i>
@@ -81,6 +97,36 @@ function MessagesData() {
         },
     ]);
 
+    const onChange = useCallback(
+        (key) => {
+            setSelectedTab(key);
+        },
+        [selectedTab]
+    );
+
+    const getMenuItems = (record) => {
+        const items = [
+            {
+                label: <div onClick={() => handleMessageDetailed()}>Detailed View</div>,
+                key: "detailed_view",
+            },
+            {
+                label: <div>Edit campaign</div>,
+                key: 'edit_campaign',
+            },
+            {
+                label: <div>Delete campaign</div>,
+                key: 'delete_campaign',
+            },
+            {
+                label: <div>Reuse campaign</div>,
+                key: 'reuse_campaign',
+            },
+        ];
+
+        return items;
+    };
+
     const columns = [
         {
             title: "#",
@@ -88,7 +134,7 @@ function MessagesData() {
             key: "srno",
             ellipsis: true,
             width: 70,
-            render: (record, text, index) => (
+            render: (text, record, index) => (
                 <div>{index + 1}</div>
             ),
         },
@@ -97,11 +143,11 @@ function MessagesData() {
             dataIndex: "message_text",
             key: "message_text",
             width: 310,
-            render: () => (
+            render: (text, record) => (
                 <div className="cursor-pointer" onClick={() => { handleMessageDetailed() }}>
-                    <div>Medical Camp</div>
+                    <div>{record.campaign_name}</div>
                     <div className="text-truncate-twolines">
-                        Hi, Ashish Clinic is holding a Diabetes camp from 26/11/2024 to 28/11/2024 between 6:00AM to 12:00PM at Koramangla . Ashish - TatvaPractice
+                        {record.msg}
                     </div>
                 </div>
             ),
@@ -111,30 +157,50 @@ function MessagesData() {
             dataIndex: "date_time",
             key: "date_time",
             ellipsis: true,
-            sorter: () => { },
-            render: () => (
+            sorter: (a, b) => {
+                const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
+                const lhsLongTime = moment(lhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
+
+                const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
+                const rhsLongTime = moment(rhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
+
+                const result = lhsLongTime - rhsLongTime;
+                return result;
+            },
+            render: (text, record) => (
                 <div>
-                    26 Nov 2023, <br />09:58 AM
+                    {record.campaign_date}, <br />{record.campaign_time}
                 </div>
             ),
         },
         {
             title: "MESSAGE TYPE",
-            dataIndex: "message_type",
-            key: "message_type",
+            dataIndex: "send_on",
+            key: "send_on",
             ellipsis: true,
-            render: () => (
-                <div> SMS </div>
+            filters: [
+                {
+                    text: 'SMS',
+                    value: 'SMS',
+                },
+                {
+                    text: 'WhatsApp',
+                    value: 'WhatsApp',
+                },
+            ],
+            onFilter: (value, record) => record.send_on.startsWith(value),
+            render: (text) => (
+                <div> {text} </div>
             ),
         },
         {
             title: "Target Users",
-            dataIndex: "target_users",
-            key: "target_users",
+            dataIndex: "total_patient",
+            key: "total_patient",
             ellipsis: true,
-            sorter: () => { },
-            render: () => (
-                <div> 524 </div>
+            sorter: (a, b) => a.total_patient - b.total_patient,
+            render: (text) => (
+                <div> {text} </div>
             ),
         },
         {
@@ -142,20 +208,22 @@ function MessagesData() {
             dataIndex: "campaign_status",
             key: "campaign_status",
             ellipsis: true,
-            render: () => (
+            render: (text, record) => (
                 <>
-                    {/* <div className="text-scheduled">Scheduled for later</div> */}
-
-                    <div className="text-delivered">400 Delivered</div>
-                    <div className="text-faild mt-1">32 Not Delivered</div>
+                    <div className={`${record.campaign_sent ? 'text-delivered' : 'text-scheduled'}`}>{record.campaign_sent ? `${record.total_patient} Delivered` : record.campaign_status}</div>
+                    {/* <div className="text-faild mt-1">32 Not Delivered</div> */}
                 </>
             ),
         },
         {
             key: "action",
             width: 70,
-            render: () => (
-                <Dropdown className="cursor-pointer" menu={{ items }} trigger={['click']}>
+            render: (text, record) => (
+                <Dropdown className="cursor-pointer"
+                    menu={{
+                        items: getMenuItems(record),
+                    }}
+                    trigger={['click']}>
                     <i className='icon-More'></i>
                 </Dropdown>
             ),
@@ -187,26 +255,113 @@ function MessagesData() {
         </div>
     );
 
-    const showHideModal = useCallback(() => {
-        setIsModalOpen(!isModalOpen);
-    }, [isModalOpen]);
+    const rangePresets = [
+        {
+            label: <div className={`${!dateStatus ? 'active' : ''}`}>Till date</div>,
+            value: [dayjs(), dayjs().endOf('day')],
+        },
+        {
+            label: <div className={`${dateStatus === 1 ? 'active' : ''}`}>Last week</div>,
+            value: [dayjs().add(-7, 'd'), dayjs()],
+        },
+        {
+            label: <div className={`${dateStatus === 2 ? 'active' : ''}`}>Last month</div>,
+            value: [dayjs().add(-1, 'M'), dayjs()],
+        },
+        {
+            label: <div className={`${dateStatus === 3 ? 'active' : ''}`}>Last 3 month</div>,
+            value: [dayjs().add(-3, 'M'), dayjs()],
+        },
+        {
+            label: <div className={`${dateStatus === 4 ? 'active' : ''}`}>Last 6 month</div>,
+            value: [dayjs().add(-6, 'M'), dayjs()],
+        },
+        {
+            label: <div className={`${dateStatus === 5 ? 'active' : ''}`}>Last 1 year</div>,
+            value: [dayjs().add(-1, 'y'), dayjs()],
+        }
+    ];
 
+    const onRangeChange = (dates, dateStrings) => {
+        if (dates) {
+            // console.log('From: ', dates[0], ', to: ', dates[1]);
+            // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
+
+            if (dayjs().add(-7, 'd').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+                && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
+                setDateStatus(1);
+            } else if (dayjs().add(-1, 'M').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+                && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
+                setDateStatus(2);
+            } else if (dayjs().add(-3, 'M').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+                && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
+                setDateStatus(3);
+            } else if (dayjs().add(-6, 'M').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+                && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
+                setDateStatus(4);
+            } else if (dayjs().add(-1, 'y').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+                && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
+                setDateStatus(5);
+            } else {
+                setDateStatus(null);
+            }
+            setDate({
+                startDate: moment(dateStrings[0], showDateFormat).format(dateFormat),
+                endDate: moment(dateStrings[1], showDateFormat).format(dateFormat),
+            });
+        } else {
+            setDateStatus(null);
+            setDate({
+                startDate: moment().format(dateFormat),
+                endDate: moment().format(dateFormat),
+            });
+        }
+    };
+
+    const handleMessageDetailed = useCallback(
+        () => {
+            setMessageDetailed(!messageDetailed)
+        },
+        [messageDetailed]
+    );
 
     return (
         <>
             <div className="border rounded-4 appointment-wrap dateborder">
                 <Tabs
-                    defaultActiveKey={TAB_QUEUE}
-                    items={tItems}
+                    defaultActiveKey={TAB_CAMPAIGN}
+                    items={tabItems}
                     className="tabs-massages"
+                    onChange={onChange}
+                    activeKey={selectedTab}
                 />
                 <div>
+                    <div className="d-flex align-items-center justify-content-between">
+                        <div></div>
+                        <RangePicker
+                            presets={rangePresets}
+                            format={showDateFormat}
+                            onChange={onRangeChange}
+                            popupClassName="massage-date"
+                            className="massage-input"
+                            inputReadOnly
+                        // value={[date.startDate != date.endDate
+                        //     ? dayjs(moment(date.startDate).format(showDateFormat), showDateFormat)
+                        //     : "",
+                        // date.startDate != date.endDate
+                        //     ? dayjs(moment(date.endDate).format(showDateFormat), showDateFormat)
+                        //     : ""]
+                        // }
+                        />
+                    </div>
+
                     <Table
                         className="px-xl-4 px-0 table-message"
                         columns={columns}
-                        dataSource={[{}, {}, {}]}
+                        dataSource={userCampaignList}
                         pagination={false}
                         locale={{ emptyText: emptyText }}
+                        loading={loading}
                     />
                 </div>
             </div>
@@ -233,7 +388,7 @@ function MessagesData() {
                 }
                 modalBody={
                     <>
-                        <img src={playcover2} className="img-fluid w-100" />
+                        <img src={messagesVideo} className="img-fluid w-100" />
                         <div className="titleprint fw-semibold mt-4">
                             Reach Your Patients Easily with Messages!
                         </div>
