@@ -105,6 +105,13 @@ function TabMedicalHistoryList(props) {
                     });
                 }
             });
+            if(medicalHistoryData?.[0]?.medical_history_remarks) {
+                data.push({
+                    key: "5",
+                    label: <div className="fw-semibold">Additional History</div>,
+                    children: <div className="fontroboto border rounded p-2 my-2 text-history fw-normal overflow-auto d-flex text-wrap">{medicalHistoryData?.[0]?.medical_history_remarks}</div>
+                })
+            }
             setAccordionItems(data)
         } else {
             setAccordionItems([])
@@ -145,7 +152,7 @@ function TabMedicalHistoryList(props) {
                             {hasMedicalHistory && (
                                 <Collapse 
                                     items={accordionItems} 
-                                    defaultActiveKey={['1', '2', '3', '4']} 
+                                    defaultActiveKey={['1', '2', '3', '4', '5']} 
                                     className="prescriptiontab-accordian history-sider-box" 
                                     expandIconPosition="end" 
                                 />
