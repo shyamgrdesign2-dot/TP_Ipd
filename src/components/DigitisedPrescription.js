@@ -28,7 +28,7 @@ const DigitisedPrescription = ({ data, setData}) => {
       setData((prevData) => {
         const updatedData = { ...prevData };
         if (type === 'medications' || type === 'tests') {
-          updatedData[type][index].refinedName = editableText; // Ensure editable text gets updated
+          updatedData[type][index].name = editableText; // Ensure editable text gets updated
         } else if (type === 'symptoms' || type === "examination" || type === "diagnosis") {
           updatedData[type][index].name = editableText; // Update the name for symptoms,examination & diagnosis
         } else if (type === 'advice') {
@@ -67,7 +67,7 @@ const DigitisedPrescription = ({ data, setData}) => {
     setData((prevData) => {
       const updatedData = { ...prevData };
       if (type === 'medications' || type === 'tests') {
-        updatedData[type][index].refinedName = suggestion;
+        updatedData[type][index].name = suggestion;
       } else if (type === 'symptoms' || type === "examination" || type === "diagnosis") {
         updatedData[type][index].name = suggestion;
       } else if (type === 'advice') {
@@ -111,7 +111,7 @@ const DigitisedPrescription = ({ data, setData}) => {
     }
 
     if (type === 'medications' || type === 'tests') {
-      setEditableText(data[type][index].refinedName);
+      setEditableText(data[type][index].name);
       setShowSuggestions(true);
     } else if (type === 'symptoms' || type === "examination" || type === "diagnosis") {
       setEditableText(data[type][index].name);
@@ -148,7 +148,7 @@ const DigitisedPrescription = ({ data, setData}) => {
             let textWidth = 0;
             let lineItemWidth = 0;
 
-            // For refinedName or other primary data (editableText)
+            // For name or other primary data (editableText)
             if (activeIndex === index && activeType === type) {
               const tempSpan = document.createElement('span');
               tempSpan.style.visibility = 'hidden';
@@ -191,7 +191,7 @@ const DigitisedPrescription = ({ data, setData}) => {
                         onClick={() => handleItemClick(type, index)}
                         className="digitised-item"
                       >
-                        {type === "advice" ? item : type === "symptoms" && item?.name?.length > 0 ? item.name[0]?.toUpperCase() + item.name?.slice(1) : (type === "examination" || type === "diagnosis") ? item?.name : item?.refinedName}
+                        {type === "advice" ? item : type === "symptoms" && item?.name?.length > 0 ? item.name[0]?.toUpperCase() + item.name?.slice(1) : (type === "examination" || type === "diagnosis") ? item?.name : item?.name}
                       </span>
                     )
                   }
@@ -264,9 +264,9 @@ const DigitisedPrescription = ({ data, setData}) => {
                           ))}
                           <button
                             className="btn-outline-digitise"
-                            onClick={() => handleSuggestionClick(type, index, item.refinedName)}
+                            onClick={() => handleSuggestionClick(type, index, item.name)}
                           >
-                            Keep {item.refinedName} as it is
+                            Keep {item.name} as it is
                           </button>
                         </ul>
                       </div>
