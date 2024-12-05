@@ -564,6 +564,48 @@ function Cardiology(props) {
                   <div>
                     {isRxdigitised && showDigitalRx ? (
                       <div className="m-4">
+                        {rxDigitisedData?.editedData?.symptoms && rxDigitisedData?.editedData?.symptoms.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={Symptomsicon}
+                                alt="Symptoms"
+                              />
+                              <div className="title-digitise-section mb-1">Symptoms</div>
+                            </div>
+                            {renderItems('symptoms')}
+                          </>
+                        )}
+
+                        {rxDigitisedData?.editedData?.examinations && rxDigitisedData?.editedData?.examinations.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={Examinationsicon}
+                                alt="Examinations"
+                              />
+                              <div className="title-digitise-section mb-1">Examinations</div>
+                            </div>
+                            {renderItems('examinations')}
+                          </>
+                        )}
+
+                        {rxDigitisedData?.editedData?.diagnosis && rxDigitisedData?.editedData?.diagnosis.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={Diagnosisicon}
+                                alt="Diagnosis"
+                              />
+                              <div className="title-digitise-section mb-1">Diagnosis</div>
+                            </div>
+                            {renderItems('Diagnosis')}
+                          </>
+                        )}
+
                         {rxDigitisedData?.editedData?.medications && rxDigitisedData?.editedData?.medications.length > 0 && (
                           <>
                             <div className="d-flex align-items-start">
@@ -589,20 +631,6 @@ function Cardiology(props) {
                               <div className="title-digitise-section mb-1">Tests</div>
                             </div>
                             {renderItems('tests')}
-                          </>
-                        )}
-
-                        {rxDigitisedData?.editedData?.symptoms && rxDigitisedData?.editedData?.symptoms.length > 0 && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <img
-                                className="me-2"
-                                src={Symptomsicon}
-                                alt="Symptoms"
-                              />
-                              <div className="title-digitise-section mb-1">Symptoms</div>
-                            </div>
-                            {renderItems('symptoms')}
                           </>
                         )}
 

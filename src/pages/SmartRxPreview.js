@@ -348,11 +348,14 @@ function SmartRxPreview() {
 
         if (showDigitalRx) {
             urlObj.searchParams.set('rxDigitize', 'true');
+            setButtonText("Send Digital Rx to WhatsApp")
         } else {
             // Remove rxDigitize parameter if showDigitalRx is false/null to keep the URL unchanged
             urlObj.searchParams.delete('rxDigitize');
+            setButtonText("Send Written Rx to WhatsApp")
         }
 
+        // setPrintUrl(urlObj.toString());
         return urlObj.toString();
     };
 
@@ -362,6 +365,7 @@ function SmartRxPreview() {
             // Only modify the URL if showDigitalRx is true, else keep printUrl unchanged
             const updatedUrl = updateRxDigitizeInUrl(printUrl, showDigitalRx);
             setPreviewUrl(updatedUrl);
+            setPrintUrl(updatedUrl);
         }
     }, [showDigitalRx]);
 
@@ -419,18 +423,37 @@ function SmartRxPreview() {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
             tcm_id: state.tcm_id
         }
-        const action = await dispatch(viewCaseManager(sendData));
-      
-        if (action.meta.requestStatus === "fulfilled") {
-            navigate("/smart-prescription", {
-                state: {
-                  patient_data: patient_data,
-                  caseManagerData: action.payload,
-                  smartRxFilesData: smartRxFile,
-                },
-            });
-        } else {
-            errorMessage(action.error)
+        try {
+            const action = await dispatch(viewCaseManager(sendData));
+            
+            if (action.meta.requestStatus === "fulfilled") {
+                if (showDigitalRx) {
+                    const response = await fetchRxDigitisedData();
+                    if(response){
+                        navigate("/smart-rx-digitise", {
+                            state: {
+                                patient_data: patient_data,
+                                smartRxFilesData: smartRxFile,
+                                tcm_id: state.tcm_id,
+                                print_url: state.print_url,
+                                digitisedData: response?.data,
+                            },
+                        })
+                    }
+                } else {
+                    navigate("/smart-prescription", {
+                        state: {
+                            patient_data,
+                            caseManagerData: action.payload,
+                            smartRxFilesData: smartRxFile,
+                        },
+                    });
+                }
+            } else {
+                throw action.error;
+            }
+        } catch (error) {
+            errorMessage(error);
         }
     };
 
@@ -471,7 +494,7 @@ function SmartRxPreview() {
                                     icon={<i className="icon-download"></i>}
                                     onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
                                 >
-                                    <span className="fw-semibold">Download</span>
+                                    <span className="fw-semibold">{showDigitalRx ? "Download Digital Rx" : "Download Written Rx"}</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                                 <Button
@@ -481,14 +504,14 @@ function SmartRxPreview() {
                                         onClick={handleEditRxClick}
                                         loading={loading}
                                     >
-                                        <span className="fw-semibold">Edit Prescription</span>
+                                        <span className="fw-semibold">{showDigitalRx ? "Edit Digital Rx" : "Edit Written Rx"}</span>
                                         <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                             </div>
                             <div className="bg-body d-flex p-3 rounded-10px border">
                                 <img src={wtsp} alt="Whatsapp Icon" className='align-self-baseline me-3' />
                                 <div className="fontroboto title-common">
-                                    <div className="fw-normal fontroboto mb-2">Send this prescription to</div>
+                                    <div className="fw-normal fontroboto mb-2">{showDigitalRx ? "Send this Digital Rx to" : "Send this Written Rx to "}</div>
                                     {patient_data !== undefined ? `WhatsApp +91 ${patient_data.pm_contact_no}` : '-'}
                                 </div>
                             </div>
@@ -597,12 +620,13 @@ function SmartRxPreview() {
                                             ))}
                                         </Document>
                                     </div>
-                                    { showDigitalRx && 
+                                    {/* keeping this code for future reference */}
+                                    {/* { showDigitalRx && 
                                         <div className="digital-rx-info">
                                             <img src={cvtInfoIcon} alt="cvt-info-icon" />
                                             <span className="digital-rx-info-text"><span className="title-common">Note:</span>  This Digital Rx is for reference only and you can’t download or share with patients.</span>
                                         </div>
-                                    }
+                                    } */}
                                 </div> 
                             </div>
                         </div>
