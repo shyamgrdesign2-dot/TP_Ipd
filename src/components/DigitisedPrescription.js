@@ -29,8 +29,8 @@ const DigitisedPrescription = ({ data, setData}) => {
         const updatedData = { ...prevData };
         if (type === 'medications' || type === 'tests') {
           updatedData[type][index].refinedName = editableText; // Ensure editable text gets updated
-        } else if (type === 'symptoms') {
-          updatedData[type][index].name = editableText; // Update the name for symptoms
+        } else if (type === 'symptoms' || type === "examination" || type === "diagnosis") {
+          updatedData[type][index].name = editableText; // Update the name for symptoms,examination & diagnosis
         } else if (type === 'advice') {
           updatedData[type][index] = editableText; // Update the advice text
         }
@@ -68,7 +68,7 @@ const DigitisedPrescription = ({ data, setData}) => {
       const updatedData = { ...prevData };
       if (type === 'medications' || type === 'tests') {
         updatedData[type][index].refinedName = suggestion;
-      } else if (type === 'symptoms') {
+      } else if (type === 'symptoms' || type === "examination" || type === "diagnosis") {
         updatedData[type][index].name = suggestion;
       } else if (type === 'advice') {
         updatedData[type][index] = suggestion;
@@ -113,7 +113,7 @@ const DigitisedPrescription = ({ data, setData}) => {
     if (type === 'medications' || type === 'tests') {
       setEditableText(data[type][index].refinedName);
       setShowSuggestions(true);
-    } else if (type === 'symptoms') {
+    } else if (type === 'symptoms' || type === "examination" || type === "diagnosis") {
       setEditableText(data[type][index].name);
     } else if (type === 'advice') {
       setEditableText(data[type][index]);
@@ -126,7 +126,11 @@ const DigitisedPrescription = ({ data, setData}) => {
 
   // Handle click on a lineItem (to edit)
   const handleLineItemClick = (type, index) => {
-    setEditableLineItem(data[type][index].lineItem);
+    if (type === 'medications' || type === 'tests'){
+      setEditableLineItem(data[type][index]?.lineItem);
+    } else {
+      setEditableLineItem(data[type][index]?.notes);
+    }
     setActiveIndex(index);
     setActiveType(`${type}-lineItem`);
   };
@@ -187,7 +191,7 @@ const DigitisedPrescription = ({ data, setData}) => {
                         onClick={() => handleItemClick(type, index)}
                         className="digitised-item"
                       >
-                        {type === "advice" ? item : type === "symptoms" && item?.name?.length > 0 ? item.name[0]?.toUpperCase() + item.name?.slice(1) : item?.refinedName}
+                        {type === "advice" ? item : type === "symptoms" && item?.name?.length > 0 ? item.name[0]?.toUpperCase() + item.name?.slice(1) : (type === "examination" || type === "diagnosis") ? item?.name : item?.refinedName}
                       </span>
                     )
                   }
@@ -210,6 +214,28 @@ const DigitisedPrescription = ({ data, setData}) => {
                         className='digitised-item'
                       >
                         {`(${item.lineItem})`}
+                      </span>
+                    )
+                  )}
+
+                  {/* Editable input for lineItem */}
+                  {(type === "examination"|| type === "diagnosis") && item?.notes && (
+                    activeIndex === index && activeType === `${type}-lineItem` ? (
+                      <input
+                        type="text"
+                        value={editableLineItem}
+                        className='editable-digitised-item'
+                        onChange={handleLineItemChange}
+                        onBlur={() => handleLineItemBlur(type, index)}
+                        autoFocus
+                        style={{ width: `${lineItemWidth + 10}px` }} // Add padding for better UX
+                      />
+                    ) : (
+                      <span
+                        onClick={() => handleLineItemClick(type, index)}
+                        className='digitised-item'
+                      >
+                        {`(${item.notes})`}
                       </span>
                     )
                   )}
@@ -262,6 +288,20 @@ const DigitisedPrescription = ({ data, setData}) => {
         <>
           <div className='title-digitise-section mb-2'>Symptoms</div>
           {renderItems('symptoms')}
+        </>
+      )}
+
+      {data?.examination && data.examination.length > 0 && (
+        <>
+          <div className='title-digitise-section mb-2'>Examination</div>
+          {renderItems('examination')}
+        </>
+      )}
+
+      {data?.diagnosis && data.diagnosis.length > 0 && (
+        <>
+          <div className='title-digitise-section mb-2'>Diagnosis</div>
+          {renderItems('diagnosis')}
         </>
       )}
 
