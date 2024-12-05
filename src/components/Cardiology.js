@@ -392,16 +392,22 @@ function Cardiology(props) {
   const renderItems = (type) => (
     <div className='digitised-data-section'>
       <ol>
-        {rxDigitisedData?.editedData?.[type].map((item, index) => (
+        {rxDigitisedData?.editedData?.[type]?.map((item, index) => (
           <li key={index}>
             <div className='medicine-item'>
               <span>
-                {type === "advice" ? rxDigitisedData?.editedData?.[type][index] : type === "symptoms" ? item.name : item.refinedName}
+                {type === "advice" ? rxDigitisedData?.editedData?.[type][index] : (type === "symptoms" || type === "examination" || type === "diagnosis") ? item.name : item.refinedName}
               </span>
 
               {type === "medications" && item.lineItem &&
                 <span>
                   {` (${item.lineItem})`}
+                </span>
+              }
+
+              {(type === "examination" || type === "diagnosis") && item.notes &&
+                <span>
+                  {` (${item.notes})`}
                 </span>
               }
             </div>
@@ -578,17 +584,17 @@ function Cardiology(props) {
                           </>
                         )}
 
-                        {rxDigitisedData?.editedData?.examinations && rxDigitisedData?.editedData?.examinations.length > 0 && (
+                        {rxDigitisedData?.editedData?.examination && rxDigitisedData?.editedData?.examination.length > 0 && (
                           <>
                             <div className="d-flex align-items-start">
                               <img
                                 className="me-2"
                                 src={Examinationsicon}
-                                alt="Examinations"
+                                alt="Examination"
                               />
                               <div className="title-digitise-section mb-1">Examinations</div>
                             </div>
-                            {renderItems('examinations')}
+                            {renderItems('examination')}
                           </>
                         )}
 
@@ -602,7 +608,7 @@ function Cardiology(props) {
                               />
                               <div className="title-digitise-section mb-1">Diagnosis</div>
                             </div>
-                            {renderItems('Diagnosis')}
+                            {renderItems('diagnosis')}
                           </>
                         )}
 
