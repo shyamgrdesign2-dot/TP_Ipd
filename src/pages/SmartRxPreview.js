@@ -527,7 +527,7 @@ function SmartRxPreview() {
                             </button>
                             { isSmartSyncCVTAccessableFromGB && (
                                 <>
-                                    {!rxDigitiseApiResponse && showProgressbar && (
+                                    {!rxDigitiseApiResponse && showProgressbar && smartRxFile?.length > 0 && (
                                         <div className="digitise-container d-flex p-3 rounded-10px">
                                             <div style={containerStyle}>
                                                 <div ref={progressRef} style={progressStyle}></div>
