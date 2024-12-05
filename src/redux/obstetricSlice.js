@@ -6,7 +6,7 @@ const initialState = {
   isPatientDiagnosisUpdated: false,
   isObstetricDetailsUpdated: false,
   isNavigateToObstetric: false,
-  currentSessionRx: null
+  currentSessionRx: null,
 };
 
 const obstetricSlice = createSlice({
@@ -45,8 +45,8 @@ const obstetricSlice = createSlice({
     obstetricDetailsUpdated: (state) => {
       state.isObstetricDetailsUpdated = true;
     },
-    navigateToObstetric: (state) => {
-      state.isNavigateToObstetric = !state.isNavigateToObstetric;
+    navigateToObstetric: (state, action) => {
+      state.isNavigateToObstetric = action.payload;
     },
     setCurrentSessionRx: (state, action) => {
       state.currentSessionRx = action.payload;

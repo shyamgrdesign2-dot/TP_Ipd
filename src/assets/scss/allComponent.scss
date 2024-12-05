@@ -753,6 +753,16 @@
             }
         }
     }
+    &.obstetric-collapse {
+        &.ant-collapse {
+            .ant-collapse-item {
+                border-bottom: none !important;
+            }
+            .ant-collapse-content {
+                border-bottom: none !important;
+            }
+        }
+    }
 }
 
 // Tablet design

@@ -14,13 +14,13 @@ import { getTypeOfAbortion } from "../../utils/helper";
 import { ABORTION, MISCARRIAGE } from "../../../../utils/constants";
 
 const PregnancyHistory = ({
+  pregnancyHistory,
   continueExaminationHandler,
   handlePastPregnancyDrawer,
   setEditIndex,
   bottomRef,
+  isPregnancyCompleted,
 }) => {
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const { pregnancyHistory } = obstetricDetails;
 
   const renderTableTitle = (gravidaItem, i) => {
     const onEdit = () => {
@@ -161,10 +161,14 @@ const PregnancyHistory = ({
               <i className="icon-Add" />
               <span>Add past pregnancy details</span>
             </Button>
-            <div className="continueBtn" onClick={continueExaminationHandler}>
-              <div className="continueText">Continue to Examination</div>
-              <img src={arrow} alt="arrow" />
-            </div>
+            {!isPregnancyCompleted && (
+              <div className="continueBtn" onClick={continueExaminationHandler}>
+                <div className="continueText">
+                  Continue to Current Examination
+                </div>
+                <img src={arrow} alt="arrow" />
+              </div>
+            )}
           </div>
         </div>
       ) : (
@@ -194,7 +198,7 @@ const PregnancyHistory = ({
             style={{ paddingBottom: "20px" }}
             onClick={continueExaminationHandler}
           >
-            <div className="continueText">Continue to Examination</div>
+            <div className="continueText">Continue to Current Examination</div>
             <img src={arrow} alt="arrow" />
           </div>
         </div>

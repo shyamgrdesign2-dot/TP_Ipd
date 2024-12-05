@@ -7,9 +7,7 @@ import { useSelector } from "react-redux";
 import { ExaminationColumns } from "../../utils/constants";
 import ReadMore from "../../../../common/ReadMore";
 
-const Examination = ({ handleExaminationDrawer, setEditIndex, bottomRef }) => {
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const { examinationHistory } = obstetricDetails;
+const Examination = ({ examinationHistory, handleExaminationDrawer, handlePastPregnancyDrawer, setEditIndex, bottomRef }) => {
 
   const renderTableHeader = () => {
     return (
@@ -118,6 +116,14 @@ const Examination = ({ handleExaminationDrawer, setEditIndex, bottomRef }) => {
             >
               <i className="icon-Add" />
               <span>Add another visit</span>
+            </Button>
+            or
+            <Button
+              type="button"
+              className="btn-41 btn ant-btn-tex anotherVisitBtn completePregnancyBtn"
+              onClick={handlePastPregnancyDrawer}
+            >
+              <span className="completePregnancy">Complete Pregnancy</span>
             </Button>
           </div>
         </>
