@@ -197,10 +197,7 @@ function SmartRxPreview() {
     //Handle Sider
     const handleCollapsed = useCallback(
         (flag) => {
-        // if (flag === 1) {
-        //     handleDrawerVital();
-        // }
-        if(flag === 2) {
+        if(flag === 5) {
             handleDrawerCvtKnowMore();
         }
         },
