@@ -124,7 +124,7 @@ function Cardiology(props) {
       // if (flag === 1) {
       //     handleDrawerVital();
       // }
-      if (flag === 2) {
+      if (flag === 5) {
         handleDrawerCvtKnowMore();
       }
     },
