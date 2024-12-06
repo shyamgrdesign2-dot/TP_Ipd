@@ -1026,7 +1026,7 @@ const getGenerateDDx = async (field) => {
                           height={20}
                           style={{ marginRight: 8 }}
                         />
-                        Apex AI
+                        Tatva AI
                         {isDDxReadyToGenerate && generatedDDx?.results?.length > 0 && (
                             <img
                               src={blinkingDot}
