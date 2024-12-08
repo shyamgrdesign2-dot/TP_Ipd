@@ -214,7 +214,7 @@ const DigitisedPrescription = ({ data, setData}) => {
                     )
                   )}
 
-                  {
+                  {/* {
                     showSuggestions && activeIndex === index && activeType === type && (
                       <div className="suggestion-card" ref={suggestionRef}>
                         <div className="align-items-center d-flex justify-content-between border-btm pb-2">
@@ -245,7 +245,7 @@ const DigitisedPrescription = ({ data, setData}) => {
                         </ul>
                       </div>
                     )
-                  }
+                  } */}
                 </div>
               </li>
             );
