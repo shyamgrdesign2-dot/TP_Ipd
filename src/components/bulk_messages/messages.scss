@@ -304,18 +304,21 @@
         }
         &.whatsup-preview-mobile {
             background-image: url(../../assets/images/device-whatsup.png);
+            .sms-preview-message {
+                background-color: $white;
+            }
         }
-    }
-    .sms-preview-message {
-        background-color: #E9E9EB;
-        top: 52%;
-        left: 10.5%;;
-        font-size: 12px;
-        width: 80%;
-        position: relative;
-        @media only screen and (max-width: 1300px) {
-            font-size: 11px;
-            top: 45%;
+        .sms-preview-message {
+            background-color: #E9E9EB;
+            top: 52%;
+            left: 10.5%;;
+            font-size: 12px;
+            width: 80%;
+            position: relative;
+            @media only screen and (max-width: 1300px) {
+                font-size: 11px;
+                top: 45%;
+            }
         }
     }
 }

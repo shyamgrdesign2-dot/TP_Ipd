@@ -53,11 +53,11 @@ function DetailedView() {
                             <div>{`${campaignDetails?.total_patient} User`}</div>
                         </div>
                         <div className="d-flex align-items-center py-2 justify-content-between fs-18 fw-medium fontroboto">
-                            <div>SMS Per Customers (B) :</div>
-                            <div>{`${campaignDetails?.sms_per_customer} SMS`}</div>
+                            <div>{`${campaignDetails?.send_on === 'SMS' ? 'SMS' : 'Message'} Per Customers (B) :`}</div>
+                            <div>{`${campaignDetails?.sms_per_customer} ${campaignDetails?.send_on === 'SMS' ? 'SMS' : 'Message'}`}</div>
                         </div>
                         <div className="d-flex align-items-center py-2 justify-content-between fs-18 fw-medium fontroboto">
-                            <div>Price Per SMS (C) :</div>
+                            <div>{`Price Per ${campaignDetails?.send_on === 'SMS' ? 'SMS' : 'Message'} (C) :`}</div>
                             <div>{`${campaignDetails?.per_credit} Credits`}</div>
                         </div>
 

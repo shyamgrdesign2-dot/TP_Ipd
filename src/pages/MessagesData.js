@@ -374,7 +374,7 @@ function MessagesData() {
                     activeKey={selectedTab}
                 />
                 <div>
-                    <div className="px-xl-4 px-0 mb-4 d-flex align-items-center justify-content-between">
+                    <div className="px-4 mb-3 d-flex align-items-center justify-content-between">
                         <Input className="h-38 w-25 rounded-10px" placeholder="Search by order ID" />
                         <div className="massage-date-wrapper">
                             <div className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between" onClick={handlePickerModal}>

@@ -903,7 +903,7 @@ function MessageCreateCampaign() {
                                                     <div className="fs-13 text-truncate-fourlines">
                                                         {TEMPLATE_TEXT}
                                                     </div>
-                                                    <img className="position-absolute" style={{ left: -2, bottom: -3 }} src={messageCornerGrey} alt="Message" />
+                                                    <img className="position-absolute" style={{ left: -2, bottom: -3 }} src={send_on === 'SMS' ? messageCornerGrey : messageCorner} alt="Message" />
                                                 </div>
                                             </div>
                                         </div>
