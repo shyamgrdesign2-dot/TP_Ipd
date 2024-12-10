@@ -46,9 +46,9 @@ function SmartRxDigitise() {
     }, [divRef]);
 
     useEffect(() => {
-        if(digitisedData?.editedData){
+        if(digitisedData?.editedData && state.type === "edit"){
             setData(digitisedData?.editedData);
-        } else{
+        } else {
             setData(digitisedData?.refinedData);
         }
     }, [digitisedData]);

@@ -434,6 +434,7 @@ function SmartRxPreview() {
                                 tcm_id: state.tcm_id,
                                 print_url: state.print_url,
                                 digitisedData: response?.data,
+                                type:"edit"
                             },
                         })
                     }
@@ -462,6 +463,7 @@ function SmartRxPreview() {
                 tcm_id: state.tcm_id,
                 print_url: state.print_url,
                 digitisedData: rxDigitiseApiResponse,
+                type:"new"
             },
         })
     };
