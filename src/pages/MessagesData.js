@@ -1,51 +1,60 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Tabs, Table, Drawer, Checkbox, Dropdown } from "antd";
+import { Tabs, Table, Drawer, DatePicker, Checkbox, Dropdown, Input } from "antd";
 import Button from "react-bootstrap/Button";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import moment from "moment";
-import { DatePicker, Space } from 'antd';
 import dayjs from 'dayjs';
 
 import { useSelector, useDispatch } from "react-redux";
-import { userCampaign } from "../redux/bulkMessagesSlice";
+import { userCampaign, userCampaignDetails } from "../redux/bulkMessagesSlice";
 
 import emptyCampaign from '../assets/images/empty-campaign-history.svg'
 import emptyPurchase from '../assets/images/empty-purchase-history.svg'
 import newGif from '../assets/images/new-gif.gif';
 import messagesVideo from '../assets/images/messages-video.jpg';
 
-import MessageDetailedView from "../components/bulk_messages/MessageDetailedView";
+import DetailedView from "../components/bulk_messages/DetailedView";
 import CommonModal from "../common/CommonModal";
 
 import { TAB_CAMPAIGN, TAB_DRAFT, TAB_PURCHASE } from "../utils/constants";
+import { errorMessage } from "../utils/utils";
 
 const { RangePicker } = DatePicker;
 
 const dateFormat = 'YYYY-MM-DD'
-const showDateFormat = 'MMM DD, YYYY'
+const showDateFormat = 'DD MMM YYYY'
 
 function MessagesData() {
 
-    const { userCampaignList, loading, popup } = useSelector((state) => state.bulkMessages);
+    const { userCampaignList, loading, popup, error } = useSelector((state) => state.bulkMessages);
     const dispatch = useDispatch();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTab, setSelectedTab] = useState(TAB_CAMPAIGN);
-    const [date, setDate] = useState({
+    const [dateRange, setDateRange] = useState({
         startDate: moment().format(dateFormat),
         endDate: moment().format(dateFormat),
     });
-    const [dateStatus, setDateStatus] = useState(null);
+    const [dateStatus, setDateStatus] = useState(1);
     const [messageDetailed, setMessageDetailed] = useState(false);
+    const [pickerModal, setPickerModal] = useState(false);
 
+    const navigate = useNavigate();
     let location = useLocation();
+
+
+    // useEffect(() => {
+    //     if (error?.visible) {
+    //         errorMessage(error?.message)
+    //     }
+    // }, [error]);
 
     useEffect(() => {
         if (popup) {
             showHideModal()
         }
     }, []);
-    
+
     const showHideModal = useCallback(() => {
         setIsModalOpen(!isModalOpen);
     }, [isModalOpen]);
@@ -55,17 +64,17 @@ function MessagesData() {
             var sendData = {
                 draft: selectedTab
             }
-            if (date.startDate != date.endDate) {
-                sendData['start_date'] = date.startDate;
-                sendData['end_date'] = date.endDate;
+            if (dateRange.startDate != dateRange.endDate) {
+                sendData['start_date'] = dateRange.startDate;
+                sendData['end_date'] = dateRange.endDate;
             }
             // console.log(sendData)
-            dispatch(userCampaign(sendData));
+            !pickerModal && dispatch(userCampaign(sendData));
         }, 500);
         return () => {
             clearTimeout(timeOutId);
         };
-    }, [selectedTab, date]);
+    }, [selectedTab, pickerModal]);
 
     const [tabItems, setTabItems] = useState([
         {
@@ -107,7 +116,14 @@ function MessagesData() {
     const getMenuItems = (record) => {
         const items = [
             {
-                label: <div onClick={() => handleMessageDetailed()}>Detailed View</div>,
+                label: <div onClick={async () => {
+                    const action = await dispatch(userCampaignDetails(record?.id));
+                    if (action.meta.requestStatus === "fulfilled") {
+                        handleMessageDetailed()
+                    } else {
+                        errorMessage(action.payload.message)
+                    }
+                }}>Detailed View</div>,
                 key: "detailed_view",
             },
             {
@@ -144,7 +160,14 @@ function MessagesData() {
             key: "message_text",
             width: 310,
             render: (text, record) => (
-                <div className="cursor-pointer" onClick={() => { handleMessageDetailed() }}>
+                <div className="cursor-pointer" onClick={async () => {
+                    const action = await dispatch(userCampaignDetails(record?.id));
+                    if (action.meta.requestStatus === "fulfilled") {
+                        handleMessageDetailed()
+                    } else {
+                        errorMessage(action.payload.message)
+                    }
+                }}>
                     <div>{record.campaign_name}</div>
                     <div className="text-truncate-twolines">
                         {record.msg}
@@ -241,6 +264,7 @@ function MessagesData() {
             {/* <div className="mt-3 fs-16 fw-medium"> You haven't purchased any credits yet!</div>
             <div>Start buying credits to keep your messages flowing.</div> */}
             <Button
+                onClick={() => navigate('/create-campaign')}
                 variant="primary"
                 className="px-3 mt-4 btn-41 d-flex align-items-center">
                 <i className="icon-Add me-2"></i>
@@ -255,30 +279,41 @@ function MessagesData() {
         </div>
     );
 
+    const handlePickerModal = useCallback(
+        () => {
+            setPickerModal(!pickerModal);
+        },
+        [pickerModal]
+    );
+
     const rangePresets = [
         {
-            label: <div className={`${!dateStatus ? 'active' : ''}`}>Till date</div>,
+            label: <div className={`${dateStatus === 1 ? 'active' : ''}`}>Till date</div>,
             value: [dayjs(), dayjs().endOf('day')],
         },
         {
-            label: <div className={`${dateStatus === 1 ? 'active' : ''}`}>Last week</div>,
+            label: <div className={`${dateStatus === 2 ? 'active' : ''}`}>Last week</div>,
             value: [dayjs().add(-7, 'd'), dayjs()],
         },
         {
-            label: <div className={`${dateStatus === 2 ? 'active' : ''}`}>Last month</div>,
+            label: <div className={`${dateStatus === 3 ? 'active' : ''}`}>Last month</div>,
             value: [dayjs().add(-1, 'M'), dayjs()],
         },
         {
-            label: <div className={`${dateStatus === 3 ? 'active' : ''}`}>Last 3 month</div>,
+            label: <div className={`${dateStatus === 4 ? 'active' : ''}`}>Last 3 month</div>,
             value: [dayjs().add(-3, 'M'), dayjs()],
         },
         {
-            label: <div className={`${dateStatus === 4 ? 'active' : ''}`}>Last 6 month</div>,
+            label: <div className={`${dateStatus === 5 ? 'active' : ''}`}>Last 6 month</div>,
             value: [dayjs().add(-6, 'M'), dayjs()],
         },
         {
-            label: <div className={`${dateStatus === 5 ? 'active' : ''}`}>Last 1 year</div>,
+            label: <div className={`${dateStatus === 6 ? 'active' : ''}`}>Last 1 year</div>,
             value: [dayjs().add(-1, 'y'), dayjs()],
+        },
+        {
+            label: <div className={`${!dateStatus ? 'active' : ''}`}>Custom range</div>,
+            value: null,
         }
     ];
 
@@ -287,31 +322,34 @@ function MessagesData() {
             // console.log('From: ', dates[0], ', to: ', dates[1]);
             // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
 
-            if (dayjs().add(-7, 'd').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+            if (dayjs().format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
                 && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
                 setDateStatus(1);
-            } else if (dayjs().add(-1, 'M').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+            } else if (dayjs().add(-7, 'd').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
                 && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
                 setDateStatus(2);
-            } else if (dayjs().add(-3, 'M').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+            } else if (dayjs().add(-1, 'M').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
                 && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
                 setDateStatus(3);
-            } else if (dayjs().add(-6, 'M').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+            } else if (dayjs().add(-3, 'M').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
                 && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
                 setDateStatus(4);
-            } else if (dayjs().add(-1, 'y').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+            } else if (dayjs().add(-6, 'M').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
                 && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
                 setDateStatus(5);
+            } else if (dayjs().add(-1, 'y').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+                && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
+                setDateStatus(6);
             } else {
                 setDateStatus(null);
             }
-            setDate({
+            setDateRange({
                 startDate: moment(dateStrings[0], showDateFormat).format(dateFormat),
                 endDate: moment(dateStrings[1], showDateFormat).format(dateFormat),
             });
         } else {
             setDateStatus(null);
-            setDate({
+            setDateRange({
                 startDate: moment().format(dateFormat),
                 endDate: moment().format(dateFormat),
             });
@@ -336,23 +374,67 @@ function MessagesData() {
                     activeKey={selectedTab}
                 />
                 <div>
-                    <div className="d-flex align-items-center justify-content-between">
-                        <div></div>
-                        <RangePicker
-                            presets={rangePresets}
-                            format={showDateFormat}
-                            onChange={onRangeChange}
-                            popupClassName="massage-date"
-                            className="massage-input"
-                            inputReadOnly
-                        // value={[date.startDate != date.endDate
-                        //     ? dayjs(moment(date.startDate).format(showDateFormat), showDateFormat)
-                        //     : "",
-                        // date.startDate != date.endDate
-                        //     ? dayjs(moment(date.endDate).format(showDateFormat), showDateFormat)
-                        //     : ""]
-                        // }
-                        />
+                    <div className="px-xl-4 px-0 mb-4 d-flex align-items-center justify-content-between">
+                        <Input className="h-38 w-25 rounded-10px" placeholder="Search by order ID" />
+                        <div className="massage-date-wrapper">
+                            <div className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between" onClick={handlePickerModal}>
+                                <span>
+                                    {dateStatus === 1 ? (
+                                        'Till date'
+                                    ) : dateStatus === 2 ? (
+                                        'Last week'
+                                    ) : dateStatus === 3 ? (
+                                        'Last month'
+                                    ) : dateStatus === 4 ? (
+                                        'Last 3 month'
+                                    ) : dateStatus === 5 ? (
+                                        'Last 6 month'
+                                    ) : dateStatus === 6 ? (
+                                        'Last 1 year'
+                                    ) : (
+                                        'Custom range'
+                                    )}
+                                </span>
+                                <i className="mx-2 fs-18 icon-calendar"></i>
+                            </div>
+                            <RangePicker
+                                open={pickerModal}
+                                presets={rangePresets}
+                                format={showDateFormat}
+                                onChange={onRangeChange}
+                                popupClassName="massage-date"
+                                className="massage-input"
+                                inputReadOnly
+                                renderExtraFooter={() =>
+                                    <div className="d-flex align-items-center justify-content-between py-1">
+                                        <div>{moment(dateRange.startDate).format(showDateFormat)} - {moment(dateRange.endDate).format(showDateFormat)}</div>
+                                        <div>
+                                            <button className="btn btn-text me-3 px-0" onClick={() => {
+                                                setDateStatus(1);
+                                                setDateRange({
+                                                    startDate: moment().format(dateFormat),
+                                                    endDate: moment().format(dateFormat),
+                                                });
+                                                handlePickerModal()
+                                            }}>
+                                                <span>Cancel</span>
+                                            </button>
+                                            <Button className="px-4" type="primary" onClick={handlePickerModal}>
+                                                Done
+                                            </Button>
+                                        </div>
+                                    </div>}
+                                onOpenChange={() => { }}
+                            // value={[dateRange.startDate != dateRange.endDate
+                            //     ? dayjs(moment(dateRange.startDate).format(showDateFormat), showDateFormat)
+                            //     : "",
+                            // dateRange.startDate != dateRange.endDate
+                            //     ? dayjs(moment(dateRange.endDate).format(showDateFormat), showDateFormat)
+                            //     : ""]
+                            // }
+                            />
+
+                        </div>
                     </div>
 
                     <Table
@@ -373,7 +455,7 @@ function MessagesData() {
                 open={messageDetailed}
                 onClose={handleMessageDetailed}
             >
-                <MessageDetailedView handleMessageDetailed={handleMessageDetailed} replace={false} />
+                <DetailedView handleMessageDetailed={handleMessageDetailed} replace={false} />
             </Drawer>
 
             <CommonModal

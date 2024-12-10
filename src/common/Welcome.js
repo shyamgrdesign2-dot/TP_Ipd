@@ -1,21 +1,34 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Button from "react-bootstrap/Button";
 import { Drawer } from "antd";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { userCredit } from "../redux/bulkMessagesSlice";
+
 import { getDecodedToken } from "../utils/localStorage";
 import CreditImg from "../assets/images/credit_icon.svg"
 import config from "../config";
-import MessageAvailableCredits from "../components/bulk_messages/MessageAvailableCredits";
+import AvailableCredits from "../components/bulk_messages/AvailableCredits";
 
 function Welcome(props) {
 
-  const navigate = useNavigate();
-
   const { locationPath, backVisible } = props;
-  const [messageDetailed, setMessageDetailed] = useState(false);
+
+  const { userCreditObj } = useSelector((state) => state.bulkMessages);
   const { profile } = useSelector((state) => state.doctors);
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+  let location = useLocation();
+
+  const [messageDetailed, setMessageDetailed] = useState(false);
   const decodedToken = getDecodedToken();
+
+  useEffect(() => {
+    if (location.pathname === '/bulk_messages') {
+      dispatch(userCredit());
+    }
+  }, [location]);
 
   const clickWalkInConsultation = () => {
     const businessId = decodedToken?.result?.hospital_business_id;
@@ -86,7 +99,7 @@ function Welcome(props) {
                     onClick={handleMessageDetailed}
                     className="px-3 btn-41 btn-message d-flex align-items-center">
                     <img src={CreditImg} width={19} className="me-2" />
-                    {"Available Credits: 0"}
+                    {`Available Credits: ${userCreditObj?.userCredit}`}
                   </Button>
                   <Button
                     variant="primary"
@@ -112,7 +125,7 @@ function Welcome(props) {
         open={messageDetailed}
         onClose={handleMessageDetailed}
       >
-        <MessageAvailableCredits />
+        <AvailableCredits />
       </Drawer>
     </>
   );

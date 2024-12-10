@@ -446,6 +446,15 @@ body {
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
+    .text-truncate-fourlines {
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        @media only screen and (max-width: 1300px) {
+            -webkit-line-clamp: 6;
+        }
+    }
     .endreason-textarea {
         textarea {
             border-radius: 10px;

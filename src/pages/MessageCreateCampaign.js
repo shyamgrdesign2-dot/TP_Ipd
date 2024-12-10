@@ -1,44 +1,173 @@
-import React, { useState, useCallback } from "react";
-import { Button, Drawer, Popover, Steps, Radio, DatePicker, Select, Checkbox, Input } from 'antd';
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { Button, Drawer, Popover, Steps, Radio, DatePicker, Select, Checkbox, Input, Spin } from 'antd';
 import { Col, Container, Row } from "react-bootstrap";
+import { v4 as uuidv4 } from 'uuid';
 
-import { useNavigate } from "react-router-dom";
+import locale from "antd/es/date-picker/locale/de_DE";
+
+import { useNavigate, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { listAllTemplate, listDoctor, searchPatient } from "../redux/bulkMessagesSlice";
+import moment from "moment";
+import dayjs from "dayjs";
+
+import { onlyNumberFormat } from "../utils/utils";
+
 import VideoModal from "../common/VideoModal";
-import JoditEditor from 'jodit-react';
-
 import messageCorner from '../assets/images/message-corner.svg'
 import CreditImg from "../assets/images/credit_icon.svg"
 import tutorial from '../assets/images/tutorial-icon.svg';
 import messageCornerGrey from '../assets/images/message-corner-grey.svg'
 import alertIcon from '../assets/images/alertIcon.svg';
 
-import "../components/bulk_messages/messages.scss";
-import MessageAvailableCredits from "../components/bulk_messages/MessageAvailableCredits";
+import AvailableCredits from "../components/bulk_messages/AvailableCredits";
 import CommonModal from "../common/CommonModal";
 
+import "../components/bulk_messages/messages.scss";
+
+const { RangePicker } = DatePicker;
+const dateFormat = 'YYYY-MM-DD'
+const showDateFormat = 'DD MMM YYYY'
+
+const dateTimeFormat = 'YYYY-MM-DD HH:mm:ss'
+const dateFormat1 = 'YYYY-MM-DD'
+const timeFormat1 = 'HH:mm:ss'
+
+const showDateTimeFormat = 'DD MMM YYYY hh:mm A'
+const showDateFormat1 = 'DD MMM YYYY'
+const showTimeFormat1 = 'hh:mm A'
+
+const optionsTemplates = [
+    {
+        label: 'All Template',
+        value: 'All Template',
+    },
+    {
+        label: 'Festive & Seasonal Greetings',
+        value: 'Festive & Seasonal Greetings',
+    },
+    {
+        label: 'Doctor & Clinic Availability',
+        value: 'Doctor & Clinic Availability',
+    },
+    {
+        label: 'Health & Vaccination Updates',
+        value: 'Health & Vaccination Updates',
+    },
+    {
+        label: 'Clinic Information Updates',
+        value: 'Clinic Information Updates',
+    },
+    {
+        label: 'Appt. & Contact Reminders',
+        value: 'Appt. & Contact Reminders',
+    },
+];
+
+const SELECT_AFTER = [
+    {
+        value: 'Year',
+        label: 'Year',
+    },
+    {
+        value: 'Month',
+        label: 'Month',
+    }
+]
+
+const GENDER = ['Male', 'Female', 'Other']
 function MessageCreateCampaign() {
+
+    const { userCreditObj, allTemplateList, templateLoading, doctorList, patientList } = useSelector((state) => state.bulkMessages);
+    const { profile } = useSelector((state) => state.doctors);
+    const dispatch = useDispatch();
+
     const navigate = useNavigate();
+
     const [popOverVideo, setPopOverVideo] = useState(false);
     const [videoLink, setVideoLink] = useState(null);
+    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+
     const [messageDetailed, setMessageDetailed] = useState(false);
     const [stepCurrent, setStepCurrent] = useState(0);
-    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
-    const [selectedCustom, setSelectedCustom] = useState('allPatients');
-    const [selectedMessages, setSelectedMessages] = useState('sms');
-    const [selectedSchedule, setSelectedSchedule] = useState('sendNow');
 
-    //PopOverVideo function
-    const showHideVideoListPopover = useCallback(() => {
-        setPopOverVideo(!popOverVideo);
-    }, [popOverVideo]);
+    const [template, setTemplate] = useState(null);
 
-    //PopOver Message Details
+    const [clinic_name, setclinic_name] = useState('');
+    const [festival_name, setfestival_name] = useState('');
+    const [link, setlink] = useState('');
+    const [dr_name, setdr_name] = useState('');
+    const [patient_name, setpatient_name] = useState('');
+    const [doctor_name, setdoctor_name] = useState('');
+    const [date, setdate] = useState('');
+
+    const [dateRange, setDateRange] = useState({
+        startDate: moment().format(dateFormat),
+        endDate: moment().format(dateFormat),
+    });
+    const [dateStatus, setDateStatus] = useState(1);
+    const [pickerModal, setPickerModal] = useState(false);
+
+
+    const [send_on, setSendOn] = useState('SMS');
+    const [sender_type, setSender_type] = useState(1);
+    const [filter_doc, setFilterDoc] = useState([]);
+    const [min_age, setMinAge] = useState('');
+    const [max_age, setMaxAge] = useState('');
+    const [age_unit, setAgeUnit] = useState('Year');
+    const [gender, setGender] = useState([]);
+    const [schedule_type, setScheduleType] = useState(1);
+    const [scheduleDateTime, setScheduleDateTime] = useState('');
+
+    useEffect(() => {
+        dispatch(listAllTemplate());
+        dispatch(listDoctor());
+    }, []);
+
+    useEffect(() => {
+        const timeOutId = setTimeout(() => {
+            var sendData = {
+                sender_type: sender_type,
+            }
+            if (sender_type === 2) {
+                if (gender?.length > 0) {
+                    sendData['gender'] = gender.map(e => e).toString();
+                }
+                if (dateRange.startDate != dateRange.endDate) {
+                    sendData['start_date'] = dateRange.startDate;
+                    sendData['end_date'] = dateRange.endDate;
+                }
+                if (filter_doc?.length > 0) {
+                    sendData['filter_doc'] = filter_doc?.includes(-1) ? "" : filter_doc.map(e => e).toString();
+                }
+                if (min_age) {
+                    sendData['min_age'] = min_age;
+                }
+                if (max_age) {
+                    sendData['max_age'] = max_age;
+                }
+                sendData['min_age_unit'] = age_unit;
+                sendData['max_age_unit'] = age_unit;
+            }
+            dispatch(searchPatient(sendData));
+        }, 500);
+        return () => {
+            clearTimeout(timeOutId);
+        };
+    }, [sender_type, dateRange, gender, min_age, max_age, age_unit, filter_doc]);
+
+    //Message Details
     const handleMessageDetailed = useCallback(
         () => {
             setMessageDetailed(!messageDetailed)
         },
         [messageDetailed]
     );
+
+    //PopOverVideo function
+    const showHideVideoListPopover = useCallback(() => {
+        setPopOverVideo(!popOverVideo);
+    }, [popOverVideo]);
 
     //Video Componet
     const VIDEO_CONTENT = useCallback(() => {
@@ -55,98 +184,372 @@ function MessageCreateCampaign() {
 
     // Steps Code
     const next = () => {
-        setStepCurrent(stepCurrent + 1);
+        setStepCurrent(prev => prev + 1);
+        if (schedule_type === 1) {
+            setScheduleDateTime(moment().add(30, 'minutes').format(dateTimeFormat))
+        }
     };
 
     const prev = () => {
-        setStepCurrent(stepCurrent - 1);
+        setStepCurrent(prev => prev - 1);
     };
+
+    //Template Click
+    const onTemplateClick = (e) => {
+        setTemplate(e)
+        next()
+    }
 
     // Custom Radio
-    const handleMessages = (e) => {
-        setSelectedMessages(e.target.value);
-    };
+    const handleSendOn = useCallback((e) => {
+        setSendOn(e.target.value);
+    }, [send_on]);
 
     // Custom Radio
-    const handleCustom = (e) => {
-        setSelectedCustom(e.target.value);
-    };
+    const handleSenderType = useCallback((e) => {
+        setSender_type(e.target.value);
+    }, [sender_type]);
 
-    // Gender Checkbox
-    const onChange = (checkedValues) => {
-        console.log('checked = ', checkedValues);
-    };
+    // Select Doctor
+    const handleFilterDoc = useCallback((value) => {
+        if (value?.at(-1) === -1) {
+            setFilterDoc([-1]);
+        } else {
+            setFilterDoc(value.filter(item => item !== -1));
+        }
+    }, [filter_doc]);
 
-    // Schedule Radio
-    const handleSchedule = (e) => {
-        setSelectedSchedule(e.target.value);
-    };
+    const handlePickerModal = useCallback(
+        () => {
+            setPickerModal(!pickerModal);
+        },
+        [pickerModal]
+    );
 
-    // Templates Selection Dropdown
-    const optionsTemplates = [
+    const rangePresets = [
         {
-            label: 'All Template',
-            value: 'All Template',
+            label: <div className={`${dateStatus === 1 ? 'active' : ''}`}>Till date</div>,
+            value: [dayjs(), dayjs().endOf('day')],
         },
         {
-            label: 'Festive & Seasonal Greetings',
-            value: 'Festive & Seasonal Greetings',
+            label: <div className={`${dateStatus === 2 ? 'active' : ''}`}>Last week</div>,
+            value: [dayjs().add(-7, 'd'), dayjs()],
         },
         {
-            label: 'Doctor & Clinic Availability',
-            value: 'Doctor & Clinic Availability',
+            label: <div className={`${dateStatus === 3 ? 'active' : ''}`}>Last month</div>,
+            value: [dayjs().add(-1, 'M'), dayjs()],
         },
         {
-            label: 'Health & Vaccination Updates',
-            value: 'Health & Vaccination Updates',
+            label: <div className={`${dateStatus === 4 ? 'active' : ''}`}>Last 3 month</div>,
+            value: [dayjs().add(-3, 'M'), dayjs()],
         },
         {
-            label: 'Clinic Information Updates',
-            value: 'Clinic Information Updates',
+            label: <div className={`${dateStatus === 5 ? 'active' : ''}`}>Last 6 month</div>,
+            value: [dayjs().add(-6, 'M'), dayjs()],
         },
         {
-            label: 'Appt. & Contact Reminders',
-            value: 'Appt. & Contact Reminders',
-        },
-    ];
-
-    // Doctors Selection Dropdown
-    const options = [
-        {
-            label: 'Dr. Shyam GR',
-            value: 'Dr. Shyam GR',
+            label: <div className={`${dateStatus === 6 ? 'active' : ''}`}>Last 1 year</div>,
+            value: [dayjs().add(-1, 'y'), dayjs()],
         },
         {
-            label: 'Dr. Sharmila Rai',
-            value: 'Dr. Sharmila Rai',
-        },
-        {
-            label: 'Dr. Mithun Chakra',
-            value: 'Dr. Mithun Chakra',
-        },
-        {
-            label: 'Dr. Haromhara Rao',
-            value: 'Dr. Haromhara Rao',
+            label: <div className={`${!dateStatus ? 'active' : ''}`}>Custom range</div>,
+            value: null,
         }
     ];
 
-    // Calender
-    const onOk = (value) => {
-        console.log('onOk: ', value);
+    const onRangeChange = (dates, dateStrings) => {
+        if (dates) {
+            // console.log('From: ', dates[0], ', to: ', dates[1]);
+            // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
+
+            if (dayjs().format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+                && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
+                setDateStatus(1);
+            } else if (dayjs().add(-7, 'd').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+                && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
+                setDateStatus(2);
+            } else if (dayjs().add(-1, 'M').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+                && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
+                setDateStatus(3);
+            } else if (dayjs().add(-3, 'M').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+                && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
+                setDateStatus(4);
+            } else if (dayjs().add(-6, 'M').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+                && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
+                setDateStatus(5);
+            } else if (dayjs().add(-1, 'y').format(dateFormat) == moment(dateStrings[0], showDateFormat).format(dateFormat)
+                && dayjs().format(dateFormat) == moment(dateStrings[1], showDateFormat).format(dateFormat)) {
+                setDateStatus(6);
+            } else {
+                setDateStatus(null);
+            }
+            setDateRange({
+                startDate: moment(dateStrings[0], showDateFormat).format(dateFormat),
+                endDate: moment(dateStrings[1], showDateFormat).format(dateFormat),
+            });
+        } else {
+            setDateStatus(null);
+            setDateRange({
+                startDate: moment().format(dateFormat),
+                endDate: moment().format(dateFormat),
+            });
+        }
     };
 
-    const { Option } = Select;
+    // Input Age
+    const onChangeMinInput = useCallback((e) => {
+        const value = onlyNumberFormat(e.target.value)
+        setMinAge(value);
+    }, [min_age]);
+
+    const onChangeMaxInput = useCallback((e) => {
+        const value = onlyNumberFormat(e.target.value)
+        setMaxAge(value);
+    }, [max_age]);
+
+    // Select After
+    const onSelectAfter = useCallback((value) => {
+        setAgeUnit(value);
+    }, [age_unit]);
+
     const selectAfter = (
-        <Select defaultValue="Years">
-            <Option value="years">Years</Option>
-            <Option value="months">Months</Option>
-        </Select>
+        <Select
+            defaultValue="Years"
+            value={age_unit}
+            onSelect={onSelectAfter}
+            options={SELECT_AFTER} />
     );
+
+    // Gender Checkbox
+    const onChangeGender = useCallback((checkedValues) => {
+        setGender(checkedValues)
+    }, [gender]);
+
+    // Schedule Radio
+    const handleScheduleType = useCallback((e) => {
+        setScheduleType(e.target.value);
+    }, [schedule_type]);
 
     // Back Model
     const showHideBackModal = useCallback(() => {
         setIsBackModalOpen(!isBackModalOpen);
     }, [isBackModalOpen]);
+
+
+    const renderTemplate = useMemo(() => {
+        let parts = template && template?.text?.split(/{(.*?)}/);
+
+        const elements = parts?.map((part, index) => {
+            if (index % 2 !== 0) {
+                if (part === 'clinic_name') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: clinic_name ? parseInt(clinic_name?.length * 7.55) >= 150 ? clinic_name?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={clinic_name}
+                            onChange={(e) => setclinic_name(e.target.value)}
+                            placeholder="Enter clinic name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'festival_name') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: festival_name ? parseInt(festival_name?.length * 7.55) >= 150 ? festival_name?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={festival_name}
+                            onChange={(e) => setfestival_name(e.target.value)}
+                            placeholder="Enter festival name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'link') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: link ? parseInt(link?.length * 7.55) >= 150 ? link?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={link}
+                            onChange={(e) => setlink(e.target.value)}
+                            placeholder="Enter link"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'dr_name') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: dr_name ? parseInt(dr_name?.length * 7.55) >= 150 ? dr_name?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={dr_name}
+                            onChange={(e) => setdr_name(e.target.value)}
+                            placeholder="Enter doctor name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'patient_name') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: patient_name ? parseInt(patient_name?.length * 7.55) >= 150 ? patient_name?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={patient_name}
+                            onChange={(e) => setpatient_name(e.target.value)}
+                            placeholder="Enter patient name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'doctor_name') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: doctor_name ? parseInt(doctor_name?.length * 7.55) >= 150 ? doctor_name?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={doctor_name}
+                            onChange={(e) => setdoctor_name(e.target.value)}
+                            placeholder="Enter doctor name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'date') {
+                    return (
+                        <DatePicker
+                            className="me-1 my-2"
+                            style={{ width: 150, height: 30 }}
+                            format={showDateFormat}
+                            placeholder='Select date'
+                            key={index}
+                            value={date ? dayjs(moment(date).format(showDateFormat), showDateFormat) : ''}
+                            onChange={(date, dateString) => setdate(moment(dateString, showDateFormat).format(dateFormat))}
+                        />
+                    );
+                }
+            }
+            return part;
+        });
+        return elements;
+    }, [
+        template,
+        clinic_name,
+        festival_name,
+        link,
+        dr_name,
+        patient_name,
+        doctor_name,
+        date
+    ]);
+
+    const TEMPLATE_TEXT = useMemo(() => {
+        return template && template?.text
+            .replace(/{clinic_name}/g, clinic_name ? clinic_name : '{clinic_name}')
+            .replace(/{festival_name}/g, festival_name ? festival_name : '{festival_name}')
+            .replace(/{link}/g, link ? link : '{link}')
+            .replace(/{dr_name}/g, dr_name ? dr_name : '{dr_name}')
+            .replace(/{patient_name}/g, patient_name ? patient_name : '{patient_name}')
+            .replace(/{doctor_name}/g, doctor_name ? doctor_name : '{doctor_name}')
+            .replace(/{date}/g, date ? date : '{date}')
+    }, [template,
+        clinic_name,
+        festival_name,
+        link,
+        dr_name,
+        patient_name,
+        doctor_name,
+        date])
+
+
+    const sendTemplate = () => {
+        let msg_rowData = {}
+        let parts = template && template?.text?.split(/{(.*?)}/);
+        parts?.map((part, index) => {
+            if (index % 2 !== 0) {
+                if (part === 'clinic_name') {
+                    msg_rowData['clinic_name'] = clinic_name;
+                }
+                else if (part === 'festival_name') {
+                    msg_rowData['festival_name'] = festival_name;
+                }
+                else if (part === 'link') {
+                    msg_rowData['link'] = link;
+                }
+                else if (part === 'dr_name') {
+                    msg_rowData['dr_name'] = dr_name;
+                }
+                else if (part === 'patient_name') {
+                    msg_rowData['patient_name'] = patient_name;
+                }
+                else if (part === 'doctor_name') {
+                    msg_rowData['doctor_name'] = doctor_name;
+                }
+                else if (part === 'date') {
+                    msg_rowData['date'] = date;
+                }
+            }
+        })
+        return msg_rowData;
+    }
+    const onAddEditCampaign = () => {
+        var sendData = {
+            "campaign_id": template?.id,
+            "send_on": send_on,
+            "campaign_date": moment(scheduleDateTime).format(dateFormat1),
+            "campaign_time": moment(scheduleDateTime).format(timeFormat1),
+            "msg_rowData": sendTemplate(),
+            "draft": 1,
+            "sender_type": sender_type,
+            "total_patient": patientList?.length,
+            "filter_doc": sender_type == 2 ? filter_doc?.includes(-1) ? "" : filter_doc.map(e => e).toString() : '',
+            "date_unit": sender_type == 2 ? dateStatus === 1 ?
+                'Till date'
+                : dateStatus === 2 ?
+                    'Last week'
+                    : dateStatus === 3 ?
+                        'Last month'
+                        : dateStatus === 4 ?
+                            'Last 3 month'
+                            : dateStatus === 5 ?
+                                'Last 6 month'
+                                : dateStatus === 6 ?
+                                    'Last 1 year'
+                                    :
+                                    'custom' : '',
+            "start_date": sender_type == 2 ? dateRange.startDate : '',
+            "end_date": sender_type == 2 ? dateRange.endDate : '',
+            "min_age": sender_type == 2 ? min_age ? min_age : '' : '',
+            "max_age": sender_type == 2 ? max_age ? max_age : '' : '',
+            "min_age_unit": sender_type == 2 ? age_unit : '',
+            "max_age_unit": sender_type == 2 ? age_unit : '',
+            "gender": sender_type == 2 ? gender?.length > 0 ? gender.map(e => e).toString() : '' : '',
+        }
+
+        console.log(sendData)
+    }
 
     return (
         <>
@@ -210,7 +613,7 @@ function MessageCreateCampaign() {
                         onClick={handleMessageDetailed}
                         className="px-3 btn-41 btn-message d-flex align-items-center me-3">
                         <img src={CreditImg} width={19} className="me-2" />
-                        {"Available Credits: 0"}
+                        {`Available Credits: ${userCreditObj?.userCredit}`}
                     </Button>
                     {stepCurrent > 0 && (
                         <div className="d-flex">
@@ -222,7 +625,12 @@ function MessageCreateCampaign() {
                                     Next
                                 </Button>
                             ) : (
-                                <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center'>
+
+                                <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center'
+                                    disabled={userCreditObj?.userCredit <= `${send_on === 'SMS' ?
+                                        (patientList?.length * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit
+                                        : patientList?.length * userCreditObj?.defaultWhatsAppCredit}`}
+                                    onClick={onAddEditCampaign}>
                                     Send Message Now
                                 </Button>
                             )}
@@ -237,7 +645,7 @@ function MessageCreateCampaign() {
                             <Steps
                                 className="campaign-steps"
                                 current={stepCurrent}
-                                items={[{}, {}, {}]}
+                                items={Array.from({ length: 3 }, () => ({}))}
                             />
                             <div className="mt-3 d-flex align-items-center justify-content-between">
                                 <div className={`fontroboto fs-14 fw-medium ${stepCurrent === 0 && 'text-primary-message'}`} style={{ marginLeft: -33 }}>Choose template</div>
@@ -260,143 +668,78 @@ function MessageCreateCampaign() {
                                     options={optionsTemplates}
                                 />
                             </div>
-                            <Row className="justify-content-center">
-                                <Col xs={4} className="px-3 px-xl-4 mb-4 mb-xl-5">
-                                    <div className="message-box" onClick={() => next()}>
-                                        <div className="d-flex align-items-center justify-content-between">
-                                            <h5 className="text-truncate fs-16 mb-0 fw-semibold" style={{ color: '#000044' }}>New year wish</h5>
-                                            <i className="icon-right iconrotate180"></i>
-                                        </div>
-                                        <div className="mt-4 fs-14">
-                                            Hi, {'clinic name'} wishes you a Happy New Year 2024! May this year bring Peace, Health, and Happiness to you and yours.
-                                        </div>
-                                    </div>
-                                </Col>
-                                <Col xs={4} className="px-3 px-xl-4 mb-4 mb-xl-5">
-                                    <div className="message-box" onClick={() => next()}>
-                                        <div className="d-flex align-items-center justify-content-between">
-                                            <h5 className="text-truncate fs-16 mb-0 fw-semibold" style={{ color: '#000044' }}>New year wish</h5>
-                                            <i className="icon-right iconrotate180"></i>
-                                        </div>
-                                        <div className="mt-4 fs-14">
-                                            Hello, We wish you good health on the occasion of {'festival name'} from {'clinic name'}. Sent via TatvaPractice
-                                        </div>
-                                    </div>
-                                </Col>
-                                <Col xs={4} className="px-3 px-xl-4 mb-4 mb-xl-5">
-                                    <div className="message-box" onClick={() => next()}>
-                                        <div className="d-flex align-items-center justify-content-between">
-                                            <h5 className="text-truncate fs-16 mb-0 fw-semibold" style={{ color: '#000044' }}>New year wish</h5>
-                                            <i className="icon-right iconrotate180"></i>
-                                        </div>
-                                        <div className="mt-4 fs-14">
-                                            Consult with me online via video call using TatvaPractice App. Click to install: {'link'}TatvaPractice-app For directions to book appointments click{'link'} Regards, Dr. {'Doctor Name'} -TatvaPractice
-                                        </div>
-                                    </div>
-                                </Col>
-                                <Col xs={4} className="px-3 px-xl-4 mb-4 mb-xl-5">
-                                    <div className="message-box" onClick={() => next()}>
-                                        <div className="d-flex align-items-center justify-content-between">
-                                            <h5 className="text-truncate fs-16 mb-0 fw-semibold" style={{ color: '#000044' }}>New year wish</h5>
-                                            <i className="icon-right iconrotate180"></i>
-                                        </div>
-                                        <div className="mt-4 fs-14">
-                                            Hi, {'clinic name'} wishes you a Happy New Year 2024! May this year bring Peace, Health, and Happiness to you and yours.
-                                        </div>
-                                    </div>
-                                </Col>
-                                <Col xs={4} className="px-3 px-xl-4 mb-4 mb-xl-5">
-                                    <div className="message-box" onClick={() => next()}>
-                                        <div className="d-flex align-items-center justify-content-between">
-                                            <h5 className="text-truncate fs-16 mb-0 fw-semibold" style={{ color: '#000044' }}>New year wish</h5>
-                                            <i className="icon-right iconrotate180"></i>
-                                        </div>
-                                        <div className="mt-4 fs-14">
-                                            Hi, {'clinic name'} wishes you a Happy New Year 2024! May this year bring Peace, Health, and Happiness to you and yours.
-                                        </div>
-                                    </div>
-                                </Col>
-                                <Col xs={4} className="px-3 px-xl-4 mb-4 mb-xl-5">
-                                    <div className="message-box" onClick={() => next()}>
-                                        <div className="d-flex align-items-center justify-content-between">
-                                            <h5 className="text-truncate fs-16 mb-0 fw-semibold" style={{ color: '#000044' }}>New year wish</h5>
-                                            <i className="icon-right iconrotate180"></i>
-                                        </div>
-                                        <div className="mt-4 fs-14">
-                                            Hi, {'clinic name'} wishes you a Happy New Year 2024! May this year bring Peace, Health, and Happiness to you and yours.
-                                        </div>
-                                    </div>
-                                </Col>
-                                <Col xs={4} className="px-3 px-xl-4 mb-4 mb-xl-5">
-                                    <div className="message-box" onClick={() => next()}>
-                                        <div className="d-flex align-items-center justify-content-between">
-                                            <h5 className="text-truncate fs-16 mb-0 fw-semibold" style={{ color: '#000044' }}>New year wish</h5>
-                                            <i className="icon-right iconrotate180"></i>
-                                        </div>
-                                        <div className="mt-4 fs-14">
-                                            Hi, {'clinic name'} wishes you a Happy New Year 2024! May this year bring Peace, Health, and Happiness to you and yours.
-                                        </div>
-                                    </div>
-                                </Col>
-                                <Col xs={4} className="px-3 px-xl-4 mb-4 mb-xl-5">
-                                    <div className="message-box" onClick={() => next()}>
-                                        <div className="d-flex align-items-center justify-content-between">
-                                            <h5 className="text-truncate fs-16 mb-0 fw-semibold" style={{ color: '#000044' }}>New year wish</h5>
-                                            <i className="icon-right iconrotate180"></i>
-                                        </div>
-                                        <div className="mt-4 fs-14">
-                                            Hi, {'clinic name'} wishes you a Happy New Year 2024! May this year bring Peace, Health, and Happiness to you and yours.
-                                        </div>
-                                    </div>
-                                </Col>
-                                <Col xs={4} className="px-3 px-xl-4 mb-4 mb-xl-5">
-                                    <div className="message-box" onClick={() => next()}>
-                                        <div className="d-flex align-items-center justify-content-between">
-                                            <h5 className="text-truncate fs-16 mb-0 fw-semibold" style={{ color: '#000044' }}>New year wish</h5>
-                                            <i className="icon-right iconrotate180"></i>
-                                        </div>
-                                        <div className="mt-4 fs-14">
-                                            Hi, {'clinic name'} wishes you a Happy New Year 2024! May this year bring Peace, Health, and Happiness to you and yours.
-                                        </div>
-                                    </div>
-                                </Col>
+                            <Row>
+                                {templateLoading ? (
+                                    <Spin style={{ marginTop: 120 }} />
+                                ) : (
+                                    allTemplateList?.map((e, i) => {
+                                        return (
+                                            <Col key={i} xs={4} className="px-3 px-xl-4 mb-4 mb-xl-5">
+                                                <div className="message-box" onClick={() => onTemplateClick(e)}>
+                                                    <div className="d-flex align-items-center justify-content-between">
+                                                        <h5 className="text-truncate fs-16 mb-0 fw-semibold" style={{ color: '#000044' }}>{e?.campaign_name}</h5>
+                                                        <i className="icon-right iconrotate180"></i>
+                                                    </div>
+                                                    <div className="mt-4 fs-14"
+                                                        dangerouslySetInnerHTML={{
+                                                            __html: e?.text
+                                                                .replace(/{clinic_name}/g, `<label class="text-greycolor">{clinic_name}</label>`)
+                                                                .replace(/{festival_name}/g, `<label class="text-greycolor">{festival_name}</label>`)
+                                                                .replace(/{link}/g, `<label class="text-greycolor">{link}</label>`)
+                                                                .replace(/{dr_name}/g, `<label class="text-greycolor">{dr_name}</label>`)
+                                                                .replace(/{patient_name}/g, `<label class="text-greycolor">{patient_name}</label>`)
+                                                                .replace(/{doctor_name}/g, `<label class="text-greycolor">{doctor_name}</label>`)
+                                                                .replace(/{date}/g, `<label class="text-greycolor">{date}</label>`)
+                                                        }}>
+                                                    </div>
+                                                </div>
+                                            </Col>
+                                        )
+                                    })
+                                )}
                             </Row>
                         </>
                     ) : stepCurrent === 1 ? (
                         <>
                             <div className="titleprint fw-semibold mb-3">
-                                Configure “Medical Camp” Template
+                                Configure “{template && template?.campaign_name}” Template
                             </div>
 
-                            <Row className="justify-content-between">
-                                <Col xl={7} xs={8}>
+                            <Row className="gx-5 justify-content-between">
+                                <Col xs={8}>
                                     <div className="configure-template">
                                         <h5 className="fs-16 mb-0 fw-semibold">Send on</h5>
                                         <div className="mt-3">
-                                            <Radio.Group className="d-flex" onChange={handleMessages} value={selectedMessages}>
-                                                <Radio className="col me-30" value={'sms'}>SMS</Radio>
-                                                <Radio className="col me-0" value={'whatsup'}>WhatsApp</Radio>
+                                            <Radio.Group className="d-flex" onChange={handleSendOn} value={send_on}>
+                                                <Radio className="col me-30" value={'SMS'}>SMS</Radio>
+                                                <Radio className="col me-0" value={'WhatsApp'}>WhatsApp</Radio>
                                             </Radio.Group>
                                         </div>
                                         <hr className="mb-28 mt-4" />
                                         <div className="my-2 d-flex align-items-center justify-content-between">
                                             <div className="fw-semibold">Compose Message</div>
-                                            <button className="btn btn-text clear-text px-0">
+                                            <button className="btn btn-text clear-text px-0" onClick={() => prev()}>
                                                 <span className="text-primary">Change template</span>
                                             </button>
                                         </div>
-                                        <JoditEditor className="message-editor" />
-                                        {selectedMessages === 'sms' && (
+
+                                        <div className="px-4 py-3 fs-14 border rounded-4 position-relative">{renderTemplate}
+                                            <div className="fs-12-1 text-greycolor position-absolute" style={{ right: 7, bottom: 3 }}>{
+                                                `${TEMPLATE_TEXT?.length}/160`
+                                            }</div>
+                                        </div>
+
+                                        {send_on === 'SMS' && (
                                             <div className="fs-12-1 text-greycolor mt-2">Note: Messages over 160 characters count as 2 SMS. Keep it concise to save costs.</div>
                                         )}
                                         <hr className="mb-28 mt-4" />
-                                        <div className="fw-semibold">Who will Receive this message? <span className="text-scheduled">(524 Patients)</span></div>
+                                        <div className="fw-semibold">Who will Receive this message? <span className="text-scheduled">({patientList?.length} Patients)</span></div>
                                         <div className="mt-3">
-                                            <Radio.Group className="d-flex" onChange={handleCustom} value={selectedCustom}>
-                                                <Radio className="col me-30" value={'allPatients'}>All Patients</Radio>
-                                                <Radio className="col me-0" value={'custom'}>Custom</Radio>
+                                            <Radio.Group className="d-flex" onChange={handleSenderType} value={sender_type}>
+                                                <Radio className="col me-30" value={1}>All Patients</Radio>
+                                                <Radio className="col me-0" value={2}>Custom</Radio>
                                             </Radio.Group>
-                                            {selectedCustom === 'custom' && (
+                                            {sender_type === 2 && (
                                                 <>
                                                     <div className="mt-4">
                                                         <div className="fs-14 text-greycolor">Select Doctors Whose Patients Will Receive This Message</div>
@@ -404,34 +747,115 @@ function MessageCreateCampaign() {
                                                             mode="multiple"
                                                             className="doctor-selection"
                                                             placeholder="Please select"
-                                                            options={options}
+                                                            popupClassName="doctor-selection-popup"
+                                                            value={filter_doc}
+                                                            options={[{ um_id: -1, um_name: 'All Doctor', unique_id: '-1' }, ...doctorList].map((e) => {
+                                                                return {
+                                                                    value: e.um_id,
+                                                                    label: e.um_name,
+                                                                };
+                                                            })}
+                                                            optionRender={(option) => (
+                                                                option.data.value === -1 ? (
+                                                                    <div className="align-items-center d-flex text-truncate w-100">
+                                                                        <div>
+                                                                            <div className="py-2">{option.data.label}</div>
+                                                                            <div className="position-absolute fw-normal" style={{ top: 36, left: '50%', zIndex: 9 }}>or</div>
+                                                                        </div>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="align-items-center d-flex text-truncate w-100 py-1">
+                                                                        <Checkbox className="advice-check" checked={filter_doc?.includes(option.data.value)} />
+                                                                        {option.data.label}
+                                                                    </div>
+                                                                )
+                                                            )}
+                                                            onChange={handleFilterDoc}
                                                         />
                                                     </div>
-                                                    <div className="mt-4 w-50 pe-3">
+                                                    <div className="mt-4 w-50 pe-3 position-relative">
                                                         <div className="fs-14 text-greycolor mb-2">Select Patients Who Visited Between</div>
-                                                        <DatePicker
-                                                            showTime
-                                                            className="py-2 rounded-10px w-100"
-                                                            style={{ height: 48 }}
-                                                            placeholder='Select date & time'
-                                                            onChange={(value, dateString) => {
-                                                                console.log('Selected Time: ', value);
-                                                                console.log('Formatted Selected Time: ', dateString);
-                                                            }}
-                                                            onOk={onOk}
-                                                        />
+                                                        <div className="massage-date-wrapper">
+                                                            <div className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between" onClick={handlePickerModal}>
+                                                                <span>
+                                                                    {dateStatus === 1 ? (
+                                                                        'Till date'
+                                                                    ) : dateStatus === 2 ? (
+                                                                        'Last week'
+                                                                    ) : dateStatus === 3 ? (
+                                                                        'Last month'
+                                                                    ) : dateStatus === 4 ? (
+                                                                        'Last 3 month'
+                                                                    ) : dateStatus === 5 ? (
+                                                                        'Last 6 month'
+                                                                    ) : dateStatus === 6 ? (
+                                                                        'Last 1 year'
+                                                                    ) : (
+                                                                        'Custom range'
+                                                                    )}
+                                                                </span>
+                                                                <i className="mx-2 fs-18 icon-calendar"></i>
+                                                            </div>
+                                                            <RangePicker
+                                                                open={pickerModal}
+                                                                presets={rangePresets}
+                                                                format={showDateFormat}
+                                                                onChange={onRangeChange}
+                                                                popupClassName="massage-date"
+                                                                className="massage-input"
+                                                                inputReadOnly
+                                                                renderExtraFooter={() =>
+                                                                    <div className="d-flex align-items-center justify-content-between py-1">
+                                                                        <div>{moment(dateRange.startDate).format(showDateFormat)} - {moment(dateRange.endDate).format(showDateFormat)}</div>
+                                                                        <div>
+                                                                            <button className="btn btn-text me-3 px-0" onClick={() => {
+                                                                                setDateStatus(1);
+                                                                                setDateRange({
+                                                                                    startDate: moment().format(dateFormat),
+                                                                                    endDate: moment().format(dateFormat),
+                                                                                });
+                                                                                handlePickerModal()
+                                                                            }}>
+                                                                                <span>Cancel</span>
+                                                                            </button>
+                                                                            <Button className="px-4" type="primary" onClick={handlePickerModal}>
+                                                                                Done
+                                                                            </Button>
+                                                                        </div>
+                                                                    </div>}
+                                                                onOpenChange={() => { }}
+                                                            // value={[dateRange.startDate != dateRange.endDate
+                                                            //     ? dayjs(moment(dateRange.startDate).format(showDateFormat), showDateFormat)
+                                                            //     : "",
+                                                            // dateRange.startDate != dateRange.endDate
+                                                            //     ? dayjs(moment(dateRange.endDate).format(showDateFormat), showDateFormat)
+                                                            //     : ""]
+                                                            // }
+                                                            />
+
+                                                        </div>
                                                     </div>
                                                     <div className="mt-4 w-75">
                                                         <div className="fs-14 text-greycolor mb-2">Patient Age Range</div>
                                                         <div className="d-flex align-items-center">
-                                                            <Input inputMode="numeric" className="patient-range" addonAfter={selectAfter} />
+                                                            <Input
+                                                                inputMode="numeric"
+                                                                className="patient-range"
+                                                                value={min_age}
+                                                                onChange={onChangeMinInput}
+                                                                addonAfter={selectAfter} />
                                                             <div className="px-3">-</div>
-                                                            <Input inputMode="numeric" className="patient-range" addonAfter={selectAfter} />
+                                                            <Input
+                                                                inputMode="numeric"
+                                                                className="patient-range"
+                                                                value={max_age}
+                                                                onChange={onChangeMaxInput}
+                                                                addonAfter={selectAfter} />
                                                         </div>
                                                     </div>
                                                     <div className="mt-4">
                                                         <div className="fs-14 text-greycolor mb-2">Gender</div>
-                                                        <Checkbox.Group className="message-gender" options={['Apple', 'Pear', 'Orange']} defaultValue={['Apple']} onChange={onChange} />
+                                                        <Checkbox.Group className="message-gender" value={gender} options={GENDER} onChange={onChangeGender} />
                                                     </div>
                                                 </>
                                             )}
@@ -440,24 +864,30 @@ function MessageCreateCampaign() {
                                         <hr className="mb-28 mt-4" />
                                         <div className="fw-semibold">When do you want to send this message?</div>
                                         <div className="mt-3">
-                                            <Radio.Group className="d-flex" onChange={handleSchedule} value={selectedSchedule}>
-                                                <Radio className="col me-30" value={'sendNow'}>Send Now</Radio>
-                                                <Radio className="col me-0" value={'scheduleLater'}>Schedule for later</Radio>
+                                            <Radio.Group className="d-flex" onChange={handleScheduleType} value={schedule_type}>
+                                                <Radio className="col me-30" value={1}>Send Now</Radio>
+                                                <Radio className="col me-0" value={2}>Schedule for later</Radio>
                                             </Radio.Group>
-                                            {selectedSchedule === 'scheduleLater' && (
+                                            {schedule_type === 2 && (
                                                 <div className="mt-4 w-50 pe-3">
                                                     <div className="fs-14 text-greycolor mb-2">Select Schedule Date & Time</div>
                                                     <DatePicker
                                                         showTime
                                                         className="rounded-10px w-100"
                                                         style={{ height: 48 }}
+                                                        format={showDateTimeFormat}
                                                         placeholder='Select date & time'
-                                                        renderExtraFooter={() => <div className="fs-12-1 text-greycolor">Note: Scheduling message allowed only between 9AM-9PM</div>}
-                                                        onChange={(value, dateString) => {
-                                                            console.log('Selected Time: ', value);
-                                                            console.log('Formatted Selected Time: ', dateString);
+                                                        showNow={false}
+                                                        locale={{
+                                                            ...locale,
+                                                            lang: {
+                                                                ...locale.lang,
+                                                                ok: "Done",
+                                                            }
                                                         }}
-                                                        onOk={onOk}
+                                                        renderExtraFooter={() => <div className="fs-12-1 text-greycolor">Note: Scheduling message allowed only between 9AM-9PM</div>}
+                                                        value={scheduleDateTime ? dayjs(moment(scheduleDateTime).format(showDateTimeFormat), showDateTimeFormat) : ''}
+                                                        onChange={(date, dateString) => setScheduleDateTime(moment(dateString).format(dateTimeFormat))}
                                                     />
                                                 </div>
                                             )}
@@ -467,33 +897,36 @@ function MessageCreateCampaign() {
                                 <Col xs={4}>
                                     <div className="position-sticky top-0">
                                         <div className="sms-preview">
-                                            <div className="text-center fs-14 mb-0 fw-medium fontroboto">SMS Preview</div>
-                                            <div className="sms-preview-mobile">
-                                                <div className="sms-preview-message rounded-4 p-2">Hi, {'clinic name'} is holding a {'camp name'} camp from {'start date'} to {'end date'} at {'clinic address'} . Regards,  {'Doctor  Name'} - TatvaPractice
+                                            <div className="text-center fs-14 mb-0 fw-medium fontroboto">{send_on === 'SMS' ? 'SMS Preview' : 'WhatsApp Preview'}</div>
+                                            <div className={`sms-preview-mobile ${send_on === 'WhatsApp' ? 'whatsup-preview-mobile' : ''}`}>
+                                                <div className="sms-preview-message rounded-4 p-2">
+                                                    <div className="fs-13 text-truncate-fourlines">
+                                                        {TEMPLATE_TEXT}
+                                                    </div>
                                                     <img className="position-absolute" style={{ left: -2, bottom: -3 }} src={messageCornerGrey} alt="Message" />
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="mt-4">
                                             <div className="fontroboto fs-18 fw-bold text-black">Credit Details</div>
-                                            <div className="fs-12-1 fw-semibold fontroboto text-black-50">( 1SMS = 0.15 Credits)</div>
+                                            <div className="fs-12-1 fw-semibold fontroboto text-black-50">{`(${send_on === 'SMS' ? '1 SMS = ' + userCreditObj?.defaultSMSCredit : '1 WhatsApp message = ' + userCreditObj?.defaultWhatsAppCredit} Credits)`}</div>
                                             <div className="my-3">
                                                 <div className="d-flex align-items-center py-1 justify-content-between fs-14 fontroboto">
                                                     <div className="fontroboto fw-bold">Target Customers (A) :</div>
-                                                    <div className="fontroboto fw-bold">524 User</div>
+                                                    <div className="fontroboto fw-bold">{`${patientList?.length} User`}</div>
                                                 </div>
                                                 <div className="d-flex align-items-center py-1 justify-content-between fs-14 fontroboto">
-                                                    <div className="fontroboto fw-bold">SMS Per Customers (B) :</div>
-                                                    <div className="fontroboto fw-bold">1 SMS</div>
+                                                    <div className="fontroboto fw-bold">{`${send_on === 'SMS' ? 'SMS' : 'Message'} Per Customers (B) :`}</div>
+                                                    <div className="fontroboto fw-bold">{`${send_on === 'SMS' ? patientList?.length * Math.ceil(TEMPLATE_TEXT?.length / 160) + ' SMS' : patientList?.length + ' Message'}`}</div>
                                                 </div>
                                                 <div className="d-flex align-items-center py-1 justify-content-between fs-14 fontroboto">
-                                                    <div className="fontroboto fw-bold">Price Per SMS (C) :</div>
-                                                    <div className="fontroboto fw-bold">0.15 Credits</div>
+                                                    <div className="fontroboto fw-bold">{`Price Per ${send_on === 'SMS' ? 'SMS' : 'Message'} (C) :`}</div>
+                                                    <div className="fontroboto fw-bold">{`${send_on === 'SMS' ? userCreditObj?.defaultSMSCredit : userCreditObj?.defaultWhatsAppCredit} Credits`}</div>
                                                 </div>
                                                 <hr className="mt-2 mb-3" />
                                                 <div className="d-flex align-items-center justify-content-between fs-14 fontroboto">
-                                                    <div className="fontroboto fw-bold">Target Customers(A) :</div>
-                                                    <div className="fontroboto fw-bold">524 User</div>
+                                                    <div className="fontroboto fw-bold">Total Credits Required (ABC) :</div>
+                                                    <div className="fontroboto fw-bold">{`${send_on === 'SMS' ? (patientList?.length * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit : patientList?.length * userCreditObj?.defaultWhatsAppCredit} Credits`}</div>
                                                 </div>
                                                 <hr />
                                             </div>
@@ -506,40 +939,76 @@ function MessageCreateCampaign() {
                         <>
                             <div className="configure-template overflow-y-auto w-75 mx-auto">
                                 <div className="fs-18 lh-base">
-                                    The below <span className="fw-semibold">Medical Camp</span> message will be sent on <span className="fw-semibold">07/11/2024</span> at <span className="fw-semibold">12:00 AM </span> via <span className="fw-semibold">SMS</span> to <span className="fw-semibold"> 524 male patients </span> of age between <span className="fw-semibold"> 20-40 years </span> who visited in the <span className="fw-semibold"> last 1 month</span>
+                                    {`The below `}
+                                    <span className="fw-semibold">{template?.campaign_name}</span>
+                                    {` message will be sent on `}
+                                    <span className="fw-semibold">{moment(scheduleDateTime).format(showDateFormat1)}</span>
+                                    {` at `}
+                                    <span className="fw-semibold">{moment(scheduleDateTime).format(showTimeFormat1)} </span> via <span className="fw-semibold">{send_on}</span>
+                                    {` to `}
+                                    {sender_type === 1 ? (
+                                        <>
+                                            <span className="fw-semibold"> {`${patientList?.length} patients`} </span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="fw-semibold"> {`${patientList?.length} ${gender?.length === 1 ? gender : ''} patients`} </span>
+                                            {` of age between `}
+                                            <span className="fw-semibold"> {`${min_age}-${max_age} ${age_unit}`} </span>
+                                            {` who visited in the `}
+                                            <span className="fw-semibold">
+                                                {dateStatus === 1 ? (
+                                                    'Till date'
+                                                ) : dateStatus === 2 ? (
+                                                    'Last week'
+                                                ) : dateStatus === 3 ? (
+                                                    'Last month'
+                                                ) : dateStatus === 4 ? (
+                                                    'Last 3 month'
+                                                ) : dateStatus === 5 ? (
+                                                    'Last 6 month'
+                                                ) : dateStatus === 6 ? (
+                                                    'Last 1 year'
+                                                ) : (
+                                                    moment(dateRange?.startDate).format(showDateFormat) + " to " + moment(dateRange?.endDate).format(showDateFormat)
+                                                )}
+                                            </span>
+                                        </>
+                                    )}
                                 </div>
 
-                                <div className="bg-selected w-100 mt-4 rounded-20px d-flex justify-content-center align-items-center" style={{ height: 138 }}>
-                                    <div className="fs-14 bg-white w-60 fw-medium rounded-4 p-3 position-relative">Hi, Healthion Clinic is holding a Diabities camp from 20-08-2024 to 22-08-2024 at 2nd block, Koramangla. Regards, Shyam GR - TatvaPractice
+                                <div className={`${send_on === 'SMS' ? 'bg-selected' : 'bg-whatsup-message'} w-100 mt-4 py-3 rounded-20px d-flex justify-content-center align-items-center`} style={{ minHeight: 138 }}>
+                                    <div className="bg-white w-60 fw-medium rounded-4 p-3 position-relative">
+                                        {TEMPLATE_TEXT}
                                         <img className="position-absolute" style={{ left: -2, bottom: -3 }} src={messageCorner} alt="Message" />
                                     </div>
                                 </div>
 
                                 <div className="mt-4">
                                     <div className="fontroboto text-black fw-bold title-hypertension">Credit Details</div>
-                                    <div className="title-common my-2 text-black-50">( 1SMS = 0.15 Credits)</div>
+                                    <div className="title-common my-2 text-black-50">{`(${send_on === 'SMS' ? '1 SMS = ' + userCreditObj?.defaultSMSCredit : '1 WhatsApp message = ' + userCreditObj?.defaultWhatsAppCredit} Credits)`}</div>
 
                                     <div className="mt-4 mb-3">
                                         <div className="d-flex align-items-center py-2 justify-content-between fs-18 fw-medium fontroboto">
                                             <div>Target Customers (A) :</div>
-                                            <div>524 User</div>
+                                            <div>{`${patientList?.length} User`}</div>
                                         </div>
                                         <div className="d-flex align-items-center py-2 justify-content-between fs-18 fw-medium fontroboto">
-                                            <div>SMS Per Customers (B) :</div>
-                                            <div>1 SMS</div>
+                                            <div>{`${send_on === 'SMS' ? 'SMS' : 'Message'} Per Customers (B) :`}</div>
+                                            <div>{`${send_on === 'SMS' ? patientList?.length * Math.ceil(TEMPLATE_TEXT?.length / 160) + ' SMS' : patientList?.length + ' Message'}`}</div>
                                         </div>
                                         <div className="d-flex align-items-center py-2 justify-content-between fs-18 fw-medium fontroboto">
-                                            <div>Price Per SMS (C) :</div>
-                                            <div>0.15 Credits</div>
+                                            <div>{`Price Per ${send_on === 'SMS' ? 'SMS' : 'Message'} (C) :`}</div>
+                                            <div>{`${send_on === 'SMS' ? userCreditObj?.defaultSMSCredit : userCreditObj?.defaultWhatsAppCredit} Credits`}</div>
                                         </div>
                                         <hr />
                                         <div className="d-flex align-items-center justify-content-between fs-18 fw-semibold fontroboto">
-                                            <div>Target Customers(A) :</div>
-                                            <div className="fw-medium">524 User</div>
+                                            <div>Total Credits Required (ABC) :</div>
+                                            <div className="fw-medium">{`${send_on === 'SMS' ? (patientList?.length * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit : patientList?.length * userCreditObj?.defaultWhatsAppCredit} Credits`}</div>
                                         </div>
                                         <hr />
                                     </div>
-                                    <div className="text-greycolor">We will refund the credits for undelivered messages within 48 hours of delivery</div>
+                                    {/* <div className="text-greycolor">We will refund the credits for undelivered messages within 48 hours of delivery</div> */}
                                 </div>
                             </div>
                         </>
@@ -555,10 +1024,10 @@ function MessageCreateCampaign() {
                 open={messageDetailed}
                 onClose={handleMessageDetailed}
             >
-                <MessageAvailableCredits />
+                <AvailableCredits />
             </Drawer>
         </>
     );
 }
 
-export default React.memo(MessageCreateCampaign);
+export default MessageCreateCampaign;

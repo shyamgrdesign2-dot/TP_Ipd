@@ -1191,7 +1191,7 @@ body {
 }
 
 .ant-picker {
-    &:hover {
+    &:hover, &:focus-within {
         border-color: $theme !important;
     }
 }
