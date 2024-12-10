@@ -695,13 +695,13 @@ function MedicalHistoryBox(props) {
             "patient_id": patient_data?.patient_unique_id
         });
         handleSave();
-        const medicalHistory = cloneMedicalHistoryData?.map((e) => {
+        const medicalHistory = cloneMedicalHistoryData?.map((e, i) => {
             return {
                 title: e?.title,
                 tmmhs_id: e?.tmmhs_id,
                 no_know_history: e?.no_know_history !== undefined ? e?.no_know_history : false,
                 tags: !e?.no_know_history ? e?.tags?.filter(x => x.enable == 'Y' || x.enable == 'N') : [],
-                ...remarks && {medical_history_remarks: remarks.trim()}
+                ...remarks && i === 0 && {medical_history_remarks: remarks?.trim()}
             }
         })
         if (!remarks && medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length) {
