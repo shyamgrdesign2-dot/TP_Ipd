@@ -387,7 +387,8 @@ function SmartRxPreview() {
           change_mobile_number: false,
           patient_unique_id: state?.patient_data?.patient_unique_id,
           hospital_business_id: tokenData?.hospital_business_id,
-          um_id: tokenData?.user_id
+          um_id: tokenData?.user_id,
+          ...(showDigitalRx && { isRxDigitize: "true" }),
         };
     
         setIsLoading(true);

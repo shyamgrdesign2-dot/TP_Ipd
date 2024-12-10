@@ -75,6 +75,7 @@ import {
   addObstetricDetails,
   navigateToObstetric,
 } from "../redux/obstetricSlice";
+import { getClinicName } from "../utils/utils";
 import UploadDocument from "./medicalRecords/UploadDocument";
 import MedicalRecords from "./medicalRecords/MedicalRecords";
 import {
@@ -494,6 +495,27 @@ function SmartPrescription() {
       dispatch(navigateToObstetric());
     }
   }, [isNavigateToObstetric]);
+
+  useEffect(() => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    tcmId == 0 ?
+      window.Moengage.track_event("TP_Consultation_Started", {
+        clinic_name,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+        tcm_id: tcmId,
+      })
+      :
+      window.Moengage.track_event("TP_Consultation_edit_started", {
+        clinic_name,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+      })
+    const sendData = {
+      patient_unique_id: patient_data?.patient_unique_id,
+    };
+    dispatch(viewPatient(sendData));
+  }, []);
 
   //Handle Sider
   const handleCollapsed = useCallback(
