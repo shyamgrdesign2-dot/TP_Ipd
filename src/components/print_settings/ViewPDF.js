@@ -1378,12 +1378,40 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     )
                                                 })}
                                                 {caseManagerData?.medical_history?.[0]?.medical_history_remarks && (
-                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{'\n'}&nbsp;{medicalHistoryIndex++}. {`Additional History`}&nbsp;:</Text>{'\n'}
-                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, marginLeft: PX_TO_PT * 8 }}>
+                                                    <>
+                                                        <Text
+                                                        style={{
+                                                        color: '#454551',
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 500,
+                                                        }}
+                                                        >
+                                                            <Text
+                                                            style={{
+                                                                color: '#171725',
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                            }}
+                                                            >
+                                                            {'\n'}&nbsp;{medicalHistoryIndex++}. {`Additional History`}&nbsp;:
+                                                            </Text>
+                                                        {'\n'}
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: '#454551',
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                marginLeft: PX_TO_PT * 15,
+                                                                marginTop: PX_TO_PT * 2
+                                                            }}
+                                                        >
                                                             {caseManagerData?.medical_history?.[0]?.medical_history_remarks}
                                                         </Text>
-                                                    </Text>
+                                                    </>
                                                 )}
                                             </View>
                                         ) : (

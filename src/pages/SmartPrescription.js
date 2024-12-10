@@ -579,6 +579,9 @@ function SmartPrescription() {
           patient_unique_id:
             patient_data !== undefined ? patient_data.patient_unique_id : 0,
           mode: caseManagerData !== undefined ? EDIT : ADD,
+          
+          pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0, //extra
+          pm_id: patient_data !== undefined ? patient_data.pm_id : 0, //extra
         })
       );
 
