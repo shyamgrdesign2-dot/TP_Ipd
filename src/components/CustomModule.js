@@ -51,6 +51,7 @@ import {
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { setIsDDxReadyToGenerate } from "../redux/ddxSlice";
 import editIcon from "../assets/images/edit.svg";
+import TextArea from "antd/es/input/TextArea";
 
 function CustomModule({ module }) {
   const {
@@ -506,12 +507,12 @@ function CustomModule({ module }) {
                             style={{ cursor: "grab" }}
                           ></MenuOutlined>
                         </Col>
-                        <Col lg={8} md={8} sm={8} xs={8} className="border-end">
+                        <Col lg={8} md={8} sm={8} xs={8}>
                           <div className="fontroboto fw-medium">
                             <AutoComplete
                               defaultValue={item.examination_name}
                               value={item.examination_name}
-                              placeholder="Examination Name"
+                              placeholder={`${module} Name`}
                               bordered={false}
                               defaultOpen={false}
                               onSearch={(query) => onSearchChild(query, index)}
@@ -532,12 +533,12 @@ function CustomModule({ module }) {
                           xs={13}
                           className="border-end"
                         >
-                          <Input
-                            className="notesinput border-0"
+                          <TextArea
+                            className="customnotesinput"
                             placeholder="Notes"
-                            defaultValue={item.note}
                             value={item.note}
                             onChange={(e) => onChangeNoteChild(e, index)}
+                            autoSize={{ minRows: 1, maxRows: 10 }} // Dynamically resizes between 1 and 10 rows
                           />
                         </Col>
                         <Col
