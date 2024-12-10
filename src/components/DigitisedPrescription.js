@@ -139,7 +139,7 @@ const DigitisedPrescription = ({ data, setData }) => {
 
   // Handle click on a lineItem (to edit)
   const handleLineItemClick = (type, index) => {
-    if (type === "medications" || type === "tests" || type === "vaccinations") {
+    if (type === "medications" || type === "tests" || type === "vaccinations" || type === "medicalHistory") {
       setEditableLineItem(data[type][index]?.lineItem);
     } else {
       setEditableLineItem(data[type][index]?.notes);
@@ -276,7 +276,7 @@ const DigitisedPrescription = ({ data, setData }) => {
                     )}
 
                     {/* Editable input for lineItem */}
-                    {(type === "medications" || type === "symptoms" || type === "vaccinations") &&
+                    {(type === "medications" || type === "symptoms" || type === "vaccinations" || type === "medicalHistory") &&
                       item?.lineItem &&
                       (activeIndex === index &&
                       activeType === `${type}-lineItem` ? (
@@ -300,8 +300,7 @@ const DigitisedPrescription = ({ data, setData }) => {
 
                     {/* Editable input for notes (lineItem) */}
                     {(type === "examination" ||
-                      type === "diagnosis" ||
-                      type === "medicalHistory" ) &&
+                      type === "diagnosis" ) &&
                       item?.notes &&
                       (activeIndex === index &&
                       activeType === `${type}-lineItem` ? (

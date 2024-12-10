@@ -429,12 +429,12 @@ function Cardiology(props) {
                 </span>
   
                 {/* Optional rendering for lineItem */}
-                {(type === "medications" || type === "vaccinations") && item.lineItem && (
+                {(type === "medications" || type === "vaccinations" || type === "medicalHistory") && item.lineItem && (
                   <span>{` (${item.lineItem})`}</span>
                 )}
   
                 {/* Optional rendering for notes */}
-                {(type === "examination" || type === "diagnosis" || type === "medicalHistory") &&
+                {(type === "examination" || type === "diagnosis") &&
                   item.notes && (
                     <span>{` (${item.notes})`}</span>
                   )}
