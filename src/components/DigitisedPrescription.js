@@ -40,7 +40,6 @@ const DigitisedPrescription = ({ data, setData }) => {
         } else if (type === "vitals") {
           updatedData.vitals[index] = editableText; // Handle vitals separately
         }
-        console.log({updatedData})
         return updatedData;
       });
     }
