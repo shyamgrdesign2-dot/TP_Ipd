@@ -391,8 +391,6 @@ function Cardiology(props) {
     })
   };
 
-  console.log(rxDigitisedData?.editedData,"rxDigitisedData?.editedData")
-
   // Render items for each type (medications, tests, etc.)
   const renderItems = (type) => (
     <div className="digitised-data-section">
