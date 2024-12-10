@@ -75,7 +75,6 @@ import { EXTRA_OPTIONS, MESSAGE_KEY } from "../../utils/constants";
 import DoseCalculator from "../dose_calculator/doseCalculator";
 
 function TabMedicationBox() {
-
   const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     dosesList,
