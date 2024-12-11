@@ -25,9 +25,9 @@ const DigitisedPrescription = ({ data, setData }) => {
     if (activeIndex !== null && activeType !== null) {
       setData((prevData) => {
         const updatedData = { ...prevData };
-
+  
         if (type === "medications" || type === "tests") {
-          updatedData[type][index].refinedName = editableText; // Update editable text for medications/tests
+          updatedData[type][index].refinedName = editableText.trim();
         } else if (
           type === "symptoms" ||
           type === "examination" ||
@@ -35,21 +35,21 @@ const DigitisedPrescription = ({ data, setData }) => {
           type === "medicalHistory" ||
           type === "vaccinations"
         ) {
-          updatedData[type][index].name = editableText; // Update editable text for symptoms/examination/diagnosis
+          updatedData[type][index].name = editableText.trim();
         } else if (type === "advice") {
-          updatedData[type][index] = editableText; // Update advice text
+          updatedData[type][index] = editableText.trim();
         } else if (type === "vitals") {
-          updatedData.vitals[index] = editableText; // Handle vitals separately
+          updatedData.vitals[index] = editableText.trim();
         }
-        return updatedData;
+        return updatedData; // Persist changes
       });
     }
-
+  
     setShowSuggestions(false);
     setActiveIndex(null);
     setActiveType(null);
     setEditableText(""); // Clear editable text after blur
-  };
+  };  
 
   // Handle click outside suggestion and input box
   useEffect(() => {
@@ -119,28 +119,32 @@ const DigitisedPrescription = ({ data, setData }) => {
   // Handle click on an item (to edit)
   const handleItemClick = (type, index) => {
     if (activeIndex !== null && activeType !== null) {
-      handleInputBlur(activeType, activeIndex); // Blur the previous active item to save its changes
+      handleInputBlur(activeType, activeIndex);
     }
 
-    if (type === 'medications' || type === 'tests') {
+    if (type === "medications" || type === "tests") {
       setEditableText(data[type][index].refinedName);
-      setShowSuggestions(true);
-    } else if (type === 'symptoms' || type === "examination" || type === "diagnosis" || type === "medicalHistory" || type === "vaccinations") {
+    } else if (
+      type === "symptoms" ||
+      type === "examination" ||
+      type === "diagnosis" ||
+      type === "medicalHistory" ||
+      type === "vaccinations"
+    ) {
       setEditableText(data[type][index].name);
-    } else if (type === 'advice') {
+    } else if (type === "advice") {
       setEditableText(data[type][index]);
     } else if (type === "vitals") {
-      setEditableText(data.vitals[index] || ""); // Set editable text to current vital value
-      setActiveIndex(index); // Set the active vital index
-      setActiveType("vitals"); // Set the active type to 'vitals'
+      setEditableText(data.vitals[index]);
     }
+
     setActiveIndex(index);
     setActiveType(type);
   };
 
   // Handle click on a lineItem (to edit)
   const handleLineItemClick = (type, index) => {
-    if (type === "medications" || type === "tests" || type === "vaccinations" || type === "medicalHistory") {
+    if (type === "medications" || type === "tests" || type === "vaccinations" || type === "medicalHistory" || type === "symptoms") {
       setEditableLineItem(data[type][index]?.lineItem);
     } else {
       setEditableLineItem(data[type][index]?.notes);
@@ -260,6 +264,7 @@ const DigitisedPrescription = ({ data, setData }) => {
                         value={editableText}
                         className="editable-digitised-item"
                         onChange={handleInputChange}
+                        onBlur={() => handleInputBlur(type, index)}
                         autoFocus
                         style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
                       />
