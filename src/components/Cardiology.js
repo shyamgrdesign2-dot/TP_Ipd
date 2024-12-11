@@ -394,7 +394,7 @@ function Cardiology(props) {
   // Render items for each type (medications, tests, etc.)
   const renderItems = (type) => (
     <div className="digitised-data-section">
-      <ol>
+      <ul>
         {/* Handle vitals type separately */}
         {type === "vitals" &&
           Object.entries(rxDigitisedData?.editedData?.vitals || {})
@@ -421,11 +421,15 @@ function Cardiology(props) {
               <div className="medicine-item">
                 <span>
                   {/* Render dynamically based on type */}
-                  {type === "advice"
-                    ? item
-                    : type === "symptoms" || type === "examination" || type === "diagnosis" || type === "medicalHistory" || type === "vaccinations"
-                    ? item.name
-                    : item.refinedName || ""}
+                  {
+                    type === "advice"
+                      ? item
+                      : (type === "symptoms" && item?.name?.length > 0)
+                      ? item.name[0]?.toUpperCase() + item.name?.slice(1)
+                      : (type === "medications" || type === "tests")
+                      ? item?.refinedName
+                      : item?.name
+                  }
                 </span>
   
                 {/* Optional rendering for lineItem */}
@@ -441,7 +445,7 @@ function Cardiology(props) {
               </div>
             </li>
           ))}
-      </ol>
+      </ul>
     </div>
   );
 

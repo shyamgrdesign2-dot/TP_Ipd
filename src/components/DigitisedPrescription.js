@@ -26,13 +26,14 @@ const DigitisedPrescription = ({ data, setData }) => {
       setData((prevData) => {
         const updatedData = { ...prevData };
 
-        if (type === "medications" || type === "tests" || type === "vaccinations") {
-          updatedData[type][index].name = editableText; // Update editable text for medications/tests
+        if (type === "medications" || type === "tests") {
+          updatedData[type][index].refinedName = editableText; // Update editable text for medications/tests
         } else if (
           type === "symptoms" ||
           type === "examination" ||
           type === "diagnosis" ||
-          type === "medicalHistory"
+          type === "medicalHistory" ||
+          type === "vaccinations"
         ) {
           updatedData[type][index].name = editableText; // Update editable text for symptoms/examination/diagnosis
         } else if (type === "advice") {
@@ -121,10 +122,10 @@ const DigitisedPrescription = ({ data, setData }) => {
       handleInputBlur(activeType, activeIndex); // Blur the previous active item to save its changes
     }
 
-    if (type === 'medications' || type === 'tests' || type === "vaccinations") {
-      setEditableText(data[type][index].name);
+    if (type === 'medications' || type === 'tests') {
+      setEditableText(data[type][index].refinedName);
       setShowSuggestions(true);
-    } else if (type === 'symptoms' || type === "examination" || type === "diagnosis" || type === "medicalHistory") {
+    } else if (type === 'symptoms' || type === "examination" || type === "diagnosis" || type === "medicalHistory" || type === "vaccinations") {
       setEditableText(data[type][index].name);
     } else if (type === 'advice') {
       setEditableText(data[type][index]);
@@ -267,11 +268,15 @@ const DigitisedPrescription = ({ data, setData }) => {
                         onClick={() => handleItemClick(type, index)}
                         className="digitised-item"
                       >
-                        {type === "advice"
-                          ? item
-                          : type === "symptoms" && item?.name?.length > 0
-                          ? item.name[0]?.toUpperCase() + item.name?.slice(1)
-                          : item?.name}
+                        {
+                          type === "advice"
+                            ? item
+                            : (type === "symptoms" && item?.name?.length > 0)
+                            ? item.name[0]?.toUpperCase() + item.name?.slice(1)
+                            : (type === "medications" || type === "tests")
+                            ? item?.refinedName
+                            : item?.name
+                        }
                       </span>
                     )}
 
