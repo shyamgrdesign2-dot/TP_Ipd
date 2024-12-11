@@ -1,16 +1,20 @@
 import React, { useCallback, useState } from "react";
 import { Button, Input, Radio } from "antd";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import DiscountIcon from "../../assets/images/discount.svg"
 import CreditImg from "../../assets/images/credit_icon.svg"
-import { onlyNumberFormat } from "../../utils/utils";
+import { errorMessage, onlyNumberFormat } from "../../utils/utils";
+import { paymentOrder, verifyPayment, paymentHistory } from "../../redux/bulkMessagesSlice";
 
-function AvailableCredits() {
+function AvailableCredits({ handleMessageDetailed }) {
+    const dispatch = useDispatch();
 
+    const { profile } = useSelector((state) => state.doctors);
     const { userCreditObj } = useSelector((state) => state.bulkMessages);
     const [creditRadio, setCreditRadio] = useState(null);
     const [creditInput, setCreditInput] = useState(null);
+
     const ITEMS = [
         { amount: 500, credit: 500 },
         { amount: 1000, credit: 1000 },
@@ -27,6 +31,71 @@ function AvailableCredits() {
         const value = onlyNumberFormat(e.target.value);
         setCreditInput(value);
         setCreditRadio(null);
+    }
+
+    const clickBuyNow = async () => {
+        if (creditRadio || creditInput) {
+            var sendData = {
+                amount: creditInput ? creditInput : creditRadio
+            }
+            const action = await dispatch(paymentOrder(sendData));
+            if (action.meta.requestStatus === "fulfilled") {
+                initRazorPayPayment(action?.payload);
+            } else {
+                errorMessage(action.payload.message)
+            }
+        } else {
+            errorMessage('Please select or enter amount')
+        }
+    }
+
+    const initRazorPayPayment = (data) => {
+        const options = {
+            key: 'rzp_test_PoLtBba5t8qJIm',
+            amount: data.amount,
+            currency: data.currency,
+            name: 'Purchase bulk messages',
+            description: 'description',
+            image: '',
+            order_id: data.id,
+            handler: async (response) => {
+                try {
+                    verifyRazorPayPayment(response)
+                } catch (error) {
+                    console.log(error);
+                }
+            },
+            prefill: {
+                contact: profile?.um_contact,
+                name: profile?.um_name,
+                email: profile?.um_email,
+            },
+            theme: {
+                color: "#3399cc",
+            },
+            modal: {
+                ondismiss: function () {
+                    //   setLoading(false)
+                }
+            }
+        };
+        const rzp1 = new window.Razorpay(options);
+        rzp1.open();
+    };
+
+    const verifyRazorPayPayment = async (r_response) => {
+        const action = await dispatch(verifyPayment(r_response));
+        if (action.meta.requestStatus === "fulfilled") {
+            if (action?.payload?.status === 'captured') {
+                setCreditRadio(null);
+                setCreditInput(null);
+                handleMessageDetailed()
+            } else {
+                errorMessage(action?.payload?.error_description)
+            }
+        } else {
+            errorMessage(action.payload.message)
+        }
     }
 
     return (
@@ -78,7 +147,7 @@ function AvailableCredits() {
                     </div>
                 </div>
                 <div>
-                    <Button className="mt-5 lh-lg btn btn-primary3 btn-54 w-100">
+                    <Button className="mt-5 lh-lg btn btn-primary3 btn-54 w-100" onClick={clickBuyNow}>
                         <span>Buy Now</span>
                     </Button>
                 </div>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Tabs, Table, Drawer, DatePicker, Checkbox, Dropdown, Input } from "antd";
 import Button from "react-bootstrap/Button";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import moment from "moment";
 import dayjs from 'dayjs';
 
 import { useSelector, useDispatch } from "react-redux";
-import { userCampaign, userCampaignDetails } from "../redux/bulkMessagesSlice";
+import { userCampaign, userCampaignDelete, userCampaignDetails } from "../redux/bulkMessagesSlice";
 
 import emptyCampaign from '../assets/images/empty-campaign-history.svg'
 import emptyPurchase from '../assets/images/empty-purchase-history.svg'
@@ -123,15 +123,33 @@ function MessagesData() {
                     } else {
                         errorMessage(action.payload.message)
                     }
-                }}>Detailed View</div>,
+                }}>
+                    Detailed View
+                </div>,
                 key: "detailed_view",
             },
             {
-                label: <div>Edit campaign</div>,
+                label: <div onClick={async () => {
+                    const action = await dispatch(userCampaignDetails(record?.id));
+                    if (action.meta.requestStatus === "fulfilled") {
+                        navigate('/create-campaign', { state: { campaign_data: action.payload } })
+                    } else {
+                        errorMessage(action.payload.message)
+                    }
+                }}>
+                    Edit campaign
+                </div>,
                 key: 'edit_campaign',
             },
             {
-                label: <div>Delete campaign</div>,
+                label: <div onClick={async () => {
+                    const action = await dispatch(userCampaignDelete(record?.id));
+                    if (action.meta.requestStatus !== "fulfilled") {
+                        errorMessage(action.payload.message)
+                    }
+                }}>
+                    Delete campaign
+                </div>,
                 key: 'delete_campaign',
             },
             {
@@ -140,7 +158,11 @@ function MessagesData() {
             },
         ];
 
-        return items;
+        if (record?.campaign_sent) {
+            return items.filter((item) => item.key !== "edit_campaign" && item.key !== "delete_campaign");
+        } else {
+            return items;
+        }
     };
 
     const columns = [
@@ -256,26 +278,34 @@ function MessagesData() {
     const emptyText = (
         <div className="d-flex flex-column align-items-center justify-content-center"
             style={{ height: "calc(100vh - 350px)" }}>
-            <img width={221.54} height={180} src={emptyCampaign} alt="Empty" />
-            {/* <img src={emptyPurchase} alt="Empty" /> */}
-            <div className="fs-16 fw-medium"> You haven't created any SMS or WhatsApp campaigns yet!</div>
-            <div className="mt-2 lh-normal fs-14 fw-normal">Start creating campaigns to keep your patients </div>
-            <div className="mt-2 lh-normal fs-14 fw-normal">informed and engaged</div>
-            {/* <div className="mt-3 fs-16 fw-medium"> You haven't purchased any credits yet!</div>
-            <div>Start buying credits to keep your messages flowing.</div> */}
-            <Button
-                onClick={() => navigate('/create-campaign')}
-                variant="primary"
-                className="px-3 mt-4 btn-41 d-flex align-items-center">
-                <i className="icon-Add me-2"></i>
-                {"Create New Campaign"}
-            </Button>
-            {/* <Button
-                variant="primary"
-                className="px-3 btn-41 ms-3 d-flex align-items-center">
-                <i className="icon-Add me-2"></i>
-                {"Buy Credits"}
-            </Button> */}
+            {selectedTab === TAB_PURCHASE ? (
+                <>
+                    <img src={emptyPurchase} alt="Empty" />
+                    <div className="mt-3 fs-16 fw-medium"> You haven't purchased any credits yet!</div>
+                    <div>Start buying credits to keep your messages flowing.</div>
+                    <Button
+                        variant="primary"
+                        className="px-3 btn-41 ms-3 d-flex align-items-center">
+                        <i className="icon-Add me-2"></i>
+                        {"Buy Credits"}
+                    </Button>
+                </>
+            ) : (
+                <>
+                    <img width={221.54} height={180} src={emptyCampaign} alt="Empty" />
+                    <div className="fs-16 fw-medium"> You haven't created any SMS or WhatsApp campaigns yet!</div>
+                    <div className="mt-2 lh-normal fs-14 fw-normal">Start creating campaigns to keep your patients </div>
+                    <div className="mt-2 lh-normal fs-14 fw-normal">informed and engaged</div>
+                    <Button
+                        onClick={() => navigate('/create-campaign')}
+                        variant="primary"
+                        className="px-3 mt-4 btn-41 d-flex align-items-center">
+                        <i className="icon-Add me-2"></i>
+                        {"Create New Campaign"}
+                    </Button>
+                </>
+            )}
+
         </div>
     );
 

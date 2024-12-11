@@ -125,7 +125,7 @@ function Welcome(props) {
         open={messageDetailed}
         onClose={handleMessageDetailed}
       >
-        <AvailableCredits />
+        <AvailableCredits handleMessageDetailed={handleMessageDetailed} />
       </Drawer>
     </>
   );

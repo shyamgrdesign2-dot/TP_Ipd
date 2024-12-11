@@ -7,11 +7,11 @@ import locale from "antd/es/date-picker/locale/de_DE";
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { listAllTemplate, listDoctor, searchPatient } from "../redux/bulkMessagesSlice";
+import { listAllTemplate, listDoctor, searchPatient, updatePatientCount, userCampaignAdd, userCampaignEdit } from "../redux/bulkMessagesSlice";
 import moment from "moment";
 import dayjs from "dayjs";
 
-import { onlyNumberFormat } from "../utils/utils";
+import { errorMessage, onlyNumberFormat } from "../utils/utils";
 
 import VideoModal from "../common/VideoModal";
 import messageCorner from '../assets/images/message-corner.svg'
@@ -76,19 +76,24 @@ const SELECT_AFTER = [
 ]
 
 const GENDER = ['Male', 'Female', 'Other']
+
+
 function MessageCreateCampaign() {
 
-    const { userCreditObj, allTemplateList, templateLoading, doctorList, patientList } = useSelector((state) => state.bulkMessages);
+    const { loading, userCreditObj, allTemplateList, templateLoading, doctorList, patientCount } = useSelector((state) => state.bulkMessages);
     const { profile } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
+    const { state } = useLocation();
+    const { campaign_data } = state != null && state
 
     const [popOverVideo, setPopOverVideo] = useState(false);
     const [videoLink, setVideoLink] = useState(null);
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
     const [messageDetailed, setMessageDetailed] = useState(false);
+    const [change, setChange] = useState(campaign_data !== undefined ? false : true);
     const [stepCurrent, setStepCurrent] = useState(0);
 
     const [template, setTemplate] = useState(null);
@@ -108,8 +113,7 @@ function MessageCreateCampaign() {
     const [dateStatus, setDateStatus] = useState(1);
     const [pickerModal, setPickerModal] = useState(false);
 
-
-    const [send_on, setSendOn] = useState('SMS');
+    const [send_on, setSendOn] = useState(1);
     const [sender_type, setSender_type] = useState(1);
     const [filter_doc, setFilterDoc] = useState([]);
     const [min_age, setMinAge] = useState('');
@@ -125,6 +129,78 @@ function MessageCreateCampaign() {
     }, []);
 
     useEffect(() => {
+        if (doctorList?.length > 0 && allTemplateList?.length > 0 && campaign_data !== undefined) {
+
+            dispatch(updatePatientCount(campaign_data?.total_patient))
+
+            setStepCurrent(1)
+
+            const templateData = allTemplateList?.find(e => e?.id === campaign_data?.campaign_id)
+            setTemplate(templateData)
+
+            if (campaign_data?.msg_rowData?.hasOwnProperty('clinic_name')) {
+                setclinic_name(campaign_data?.msg_rowData?.clinic_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('festival_name')) {
+                setfestival_name(campaign_data?.msg_rowData?.festival_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('link')) {
+                setlink(campaign_data?.msg_rowData?.link)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('dr_name')) {
+                setdr_name(campaign_data?.msg_rowData?.dr_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('patient_name')) {
+                setpatient_name(campaign_data?.msg_rowData?.patient_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('doctor_name')) {
+                setdoctor_name(campaign_data?.msg_rowData?.doctor_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('date')) {
+                setdate(campaign_data?.msg_rowData?.date)
+            }
+
+            setSendOn(campaign_data?.send_on === 'SMS' ? 1 : 2)
+            setSender_type(campaign_data?.sender_type)
+
+            if (campaign_data?.sender_type === 2) {
+                const filterDocData = campaign_data?.filter_doc ? campaign_data?.filter_doc.split(',').map(Number) : ''
+                setFilterDoc(filterDocData)
+
+                if (campaign_data?.date_unit === 'Till date') {
+                    setDateStatus(1)
+                } else if (campaign_data?.date_unit === 'Last week') {
+                    setDateStatus(2)
+                } else if (campaign_data?.date_unit === 'Last month') {
+                    setDateStatus(3)
+                } else if (campaign_data?.date_unit === 'Last 3 month') {
+                    setDateStatus(4)
+                } else if (campaign_data?.date_unit === 'Last 6 month') {
+                    setDateStatus(5)
+                } else if (campaign_data?.date_unit === 'Last 1 year') {
+                    setDateStatus(6)
+                } else if (campaign_data?.date_unit === 'custom') {
+                    setDateStatus(null)
+                }
+                setDateRange({
+                    startDate: moment(campaign_data?.start_date).format(dateFormat),
+                    endDate: moment(campaign_data?.end_date).format(dateFormat),
+                })
+
+                setMinAge(campaign_data?.min_age ? String(campaign_data?.min_age) : '')
+                setMaxAge(campaign_data?.max_age ? String(campaign_data?.max_age) : '')
+                setAgeUnit(campaign_data?.min_age_unit)
+
+                const genderData = campaign_data?.gender ? campaign_data?.gender.split(',') : []
+                setGender(genderData)
+
+                setScheduleType(2)
+                setScheduleDateTime(moment(`${campaign_data?.campaign_date} ${campaign_data?.campaign_date}`, showDateTimeFormat).format(dateTimeFormat))
+            }
+        }
+    }, [doctorList, allTemplateList, campaign_data]);
+
+    useEffect(() => {
         const timeOutId = setTimeout(() => {
             var sendData = {
                 sender_type: sender_type,
@@ -138,7 +214,7 @@ function MessageCreateCampaign() {
                     sendData['end_date'] = dateRange.endDate;
                 }
                 if (filter_doc?.length > 0) {
-                    sendData['filter_doc'] = filter_doc?.includes(-1) ? "" : filter_doc.map(e => e).toString();
+                    sendData['filter_doc'] = filter_doc?.includes(-1) ? doctorList.map(e => e?.um_id).toString() : filter_doc.map(e => e).toString();
                 }
                 if (min_age) {
                     sendData['min_age'] = min_age;
@@ -149,12 +225,15 @@ function MessageCreateCampaign() {
                 sendData['min_age_unit'] = age_unit;
                 sendData['max_age_unit'] = age_unit;
             }
-            dispatch(searchPatient(sendData));
+
+            if (change) {
+                dispatch(searchPatient(sendData));
+            }
         }, 500);
         return () => {
             clearTimeout(timeOutId);
         };
-    }, [sender_type, dateRange, gender, min_age, max_age, age_unit, filter_doc]);
+    }, [change, sender_type, dateRange, gender, min_age, max_age, age_unit, filter_doc]);
 
     //Message Details
     const handleMessageDetailed = useCallback(
@@ -207,11 +286,13 @@ function MessageCreateCampaign() {
 
     // Custom Radio
     const handleSenderType = useCallback((e) => {
+        setChange(true)
         setSender_type(e.target.value);
     }, [sender_type]);
 
     // Select Doctor
     const handleFilterDoc = useCallback((value) => {
+        setChange(true)
         if (value?.at(-1) === -1) {
             setFilterDoc([-1]);
         } else {
@@ -258,6 +339,7 @@ function MessageCreateCampaign() {
     ];
 
     const onRangeChange = (dates, dateStrings) => {
+        setChange(true)
         if (dates) {
             // console.log('From: ', dates[0], ', to: ', dates[1]);
             // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
@@ -298,17 +380,20 @@ function MessageCreateCampaign() {
 
     // Input Age
     const onChangeMinInput = useCallback((e) => {
+        setChange(true)
         const value = onlyNumberFormat(e.target.value)
         setMinAge(value);
     }, [min_age]);
 
     const onChangeMaxInput = useCallback((e) => {
+        setChange(true)
         const value = onlyNumberFormat(e.target.value)
         setMaxAge(value);
     }, [max_age]);
 
     // Select After
     const onSelectAfter = useCallback((value) => {
+        setChange(true)
         setAgeUnit(value);
     }, [age_unit]);
 
@@ -322,6 +407,7 @@ function MessageCreateCampaign() {
 
     // Gender Checkbox
     const onChangeGender = useCallback((checkedValues) => {
+        setChange(true)
         setGender(checkedValues)
     }, [gender]);
 
@@ -446,7 +532,7 @@ function MessageCreateCampaign() {
                             placeholder='Select date'
                             key={index}
                             value={date ? dayjs(moment(date).format(showDateFormat), showDateFormat) : ''}
-                            onChange={(date, dateString) => setdate(moment(dateString, showDateFormat).format(dateFormat))}
+                            onChange={(date, dateString) => setdate(moment(dateString, showDateFormat).format(showDateFormat))}
                         />
                     );
                 }
@@ -514,18 +600,18 @@ function MessageCreateCampaign() {
         })
         return msg_rowData;
     }
-    const onAddEditCampaign = () => {
+    const onAddEditCampaign = async () => {
         var sendData = {
-            "campaign_id": template?.id,
-            "send_on": send_on,
-            "campaign_date": moment(scheduleDateTime).format(dateFormat1),
-            "campaign_time": moment(scheduleDateTime).format(timeFormat1),
-            "msg_rowData": sendTemplate(),
-            "draft": 1,
-            "sender_type": sender_type,
-            "total_patient": patientList?.length,
-            "filter_doc": sender_type == 2 ? filter_doc?.includes(-1) ? "" : filter_doc.map(e => e).toString() : '',
-            "date_unit": sender_type == 2 ? dateStatus === 1 ?
+            campaign_id: template?.id,
+            send_on: send_on,
+            campaign_date: moment(scheduleDateTime).format(dateFormat1),
+            campaign_time: moment(scheduleDateTime).format(timeFormat1),
+            msg_rowData: sendTemplate(),
+            draft: 0,
+            sender_type: sender_type,
+            total_patient: patientCount,
+            filter_doc: sender_type == 2 ? filter_doc?.includes(-1) ? doctorList.map(e => e?.um_id).toString() : filter_doc.map(e => e).toString() : '',
+            date_unit: sender_type == 2 ? dateStatus === 1 ?
                 'Till date'
                 : dateStatus === 2 ?
                     'Last week'
@@ -539,16 +625,26 @@ function MessageCreateCampaign() {
                                     'Last 1 year'
                                     :
                                     'custom' : '',
-            "start_date": sender_type == 2 ? dateRange.startDate : '',
-            "end_date": sender_type == 2 ? dateRange.endDate : '',
-            "min_age": sender_type == 2 ? min_age ? min_age : '' : '',
-            "max_age": sender_type == 2 ? max_age ? max_age : '' : '',
-            "min_age_unit": sender_type == 2 ? age_unit : '',
-            "max_age_unit": sender_type == 2 ? age_unit : '',
-            "gender": sender_type == 2 ? gender?.length > 0 ? gender.map(e => e).toString() : '' : '',
+            start_date: sender_type == 2 ? dateRange.startDate : '',
+            end_date: sender_type == 2 ? dateRange.endDate : '',
+            min_age: sender_type == 2 ? min_age ? min_age : '' : '',
+            max_age: sender_type == 2 ? max_age ? max_age : '' : '',
+            min_age_unit: sender_type == 2 ? age_unit : '',
+            max_age_unit: sender_type == 2 ? age_unit : '',
+            gender: sender_type == 2 ? gender?.length > 0 ? gender.map(e => e).toString() : '' : '',
         }
 
-        console.log(sendData)
+        if (campaign_data !== undefined) {
+            sendData['id'] = campaign_data?.id
+            sendData['change'] = change ? 1 : 0
+        }
+
+        const action = campaign_data !== undefined ? await dispatch(userCampaignEdit(sendData)) : await dispatch(userCampaignAdd(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            navigate('/bulk_messages', { replace: true })
+        } else {
+            errorMessage(action.payload.message)
+        }
     }
 
     return (
@@ -627,9 +723,10 @@ function MessageCreateCampaign() {
                             ) : (
 
                                 <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center'
-                                    disabled={userCreditObj?.userCredit <= `${send_on === 'SMS' ?
-                                        (patientList?.length * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit
-                                        : patientList?.length * userCreditObj?.defaultWhatsAppCredit}`}
+                                    disabled={userCreditObj?.userCredit <= `${send_on === 1 ?
+                                        (patientCount * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit
+                                        : patientCount * userCreditObj?.defaultWhatsAppCredit}`}
+                                    loading={loading}
                                     onClick={onAddEditCampaign}>
                                     Send Message Now
                                 </Button>
@@ -711,8 +808,8 @@ function MessageCreateCampaign() {
                                         <h5 className="fs-16 mb-0 fw-semibold">Send on</h5>
                                         <div className="mt-3">
                                             <Radio.Group className="d-flex" onChange={handleSendOn} value={send_on}>
-                                                <Radio className="col me-30" value={'SMS'}>SMS</Radio>
-                                                <Radio className="col me-0" value={'WhatsApp'}>WhatsApp</Radio>
+                                                <Radio className="col me-30" value={1}>SMS</Radio>
+                                                <Radio className="col me-0" value={2}>WhatsApp</Radio>
                                             </Radio.Group>
                                         </div>
                                         <hr className="mb-28 mt-4" />
@@ -729,11 +826,11 @@ function MessageCreateCampaign() {
                                             }</div>
                                         </div>
 
-                                        {send_on === 'SMS' && (
+                                        {send_on === 1 && (
                                             <div className="fs-12-1 text-greycolor mt-2">Note: Messages over 160 characters count as 2 SMS. Keep it concise to save costs.</div>
                                         )}
                                         <hr className="mb-28 mt-4" />
-                                        <div className="fw-semibold">Who will Receive this message? <span className="text-scheduled">({patientList?.length} Patients)</span></div>
+                                        <div className="fw-semibold">Who will Receive this message? <span className="text-scheduled">({patientCount} Patients)</span></div>
                                         <div className="mt-3">
                                             <Radio.Group className="d-flex" onChange={handleSenderType} value={sender_type}>
                                                 <Radio className="col me-30" value={1}>All Patients</Radio>
@@ -897,36 +994,36 @@ function MessageCreateCampaign() {
                                 <Col xs={4}>
                                     <div className="position-sticky top-0">
                                         <div className="sms-preview">
-                                            <div className="text-center fs-14 mb-0 fw-medium fontroboto">{send_on === 'SMS' ? 'SMS Preview' : 'WhatsApp Preview'}</div>
-                                            <div className={`sms-preview-mobile ${send_on === 'WhatsApp' ? 'whatsup-preview-mobile' : ''}`}>
+                                            <div className="text-center fs-14 mb-0 fw-medium fontroboto">{send_on === 1 ? 'SMS Preview' : 'WhatsApp Preview'}</div>
+                                            <div className={`sms-preview-mobile ${send_on === 2 ? 'whatsup-preview-mobile' : ''}`}>
                                                 <div className="sms-preview-message rounded-4 p-2">
                                                     <div className="fs-13 text-truncate-fourlines">
                                                         {TEMPLATE_TEXT}
                                                     </div>
-                                                    <img className="position-absolute" style={{ left: -2, bottom: -3 }} src={send_on === 'SMS' ? messageCornerGrey : messageCorner} alt="Message" />
+                                                    <img className="position-absolute" style={{ left: -2, bottom: -3 }} src={send_on === 1 ? messageCornerGrey : messageCorner} alt="Message" />
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="mt-4">
                                             <div className="fontroboto fs-18 fw-bold text-black">Credit Details</div>
-                                            <div className="fs-12-1 fw-semibold fontroboto text-black-50">{`(${send_on === 'SMS' ? '1 SMS = ' + userCreditObj?.defaultSMSCredit : '1 WhatsApp message = ' + userCreditObj?.defaultWhatsAppCredit} Credits)`}</div>
+                                            <div className="fs-12-1 fw-semibold fontroboto text-black-50">{`(${send_on === 1 ? '1 SMS = ' + userCreditObj?.defaultSMSCredit : '1 WhatsApp message = ' + userCreditObj?.defaultWhatsAppCredit} Credits)`}</div>
                                             <div className="my-3">
                                                 <div className="d-flex align-items-center py-1 justify-content-between fs-14 fontroboto">
                                                     <div className="fontroboto fw-bold">Target Customers (A) :</div>
-                                                    <div className="fontroboto fw-bold">{`${patientList?.length} User`}</div>
+                                                    <div className="fontroboto fw-bold">{`${patientCount} User`}</div>
                                                 </div>
                                                 <div className="d-flex align-items-center py-1 justify-content-between fs-14 fontroboto">
-                                                    <div className="fontroboto fw-bold">{`${send_on === 'SMS' ? 'SMS' : 'Message'} Per Customers (B) :`}</div>
-                                                    <div className="fontroboto fw-bold">{`${send_on === 'SMS' ? patientList?.length * Math.ceil(TEMPLATE_TEXT?.length / 160) + ' SMS' : patientList?.length + ' Message'}`}</div>
+                                                    <div className="fontroboto fw-bold">{`${send_on === 1 ? 'SMS' : 'Message'} Per Customers (B) :`}</div>
+                                                    <div className="fontroboto fw-bold">{`${send_on === 1 ? patientCount * Math.ceil(TEMPLATE_TEXT?.length / 160) + ' SMS' : patientCount + ' Message'}`}</div>
                                                 </div>
                                                 <div className="d-flex align-items-center py-1 justify-content-between fs-14 fontroboto">
-                                                    <div className="fontroboto fw-bold">{`Price Per ${send_on === 'SMS' ? 'SMS' : 'Message'} (C) :`}</div>
-                                                    <div className="fontroboto fw-bold">{`${send_on === 'SMS' ? userCreditObj?.defaultSMSCredit : userCreditObj?.defaultWhatsAppCredit} Credits`}</div>
+                                                    <div className="fontroboto fw-bold">{`Price Per ${send_on === 1 ? 'SMS' : 'Message'} (C) :`}</div>
+                                                    <div className="fontroboto fw-bold">{`${send_on === 1 ? userCreditObj?.defaultSMSCredit : userCreditObj?.defaultWhatsAppCredit} Credits`}</div>
                                                 </div>
                                                 <hr className="mt-2 mb-3" />
                                                 <div className="d-flex align-items-center justify-content-between fs-14 fontroboto">
                                                     <div className="fontroboto fw-bold">Total Credits Required (ABC) :</div>
-                                                    <div className="fontroboto fw-bold">{`${send_on === 'SMS' ? (patientList?.length * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit : patientList?.length * userCreditObj?.defaultWhatsAppCredit} Credits`}</div>
+                                                    <div className="fontroboto fw-bold">{`${send_on === 1 ? ((patientCount * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit).toFixed(2) : (patientCount * userCreditObj?.defaultWhatsAppCredit).toFixed(2)} Credits`}</div>
                                                 </div>
                                                 <hr />
                                             </div>
@@ -948,11 +1045,11 @@ function MessageCreateCampaign() {
                                     {` to `}
                                     {sender_type === 1 ? (
                                         <>
-                                            <span className="fw-semibold"> {`${patientList?.length} patients`} </span>
+                                            <span className="fw-semibold"> {`${patientCount} patients`} </span>
                                         </>
                                     ) : (
                                         <>
-                                            <span className="fw-semibold"> {`${patientList?.length} ${gender?.length === 1 ? gender : ''} patients`} </span>
+                                            <span className="fw-semibold"> {`${patientCount} ${gender?.length === 1 ? gender : ''} patients`} </span>
                                             {` of age between `}
                                             <span className="fw-semibold"> {`${min_age}-${max_age} ${age_unit}`} </span>
                                             {` who visited in the `}
@@ -977,7 +1074,7 @@ function MessageCreateCampaign() {
                                     )}
                                 </div>
 
-                                <div className={`${send_on === 'SMS' ? 'bg-selected' : 'bg-whatsup-message'} w-100 mt-4 py-3 rounded-20px d-flex justify-content-center align-items-center`} style={{ minHeight: 138 }}>
+                                <div className={`${send_on === 1 ? 'bg-selected' : 'bg-whatsup-message'} w-100 mt-4 py-3 rounded-20px d-flex justify-content-center align-items-center`} style={{ minHeight: 138 }}>
                                     <div className="bg-white w-60 fw-medium rounded-4 p-3 position-relative">
                                         {TEMPLATE_TEXT}
                                         <img className="position-absolute" style={{ left: -2, bottom: -3 }} src={messageCorner} alt="Message" />
@@ -986,25 +1083,25 @@ function MessageCreateCampaign() {
 
                                 <div className="mt-4">
                                     <div className="fontroboto text-black fw-bold title-hypertension">Credit Details</div>
-                                    <div className="title-common my-2 text-black-50">{`(${send_on === 'SMS' ? '1 SMS = ' + userCreditObj?.defaultSMSCredit : '1 WhatsApp message = ' + userCreditObj?.defaultWhatsAppCredit} Credits)`}</div>
+                                    <div className="title-common my-2 text-black-50">{`(${send_on === 1 ? '1 SMS = ' + userCreditObj?.defaultSMSCredit : '1 WhatsApp message = ' + userCreditObj?.defaultWhatsAppCredit} Credits)`}</div>
 
                                     <div className="mt-4 mb-3">
                                         <div className="d-flex align-items-center py-2 justify-content-between fs-18 fw-medium fontroboto">
                                             <div>Target Customers (A) :</div>
-                                            <div>{`${patientList?.length} User`}</div>
+                                            <div>{`${patientCount} User`}</div>
                                         </div>
                                         <div className="d-flex align-items-center py-2 justify-content-between fs-18 fw-medium fontroboto">
-                                            <div>{`${send_on === 'SMS' ? 'SMS' : 'Message'} Per Customers (B) :`}</div>
-                                            <div>{`${send_on === 'SMS' ? patientList?.length * Math.ceil(TEMPLATE_TEXT?.length / 160) + ' SMS' : patientList?.length + ' Message'}`}</div>
+                                            <div>{`${send_on === 1 ? 'SMS' : 'Message'} Per Customers (B) :`}</div>
+                                            <div>{`${send_on === 1 ? patientCount * Math.ceil(TEMPLATE_TEXT?.length / 160) + ' SMS' : patientCount + ' Message'}`}</div>
                                         </div>
                                         <div className="d-flex align-items-center py-2 justify-content-between fs-18 fw-medium fontroboto">
-                                            <div>{`Price Per ${send_on === 'SMS' ? 'SMS' : 'Message'} (C) :`}</div>
-                                            <div>{`${send_on === 'SMS' ? userCreditObj?.defaultSMSCredit : userCreditObj?.defaultWhatsAppCredit} Credits`}</div>
+                                            <div>{`Price Per ${send_on === 1 ? 'SMS' : 'Message'} (C) :`}</div>
+                                            <div>{`${send_on === 1 ? userCreditObj?.defaultSMSCredit : userCreditObj?.defaultWhatsAppCredit} Credits`}</div>
                                         </div>
                                         <hr />
                                         <div className="d-flex align-items-center justify-content-between fs-18 fw-semibold fontroboto">
                                             <div>Total Credits Required (ABC) :</div>
-                                            <div className="fw-medium">{`${send_on === 'SMS' ? (patientList?.length * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit : patientList?.length * userCreditObj?.defaultWhatsAppCredit} Credits`}</div>
+                                            <div className="fw-medium">{`${send_on === 1 ? ((patientCount * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit).toFixed(2) : (patientCount * userCreditObj?.defaultWhatsAppCredit).toFixed(2)} Credits`}</div>
                                         </div>
                                         <hr />
                                     </div>
@@ -1024,7 +1121,7 @@ function MessageCreateCampaign() {
                 open={messageDetailed}
                 onClose={handleMessageDetailed}
             >
-                <AvailableCredits />
+                <AvailableCredits handleMessageDetailed={handleMessageDetailed} />
             </Drawer>
         </>
     );

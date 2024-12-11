@@ -12,7 +12,7 @@ const initialState = {
     allTemplateList: [],
     templateLoading: false,
     doctorList: [],
-    patientList: []
+    patientCount: 0
 };
 
 export const userCredit = createAsyncThunk(
@@ -87,9 +87,88 @@ export const searchPatient = createAsyncThunk(
     }
 );
 
+export const userCampaignAdd = createAsyncThunk(
+    "bulkMessages/userCampaignAdd",
+    async (data, { dispatch, rejectWithValue }) => {
+        try {
+            const result = await ApiBulkMessages.userCampaignAdd(data);
+            dispatch(userCredit())
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
+export const userCampaignEdit = createAsyncThunk(
+    "bulkMessages/userCampaignEdit",
+    async (data, { dispatch, rejectWithValue }) => {
+        try {
+            const result = await ApiBulkMessages.userCampaignEdit(data);
+            dispatch(userCredit())
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
+export const userCampaignDelete = createAsyncThunk(
+    "bulkMessages/userCampaignDelete",
+    async (id, { dispatch, rejectWithValue }) => {
+        try {
+            const result = await ApiBulkMessages.userCampaignDelete(id);
+            dispatch(userCredit())
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: true, message: error.response.data.message });
+        }
+    }
+);
+
+export const paymentOrder = createAsyncThunk(
+    "bulkMessages/paymentOrder",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiBulkMessages.paymentOrder(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+export const verifyPayment = createAsyncThunk(
+    "bulkMessages/verifyPayment",
+    async (data, { dispatch, rejectWithValue }) => {
+        try {
+            const result = await ApiBulkMessages.verifyPayment(data);
+            dispatch(userCredit())
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+export const paymentHistory = createAsyncThunk(
+    "bulkMessages/paymentHistory",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiBulkMessages.paymentHistory(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
 const bulkMessagesSlice = createSlice({
     name: "bulkMessages",
     initialState,
+    reducers: {
+        updatePatientCount: (state, action) => {
+            state.patientCount = action.payload;
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(userCredit.fulfilled, (state, action) => {
@@ -142,15 +221,41 @@ const bulkMessagesSlice = createSlice({
                 state.doctorList = [];
             })
             .addCase(searchPatient.fulfilled, (state, action) => {
-                state.patientList = action.payload;
+                state.patientCount = action?.payload?.length;
             })
             .addCase(searchPatient.rejected, (state, action) => {
                 state.error = { visible: action.payload.visible, message: action.payload.message }
-                state.patientList = [];
+                state.patientCount = 0;
             })
-
+            .addCase(userCampaignAdd.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(userCampaignAdd.fulfilled, (state, action) => {
+                state.loading = false;
+            })
+            .addCase(userCampaignAdd.rejected, (state, action) => {
+                state.loading = false;
+            })
+            .addCase(userCampaignEdit.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(userCampaignEdit.fulfilled, (state, action) => {
+                state.loading = false;
+            })
+            .addCase(userCampaignEdit.rejected, (state, action) => {
+                state.loading = false;
+            })
+            .addCase(userCampaignDelete.fulfilled, (state, action) => {
+                state.loading = false;
+                const updatedData = state.userCampaignList.filter(e => e?.id != action?.payload?.id);
+                state.userCampaignList = updatedData
+            })
+            .addCase(userCampaignDelete.rejected, (state, action) => {
+                state.loading = false;
+            })
 
     },
 });
 
+export const { updatePatientCount } = bulkMessagesSlice.actions
 export default bulkMessagesSlice.reducer;
