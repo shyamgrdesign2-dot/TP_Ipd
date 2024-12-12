@@ -99,7 +99,11 @@ const DigitisedPrescription = ({ data, setData }) => {
   const handleLineItemBlur = (type, index) => {
     setData((prevData) => {
       const updatedData = { ...prevData };
-      updatedData[type][index].lineItem = editableLineItem; // Update lineItem with the new value
+      if (type === "diagnosis" || type === "examination") {
+        updatedData[type][index].notes = editableLineItem;
+      } else {
+        updatedData[type][index].lineItem = editableLineItem; // Update lineItem with the new value
+      }
       return updatedData;
     });
     setActiveIndex(null);
