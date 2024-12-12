@@ -135,7 +135,6 @@ function SmartRxDigitise() {
                                                         src={smart_prescription_file}
                                                         alt="Smart Rx"
                                                         width="100%"
-                                                        height="660px"
                                                     />
                                                 )}
                                                 </div>
