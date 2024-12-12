@@ -6,12 +6,18 @@ import moment from "moment";
 import dayjs from 'dayjs';
 
 import { useSelector, useDispatch } from "react-redux";
-import { userCampaign, userCampaignDelete, userCampaignDetails } from "../redux/bulkMessagesSlice";
+import { paymentHistory, userCampaign, userCampaignDelete, userCampaignDetails } from "../redux/bulkMessagesSlice";
 
+import editIcon from "../assets/images/edit.svg";
 import emptyCampaign from '../assets/images/empty-campaign-history.svg'
 import emptyPurchase from '../assets/images/empty-purchase-history.svg'
 import newGif from '../assets/images/new-gif.gif';
 import messagesVideo from '../assets/images/messages-video.jpg';
+import RecievedImg from '../assets/images/received.svg';
+import SendImg from '../assets/images/send.svg';
+import { ReactComponent as MailMessage } from '../assets/images/mail-message.svg';
+import { ReactComponent as TextMessage } from '../assets/images/text-message.svg';
+import { ReactComponent as RecieptMessage } from '../assets/images/mail-reciept.svg';
 
 import DetailedView from "../components/bulk_messages/DetailedView";
 import CommonModal from "../common/CommonModal";
@@ -26,7 +32,7 @@ const showDateFormat = 'DD MMM YYYY'
 
 function MessagesData() {
 
-    const { userCampaignList, loading, popup, error } = useSelector((state) => state.bulkMessages);
+    const { userCampaignList, userPurchaseList, loading, popup, error } = useSelector((state) => state.bulkMessages);
     const dispatch = useDispatch();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -69,7 +75,11 @@ function MessagesData() {
                 sendData['end_date'] = dateRange.endDate;
             }
             // console.log(sendData)
-            !pickerModal && dispatch(userCampaign(sendData));
+            if (selectedTab === TAB_PURCHASE) {
+                dispatch(paymentHistory(sendData));
+            } else {
+                !pickerModal && dispatch(userCampaign(sendData));
+            }
         }, 500);
         return () => {
             clearTimeout(timeOutId);
@@ -81,7 +91,8 @@ function MessagesData() {
             key: TAB_CAMPAIGN,
             label: (
                 <div className="d-flex align-items-center">
-                    <i className="icon-Queue"></i>
+                    <MailMessage />
+                    {/* <img width={17} height={17} className="me-2" src={MailMessage} alt="Campaign History" /> */}
                     Campaign History
                 </div>
             ),
@@ -90,7 +101,7 @@ function MessagesData() {
             key: TAB_DRAFT,
             label: (
                 <div className="d-flex align-items-center">
-                    <i className="icon-Finished"></i>
+                    <TextMessage />
                     Draft Campigns
                 </div>
             ),
@@ -99,7 +110,7 @@ function MessagesData() {
             key: TAB_PURCHASE,
             label: (
                 <div className="d-flex align-items-center">
-                    <i className="icon-Cancelled"></i>
+                    <RecieptMessage />
                     Purchase History
                 </div>
             ),
@@ -111,202 +122,6 @@ function MessagesData() {
             setSelectedTab(key);
         },
         [selectedTab]
-    );
-
-    const getMenuItems = (record) => {
-        const items = [
-            {
-                label: <div onClick={async () => {
-                    const action = await dispatch(userCampaignDetails(record?.id));
-                    if (action.meta.requestStatus === "fulfilled") {
-                        handleMessageDetailed()
-                    } else {
-                        errorMessage(action.payload.message)
-                    }
-                }}>
-                    Detailed View
-                </div>,
-                key: "detailed_view",
-            },
-            {
-                label: <div onClick={async () => {
-                    const action = await dispatch(userCampaignDetails(record?.id));
-                    if (action.meta.requestStatus === "fulfilled") {
-                        navigate('/create-campaign', { state: { campaign_data: action.payload } })
-                    } else {
-                        errorMessage(action.payload.message)
-                    }
-                }}>
-                    Edit campaign
-                </div>,
-                key: 'edit_campaign',
-            },
-            {
-                label: <div onClick={async () => {
-                    const action = await dispatch(userCampaignDelete(record?.id));
-                    if (action.meta.requestStatus !== "fulfilled") {
-                        errorMessage(action.payload.message)
-                    }
-                }}>
-                    Delete campaign
-                </div>,
-                key: 'delete_campaign',
-            },
-            {
-                label: <div>Reuse campaign</div>,
-                key: 'reuse_campaign',
-            },
-        ];
-
-        if (record?.campaign_sent) {
-            return items.filter((item) => item.key !== "edit_campaign" && item.key !== "delete_campaign");
-        } else {
-            return items;
-        }
-    };
-
-    const columns = [
-        {
-            title: "#",
-            dataIndex: "srno",
-            key: "srno",
-            ellipsis: true,
-            width: 70,
-            render: (text, record, index) => (
-                <div>{index + 1}</div>
-            ),
-        },
-        {
-            title: "MESSAGE TEXT",
-            dataIndex: "message_text",
-            key: "message_text",
-            width: 310,
-            render: (text, record) => (
-                <div className="cursor-pointer" onClick={async () => {
-                    const action = await dispatch(userCampaignDetails(record?.id));
-                    if (action.meta.requestStatus === "fulfilled") {
-                        handleMessageDetailed()
-                    } else {
-                        errorMessage(action.payload.message)
-                    }
-                }}>
-                    <div>{record.campaign_name}</div>
-                    <div className="text-truncate-twolines">
-                        {record.msg}
-                    </div>
-                </div>
-            ),
-        },
-        {
-            title: "DATE & TIME",
-            dataIndex: "date_time",
-            key: "date_time",
-            ellipsis: true,
-            sorter: (a, b) => {
-                const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-                const lhsLongTime = moment(lhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
-
-                const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-                const rhsLongTime = moment(rhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
-
-                const result = lhsLongTime - rhsLongTime;
-                return result;
-            },
-            render: (text, record) => (
-                <div>
-                    {record.campaign_date}, <br />{record.campaign_time}
-                </div>
-            ),
-        },
-        {
-            title: "MESSAGE TYPE",
-            dataIndex: "send_on",
-            key: "send_on",
-            ellipsis: true,
-            filters: [
-                {
-                    text: 'SMS',
-                    value: 'SMS',
-                },
-                {
-                    text: 'WhatsApp',
-                    value: 'WhatsApp',
-                },
-            ],
-            onFilter: (value, record) => record.send_on.startsWith(value),
-            render: (text) => (
-                <div> {text} </div>
-            ),
-        },
-        {
-            title: "Target Users",
-            dataIndex: "total_patient",
-            key: "total_patient",
-            ellipsis: true,
-            sorter: (a, b) => a.total_patient - b.total_patient,
-            render: (text) => (
-                <div> {text} </div>
-            ),
-        },
-        {
-            title: "CAMPAIGN STATUS",
-            dataIndex: "campaign_status",
-            key: "campaign_status",
-            ellipsis: true,
-            render: (text, record) => (
-                <>
-                    <div className={`${record.campaign_sent ? 'text-delivered' : 'text-scheduled'}`}>{record.campaign_sent ? `${record.total_patient} Delivered` : record.campaign_status}</div>
-                    {/* <div className="text-faild mt-1">32 Not Delivered</div> */}
-                </>
-            ),
-        },
-        {
-            key: "action",
-            width: 70,
-            render: (text, record) => (
-                <Dropdown className="cursor-pointer"
-                    menu={{
-                        items: getMenuItems(record),
-                    }}
-                    trigger={['click']}>
-                    <i className='icon-More'></i>
-                </Dropdown>
-            ),
-        },
-    ];
-
-    const emptyText = (
-        <div className="d-flex flex-column align-items-center justify-content-center"
-            style={{ height: "calc(100vh - 350px)" }}>
-            {selectedTab === TAB_PURCHASE ? (
-                <>
-                    <img src={emptyPurchase} alt="Empty" />
-                    <div className="mt-3 fs-16 fw-medium"> You haven't purchased any credits yet!</div>
-                    <div>Start buying credits to keep your messages flowing.</div>
-                    <Button
-                        variant="primary"
-                        className="px-3 btn-41 ms-3 d-flex align-items-center">
-                        <i className="icon-Add me-2"></i>
-                        {"Buy Credits"}
-                    </Button>
-                </>
-            ) : (
-                <>
-                    <img width={221.54} height={180} src={emptyCampaign} alt="Empty" />
-                    <div className="fs-16 fw-medium"> You haven't created any SMS or WhatsApp campaigns yet!</div>
-                    <div className="mt-2 lh-normal fs-14 fw-normal">Start creating campaigns to keep your patients </div>
-                    <div className="mt-2 lh-normal fs-14 fw-normal">informed and engaged</div>
-                    <Button
-                        onClick={() => navigate('/create-campaign')}
-                        variant="primary"
-                        className="px-3 mt-4 btn-41 d-flex align-items-center">
-                        <i className="icon-Add me-2"></i>
-                        {"Create New Campaign"}
-                    </Button>
-                </>
-            )}
-
-        </div>
     );
 
     const handlePickerModal = useCallback(
@@ -386,6 +201,267 @@ function MessagesData() {
         }
     };
 
+    const onCampaignClick = async (status, record) => {
+        if (status === 3) {
+            const action = await dispatch(userCampaignDelete(record?.id));
+            if (action.meta.requestStatus !== "fulfilled") {
+                errorMessage(action.payload.message)
+            }
+        } else {
+            const action = await dispatch(userCampaignDetails(record?.id));
+            if (action.meta.requestStatus === "fulfilled") {
+                status === 1 ? handleMessageDetailed() : navigate('/create-campaign', { state: { campaign_data: action.payload } })
+            } else {
+                errorMessage(action.payload.message)
+            }
+        }
+    }
+
+    const getMenuItems = (record) => {
+        const items = [
+            {
+                label: <div onClick={() => onCampaignClick(1, record)}>Detailed View</div>,
+                key: "detailed_view",
+            },
+            {
+                label: <div onClick={() => onCampaignClick(2, record)}>Edit campaign</div>,
+                key: 'edit_campaign',
+            },
+            {
+                label: <div onClick={() => onCampaignClick(3, record)}>Delete campaign</div>,
+                key: 'delete_campaign',
+            },
+            {
+                label: <div>Reuse campaign</div>,
+                key: 'reuse_campaign',
+            },
+        ];
+
+        if (record?.campaign_sent) {
+            return items.filter((item) => item.key !== "edit_campaign" && item.key !== "delete_campaign");
+        } else {
+            return items;
+        }
+    };
+
+    const columns = [
+        {
+            title: "#",
+            dataIndex: "srno",
+            key: "srno",
+            ellipsis: true,
+            width: 70,
+            render: (text, record, index) => (
+                <div className="fs-14">{index + 1}</div>
+            ),
+        },
+        {
+            title: "MESSAGE TEXT",
+            dataIndex: "message_text",
+            key: "message_text",
+            width: 310,
+            render: (text, record) => (
+                <div className="cursor-pointer" onClick={async () => {
+                    const action = await dispatch(userCampaignDetails(record?.id));
+                    if (action.meta.requestStatus === "fulfilled") {
+                        handleMessageDetailed()
+                    } else {
+                        errorMessage(action.payload.message)
+                    }
+                }}>
+                    <div className="text-black fs-14 fw-semibold">{record.campaign_name}</div>
+                    <div className="fs-14 fw-normal text-truncate-twolines">
+                        {record.msg}
+                    </div>
+                </div>
+            ),
+        },
+        {
+            title: "DATE & TIME",
+            dataIndex: "date_time",
+            key: "date_time",
+            ellipsis: true,
+            sorter: (a, b) => {
+                const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
+                const lhsLongTime = moment(lhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
+
+                const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
+                const rhsLongTime = moment(rhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
+
+                const result = lhsLongTime - rhsLongTime;
+                return result;
+            },
+            render: (text, record) => (
+                <div>
+                    {record.campaign_date}, <br />{record.campaign_time}
+                </div>
+            ),
+        },
+        {
+            title: "MESSAGE TYPE",
+            dataIndex: "send_on",
+            key: "send_on",
+            ellipsis: true,
+            filters: [
+                {
+                    text: 'SMS',
+                    value: 'SMS',
+                },
+                {
+                    text: 'WhatsApp',
+                    value: 'WhatsApp',
+                },
+            ],
+            onFilter: (value, record) => record.send_on.startsWith(value),
+            render: (text, record) => (
+                <div> {text} </div>
+            ),
+        },
+        {
+            title: "Target Users",
+            dataIndex: "total_patient",
+            key: "total_patient",
+            ellipsis: true,
+            sorter: (a, b) => a.total_patient - b.total_patient,
+            render: (text, record) => (
+                <div> {text} </div>
+            ),
+        },
+        {
+            title: "CAMPAIGN STATUS",
+            dataIndex: "campaign_status",
+            key: "campaign_status",
+            ellipsis: true,
+            render: (text, record) => (
+                <>
+                    <div className={`fs-14 fw-normal ${record.campaign_sent ? 'text-delivered' : 'text-scheduled'}`}>{record.campaign_sent ? `${record.total_patient} Delivered` : record.campaign_status}</div>
+                    {/* <div className="text-faild mt-1">32 Not Delivered</div> */}
+                </>
+            ),
+        },
+        {
+            title: selectedTab !== TAB_CAMPAIGN && "Action",
+            key: "action",
+            width: selectedTab !== TAB_CAMPAIGN ? 150 : 70,
+            render: (text, record) => (
+                selectedTab !== TAB_CAMPAIGN ? (
+                    <div className="d-flex">
+                        <Button
+                            className="btn py-0 btn-videoClose btn-delete-prescription px-0 me-3"
+                            onClick={() => onCampaignClick(2, record)}>
+                            <img src={editIcon} alt="edit" />
+                        </Button>
+                        <Button
+                            className="btn py-0 btn-videoClose btn-delete-prescription px-0"
+                            onClick={() => onCampaignClick(3, record)}>
+                            <i className="icon-delete text-main fs-20"></i>
+                        </Button>
+                    </div>
+                ) : (
+                    <Dropdown className="cursor-pointer"
+                        menu={{
+                            items: getMenuItems(record),
+                        }}
+                        trigger={['click']}>
+                        <i className='icon-More'></i>
+                    </Dropdown>
+                )
+            ),
+        },
+    ];
+
+    const columns_purchase = [
+        {
+            title: "#",
+            dataIndex: "srno",
+            key: "srno",
+            ellipsis: true,
+            width: 70,
+            render: (text, record, index) => (
+                <div className="py-2 fs-14 fw-normal">{index + 1}</div>
+            ),
+        },
+        {
+            title: "TRANSACTION ID",
+            dataIndex: "payment_id",
+            key: "payment_id",
+            width: 310,
+            render: (text, record) => (
+                <div className="py-2 text-black fw-normal">{text}</div>
+            ),
+        },
+        {
+            title: "DESCRIPTION",
+            dataIndex: "description",
+            key: "description",
+            render: (text, record) => (
+                <div className="py-2 text-black fw-normal">{text}</div>
+            ),
+        },
+        {
+            title: "DATE",
+            dataIndex: "date",
+            key: "date",
+            render: (text, record) => (
+                <div className="py-2"> {text} </div>
+            ),
+        },
+        {
+            title: "CREDITS",
+            dataIndex: "amount",
+            key: "amount",
+            render: (text, record) => (
+                <div className="py-2">
+                    {record.status === 1 ? <img src={RecievedImg} className="me-2" alt="Recieved" /> : <img src={SendImg} className="me-2" alt="Send" />}
+                    {`${text} Credits`}
+                </div>
+            ),
+        },
+        {
+            title: "Txn STATUS",
+            dataIndex: "status_show",
+            key: "status_show",
+            ellipsis: true,
+            render: (text, record) => (
+                <div className={`py-2 ${record.status === 1 ? 'text-delivered' : 'text-faild'}`}> {text} </div>
+            ),
+        }
+    ];
+
+    const emptyText = (
+        <div className="d-flex flex-column align-items-center justify-content-center"
+            style={{ height: "calc(100vh - 350px)" }}>
+            {selectedTab === TAB_PURCHASE ? (
+                <>
+                    <img src={emptyPurchase} alt="Empty" />
+                    <div className="mt-3 fs-16 fw-medium"> You haven't purchased any credits yet!</div>
+                    <div>Start buying credits to keep your messages flowing.</div>
+                    <Button
+                        variant="primary"
+                        className="px-3 btn-41 ms-3 d-flex align-items-center">
+                        <i className="icon-Add me-2"></i>
+                        {"Buy Credits"}
+                    </Button>
+                </>
+            ) : (
+                <>
+                    <img width={221.54} height={180} src={emptyCampaign} alt="Empty" />
+                    <div className="fs-16 fw-medium"> You haven't created any SMS or WhatsApp campaigns yet!</div>
+                    <div className="mt-2 lh-normal fs-14 fw-normal">Start creating campaigns to keep your patients </div>
+                    <div className="mt-2 lh-normal fs-14 fw-normal">informed and engaged</div>
+                    <Button
+                        onClick={() => navigate('/create-campaign')}
+                        variant="primary"
+                        className="px-3 mt-4 btn-41 d-flex align-items-center">
+                        <i className="icon-Add me-2"></i>
+                        {"Create New Campaign"}
+                    </Button>
+                </>
+            )}
+
+        </div>
+    );
+
     const handleMessageDetailed = useCallback(
         () => {
             setMessageDetailed(!messageDetailed)
@@ -405,7 +481,7 @@ function MessagesData() {
                 />
                 <div>
                     <div className="px-4 mb-3 d-flex align-items-center justify-content-between">
-                        <Input className="h-38 w-25 rounded-10px" placeholder="Search by order ID" />
+                        {selectedTab !== TAB_CAMPAIGN ? <Input className="h-38 w-25 rounded-10px" placeholder="Search by order ID" /> : <div />}
                         <div className="massage-date-wrapper">
                             <div className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between" onClick={handlePickerModal}>
                                 <span>
@@ -467,14 +543,26 @@ function MessagesData() {
                         </div>
                     </div>
 
-                    <Table
-                        className="px-xl-4 px-0 table-message"
-                        columns={columns}
-                        dataSource={userCampaignList}
-                        pagination={false}
-                        locale={{ emptyText: emptyText }}
-                        loading={loading}
-                    />
+                    {selectedTab === TAB_PURCHASE ? (
+                        <Table
+                            className="px-xl-4 px-0 table-message"
+                            columns={columns_purchase}
+                            dataSource={userPurchaseList}
+                            pagination={false}
+                            locale={{ emptyText: emptyText }}
+                            loading={loading}
+                        />
+                    ) : (
+                        <Table
+                            className="px-xl-4 px-0 table-message"
+                            columns={selectedTab !== TAB_CAMPAIGN ? columns.filter(e => e?.key != "campaign_status") : columns}
+                            dataSource={userCampaignList}
+                            pagination={false}
+                            locale={{ emptyText: emptyText }}
+                            loading={loading}
+                        />
+                    )}
+
                 </div>
             </div>
             <Drawer

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Button, Drawer, Popover, Steps, Radio, DatePicker, Select, Checkbox, Input, Spin } from 'antd';
+import { Button, Drawer, Popover, Steps, Radio, DatePicker, TimePicker, Select, Checkbox, Input, Spin } from 'antd';
 import { Col, Container, Row } from "react-bootstrap";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -77,7 +77,6 @@ const SELECT_AFTER = [
 
 const GENDER = ['Male', 'Female', 'Other']
 
-
 function MessageCreateCampaign() {
 
     const { loading, userCreditObj, allTemplateList, templateLoading, doctorList, patientCount } = useSelector((state) => state.bulkMessages);
@@ -105,6 +104,10 @@ function MessageCreateCampaign() {
     const [patient_name, setpatient_name] = useState('');
     const [doctor_name, setdoctor_name] = useState('');
     const [date, setdate] = useState('');
+    const [appointment_date, setappointment_date] = useState('');
+    const [appointment_time, setappointment_time] = useState('');
+    const [hospital_name, sethospital_name] = useState('');
+    const [hospital_address, sethospital_address] = useState('');
 
     const [dateRange, setDateRange] = useState({
         startDate: moment().format(dateFormat),
@@ -159,6 +162,18 @@ function MessageCreateCampaign() {
             if (campaign_data?.msg_rowData?.hasOwnProperty('date')) {
                 setdate(campaign_data?.msg_rowData?.date)
             }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('appointment_date')) {
+                setappointment_date(campaign_data?.msg_rowData?.appointment_date)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('appointment_time')) {
+                setappointment_time(campaign_data?.msg_rowData?.appointment_time)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('hospital_name')) {
+                sethospital_name(campaign_data?.msg_rowData?.hospital_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('hospital_address')) {
+                sethospital_address(campaign_data?.msg_rowData?.hospital_address)
+            }
 
             setSendOn(campaign_data?.send_on === 'SMS' ? 1 : 2)
             setSender_type(campaign_data?.sender_type)
@@ -193,10 +208,10 @@ function MessageCreateCampaign() {
 
                 const genderData = campaign_data?.gender ? campaign_data?.gender.split(',') : []
                 setGender(genderData)
-
-                setScheduleType(2)
-                setScheduleDateTime(moment(`${campaign_data?.campaign_date} ${campaign_data?.campaign_date}`, showDateTimeFormat).format(dateTimeFormat))
             }
+
+            setScheduleType(2)
+            setScheduleDateTime(moment(`${campaign_data?.campaign_date} ${campaign_data?.campaign_date}`, showDateTimeFormat).format(dateTimeFormat))
         }
     }, [doctorList, allTemplateList, campaign_data]);
 
@@ -536,6 +551,64 @@ function MessageCreateCampaign() {
                         />
                     );
                 }
+                else if (part === 'appointment_date') {
+                    return (
+                        <DatePicker
+                            className="me-1 my-2"
+                            style={{ width: 150, height: 30 }}
+                            format={showDateFormat}
+                            placeholder='Select appointment date'
+                            key={index}
+                            value={appointment_date ? dayjs(moment(appointment_date).format(showDateFormat), showDateFormat) : ''}
+                            onChange={(date, dateString) => setappointment_date(moment(dateString, showDateFormat).format(showDateFormat))}
+                        />
+                    );
+                }
+                else if (part === 'appointment_time') {
+                    return (
+                        <TimePicker
+                            className="me-1 my-2"
+                            style={{ width: 150, height: 30 }}
+                            format={showTimeFormat1}
+                            placeholder='Select appointment Time'
+                            key={index}
+                            value={appointment_time ? dayjs(moment(appointment_time).format(showTimeFormat1), showTimeFormat1) : ''}
+                            onChange={(date, dateString) => setappointment_time(moment(dateString, showTimeFormat1).format(showTimeFormat1))}
+                        />
+                    );
+                }
+                else if (part === 'hospital_name') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: hospital_name ? parseInt(hospital_name?.length * 7.55) >= 150 ? hospital_name?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={hospital_name}
+                            onChange={(e) => sethospital_name(e.target.value)}
+                            placeholder="Enter hospital name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'hospital_address') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: hospital_address ? parseInt(hospital_address?.length * 7.55) >= 165 ? hospital_address?.length * 7.55 : 165 : 165,
+                                maxWidth: 300
+                            }}
+                            value={hospital_address}
+                            onChange={(e) => sethospital_address(e.target.value)}
+                            placeholder="Enter hospital address"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
             }
             return part;
         });
@@ -548,7 +621,11 @@ function MessageCreateCampaign() {
         dr_name,
         patient_name,
         doctor_name,
-        date
+        date,
+        appointment_date,
+        appointment_time,
+        hospital_name,
+        hospital_address,
     ]);
 
     const TEMPLATE_TEXT = useMemo(() => {
@@ -560,6 +637,10 @@ function MessageCreateCampaign() {
             .replace(/{patient_name}/g, patient_name ? patient_name : '{patient_name}')
             .replace(/{doctor_name}/g, doctor_name ? doctor_name : '{doctor_name}')
             .replace(/{date}/g, date ? date : '{date}')
+            .replace(/{appointment_date}/g, appointment_date ? appointment_date : '{appointment_date}')
+            .replace(/{appointment_time}/g, appointment_time ? appointment_time : '{appointment_time}')
+            .replace(/{hospital_name}/g, hospital_name ? hospital_name : '{hospital_name}')
+            .replace(/{hospital_address}/g, hospital_address ? hospital_address : '{hospital_address}')
     }, [template,
         clinic_name,
         festival_name,
@@ -567,7 +648,11 @@ function MessageCreateCampaign() {
         dr_name,
         patient_name,
         doctor_name,
-        date])
+        date,
+        appointment_date,
+        appointment_time,
+        hospital_name,
+        hospital_address,])
 
 
     const sendTemplate = () => {
@@ -596,18 +681,30 @@ function MessageCreateCampaign() {
                 else if (part === 'date') {
                     msg_rowData['date'] = date;
                 }
+                else if (part === 'appointment_date') {
+                    msg_rowData['appointment_date'] = appointment_date;
+                }
+                else if (part === 'appointment_time') {
+                    msg_rowData['appointment_time'] = appointment_time;
+                }
+                else if (part === 'hospital_name') {
+                    msg_rowData['hospital_name'] = hospital_name;
+                }
+                else if (part === 'hospital_address') {
+                    msg_rowData['hospital_address'] = hospital_address;
+                }
             }
         })
         return msg_rowData;
     }
-    const onAddEditCampaign = async () => {
+    const onAddEditCampaign = async (draft) => {
         var sendData = {
             campaign_id: template?.id,
             send_on: send_on,
             campaign_date: moment(scheduleDateTime).format(dateFormat1),
             campaign_time: moment(scheduleDateTime).format(timeFormat1),
             msg_rowData: sendTemplate(),
-            draft: 0,
+            draft: draft,
             sender_type: sender_type,
             total_patient: patientCount,
             filter_doc: sender_type == 2 ? filter_doc?.includes(-1) ? doctorList.map(e => e?.um_id).toString() : filter_doc.map(e => e).toString() : '',
@@ -633,17 +730,22 @@ function MessageCreateCampaign() {
             max_age_unit: sender_type == 2 ? age_unit : '',
             gender: sender_type == 2 ? gender?.length > 0 ? gender.map(e => e).toString() : '' : '',
         }
-
         if (campaign_data !== undefined) {
             sendData['id'] = campaign_data?.id
             sendData['change'] = change ? 1 : 0
         }
-
         const action = campaign_data !== undefined ? await dispatch(userCampaignEdit(sendData)) : await dispatch(userCampaignAdd(sendData));
         if (action.meta.requestStatus === "fulfilled") {
             navigate('/bulk_messages', { replace: true })
         } else {
             errorMessage(action.payload.message)
+        }
+    }
+    const onGoBack = () => {
+        if (stepCurrent === 0) {
+            navigate(-1)
+        } else {
+            showHideBackModal()
         }
     }
 
@@ -652,7 +754,7 @@ function MessageCreateCampaign() {
             <div className='modalCard-header align-items-center d-flex justify-content-between'>
                 <div className="align-items-center d-flex">
                     <div className='border-end h-100 text-center'>
-                        <Button className='btn btn-delete-prescription px-3 h-100' onClick={showHideBackModal}>
+                        <Button className='btn btn-delete-prescription px-3 h-100' onClick={onGoBack}>
                             <i className='icon-right lh-lg'></i>
                         </Button>
                     </div>
@@ -673,7 +775,7 @@ function MessageCreateCampaign() {
                                 </div>
                                 <div className="mt-4">
                                     <div className="d-flex align-items-center mt-2 justify-content-end">
-                                        <div onClick={() => navigate(-1)} className="me-4 text-decoration-underline btn p-0 text-main">
+                                        <div onClick={() => onAddEditCampaign(1)} className="me-4 text-decoration-underline btn p-0 text-main">
                                             <span>Yes, Go back</span>
                                         </div>
                                         <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">
@@ -721,13 +823,12 @@ function MessageCreateCampaign() {
                                     Next
                                 </Button>
                             ) : (
-
                                 <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center'
                                     disabled={userCreditObj?.userCredit <= `${send_on === 1 ?
                                         (patientCount * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit
                                         : patientCount * userCreditObj?.defaultWhatsAppCredit}`}
                                     loading={loading}
-                                    onClick={onAddEditCampaign}>
+                                    onClick={() => onAddEditCampaign(0)}>
                                     Send Message Now
                                 </Button>
                             )}
@@ -787,6 +888,10 @@ function MessageCreateCampaign() {
                                                                 .replace(/{patient_name}/g, `<label class="text-greycolor">{patient_name}</label>`)
                                                                 .replace(/{doctor_name}/g, `<label class="text-greycolor">{doctor_name}</label>`)
                                                                 .replace(/{date}/g, `<label class="text-greycolor">{date}</label>`)
+                                                                .replace(/{appointment_date}/g, `<label class="text-greycolor">{appointment_date}</label>`)
+                                                                .replace(/{appointment_time}/g, `<label class="text-greycolor">{appointment_time}</label>`)
+                                                                .replace(/{hospital_name}/g, `<label class="text-greycolor">{hospital_name}</label>`)
+                                                                .replace(/{hospital_address}/g, `<label class="text-greycolor">{hospital_address}</label>`)
                                                         }}>
                                                     </div>
                                                 </div>
@@ -1081,11 +1186,11 @@ function MessageCreateCampaign() {
                                     </div>
                                 </div>
 
-                                <div className="mt-4">
+                                <div className="mt-4 mb-3">
                                     <div className="fontroboto text-black fw-bold title-hypertension">Credit Details</div>
                                     <div className="title-common my-2 text-black-50">{`(${send_on === 1 ? '1 SMS = ' + userCreditObj?.defaultSMSCredit : '1 WhatsApp message = ' + userCreditObj?.defaultWhatsAppCredit} Credits)`}</div>
 
-                                    <div className="mt-4 mb-3">
+                                    <div className="mt-4">
                                         <div className="d-flex align-items-center py-2 justify-content-between fs-18 fw-medium fontroboto">
                                             <div>Target Customers (A) :</div>
                                             <div>{`${patientCount} User`}</div>
@@ -1099,11 +1204,34 @@ function MessageCreateCampaign() {
                                             <div>{`${send_on === 1 ? userCreditObj?.defaultSMSCredit : userCreditObj?.defaultWhatsAppCredit} Credits`}</div>
                                         </div>
                                         <hr />
-                                        <div className="d-flex align-items-center justify-content-between fs-18 fw-semibold fontroboto">
+                                        <div className="d-flex align-items-center justify-content-between fs-18 fw-medium fontroboto">
                                             <div>Total Credits Required (ABC) :</div>
                                             <div className="fw-medium">{`${send_on === 1 ? ((patientCount * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit).toFixed(2) : (patientCount * userCreditObj?.defaultWhatsAppCredit).toFixed(2)} Credits`}</div>
                                         </div>
-                                        <hr />
+                                        {userCreditObj?.userCredit < `${send_on === 1 ?
+                                            (patientCount * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit
+                                            : patientCount * userCreditObj?.defaultWhatsAppCredit}` && (
+                                                <>
+                                                    <div className="mt-2 d-flex align-items-center justify-content-between fs-18 fw-medium fontroboto">
+                                                        <div>Your Credit Balance</div>
+                                                        <div className="fw-medium">(-){userCreditObj?.userCredit} Credits</div>
+                                                    </div>
+                                                    <hr />
+                                                    <div className="d-flex align-items-center justify-content-between fs-18 fw-semibold fontroboto">
+                                                        <div className="text-scheduled">Credit to Purchase</div>
+                                                        <div className="fw-semibold text-scheduled">
+                                                            {`${send_on === 1 ?
+                                                                (((patientCount * Math.ceil(TEMPLATE_TEXT?.length / 160)) * userCreditObj?.defaultSMSCredit) - userCreditObj?.userCredit).toFixed(2)
+                                                                : ((patientCount * userCreditObj?.defaultWhatsAppCredit) - userCreditObj?.userCredit).toFixed(2)} Credits`}</div>
+                                                    </div>
+                                                    <hr />
+                                                    <Button className='mt-4 btn btn-primary3 btn-41 px-5 mx-auto d-block'
+                                                        loading={loading}
+                                                        onClick={handleMessageDetailed}>
+                                                        Buy Credits
+                                                    </Button>
+                                                </>
+                                            )}
                                     </div>
                                     {/* <div className="text-greycolor">We will refund the credits for undelivered messages within 48 hours of delivery</div> */}
                                 </div>

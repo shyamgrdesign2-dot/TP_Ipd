@@ -5,6 +5,7 @@ import ApiBulkMessages from "../api/services/ApiBulkMessages";
 const initialState = {
     userCreditObj: null,
     userCampaignList: [],
+    userPurchaseList: [],
     loading: false,
     popup: false,
     campaignDetails: null,
@@ -149,6 +150,7 @@ export const verifyPayment = createAsyncThunk(
         }
     }
 );
+
 export const paymentHistory = createAsyncThunk(
     "bulkMessages/paymentHistory",
     async (data, { rejectWithValue }) => {
@@ -252,6 +254,17 @@ const bulkMessagesSlice = createSlice({
             })
             .addCase(userCampaignDelete.rejected, (state, action) => {
                 state.loading = false;
+            })
+            .addCase(paymentHistory.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(paymentHistory.fulfilled, (state, action) => {
+                state.loading = false;
+                state.userPurchaseList = action.payload;
+            })
+            .addCase(paymentHistory.rejected, (state, action) => {
+                state.loading = false;
+                state.userPurchaseList = [];
             })
 
     },

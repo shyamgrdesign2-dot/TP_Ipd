@@ -32,34 +32,15 @@
 .tabs-massages {
     .ant-tabs-tab {
         padding: 15px;
-    }
-}
-.table-message {
-    .ant-table-tbody {
-        tr {
-            td {
-                &:first-child {
-                    font-weight: 400;
-                    font-size: 14px;
-                }
-                &:nth-child(2) {
-                    div {
-                        &:first-child {
-                            color: #000 !important;
-                            font-size: 14px;
-                            font-weight: 600;
-                        }
-                        &:nth-child(2) {
-                            font-size: 14px;
-                            font-weight: 400;
-                        }
-                    }
-                }
-                &:nth-child(6) {
-                    div {
-                        font-size: 14px;
-                        font-weight: 400; 
-                    }
+        svg {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+        }
+        &.ant-tabs-tab-active .ant-tabs-tab-btn{
+            svg {
+                path {
+                    stroke: $theme;
                 }
             }
         }
