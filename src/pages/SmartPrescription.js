@@ -208,7 +208,7 @@ function SmartPrescription() {
     additionalNote,
     setAdditionalNote,
     customModuleContents,
-    setCustomModuleContents
+    setCustomModuleContents,
     startTime,
   };
 
