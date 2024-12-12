@@ -24,6 +24,7 @@ import ddxSlice from './ddxSlice';
 import subscriptionReducer from './subscriptionSlice';
 import doctorModalReducer from './doctorModalSlice';
 import surgicalSlice from './surgicalSlice';
+import customModuleReducer from './customModuleSlice';
 
 const persistConfig = {
   key: 'root',
@@ -53,6 +54,7 @@ const rootReducer = combineReducers({
   ddx: ddxSlice,
   subscription: subscriptionReducer,
   doctorModal: doctorModalReducer,
+  customModules: customModuleReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

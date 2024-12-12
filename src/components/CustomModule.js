@@ -18,12 +18,14 @@ import {
   Tooltip,
   Dropdown,
   Menu,
+  message,
 } from "antd";
 import {
-  DeleteOutlined,
-  EditOutlined,
+  CheckOutlined,
+  CloseOutlined,
   LoadingOutlined,
   MoreOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
@@ -40,32 +42,29 @@ import {
 import ModuleIcon from "../assets/images/custom-module.svg";
 import { MenuOutlined } from "@ant-design/icons";
 import {
-  addTemplate,
-  updateTemplate,
-  deleteTemplate,
-  getExaminationTemplates,
-  getFrequentlySearchedExamination,
-  searchExamination,
-} from "../redux/examinationSlice";
+  addModule,
+  getModuleContents,
+  searchModule,
+} from "../redux/customModuleSlice";
 
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { setIsDDxReadyToGenerate } from "../redux/ddxSlice";
-import editIcon from "../assets/images/edit.svg";
+import editIcon from "../assets/images/edit-icon-blue.svg";
+import deleteIcon from "../assets/images/delete-icon-blue.svg";
 import TextArea from "antd/es/input/TextArea";
+import { MESSAGE_KEY } from "../utils/constants";
+import visitEnd from "../assets/images/end-visit.svg";
+import imgCloseVisit from "../assets/images/close-visit.svg";
 
 function CustomModule({ module }) {
-  const {
-    selectedExaminationList,
-    parentOptionsList,
-    childOptionsList,
-    templates,
-    loading,
-  } = useSelector((state) => state.examination);
+  const { customModules, searchModuleResults, loading } = useSelector(
+    (state) => state.customModules
+  );
+  const { userId } = useSelector((state) => state.doctors);
+
   const dispatch = useDispatch();
 
-  const { examinationData, setExaminationData, symptomsData } =
+  const { customModuleContents, setCustomModuleContents } =
     useContext(CashManagerContext);
-  // const [ examinationData, setExaminationData] = useState([]);
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -75,10 +74,7 @@ function CustomModule({ module }) {
   const [isModalOpen1, setIsModalOpen1] = useState(false);
   const [removeTemplateId, setRemoveTemplateId] = useState(null);
 
-  const [searchParentQuery, setSearchParentQuery] = useState("");
-  const [parentSearchOptions, setParentSearchOptions] = useState([]);
-
-  const [searchChildQuery, setSearchChildQuery] = useState(null);
+  const [searchChildQuery, setSearchChildQuery] = useState({});
   const [childSearchOptions, setChildSearchOptions] = useState([]);
 
   //PopOver2
@@ -91,114 +87,37 @@ function CustomModule({ module }) {
     { key: TAB_UPDATE_TEMPLATE, label: "Update Template" },
   ];
   const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
+  const templates = module?.templates;
+  const [canEditName, setCanEditName] = useState(false);
+  const [newModuleName, setNewModuleName] = useState(module?.name || "");
+  const [isDeleteModuleModalOpen, setIsDeleteModuleModalOpen] = useState(false);
+  const moduleData =
+    customModuleContents
+      .filter((content) => content.module_id === module.module_id)
+      ?.flatMap((item) => item.content) || [];
+  console.log({ customModuleContents, moduleData });
 
   useEffect(() => {
-    if (selectedExaminationList.length > 0) {
-      const updatedData = examinationData.map((e, i) => {
-        return { ...e, ...selectedExaminationList[i] };
-      });
-      setExaminationData(updatedData);
+    const moduleContent = customModuleContents.find(
+      (content) => content.module_id === module.module_id
+    );
+
+    if (!moduleContent || moduleContent.content.length === 0) {
+      updateCustomModuleContents([{ title: "", notes: "" }]);
     }
-  }, [selectedExaminationList]);
 
-  useEffect(() => {
-    dispatch(getExaminationTemplates());
-  }, []);
-
-  useEffect(() => {
     setMatchedTemplates(templates);
     setAllTemplates(templates);
-  }, [templates]);
+  }, [module]);
 
   //Parent AutoComplete
   useEffect(() => {
-    if (searchParentQuery) {
+    if (searchChildQuery?.query) {
       const timeOutId = setTimeout(() => {
         dispatch(
-          searchExamination({ searchQuery: searchParentQuery, type: "parent" })
-        );
-      }, 500);
-      return () => {
-        clearTimeout(timeOutId);
-      };
-    } else {
-      dispatch(getFrequentlySearchedExamination());
-    }
-  }, [searchParentQuery]);
-
-  useEffect(() => {
-    const data = [];
-    parentOptionsList.map((e) => {
-      return data.push({
-        key: JSON.stringify({ ...e, unique_id: uuidv4() }),
-        value: e.examination_name,
-        label: <div>{e.examination_name}</div>,
-      });
-    });
-    if (searchParentQuery.length === 0) {
-      data.unshift({
-        key: -1,
-        label: (
-          <>
-            <div>FREQUENTLY USED</div>
-          </>
-        ),
-      });
-    } else {
-      searchParentQuery &&
-        data.push({
-          key: JSON.stringify({
-            unique_id: uuidv4(),
-            change: 1,
-            examination_name: searchParentQuery,
-          }),
-          value: searchParentQuery,
-          label: (
-            <>
-              <div>
-                {searchParentQuery}
-                <i className="icon-Add mx-1 text-primary fs-6"></i>{" "}
-                <a className="fw-medium text-decoration-underline text-primary">
-                  {" "}
-                  Add Custom
-                </a>
-              </div>
-            </>
-          ),
-        });
-    }
-    setParentSearchOptions(data);
-  }, [parentOptionsList]);
-
-  const onSearchParent = useCallback(
-    (query) => {
-      setSearchParentQuery(removeBeforeWhiteSpace(query));
-      // ?.replace(/,/g, '')
-    },
-    [searchParentQuery]
-  );
-
-  const onSelectParent = useCallback(
-    (data, e) => {
-      examinationData.push({
-        ...JSON.parse(e.key),
-        note: "",
-      });
-      setExaminationData((prev) => [...prev]);
-      setSearchParentQuery("");
-      dispatch(setIsDDxReadyToGenerate(true));
-    },
-    [searchParentQuery, examinationData]
-  );
-
-  //Child AutoComplete
-  useEffect(() => {
-    if (searchChildQuery) {
-      const timeOutId = setTimeout(() => {
-        dispatch(
-          searchExamination({
-            searchQuery: searchChildQuery.query,
-            type: "child",
+          searchModule({
+            moduleId: module?.module_id,
+            keyword: searchChildQuery.query,
           })
         );
       }, 500);
@@ -210,89 +129,145 @@ function CustomModule({ module }) {
 
   useEffect(() => {
     const data = [];
-    childOptionsList.map((e) => {
+    searchModuleResults.map(({ content }) => {
       return data.push({
-        key: JSON.stringify({ ...e, unique_id: uuidv4() }),
-        value: e.examination_name,
-        label: <div>{e.examination_name}</div>,
+        key: JSON.stringify({ ...content, unique_id: uuidv4() }),
+        value: content?.title,
+        label: <div>{content?.title}</div>,
       });
     });
-    if (searchChildQuery?.query) {
-      data.push({
-        key: JSON.stringify({
-          ...examinationData[searchChildQuery.index],
-          unique_id: uuidv4(),
-          change: 1,
-          examination_name: searchChildQuery.query,
-        }),
-        value: searchChildQuery.query,
+    if (searchChildQuery.query?.length === 0) {
+      data.unshift({
+        key: -1,
         label: (
           <>
-            <div>{searchChildQuery.query}</div>
+            <div>FREQUENTLY USED</div>
           </>
         ),
       });
+    } else {
+      searchChildQuery?.query &&
+        data.push({
+          key: JSON.stringify({
+            unique_id: uuidv4(),
+            change: 1,
+            title: searchChildQuery?.query,
+          }),
+          value: searchChildQuery?.query,
+          label: (
+            <>
+              <div>
+                {searchChildQuery?.query}
+                <i className="icon-Add mx-1 text-primary fs-6"></i>{" "}
+                <a className="fw-medium text-decoration-underline text-primary">
+                  {" "}
+                  Add Custom
+                </a>
+              </div>
+            </>
+          ),
+        });
     }
     setChildSearchOptions(data);
-  }, [childOptionsList]);
+  }, [searchModuleResults]);
+
+  const updateCustomModuleContents = (updatedContent) => {
+    setCustomModuleContents((prevContents) => {
+      const moduleExists = prevContents.some(
+        (content) => content.module_id === module.module_id
+      );
+      return moduleExists
+        ? prevContents.map((content) => {
+            if (content.module_id === module.module_id) {
+              return {
+                ...content,
+                module_name: module.name,
+                content: updatedContent,
+              };
+            }
+            return content;
+          })
+        : [
+            ...prevContents,
+            {
+              module_id: module.module_id,
+              module_name: module.name,
+              content: updatedContent,
+            },
+          ];
+    });
+  };
+
+  // const onSearchParent = useCallback(
+  //   (query) => {
+  //     setSearchChildQuery(removeBeforeWhiteSpace(query));
+  //   },
+  //   [searchChildQuery]
+  // );
+
+  // const onSelectParent = useCallback(
+  //   (data, e) => {
+  //     const newItem = { title: data, notes: "" };
+  //     updateCustomModuleContents([...moduleData, newItem]);
+  //     setSearchChildQuery("");
+  //   },
+  //   [moduleData]
+  // );
 
   const onFocusChid = (i) => {
     setSearchChildQuery({
-      query: examinationData[i].examination_name,
+      query: moduleData[i].title,
       index: i,
     });
     dispatch(
-      searchExamination({
-        searchQuery: examinationData[i].examination_name,
-        type: "child",
+      searchModule({
+        moduleId: module?.module_id,
+        keyword: searchChildQuery?.query,
       })
     );
   };
 
   const onSearchChild = useCallback(
     (query, i) => {
-      const updateQuery = removeBeforeWhiteSpace(query);
-      examinationData[i] = {
-        ...examinationData[i],
+      const updatedQuery = removeBeforeWhiteSpace(query);
+      const updatedModuleData = [...moduleData];
+      updatedModuleData[i] = {
+        ...updatedModuleData[i],
+        title: updatedQuery,
         change: 1,
-        examination_name: updateQuery,
       };
-      setExaminationData((prev) => [...prev]);
-      setSearchChildQuery({ query: updateQuery, index: i });
+      updateCustomModuleContents(updatedModuleData);
+      setSearchChildQuery({ query: updatedQuery, index: i });
     },
-    [searchChildQuery, examinationData]
+    [moduleData]
   );
 
   const onSelectChild = useCallback(
     (data, e, i) => {
-      examinationData[i] = { ...examinationData[i], ...JSON.parse(e.key) };
-      setExaminationData((prev) => [...prev]);
-      setSearchChildQuery({
-        query: JSON.parse(e.key).examination_name,
-        index: i,
-      });
-      dispatch(setIsDDxReadyToGenerate(true));
+      const updatedModuleData = [...moduleData];
+      updatedModuleData[i] = {
+        ...updatedModuleData[i],
+        title: data,
+        notes: "",
+      };
+      updateCustomModuleContents(updatedModuleData);
     },
-    [searchChildQuery, examinationData]
+    [moduleData]
   );
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      examinationData[i].note = capitalizeAfterSentence(e.target.value);
-      setExaminationData((prev) => [...prev]);
-      dispatch(setIsDDxReadyToGenerate(true));
+      const updatedModuleData = [...moduleData];
+
+      updatedModuleData[i] = { ...updatedModuleData[i], notes: e.target.value };
+      updateCustomModuleContents(updatedModuleData);
     },
-    [examinationData]
+    [moduleData]
   );
 
   const onRemoveRow = (index) => {
-    examinationData.splice(index, 1);
-    setExaminationData((prev) => [...prev]);
-    if (examinationData?.length > 0) {
-      dispatch(setIsDDxReadyToGenerate(true));
-    } else if (symptomsData?.length === 0) {
-      dispatch(setIsDDxReadyToGenerate(false));
-    }
+    const updatedModuleData = moduleData.filter((_, i) => i !== index);
+    updateCustomModuleContents(updatedModuleData);
   };
 
   //PopOver1 function
@@ -304,7 +279,7 @@ function CustomModule({ module }) {
     const searchQuery = e.target.value;
     if (searchQuery) {
       let filteredTemplates = templates.filter((template) => {
-        return template.tet_template_name
+        return template.template_name
           .toLowerCase()
           .includes(searchQuery.toLowerCase());
       });
@@ -315,17 +290,71 @@ function CustomModule({ module }) {
   };
 
   const onTemplateSelected = (template) => {
-    const updatedData = template.examination.map((e) => {
-      return { ...e, unique_id: uuidv4(), note: e.note ? e.note : "" };
+    const updatedData = template.content.map((e) => {
+      return { ...e, unique_id: uuidv4(), notes: e.notes || "" };
     });
-    setExaminationData([...examinationData, ...updatedData]);
+
+    // Find the module's existing content and update it
+    const updatedModuleData = [...moduleData, ...updatedData];
+    // Update the parent state with the new module contents
+    updateCustomModuleContents(updatedModuleData);
+
+    // Close the template popover
     showHideTemplatesListPopover();
   };
 
-  const onDeleteTemplateClicked = async (tet_id) => {
-    const action = await dispatch(deleteTemplate(tet_id));
+  const onDeleteTemplateClicked = async (templateId) => {
+    const modules = customModules.map((cm) => {
+      if (cm.module_id === module.module_id) {
+        return {
+          ...cm,
+          templates: cm.templates.filter((t) => t.template_id !== templateId),
+        };
+      }
+      return cm;
+    });
+    const action = await dispatch(addModule({ userId, modules }));
     if (action.meta.requestStatus === "rejected") {
       errorMessage(action.error);
+    }
+  };
+
+  const onDeleteModule = async () => {
+    try {
+      const moduleToDelete = customModules.find(
+        (m) => m.module_id === module.module_id
+      );
+      const action = await dispatch(
+        addModule({
+          userId,
+          modules: customModules.filter(
+            (cm) => cm.module_id !== module.module_id
+          ),
+        })
+      );
+      if (action.meta.requestStatus === "fulfilled") {
+        message.open({
+          key: MESSAGE_KEY,
+          type: "",
+          className: "message-appointment",
+          content: (
+            <div className="d-flex align-items-center">
+              <img src={visitEnd} className="me-3" />
+              <div>
+                <div className="title-common text-start fontroboto">{`${moduleToDelete?.name} module deleted successfully.`}</div>
+              </div>
+              <img
+                src={imgCloseVisit}
+                className="ms-3"
+                onClick={() => message.destroy()}
+              />
+            </div>
+          ),
+          duration: 3,
+        });
+      }
+    } catch (error) {
+      message.error(error || "Failed to delete module.");
     }
   };
 
@@ -352,18 +381,27 @@ function CustomModule({ module }) {
   );
 
   const onAddTemplateClicked = async () => {
-    if (examinationData.length === 0) {
-      errorMessage("At least 1 examination added");
-    } else if (
-      examinationData.filter((e) => e.examination_name == "").length > 0
-    ) {
-      errorMessage("Please fillup examination name");
+    if (moduleData.length === 0) {
+      errorMessage(`At least 1 ${module.module_name} added`);
+    } else if (moduleData.filter((e) => e.title == "").length > 0) {
+      errorMessage(`Please fillup ${module.module_name} name`);
     } else {
-      var sendData = {
-        tet_template_name: inputTemplateName,
-        examination: examinationData,
-      };
-      const action = await dispatch(addTemplate(sendData));
+      const modules = customModules.map((cm) => {
+        if (cm.module_id === module.module_id) {
+          return {
+            ...cm,
+            templates: [
+              ...cm.templates,
+              {
+                template_name: inputTemplateName,
+                content: moduleData?.filter((e) => e.title || e.notes),
+              },
+            ],
+          };
+        }
+        return cm;
+      });
+      const action = await dispatch(addModule({ userId, modules }));
       if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
@@ -383,20 +421,31 @@ function CustomModule({ module }) {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (examinationData.length === 0) {
-      errorMessage("At least 1 examination added");
-    } else if (
-      examinationData.filter((e) => e.examination_name == "").length > 0
-    ) {
-      errorMessage("Please fillup examination name");
+    if (moduleData.length === 0) {
+      errorMessage(`At least 1 ${module?.name} added`);
+    } else if (moduleData.filter((e) => e.title == "").length > 0) {
+      errorMessage(`Please fillup ${module?.name} name`);
     } else {
-      var data = JSON.parse(inputTemplateName);
-      var sendData = {
-        tet_id: data.tet_id,
-        tet_template_name: data.tet_template_name,
-        examination: examinationData,
-      };
-      const action = await dispatch(updateTemplate(sendData));
+      let data = JSON.parse(inputTemplateName);
+      const modules = customModules.map((cm) => {
+        if (cm.module_id === module.module_id) {
+          return {
+            ...cm,
+            templates: cm.templates.map((t) => {
+              if (t.template_id === data.template_id) {
+                return {
+                  ...t,
+                  template_name: data.template_name,
+                  content: moduleData?.filter((e) => e.title || e.notes),
+                };
+              }
+              return t;
+            }),
+          };
+        }
+        return cm;
+      });
+      const action = await dispatch(addModule({ userId, modules }));
       if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
@@ -439,7 +488,7 @@ function CustomModule({ module }) {
                   }}
                   className="me-4 text-decoration-underline btn p-0 text-main"
                 >
-                  Yes Delete
+                  Yes, Delete
                 </div>
                 <Button
                   onClick={showHideModal}
@@ -455,125 +504,159 @@ function CustomModule({ module }) {
     );
   }, [isModalOpen]);
 
+  const toggleDeleteModuleModal = useCallback(() => {
+    setIsDeleteModuleModalOpen(!isDeleteModuleModalOpen);
+  }, [isDeleteModuleModalOpen]);
+
+  const DELETE_MODULE_MODAL = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={isDeleteModuleModalOpen}
+        onCancel={toggleDeleteModuleModal}
+        modalWidth={500}
+        title={"Are you sure you want to delete?"}
+        modalBody={
+          <>
+            <div className="d-flex align-items-start alert-warning rounded-10px p-3 patient-details">
+              <img className="me-3" src={alertIcon} alt="Warning" />
+              <span>
+                Deleting this "<b>{module?.name}</b>" module will permanently
+                remove all saved templates and data associated with it. This
+                action cannot be undone.
+              </span>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div
+                  onClick={() => {
+                    onDeleteModule();
+                    toggleDeleteModuleModal();
+                  }}
+                  className="me-4 text-decoration-underline btn p-0 text-main"
+                >
+                  Yes, Delete
+                </div>
+                <Button
+                  onClick={toggleDeleteModuleModal}
+                  className="lh-lg btn btn-primary3 btn-41 px-4"
+                >
+                  <span>No</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [isDeleteModuleModalOpen]);
+
   const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
     return result;
   };
+
   const onDragEnd = (result) => {
     if (!result.destination) return;
     const reorderedItems = reorder(
-      examinationData,
+      moduleData,
       result.source.index,
       result.destination.index
     );
-    setExaminationData(reorderedItems);
+    updateCustomModuleContents(reorderedItems);
   };
 
-  const TABLE_EXAMINATION = useMemo(() => {
+  const TABLE_CUSTOM_MODULE = useMemo(() => {
     return (
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="examination" direction="vertical">
+        <Droppable droppableId={`${module?.name}`} direction="vertical">
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef}>
-              {examinationData.length > 0 &&
-                examinationData.map((item, index) => (
-                  <Draggable
-                    key={index}
-                    draggableId={`examination-${index}`}
-                    index={index}
-                  >
-                    {(provided) => (
-                      <Row
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        key={index}
-                        gutter={[0]}
-                        className={`${
-                          index === 0 && "mt-14 border-top"
-                        } align-items-center border-bottom`}
-                      >
-                        <Col
-                          lg={1}
-                          md={1}
-                          sm={1}
-                          xs={1}
-                          className="text-center"
-                        >
-                          <MenuOutlined
-                            {...provided.dragHandleProps}
-                            className="drag-handle"
-                            style={{ cursor: "grab" }}
-                          ></MenuOutlined>
-                        </Col>
-                        <Col lg={8} md={8} sm={8} xs={8}>
-                          <div className="fontroboto fw-medium">
-                            <AutoComplete
-                              defaultValue={item.examination_name}
-                              value={item.examination_name}
-                              placeholder={`${module} Name`}
-                              bordered={false}
-                              defaultOpen={false}
-                              onSearch={(query) => onSearchChild(query, index)}
-                              onFocus={() => onFocusChid(index)}
-                              options={childSearchOptions}
-                              className="autocomplete-custom w-100 inputborder"
-                              defaultActiveFirstOption={true}
-                              onSelect={(data, e) =>
-                                onSelectChild(data, e, index)
-                              }
-                            />
-                          </div>
-                        </Col>
-                        <Col
-                          lg={14}
-                          md={14}
-                          sm={13}
-                          xs={13}
-                          className="border-end"
-                        >
-                          <TextArea
-                            className="customnotesinput"
-                            placeholder="Notes"
-                            value={item.note}
-                            onChange={(e) => onChangeNoteChild(e, index)}
-                            autoSize={{ minRows: 1, maxRows: 10 }} // Dynamically resizes between 1 and 10 rows
+              {moduleData.map((item, index) => (
+                <Draggable
+                  key={index}
+                  draggableId={`${module?.name}-${index}`}
+                  index={index}
+                >
+                  {(provided) => (
+                    <Row
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      key={index}
+                      gutter={[0]}
+                      className={`${
+                        index === 0 && "mt-14 border-top"
+                      } align-items-center border-bottom`}
+                    >
+                      <Col lg={1} md={1} sm={1} xs={1} className="text-center">
+                        <MenuOutlined
+                          {...provided.dragHandleProps}
+                          className="drag-handle"
+                          style={{ cursor: "grab" }}
+                        ></MenuOutlined>
+                      </Col>
+                      <Col lg={8} md={8} sm={8} xs={8}>
+                        <div className="fontroboto fw-medium">
+                          <AutoComplete
+                            defaultValue={item.title}
+                            value={item.title}
+                            placeholder={`${module?.name} Name`}
+                            bordered={false}
+                            defaultOpen={false}
+                            onSearch={(query) => onSearchChild(query, index)}
+                            onFocus={() => onFocusChid(index)}
+                            options={childSearchOptions}
+                            className="autocomplete-custom w-100 inputborder"
+                            defaultActiveFirstOption={true}
+                            onSelect={(data, e) =>
+                              onSelectChild(data, e, index)
+                            }
                           />
-                        </Col>
-                        <Col
-                          lg={1}
-                          md={1}
-                          sm={2}
-                          xs={2}
-                          className="text-center"
+                        </div>
+                      </Col>
+                      <Col
+                        lg={14}
+                        md={14}
+                        sm={13}
+                        xs={13}
+                        className="border-end"
+                      >
+                        <TextArea
+                          className="customnotesinput"
+                          placeholder="Notes"
+                          value={item.notes}
+                          onChange={(e) => onChangeNoteChild(e, index)}
+                          autoSize={{ minRows: 1, maxRows: 10 }} // Dynamically resizes between 1 and 10 rows
+                        />
+                      </Col>
+                      <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+                        <Button
+                          className="btn py-0 btn-delete-prescription px-0"
+                          onClick={() => onRemoveRow(index)}
                         >
-                          <Button
-                            className="btn py-0 btn-delete-prescription px-0"
-                            onClick={() => onRemoveRow(index)}
-                          >
-                            <i className="icon-delete"></i>
-                          </Button>
-                        </Col>
-                      </Row>
-                    )}
-                  </Draggable>
-                ))}
+                          <i className="icon-delete"></i>
+                        </Button>
+                      </Col>
+                    </Row>
+                  )}
+                </Draggable>
+              ))}
               {provided.placeholder}
             </div>
           )}
         </Droppable>
       </DragDropContext>
     );
-  }, [examinationData, childSearchOptions]);
+  }, [moduleData, childSearchOptions]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useCallback(() => {
     return (
       <>
-        <div className="pop-header" key="examination-template">
+        <div className="pop-header" key={`${module.module_name}-template`}>
           <div className="align-items-center d-flex justify-content-between">
-            <div className="title-common">Examination Templates</div>
+            <div className="title-common">{module?.name} Templates</div>
             <Button
               className="btn btn-delete-prescription p-0"
               onClick={showHideTemplatesListPopover}
@@ -581,7 +664,7 @@ function CustomModule({ module }) {
               <i className="icon-Cross" />
             </Button>
           </div>
-          <div className="mt-3" key="examination-template-search">
+          <div className="mt-3" key={`${module.module_name}-template-search`}>
             <Input
               allowClear
               className="popinput"
@@ -610,13 +693,13 @@ function CustomModule({ module }) {
                     onClick={() => onTemplateSelected(template)}
                   >
                     <div className="title text-main2">
-                      {template.tet_template_name}
+                      {template.template_name}
                     </div>
                     <div className="text-truncate">
-                      {template.examination.map((item, ii) => {
+                      {template?.content?.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.examination_name}${
-                            template.examination.length - 1 != ii ? ", " : ""
+                          <span key={ii}>{`${item.title}${
+                            template.content.length - 1 != ii ? ", " : ""
                           }`}</span>
                         );
                       })}
@@ -625,7 +708,7 @@ function CustomModule({ module }) {
                   <Button
                     className="btn btn-delete-prescription p-0 ms-2"
                     onClick={() => {
-                      showHideModal(template.tet_id);
+                      showHideModal(template.template_id);
                       showHideTemplatesListPopover();
                     }}
                   >
@@ -688,8 +771,7 @@ function CustomModule({ module }) {
             <Select
               showSearch
               value={
-                inputTemplateName &&
-                JSON.parse(inputTemplateName).tet_template_name
+                inputTemplateName && JSON.parse(inputTemplateName).template_name
               }
               className="autocomplete-custom w-100 popinput inputheight41"
               placeholder="Select Template"
@@ -699,10 +781,10 @@ function CustomModule({ module }) {
               options={allTemplates.map((template) => {
                 return {
                   key: JSON.stringify(template),
-                  value: template.tet_template_name,
+                  value: template.template_name,
                   label: (
-                    <div key={template.tet_id}>
-                      {template.tet_template_name}
+                    <div key={template.template_id}>
+                      {template.template_name}
                     </div>
                   ),
                 };
@@ -715,19 +797,15 @@ function CustomModule({ module }) {
                   <div className="text-truncate w-100">
                     <div className="title text-main2">{option.data.value}</div>
                     <div className="text-truncate">
-                      {JSON.parse(option.data.key).examination.map(
-                        (item, ii) => {
-                          return (
-                            <span key={ii}>{`${item.examination_name}${
-                              JSON.parse(option.data.key).examination.length -
-                                1 !=
-                              ii
-                                ? ", "
-                                : ""
-                            }`}</span>
-                          );
-                        }
-                      )}
+                      {JSON.parse(option.data.key).content.map((item, ii) => {
+                        return (
+                          <span key={ii}>{`${item.title}${
+                            JSON.parse(option.data.key).content.length - 1 != ii
+                              ? ", "
+                              : ""
+                          }`}</span>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -752,7 +830,10 @@ function CustomModule({ module }) {
   }, [isModalOpen1]);
 
   const onRemoveRows = () => {
-    setExaminationData([]);
+    // Clear the current module's content
+    updateCustomModuleContents([]);
+
+    // Close the clear data modal
     showHideClearData();
   };
 
@@ -770,7 +851,7 @@ function CustomModule({ module }) {
               <div className="d-flex align-items-center">
                 <img className="me-3" src={alertIcon} alt="Warning" />
                 <span>
-                  Are you sure you want to Clear Selected <b>{module}</b>?
+                  Are you sure you want to Clear Selected <b>{module?.name}</b>?
                 </span>
               </div>
             </div>
@@ -800,7 +881,7 @@ function CustomModule({ module }) {
     <Menu>
       <Menu.Item
         key="edit"
-        onClick={null}
+        onClick={() => setCanEditName(true)}
         style={{
           fontFamily: "Poppins, sans-serif",
           fontSize: "14px",
@@ -814,14 +895,16 @@ function CustomModule({ module }) {
       >
         <img
           src={editIcon}
+          width={16}
+          height={16}
           alt="edit"
-          style={{ fontSize: "16px", color: "#4a4a4a", marginRight: "8px" }}
+          style={{ margin: "0 8px 3px 0" }}
         />
         Edit Module Name
       </Menu.Item>
       <Menu.Item
         key="delete"
-        onClick={null}
+        onClick={toggleDeleteModuleModal}
         style={{
           fontFamily: "Poppins, sans-serif",
           fontSize: "14px",
@@ -833,97 +916,202 @@ function CustomModule({ module }) {
           padding: "8px 12px",
         }}
       >
-        <DeleteOutlined
-          style={{ fontSize: "16px", color: "#ff4d4f", marginRight: "8px" }}
+        <img
+          src={deleteIcon}
+          width={16}
+          height={16}
+          alt="edit"
+          style={{ margin: "0 8px 3px 0" }}
         />
         Delete Module
       </Menu.Item>
     </Menu>
   );
 
+  const handleEditModuleName = async () => {
+    if (!newModuleName.trim()) {
+      message.error("Module name cannot be empty.");
+      return;
+    }
+
+    try {
+      const action = await dispatch(
+        addModule({
+          userId,
+          modules: customModules.map((cm) => {
+            if (cm.module_id === module.module_id) {
+              return {
+                ...cm,
+                name: newModuleName,
+              };
+            }
+            return cm;
+          }),
+        })
+      );
+      if (action.meta.requestStatus === "fulfilled") {
+        setCanEditName(false);
+        message.open({
+          key: MESSAGE_KEY,
+          type: "",
+          className: "message-appointment",
+          content: (
+            <div className="d-flex align-items-center">
+              <img src={visitEnd} className="me-3" />
+              <div>
+                <div className="title-common text-start fontroboto">
+                  {`Module name updated successfully.`}
+                </div>
+              </div>
+              <img
+                src={imgCloseVisit}
+                className="ms-3"
+                onClick={() => message.destroy()}
+              />
+            </div>
+          ),
+        });
+      }
+    } catch (error) {
+      message.error(error || "Failed to update module name.");
+    }
+  };
+
+  const handleCancel = () => {
+    setCanEditName(false);
+    setNewModuleName(module?.name);
+  };
+
+  const handleAddRow = () => {
+    updateCustomModuleContents([...moduleData, { title: "", notes: "" }]);
+  };
+
   return (
     <div className="prescription-box-sm">
       <div className="d-flex align-items-center justify-content-between p-14-pb0">
-        <div className="d-flex align-items-center">
-          <img className="me-2" src={ModuleIcon} alt="Examination" />
-          <div className="title-common">{module}</div>
-        </div>
-        <div className="d-flex align-items-center">
-          <Popover
-            open={popOver1}
-            onOpenChange={showHideTemplatesListPopover}
-            content={TEMPLATE_CONTENT}
-            trigger="click"
-            overlayClassName="pop-350 pp-0"
-            placement="bottom"
-          >
-            <button className="btn d-flex align-items-center btn-text">
-              {" "}
-              <i className="icon-template me-2"></i> <span>Templates</span>
-            </button>
-          </Popover>
-          <Tooltip
-            placement="bottom"
-            title={
-              examinationData.length > 0
-                ? ""
-                : "Please enter some Examination to save a template"
-            }
-          >
-            <Popover
-              open={popOver2}
-              onOpenChange={() =>
-                examinationData.length > 0 && showHideSaveTemplatePopOver()
-              }
-              content={SAVE_CONTENT}
-              trigger="click"
-              overlayClassName="pop-450 pp-0"
-              placement="bottom"
-            >
-              <button className="btn d-flex align-items-center btn-text">
-                {" "}
-                <i className="icon-save me-2"></i> <span>Save</span>
-              </button>
-            </Popover>
-          </Tooltip>
-          <button
-            onClick={showHideClearData}
-            className="btn btn-text clear-text d-flex align-items-center"
-            disabled={examinationData.length > 0 ? false : true}
-          >
-            <i className="icon-eraser1 me-2"></i> <span>Clear</span>
-          </button>
-          <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-            <Button
-              type="text"
-              icon={
-                <MoreOutlined style={{ fontSize: "18px", color: "#4a4a4a" }} />
-              }
-              className="more-options-btn"
+        {canEditName ? (
+          <div className="d-flex w-100">
+            <img className="me-2" src={ModuleIcon} alt={module?.name} />
+            <Input
+              placeholder="Enter custom module name"
+              value={newModuleName}
+              onChange={(e) => setNewModuleName(e.target.value)}
+              className="custom-module-input"
             />
-          </Dropdown>
-        </div>
+            <>
+              <CheckOutlined
+                className="input-action-icon tick-icon"
+                onClick={handleEditModuleName}
+              />
+              <CloseOutlined
+                className="input-action-icon cross-icon"
+                onClick={handleCancel}
+              />
+            </>
+          </div>
+        ) : (
+          <>
+            <div className="d-flex align-items-center">
+              <img className="me-2" src={ModuleIcon} alt={module?.name} />
+              <div className="title-common">{module?.name}</div>
+            </div>
+            <div className="d-flex align-items-center">
+              <Popover
+                open={popOver1}
+                onOpenChange={showHideTemplatesListPopover}
+                content={TEMPLATE_CONTENT}
+                trigger="click"
+                overlayClassName="pop-350 pp-0"
+                placement="bottom"
+              >
+                <button className="btn d-flex align-items-center btn-text">
+                  {" "}
+                  <i className="icon-template me-2"></i> <span>Templates</span>
+                </button>
+              </Popover>
+              <Tooltip
+                placement="bottom"
+                title={
+                  moduleData.length > 0
+                    ? ""
+                    : `Please enter some ${module?.name} to save a template`
+                }
+              >
+                <Popover
+                  open={popOver2}
+                  onOpenChange={() =>
+                    moduleData.length > 0 && showHideSaveTemplatePopOver()
+                  }
+                  content={SAVE_CONTENT}
+                  trigger="click"
+                  overlayClassName="pop-450 pp-0"
+                  placement="bottom"
+                >
+                  <button className="btn d-flex align-items-center btn-text">
+                    {" "}
+                    <i className="icon-save me-2"></i> <span>Save</span>
+                  </button>
+                </Popover>
+              </Tooltip>
+              <button
+                onClick={showHideClearData}
+                className="btn btn-text clear-text d-flex align-items-center"
+                disabled={moduleData.length > 0 ? false : true}
+              >
+                <i className="icon-eraser1 me-2"></i> <span>Clear</span>
+              </button>
+              <Dropdown
+                overlay={menu}
+                trigger={["click"]}
+                placement="bottomRight"
+              >
+                <Button
+                  type="text"
+                  icon={
+                    <MoreOutlined
+                      style={{
+                        fontSize: "18px",
+                        color: "#4a4a4a",
+                        fontWeight: "bold",
+                      }}
+                    />
+                  }
+                  className="more-options-btn"
+                />
+              </Dropdown>
+            </div>
+          </>
+        )}
       </div>
 
       {DELETE_MODAL}
       {REMOVE_ALL_ROWS}
-      {TABLE_EXAMINATION}
+      {TABLE_CUSTOM_MODULE}
+      {DELETE_MODULE_MODAL}
 
       <div className="p-14">
-        <AutoComplete
-          value={searchParentQuery}
+        <Button
+          type="link"
+          icon={<PlusOutlined />}
+          className="add-custom-module-link"
+          onClick={handleAddRow}
+        >
+          Add New Line
+        </Button>
+        {/* <AutoComplete
+          value={searchChildQuery}
           onSearch={onSearchParent}
           options={parentSearchOptions}
           className="autocomplete-custom w-100"
           onSelect={onSelectParent}
           defaultActiveFirstOption={true}
-          popupClassName={!searchParentQuery && "boxpopup"}
+          popupClassName={!searchChildQuery && "boxpopup"}
         >
           <Input
             placeholder="Search"
             prefix={<i className="icon-search"></i>}
           />
-        </AutoComplete>
+        </AutoComplete> */}
       </div>
     </div>
   );

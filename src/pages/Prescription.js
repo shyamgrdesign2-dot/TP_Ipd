@@ -134,6 +134,7 @@ function Prescription() {
   const [isGrowthChart, setIsGrowthChart] = useState(false);
   const [labParamsData, setLabParamsData] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
+  const [customModuleContents, setCustomModuleContents] = useState([]);
 
   const contextApi = {
     patient_data,
@@ -165,6 +166,8 @@ function Prescription() {
     additionalNote,
     setAdditionalNote,
     startTime,
+    customModuleContents,
+    setCustomModuleContents
   };
 
   const [vitalDrawer, setVitalDrawer] = useState(false);

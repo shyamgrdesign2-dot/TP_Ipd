@@ -6,21 +6,18 @@ import {
   CheckOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import "./CustomModule.scss";
-import CustomModuleIcon from "../assets/images/custom-module.svg";
-import CustomModule from "./CustomModule";
+import "../CustomModule.scss";
+import CustomModuleIcon from "../../assets/images/custom-module.svg";
+import TabCustomModule from "./TabCustomModule";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addModule,
   getModuleContents,
   getModules,
-} from "../redux/customModuleSlice";
-import CashManagerContext from "../context/CashManagerContext";
-import { MESSAGE_KEY } from "../utils/constants";
-import visitEnd from "../assets/images/end-visit.svg";
-import imgCloseVisit from "../assets/images/close-visit.svg";
+} from "../../redux/customModuleSlice";
+import CashManagerContext from "../../context/CashManagerContext";
 
-const AddCustomModule = () => {
+const TabAddCustomModule = () => {
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
   const dispatch = useDispatch();
@@ -60,7 +57,7 @@ const AddCustomModule = () => {
     }
 
     try {
-      const action = await dispatch(
+      dispatch(
         addModule({
           userId,
           modules: [
@@ -72,29 +69,9 @@ const AddCustomModule = () => {
           ],
         })
       );
-      if (action.meta.requestStatus === "fulfilled") {
-        setShowInput(false);
-        message.open({
-          key: MESSAGE_KEY,
-          type: "",
-          className: "message-appointment",
-          content: (
-            <div className="d-flex align-items-center">
-              <img src={visitEnd} className="me-3" />
-              <div>
-                <div className="title-common text-start fontroboto">{`${newModuleName} module has been created successfully.`}</div>
-              </div>
-              <img
-                src={imgCloseVisit}
-                className="ms-3"
-                onClick={() => message.destroy()}
-              />
-            </div>
-          ),
-          duration: 3,
-        });
-        setNewModuleName("");
-      }
+      setNewModuleName("");
+      setShowInput(false);
+      message.success("Module added successfully!");
     } catch (error) {
       message.error(error || "Failed to add module.");
     }
@@ -108,7 +85,9 @@ const AddCustomModule = () => {
   return (
     <>
       {customModules.map((module) => (
-        <CustomModule module={module} />
+        <div className="prescription-box-sm">
+          <TabCustomModule module={module} />
+        </div>
       ))}
       <div className="add-custom-module-cta-container">
         {/* Dynamically Rendered Input Module */}
@@ -160,4 +139,4 @@ const AddCustomModule = () => {
   );
 };
 
-export default AddCustomModule;
+export default TabAddCustomModule;

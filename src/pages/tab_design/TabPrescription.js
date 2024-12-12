@@ -89,6 +89,7 @@ import { getDecodedToken } from "../../utils/localStorage";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { getClinicName } from "../../utils/utils";
 import TabSurgicalBox from "../../components/tab_design/TabSurgicalBox";
+import TabAddCustomModule from "../../components/tab_design/TabAddCustomModule";
 
 function TabPrescription() {
   const {
@@ -151,6 +152,7 @@ function TabPrescription() {
   const [likeDislike, setLikeDislike] = useState([]);
   const [isDDxGenerated, setIsDDxGenerated] = useState(false);
   const [isDDxLoading, setIsDDxLoading] = useState(false);
+  const [customModuleContents, setCustomModuleContents] = useState([]);
 
   const contextApi = {
     patient_data,
@@ -180,7 +182,9 @@ function TabPrescription() {
     setFollowUpDate,
     additionalNote,
     setAdditionalNote,
-    startTime
+    startTime,
+    customModuleContents,
+    setCustomModuleContents
   };
 
   const [collapsed, setCollapsed] = useState(false);
@@ -1272,6 +1276,7 @@ function TabPrescription() {
                     )
                   );
                 })}
+                  <TabAddCustomModule />
               </Content>
             </div>
           </Layout>

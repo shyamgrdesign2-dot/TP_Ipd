@@ -98,6 +98,7 @@ function SmartPrescription() {
   const drawRef = useRef(null);
   const [dataPresentInCanvas, setDataPresentInCanvas] = useState([]);
   const [loader, setLoader] = useState(false);
+  const [customModuleContents, setCustomModuleContents] = useState([]);
 
   const contextApi = {
     patient_data,
@@ -125,6 +126,8 @@ function SmartPrescription() {
     setFollowUpDate,
     additionalNote,
     setAdditionalNote,
+    customModuleContents,
+    setCustomModuleContents
   };
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
