@@ -867,7 +867,7 @@ function TabPrescription() {
                             />
                           )}
                       </div>
-                      <label className="text-white mt-1">Apex AI</label>
+                      <label className="text-white mt-1">Tatva AI</label>
                     </button>
                   )}
                   {customizedPadLeftList?.map((e, i) => {

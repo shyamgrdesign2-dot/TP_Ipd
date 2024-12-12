@@ -34,7 +34,7 @@ function SmartRxDigitise() {
     const [token, setToken] = useState(null);
     const [tokenData, setTokenData] = useState(null);
     const [divWidth, setDivWidth] = useState(0);
-    const [data, setData] = useState(digitisedData?.refinedData);
+    const [data, setData] = useState(null);
     const [isDigitiseRxSubmit, setIsDigitiseRxSubmit] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [smartRxFile, setSmartRxFile] = useState(smartRxFilesData);
@@ -44,6 +44,14 @@ function SmartRxDigitise() {
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
+
+    useEffect(() => {
+        if(digitisedData?.editedData && state.type === "edit"){
+            setData(digitisedData?.editedData);
+        } else {
+            setData(digitisedData?.refinedData);
+        }
+    }, [digitisedData]);
 
     useEffect(() => {
         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
@@ -127,7 +135,6 @@ function SmartRxDigitise() {
                                                         src={smart_prescription_file}
                                                         alt="Smart Rx"
                                                         width="100%"
-                                                        height="660px"
                                                     />
                                                 )}
                                                 </div>
