@@ -165,7 +165,7 @@ const obsHistoryCheckboxOptions = [
 ];
 
 function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetails }) {
-  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions, labParamsData } = useContext(PrintSettingsContext);
+  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions, labParamsData, customModules } = useContext(PrintSettingsContext);
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
@@ -508,6 +508,45 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
     },
   ];
 
+  const customModulesTable = [
+    {
+      dataIndex: "title",
+      key: "title",
+      render: (text, record, i) => (
+          <div className="d-flex align-items-center justify-content-between text-start">
+            <div
+              className="d-flex align-items-center cursor-pointer Preview-color-icon"
+              onClick={() => onCaseOptionChange(record, "visible", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
+            >
+              <i
+                className={`icon-Preview ${record.enable === "N" && "disable-preview"
+                  } me-3`}
+              ></i>
+              <span style={{ wordBreak: "break-word" }}>{record.title}</span>
+            </div>
+            <Form.Item className="mb-0 form_addnewpatient ">
+              <Radio.Group
+                className={`d-flex gender-radio all-change-radio ${isMobile ? "segmented-radio-mobile" : ""
+                  }`}
+                onChange={(e) => onCaseOptionChange(e, "radio", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
+                value={record.format}
+              >
+                <Radio.Button className="w-100 text-center" value="inline">
+                  Inline
+                </Radio.Button>
+                  <Radio.Button className="w-100 text-center" value="listview">
+                    List View
+                  </Radio.Button>
+                <Radio.Button className="w-100 text-center" value="table">
+                  Table
+                </Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+          </div>
+      ),
+    },
+  ];
+
   const onDragEndCaseOption = ({ active, over }) => {
     if (active.id !== over?.id) {
       setPrintSettings((prev) => {
@@ -601,6 +640,22 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
           </SortableContext>
         </DndContext>
       )}
+
+      {/* {caseManagerData?.moduleContents?.length > 0 && (
+            <Table
+            className={`customize-table customize-table-format table-display-patient dragicon-position ${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}
+            pagination={false}
+            components={{
+              body: {
+                row: CustomRow,
+              },
+            }}
+            rowKey="id"
+            columns={customModulesTable}
+            dataSource={caseManagerData?.moduleContents?.map((e) => ({ ...e, key: e.id }))}
+            showHeader={false}
+          />
+      )} */}
 
       {/* {printSettings?.prescription?.case_option?.map((e, i) => {
                 return (

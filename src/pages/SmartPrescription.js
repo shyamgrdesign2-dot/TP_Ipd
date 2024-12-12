@@ -175,6 +175,7 @@ function SmartPrescription() {
   const drawRef = useRef(null);
   const [dataPresentInCanvas, setDataPresentInCanvas] = useState([]);
   const [loader, setLoader] = useState(false);
+  const [customModuleContents, setCustomModuleContents] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
 
   const contextApi = {
@@ -206,6 +207,8 @@ function SmartPrescription() {
     setFollowUpDate,
     additionalNote,
     setAdditionalNote,
+    customModuleContents,
+    setCustomModuleContents
     startTime,
   };
 

@@ -83,6 +83,7 @@ import { getDDxDetails } from "../api/services/ApiDDx";
 import { getDecodedToken } from "../utils/localStorage";
 import DDxList from "../components/medical_certificate/DDxList";
 import SurgicalBox from "../components/SurgicalBox";
+import AddCustomModule from "../components/AddCustomModule";
 
 function Prescription() {
   const {
@@ -133,6 +134,7 @@ function Prescription() {
   const [isGrowthChart, setIsGrowthChart] = useState(false);
   const [labParamsData, setLabParamsData] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
+  const [customModuleContents, setCustomModuleContents] = useState([]);
 
   const contextApi = {
     patient_data,
@@ -164,6 +166,8 @@ function Prescription() {
     additionalNote,
     setAdditionalNote,
     startTime,
+    customModuleContents,
+    setCustomModuleContents
   };
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
@@ -1111,6 +1115,7 @@ const getGenerateDDx = async (field) => {
                     )
                   );
                 })}
+                <AddCustomModule />
               </Content>
             </div>
           </div>
