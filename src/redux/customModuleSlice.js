@@ -123,7 +123,9 @@ const customModuleSlice = createSlice({
         state.loading = false;
         state.searchModuleResults =
           action.payload?.flatMap((item) =>
-            item.moduleContents.map((module) => module.content)
+            item.moduleContents
+              .filter((module) => module.content?.title)
+              .map((module) => module.content)
           ) || [];
       })
       .addCase(searchModule.rejected, (state, action) => {

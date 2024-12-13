@@ -63,10 +63,10 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
 
   useEffect(() => {
     const data = [];
-    searchModuleResults.map((e) => {
+    searchModuleResults.map(({title},i) => {
       return data.push({
-        key: JSON.stringify({ ...e, unique_id: uuidv4() }),
-        value: e.content?.title,
+        key: JSON.stringify({ title, i, unique_id: uuidv4() }),
+        value: title,
       });
     });
     if (searchChildQuery.length > 0) {

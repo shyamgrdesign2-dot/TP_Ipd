@@ -103,28 +103,26 @@ function CustomModule({ module }) {
 
   //Parent AutoComplete
   useEffect(() => {
-    if (searchChildQuery?.query) {
-      const timeOutId = setTimeout(() => {
-        dispatch(
-          searchModule({
-            moduleId: module?.module_id,
-            keyword: searchChildQuery.query,
-          })
-        );
-      }, 500);
-      return () => {
-        clearTimeout(timeOutId);
-      };
-    }
+    const timeOutId = setTimeout(() => {
+      dispatch(
+        searchModule({
+          moduleId: module?.module_id,
+          keyword: searchChildQuery.query,
+        })
+      );
+    }, 500);
+    return () => {
+      clearTimeout(timeOutId);
+    };
   }, [searchChildQuery]);
 
   useEffect(() => {
     const data = [];
-    searchModuleResults.map(({ content }) => {
+    searchModuleResults.map(({ title }, i) => {
       return data.push({
-        key: JSON.stringify({ ...content, unique_id: uuidv4() }),
-        value: content?.title,
-        label: <div>{content?.title}</div>,
+        key: JSON.stringify({ title, i, unique_id: uuidv4() }),
+        value: title,
+        label: <div>{title}</div>,
       });
     });
     if (searchChildQuery.query?.length === 0) {
@@ -239,7 +237,6 @@ function CustomModule({ module }) {
       updatedModuleData[i] = {
         ...updatedModuleData[i],
         title: data,
-        notes: "",
       };
       updateCustomModuleContents(updatedModuleData);
     },
@@ -257,6 +254,15 @@ function CustomModule({ module }) {
   );
 
   const onRemoveRow = (index) => {
+    if (
+      moduleData.length === 1 &&
+      !moduleData[index].title &&
+      !moduleData[index].notes
+    ) {
+      errorMessage(`Please fillup ${module?.name} name or notes`);
+      return;
+    }
+
     const updatedModuleData = moduleData.filter((_, i) => i !== index);
     updateCustomModuleContents(updatedModuleData);
   };
@@ -286,7 +292,10 @@ function CustomModule({ module }) {
     });
 
     // Find the module's existing content and update it
-    const updatedModuleData = [...moduleData, ...updatedData];
+    const updatedModuleData = [
+      ...moduleData?.filter((e) => e.title || e.notes),
+      ...updatedData,
+    ];
     // Update the parent state with the new module contents
     updateCustomModuleContents(updatedModuleData);
 
@@ -1047,7 +1056,11 @@ function CustomModule({ module }) {
               <button
                 onClick={showHideClearData}
                 className="btn btn-text clear-text d-flex align-items-center"
-                disabled={moduleData.length > 0 ? false : true}
+                disabled={
+                  moduleData?.filter((e) => e.title || e.notes).length > 0
+                    ? false
+                    : true
+                }
               >
                 <i className="icon-eraser1 me-2"></i> <span>Clear</span>
               </button>
