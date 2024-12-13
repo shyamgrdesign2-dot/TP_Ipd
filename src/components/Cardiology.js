@@ -433,7 +433,7 @@ function Cardiology(props) {
                 </span>
   
                 {/* Optional rendering for lineItem */}
-                {(type === "medications" || type === "vaccinations" || type === "medicalHistory") && item.lineItem && (
+                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "tests" || type === "symptoms") && item.lineItem && (
                   <span>{` (${item.lineItem})`}</span>
                 )}
   
@@ -694,7 +694,7 @@ function Cardiology(props) {
                                 src={Investigationicon}
                                 alt="Tests"
                               />
-                              <div className="title-digitise-section mb-1">Tests</div>
+                              <div className="title-digitise-section mb-1">Lab Investigation</div>
                             </div>
                             {renderItems('tests')}
                           </>
