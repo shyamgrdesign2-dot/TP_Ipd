@@ -74,7 +74,8 @@ const AddCustomModule = () => {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
-        const newModule = action?.payload?.modules?.[0];
+        const newModule =
+          action?.payload?.modules?.[action?.payload?.modules?.length - 1];
         dispatch(
           customizedPad({
             data: {
@@ -132,6 +133,12 @@ const AddCustomModule = () => {
       (e) => e.tmdpm_id === module.module_id && e.tmdpm_status === 0
     )
   );
+
+  console.log({
+    customModulesInRightPad,
+    customModules,
+    customizedPadRightList,
+  });
 
   return (
     <>
