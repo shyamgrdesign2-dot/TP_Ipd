@@ -291,7 +291,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                 if(data?.userModules?.length > 0){
                     const moduleMap = new Map();
                     customModuleContents.forEach((module) => {
-                      moduleMap.set(module.module_id, { ...module });
+                      moduleMap.set(module.module_id, { ...module, content: module?.content?.filter((e) => e.title || e.notes) });
                     });
                     data?.userModules?.forEach((module) => {
                       if (moduleMap.has(module.module_id)) {
