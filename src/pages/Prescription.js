@@ -415,6 +415,9 @@ function Prescription() {
       ) {
         setAdditionalNote(caseManagerData.visit_advice);
       }
+      if(caseManagerData?.moduleContents?.length){
+        setCustomModuleContents(caseManagerData?.moduleContents)
+      }
     }
   }, []);
 
