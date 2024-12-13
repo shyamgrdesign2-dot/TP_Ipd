@@ -42,6 +42,7 @@ import {
   capitalizeAfterSentence,
 } from "../../utils/utils";
 import { addModule, searchModule } from "../../redux/customModuleSlice";
+import { customizedPad } from "../../redux/doctorsSlice";
 
 import TabCustomModuleSearch from "../../components/tab_design/TabCustomModuleSearch";
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
@@ -51,8 +52,9 @@ function TabCustomModule({ module }) {
   const { customModules, latestSearchedModules, loading } = useSelector(
     (state) => state.customModules
   );
-  console.log({ latestSearchedModules });
-  const { userId } = useSelector((state) => state.doctors);
+  const { userId, customizedPadRightList, customizedPadLeftList } = useSelector(
+    (state) => state.doctors
+  );
 
   const dispatch = useDispatch();
 
@@ -706,6 +708,18 @@ function TabCustomModule({ module }) {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
+        dispatch(
+          customizedPad({
+            data: {
+              default: false,
+              reset: false,
+              left: customizedPadLeftList,
+              right: customizedPadRightList?.filter(
+                (e) => e.tmdpm_id !== moduleToDelete?.module_id
+              ),
+            },
+          })
+        );
         message.open({
           key: MESSAGE_KEY,
           type: "",

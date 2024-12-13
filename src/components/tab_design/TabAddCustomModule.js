@@ -16,6 +16,11 @@ import {
   getModules,
 } from "../../redux/customModuleSlice";
 import CashManagerContext from "../../context/CashManagerContext";
+import { customizedPad } from "../../redux/doctorsSlice";
+import { MESSAGE_KEY } from "../../utils/constants";
+import visitEnd from "../../assets/images/end-visit.svg";
+import imgCloseVisit from "../../assets/images/close-visit.svg";
+
 
 const TabAddCustomModule = () => {
   const [showInput, setShowInput] = useState(false);
@@ -24,7 +29,9 @@ const TabAddCustomModule = () => {
   const { customModules, loading } = useSelector(
     (state) => state.customModules
   );
-  const { userId } = useSelector((state) => state.doctors);
+  const { userId, customizedPadRightList, customizedPadLeftList } = useSelector(
+    (state) => state.doctors
+  );
   const { setCustomModuleContents, tcmId } = useContext(CashManagerContext);
 
   useEffect(() => {
@@ -57,7 +64,7 @@ const TabAddCustomModule = () => {
     }
 
     try {
-      dispatch(
+      const action = await dispatch(
         addModule({
           userId,
           modules: [
@@ -69,9 +76,50 @@ const TabAddCustomModule = () => {
           ],
         })
       );
-      setNewModuleName("");
-      setShowInput(false);
-      message.success("Module added successfully!");
+      if (action.meta.requestStatus === "fulfilled") {
+        const newModule = action?.payload?.modules?.[0];
+        dispatch(
+          customizedPad({
+            data: {
+              default: false,
+              reset: false,
+              left: customizedPadLeftList,
+              right: [
+                ...customizedPadRightList,
+                {
+                  tmdpm_id: newModule.module_id,
+                  tmdpm_name: newModule.name,
+                  tmdpm_short_name: newModule.name,
+                  tmdpm_type: "R",
+                  tmdpm_status: 0,
+                  is_custom_module: true,
+                },
+              ],
+            },
+          })
+        );
+        setShowInput(false);
+        message.open({
+          key: MESSAGE_KEY,
+          type: "",
+          className: "message-appointment",
+          content: (
+            <div className="d-flex align-items-center">
+              <img src={visitEnd} className="me-3" />
+              <div>
+                <div className="title-common text-start fontroboto">{`${newModuleName} module has been created successfully.`}</div>
+              </div>
+              <img
+                src={imgCloseVisit}
+                className="ms-3"
+                onClick={() => message.destroy()}
+              />
+            </div>
+          ),
+          duration: 3,
+        });
+        setNewModuleName("");
+      }
     } catch (error) {
       message.error(error || "Failed to add module.");
     }
@@ -82,9 +130,15 @@ const TabAddCustomModule = () => {
     setNewModuleName("");
   };
 
+  const customModulesInRightPad = customModules?.filter((module) =>
+    customizedPadRightList.some(
+      (e) => e.tmdpm_id === module.module_id && e.tmdpm_status === 0
+    )
+  );
+
   return (
     <>
-      {customModules.map((module) => (
+      {customModulesInRightPad.map((module) => (
         <div className="prescription-box-sm">
           <TabCustomModule module={module} />
         </div>
