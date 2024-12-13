@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Button, Divider } from "antd";
+import { Card, Button } from "antd";
 import styles from "./ExpiredPlanCard.module.scss";
 import tagImg from "../assets/images/tag.png";
 import checkIcon from "../assets/images/check-icon.svg";

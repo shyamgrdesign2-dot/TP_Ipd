@@ -210,6 +210,12 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                                     );
                                 })
                             )}
+                            {medicalHistoryData?.[0]?.medical_history_remarks && (
+                                <div className="cardbody-data">
+                                    <div className="fw-semibold">Additional History</div>
+                                    <div className="fontroboto border rounded p-2 my-2 text-history fw-normal overflow-auto d-flex text-wrap">{medicalHistoryData?.[0]?.medical_history_remarks}</div>
+                                </div>
+                            )}
                         </div>
                     }
                     {((medicalHistoryData && medicalHistoryData.length > 0) || (gynecHistory && Object.keys(gynecHistory).length > 2)) ? (
