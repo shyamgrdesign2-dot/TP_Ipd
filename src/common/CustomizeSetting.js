@@ -108,7 +108,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
           tmdpm_name: module.name,
           tmdpm_short_name: module.name,
           tmdpm_type: "R",
-          tmdpm_status: 0,
+          tmdpm_status: 1,
           is_custom_module: true,
         }));
       }

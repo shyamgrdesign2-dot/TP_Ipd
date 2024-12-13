@@ -19,15 +19,14 @@ import CashManagerContext from "../context/CashManagerContext";
 import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
+import { customizedPad } from "../redux/doctorsSlice";
 
 const AddCustomModule = () => {
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
   const dispatch = useDispatch();
-  const { customModules, loading } = useSelector(
-    (state) => state.customModules
-  );
-  const { userId, customizedPadRightList } = useSelector(
+  const { customModules } = useSelector((state) => state.customModules);
+  const { userId, customizedPadRightList, customizedPadLeftList } = useSelector(
     (state) => state.doctors
   );
   const { setCustomModuleContents, tcmId } = useContext(CashManagerContext);
@@ -75,6 +74,27 @@ const AddCustomModule = () => {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
+        const newModule = action?.payload?.modules?.[0];
+        dispatch(
+          customizedPad({
+            data: {
+              default: false,
+              reset: false,
+              left: customizedPadLeftList,
+              right: [
+                ...customizedPadRightList,
+                {
+                  tmdpm_id: newModule.module_id,
+                  tmdpm_name: newModule.name,
+                  tmdpm_short_name: newModule.name,
+                  tmdpm_type: "R",
+                  tmdpm_status: 0,
+                  is_custom_module: true,
+                },
+              ],
+            },
+          })
+        );
         setShowInput(false);
         message.open({
           key: MESSAGE_KEY,
@@ -115,10 +135,7 @@ const AddCustomModule = () => {
 
   return (
     <>
-      {(customModulesInRightPad?.length
-        ? customModulesInRightPad
-        : customModules
-      ).map((module) => (
+      {customModulesInRightPad.map((module) => (
         <CustomModule module={module} />
       ))}
       <div className="add-custom-module-cta-container">

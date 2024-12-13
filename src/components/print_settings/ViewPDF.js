@@ -4522,7 +4522,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             <Text key={i}>
                                                 {item.title && <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{"\n"}{item.title}&nbsp;</Text>}
                                                 {item.notes &&
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{"\n"}{`(${item.notes?.trim()?.replace(/\n+/g, "\n")})`}&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{"\n"}{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}&nbsp;</Text>
                                                 }
                                             </Text>
                                         )
@@ -4537,7 +4537,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
                                                 {item.title && <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;</Text>}
                                                 {item.notes &&
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{"\n"}{`(${item.notes?.trim()?.replace(/\n+/g, "\n")})`}</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.title ? "\n" : ""}{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}</Text>
                                                 }
                                             </Text>
                                         )

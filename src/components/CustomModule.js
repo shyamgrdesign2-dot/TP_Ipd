@@ -46,12 +46,15 @@ import TextArea from "antd/es/input/TextArea";
 import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
+import { customizedPad } from "../redux/doctorsSlice";
 
 function CustomModule({ module }) {
   const { customModules, searchModuleResults, loading } = useSelector(
     (state) => state.customModules
   );
-  const { userId } = useSelector((state) => state.doctors);
+  const { userId, customizedPadRightList, customizedPadLeftList } = useSelector(
+    (state) => state.doctors
+  );
 
   const dispatch = useDispatch();
 
@@ -333,6 +336,18 @@ function CustomModule({ module }) {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
+        dispatch(
+          customizedPad({
+            data: {
+              default: false,
+              reset: false,
+              left: customizedPadLeftList,
+              right: customizedPadRightList?.filter(
+                (e) => e.tmdpm_id !== moduleToDelete?.module_id
+              ),
+            },
+          })
+        );
         message.open({
           key: MESSAGE_KEY,
           type: "",
@@ -1040,7 +1055,8 @@ function CustomModule({ module }) {
                 <Popover
                   open={popOver2}
                   onOpenChange={() =>
-                    moduleData?.filter((e) => e.title || e.notes).length > 0 && showHideSaveTemplatePopOver()
+                    moduleData?.filter((e) => e.title || e.notes).length > 0 &&
+                    showHideSaveTemplatePopOver()
                   }
                   content={SAVE_CONTENT}
                   trigger="click"
