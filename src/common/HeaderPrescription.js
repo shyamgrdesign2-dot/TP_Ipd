@@ -1078,10 +1078,10 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                                             <i className="icon-template me-2"></i> <span>Templates</span>
                                         </button>
                                     </Popover>
-                                    <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || surgeriesData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || customModuleContents.length > 0) ? "" : "Please enter some data to save a template"}>
+                                    <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || surgeriesData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || customModuleContents?.some((e) => {return e?.content?.some(c => c.title || c.notes)})) ? "" : "Please enter some data to save a template"}>
                                         <Popover
                                             open={popOver2}
-                                            onOpenChange={() => (symptomsData.length > 0 || examinationData.length > 0 || surgeriesData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || customModuleContents.length > 0) && showHideSaveTemplatePopOver()}
+                                            onOpenChange={() => (symptomsData.length > 0 || examinationData.length > 0 || surgeriesData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || customModuleContents?.some((e) => {return e?.content?.some(c => c.title || c.notes)})) && showHideSaveTemplatePopOver()}
                                             content={SAVE_CONTENT_WEB}
                                             trigger="click"
                                             overlayClassName="pop-450 pp-0"
