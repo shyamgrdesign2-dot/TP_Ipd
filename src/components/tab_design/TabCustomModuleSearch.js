@@ -46,19 +46,17 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
 
   //Parent AutoComplete
   useEffect(() => {
-    if (searchChildQuery) {
-      const timeOutId = setTimeout(() => {
-        dispatch(
-          searchModule({
-            moduleId: module?.module_id,
-            keyword: searchChildQuery,
-          })
-        );
-      }, 500);
-      return () => {
-        clearTimeout(timeOutId);
-      };
-    }
+    const timeOutId = setTimeout(() => {
+      dispatch(
+        searchModule({
+          moduleId: module?.module_id,
+          keyword: searchChildQuery,
+        })
+      );
+    }, 500);
+    return () => {
+      clearTimeout(timeOutId);
+    };
   }, [searchChildQuery]);
 
   useEffect(() => {
@@ -122,7 +120,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
     (e) => {
       const newItem = { title: e, notes: "" };
       updateCustomModuleContents([...moduleData, newItem]);
-      setSearchParentQuery("");
+      setSearchChildQuery("");
       setSelectedIndex([...moduleData, newItem].length - 1);
     },
     [moduleData, selectedIndex]

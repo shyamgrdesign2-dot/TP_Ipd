@@ -980,7 +980,7 @@ function Cardiology(props) {
                             {item.content.map((c, i) => {
                               return (
                                 <span key={i}>
-                                  <span>{c.title}</span> <br/>
+                                  {c.title && <><span>{c.title}</span><br/></>}
                                   <div>
                                     {c.notes?.trim()?.replace(/\n+/g, "\n").split('\n').map((line, index) => (
                                       <React.Fragment key={index}>

@@ -194,6 +194,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
           },
         };
       });
+      onCustomModuleConfigChange(null,{format: e.target.value});
     },
     [printSettings]
   );

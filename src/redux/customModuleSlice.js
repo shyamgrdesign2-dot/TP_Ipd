@@ -65,6 +65,7 @@ const customModuleSlice = createSlice({
     customModules: [],
     moduleContents: [],
     searchModuleResults: [],
+    latestSearchedModules: {},
     loading: false,
     error: null,
   },
@@ -72,14 +73,19 @@ const customModuleSlice = createSlice({
     setCustomModulesPrintConfig: (state, action) => {
       const { module_id, printConfig } = action.payload;
 
-      state.customModules = state.customModules.map((module) =>
-        module.module_id === module_id
-          ? {
-              ...module,
-              printConfig: { ...module.printConfig, ...printConfig },
-            }
-          : module
-      );
+      state.customModules = module_id
+        ? state.customModules.map((module) =>
+            module.module_id === module_id
+              ? {
+                  ...module,
+                  printConfig: { ...module.printConfig, ...printConfig },
+                }
+              : module
+          )
+        : state.customModules.map((module) => ({
+            ...module,
+            printConfig: { ...module.printConfig, ...printConfig },
+          }));
     },
   },
   extraReducers: (builder) => {
@@ -132,12 +138,28 @@ const customModuleSlice = createSlice({
       })
       .addCase(searchModule.fulfilled, (state, action) => {
         state.loading = false;
-        state.searchModuleResults =
-          action.payload?.flatMap((item) =>
+        const uniqueResults = action.payload
+          ?.flatMap((item) =>
             item.moduleContents
               .filter((module) => module.content?.title)
               .map((module) => module.content)
-          ) || [];
+          )
+          .reduce((acc, content) => {
+            const titleSet = new Set(acc.map((entry) => entry.title));
+            if (!titleSet.has(content.title)) {
+              acc.push(content);
+            }
+            return acc;
+          }, []);
+
+        state.searchModuleResults = uniqueResults || [];
+        if (action.meta?.arg?.moduleId && !action.meta?.arg?.keyword) {
+          const { moduleId } = action.meta?.arg;
+          state.latestSearchedModules = {
+            ...state.latestSearchedModules,
+            [moduleId]: uniqueResults,
+          };
+        }
       })
       .addCase(searchModule.rejected, (state, action) => {
         state.loading = false;
@@ -145,7 +167,6 @@ const customModuleSlice = createSlice({
       });
   },
 });
-
 
 export const { setCustomModulesPrintConfig } = customModuleSlice.actions;
 export default customModuleSlice.reducer;

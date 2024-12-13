@@ -41,19 +41,17 @@ import {
   removeBeforeWhiteSpace,
   capitalizeAfterSentence,
 } from "../../utils/utils";
-import {
-  addModule,
-} from "../../redux/customModuleSlice";
+import { addModule, searchModule } from "../../redux/customModuleSlice";
 
 import TabCustomModuleSearch from "../../components/tab_design/TabCustomModuleSearch";
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { MESSAGE_KEY } from "../../utils/constants";
 
 function TabCustomModule({ module }) {
-  const { customModules, searchModuleResults, loading } = useSelector(
+  const { customModules, latestSearchedModules, loading } = useSelector(
     (state) => state.customModules
   );
-  console.log({searchModuleResults});
+  console.log({ latestSearchedModules });
   const { userId } = useSelector((state) => state.doctors);
 
   const dispatch = useDispatch();
@@ -93,6 +91,11 @@ function TabCustomModule({ module }) {
       ?.flatMap((item) => item.content) || [];
 
   useEffect(() => {
+    dispatch(
+      searchModule({
+        moduleId: module?.module_id,
+      })
+    );
     setMatchedTemplates(templates);
     setAllTemplates(templates);
   }, [module]);
@@ -1021,8 +1024,8 @@ function TabCustomModule({ module }) {
         className="d-flex flex-wrap p-14-pb0 overflow-hidden"
         style={{ maxHeight: "114px" }}
       >
-        {searchModuleResults.length > 0 &&
-          searchModuleResults
+        {latestSearchedModules?.[module?.module_id]?.length > 0 &&
+          latestSearchedModules?.[module?.module_id]
             .filter(
               (e) =>
                 ![...moduleData.map((e1) => e1.title)].includes(
@@ -1040,7 +1043,7 @@ function TabCustomModule({ module }) {
                   className={`${
                     item?.title.length > 26 && "chips-custom-break"
                   } btn btn-primary2 chips-custom mb-14 me-14`}
-                  onClick={() => onSelectParent(item.content.title)}
+                  onClick={() => onSelectParent(item.title)}
                 >{`${item?.title}`}</Button>
               );
             })}
