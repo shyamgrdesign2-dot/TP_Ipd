@@ -100,29 +100,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
   useEffect(() => {
     if (customizedPadRightList.length > 0) {
       const updatedData = customizedPadRightList.map((e) => ({ ...e }));
-    
-      let customModuleData = [];
-      if (customModules.length > 0) {
-        customModuleData = customModules.map((module) => ({
-          tmdpm_id: module.module_id,
-          tmdpm_name: module.name,
-          tmdpm_short_name: module.name,
-          tmdpm_type: "R",
-          tmdpm_status: 1,
-          is_custom_module: true,
-        }));
-      }
-    
-      // Filter custom modules not already in updatedData
-      const newCustomModules = customModuleData.filter(
-        (customModule) =>
-          !updatedData.some((dataItem) => dataItem.tmdpm_id === customModule.tmdpm_id)
-      );
-    
-      // Combine updatedData with new custom modules
-      const finalData = [...updatedData, ...newCustomModules];
-
-      setDataSourceRight(finalData);
+      setDataSourceRight(updatedData);
     }
     
   }, [handleDrawerCustomize]);
