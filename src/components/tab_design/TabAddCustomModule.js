@@ -21,7 +21,6 @@ import { MESSAGE_KEY } from "../../utils/constants";
 import visitEnd from "../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../assets/images/close-visit.svg";
 
-
 const TabAddCustomModule = () => {
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
@@ -77,7 +76,8 @@ const TabAddCustomModule = () => {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
-        const newModule = action?.payload?.modules?.[0];
+        const newModule =
+          action?.payload?.modules?.[action?.payload?.modules?.length - 1];
         dispatch(
           customizedPad({
             data: {
