@@ -20,6 +20,7 @@ import VideoModal from './VideoModal';
 import { useAccess } from '../pages/vaccination/useAccess';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import { GB_ISCRIBE } from '../utils/constants';
+import customModuleIcon from '../assets/images/custom-module.svg';
 
 const CustomRow = ({ children, ...props }) => {
   const {
@@ -83,6 +84,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
   const { isGynaecHistoryAccessable } = useAccess();
+  const {customModules} = useSelector((state) => state.customModules);
 
   useEffect(() => {
     if (customizedPadLeftList.length > 0) {
@@ -97,11 +99,10 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
 
   useEffect(() => {
     if (customizedPadRightList.length > 0) {
-      const updatedData = customizedPadRightList.map((e, i) => {
-        return { ...e };
-      });
+      const updatedData = customizedPadRightList.map((e) => ({ ...e }));
       setDataSourceRight(updatedData);
     }
+    
   }, [handleDrawerCustomize]);
 
   //LEFT SIDE OF ELEMETNS
@@ -162,7 +163,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
       colSpan: 0,
       dataIndex: 'tmdpm_name',
       key: 'tmdpm_name',
-      render: (text, record) => <div className='align-items-center d-flex'><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</div>
+      render: (text, record) => <div className='align-items-center d-flex'><img src={record.is_custom_module ? customModuleIcon : record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</div>
     },
     {
       title: 'ENABLE/DISABLE',

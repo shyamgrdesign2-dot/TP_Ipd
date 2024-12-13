@@ -22,6 +22,7 @@ import successIcon from '../assets/images/success-icon.svg';
 import vitalsIcon from '../assets/images/Vitals.svg';
 import medicalHistoryIcon from '../assets/images/Medical-History.svg';
 import vaccinationIcon from "../assets/images/Vaccination.svg";
+import customModuleIcon from "../assets/images/custom-module.svg";
 
 import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
@@ -30,13 +31,15 @@ import { env } from "../EnvironmentConfig";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import CvtKnowMore from "../pages/smartSync/components/CvtKnowMore";
 import moment from "moment";
+import { getModules } from "../redux/customModuleSlice";
 
 function Cardiology(props) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { profile } = useSelector((state) => state.doctors);
+  const { profile, userId } = useSelector((state) => state.doctors);
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const {customModules} = useSelector((state) => state.customModules);
 
   const {
     patient_data,
@@ -46,6 +49,17 @@ function Cardiology(props) {
     nextPress,
     prevPress,
   } = props;
+
+  const customModulesMap = new Map(
+    customModules.map((module) => [module.module_id, module.name])
+  );
+  
+  const customModulesRxData = viewCaseManagerData?.moduleContents?.filter((module) => module.content.length).map((content) => ({
+        ...content,
+        module_name: customModulesMap.get(content.module_id),
+    }))
+
+  console.log({customModulesRxData});
 
   const [filteredInfo, setFilteredInfo] = useState({});
   const [setSortedInfo] = useState({});
@@ -92,6 +106,9 @@ function Cardiology(props) {
       }
     } else {
       setIsSmartRxFile(false);
+    }
+    if(viewCaseManagerData?.moduleContents?.length) {
+      dispatch(getModules(userId));
     }
   }, [viewCaseManagerData]);
 
@@ -433,7 +450,7 @@ function Cardiology(props) {
                 </span>
   
                 {/* Optional rendering for lineItem */}
-                {(type === "medications" || type === "vaccinations" || type === "medicalHistory") && item.lineItem && (
+                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "tests" || type === "symptoms") && item.lineItem && (
                   <span>{` (${item.lineItem})`}</span>
                 )}
   
@@ -694,7 +711,7 @@ function Cardiology(props) {
                                 src={Investigationicon}
                                 alt="Tests"
                               />
-                              <div className="title-digitise-section mb-1">Tests</div>
+                              <div className="title-digitise-section mb-1">Lab Investigation</div>
                             </div>
                             {renderItems('tests')}
                           </>
@@ -951,6 +968,34 @@ function Cardiology(props) {
                             </div>
                           </div>
                         )}
+                        {customModulesRxData.length > 0 && customModulesRxData?.map((item) => item.module_name &&(
+                          <div className="d-flex align-items-start mb-4">
+                          <img
+                            className="me-2"
+                            src={customModuleIcon}
+                            alt={item.module_name}
+                          />
+                          <div>
+                            <div className="title">{item.module_name}</div>
+                            {item.content.map((c, i) => {
+                              return (
+                                <span key={i}>
+                                  {c.title && <><span>{c.title}</span><br/></>}
+                                  <div>
+                                    {c.notes?.trim()?.replace(/\n+/g, "\n").split('\n').map((line, index) => (
+                                      <React.Fragment key={index}>
+                                        {line}
+                                        <br />
+                                      </React.Fragment>
+                                    ))}
+                                  </div>
+                                  {item.content.length - 1 !=i && <br/>}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        ))}
                       </div>
                     </div>
                   </Card.Body>

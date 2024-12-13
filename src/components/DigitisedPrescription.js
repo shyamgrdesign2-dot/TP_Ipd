@@ -290,7 +290,7 @@ const DigitisedPrescription = ({ data, setData }) => {
                     )}
 
                     {/* Editable input for lineItem */}
-                    {(type === "medications" || type === "symptoms" || type === "vaccinations" || type === "medicalHistory") &&
+                    {(type === "medications" || type === "symptoms" || type === "vaccinations" || type === "medicalHistory" || type === "tests") &&
                       item?.lineItem &&
                       (activeIndex === index &&
                       activeType === `${type}-lineItem` ? (
@@ -391,7 +391,7 @@ const DigitisedPrescription = ({ data, setData }) => {
 
       {data?.tests && data.tests.length > 0 && (
         <>
-          <div className="title-digitise-section mb-2">Tests</div>
+          <div className="title-digitise-section mb-2">Lab Investigation</div>
           {renderItems("tests")}
         </>
       )}

@@ -378,3 +378,32 @@ body {
         }
     }
 }
+
+.ant-input {
+    &:hover, &:focus {
+        border-color: $theme;
+    }
+    &.customnotesinput{
+        border-top: none;
+        border-right: none;
+        border-bottom: none;
+        border-radius: 10px;
+        font-family: 'Roboto';
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 26px;
+        letter-spacing: 0.1px;
+        border-color: $bordercolor !important;
+        border-radius: 0;
+        color: $maincolor;
+        &:focus, &:focus-within {
+            box-shadow: none !important;
+            border: 1px solid $theme !important;
+        }
+        &::-webkit-input-placeholder {
+            color: $grayColor;
+            font-size: 14px;
+            font-weight: 400;
+        }
+    }
+}
