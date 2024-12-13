@@ -6,7 +6,8 @@ import PatientDiagnosis from "./components/patientDiagnosis/PatientDiagnosis";
 import PregnancyHistory from "./components/pregnancyHistory/PregnancyHistory";
 import AddExamination from "./components/AddExamination/AddExamination";
 import alertIcon from "./../../assets/images/alertIcon.svg";
-import { Button, Tabs } from "antd";
+import tagNew from "./../../assets/images/new-gif.gif";
+import { Button, Tabs, Tour } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import LmpPopup from "./components/lmpPopup/LmpPopup";
 import { useSelector, useDispatch } from "react-redux";
@@ -24,7 +25,6 @@ import {
   resetUpdatedPatientDiagnosis,
 } from "../../redux/obstetricSlice";
 import { useLocation, useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
 import moment from "moment";
 import { jwtDecode } from "jwt-decode";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
@@ -127,6 +127,10 @@ const Obstetric = ({
 
   const pregnancyRef = useRef(null);
   const examinationRef = useRef(null);
+  const [tourOpen, setTourOpen] = useState(true);
+  const tourRef = useRef(null);
+  const ancSchedulerRef = useRef(null);
+  const immunizationHistoryRef = useRef(null);
   const { profile, userId } = useSelector((state) => state.doctors);
 
   useEffect(() => {
@@ -340,6 +344,39 @@ const Obstetric = ({
     }
   };
 
+  const onTourHandle = () => {
+    setTourOpen(!tourOpen);
+  };
+
+  const steps = [
+    {
+      description: (
+        <>
+          <div className="fw-medium fs-18 pt-3">
+            ANC Scheduler & Immunisation History{" "}
+            <img
+              className="img-fluid ms-2"
+              width={52}
+              height={22}
+              src={tagNew}
+            />
+          </div>
+          <div className="pt-1">
+            Track and manage your patients' antenatal care <br />
+            (ANC) journey effortlessly with the ANC Scheduler, <br />
+            and access Immunisation records to streamline care <br />
+            and improve outcomes.
+          </div>
+        </>
+      ),
+      target: () => ancSchedulerRef.current,
+      nextButtonProps: {
+        children: "Got it",
+        onClick: onTourHandle,
+      },
+    },
+  ];
+
   return (
     <div className="vaccinationWrapper">
       {isPreviousPregnancyOverview ? (
@@ -426,7 +463,9 @@ const Obstetric = ({
               />
             </TabPane>
             <TabPane tab="ANC Scheduler" key="ancScheduler">
-              <AncScheduler />
+              <div ref={ancSchedulerRef}>
+                <AncScheduler ancHistory={obstetricDetails?.ancHistory} />
+              </div>
             </TabPane>
             <TabPane tab="Immunization History" key="immunizationHistory">
               <ImmunisationHistory
@@ -441,6 +480,19 @@ const Obstetric = ({
               />
             </TabPane>
           </Tabs>
+          {/* <div className="d-flex flex-wrap">
+            <span className="pt-3">{TABLE_SYMPTOMS}</span> */}
+          {/* <Tour
+            placement="top"
+            closeIcon={false}
+            open={tourOpen}
+            steps={steps}
+            onClose={onTourHandle}
+            styles={{
+              marginTop: "-50px",
+            }}
+          /> */}
+          {/* </div> */}
         </div>
       )}
       {showLmpPopup && (
