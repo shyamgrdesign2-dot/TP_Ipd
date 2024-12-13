@@ -27,7 +27,9 @@ const AddCustomModule = () => {
   const { customModules, loading } = useSelector(
     (state) => state.customModules
   );
-  const { userId } = useSelector((state) => state.doctors);
+  const { userId, customizedPadRightList } = useSelector(
+    (state) => state.doctors
+  );
   const { setCustomModuleContents, tcmId } = useContext(CashManagerContext);
 
   useEffect(() => {
@@ -105,9 +107,18 @@ const AddCustomModule = () => {
     setNewModuleName("");
   };
 
+  const customModulesInRightPad = customModules?.filter((module) =>
+    customizedPadRightList.some(
+      (e) => e.tmdpm_id === module.module_id && e.tmdpm_status === 0
+    )
+  );
+
   return (
     <>
-      {customModules.map((module) => (
+      {(customModulesInRightPad?.length
+        ? customModulesInRightPad
+        : customModules
+      ).map((module) => (
         <CustomModule module={module} />
       ))}
       <div className="add-custom-module-cta-container">

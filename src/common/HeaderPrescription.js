@@ -120,6 +120,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
         setFollowUpDate(null)
         setAdditionalNote('')
         setSurgeriesData([]);
+        setCustomModuleContents([]);
     }
     // const languageItems = [
     //     {

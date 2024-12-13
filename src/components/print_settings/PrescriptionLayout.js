@@ -17,8 +17,8 @@ import PrintSettingsContext from "../../context/PrintSettingsContext";
 import { isMobile } from "react-device-detect";
 import { useAccess } from "../../pages/vaccination/useAccess";
 import { graphsToPrintData } from "../../pages/growthChart/growthChartHelper";
-import { useSelector } from "react-redux";
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { useDispatch } from "react-redux";
+import { setCustomModulesPrintConfig } from "../../redux/customModuleSlice";
 
 // const CustomRow = ({ children, ...props }) => {
 //     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
@@ -170,6 +170,16 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
     caseManagerData?.patient_data?.patient_age
   );
 
+  const customModulesMap = new Map(
+    customModules.map((module) => [module.module_id, [module.name, module.printConfig]])
+  );
+  
+  const customModulesRxData = caseManagerData?.moduleContents?.filter((module) => module.content.length).map((content) => ({
+        ...content,
+        module_name: customModulesMap.get(content.module_id)?.[0],
+        printConfig: customModulesMap.get(content.module_id)?.[1]
+    }))
+
   const onMainCaseOptionChange = useCallback(
     (e) => {
       const updatedData = printSettings.prescription.case_option.map((x) => {
@@ -199,6 +209,17 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
         ...prev,
       };
     });
+  };
+
+  const dispatch = useDispatch();
+
+  const onCustomModuleConfigChange = (module_id, printConfig) => {
+    dispatch(
+      setCustomModulesPrintConfig({
+        module_id,
+        printConfig,
+      })
+    );    
   };
 
   const onMedicationWithGenericChange = (e, i) => {
@@ -516,20 +537,20 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
           <div className="d-flex align-items-center justify-content-between text-start">
             <div
               className="d-flex align-items-center cursor-pointer Preview-color-icon"
-              onClick={() => onCaseOptionChange(record, "visible", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
+              onClick={() => onCustomModuleConfigChange(record?.module_id, {...record?.printConfig, isEnabled: record?.printConfig?.isEnabled === "true" ? "false" : "true"})}
             >
               <i
-                className={`icon-Preview ${record.enable === "N" && "disable-preview"
+                className={`icon-Preview ${record.printConfig?.isEnabled !== "true" && "disable-preview"
                   } me-3`}
               ></i>
-              <span style={{ wordBreak: "break-word" }}>{record.title}</span>
+              <span style={{ wordBreak: "break-word" }}>{record.module_name}</span>
             </div>
             <Form.Item className="mb-0 form_addnewpatient ">
               <Radio.Group
                 className={`d-flex gender-radio all-change-radio ${isMobile ? "segmented-radio-mobile" : ""
                   }`}
-                onChange={(e) => onCaseOptionChange(e, "radio", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
-                value={record.format}
+                onChange={(e) => onCustomModuleConfigChange(record?.module_id, {...record?.printConfig, format: e.target.value})}
+                value={record.printConfig?.format}
               >
                 <Radio.Button className="w-100 text-center" value="inline">
                   Inline
@@ -641,7 +662,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
         </DndContext>
       )}
 
-      {/* {caseManagerData?.moduleContents?.length > 0 && (
+      {caseManagerData?.moduleContents?.length > 0 && (
             <Table
             className={`customize-table customize-table-format table-display-patient dragicon-position ${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}
             pagination={false}
@@ -652,10 +673,10 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
             }}
             rowKey="id"
             columns={customModulesTable}
-            dataSource={caseManagerData?.moduleContents?.map((e) => ({ ...e, key: e.id }))}
+            dataSource={customModulesRxData}
             showHeader={false}
           />
-      )} */}
+      )}
 
       {/* {printSettings?.prescription?.case_option?.map((e, i) => {
                 return (
