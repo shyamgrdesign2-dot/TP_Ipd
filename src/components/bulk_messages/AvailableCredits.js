@@ -7,7 +7,7 @@ import CreditImg from "../../assets/images/credit_icon.svg"
 import { errorMessage, onlyNumberFormat } from "../../utils/utils";
 import { paymentOrder, verifyPayment, paymentHistory } from "../../redux/bulkMessagesSlice";
 
-function AvailableCredits({ handleMessageDetailed }) {
+function AvailableCredits({ handleAvailableCredit }) {
     const dispatch = useDispatch();
 
     const { profile } = useSelector((state) => state.doctors);
@@ -89,7 +89,7 @@ function AvailableCredits({ handleMessageDetailed }) {
             if (action?.payload?.status === 'captured') {
                 setCreditRadio(null);
                 setCreditInput(null);
-                handleMessageDetailed()
+                handleAvailableCredit()
             } else {
                 errorMessage(action?.payload?.error_description)
             }

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Tabs, Table, Drawer, DatePicker, Checkbox, Dropdown, Input } from "antd";
 import Button from "react-bootstrap/Button";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import moment from "moment";
 import dayjs from 'dayjs';
 
 import { useSelector, useDispatch } from "react-redux";
-import { paymentHistory, userCampaign, userCampaignDelete, userCampaignDetails } from "../redux/bulkMessagesSlice";
+import { paymentHistory, userCampaign, userCampaignDelete, userCampaignDetails, userCount, userCredit } from "../redux/bulkMessagesSlice";
 
 import editIcon from "../assets/images/edit.svg";
 import emptyCampaign from '../assets/images/empty-campaign-history.svg'
@@ -23,7 +23,8 @@ import DetailedView from "../components/bulk_messages/DetailedView";
 import CommonModal from "../common/CommonModal";
 
 import { TAB_CAMPAIGN, TAB_DRAFT, TAB_PURCHASE } from "../utils/constants";
-import { errorMessage } from "../utils/utils";
+import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
+import AvailableCredits from "../components/bulk_messages/AvailableCredits";
 
 const { RangePicker } = DatePicker;
 
@@ -32,30 +33,28 @@ const showDateFormat = 'DD MMM YYYY'
 
 function MessagesData() {
 
-    const { userCampaignList, userPurchaseList, loading, popup, error } = useSelector((state) => state.bulkMessages);
+    const { tabCountObj, userCampaignList, userPurchaseList, loading, popup, error } = useSelector((state) => state.bulkMessages);
     const dispatch = useDispatch();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [tabItems, setTabItems] = useState([])
     const [selectedTab, setSelectedTab] = useState(TAB_CAMPAIGN);
     const [dateRange, setDateRange] = useState({
         startDate: moment().format(dateFormat),
         endDate: moment().format(dateFormat),
     });
     const [dateStatus, setDateStatus] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [purchaseList, setPurchaseList] = useState([]);
+    const [campaignList, setCampaignList] = useState([]);
     const [messageDetailed, setMessageDetailed] = useState(false);
+    const [availableCredit, setAvailableCredit] = useState(false);
     const [pickerModal, setPickerModal] = useState(false);
 
     const navigate = useNavigate();
-    let location = useLocation();
-
-
-    // useEffect(() => {
-    //     if (error?.visible) {
-    //         errorMessage(error?.message)
-    //     }
-    // }, [error]);
 
     useEffect(() => {
+        dispatch(userCredit());
         if (popup) {
             showHideModal()
         }
@@ -80,42 +79,81 @@ function MessagesData() {
             } else {
                 !pickerModal && dispatch(userCampaign(sendData));
             }
+            dispatch(userCount(sendData))
         }, 500);
         return () => {
             clearTimeout(timeOutId);
         };
     }, [selectedTab, pickerModal]);
 
-    const [tabItems, setTabItems] = useState([
-        {
-            key: TAB_CAMPAIGN,
-            label: (
-                <div className="d-flex align-items-center">
-                    <MailMessage />
-                    {/* <img width={17} height={17} className="me-2" src={MailMessage} alt="Campaign History" /> */}
-                    Campaign History
-                </div>
-            ),
+    useEffect(() => {
+        setTabItems([
+            {
+                key: TAB_CAMPAIGN,
+                label: (
+                    <div className="d-flex align-items-center">
+                        <MailMessage />
+                        {/* <img width={17} height={17} className="me-2" src={MailMessage} alt="Campaign History" /> */}
+                        {`Campaign History ${tabCountObj ? '(' + tabCountObj?.count_live + ')' : ''}`}
+                    </div>
+                ),
+            },
+            {
+                key: TAB_DRAFT,
+                label: (
+                    <div className="d-flex align-items-center">
+                        <TextMessage />
+                        {`Draft Campigns ${tabCountObj ? '(' + tabCountObj?.count_draft + ')' : ''}`}
+                    </div>
+                ),
+            },
+            {
+                key: TAB_PURCHASE,
+                label: (
+                    <div className="d-flex align-items-center">
+                        <RecieptMessage />
+                        {`Purchase History ${tabCountObj ? '(' + tabCountObj?.count_paymentHistory + ')' : ''}`}
+                    </div>
+                ),
+            },
+        ]);
+    }, [tabCountObj]);
+
+    // Second Tab
+    useEffect(() => {
+        if (searchQuery) {
+            const searchTimeOutId = setTimeout(() => {
+                if (selectedTab === TAB_PURCHASE) {
+                    const newData = userPurchaseList.filter((item) => {
+                        return item.payment_id.toLowerCase().includes(searchQuery.toLowerCase())
+                    });
+                    setPurchaseList(newData)
+                } else {
+                    const newData = userCampaignList.filter((item) => {
+                        return item.campaign_name.toLowerCase().includes(searchQuery.toLowerCase())
+                    });
+                    setCampaignList(newData)
+                }
+            }, 500);
+            return () => {
+                clearTimeout(searchTimeOutId);
+            };
+        } else {
+            if (selectedTab === TAB_PURCHASE) {
+                setPurchaseList(userPurchaseList)
+            } else {
+                setCampaignList(userCampaignList)
+            }
+        }
+    }, [userCampaignList, userPurchaseList, searchQuery]);
+
+    const onSearch = useCallback(
+        (e) => {
+            const updateQuery = removeBeforeWhiteSpace(e.target.value)
+            setSearchQuery(updateQuery)
         },
-        {
-            key: TAB_DRAFT,
-            label: (
-                <div className="d-flex align-items-center">
-                    <TextMessage />
-                    Draft Campigns
-                </div>
-            ),
-        },
-        {
-            key: TAB_PURCHASE,
-            label: (
-                <div className="d-flex align-items-center">
-                    <RecieptMessage />
-                    Purchase History
-                </div>
-            ),
-        },
-    ]);
+        [searchQuery]
+    );
 
     const onChange = useCallback(
         (key) => {
@@ -402,6 +440,8 @@ function MessagesData() {
             title: "DATE",
             dataIndex: "date",
             key: "date",
+            ellipsis: true,
+            sorter: (a, b) => moment(a.date, showDateFormat).valueOf() - moment(b.date, showDateFormat).valueOf(),
             render: (text, record) => (
                 <div className="py-2"> {text} </div>
             ),
@@ -410,6 +450,8 @@ function MessagesData() {
             title: "CREDITS",
             dataIndex: "amount",
             key: "amount",
+            ellipsis: true,
+            sorter: (a, b) => a.amount - b.amount,
             render: (text, record) => (
                 <div className="py-2">
                     {record.status === 1 ? <img src={RecievedImg} className="me-2" alt="Recieved" /> : <img src={SendImg} className="me-2" alt="Send" />}
@@ -422,40 +464,64 @@ function MessagesData() {
             dataIndex: "status_show",
             key: "status_show",
             ellipsis: true,
+            filters: [
+                {
+                    text: 'Successful',
+                    value: 'Successful',
+                },
+                {
+                    text: 'Failed',
+                    value: 'Failed',
+                },
+            ],
+            onFilter: (value, record) => record.status_show.startsWith(value),
             render: (text, record) => (
                 <div className={`py-2 ${record.status === 1 ? 'text-delivered' : 'text-faild'}`}> {text} </div>
             ),
         }
     ];
 
+    const handleAvailableCredit = useCallback(
+        () => {
+            setAvailableCredit(!availableCredit)
+        },
+        [availableCredit]
+    );
+
     const emptyText = (
         <div className="d-flex flex-column align-items-center justify-content-center"
             style={{ height: "calc(100vh - 350px)" }}>
             {selectedTab === TAB_PURCHASE ? (
                 <>
-                    <img src={emptyPurchase} alt="Empty" />
+                    <img width={221.54} height={180} src={emptyPurchase} alt="Empty" />
                     <div className="mt-3 fs-16 fw-medium"> You haven't purchased any credits yet!</div>
-                    <div>Start buying credits to keep your messages flowing.</div>
+                    <div className="mt-2 lh-normal fs-14 fw-normal">Start buying credits to keep your messages flowing.</div>
                     <Button
                         variant="primary"
-                        className="px-3 btn-41 ms-3 d-flex align-items-center">
-                        <i className="icon-Add me-2"></i>
+                        onClick={handleAvailableCredit}
+                        className="px-5 btn-41 mt-4">
                         {"Buy Credits"}
                     </Button>
                 </>
             ) : (
                 <>
                     <img width={221.54} height={180} src={emptyCampaign} alt="Empty" />
-                    <div className="fs-16 fw-medium"> You haven't created any SMS or WhatsApp campaigns yet!</div>
-                    <div className="mt-2 lh-normal fs-14 fw-normal">Start creating campaigns to keep your patients </div>
-                    <div className="mt-2 lh-normal fs-14 fw-normal">informed and engaged</div>
-                    <Button
-                        onClick={() => navigate('/create-campaign')}
-                        variant="primary"
-                        className="px-3 mt-4 btn-41 d-flex align-items-center">
-                        <i className="icon-Add me-2"></i>
-                        {"Create New Campaign"}
-                    </Button>
+                    {selectedTab === TAB_CAMPAIGN ? (
+                        <>
+                            <div className="fs-16 fw-medium"> You haven't created any SMS or WhatsApp campaigns yet!</div>
+                            <div className="mt-2 lh-normal fs-14 fw-normal">Start creating campaigns to keep your patients </div>
+                            <div className="mt-2 lh-normal fs-14 fw-normal">informed and engaged</div>
+                            <Button
+                                onClick={() => navigate('/create-campaign')}
+                                variant="primary"
+                                className="px-3 mt-4 btn-41 d-flex align-items-center">
+                                <i className="icon-Add me-2"></i>
+                                {"Create New Campaign"}
+                            </Button>
+                        </>
+                    ) : (
+                        <div className="fs-16 fw-medium"> No Dafts found!</div>
+                    )}
                 </>
             )}
 
@@ -481,7 +547,15 @@ function MessagesData() {
                 />
                 <div>
                     <div className="px-4 mb-3 d-flex align-items-center justify-content-between">
-                        {selectedTab !== TAB_CAMPAIGN ? <Input className="h-38 w-25 rounded-10px" placeholder="Search by order ID" /> : <div />}
+                        {selectedTab !== TAB_CAMPAIGN ?
+                            <Input
+                                className="h-38 w-25 rounded-10px"
+                                placeholder={selectedTab === TAB_PURCHASE ? "Search by payment ID" : "Search by template name"}
+                                value={searchQuery}
+                                onChange={onSearch} />
+                            :
+                            <div />
+                        }
                         <div className="massage-date-wrapper">
                             <div className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between" onClick={handlePickerModal}>
                                 <span>
@@ -547,7 +621,7 @@ function MessagesData() {
                         <Table
                             className="px-xl-4 px-0 table-message"
                             columns={columns_purchase}
-                            dataSource={userPurchaseList}
+                            dataSource={purchaseList}
                             pagination={false}
                             locale={{ emptyText: emptyText }}
                             loading={loading}
@@ -556,7 +630,7 @@ function MessagesData() {
                         <Table
                             className="px-xl-4 px-0 table-message"
                             columns={selectedTab !== TAB_CAMPAIGN ? columns.filter(e => e?.key != "campaign_status") : columns}
-                            dataSource={userCampaignList}
+                            dataSource={campaignList}
                             pagination={false}
                             locale={{ emptyText: emptyText }}
                             loading={loading}
@@ -604,6 +678,18 @@ function MessagesData() {
                     </>
                 }
             />
+
+            {/* Message Credits Drawer */}
+            <Drawer
+                className="modalWidth-645" width="auto"
+                title="Buy Message Credits"
+                placement="right"
+                closable
+                open={availableCredit}
+                onClose={handleAvailableCredit}
+            >
+                <AvailableCredits handleAvailableCredit={handleAvailableCredit} />
+            </Drawer>
         </>
     );
 }

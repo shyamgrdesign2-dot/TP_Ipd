@@ -9,12 +9,20 @@ ApiBulkMessages.userCredit = function () {
     return api.get(`/api/v1/communication/userCredit`, baseUrl);
 };
 
+ApiBulkMessages.userCount = function (data) {
+    return api.post(`/api/v1/campaign/userCount`, data, baseUrl);
+};
+
 ApiBulkMessages.userCampaign = function (data) {
     return api.post(`/api/v1/campaign/userCampaign`, data, baseUrl);
 };
 
 ApiBulkMessages.userCampaignDetails = function (id) {
     return api.get(`/api/v1/campaign/userCampaign/${id}`, baseUrl);
+};
+
+ApiBulkMessages.listCategory = function () {
+    return api.get(`/api/v1/communication/listCategory`, baseUrl);
 };
 
 ApiBulkMessages.listAllTemplate = function () {

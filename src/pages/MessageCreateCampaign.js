@@ -7,7 +7,7 @@ import locale from "antd/es/date-picker/locale/de_DE";
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { listAllTemplate, listDoctor, searchPatient, updatePatientCount, userCampaignAdd, userCampaignEdit } from "../redux/bulkMessagesSlice";
+import { listAllTemplate, listCategory, listDoctor, searchPatient, updatePatientCount, userCampaignAdd, userCampaignEdit, userCredit } from "../redux/bulkMessagesSlice";
 import moment from "moment";
 import dayjs from "dayjs";
 
@@ -37,33 +37,6 @@ const showDateTimeFormat = 'DD MMM YYYY hh:mm A'
 const showDateFormat1 = 'DD MMM YYYY'
 const showTimeFormat1 = 'hh:mm A'
 
-const optionsTemplates = [
-    {
-        label: 'All Template',
-        value: 'All Template',
-    },
-    {
-        label: 'Festive & Seasonal Greetings',
-        value: 'Festive & Seasonal Greetings',
-    },
-    {
-        label: 'Doctor & Clinic Availability',
-        value: 'Doctor & Clinic Availability',
-    },
-    {
-        label: 'Health & Vaccination Updates',
-        value: 'Health & Vaccination Updates',
-    },
-    {
-        label: 'Clinic Information Updates',
-        value: 'Clinic Information Updates',
-    },
-    {
-        label: 'Appt. & Contact Reminders',
-        value: 'Appt. & Contact Reminders',
-    },
-];
-
 const SELECT_AFTER = [
     {
         value: 'Year',
@@ -79,7 +52,7 @@ const GENDER = ['Male', 'Female', 'Other']
 
 function MessageCreateCampaign() {
 
-    const { loading, userCreditObj, allTemplateList, templateLoading, doctorList, patientCount } = useSelector((state) => state.bulkMessages);
+    const { loading, userCreditObj, categoryList, allTemplateList, templateLoading, doctorList, patientCount } = useSelector((state) => state.bulkMessages);
     const { profile } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
@@ -91,10 +64,11 @@ function MessageCreateCampaign() {
     const [videoLink, setVideoLink] = useState(null);
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
-    const [messageDetailed, setMessageDetailed] = useState(false);
+    const [availableCredit, setAvailableCredit] = useState(false);
     const [change, setChange] = useState(campaign_data !== undefined ? false : true);
     const [stepCurrent, setStepCurrent] = useState(0);
 
+    const [selectedCategory, setSelectedCategory] = useState(-1);
     const [template, setTemplate] = useState(null);
 
     const [clinic_name, setclinic_name] = useState('');
@@ -127,9 +101,16 @@ function MessageCreateCampaign() {
     const [scheduleDateTime, setScheduleDateTime] = useState('');
 
     useEffect(() => {
+        dispatch(listCategory());
         dispatch(listAllTemplate());
         dispatch(listDoctor());
     }, []);
+
+    useEffect(() => {
+        if (!userCreditObj) {
+            dispatch(userCredit());
+        }
+    }, [userCreditObj]);
 
     useEffect(() => {
         if (doctorList?.length > 0 && allTemplateList?.length > 0 && campaign_data !== undefined) {
@@ -179,7 +160,7 @@ function MessageCreateCampaign() {
             setSender_type(campaign_data?.sender_type)
 
             if (campaign_data?.sender_type === 2) {
-                const filterDocData = campaign_data?.filter_doc ? campaign_data?.filter_doc.split(',').map(Number) : ''
+                const filterDocData = campaign_data?.filter_doc ? campaign_data?.filter_doc.split(',').map(Number) : []
                 setFilterDoc(filterDocData)
 
                 if (campaign_data?.date_unit === 'Till date') {
@@ -251,11 +232,11 @@ function MessageCreateCampaign() {
     }, [change, sender_type, dateRange, gender, min_age, max_age, age_unit, filter_doc]);
 
     //Message Details
-    const handleMessageDetailed = useCallback(
+    const handleAvailableCredit = useCallback(
         () => {
-            setMessageDetailed(!messageDetailed)
+            setAvailableCredit(!availableCredit)
         },
-        [messageDetailed]
+        [availableCredit]
     );
 
     //PopOverVideo function
@@ -287,6 +268,13 @@ function MessageCreateCampaign() {
     const prev = () => {
         setStepCurrent(prev => prev - 1);
     };
+
+    const onSelectCategory = useCallback(
+        (data) => {
+            setSelectedCategory(data)
+        },
+        [selectedCategory]
+    );
 
     //Template Click
     const onTemplateClick = (e) => {
@@ -431,6 +419,25 @@ function MessageCreateCampaign() {
         setScheduleType(e.target.value);
     }, [schedule_type]);
 
+    const disabledDate = (current) => {
+        // Disable all dates before today
+        return current && current < moment().startOf('day');
+    };
+
+    const disabledTime = (current) => {
+        if (!current) return {};
+        const now = moment();
+    
+        // If the selected date is today, disable past hours and minutes
+        if (current.isSame(now, 'day')) {
+            return {
+                disabledHours: () => [...Array(now.hour()).keys()], // Disable past hours
+                disabledMinutes: (selectedHour) => selectedHour === now.hour() ? [...Array(now.minute()).keys()] : [], // Disable past minutes for the current hour
+            };
+        }
+        return {};
+    };
+
     // Back Model
     const showHideBackModal = useCallback(() => {
         setIsBackModalOpen(!isBackModalOpen);
@@ -546,8 +553,8 @@ function MessageCreateCampaign() {
                             format={showDateFormat}
                             placeholder='Select date'
                             key={index}
-                            value={date ? dayjs(moment(date).format(showDateFormat), showDateFormat) : ''}
-                            onChange={(date, dateString) => setdate(moment(dateString, showDateFormat).format(showDateFormat))}
+                            value={date ? dayjs(date, showDateFormat) : ''}
+                            onChange={(date, dateString) => setdate(dateString)}
                         />
                     );
                 }
@@ -559,8 +566,8 @@ function MessageCreateCampaign() {
                             format={showDateFormat}
                             placeholder='Select appointment date'
                             key={index}
-                            value={appointment_date ? dayjs(moment(appointment_date).format(showDateFormat), showDateFormat) : ''}
-                            onChange={(date, dateString) => setappointment_date(moment(dateString, showDateFormat).format(showDateFormat))}
+                            value={appointment_date ? dayjs(appointment_date, showDateFormat) : ''}
+                            onChange={(date, dateString) => setappointment_date(dateString)}
                         />
                     );
                 }
@@ -572,8 +579,8 @@ function MessageCreateCampaign() {
                             format={showTimeFormat1}
                             placeholder='Select appointment Time'
                             key={index}
-                            value={appointment_time ? dayjs(moment(appointment_time).format(showTimeFormat1), showTimeFormat1) : ''}
-                            onChange={(date, dateString) => setappointment_time(moment(dateString, showTimeFormat1).format(showTimeFormat1))}
+                            value={appointment_time ? dayjs(appointment_time, showTimeFormat1) : ''}
+                            onChange={(date, dateString) => setappointment_time(dateString)}
                         />
                     );
                 }
@@ -808,7 +815,7 @@ function MessageCreateCampaign() {
                         />
                     )}
                     <Button
-                        onClick={handleMessageDetailed}
+                        onClick={handleAvailableCredit}
                         className="px-3 btn-41 btn-message d-flex align-items-center me-3">
                         <img src={CreditImg} width={19} className="me-2" />
                         {`Available Credits: ${userCreditObj?.userCredit}`}
@@ -860,17 +867,24 @@ function MessageCreateCampaign() {
                                     Choose a template from below
                                 </div>
                                 <Select
-                                    className="doctor-selection h-38"
-                                    style={{ width: 250 }}
                                     placeholder="Please select"
-                                    options={optionsTemplates}
+                                    className='h-38 appointmentselect'
+                                    style={{ width: 250 }}
+                                    value={selectedCategory}
+                                    onSelect={onSelectCategory}
+                                    options={[{ id: -1, category: 'All Template' }, ...categoryList].map((e) => {
+                                        return {
+                                            value: e.id,
+                                            label: e.category,
+                                        };
+                                    })}
                                 />
                             </div>
                             <Row>
                                 {templateLoading ? (
                                     <Spin style={{ marginTop: 120 }} />
                                 ) : (
-                                    allTemplateList?.map((e, i) => {
+                                    allTemplateList?.filter(e => selectedCategory === -1 || e.category === selectedCategory)?.map((e, i) => {
                                         return (
                                             <Col key={i} xs={4} className="px-3 px-xl-4 mb-4 mb-xl-5">
                                                 <div className="message-box" onClick={() => onTemplateClick(e)}>
@@ -1087,6 +1101,8 @@ function MessageCreateCampaign() {
                                                                 ok: "Done",
                                                             }
                                                         }}
+                                                        disabledDate={disabledDate}
+                                                        disabledTime={disabledTime}
                                                         renderExtraFooter={() => <div className="fs-12-1 text-greycolor">Note: Scheduling message allowed only between 9AM-9PM</div>}
                                                         value={scheduleDateTime ? dayjs(moment(scheduleDateTime).format(showDateTimeFormat), showDateTimeFormat) : ''}
                                                         onChange={(date, dateString) => setScheduleDateTime(moment(dateString).format(dateTimeFormat))}
@@ -1227,7 +1243,7 @@ function MessageCreateCampaign() {
                                                     <hr />
                                                     <Button className='mt-4 btn btn-primary3 btn-41 px-5 mx-auto d-block'
                                                         loading={loading}
-                                                        onClick={handleMessageDetailed}>
+                                                        onClick={handleAvailableCredit}>
                                                         Buy Credits
                                                     </Button>
                                                 </>
@@ -1246,10 +1262,10 @@ function MessageCreateCampaign() {
                 title="Buy Message Credits"
                 placement="right"
                 closable
-                open={messageDetailed}
-                onClose={handleMessageDetailed}
+                open={availableCredit}
+                onClose={handleAvailableCredit}
             >
-                <AvailableCredits handleMessageDetailed={handleMessageDetailed} />
+                <AvailableCredits handleAvailableCredit={handleAvailableCredit} />
             </Drawer>
         </>
     );

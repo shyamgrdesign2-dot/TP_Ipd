@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Button from "react-bootstrap/Button";
 import { Drawer } from "antd";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { userCredit } from "../redux/bulkMessagesSlice";
 
@@ -19,16 +19,9 @@ function Welcome(props) {
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
-  let location = useLocation();
 
-  const [messageDetailed, setMessageDetailed] = useState(false);
+  const [availableCredit, setAvailableCredit] = useState(false);
   const decodedToken = getDecodedToken();
-
-  useEffect(() => {
-    if (location.pathname === '/bulk_messages') {
-      dispatch(userCredit());
-    }
-  }, [location]);
 
   const clickWalkInConsultation = () => {
     const businessId = decodedToken?.result?.hospital_business_id;
@@ -43,11 +36,11 @@ function Welcome(props) {
     }
   }
 
-  const handleMessageDetailed = useCallback(
+  const handleAvailableCredit = useCallback(
     () => {
-      setMessageDetailed(!messageDetailed)
+      setAvailableCredit(!availableCredit)
     },
-    [messageDetailed]
+    [availableCredit]
   );
 
   return (
@@ -96,7 +89,7 @@ function Welcome(props) {
               {locationPath == "/bulk_messages" &&
                 <div className="d-lg-flex d-block">
                   <Button
-                    onClick={handleMessageDetailed}
+                    onClick={handleAvailableCredit}
                     className="px-3 btn-41 btn-message d-flex align-items-center">
                     <img src={CreditImg} width={19} className="me-2" />
                     {`Available Credits: ${userCreditObj?.userCredit}`}
@@ -122,10 +115,10 @@ function Welcome(props) {
         title="Buy Message Credits"
         placement="right"
         closable
-        open={messageDetailed}
-        onClose={handleMessageDetailed}
+        open={availableCredit}
+        onClose={handleAvailableCredit}
       >
-        <AvailableCredits handleMessageDetailed={handleMessageDetailed} />
+        <AvailableCredits handleAvailableCredit={handleAvailableCredit} />
       </Drawer>
     </>
   );

@@ -4,12 +4,14 @@ import ApiBulkMessages from "../api/services/ApiBulkMessages";
 
 const initialState = {
     userCreditObj: null,
+    tabCountObj: null,
     userCampaignList: [],
     userPurchaseList: [],
     loading: false,
     popup: false,
     campaignDetails: null,
     error: { visible: false, message: '' },
+    categoryList: [],
     allTemplateList: [],
     templateLoading: false,
     doctorList: [],
@@ -21,6 +23,18 @@ export const userCredit = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const result = await ApiBulkMessages.userCredit();
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
+export const userCount = createAsyncThunk(
+    "bulkMessages/userCount",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiBulkMessages.userCount(data);
             return result;
         } catch (error) {
             return rejectWithValue({ visible: false, message: error.response.data.message });
@@ -48,6 +62,18 @@ export const userCampaignDetails = createAsyncThunk(
             return result;
         } catch (error) {
             return rejectWithValue({ visible: true, message: error.response.data.message });
+        }
+    }
+);
+
+export const listCategory = createAsyncThunk(
+    "bulkMessages/listCategory",
+    async (_, { rejectWithValue }) => {
+        try {
+            const result = await ApiBulkMessages.listCategory();
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
         }
     }
 );
@@ -179,6 +205,12 @@ const bulkMessagesSlice = createSlice({
             .addCase(userCredit.rejected, (state, action) => {
                 state.userCreditObj = null;
             })
+            .addCase(userCount.fulfilled, (state, action) => {
+                state.tabCountObj = action.payload;
+            })
+            .addCase(userCount.rejected, (state, action) => {
+                state.tabCountObj = null;
+            })
             .addCase(userCampaign.pending, (state) => {
                 state.loading = true;
                 state.popup = false;
@@ -202,6 +234,13 @@ const bulkMessagesSlice = createSlice({
             .addCase(userCampaignDetails.rejected, (state, action) => {
                 state.error = { visible: action.payload.visible, message: action.payload.message }
                 state.campaignDetails = null;
+            })
+            .addCase(listCategory.fulfilled, (state, action) => {
+                state.categoryList = action.payload;
+            })
+            .addCase(listCategory.rejected, (state, action) => {
+                state.error = { visible: action.payload.visible, message: action.payload.message }
+                state.categoryList = [];
             })
             .addCase(listAllTemplate.pending, (state, action) => {
                 state.templateLoading = true
