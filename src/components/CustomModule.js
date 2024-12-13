@@ -34,18 +34,10 @@ import "./CustomModule.scss";
 import CommonModal from "../common/CommonModal";
 import alertIcon from "../assets/images/alertIcon.svg";
 import CashManagerContext from "../context/CashManagerContext";
-import {
-  errorMessage,
-  removeBeforeWhiteSpace,
-  capitalizeAfterSentence,
-} from "../utils/utils";
+import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 import ModuleIcon from "../assets/images/custom-module.svg";
 import { MenuOutlined } from "@ant-design/icons";
-import {
-  addModule,
-  getModuleContents,
-  searchModule,
-} from "../redux/customModuleSlice";
+import { addModule, searchModule } from "../redux/customModuleSlice";
 
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import editIcon from "../assets/images/edit-icon-blue.svg";
@@ -95,7 +87,6 @@ function CustomModule({ module }) {
     customModuleContents
       .filter((content) => content.module_id === module.module_id)
       ?.flatMap((item) => item.content) || [];
-  console.log({ customModuleContents, moduleData });
 
   useEffect(() => {
     const moduleContent = customModuleContents.find(
@@ -108,7 +99,7 @@ function CustomModule({ module }) {
 
     setMatchedTemplates(templates);
     setAllTemplates(templates);
-  }, [module]);
+  }, [module, customModuleContents]);
 
   //Parent AutoComplete
   useEffect(() => {
@@ -381,10 +372,10 @@ function CustomModule({ module }) {
   );
 
   const onAddTemplateClicked = async () => {
-    if (moduleData.length === 0) {
-      errorMessage(`At least 1 ${module.module_name} added`);
-    } else if (moduleData.filter((e) => e.title == "").length > 0) {
-      errorMessage(`Please fillup ${module.module_name} name`);
+    if (!moduleData?.some((e) => e.title || e.notes)) {
+      errorMessage(
+        `At least 1 ${module.module_name || module.name} should be added`
+      );
     } else {
       const modules = customModules.map((cm) => {
         if (cm.module_id === module.module_id) {

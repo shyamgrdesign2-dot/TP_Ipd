@@ -43,8 +43,6 @@ import {
 } from "../../utils/utils";
 import {
   addModule,
-  getModuleContents,
-  getModules,
 } from "../../redux/customModuleSlice";
 
 import TabCustomModuleSearch from "../../components/tab_design/TabCustomModuleSearch";
@@ -227,10 +225,8 @@ function TabCustomModule({ module }) {
   );
 
   const onAddTemplateClicked = async () => {
-    if (moduleData.length === 0) {
-      errorMessage(`At least 1 ${module.module_name} added`);
-    } else if (moduleData.filter((e) => e.title == "").length > 0) {
-      errorMessage(`Please fillup ${module.module_name} name`);
+    if (!moduleData?.some((e) => e.title || e.notes)) {
+      errorMessage(`At least 1 ${module.module_name || module.name} added`);
     } else {
       const modules = customModules.map((cm) => {
         if (cm.module_id === module.module_id) {
