@@ -69,7 +69,18 @@ const customModuleSlice = createSlice({
     error: null,
   },
   reducers: {
-    // Additional reducers if needed
+    setCustomModulesPrintConfig: (state, action) => {
+      const { module_id, printConfig } = action.payload;
+
+      state.customModules = state.customModules.map((module) =>
+        module.module_id === module_id
+          ? {
+              ...module,
+              printConfig: { ...module.printConfig, ...printConfig },
+            }
+          : module
+      );
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -135,4 +146,6 @@ const customModuleSlice = createSlice({
   },
 });
 
+
+export const { setCustomModulesPrintConfig } = customModuleSlice.actions;
 export default customModuleSlice.reducer;

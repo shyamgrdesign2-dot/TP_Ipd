@@ -20,6 +20,7 @@ import VideoModal from './VideoModal';
 import { useAccess } from '../pages/vaccination/useAccess';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import { GB_ISCRIBE } from '../utils/constants';
+import customModuleIcon from '../assets/images/custom-module.svg';
 
 const CustomRow = ({ children, ...props }) => {
   const {
@@ -83,6 +84,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
   const { isGynaecHistoryAccessable } = useAccess();
+  const {customModules} = useSelector((state) => state.customModules);
 
   useEffect(() => {
     if (customizedPadLeftList.length > 0) {
@@ -97,11 +99,32 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
 
   useEffect(() => {
     if (customizedPadRightList.length > 0) {
-      const updatedData = customizedPadRightList.map((e, i) => {
-        return { ...e };
-      });
-      setDataSourceRight(updatedData);
+      const updatedData = customizedPadRightList.map((e) => ({ ...e }));
+    
+      let customModuleData = [];
+      if (customModules.length > 0) {
+        customModuleData = customModules.map((module) => ({
+          tmdpm_id: module.module_id,
+          tmdpm_name: module.name,
+          tmdpm_short_name: module.name,
+          tmdpm_type: "R",
+          tmdpm_status: 0,
+          is_custom_module: true,
+        }));
+      }
+    
+      // Filter custom modules not already in updatedData
+      const newCustomModules = customModuleData.filter(
+        (customModule) =>
+          !updatedData.some((dataItem) => dataItem.tmdpm_id === customModule.tmdpm_id)
+      );
+    
+      // Combine updatedData with new custom modules
+      const finalData = [...updatedData, ...newCustomModules];
+
+      setDataSourceRight(finalData);
     }
+    
   }, [handleDrawerCustomize]);
 
   //LEFT SIDE OF ELEMETNS
@@ -162,7 +185,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
       colSpan: 0,
       dataIndex: 'tmdpm_name',
       key: 'tmdpm_name',
-      render: (text, record) => <div className='align-items-center d-flex'><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</div>
+      render: (text, record) => <div className='align-items-center d-flex'><img src={record.is_custom_module ? customModuleIcon : record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</div>
     },
     {
       title: 'ENABLE/DISABLE',

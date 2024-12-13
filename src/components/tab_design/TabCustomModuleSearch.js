@@ -63,7 +63,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
 
   useEffect(() => {
     const data = [];
-    searchModuleResults.map(({title},i) => {
+    searchModuleResults.map(({ title }, i) => {
       return data.push({
         key: JSON.stringify({ title, i, unique_id: uuidv4() }),
         value: title,
@@ -338,7 +338,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
                           .filter(
                             (e) =>
                               ![...moduleData.map((e1) => e1.title)].includes(
-                                e.content?.title
+                                e?.title
                               )
                           )
                           .map((item, i) => {
@@ -347,18 +347,15 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
                                 key={i}
                                 type="text"
                                 style={{
-                                  width:
-                                    item.content?.title.length > 26 && "250px",
+                                  width: item?.title.length > 26 && "250px",
                                 }}
                                 className={`${
-                                  item.content?.title.length > 26 &&
+                                  item?.title.length > 26 &&
                                   "chips-custom-break"
                                 } btn btn-primary2 chips-custom mb-14 me-14`}
-                                onClick={() =>
-                                  onSelectParent(item.content?.title)
-                                }
+                                onClick={() => onSelectParent(item?.title)}
                               >
-                                {item.content?.title}
+                                {item?.title}
                               </Button>
                             );
                           })}

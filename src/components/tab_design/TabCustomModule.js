@@ -53,6 +53,7 @@ function TabCustomModule({ module }) {
   const { customModules, searchModuleResults, loading } = useSelector(
     (state) => state.customModules
   );
+  console.log({searchModuleResults});
   const { userId } = useSelector((state) => state.doctors);
 
   const dispatch = useDispatch();
@@ -1034,13 +1035,13 @@ function TabCustomModule({ module }) {
                   key={i}
                   type="text"
                   style={{
-                    width: item.content?.title.length > 26 && "250px",
+                    width: item?.title.length > 26 && "250px",
                   }}
                   className={`${
-                    item.content?.title.length > 26 && "chips-custom-break"
+                    item?.title.length > 26 && "chips-custom-break"
                   } btn btn-primary2 chips-custom mb-14 me-14`}
                   onClick={() => onSelectParent(item.content.title)}
-                >{`${item.content?.title}`}</Button>
+                >{`${item?.title}`}</Button>
               );
             })}
       </div>

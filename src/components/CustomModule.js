@@ -1032,7 +1032,7 @@ function CustomModule({ module }) {
               <Tooltip
                 placement="bottom"
                 title={
-                  moduleData.length > 0
+                  moduleData?.filter((e) => e.title || e.notes).length > 0
                     ? ""
                     : `Please enter some ${module?.name} to save a template`
                 }
@@ -1040,7 +1040,7 @@ function CustomModule({ module }) {
                 <Popover
                   open={popOver2}
                   onOpenChange={() =>
-                    moduleData.length > 0 && showHideSaveTemplatePopOver()
+                    moduleData?.filter((e) => e.title || e.notes).length > 0 && showHideSaveTemplatePopOver()
                   }
                   content={SAVE_CONTENT}
                   trigger="click"
