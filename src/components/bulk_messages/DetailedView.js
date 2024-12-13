@@ -29,8 +29,12 @@ function DetailedView() {
                     ) : (
                         <>
                             <span className="fw-semibold"> {`${campaignDetails?.total_patient} ${campaignDetails?.gender?.split(",")?.length === 1 ? campaignDetails?.gender : ''} patients`} </span>
-                            {` of age between `}
-                            <span className="fw-semibold"> {`${campaignDetails?.min_age}-${campaignDetails?.max_age} ${campaignDetails?.min_age_unit}`} </span>
+                            {(campaignDetails?.min_age && campaignDetails?.max_age) ? (
+                                <>
+                                    {` of age between `}
+                                    <span className="fw-semibold"> {`${campaignDetails?.min_age}-${campaignDetails?.max_age} ${campaignDetails?.min_age_unit}`} </span>
+                                </>
+                            ):null}
                             {` who visited in the `}
                             <span className="fw-semibold">{`${campaignDetails?.date_unit === 'custom' ? moment(campaignDetails?.start_date).format(showDateFormat) + " to " + moment(campaignDetails?.end_date).format(showDateFormat) : campaignDetails?.date_unit}`}</span>
                         </>

@@ -142,10 +142,11 @@ export const userCampaignEdit = createAsyncThunk(
 
 export const userCampaignDelete = createAsyncThunk(
     "bulkMessages/userCampaignDelete",
-    async (id, { dispatch, rejectWithValue }) => {
+    async (data, { dispatch, rejectWithValue }) => {
         try {
-            const result = await ApiBulkMessages.userCampaignDelete(id);
+            const result = await ApiBulkMessages.userCampaignDelete(data?.id);
             dispatch(userCredit())
+            dispatch(userCount(data))
             return result;
         } catch (error) {
             return rejectWithValue({ visible: true, message: error.response.data.message });
@@ -222,7 +223,7 @@ const bulkMessagesSlice = createSlice({
             })
             .addCase(userCampaign.rejected, (state, action) => {
                 state.loading = false;
-                state.popup = true;
+                state.popup = false;
                 state.userCampaignList = [];
             })
             .addCase(userCampaignDetails.pending, (state, action) => {
@@ -305,7 +306,9 @@ const bulkMessagesSlice = createSlice({
                 state.loading = false;
                 state.userPurchaseList = [];
             })
-
+            .addCase(verifyPayment.fulfilled, (state, action) => {
+                state.tabCountObj = { ...state.tabCountObj, count_paymentHistory: state.tabCountObj?.count_paymentHistory + 1 };
+            })
     },
 });
 

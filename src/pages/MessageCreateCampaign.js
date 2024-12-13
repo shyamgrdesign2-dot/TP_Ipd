@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Button, Drawer, Popover, Steps, Radio, DatePicker, TimePicker, Select, Checkbox, Input, Spin } from 'antd';
+import { Button, Drawer, Popover, Steps, Radio, DatePicker, TimePicker, Select, Checkbox, Input, Spin, message } from 'antd';
 import { Col, Container, Row } from "react-bootstrap";
 import { v4 as uuidv4 } from 'uuid';
 
-import locale from "antd/es/date-picker/locale/de_DE";
+import locale from "antd/es/date-picker/locale/en_US";
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -12,6 +12,7 @@ import moment from "moment";
 import dayjs from "dayjs";
 
 import { errorMessage, onlyNumberFormat } from "../utils/utils";
+import { MESSAGE_KEY } from "../utils/constants";
 
 import VideoModal from "../common/VideoModal";
 import messageCorner from '../assets/images/message-corner.svg'
@@ -19,6 +20,8 @@ import CreditImg from "../assets/images/credit_icon.svg"
 import tutorial from '../assets/images/tutorial-icon.svg';
 import messageCornerGrey from '../assets/images/message-corner-grey.svg'
 import alertIcon from '../assets/images/alertIcon.svg';
+import imgCloseVisit from '../assets/images/close-visit.svg';
+import visitEnd from '../assets/images/end-visit.svg';
 
 import AvailableCredits from "../components/bulk_messages/AvailableCredits";
 import CommonModal from "../common/CommonModal";
@@ -192,7 +195,7 @@ function MessageCreateCampaign() {
             }
 
             setScheduleType(2)
-            setScheduleDateTime(moment(`${campaign_data?.campaign_date} ${campaign_data?.campaign_date}`, showDateTimeFormat).format(dateTimeFormat))
+            setScheduleDateTime(moment(`${campaign_data?.campaign_date} ${campaign_data?.campaign_time}`, showDateTimeFormat).format(dateTimeFormat))
         }
     }, [doctorList, allTemplateList, campaign_data]);
 
@@ -419,15 +422,22 @@ function MessageCreateCampaign() {
         setScheduleType(e.target.value);
     }, [schedule_type]);
 
+    // const disabledDate = (current) => {
+    //     // Disable all dates before today
+    //     return current && current < moment().startOf('day');
+    // };
+
     const disabledDate = (current) => {
-        // Disable all dates before today
-        return current && current < moment().startOf('day');
+        // Disable dates before today and after 3 months from today
+        const today = moment().startOf("day");
+        const threeMonthsFromToday = today.clone().add(3, "months").endOf("day");
+        return current && (current.isBefore(today) || current.isAfter(threeMonthsFromToday));
     };
 
     const disabledTime = (current) => {
         if (!current) return {};
         const now = moment();
-    
+
         // If the selected date is today, disable past hours and minutes
         if (current.isSame(now, 'day')) {
             return {
@@ -737,12 +747,66 @@ function MessageCreateCampaign() {
             max_age_unit: sender_type == 2 ? age_unit : '',
             gender: sender_type == 2 ? gender?.length > 0 ? gender.map(e => e).toString() : '' : '',
         }
+
         if (campaign_data !== undefined) {
             sendData['id'] = campaign_data?.id
             sendData['change'] = change ? 1 : 0
+            sendData['draft'] = campaign_data?.draft === 0 ? campaign_data?.draft : draft
         }
+
         const action = campaign_data !== undefined ? await dispatch(userCampaignEdit(sendData)) : await dispatch(userCampaignAdd(sendData));
         if (action.meta.requestStatus === "fulfilled") {
+            if (sendData?.draft === 1) {
+                message.open({
+                    key: MESSAGE_KEY,
+                    type: '',
+                    className: 'message-appointment',
+                    content: (
+                        <div className='d-flex align-items-center'>
+                            <img src={visitEnd} className='me-3' />
+                            <div>
+                                <div className='text-start fs-18 fontroboto'><span className="fw-semibold text-white">{template && template?.campaign_name}</span> message has been saved as a draft</div>
+                            </div>
+                            <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                        </div>
+                    ),
+                    duration: 3,
+                });
+            } else {
+                if (schedule_type === 1) {
+                    message.open({
+                        key: MESSAGE_KEY,
+                        type: '',
+                        className: 'message-appointment',
+                        content: (
+                            <div className='d-flex align-items-center'>
+                                <img src={visitEnd} className='me-3' />
+                                <div>
+                                    <div className='text-start fs-18 fontroboto'><span className="fw-semibold text-white">{template && template?.campaign_name}</span> message has been sent successfully.</div>
+                                </div>
+                                <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                            </div>
+                        ),
+                        duration: 3,
+                    });
+                } else {
+                    message.open({
+                        key: MESSAGE_KEY,
+                        type: '',
+                        className: 'message-appointment',
+                        content: (
+                            <div className='d-flex align-items-center'>
+                                <img src={visitEnd} className='me-3' />
+                                <div>
+                                    <div className='text-start fs-18 fontroboto'><span className="fw-semibold text-white">{template && template?.campaign_name}</span> message has been scheduled successfully.</div>
+                                </div>
+                                <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                            </div>
+                        ),
+                        duration: 3,
+                    });
+                }
+            }
             navigate('/bulk_messages', { replace: true })
         } else {
             errorMessage(action.payload.message)
@@ -1105,7 +1169,7 @@ function MessageCreateCampaign() {
                                                         disabledTime={disabledTime}
                                                         renderExtraFooter={() => <div className="fs-12-1 text-greycolor">Note: Scheduling message allowed only between 9AM-9PM</div>}
                                                         value={scheduleDateTime ? dayjs(moment(scheduleDateTime).format(showDateTimeFormat), showDateTimeFormat) : ''}
-                                                        onChange={(date, dateString) => setScheduleDateTime(moment(dateString).format(dateTimeFormat))}
+                                                        onChange={(date, dateString) => setScheduleDateTime(dateString ? moment(dateString).format(dateTimeFormat) : '')}
                                                     />
                                                 </div>
                                             )}
@@ -1135,7 +1199,7 @@ function MessageCreateCampaign() {
                                                 </div>
                                                 <div className="d-flex align-items-center py-1 justify-content-between fs-14 fontroboto">
                                                     <div className="fontroboto fw-bold">{`${send_on === 1 ? 'SMS' : 'Message'} Per Customers (B) :`}</div>
-                                                    <div className="fontroboto fw-bold">{`${send_on === 1 ? patientCount * Math.ceil(TEMPLATE_TEXT?.length / 160) + ' SMS' : patientCount + ' Message'}`}</div>
+                                                    <div className="fontroboto fw-bold">{`${send_on === 1 ? Math.ceil(TEMPLATE_TEXT?.length / 160) + ' SMS' : '1 Message'}`}</div>
                                                 </div>
                                                 <div className="d-flex align-items-center py-1 justify-content-between fs-14 fontroboto">
                                                     <div className="fontroboto fw-bold">{`Price Per ${send_on === 1 ? 'SMS' : 'Message'} (C) :`}</div>
@@ -1162,7 +1226,7 @@ function MessageCreateCampaign() {
                                     {` message will be sent on `}
                                     <span className="fw-semibold">{moment(scheduleDateTime).format(showDateFormat1)}</span>
                                     {` at `}
-                                    <span className="fw-semibold">{moment(scheduleDateTime).format(showTimeFormat1)} </span> via <span className="fw-semibold">{send_on}</span>
+                                    <span className="fw-semibold">{moment(scheduleDateTime).format(showTimeFormat1)} </span> via <span className="fw-semibold">{send_on === 1 ? 'SMS' : 'Message'}</span>
                                     {` to `}
                                     {sender_type === 1 ? (
                                         <>
@@ -1171,8 +1235,12 @@ function MessageCreateCampaign() {
                                     ) : (
                                         <>
                                             <span className="fw-semibold"> {`${patientCount} ${gender?.length === 1 ? gender : ''} patients`} </span>
-                                            {` of age between `}
-                                            <span className="fw-semibold"> {`${min_age}-${max_age} ${age_unit}`} </span>
+                                            {(min_age && max_age) ? (
+                                                <>
+                                                    {` of age between `}
+                                                    <span className="fw-semibold"> {`${min_age}-${max_age} ${age_unit}`} </span>
+                                                </>
+                                            ) : null}
                                             {` who visited in the `}
                                             <span className="fw-semibold">
                                                 {dateStatus === 1 ? (
@@ -1213,7 +1281,7 @@ function MessageCreateCampaign() {
                                         </div>
                                         <div className="d-flex align-items-center py-2 justify-content-between fs-18 fw-medium fontroboto">
                                             <div>{`${send_on === 1 ? 'SMS' : 'Message'} Per Customers (B) :`}</div>
-                                            <div>{`${send_on === 1 ? patientCount * Math.ceil(TEMPLATE_TEXT?.length / 160) + ' SMS' : patientCount + ' Message'}`}</div>
+                                            <div>{`${send_on === 1 ? Math.ceil(TEMPLATE_TEXT?.length / 160) + ' SMS' : '1 Message'}`}</div>
                                         </div>
                                         <div className="d-flex align-items-center py-2 justify-content-between fs-18 fw-medium fontroboto">
                                             <div>{`Price Per ${send_on === 1 ? 'SMS' : 'Message'} (C) :`}</div>

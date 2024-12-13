@@ -33,7 +33,7 @@ const showDateFormat = 'DD MMM YYYY'
 
 function MessagesData() {
 
-    const { tabCountObj, userCampaignList, userPurchaseList, loading, popup, error } = useSelector((state) => state.bulkMessages);
+    const { tabCountObj, userCampaignList, userPurchaseList, campaignDetails, loading, popup, error } = useSelector((state) => state.bulkMessages);
     const dispatch = useDispatch();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -241,7 +241,14 @@ function MessagesData() {
 
     const onCampaignClick = async (status, record) => {
         if (status === 3) {
-            const action = await dispatch(userCampaignDelete(record?.id));
+            var sendData = {
+                id: record?.id
+            }
+            if (dateRange.startDate != dateRange.endDate) {
+                sendData['start_date'] = dateRange.startDate;
+                sendData['end_date'] = dateRange.endDate;
+            }
+            const action = await dispatch(userCampaignDelete(sendData));
             if (action.meta.requestStatus !== "fulfilled") {
                 errorMessage(action.payload.message)
             }
@@ -524,7 +531,6 @@ function MessagesData() {
                     )}
                 </>
             )}
-
         </div>
     );
 
@@ -641,7 +647,7 @@ function MessagesData() {
             </div>
             <Drawer
                 className="modalWidth-700" width="auto"
-                title="Detailed View (Medical Camp)"
+                title={`Detailed View (${campaignDetails?.campaign_name})`}
                 placement="right"
                 closable
                 open={messageDetailed}
