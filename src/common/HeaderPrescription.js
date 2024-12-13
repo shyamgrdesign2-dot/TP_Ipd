@@ -58,6 +58,8 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
     } = useSelector((state) => state.caseManager);
     const dispatch = useDispatch();
 
+    const {customModules} = useSelector((state) => state.customModules);
+
     const navigate = useNavigate();
     const { patient_data, send_path, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, surgeriesData, setSurgeriesData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, privateNotesData, setPrivateNotesData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime, customModuleContents, setCustomModuleContents } = useContext(CashManagerContext);
 
@@ -295,18 +297,20 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                       moduleMap.set(module.module_id, { ...module, content: module?.content?.filter((e) => e.title || e.notes) });
                     });
                     data?.userModules?.forEach((module) => {
-                      if (moduleMap.has(module.module_id)) {
-                        const existingModule = moduleMap.get(module.module_id);
-                        moduleMap.set(module.module_id, {
-                          ...existingModule,
-                          content: [
-                            ...existingModule.content,
-                            ...module.content,
-                          ],
-                        });
-                      } else {
-                        moduleMap.set(module.module_id, { ...module });
-                      }
+                        if(customModules?.find((x) => x.module_id == module.module_id)){
+                            if (moduleMap.has(module.module_id)) {
+                                const existingModule = moduleMap.get(module.module_id);
+                                moduleMap.set(module.module_id, {
+                                  ...existingModule,
+                                  content: [
+                                    ...existingModule.content,
+                                    ...module.content,
+                                  ],
+                                });
+                              } else {
+                                moduleMap.set(module.module_id, { ...module });
+                              }
+                        }
                     });
                     setCustomModuleContents(Array.from(moduleMap.values()));
                 }
