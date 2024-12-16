@@ -962,7 +962,8 @@ function CustomModule({ module }) {
                 if (e.tmdpm_id === module?.module_id) {
                   return {
                     ...e,
-                    title: newModuleName,
+                    tmdpm_name: newModuleName,
+                    tmdpm_short_name: newModuleName,
                   };
                 }
                 return e;
