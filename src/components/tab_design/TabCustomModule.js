@@ -241,11 +241,11 @@ function TabCustomModule({ module }) {
           return {
             ...cm,
             templates: [
-              ...cm.templates,
               {
                 template_name: inputTemplateName,
                 content: moduleData?.filter((e) => e.title || e.notes),
               },
+              ...cm.templates,
             ],
           };
         }
@@ -1067,10 +1067,7 @@ function TabCustomModule({ module }) {
         {latestSearchedModules?.[module?.module_id]?.length > 0 &&
           latestSearchedModules?.[module?.module_id]
             .filter(
-              (e) =>
-                ![...moduleData.map((e1) => e1.title)].includes(
-                  e.content?.title
-                )
+              (e) => ![...moduleData.map((e1) => e1.title)].includes(e?.title)
             )
             .map((item, i) => {
               return (
