@@ -235,7 +235,7 @@ function CustomModule({ module }) {
   );
 
   const onSelectChild = useCallback(
-    (data, e, i) => {
+    (data, i) => {
       const updatedModuleData = [...moduleData];
       updatedModuleData[i] = {
         ...updatedModuleData[i],
@@ -336,6 +336,11 @@ function CustomModule({ module }) {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
+        setCustomModuleContents((prev) => {
+          return prev.filter(
+            (item) => item.module_id !== moduleToDelete?.module_id
+          );
+        });
         dispatch(
           customizedPad({
             data: {
@@ -624,9 +629,7 @@ function CustomModule({ module }) {
                             options={childSearchOptions}
                             className="autocomplete-custom w-100 inputborder"
                             defaultActiveFirstOption={true}
-                            onSelect={(data, e) =>
-                              onSelectChild(data, e, index)
-                            }
+                            onSelect={(data) => onSelectChild(data, index)}
                           />
                         </div>
                       </Col>
@@ -965,6 +968,24 @@ function CustomModule({ module }) {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
+        dispatch(
+          customizedPad({
+            data: {
+              default: false,
+              reset: false,
+              left: customizedPadLeftList,
+              right: customizedPadRightList?.map((e) => {
+                if (e.tmdpm_id === module?.module_id) {
+                  return {
+                    ...e,
+                    title: newModuleName,
+                  };
+                }
+                return e;
+              }),
+            },
+          })
+        );
         setCanEditName(false);
         message.open({
           key: MESSAGE_KEY,
@@ -1118,20 +1139,6 @@ function CustomModule({ module }) {
         >
           Add New Line
         </Button>
-        {/* <AutoComplete
-          value={searchChildQuery}
-          onSearch={onSearchParent}
-          options={parentSearchOptions}
-          className="autocomplete-custom w-100"
-          onSelect={onSelectParent}
-          defaultActiveFirstOption={true}
-          popupClassName={!searchChildQuery && "boxpopup"}
-        >
-          <Input
-            placeholder="Search"
-            prefix={<i className="icon-search"></i>}
-          />
-        </AutoComplete> */}
       </div>
     </div>
   );

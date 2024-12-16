@@ -143,10 +143,12 @@ function TabCustomModule({ module }) {
 
   const onSelectParent = useCallback(
     (e) => {
-      const newItem = { title: e, notes: "" };
-      updateCustomModuleContents([...moduleData, newItem]);
-      setSelectedIndex([...moduleData, newItem].length - 1);
-      handleDrawerParent();
+      if (!moduleData.some((item) => item.title === e)) {
+        const newItem = { title: e, notes: "" };
+        updateCustomModuleContents([...moduleData, newItem]);
+        setSelectedIndex([...moduleData, newItem].length - 1);
+        handleDrawerParent();
+      }
     },
     [moduleData, selectedIndex, parentDrawer]
   );
@@ -708,6 +710,11 @@ function TabCustomModule({ module }) {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
+        setCustomModuleContents((prev) => {
+          return prev.filter(
+            (item) => item.module_id !== moduleToDelete?.module_id
+          );
+        });
         dispatch(
           customizedPad({
             data: {
@@ -865,6 +872,25 @@ function TabCustomModule({ module }) {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
+        dispatch(
+          customizedPad({
+            data: {
+              default: false,
+              reset: false,
+              left: customizedPadLeftList,
+              right: customizedPadRightList?.map((e) => {
+                if (e.tmdpm_id === module?.module_id) {
+                  return {
+                    ...e,
+                    tmdpm_name: newModuleName,
+                    tmdpm_short_name: newModuleName,
+                  };
+                }
+                return e;
+              }),
+            },
+          })
+        );
         setCanEditName(false);
         message.open({
           key: MESSAGE_KEY,

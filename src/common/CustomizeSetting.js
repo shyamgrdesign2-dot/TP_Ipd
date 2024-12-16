@@ -261,6 +261,21 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
     }
     const action = await dispatch(customizedPad(sendData))
     if (action.meta.requestStatus === "fulfilled") {
+      const customModulesInPad = customModules?.map((cm) => ({
+        tmdpm_id: cm.module_id,
+        tmdpm_name: cm.name,
+        tmdpm_short_name: cm.name,
+        tmdpm_type: "R",
+        tmdpm_status: 0,
+        is_custom_module: true,
+  }))
+      const addCustomModulesPayload = {
+        default: false,
+        reset: false,
+        left: action.payload.left,
+        right: [...action.payload.right,...customModulesInPad]
+      }
+      const customModulesAction = await dispatch(customizedPad({data:addCustomModulesPayload}))
       const left = action.payload.left
       const right = action.payload.right
       if (right.findIndex(e => e.tmdpm_id === 5 && e.tmdpm_status === 0) === -1) {
