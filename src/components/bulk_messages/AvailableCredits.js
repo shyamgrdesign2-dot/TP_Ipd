@@ -1,15 +1,17 @@
 import React, { useCallback, useState } from "react";
-import { Button, Input, Radio, Modal } from "antd";
+import { Button, Input, Radio, Modal, message } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 
 import DiscountIcon from "../../assets/images/discount.svg"
 import CreditImg from "../../assets/images/credit_icon.svg"
 import TicketIcon from "../../assets/images/ticket.svg"
-
 import redeemVideo from "../../assets/images/redeem-video.mp4";
+import visitEnd from '../../assets/images/end-visit.svg';
+import imgCloseVisit from '../../assets/images/close-visit.svg';
 
 import { errorMessage, onlyNumberFormat } from "../../utils/utils";
-import { paymentOrder, verifyPayment, paymentHistory, userRedeemCode } from "../../redux/bulkMessagesSlice";
+import { MESSAGE_KEY } from "../../utils/constants";
+import { paymentOrder, verifyPayment, userRedeemCode } from "../../redux/bulkMessagesSlice";
 
 function AvailableCredits({ handleAvailableCredit }) {
     const dispatch = useDispatch();
@@ -94,7 +96,7 @@ function AvailableCredits({ handleAvailableCredit }) {
             order_id: data.id,
             handler: async (response) => {
                 try {
-                    verifyRazorPayPayment(response)
+                    verifyRazorPayPayment(response, data)
                 } catch (error) {
                     console.log(error);
                 }
@@ -117,13 +119,28 @@ function AvailableCredits({ handleAvailableCredit }) {
         rzp1.open();
     };
 
-    const verifyRazorPayPayment = async (r_response) => {
+    const verifyRazorPayPayment = async (r_response, data) => {
         const action = await dispatch(verifyPayment(r_response));
         if (action.meta.requestStatus === "fulfilled") {
             if (action?.payload?.status === 'captured') {
                 setCreditRadio(null);
                 setCreditInput(null);
                 handleAvailableCredit()
+                message.open({
+                    key: MESSAGE_KEY,
+                    type: '',
+                    className: 'message-appointment',
+                    content: (
+                        <div className='d-flex align-items-center'>
+                            <img src={visitEnd} className='me-3' />
+                            <div>
+                                <div className='text-start fs-18 fontroboto'><span className="fw-semibold text-white">{data.amount / 100}</span> credits added successfully</div>
+                            </div>
+                            <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                        </div>
+                    ),
+                    duration: 3,
+                });
             } else {
                 errorMessage(action?.payload?.error_description)
             }
