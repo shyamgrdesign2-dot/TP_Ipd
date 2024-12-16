@@ -19,6 +19,8 @@ import fullicon from '../assets/images/full-icon.svg';
 import VideoModal from './VideoModal';
 import { useAccess } from '../pages/vaccination/useAccess';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
+import { GB_ISCRIBE } from '../utils/constants';
+import customModuleIcon from '../assets/images/custom-module.svg';
 
 const CustomRow = ({ children, ...props }) => {
   const {
@@ -71,18 +73,18 @@ const CustomRow = ({ children, ...props }) => {
   );
 };
 
-function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowthChartEnabled }) {
+function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowthChartEnabled, page }) {
 
   const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setMedicalHistoryData, setPrivateNotesData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
   const { loading, customizedPadLeftList, customizedPadRightList, videoList, profile } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
-
   const [dataSourceLeft, setDataSourceLeft] = useState([]);
   const [dataSourceRight, setDataSourceRight] = useState([]);
 
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
   const { isGynaecHistoryAccessable } = useAccess();
+  const {customModules} = useSelector((state) => state.customModules);
 
   useEffect(() => {
     if (customizedPadLeftList.length > 0) {
@@ -97,11 +99,10 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
 
   useEffect(() => {
     if (customizedPadRightList.length > 0) {
-      const updatedData = customizedPadRightList.map((e, i) => {
-        return { ...e };
-      });
+      const updatedData = customizedPadRightList.map((e) => ({ ...e }));
       setDataSourceRight(updatedData);
     }
+    
   }, [handleDrawerCustomize]);
 
   //LEFT SIDE OF ELEMETNS
@@ -162,7 +163,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
       colSpan: 0,
       dataIndex: 'tmdpm_name',
       key: 'tmdpm_name',
-      render: (text, record) => <div className='align-items-center d-flex'><img src={record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</div>
+      render: (text, record) => <div className='align-items-center d-flex'><img src={record.is_custom_module ? customModuleIcon : record.tmdpm_icon_url} className='me-3' style={{ marginLeft: -12 }} />{record.tmdpm_name}</div>
     },
     {
       title: 'ENABLE/DISABLE',
@@ -430,28 +431,30 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
             </SortableContext>
           </DndContext>
         </Col>
-        <Col lg={12} sm={12} className='ps-3'>
-          <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndRight}>
-            <SortableContext
-              // rowKey array
-              items={dataSourceRight.map((i) => i.tmdpm_id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <Table
-                className='customize-table'
-                pagination={false}
-                components={{
-                  body: {
-                    row: CustomRow,
-                  },
-                }}
-                rowKey="tmdpm_id"
-                columns={columnsRight}
-                dataSource={dataSourceRight}
-              />
-            </SortableContext>
-          </DndContext>
-        </Col>
+        { page === "normal-rx-page" &&
+          <Col lg={12} sm={12} className='ps-3'>
+            <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndRight}>
+              <SortableContext
+                // rowKey array
+                items={dataSourceRight.map((i) => i.tmdpm_id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <Table
+                  className='customize-table'
+                  pagination={false}
+                  components={{
+                    body: {
+                      row: CustomRow,
+                    },
+                  }}
+                  rowKey="tmdpm_id"
+                  columns={columnsRight}
+                  dataSource={dataSourceRight}
+                />
+              </SortableContext>
+            </DndContext>
+          </Col>
+        }
       </Row>
 
       {videoLink && (

@@ -19,6 +19,7 @@ import playIcons from '../assets/images/tube-icon.svg';
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
 import { setCurrentSessionRx } from '../redux/obstetricSlice';
+import { addModule } from '../redux/customModuleSlice';
 
 function HeaderPrintSetting({ defaultPrintSettings }) {
     const navigate = useNavigate();
@@ -31,7 +32,8 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
         setPopOverVideo(!popOverVideo);
     }, [popOverVideo]);
 
-    const { loading, videoList, profile } = useSelector((state) => state.doctors);
+    const { loading, videoList, profile, userId } = useSelector((state) => state.doctors);
+    const { customModules } = useSelector((state) => state.customModules);
     const dispatch = useDispatch();
 
     const { printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature } = useContext(PrintSettingsContext);
@@ -131,9 +133,8 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                 signature_image_delete: printSettings?.signature_image_delete !== undefined ? printSettings?.signature_image_delete : 0
             }
 
-            console.log(sendData)
-
             const action = await dispatch(savePrintsettings(sendData));
+            const customModuleAction = await dispatch(addModule({ userId, modules: customModules }));
             if (action.meta.requestStatus === "fulfilled") {
                 navigate(-1)
             } else {
@@ -166,6 +167,8 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
             navigate(-1);
         } else {
             dispatch(getDefaultPrintsettings({ default: true }));
+            if(customModules?.length > 0)
+            dispatch(addModule({ userId, modules: customModules?.map((cm) => ({ ...cm, printConfig: {format: "inline", isEnabled: true} }))}));
             showHideBackModal();
             dispatch(setCurrentSessionRx(null));
         }

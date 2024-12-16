@@ -1945,46 +1945,44 @@ body {
     background-color: rgba(241, 82, 35, 1);
     display: flex;
     align-items: center;
-    // gap: 40px 100px;
-    overflow: hidden;
     justify-content: space-between;
-    // flex-wrap: wrap;
+    overflow: hidden;
     padding: 9px 20px;
     font: 500 16px/2 Roboto, sans-serif;
     color: #fff !important;
-  }
+    height: 60px; /* Fixed height for both tablet and desktop */
+    gap: 10px; /* Space between elements */
+}
 
   .plan-expiry-banner {
     background: #EE7200;
     display: flex;
     align-items: center;
-    // gap: 40px 100px;
     overflow: hidden;
     justify-content: space-between;
-    // flex-wrap: wrap;
     padding: 9px 20px;
     font: 500 16px/2 Roboto, sans-serif;
     color: #fff !important;
   }
   
   .demoModeWrapper {
-    align-self: stretch;
     display: flex;
     gap: 5px;
     letter-spacing: 0.1px;
-    width: 194px;
+    width: auto; /* Dynamic width */
     margin: auto 0;
-    padding: 0 1px;
-  }
+    flex-shrink: 0; /* Prevent shrinking */
+    white-space: nowrap; /* Prevent text wrapping */
+}
   
-  .demoModeIndicator {
+.demoModeIndicator {
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 50%;
     display: flex;
     width: 8px;
     height: 8px;
     margin: auto 0;
-  }
+}
 
   .demoModeIndicatorSmall {
     background-color: rgba(255, 255, 255, 0.8);
@@ -2003,10 +2001,12 @@ body {
   }
   
   .expirationMessage {
-    letter-spacing: 0.1px;
-    align-self: stretch;
-    margin: auto 0;
-  }
+    flex-grow: 1; /* Allow the message to take up remaining space */
+    text-align: center;
+    margin: 0 10px; /* Provide spacing between elements */
+    font-size: 14px; /* Slightly smaller for better spacing on smaller screens */
+    white-space: nowrap; /* Prevent line breaks */
+}
   
   @media (max-width: 991px) {
     .expirationMessage {
@@ -2017,34 +2017,52 @@ body {
   .buyPlanButton {
     border-radius: 10px;
     background-color: rgba(255, 255, 255, 0.1);
-    align-self: stretch;
     display: flex;
-    min-height: 32px;
     align-items: center;
     gap: 10px;
-    overflow: hidden;
     color: #fff !important;
     justify-content: center;
-    margin: auto 0;
-    padding: 5px 15px;
+    padding: 5px 10px; /* Compact padding */
     font: 600 14px/2 Poppins, sans-serif;
     border: 1px solid rgba(255, 255, 255, 1);
-  }
+    flex-shrink: 0; /* Prevent shrinking */
+    white-space: nowrap; /* Prevent text wrapping */
+}
   
-  .buttonIcon {
+.buttonIcon {
+    width: 20px;
     aspect-ratio: 1;
     object-fit: contain;
-    object-position: center;
-    width: 20px;
-    align-self: stretch;
     margin: auto 0;
-  }
+}
+
   
   .buttonText {
     font-feature-settings: "liga" off, "clig" off;
     align-self: stretch;
     margin: auto 0;
   }
+
+  @media (max-width: 768px) { /* Tablet view */
+    .banner {
+        padding: 9px 10px; /* Adjust padding for smaller screens */
+        gap: 5px; /* Reduce spacing between elements */
+    }
+
+    .demoModeWrapper {
+        width: auto; /* Ensure flexible width */
+    }
+
+    .expirationMessage {
+        font-size: 10px; /* Adjust text size for smaller screens */
+        margin: 0 5px; /* Reduced margin for better spacing */
+    }
+
+    .buyPlanButton {
+        font-size: 12px; /* Smaller button text */
+        padding: 4px 8px; /* Adjust button padding */
+    }
+}
   
   .visually-hidden {
     position: absolute;
@@ -2449,4 +2467,14 @@ body {
     text-overflow: ellipsis;
     text-align: left;
     white-space: initial;
+}
+
+.additional-history-count {
+    position: absolute;
+    bottom: 2px;
+    right: 8px;
+    font-size: 10px;
+    color: #A2A2A8 !important;
+    font-weight: 400;
+    line-height: 21.2px;
 }

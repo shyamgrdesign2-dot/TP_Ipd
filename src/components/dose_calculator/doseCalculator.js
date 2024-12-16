@@ -216,7 +216,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
           if (isMobile) {
             const unitObj = medicationData[findTmmId]?.medicineUnit.find((x) => x.value == tmm_unit) !== undefined ?
               medicationData[findTmmId]?.medicineUnit.find((x) => x.value == tmm_unit) :
-              medicationData[findTmmId].medicineUnit[0].key;
+              medicationData[findTmmId].medicineUnit[0];
 
             medicationData[findTmmId].tmm_dosage_unit_name = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
             medicationData[findTmmId].tmm_dosage = dose ? dose : "";

@@ -4,7 +4,7 @@ import React, {
   useCallback,
   useContext,
   useMemo,
-  useRef
+  useRef,
 } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
 import axios from "axios";
@@ -25,13 +25,15 @@ import { useNavigate } from "react-router-dom";
 import { isMobile } from "react-device-detect";
 import { v4 as uuidv4 } from "uuid";
 
+import CustomizeSetting from "./CustomizeSetting";
+
 import CashManagerContext from "../context/CashManagerContext";
 import ProfilePopover from "./ProfilePopover";
 import CommonModal from "./CommonModal";
 import alertIcon from "../assets/images/alertIcon.svg";
 import reload from "../assets/images/ic_Reload.svg";
 import tutorial from "../assets/images/tutorial.svg";
-import playIcons from '../assets/images/tube-icon.svg';
+import playIcons from "../assets/images/tube-icon.svg";
 import api from "../api/services/axiosService";
 import devicePad from "../assets/images/device-pad.svg";
 import smartSyncConnected from "../assets/images/smart-sync-connected.svg";
@@ -42,18 +44,30 @@ import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 import { useSelector, useDispatch } from "react-redux";
 
 import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
-import VideoModal from './VideoModal';
+import VideoModal from "./VideoModal";
 import { getDecodedToken } from "../utils/localStorage";
 import { env } from "../EnvironmentConfig";
-import { RX_DIGITIZATION, IS_RX_DIGI_API_CALL, WS_CONTROL_URL, MESSAGE_KEY } from "../utils/constants";
+import {
+  RX_DIGITIZATION,
+  IS_RX_DIGI_API_CALL,
+  WS_CONTROL_URL,
+  MESSAGE_KEY,
+} from "../utils/constants";
 import ReconnectingWebSocket from "reconnectingwebsocket";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { GB_SMARTSYNC_CONNECT } from '../utils/constants';
+import { GB_SMARTSYNC_CONNECT } from "../utils/constants";
 
-function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData, loader }) {
-
+function HeaderPrescription({
+  prescription,
+  onClear,
+  onSubmit,
+  smartRxData,
+  loader,
+  isVaccinationEnabled,
+  isGrowthChartEnabled,
+}) {
   const { templates, loading } = useSelector((state) => state.caseManager);
-  const { videoList} = useSelector((state) => state.doctors);
+  const { videoList } = useSelector((state) => state.doctors);
   const [videoLink, setVideoLink] = useState(null);
   const dispatch = useDispatch();
 
@@ -90,23 +104,23 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData, load
   const [isDisconnect, setIsDisconnect] = useState(null);
   const [showDiconnectPopup, setShowDiconnectPopup] = useState(false);
   const [status, setStatus] = useState(null);
+  const [customizeDrawer, setCustomizeDrawer] = useState(false);
   const intervalRef = useRef(null);
 
   const baseUrl = { customBaseUrl: env.rx_digitization };
-  const isSmartSyncConnectAccessableFromGB = useFeatureIsOn(
-    GB_SMARTSYNC_CONNECT
-  );
+  const isSmartSyncConnectAccessableFromGB =
+    useFeatureIsOn(GB_SMARTSYNC_CONNECT);
 
   const items = [
-      {
-          label: <div onClick={onResetClick}>Clear</div>,
-          key: 'clear',
-      },
+    {
+      label: <div onClick={onResetClick}>Clear</div>,
+      key: "clear",
+    },
   ];
 
   async function onResetClick() {
-      setVitalsData([])
-      setFollowUpDate(null)
+    setVitalsData([]);
+    setFollowUpDate(null);
   }
 
   const showHideBackModal = useCallback(() => {
@@ -141,7 +155,7 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData, load
   };
 
   const handleSubmitClick = async () => {
-    if(!clicked){
+    if (!clicked) {
       onSubmit();
     }
   };
@@ -154,47 +168,70 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData, load
   //Video Componet
   const VIDEO_CONTENT = useCallback(() => {
     return (
-        <>
-            <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
-                <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
-                    <div className="title-common lh-base">Video Tutorial</div>
-                    <Button className="btn btn-videoClose p-0"
-                        onClick={showHideVideoListPopover}>
-                        <i className="icon-Cross" />
-                    </Button>
+      <>
+        <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
+          <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+            <div className="title-common lh-base">Video Tutorial</div>
+            <Button
+              className="btn btn-videoClose p-0"
+              onClick={showHideVideoListPopover}
+            >
+              <i className="icon-Cross" />
+            </Button>
+          </div>
+          {videoList
+            ?.filter((e) => e.category_id === 9)[0]
+            ?.video?.map((item1, i1) => {
+              return (
+                <div
+                  key={i1}
+                  className={`d-flex ${
+                    i1 !==
+                      videoList?.filter((e) => e.category_id === 9)[0]?.video
+                        ?.length -
+                        1 && "pb-3 mb-15 border-bottom"
+                  }`}
+                >
+                  <div className="tutorial-play me-14">
+                    <button type="button" onClick={() => setVideoLink(item1)}>
+                      <img src={playIcons} />
+                    </button>
+                    <span className="tutorial-thumb">
+                      <img src={item1.thumbnail} />
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="title-common text-welcome">
+                      {item1?.tmv_title}
+                    </h3>
+                    <div className="fs-12 fontroboto fw-normal text-main">
+                      {item1?.tmv_description}
+                    </div>
+                  </div>
                 </div>
-                {videoList?.filter(e => e.category_id === 9)[0]?.video?.map((item1, i1) => {
-                    return (
-                        <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 9)[0]?.video?.length - 1  && 'pb-3 mb-15 border-bottom'}`}>
-                            <div className="tutorial-play me-14">
-                                <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
-                                <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
-                            </div>
-                            <div>
-                                <h3 className="title-common text-welcome">{item1?.tmv_title}</h3>
-                                <div className="fs-12 fontroboto fw-normal text-main">{item1?.tmv_description}</div>
-                            </div>
-                        </div>
-                    )
-                })}
-            </div>
-        </>
+              );
+            })}
+        </div>
+      </>
     );
   }, [popOverVideo]);
 
   useEffect(() => {
-    if(isSmartSyncConnectAccessableFromGB){
-      const ws = new ReconnectingWebSocket(WS_CONTROL_URL, null, {debug: true, reconnectInterval: 2000});
+    if (isSmartSyncConnectAccessableFromGB) {
+      const ws = new ReconnectingWebSocket(WS_CONTROL_URL, null, {
+        debug: true,
+        reconnectInterval: 2000,
+      });
 
       ws.onopen = () => {
-        console.log('WebSocket connection opened');
+        console.log("WebSocket connection opened");
         setSocket(ws);
         checkDeviceStatus(ws);
-        checkAppVersion(ws)
+        checkAppVersion(ws);
       };
 
       ws.onclose = () => {
-        console.log('WebSocket connection closed');
+        console.log("WebSocket connection closed");
         setSocket(null);
       };
 
@@ -203,9 +240,9 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData, load
       };
 
       ws.onerror = (error) => {
-        console.error('WebSocket error', error);
+        console.error("WebSocket error", error);
         // this will be handle once all the user get migrated to new build(with 2 WS connection)
-        setError('WebSocket connection error');
+        setError("WebSocket connection error");
       };
 
       // Check device status every 5 seconds
@@ -223,66 +260,67 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData, load
   }, [isSmartSyncConnectAccessableFromGB]);
 
   const checkDeviceStatus = (ws) => {
-    ws.send('DeviceStatus');
+    ws.send("DeviceStatus");
   };
 
   const checkAppVersion = (ws) => {
-    ws.send("AppVersion")
-  }
+    ws.send("AppVersion");
+  };
 
   const wsError = (error) => {
     message.open({
       key: MESSAGE_KEY,
-      type: 'error',
-      className: 'error-red',
+      type: "error",
+      className: "error-red",
       content: (
-          <div className='d-flex align-items-center'>
-              <div>
-                  <div className='title-common text-start fontroboto'>{error}</div>
-              </div>
+        <div className="d-flex align-items-center">
+          <div>
+            <div className="title-common text-start fontroboto">{error}</div>
           </div>
+        </div>
       ),
       duration: 3,
-  });
-}
+    });
+  };
 
   const handleSocketMessage = (message) => {
-    if (message.startsWith('DeviceStatus:')) {
-      const statusMessage = message.split(':')[1];
-    
-      if (statusMessage === 'True') {
+    if (message.startsWith("DeviceStatus:")) {
+      const statusMessage = message.split(":")[1];
+
+      if (statusMessage === "True") {
         setIsConnected(true);
         setConnectLoading(false);
       } else {
         // Handle the case where additional information is provided in the message
-        if(isDisconnect === true || isDisconnect === null){
-          setShowDiconnectPopup(false)
-        }else{
-          setShowDiconnectPopup(true)
+        if (isDisconnect === true || isDisconnect === null) {
+          setShowDiconnectPopup(false);
+        } else {
+          setShowDiconnectPopup(true);
         }
         setIsConnected(false);
         setConnectLoading(false);
         // wsError(`${statusMessage}`);
       }
-    } else if (message.startsWith('DeviceConnect:')) {
-      const statusMessage = message.split(':')[1] === 'True';
+    } else if (message.startsWith("DeviceConnect:")) {
+      const statusMessage = message.split(":")[1] === "True";
       setIsConnected(statusMessage);
       setConnectLoading(false);
-      if (!statusMessage) setError('Failed to connect device. Please try again.');
-    } else if (message.startsWith('DeviceDisconnect:')) {
-      const statusMessage = message.split(':')[1] === 'True';
+      if (!statusMessage)
+        setError("Failed to connect device. Please try again.");
+    } else if (message.startsWith("DeviceDisconnect:")) {
+      const statusMessage = message.split(":")[1] === "True";
       setIsConnected(!statusMessage);
       setConnectLoading(false);
-      if (!statusMessage) setError('Failed to disconnect device');
+      if (!statusMessage) setError("Failed to disconnect device");
     } else if (message.startsWith("AppVersion")) {
-      const versionMessage = message.split(':')[1];
+      const versionMessage = message.split(":")[1];
     }
   };
 
   const handleConnectButtonClick = () => {
     if (!socket) {
       // this will be handle once all the user get migrated to new build(with 2 WS connection)
-      setError('WebSocket connection is not established');
+      setError("WebSocket connection is not established");
       return;
     }
 
@@ -293,47 +331,47 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData, load
 
     setConnectLoading(true);
     setError(null);
-    setShowDiconnectPopup(false)
-    const action = 'DeviceConnect';
+    setShowDiconnectPopup(false);
+    const action = "DeviceConnect";
     socket.send(action);
   };
 
   const handleDisconnectConfirm = () => {
     if (!socket) {
-      setError('WebSocket connection is not established');
+      setError("WebSocket connection is not established");
       return;
     }
 
     setConnectLoading(true);
-    setShowDiconnectPopup(false)
+    setShowDiconnectPopup(false);
     setError(null);
-    const action = 'DeviceDisconnect';
+    const action = "DeviceDisconnect";
     socket.send(action);
     setIsDisconnect(null);
   };
 
   const handleDisconnectPopup = () => {
-    setIsDisconnect(true)
-  }
+    setIsDisconnect(true);
+  };
 
   //Disconnect Modal function
   const showHideDisconnectModal = () => {
     setIsDisconnect(null);
-    setShowDiconnectPopup(false)
-  }
+    setShowDiconnectPopup(false);
+  };
 
   // Effect to handle updated data from parent
   useEffect(() => {
-    if (smartRxData?.length || vitalsData.length > 0 || followUpDate){
+    if (smartRxData?.length || vitalsData.length > 0 || followUpDate) {
       onEndVisitClick();
-      setClicked(true)
+      setClicked(true);
     }
   }, [smartRxData]);
 
-  // Handle the data upate and end the visit 
+  // Handle the data upate and end the visit
   async function onEndVisitClick() {
-    const smartRxFiles  = smartRxData?.map(file => file.name);
-    const files = smartRxData?.map(file => file);
+    const smartRxFiles = smartRxData?.map((file) => file.name);
+    const files = smartRxData?.map((file) => file);
     const sendData = {
       action: tcmId == 0 ? "add" : "edit",
       tcm_id: tcmId,
@@ -366,11 +404,35 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData, load
         : await dispatch(editCaseManager(sendData));
 
     if (action.meta.requestStatus === "fulfilled") {
-      navigate('/print-smart-rx', { replace: true, state: { ...action.payload, patient_data: patient_data, smartRxFile: smartRxFiles, page:"prescription" } })
+      navigate("/print-smart-rx", {
+        replace: true,
+        state: {
+          ...action.payload,
+          patient_data: patient_data,
+          smartRxFile: smartRxFiles,
+          page: "prescription",
+        },
+      });
     } else {
       errorMessage(action.error);
     }
   }
+
+  // Handle Customize Drawer
+  const handleDrawerCustomize = useCallback(() => {
+    setCustomizeDrawer(!customizeDrawer);
+  }, [customizeDrawer]);
+
+  const CUSTOMIZE_CONTENT_TAB = useMemo(() => {
+    return (
+      <CustomizeSetting
+        handleDrawerCustomize={handleDrawerCustomize}
+        isVaccinationEnabled={isVaccinationEnabled}
+        isGrowthChartEnabled={isGrowthChartEnabled}
+        page="smart-rx-page"
+      />
+    );
+  }, [customizeDrawer]);
 
   return (
     <Navbar className="justify-content-between headerprescription p-0">
@@ -457,72 +519,80 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData, load
           <Col lg="auto">
             <div className="align-items-center d-flex h-100">
               {/*Will be utilising this code in future, once the video is available */}
-              { isSmartSyncConnectAccessableFromGB &&
+              {isSmartSyncConnectAccessableFromGB && (
                 <Button
                   type="button"
                   className="btn align-items-center d-flex btn-device-connect rounded-5 pe-3 bg-white shadow2"
-                  onClick={isConnected ? handleDisconnectPopup : handleConnectButtonClick}
+                  onClick={
+                    isConnected
+                      ? handleDisconnectPopup
+                      : handleConnectButtonClick
+                  }
                   disabled={connectLoading}
                 >
-                <span>
-                  {connectLoading
-                    ? "SmartSync Connecting..."
-                    : isConnected
-                    ? "SmartSync Connected"
-                    : "SmartSync Disconnected"}
-                </span>
+                  <span>
+                    {connectLoading
+                      ? "SmartSync Connecting..."
+                      : isConnected
+                      ? "SmartSync Connected"
+                      : "SmartSync Disconnected"}
+                  </span>
 
-                <div
-                  style={{
-                    width: "48px",
-                    height: "26px",
-                    borderRadius: "32px",
-                    backgroundColor: isConnected ? "rgb(109 225 178)" : "white",
-                    boxShadow: "rgba(0, 0, 0, 0.3) 0px 0px 3px inset",
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "4px",
-                    transition: "background-color 0.3s ease",
-                  }}
-                >
                   <div
                     style={{
-                      display:"flex",
-                      justifyContent:"center",
-                      alignItems:"center",
-                      borderRadius: "50%",
-                      width: "20px",
-                      height: "20px",
-                      backgroundColor: connectLoading
-                        ? "#4B4AD5"
-                        : isConnected
-                        ? "#fff" 
-                        : "rgb(255 181 181)",
-                      transform: isConnected ? "translateX(21px)" : "translateX(0)",
-                      transition: "transform 0.3s ease, background-color 0.3s ease",
+                      width: "48px",
+                      height: "26px",
+                      borderRadius: "32px",
+                      backgroundColor: isConnected
+                        ? "rgb(109 225 178)"
+                        : "white",
+                      boxShadow: "rgba(0, 0, 0, 0.3) 0px 0px 3px inset",
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "4px",
+                      transition: "background-color 0.3s ease",
                     }}
                   >
-                    <img
-                      src={
-                        connectLoading
-                          ? devicePad
-                          : isConnected
-                          ? smartSyncConnected
-                          : smartSyncDisconnected
-                      }
-                      alt="devicePad"
+                    <div
                       style={{
-                        transition: "opacity 0.3s ease",
-                        opacity: connectLoading ? 0.5 : 1,
-                        width: "16px",
-                        height: "16px",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        borderRadius: "50%",
+                        width: "20px",
+                        height: "20px",
+                        backgroundColor: connectLoading
+                          ? "#4B4AD5"
+                          : isConnected
+                          ? "#fff"
+                          : "rgb(255 181 181)",
+                        transform: isConnected
+                          ? "translateX(21px)"
+                          : "translateX(0)",
+                        transition:
+                          "transform 0.3s ease, background-color 0.3s ease",
                       }}
-                    />
+                    >
+                      <img
+                        src={
+                          connectLoading
+                            ? devicePad
+                            : isConnected
+                            ? smartSyncConnected
+                            : smartSyncDisconnected
+                        }
+                        alt="devicePad"
+                        style={{
+                          transition: "opacity 0.3s ease",
+                          opacity: connectLoading ? 0.5 : 1,
+                          width: "16px",
+                          height: "16px",
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-
                 </Button>
-              }
+              )}
               <CommonModal
                 isModalOpen={isDisconnect}
                 onCancel={showHideDisconnectModal}
@@ -558,6 +628,25 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData, load
                   </>
                 }
               />
+
+              <button
+                className="btn d-flex align-items-center btn-text"
+                onClick={handleDrawerCustomize}
+              >
+                <i className="icon-setting me-2"></i> <span>Customize</span>
+              </button>
+
+              <Drawer
+                placement="right"
+                closeIcon={false}
+                onClose={handleDrawerCustomize}
+                open={customizeDrawer}
+                className="modalWidth-900"
+                width="auto"
+              >
+                {CUSTOMIZE_CONTENT_TAB}
+              </Drawer>
+
               <Popover
                 open={popOverVideo}
                 onOpenChange={showHideVideoListPopover}
@@ -566,9 +655,14 @@ function HeaderPrescription({ prescription, onClear, onSubmit, smartRxData, load
                 overlayClassName="pop-430 pp-0 videoTutorial"
                 placement="bottom"
               >
-                <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
-                  <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
-                </button>
+                {/* <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'> */}
+                <span
+                  className="text-decoration-none rounded-5 mx-3"
+                  style={{ cursor: "pointer" }}
+                >
+                  <img height={42} src={tutorial} />
+                </span>
+                {/* </button> */}
               </Popover>
               {videoLink && (
                 <VideoModal

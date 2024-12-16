@@ -22,12 +22,13 @@ import "cropperjs/dist/cropper.css";
 import { useTodayVaccines } from "./vaccination/useTodayVaccines";
 import { useGrowthChart } from "./growthChart/useGrowthChart";
 import useObstetric from "./obstetric/useObstetric";
+import { getModules } from "../redux/customModuleSlice";
 
 function ConfigurePrintSetting() {
 
     const divRef = useRef(null);
 
-    const { defaultPrintSettings } = useSelector((state) => state.doctors);
+    const { defaultPrintSettings, userId } = useSelector((state) => state.doctors);
 
     const { state } = useLocation();
     const { caseManagerData, certificateData, smartRxFile } = state
@@ -47,6 +48,9 @@ function ConfigurePrintSetting() {
         return { label: e?.title, value: e?.tmmhs_id }
     })
 
+    const {customModules} = useSelector((state) => state.customModules);
+    const dispatch = useDispatch();
+
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
@@ -55,7 +59,11 @@ function ConfigurePrintSetting() {
         growthChartDetails.getGrowthChartDetails();
     }, []);
 
-    const contextApi = { smartRxFile, divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature, medicalHistoryCheckboxOptions};
+    useEffect(() => {
+        dispatch(getModules(userId));
+      }, [userId]);
+
+    const contextApi = { smartRxFile, divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature, medicalHistoryCheckboxOptions, customModules};
 
     const TabsPrintSetting = [
         {
