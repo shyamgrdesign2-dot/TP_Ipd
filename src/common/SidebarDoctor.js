@@ -183,6 +183,18 @@ function SidebarDoctor() {
                     )
                 })}
 
+                <NavLink to="/apollo-consultations" replace={true} className={({ isActive, isPending }) =>
+                    isPending ? "pending" : isActive ? "active" : ""
+                }
+                onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
+                onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
+                >
+                    <img src={getIcon("data_analytics", hoveredItem)} alt="apollo" />
+                    <div className='mt-1 px-2'>
+                        <div className='text-truncate'>Apollo</div>
+                    </div>
+                </NavLink>
+
                 <Button className="btn btn-delete-prescription mx-auto d-block p-0 mt-2" onClick={() => window.Moengage.track_event("announcement_button_clicked")} id='beamerButton'>
                     <i className="icon-announcement fs-3"></i> <br />
                 </Button>
