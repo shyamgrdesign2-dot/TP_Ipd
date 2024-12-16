@@ -42,6 +42,24 @@ export const getTypeOfAbortion = (typeOfAbortion) => {
     : typeOfAbortion;
 };
 
+export const updateEnablePrint = (ancHistory) => {
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0); // Start of today (12:00 AM)
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999); // End of today (11:59 PM)
+
+  return ancHistory.map((item) => {
+    const updatedAt = new Date(item.updated_at);
+
+    // Check if updated_at is within today's range
+    if (updatedAt >= todayStart && updatedAt <= todayEnd) {
+      return { ...item, enablePrint: true };
+    } else {
+      return { ...item, enablePrint: false };
+    }
+  });
+};
+
 export const splitByTrimester = (data) => {
   const firstTrimester = data?.filter(
     (item) => item?.weekRange?.start >= 1 && item?.weekRange?.start <= 12

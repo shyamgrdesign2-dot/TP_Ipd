@@ -313,7 +313,7 @@ export const AncSchedulerColumns = [
   },
   {
     title: "PRINT IN Rx",
-    key: "printInRx",
+    key: "enablePrint",
     width: "10%",
   },
   {
@@ -351,7 +351,7 @@ export const AncPrintPreviewColumns = [
   },
   {
     title: "SELECT TO PRINT",
-    key: "printInRx",
+    key: "enablePrint",
     width: "19%",
   },
 ];
