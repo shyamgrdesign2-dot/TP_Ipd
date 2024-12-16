@@ -34,6 +34,10 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
 import TalkativeWidget from "./components/TalkativeWidget";
 import SmartRxDigitise from "./pages/SmartRxDigitise";
+import DemoExpirationBanner from "./common/DemoExpirationBanner";
+import PlanExpirationBanner from "./common/PlanExpirationBanner";
+import DoctorModal from "./common/DoctorModal";
+import ExpiredPlanCard from "./common/ExpiredPlanCard";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -112,6 +116,10 @@ function App() {
           />
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
+              <DemoExpirationBanner/>
+              <PlanExpirationBanner/>
+              <ExpiredPlanCard />
+              <DoctorModal />
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route path="patient_details" element={<PatientDetails />} />
