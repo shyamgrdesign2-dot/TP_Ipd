@@ -38,6 +38,7 @@ import DemoExpirationBanner from "./common/DemoExpirationBanner";
 import PlanExpirationBanner from "./common/PlanExpirationBanner";
 import DoctorModal from "./common/DoctorModal";
 import ExpiredPlanCard from "./common/ExpiredPlanCard";
+import ApolloConsultations from "./pages/apolloConsultations/ApolloConsultations";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -151,6 +152,7 @@ function App() {
                   element={<DoctorWebsiteSetting />}
                 />
                 <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
+                <Route path="apollo-consultations" element={<ApolloConsultations />} />
               </Routes>
             </PersistGate>
           </Provider>
