@@ -75,6 +75,7 @@ import {
   addObstetricDetails,
   navigateToObstetric,
 } from "../redux/obstetricSlice";
+import { getClinicName } from "../utils/utils";
 import UploadDocument from "./medicalRecords/UploadDocument";
 import MedicalRecords from "./medicalRecords/MedicalRecords";
 import {
@@ -174,6 +175,7 @@ function SmartPrescription() {
   const drawRef = useRef(null);
   const [dataPresentInCanvas, setDataPresentInCanvas] = useState([]);
   const [loader, setLoader] = useState(false);
+  const [customModuleContents, setCustomModuleContents] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
 
   const contextApi = {
@@ -205,6 +207,8 @@ function SmartPrescription() {
     setFollowUpDate,
     additionalNote,
     setAdditionalNote,
+    customModuleContents,
+    setCustomModuleContents,
     startTime,
   };
 
@@ -495,6 +499,27 @@ function SmartPrescription() {
     }
   }, [isNavigateToObstetric]);
 
+  useEffect(() => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    tcmId == 0 ?
+      window.Moengage.track_event("TP_Consultation_Started", {
+        clinic_name,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+        tcm_id: tcmId,
+      })
+      :
+      window.Moengage.track_event("TP_Consultation_edit_started", {
+        clinic_name,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+      })
+    const sendData = {
+      patient_unique_id: patient_data?.patient_unique_id,
+    };
+    dispatch(viewPatient(sendData));
+  }, []);
+
   //Handle Sider
   const handleCollapsed = useCallback(
     (flag) => {
@@ -557,6 +582,9 @@ function SmartPrescription() {
           patient_unique_id:
             patient_data !== undefined ? patient_data.patient_unique_id : 0,
           mode: caseManagerData !== undefined ? EDIT : ADD,
+          
+          pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0, //extra
+          pm_id: patient_data !== undefined ? patient_data.pm_id : 0, //extra
         })
       );
 

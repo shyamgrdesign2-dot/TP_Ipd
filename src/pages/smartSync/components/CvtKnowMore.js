@@ -14,7 +14,7 @@ import structuredRxGif from "../../../assets/images/structuredRx.gif";
 
 const { TabPane } = Tabs;
 
-const CvtKnowMore = ({ handleDrawerVital, handleCollapsed }) => {
+const CvtKnowMore = ({ handleCollapsed }) => {
   const [videoLink, setVideoLink] = useState(null);
   const { loading, videoList } = useSelector((state) => state.doctors);
 
@@ -33,7 +33,7 @@ const CvtKnowMore = ({ handleDrawerVital, handleCollapsed }) => {
           <Button
             type="text"
             className="close-drawer-btn"
-            onClick={() => handleCollapsed(2)}
+            onClick={() => handleCollapsed(5)}
           >
             <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
           </Button>

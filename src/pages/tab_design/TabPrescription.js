@@ -89,6 +89,8 @@ import { getDecodedToken } from "../../utils/localStorage";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { getClinicName } from "../../utils/utils";
 import TabSurgicalBox from "../../components/tab_design/TabSurgicalBox";
+import TabAddCustomModule from "../../components/tab_design/TabAddCustomModule";
+import TabCustomModule from "../../components/tab_design/TabCustomModule";
 
 function TabPrescription() {
   const {
@@ -113,6 +115,9 @@ function TabPrescription() {
   );
   const { profile } = useSelector((state) => state.doctors);
   const { isLoading } = useSelector((state) => state.uploadDoc);
+  const { customModules } = useSelector(
+    (state) => state.customModules
+  );
   const decodedToken = getDecodedToken();
   const dispatch = useDispatch();
 
@@ -151,6 +156,7 @@ function TabPrescription() {
   const [likeDislike, setLikeDislike] = useState([]);
   const [isDDxGenerated, setIsDDxGenerated] = useState(false);
   const [isDDxLoading, setIsDDxLoading] = useState(false);
+  const [customModuleContents, setCustomModuleContents] = useState([]);
 
   const contextApi = {
     patient_data,
@@ -180,7 +186,9 @@ function TabPrescription() {
     setFollowUpDate,
     additionalNote,
     setAdditionalNote,
-    startTime
+    startTime,
+    customModuleContents,
+    setCustomModuleContents
   };
 
   const [collapsed, setCollapsed] = useState(false);
@@ -391,6 +399,11 @@ function TabPrescription() {
         ) !== -1
       ) {
         setAdditionalNote(caseManagerData.visit_advice);
+      }
+      if(caseManagerData?.moduleContents?.length){
+        setCustomModuleContents(caseManagerData?.moduleContents?.filter(
+          (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
+        ))
       }
     }
   }, []);
@@ -863,7 +876,7 @@ function TabPrescription() {
                             />
                           )}
                       </div>
-                      <label className="text-white mt-1">Apex AI</label>
+                      <label className="text-white mt-1">Tatva AI</label>
                     </button>
                   )}
                   {customizedPadLeftList?.map((e, i) => {
@@ -1221,6 +1234,9 @@ function TabPrescription() {
                   />
                 )}
                 {customizedPadRightList?.map((e, i) => {
+                  const customModule = customModules?.find(
+                    (m) => m.module_id === e.tmdpm_id
+                  )
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       <TabSymptomsBox
@@ -1263,15 +1279,19 @@ function TabPrescription() {
                         generatedDDx={generatedDDx?.results}
                       />
                     </div>
-                  ) : (
+                  ) : 
                     e.tmdpm_id === 15 &&
-                    e.tmdpm_status === 0 && (
+                    e.tmdpm_status === 0 ? (
                       <div key={i} className="prescription-box-sm">
                         <TabFollowUpBox />
                       </div>
+                    ): e.is_custom_module && e.tmdpm_status === 0 && customModule && (
+                      <div className="prescription-box-sm">
+                        <TabCustomModule module={customModule} />
+                      </div>
                     )
-                  );
                 })}
+                  <TabAddCustomModule />
               </Content>
             </div>
           </Layout>

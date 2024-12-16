@@ -73,6 +73,11 @@ function MedicalHistoryList(props) {
                                                                 <span>Note</span> : <label>{e1?.note}</label>
                                                             </div>
                                                         )}
+                                                        {e1?.medical_history_remarks && (
+                                                            <div key={Math.random()} className='my-2'>
+                                                                <span>Additional History</span> : <label>{e1?.medical_history_remarks}</label>
+                                                            </div>
+                                                        )}
                                                     </>
 
                                                 )
@@ -97,6 +102,13 @@ function MedicalHistoryList(props) {
                     });
                 }
             });
+            if(medicalHistoryData?.[0]?.medical_history_remarks) {
+                data.push({
+                    key: "5",
+                    label: <div className="fw-semibold">Additional History</div>,
+                    children: <div className="fontroboto border rounded p-2 my-2 text-history fw-normal overflow-auto d-flex text-wrap">{medicalHistoryData?.[0]?.medical_history_remarks}</div>
+                })
+            }
             setAccordionItems(data)
         } else {
             setAccordionItems([])
@@ -111,7 +123,7 @@ function MedicalHistoryList(props) {
                         { isGynaecHistoryAccessable && gynecHistory && Object.keys(filteredGynecHistory).length > 0 &&
                             <GynecHistoryList gynecHistory={gynecHistory} />
                         }
-                        <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4']} className="prescriptiontab-accordian history-sider-box history-sider-box-white" expandIconPosition={'end'} />
+                        <Collapse items={accordionItems} defaultActiveKey={['1', '2', '3', '4', '5']} className="prescriptiontab-accordian history-sider-box history-sider-box-white" expandIconPosition={'end'} />
                     </div>
                 )}
             </div>

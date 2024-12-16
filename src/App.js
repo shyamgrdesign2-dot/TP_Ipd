@@ -117,8 +117,8 @@ function App() {
           />
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
-              <DemoExpirationBanner />
-              <PlanExpirationBanner />
+              <DemoExpirationBanner/>
+              <PlanExpirationBanner/>
               <ExpiredPlanCard />
               <DoctorModal />
               <Routes>

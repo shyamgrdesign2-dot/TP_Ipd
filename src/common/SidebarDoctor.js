@@ -10,12 +10,25 @@ import config from "../config";
 import { useLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import newGif from '../assets/images/new-gif.gif';
+import ipdIcon from '../assets/images/ipd.svg';
+import patientsIcon from '../assets/images/patients.svg';
+import analyticsIcon from '../assets/images/analytics.svg';
+import pharmacyIcon from '../assets/images/pharmacy.svg';
+import billingsIcon from '../assets/images/billings.svg';
+import followUpIcon from '../assets/images/followup-home.svg';
+import ipdActiveIcon from '../assets/images/ipd-active.svg';
+import patientsActiveIcon from '../assets/images/patients-active.svg';
+import analyticsActiveIcon from '../assets/images/analytics-active.svg';
+import pharmacyActiveIcon from '../assets/images/pharmacy-active.svg';
+import billingsActiveIcon from '../assets/images/billings-active.svg';
+import followUpActiveIcon from '../assets/images/follow-up-active.svg';
 
 function SidebarDoctor() {
 
     const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
     const { profile } = useSelector((state) => state.doctors);
     const [tokenData, setTokenData] = useState(null);
+    const [hoveredItem, setHoveredItem] = useState(null);
 
     const navigate = useNavigate();
 
@@ -88,6 +101,44 @@ function SidebarDoctor() {
         }
     }
 
+    const getIcon = (type, isHovered) => {
+      if (isHovered) {
+        switch (type) {
+          case "ipd":
+            return ipdActiveIcon;
+          case "all_patients":
+            return patientsActiveIcon;
+          case "data_analytics":
+            return analyticsActiveIcon;
+          case "pharmacy":
+            return pharmacyActiveIcon;
+          case "opd_billing":
+            return billingsActiveIcon;
+          case "dr_followup_appointment":
+            return followUpActiveIcon;
+          default:
+            return "";
+        }
+      } else {
+        switch (type) {
+          case "ipd":
+            return ipdIcon;
+          case "all_patients":
+            return patientsIcon;
+          case "data_analytics":
+            return analyticsIcon;
+          case "pharmacy":
+            return pharmacyIcon;
+          case "opd_billing":
+            return billingsIcon;
+          case "dr_followup_appointment":
+            return followUpIcon;
+          default:
+            return "";
+        }
+      }
+    };
+
     return (
         <>
             <div className="SidebarDoctor">
@@ -118,11 +169,15 @@ function SidebarDoctor() {
                 </NavLink> */}
 
                 {profile && profile?.module_data?.map((item, i) => {
+                  const isHovered = hoveredItem === i;
                     return (
                         <NavLink key={i} onClick={() => clickOldModule(item.type)} replace={true} className={({ isActive, isPending }) =>
-                            isPending ? "pending" : isActive ? "" : "active"
-                        }>
-                            <i className={item.icon}></i>
+                           isHovered ? "" : isPending ? "pending" : isActive ? "" : "active"
+                        }
+                        onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
+                        onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
+                        >
+                            <img src={getIcon(item.type, isHovered)} alt={`${item.type}`} />
                             <div className='mt-1 px-2'>{item.title}</div>
                         </NavLink>
                     )

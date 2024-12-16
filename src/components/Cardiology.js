@@ -19,6 +19,10 @@ import calenderBlank from "../assets/images/calenderBlank.svg";
 import followUp from "../assets/images/followup.svg";
 import smartPadGrey from "../assets/images/smartPadGrey.svg";
 import successIcon from '../assets/images/success-icon.svg';
+import vitalsIcon from '../assets/images/Vitals.svg';
+import medicalHistoryIcon from '../assets/images/Medical-History.svg';
+import vaccinationIcon from "../assets/images/Vaccination.svg";
+import customModuleIcon from "../assets/images/custom-module.svg";
 
 import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
@@ -27,13 +31,15 @@ import { env } from "../EnvironmentConfig";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import CvtKnowMore from "../pages/smartSync/components/CvtKnowMore";
 import moment from "moment";
+import { getModules } from "../redux/customModuleSlice";
 
 function Cardiology(props) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { profile } = useSelector((state) => state.doctors);
+  const { profile, userId } = useSelector((state) => state.doctors);
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const {customModules} = useSelector((state) => state.customModules);
 
   const {
     patient_data,
@@ -43,6 +49,17 @@ function Cardiology(props) {
     nextPress,
     prevPress,
   } = props;
+
+  const customModulesMap = new Map(
+    customModules.map((module) => [module.module_id, module.name])
+  );
+  
+  const customModulesRxData = viewCaseManagerData?.moduleContents?.filter((module) => module.content.length).map((content) => ({
+        ...content,
+        module_name: customModulesMap.get(content.module_id),
+    }))
+
+  console.log({customModulesRxData});
 
   const [filteredInfo, setFilteredInfo] = useState({});
   const [setSortedInfo] = useState({});
@@ -90,6 +107,9 @@ function Cardiology(props) {
     } else {
       setIsSmartRxFile(false);
     }
+    if(viewCaseManagerData?.moduleContents?.length) {
+      dispatch(getModules(userId));
+    }
   }, [viewCaseManagerData]);
 
   const fetchData = async () => {
@@ -124,7 +144,7 @@ function Cardiology(props) {
       // if (flag === 1) {
       //     handleDrawerVital();
       // }
-      if (flag === 2) {
+      if (flag === 5) {
         handleDrawerCvtKnowMore();
       }
     },
@@ -390,24 +410,59 @@ function Cardiology(props) {
 
   // Render items for each type (medications, tests, etc.)
   const renderItems = (type) => (
-    <div className='digitised-data-section'>
-      <ol>
-        {rxDigitisedData?.editedData?.[type].map((item, index) => (
-          <li key={index}>
-            <div className='medicine-item'>
-              <span>
-                {type === "advice" ? rxDigitisedData?.editedData?.[type][index] : type === "symptoms" ? item.name : item.refinedName}
-              </span>
-
-              {type === "medications" && item.lineItem &&
+    <div className="digitised-data-section">
+      <ul>
+        {/* Handle vitals type separately */}
+        {type === "vitals" &&
+          Object.entries(rxDigitisedData?.editedData?.vitals || {})
+            .filter(([key, value]) => value.trim()) // Filter out empty or falsy values
+            .map(([key, value]) => (
+              <li key={key}>
+                <div className="medicine-item">
+                  <span>
+                    {/* Format the key to be human-readable */}
+                    {`${key
+                      .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
+                      .replace(/^./, (str) => str.toUpperCase())}: `}
+                  </span>
+                  <span>{value}</span>
+                </div>
+              </li>
+            ))}
+  
+        {/* Handle other types (assume they are arrays) */}
+        {type !== "vitals" &&
+          Array.isArray(rxDigitisedData?.editedData?.[type]) &&
+          rxDigitisedData.editedData[type].map((item, index) => (
+            <li key={index}>
+              <div className="medicine-item">
                 <span>
-                  {` (${item.lineItem})`}
+                  {/* Render dynamically based on type */}
+                  {
+                    type === "advice"
+                      ? item
+                      : (type === "symptoms" && item?.name?.length > 0)
+                      ? item.name[0]?.toUpperCase() + item.name?.slice(1)
+                      : (type === "medications" || type === "tests")
+                      ? item?.refinedName
+                      : item?.name
+                  }
                 </span>
-              }
-            </div>
-          </li>
-        ))}
-      </ol>
+  
+                {/* Optional rendering for lineItem */}
+                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "tests" || type === "symptoms") && item.lineItem && (
+                  <span>{` (${item.lineItem})`}</span>
+                )}
+  
+                {/* Optional rendering for notes */}
+                {(type === "examination" || type === "diagnosis") &&
+                  item.notes && (
+                    <span>{` (${item.notes})`}</span>
+                  )}
+              </div>
+            </li>
+          ))}
+      </ul>
     </div>
   );
 
@@ -564,6 +619,34 @@ function Cardiology(props) {
                   <div>
                     {isRxdigitised && showDigitalRx ? (
                       <div className="m-4">
+                        {rxDigitisedData?.editedData?.vitals && Object.values(rxDigitisedData?.editedData?.vitals).some((value) => value) && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={vitalsIcon}
+                                alt="Vitals"
+                              />
+                              <div className="title-digitise-section mb-1">Vitals and Body compositions</div>
+                            </div>
+                            {renderItems('vitals')}
+                          </>
+                        )}
+
+                        {rxDigitisedData?.editedData?.medicalHistory && rxDigitisedData?.editedData?.medicalHistory.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={medicalHistoryIcon}
+                                alt="MedicalHistory"
+                              />
+                              <div className="title-digitise-section mb-1">Medical History</div>
+                            </div>
+                            {renderItems('medicalHistory')}
+                          </>
+                        )}
+
                         {rxDigitisedData?.editedData?.symptoms && rxDigitisedData?.editedData?.symptoms.length > 0 && (
                           <>
                             <div className="d-flex align-items-start">
@@ -577,14 +660,42 @@ function Cardiology(props) {
                             {renderItems('symptoms')}
                           </>
                         )}
-                        
+
+                        {rxDigitisedData?.editedData?.examination && rxDigitisedData?.editedData?.examination.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={Examinationsicon}
+                                alt="Examination"
+                              />
+                              <div className="title-digitise-section mb-1">Examinations</div>
+                            </div>
+                            {renderItems('examination')}
+                          </>
+                        )}
+
+                        {rxDigitisedData?.editedData?.diagnosis && rxDigitisedData?.editedData?.diagnosis.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={Diagnosisicon}
+                                alt="Diagnosis"
+                              />
+                              <div className="title-digitise-section mb-1">Diagnosis</div>
+                            </div>
+                            {renderItems('diagnosis')}
+                          </>
+                        )}
+
                         {rxDigitisedData?.editedData?.medications && rxDigitisedData?.editedData?.medications.length > 0 && (
                           <>
                             <div className="d-flex align-items-start">
                               <img
                                 className="me-2"
                                 src={Medicationicon}
-                                alt="Medication"
+                                alt="Medications"
                               />
                               <div className="title-digitise-section mb-1">Medication</div>
                             </div>
@@ -597,10 +708,10 @@ function Cardiology(props) {
                             <div className="d-flex align-items-start">
                               <img
                                 className="me-2"
-                                src={Diagnosisicon}
-                                alt="Diagnosis"
+                                src={Investigationicon}
+                                alt="Tests"
                               />
-                              <div className="title-digitise-section mb-1">Tests</div>
+                              <div className="title-digitise-section mb-1">Lab Investigation</div>
                             </div>
                             {renderItems('tests')}
                           </>
@@ -617,6 +728,20 @@ function Cardiology(props) {
                               <div className="title-digitise-section mb-1">Advices</div>
                             </div>
                             {renderItems('advice')}
+                          </>
+                        )}
+                        
+                        {rxDigitisedData?.editedData?.vaccinations && rxDigitisedData?.editedData?.vaccinations.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img
+                                className="me-2"
+                                src={vaccinationIcon}
+                                alt="Vaccinations"
+                              />
+                              <div className="title-digitise-section mb-1">Vaccinations</div>
+                            </div>
+                            {renderItems('vaccinations')}
                           </>
                         )}
                       </div>
@@ -843,6 +968,34 @@ function Cardiology(props) {
                             </div>
                           </div>
                         )}
+                        {customModulesRxData.length > 0 && customModulesRxData?.map((item) => item.module_name &&(
+                          <div className="d-flex align-items-start mb-4">
+                          <img
+                            className="me-2"
+                            src={customModuleIcon}
+                            alt={item.module_name}
+                          />
+                          <div>
+                            <div className="title">{item.module_name}</div>
+                            {item.content.map((c, i) => {
+                              return (
+                                <span key={i}>
+                                  {c.title && <><span>{c.title}</span>{c.notes?.trim() ? <br/> : ""}</>}
+                                  {c.notes?.trim() && <div>
+                                    {c.notes?.trim()?.replace(/\n+/g, "\n").split('\n').map((line, index) => (
+                                      <React.Fragment key={index}>
+                                        {line}
+                                        {index !== c.notes?.trim()?.replace(/\n+/g, "\n").split('\n').length - 1 && <br />}
+                                      </React.Fragment>
+                                    ))}
+                                  </div>}
+                                  {item.content.length - 1 !==i && <br/>}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        ))}
                       </div>
                     </div>
                   </Card.Body>

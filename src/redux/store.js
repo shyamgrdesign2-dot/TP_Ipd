@@ -25,6 +25,7 @@ import subscriptionReducer from './subscriptionSlice';
 import doctorModalReducer from './doctorModalSlice';
 import surgicalSlice from './surgicalSlice';
 import bulkMessagesSlice from './bulkMessagesSlice'
+import customModuleReducer from './customModuleSlice';
 
 const persistConfig = {
   key: 'root',
@@ -55,6 +56,7 @@ const rootReducer = combineReducers({
   subscription: subscriptionReducer,
   doctorModal: doctorModalReducer,
   bulkMessages: bulkMessagesSlice,
+  customModules: customModuleReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

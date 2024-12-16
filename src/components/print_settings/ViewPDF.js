@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData } = props
+    let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData, customModules } = props
 
     const gynecHistoryData = caseManagerData?.gynecHistoryData
     const labParamsData = caseManagerData?.labParamsData
@@ -334,6 +334,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     const labParamsPatchData = labParamsData ? groupByReportNameForAll(labParamsData) : null;        
     const labParamsPatchTableData = labParamsPatchData ? syncLabResultsData(labParamsPatchData) : null;   
+
+    const getCustomModuleName = (id) => {
+        const customModule = customModules.find((module) => module.module_id === id);
+        return customModule ? customModule.name : '';
+    }
+
+    const customModulesPrintConfigMap = customModules.reduce((acc, cur) => {
+        acc[cur.module_id] = cur.printConfig;
+        return acc;
+    },{})
 
     return (
         <Document>
@@ -1228,7 +1238,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
                                                 {caseManagerData.medical_history.map((item, i) => {
                                                     return (
-                                                        option?.medical_history_option?.includes(item.tmmhs_id) && (
+                                                        option?.medical_history_option?.includes(item.tmmhs_id) && item?.tags?.length > 0 && (
                                                             <Text key={i} style={{ marginTop: (item?.no_know_history || item?.tags?.length > 0) ? PX_TO_PT * 6 : 0, lineHeight: 1.4 }}>
                                                                 {!item?.no_know_history ? (
                                                                     item?.tags?.length > 0 && (
@@ -1313,6 +1323,14 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         )
                                                     )
                                                 })}
+                                                {caseManagerData?.medical_history?.[0]?.medical_history_remarks && (
+                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{'\n'}{`Additional History`}&nbsp;</Text>
+                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                        {`(`}{caseManagerData?.medical_history?.[0]?.medical_history_remarks}{`)`}
+                                                        </Text>
+                                                    </Text>
+                                                )}
                                             </View>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
@@ -1320,7 +1338,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {caseManagerData.medical_history.map((item, i) => {
                                                     let abcd = 97
                                                     return (
-                                                        option?.medical_history_option?.includes(item.tmmhs_id) && (
+                                                        option?.medical_history_option?.includes(item.tmmhs_id) && item?.tags?.length > 0 && (
                                                             <Text key={i} style={{ marginTop: (item?.no_know_history || item?.tags?.length > 0) ? PX_TO_PT * 6 : 0, lineHeight: 1.4 }}>
                                                                 {!item?.no_know_history ? (
                                                                     item?.tags?.length > 0 && (
@@ -1369,6 +1387,42 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         )
                                                     )
                                                 })}
+                                                {caseManagerData?.medical_history?.[0]?.medical_history_remarks && (
+                                                    <>
+                                                        <Text
+                                                        style={{
+                                                        color: '#454551',
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 500,
+                                                        }}
+                                                        >
+                                                            <Text
+                                                            style={{
+                                                                color: '#171725',
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                            }}
+                                                            >
+                                                            {'\n'}&nbsp;{medicalHistoryIndex++}. {`Additional History`}&nbsp;:
+                                                            </Text>
+                                                        {'\n'}
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                color: '#454551',
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                marginLeft: PX_TO_PT * 15,
+                                                                marginTop: PX_TO_PT * 2
+                                                            }}
+                                                        >
+                                                            {caseManagerData?.medical_history?.[0]?.medical_history_remarks}
+                                                        </Text>
+                                                    </>
+                                                )}
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
@@ -1434,6 +1488,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         )
                                                     )
                                                 })}
+                                                {caseManagerData?.medical_history?.[0]?.medical_history_remarks && 
+                                                    <>
+                                                        <Text style={{ color: '#000', marginTop: PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`Additional History : `}</Text>
+                                                        <View style={[styles.table, { marginTop: 0 }]}>
+                                                            <View style={styles.row}>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{caseManagerData?.medical_history?.[0]?.medical_history_remarks}</Text>
+                                                            </View>
+                                                        </View>
+                                                    </>
+                                                }
                                             </View>
                                         )
                                     )}
@@ -4448,7 +4512,56 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             ) 
                         )
                     })}
-
+                    <>
+                        {caseManagerData?.moduleContents.length > 0 && caseManagerData?.moduleContents?.map((module, mid) => customModulesPrintConfigMap[module.module_id]?.isEnabled === "true" && module.content?.length > 0 ? (
+                            customModulesPrintConfigMap[module.module_id]?.format === 'inline' ? (
+                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{getCustomModuleName(module.module_id)}:&nbsp;</Text>
+                                    {module?.content?.map((item, i) => {
+                                        return (
+                                            <Text key={i}>
+                                                {item.title && <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{"\n"}{item.title}&nbsp;</Text>}
+                                                {item.notes &&
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{"\n"}{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}&nbsp;</Text>
+                                                }
+                                            </Text>
+                                        )
+                                    })}
+                                </Text>
+                            ) : customModulesPrintConfigMap[module.module_id]?.format === 'listview' ? (
+                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{getCustomModuleName(module.module_id)}:&nbsp;</Text>
+                                    {module?.content.map((item, i) => {
+                                        return (
+                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                {item.title && <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;</Text>}
+                                                {item.notes &&
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.title ? "\n" : ""}{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}</Text>
+                                                }
+                                            </Text>
+                                        )
+                                    })}
+                                </View>
+                            ) : (module?.content?.some((item) => item.title || item.notes) &&
+                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{getCustomModuleName(module.module_id)}:&nbsp;</Text>
+                                    <View style={styles.table}>
+                                        <View style={styles.row}>
+                                            {module?.content?.some((item) => item.title) && <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>}
+                                            {module?.content?.some((item) => item.notes) && <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTES</Text>}
+                                        </View>
+                                        {module?.content.map((item, i) => (
+                                            <View style={styles.row} key={i}>
+                                                {module?.content?.some((item) => item.title) &&<Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}</Text>}
+                                                {module?.content?.some((item) => item.notes) &&<Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.trim()?.replace(/\n+/g, "\n") || '-'}</Text>}
+                                            </View>
+                                        ))}
+                                    </View>
+                                </View>
+                            )
+                        ):"")}
+                    </>
                 </View>
 
                 <View style={{ marginTop: PX_TO_PT * 29 }} wrap={false}>
