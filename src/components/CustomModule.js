@@ -190,22 +190,6 @@ function CustomModule({ module }) {
     });
   };
 
-  // const onSearchParent = useCallback(
-  //   (query) => {
-  //     setSearchChildQuery(removeBeforeWhiteSpace(query));
-  //   },
-  //   [searchChildQuery]
-  // );
-
-  // const onSelectParent = useCallback(
-  //   (data, e) => {
-  //     const newItem = { title: data, notes: "" };
-  //     updateCustomModuleContents([...moduleData, newItem]);
-  //     setSearchChildQuery("");
-  //   },
-  //   [moduleData]
-  // );
-
   const onFocusChid = (i) => {
     setSearchChildQuery({
       query: moduleData[i].title,
@@ -716,7 +700,7 @@ function CustomModule({ module }) {
                     <div className="text-truncate">
                       {template?.content?.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.title}${
+                          <span key={ii}>{`${item.title || item.notes}${
                             template.content.length - 1 != ii ? ", " : ""
                           }`}</span>
                         );

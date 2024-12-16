@@ -458,7 +458,7 @@ function TabCustomModule({ module }) {
                         <div className="text-truncate">
                           {template.content.map((item, ii) => {
                             return (
-                              <span key={ii}>{`${item.title}${
+                              <span key={ii}>{`${item.title || item.notes}${
                                 template.content.length - 1 != ii ? ", " : ""
                               }`}</span>
                             );
