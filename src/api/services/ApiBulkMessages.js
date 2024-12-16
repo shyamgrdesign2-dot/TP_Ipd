@@ -49,6 +49,10 @@ ApiBulkMessages.userCampaignDelete = function (id) {
     return api.delete(`/api/v1/campaign/userCampaignDelete/${id}`, baseUrl);
 };
 
+ApiBulkMessages.userRedeemCode = function (data) {
+    return api.post(`/api/v1/communication/userRedeemCode`, data, baseUrl);
+};
+
 ApiBulkMessages.paymentOrder = function (data) {
     return api.post(`/api/v1/payment/paymentOrder`, data, baseUrl);
 };

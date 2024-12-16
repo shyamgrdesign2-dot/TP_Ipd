@@ -385,3 +385,20 @@
         display: none;
     }
 }
+.modal-redeem {
+    
+}
+.reedem-bg {
+    background-image: url(../../assets/images/redeem-bg.png);
+    background-repeat: no-repeat;
+    width: 356px;
+    height: 137px;
+    background-position: center;
+    text-align: center;
+    div {
+        &:first-child {
+            font-size: 21px;
+            font-weight: 600;
+        }
+    }
+}

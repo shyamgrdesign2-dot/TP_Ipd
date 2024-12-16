@@ -154,6 +154,19 @@ export const userCampaignDelete = createAsyncThunk(
     }
 );
 
+export const userRedeemCode = createAsyncThunk(
+    "bulkMessages/userRedeemCode",
+    async (data, { dispatch, rejectWithValue }) => {
+        try {
+            const result = await ApiBulkMessages.userRedeemCode(data);
+            dispatch(userCredit())
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
 export const paymentOrder = createAsyncThunk(
     "bulkMessages/paymentOrder",
     async (data, { rejectWithValue }) => {
@@ -165,6 +178,7 @@ export const paymentOrder = createAsyncThunk(
         }
     }
 );
+
 export const verifyPayment = createAsyncThunk(
     "bulkMessages/verifyPayment",
     async (data, { dispatch, rejectWithValue }) => {
