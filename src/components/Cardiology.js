@@ -980,16 +980,16 @@ function Cardiology(props) {
                             {item.content.map((c, i) => {
                               return (
                                 <span key={i}>
-                                  {c.title && <><span>{c.title}</span><br/></>}
-                                  <div>
+                                  {c.title && <><span>{c.title}</span>{c.notes?.trim() ? <br/> : ""}</>}
+                                  {c.notes?.trim() && <div>
                                     {c.notes?.trim()?.replace(/\n+/g, "\n").split('\n').map((line, index) => (
                                       <React.Fragment key={index}>
                                         {line}
-                                        <br />
+                                        {index !== c.notes?.trim()?.replace(/\n+/g, "\n").split('\n').length - 1 && <br />}
                                       </React.Fragment>
                                     ))}
-                                  </div>
-                                  {item.content.length - 1 !=i && <br/>}
+                                  </div>}
+                                  {item.content.length - 1 !==i && <br/>}
                                 </span>
                               );
                             })}
