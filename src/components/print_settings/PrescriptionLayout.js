@@ -534,7 +534,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
     {
       dataIndex: "title",
       key: "title",
-      render: (text, record, i) => (
+      render: (text, record) => (
           <div className="d-flex align-items-center justify-content-between text-start">
             <div
               className="d-flex align-items-center cursor-pointer Preview-color-icon"
@@ -546,7 +546,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
               ></i>
               <span style={{ wordBreak: "break-word" }}>{record.module_name}</span>
             </div>
-            <Form.Item className="mb-0 form_addnewpatient ">
+            <Form.Item className="mb-0 form_addnewpatient">
               <Radio.Group
                 className={`d-flex gender-radio all-change-radio ${isMobile ? "segmented-radio-mobile" : ""
                   }`}
@@ -665,17 +665,12 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
 
       {caseManagerData?.moduleContents?.length > 0 && (
             <Table
-            className={`customize-table customize-table-format table-display-patient dragicon-position ${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}
-            pagination={false}
-            components={{
-              body: {
-                row: CustomRow,
-              },
-            }}
-            rowKey="id"
-            columns={customModulesTable}
-            dataSource={customModulesRxData}
-            showHeader={false}
+              className={`customize-table customize-table-format table-display-patient ${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}
+              pagination={false}
+              rowKey="id"
+              columns={customModulesTable}
+              dataSource={customModulesRxData}
+              showHeader={false}
           />
       )}
 
