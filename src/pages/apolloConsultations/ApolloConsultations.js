@@ -71,9 +71,12 @@ const ConsultationDetailsPage = () => {
       const { consultationsList, totalCount } = await fetchApolloConsultations(
         params
       );
-      setConsultations(
-        resetData ? consultationsList : [...consultations, ...consultationsList]
-      );
+      setConsultations((prev) => {
+        return resetData
+          ? [...consultationsList]
+          : [...prev, ...consultationsList];
+      });
+
       setTotalRecords(totalCount);
       setPage(resetData ? 2 : page + 1);
       setHasMore(consultationsList.length > 0);
@@ -132,7 +135,7 @@ const ConsultationDetailsPage = () => {
     const { target } = e;
     if (
       Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <=
-        1 &&
+        5 &&
       hasMore &&
       !loading
     ) {
@@ -154,17 +157,17 @@ const ConsultationDetailsPage = () => {
           </Text>
         </Space>
       ),
-      sorter: (a, b) => a.patientName.localeCompare(b.patientName),
-      showSorterTooltip: { title: "Click to sort alphabetically" },
+      //   sorter: (a, b) => a.patientName.localeCompare(b.patientName),
+      //   showSorterTooltip: { title: "Click to sort alphabetically" },
     },
     {
       title: "Consultation Date & Time",
       dataIndex: "consultationDateTime",
       key: "consultationDateTime",
-      render: (datetime) => moment(datetime).format("DD/MM/YY hh:mm A"),
-      defaultSortOrder: "ascend",
-      sorter: (a, b) =>
-        moment(a.consultationDateTime) - moment(b.consultationDateTime), // Sorting by date
+      render: (datetime) => moment.utc(datetime).format("DD/MM/YY hh:mm A"),
+      //   defaultSortOrder: "ascend",
+      //   sorter: (a, b) =>
+      //     moment(a.consultationDateTime) - moment(b.consultationDateTime), // Sorting by date
     },
     {
       title: "Doctor Name",
@@ -329,7 +332,11 @@ const ConsultationDetailsPage = () => {
             className={`w-100 bg-body ${isMobile ? "vh-100" : "wrapper"}`}
             style={{ padding: "20px" }}
           >
-            <Space className="position-relative" direction="vertical" style={{ gap: "20px" }}>
+            <Space
+              className="position-relative"
+              direction="vertical"
+              style={{ gap: "20px" }}
+            >
               <div
                 style={{
                   display: "flex",
@@ -384,6 +391,7 @@ const ConsultationDetailsPage = () => {
                 onChange={handleChange}
                 bordered
                 className="customize-table"
+                tableLayout="fixed"
               />
               <Modal
                 title="Edit Remarks"
