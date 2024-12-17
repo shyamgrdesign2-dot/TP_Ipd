@@ -25,6 +25,7 @@ import MedicalCertificate from "./pages/MedicalCertificate";
 import CertificatePrintView from "./pages/CertificatePrintView";
 import DoctorProfile from "./pages/DoctorProfile";
 import DoctorWebsiteSetting from "./pages/DoctorWebsiteSetting";
+import MessageCreateCampaign from "./pages/MessageCreateCampaign";
 
 import { store, persistor } from "./redux/store";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
@@ -129,6 +130,7 @@ function App() {
               <DoctorModal />
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
+                <Route path="create-campaign" element={<MessageCreateCampaign />} />
                 <Route path="patient_details" element={<PatientDetails />} />
                 <Route
                   path="prescription"
