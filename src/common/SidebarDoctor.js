@@ -34,7 +34,7 @@ function SidebarDoctor() {
     const navigate = useNavigate();
 
     const isApolloConsultationsEnabled = useFeatureIsOn('apollo-consultations');
-    
+
     useEffect(() => {
         if (profile) {
             const getStorageData = async () => {
@@ -195,7 +195,7 @@ function SidebarDoctor() {
                     >
                         <img src={getIcon("data_analytics", hoveredItem)} alt="apollo" />
                         <div className='mt-1 px-2'>
-                            <div className='text-truncate'>Apollo</div>
+                            <div className='text-truncate'>Apollo analytics</div>
                         </div>
                     </NavLink>
                 }
