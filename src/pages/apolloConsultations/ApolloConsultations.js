@@ -59,7 +59,6 @@ const ConsultationDetailsPage = () => {
   const fetchConsultations = async (resetData = false) => {
     if (!hasMore && !resetData) return;
     setLoading(true);
-
     try {
       const params = {
         page: resetData ? 1 : page,
@@ -157,16 +156,12 @@ const ConsultationDetailsPage = () => {
           </Text>
         </Space>
       ),
-      sorter: (a, b) => a.patientName.localeCompare(b.patientName),
-      showSorterTooltip: { title: "Click to sort alphabetically" },
     },
     {
       title: "Consultation Date & Time",
       dataIndex: "consultationDateTime",
       key: "consultationDateTime",
       render: (datetime) => moment.utc(datetime).format("DD/MM/YY hh:mm A"),
-      sorter: (a, b) =>
-        moment(a.consultationDateTime) - moment(b.consultationDateTime), // Sorting by date
     },
     {
       title: "Doctor Name",
