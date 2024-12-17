@@ -73,7 +73,9 @@ instance.interceptors.response.use(
         }
 
         if (error.response.status === 401) {
-            notificationParam.message = error.response.data.error
+            notificationParam.message = 'Authentication Fail'
+            notificationParam.description = 'Please login again'
+            window.location.href = '/login';
         }
         
         notificationParam.key = "notification_key"
