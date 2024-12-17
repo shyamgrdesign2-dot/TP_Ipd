@@ -130,7 +130,6 @@ const ConsultationDetailsPage = () => {
   // Handle infinite scroll
   const handleTableScroll = throttle((e) => {
     const { target } = e;
-    debugger;
     if (
       Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <=
         1 &&
@@ -323,11 +322,14 @@ const ConsultationDetailsPage = () => {
   return (
     isApolloConsultationsEnabled && (
       <>
-        {!isMobile && <Header />}
+        <Header />
         <div className="d-flex">
-          {!isMobile && <SidebarDoctor />}
-          <div style={{ padding: "20px" }}>
-            <Space direction="vertical" style={{ width: "100%", gap: "20px" }}>
+          <SidebarDoctor />
+          <div
+            className={`w-100 bg-body ${isMobile ? "vh-100" : "wrapper"}`}
+            style={{ padding: "20px" }}
+          >
+            <Space direction="vertical" style={{ gap: "20px" }}>
               <div
                 style={{
                   display: "flex",
@@ -377,7 +379,7 @@ const ConsultationDetailsPage = () => {
                 rowKey="tcm_id"
                 loading={loading}
                 pagination={false}
-                scroll={{ y: 850 }}
+                scroll={{ y: 600 }}
                 onScroll={handleTableScroll}
                 onChange={handleChange}
                 bordered
