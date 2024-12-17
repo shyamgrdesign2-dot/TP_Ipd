@@ -395,11 +395,11 @@ function CustomModule({ module }) {
           return {
             ...cm,
             templates: [
-              ...cm.templates,
               {
                 template_name: inputTemplateName,
                 content: moduleData?.filter((e) => e.title || e.notes),
               },
+              ...cm.templates,
             ],
           };
         }
