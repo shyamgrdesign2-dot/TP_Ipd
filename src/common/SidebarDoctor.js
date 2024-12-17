@@ -22,6 +22,7 @@ import analyticsActiveIcon from '../assets/images/analytics-active.svg';
 import pharmacyActiveIcon from '../assets/images/pharmacy-active.svg';
 import billingsActiveIcon from '../assets/images/billings-active.svg';
 import followUpActiveIcon from '../assets/images/follow-up-active.svg';
+import { useFeatureIsOn } from '@growthbook/growthbook-react';
 
 function SidebarDoctor() {
 
@@ -32,6 +33,8 @@ function SidebarDoctor() {
 
     const navigate = useNavigate();
 
+    const isApolloConsultationsEnabled = useFeatureIsOn('apollo-consultations');
+    
     useEffect(() => {
         if (profile) {
             const getStorageData = async () => {
@@ -183,17 +186,19 @@ function SidebarDoctor() {
                     )
                 })}
 
-                <NavLink to="/apollo-consultations" replace={true} className={({ isActive, isPending }) =>
-                    isPending ? "pending" : isActive ? "active" : ""
+                {isApolloConsultationsEnabled && 
+                    <NavLink to="/apollo-consultations" replace={true} className={({ isActive, isPending }) =>
+                        isPending ? "pending" : isActive ? "active" : ""
+                    }
+                    onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
+                    onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
+                    >
+                        <img src={getIcon("data_analytics", hoveredItem)} alt="apollo" />
+                        <div className='mt-1 px-2'>
+                            <div className='text-truncate'>Apollo</div>
+                        </div>
+                    </NavLink>
                 }
-                onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
-                onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
-                >
-                    <img src={getIcon("data_analytics", hoveredItem)} alt="apollo" />
-                    <div className='mt-1 px-2'>
-                        <div className='text-truncate'>Apollo</div>
-                    </div>
-                </NavLink>
 
                 <Button className="btn btn-delete-prescription mx-auto d-block p-0 mt-2" onClick={() => window.Moengage.track_event("announcement_button_clicked")} id='beamerButton'>
                     <i className="icon-announcement fs-3"></i> <br />
