@@ -143,10 +143,12 @@ function TabCustomModule({ module }) {
 
   const onSelectParent = useCallback(
     (e) => {
-      const newItem = { title: e, notes: "" };
-      updateCustomModuleContents([...moduleData, newItem]);
-      setSelectedIndex([...moduleData, newItem].length - 1);
-      handleDrawerParent();
+      if (!moduleData.some((item) => item.title === e)) {
+        const newItem = { title: e, notes: "" };
+        updateCustomModuleContents([...moduleData, newItem]);
+        setSelectedIndex([...moduleData, newItem].length - 1);
+        handleDrawerParent();
+      }
     },
     [moduleData, selectedIndex, parentDrawer]
   );
@@ -239,11 +241,11 @@ function TabCustomModule({ module }) {
           return {
             ...cm,
             templates: [
-              ...cm.templates,
               {
                 template_name: inputTemplateName,
                 content: moduleData?.filter((e) => e.title || e.notes),
               },
+              ...cm.templates,
             ],
           };
         }
@@ -456,7 +458,7 @@ function TabCustomModule({ module }) {
                         <div className="text-truncate">
                           {template.content.map((item, ii) => {
                             return (
-                              <span key={ii}>{`${item.title}${
+                              <span key={ii}>{`${item.title || item.notes}${
                                 template.content.length - 1 != ii ? ", " : ""
                               }`}</span>
                             );
@@ -708,6 +710,11 @@ function TabCustomModule({ module }) {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
+        setCustomModuleContents((prev) => {
+          return prev.filter(
+            (item) => item.module_id !== moduleToDelete?.module_id
+          );
+        });
         dispatch(
           customizedPad({
             data: {
@@ -865,6 +872,25 @@ function TabCustomModule({ module }) {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
+        dispatch(
+          customizedPad({
+            data: {
+              default: false,
+              reset: false,
+              left: customizedPadLeftList,
+              right: customizedPadRightList?.map((e) => {
+                if (e.tmdpm_id === module?.module_id) {
+                  return {
+                    ...e,
+                    tmdpm_name: newModuleName,
+                    tmdpm_short_name: newModuleName,
+                  };
+                }
+                return e;
+              }),
+            },
+          })
+        );
         setCanEditName(false);
         message.open({
           key: MESSAGE_KEY,
@@ -1041,10 +1067,7 @@ function TabCustomModule({ module }) {
         {latestSearchedModules?.[module?.module_id]?.length > 0 &&
           latestSearchedModules?.[module?.module_id]
             .filter(
-              (e) =>
-                ![...moduleData.map((e1) => e1.title)].includes(
-                  e.content?.title
-                )
+              (e) => ![...moduleData.map((e1) => e1.title)].includes(e?.title)
             )
             .map((item, i) => {
               return (
