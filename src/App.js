@@ -35,6 +35,13 @@ import ErrorFallback from "./common/ErrorFallback";
 import TalkativeWidget from "./components/TalkativeWidget";
 import SmartRxDigitise from "./pages/SmartRxDigitise";
 
+// Import Auth Components (IN Development - Would require this snippet in future)
+// import LoginWithPassword from './pages/auth/components/LoginWithPassword';
+// import LoginWithOTP from './pages/auth/components/LoginWithOTP';
+// import SetPassword from './pages/auth/components/SetPassword';
+
+import AuthContainer from "./pages/auth/auth";
+
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
   clientKey: config?.GROWTHBOOK_CLIENTKEY,
@@ -143,6 +150,12 @@ function App() {
                   element={<DoctorWebsiteSetting />}
                 />
                 <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
+
+                {/* Auth Routes */}
+                {/* <Route path="/login-password" element={<LoginWithPassword />} /> */}
+                {/* <Route path="/login-otp" element={<LoginWithOTP />} /> */}
+                {/* <Route path="/set-password" element={<SetPassword />} /> */}
+                <Route path="/login" element={<AuthContainer />} />
               </Routes>
             </PersistGate>
           </Provider>
