@@ -34,6 +34,10 @@ body {
         height: calc(100vh - 60px);
         overflow-y: auto;
     }
+    .wrapper-message {
+        height: calc(100vh - 53px);
+        overflow-y: auto;
+    }
     .letterspacing {
         letter-spacing: 0.1px;
     }
@@ -174,6 +178,9 @@ body {
     }
     .w-48 {
         width: 48%;
+    }
+    .w-60 {
+        width: 60%;
     }
     .me-20 {
         margin-right: 20px;
@@ -438,6 +445,15 @@ body {
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
+    }
+    .text-truncate-fourlines {
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        @media only screen and (max-width: 1300px) {
+            -webkit-line-clamp: 6;
+        }
     }
     .endreason-textarea {
         textarea {

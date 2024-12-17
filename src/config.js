@@ -39,4 +39,7 @@ export default {
   api_secret_key: env.api_secret_key,
   api_key: env.api_key,
   lab_params_api_url: env.lab_params_api_url,
+  bulk_messages: env.bulk_messages,
+  upload_doc_api_url: env.upload_doc_api_url,
+  central_auth_api_url: env.central_auth_api_url,
 };
