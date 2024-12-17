@@ -36,6 +36,13 @@ import TalkativeWidget from "./components/TalkativeWidget";
 import SmartRxDigitise from "./pages/SmartRxDigitise";
 import ApolloConsultations from "./pages/apolloConsultations/ApolloConsultations";
 
+// Import Auth Components (IN Development - Would require this snippet in future)
+// import LoginWithPassword from './pages/auth/components/LoginWithPassword';
+// import LoginWithOTP from './pages/auth/components/LoginWithOTP';
+// import SetPassword from './pages/auth/components/SetPassword';
+
+import AuthContainer from "./pages/auth/auth";
+
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
   clientKey: config?.GROWTHBOOK_CLIENTKEY,
@@ -145,6 +152,12 @@ function App() {
                 />
                 <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
                 <Route path="apollo-consultations" element={<ApolloConsultations />} />
+
+                {/* Auth Routes */}
+                {/* <Route path="/login-password" element={<LoginWithPassword />} /> */}
+                {/* <Route path="/login-otp" element={<LoginWithOTP />} /> */}
+                {/* <Route path="/set-password" element={<SetPassword />} /> */}
+                <Route path="/login" element={<AuthContainer />} />
               </Routes>
             </PersistGate>
           </Provider>
