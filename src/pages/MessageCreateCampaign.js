@@ -61,7 +61,7 @@ function MessageCreateCampaign() {
 
     const navigate = useNavigate();
     const { state } = useLocation();
-    const { campaign_data } = state != null && state
+    const { campaign_data, reuse_campaign_data } = state != null && state
 
     const [popOverVideo, setPopOverVideo] = useState(false);
     const [videoLink, setVideoLink] = useState(null);
@@ -198,6 +198,87 @@ function MessageCreateCampaign() {
             setScheduleDateTime(moment(`${campaign_data?.campaign_date} ${campaign_data?.campaign_time}`, showDateTimeFormat).format(dateTimeFormat))
         }
     }, [doctorList, allTemplateList, campaign_data]);
+
+    useEffect(() => {
+        if (doctorList?.length > 0 && allTemplateList?.length > 0 && reuse_campaign_data !== undefined) {
+
+            setStepCurrent(1)
+
+            const templateData = allTemplateList?.find(e => e?.id === reuse_campaign_data?.campaign_id)
+            setTemplate(templateData)
+
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('clinic_name')) {
+                setclinic_name(reuse_campaign_data?.msg_rowData?.clinic_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('festival_name')) {
+                setfestival_name(reuse_campaign_data?.msg_rowData?.festival_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('link')) {
+                setlink(reuse_campaign_data?.msg_rowData?.link)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('dr_name')) {
+                setdr_name(reuse_campaign_data?.msg_rowData?.dr_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('patient_name')) {
+                setpatient_name(reuse_campaign_data?.msg_rowData?.patient_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('doctor_name')) {
+                setdoctor_name(reuse_campaign_data?.msg_rowData?.doctor_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('date')) {
+                setdate(reuse_campaign_data?.msg_rowData?.date)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('appointment_date')) {
+                setappointment_date(reuse_campaign_data?.msg_rowData?.appointment_date)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('appointment_time')) {
+                setappointment_time(reuse_campaign_data?.msg_rowData?.appointment_time)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('hospital_name')) {
+                sethospital_name(reuse_campaign_data?.msg_rowData?.hospital_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('hospital_address')) {
+                sethospital_address(reuse_campaign_data?.msg_rowData?.hospital_address)
+            }
+
+            setSendOn(reuse_campaign_data?.send_on === 'SMS' ? 1 : 2)
+            setSender_type(reuse_campaign_data?.sender_type)
+
+            if (reuse_campaign_data?.sender_type === 2) {
+                const filterDocData = reuse_campaign_data?.filter_doc ? reuse_campaign_data?.filter_doc.split(',').map(Number) : []
+                setFilterDoc(filterDocData)
+
+                if (reuse_campaign_data?.date_unit === 'Till date') {
+                    setDateStatus(1)
+                } else if (reuse_campaign_data?.date_unit === 'Last week') {
+                    setDateStatus(2)
+                } else if (reuse_campaign_data?.date_unit === 'Last month') {
+                    setDateStatus(3)
+                } else if (reuse_campaign_data?.date_unit === 'Last 3 month') {
+                    setDateStatus(4)
+                } else if (reuse_campaign_data?.date_unit === 'Last 6 month') {
+                    setDateStatus(5)
+                } else if (reuse_campaign_data?.date_unit === 'Last 1 year') {
+                    setDateStatus(6)
+                } else if (reuse_campaign_data?.date_unit === 'custom') {
+                    setDateStatus(null)
+                }
+                setDateRange({
+                    startDate: moment(reuse_campaign_data?.start_date).format(dateFormat),
+                    endDate: moment(reuse_campaign_data?.end_date).format(dateFormat),
+                })
+
+                setMinAge(reuse_campaign_data?.min_age ? String(reuse_campaign_data?.min_age) : '')
+                setMaxAge(reuse_campaign_data?.max_age ? String(reuse_campaign_data?.max_age) : '')
+                setAgeUnit(reuse_campaign_data?.min_age_unit)
+
+                const genderData = reuse_campaign_data?.gender ? reuse_campaign_data?.gender.split(',') : []
+                setGender(genderData)
+            }
+            
+            setScheduleType(2)
+        }
+    }, [doctorList, allTemplateList, reuse_campaign_data]);
 
     useEffect(() => {
         const timeOutId = setTimeout(() => {

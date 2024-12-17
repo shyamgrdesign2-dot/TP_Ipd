@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Tabs, Table, Drawer, DatePicker, Checkbox, Dropdown, Input } from "antd";
 import Button from "react-bootstrap/Button";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import dayjs from 'dayjs';
 
@@ -277,7 +277,14 @@ function MessagesData() {
                 key: 'delete_campaign',
             },
             {
-                label: <div>Reuse campaign</div>,
+                label: <div onClick={async () => {
+                    const action = await dispatch(userCampaignDetails(record?.id));
+                    if (action.meta.requestStatus === "fulfilled") {
+                        navigate('/create-campaign', { state: { reuse_campaign_data: action.payload } })
+                    } else {
+                        errorMessage(action.payload.message)
+                    }
+                }}>Reuse campaign</div>,
                 key: 'reuse_campaign',
             },
         ];
@@ -455,10 +462,10 @@ function MessagesData() {
         },
         {
             title: "CREDITS",
-            dataIndex: "amount",
-            key: "amount",
+            dataIndex: "credit",
+            key: "credit",
             ellipsis: true,
-            sorter: (a, b) => a.amount - b.amount,
+            sorter: (a, b) => a.credit - b.credit,
             render: (text, record) => (
                 <div className="py-2">
                     {record.status === 1 ? <img src={RecievedImg} className="me-2" alt="Recieved" /> : <img src={SendImg} className="me-2" alt="Send" />}
