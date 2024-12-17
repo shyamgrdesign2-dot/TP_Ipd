@@ -25,30 +25,31 @@ const DigitisedPrescription = ({ data, setData }) => {
     if (activeIndex !== null && activeType !== null) {
       setData((prevData) => {
         const updatedData = { ...prevData };
-
-        if (type === "medications" || type === "tests" || type === "vaccinations") {
-          updatedData[type][index].name = editableText; // Update editable text for medications/tests
+  
+        if (type === "medications" || type === "tests") {
+          updatedData[type][index].refinedName = editableText.trim();
         } else if (
           type === "symptoms" ||
           type === "examination" ||
           type === "diagnosis" ||
-          type === "medicalHistory"
+          type === "medicalHistory" ||
+          type === "vaccinations"
         ) {
-          updatedData[type][index].name = editableText; // Update editable text for symptoms/examination/diagnosis
+          updatedData[type][index].name = editableText.trim();
         } else if (type === "advice") {
-          updatedData[type][index] = editableText; // Update advice text
+          updatedData[type][index] = editableText.trim();
         } else if (type === "vitals") {
-          updatedData.vitals[index] = editableText; // Handle vitals separately
+          updatedData.vitals[index] = editableText.trim();
         }
-        return updatedData;
+        return updatedData; // Persist changes
       });
     }
-
+  
     setShowSuggestions(false);
     setActiveIndex(null);
     setActiveType(null);
     setEditableText(""); // Clear editable text after blur
-  };
+  };  
 
   // Handle click outside suggestion and input box
   useEffect(() => {
@@ -98,7 +99,11 @@ const DigitisedPrescription = ({ data, setData }) => {
   const handleLineItemBlur = (type, index) => {
     setData((prevData) => {
       const updatedData = { ...prevData };
-      updatedData[type][index].lineItem = editableLineItem; // Update lineItem with the new value
+      if (type === "diagnosis" || type === "examination") {
+        updatedData[type][index].notes = editableLineItem;
+      } else {
+        updatedData[type][index].lineItem = editableLineItem; // Update lineItem with the new value
+      }
       return updatedData;
     });
     setActiveIndex(null);
@@ -118,28 +123,32 @@ const DigitisedPrescription = ({ data, setData }) => {
   // Handle click on an item (to edit)
   const handleItemClick = (type, index) => {
     if (activeIndex !== null && activeType !== null) {
-      handleInputBlur(activeType, activeIndex); // Blur the previous active item to save its changes
+      handleInputBlur(activeType, activeIndex);
     }
 
-    if (type === 'medications' || type === 'tests' || type === "vaccinations") {
+    if (type === "medications" || type === "tests") {
+      setEditableText(data[type][index].refinedName);
+    } else if (
+      type === "symptoms" ||
+      type === "examination" ||
+      type === "diagnosis" ||
+      type === "medicalHistory" ||
+      type === "vaccinations"
+    ) {
       setEditableText(data[type][index].name);
-      setShowSuggestions(true);
-    } else if (type === 'symptoms' || type === "examination" || type === "diagnosis" || type === "medicalHistory") {
-      setEditableText(data[type][index].name);
-    } else if (type === 'advice') {
+    } else if (type === "advice") {
       setEditableText(data[type][index]);
     } else if (type === "vitals") {
-      setEditableText(data.vitals[index] || ""); // Set editable text to current vital value
-      setActiveIndex(index); // Set the active vital index
-      setActiveType("vitals"); // Set the active type to 'vitals'
+      setEditableText(data.vitals[index]);
     }
+
     setActiveIndex(index);
     setActiveType(type);
   };
 
   // Handle click on a lineItem (to edit)
   const handleLineItemClick = (type, index) => {
-    if (type === "medications" || type === "tests" || type === "vaccinations" || type === "medicalHistory") {
+    if (type === "medications" || type === "tests" || type === "vaccinations" || type === "medicalHistory" || type === "symptoms") {
       setEditableLineItem(data[type][index]?.lineItem);
     } else {
       setEditableLineItem(data[type][index]?.notes);
@@ -259,6 +268,7 @@ const DigitisedPrescription = ({ data, setData }) => {
                         value={editableText}
                         className="editable-digitised-item"
                         onChange={handleInputChange}
+                        onBlur={() => handleInputBlur(type, index)}
                         autoFocus
                         style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
                       />
@@ -267,16 +277,20 @@ const DigitisedPrescription = ({ data, setData }) => {
                         onClick={() => handleItemClick(type, index)}
                         className="digitised-item"
                       >
-                        {type === "advice"
-                          ? item
-                          : type === "symptoms" && item?.name?.length > 0
-                          ? item.name[0]?.toUpperCase() + item.name?.slice(1)
-                          : item?.name}
+                        {
+                          type === "advice"
+                            ? item
+                            : (type === "symptoms" && item?.name?.length > 0)
+                            ? item.name[0]?.toUpperCase() + item.name?.slice(1)
+                            : (type === "medications" || type === "tests")
+                            ? item?.refinedName
+                            : item?.name
+                        }
                       </span>
                     )}
 
                     {/* Editable input for lineItem */}
-                    {(type === "medications" || type === "symptoms" || type === "vaccinations" || type === "medicalHistory") &&
+                    {(type === "medications" || type === "symptoms" || type === "vaccinations" || type === "medicalHistory" || type === "tests") &&
                       item?.lineItem &&
                       (activeIndex === index &&
                       activeType === `${type}-lineItem` ? (
@@ -377,7 +391,7 @@ const DigitisedPrescription = ({ data, setData }) => {
 
       {data?.tests && data.tests.length > 0 && (
         <>
-          <div className="title-digitise-section mb-2">Tests</div>
+          <div className="title-digitise-section mb-2">Lab Investigation</div>
           {renderItems("tests")}
         </>
       )}

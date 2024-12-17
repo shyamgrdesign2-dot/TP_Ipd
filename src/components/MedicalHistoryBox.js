@@ -1568,11 +1568,11 @@ function MedicalHistoryBox(props) {
                                                                         className="textareaPlaceholder"
                                                                         rows={3}
                                                                         onChange={onRemarksChange}
-                                                                        maxLength={500}
+                                                                        maxLength={5000}
                                                                         autoSize={{ minRows: 3, maxRows: 6 }}
                                                                     />
                                                                     <div className="additional-history-count">
-                                                                        {remarks?.length || 0}/{500}
+                                                                        {remarks?.length || 0}/{5000}
                                                                     </div>
                                                                 </div>
                                                             }

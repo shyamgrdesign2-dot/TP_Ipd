@@ -83,6 +83,8 @@ import { getDDxDetails } from "../api/services/ApiDDx";
 import { getDecodedToken } from "../utils/localStorage";
 import DDxList from "../components/medical_certificate/DDxList";
 import SurgicalBox from "../components/SurgicalBox";
+import AddCustomModule from "../components/AddCustomModule";
+import CustomModule from "../components/CustomModule";
 
 function Prescription() {
   const {
@@ -101,6 +103,9 @@ function Prescription() {
   const { examinationHistory = [] } = obstetricDetails;
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
+  );
+  const { customModules } = useSelector(
+    (state) => state.customModules
   );
   const dispatch = useDispatch();
   const decodedToken = getDecodedToken();
@@ -133,6 +138,7 @@ function Prescription() {
   const [isGrowthChart, setIsGrowthChart] = useState(false);
   const [labParamsData, setLabParamsData] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
+  const [customModuleContents, setCustomModuleContents] = useState([]);
 
   const contextApi = {
     patient_data,
@@ -164,6 +170,8 @@ function Prescription() {
     additionalNote,
     setAdditionalNote,
     startTime,
+    customModuleContents,
+    setCustomModuleContents
   };
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
@@ -410,6 +418,11 @@ function Prescription() {
         ) !== -1
       ) {
         setAdditionalNote(caseManagerData.visit_advice);
+      }
+      if(caseManagerData?.moduleContents?.length){
+        setCustomModuleContents(caseManagerData?.moduleContents?.filter(
+          (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
+        ))
       }
     }
   }, []);
@@ -1073,6 +1086,9 @@ const getGenerateDDx = async (field) => {
                   />
                 )}
                 {customizedPadRightList?.map((e, i) => {
+                  const customModule = customModules?.find(
+                    (m) => m.module_id === e.tmdpm_id
+                  )
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       <SymptomsBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
@@ -1102,15 +1118,17 @@ const getGenerateDDx = async (field) => {
                       {" "}
                       <InvestigationBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
                     </div>
-                  ) : (
+                  ) : 
                     e.tmdpm_id === 15 &&
-                    e.tmdpm_status === 0 && (
+                    e.tmdpm_status === 0 ? (
                       <div key={i} className="prescription-box-sm">
                         <TabFollowUpBox />
                       </div>
+                    ) : e.is_custom_module && e.tmdpm_status === 0 && customModule && (
+                      <CustomModule module={customModule} />
                     )
-                  );
                 })}
+                <AddCustomModule />
               </Content>
             </div>
           </div>
