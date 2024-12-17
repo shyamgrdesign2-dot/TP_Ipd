@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "antd";
 import { isMobile, isChrome, isSafari } from 'react-device-detect';
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from "react-redux";
 import axios from 'axios';
@@ -34,6 +34,8 @@ function SidebarDoctor() {
     const navigate = useNavigate();
 
     const isApolloConsultationsEnabled = useFeatureIsOn('apollo-consultations');
+
+    const location = useLocation();
 
     useEffect(() => {
         if (profile) {
@@ -193,9 +195,9 @@ function SidebarDoctor() {
                     onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
                     onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
                     >
-                        <img src={getIcon("data_analytics", hoveredItem)} alt="apollo" />
+                        <img src={getIcon("data_analytics", hoveredItem || location.pathname === '/apollo-consultations')} alt="apollo" />
                         <div className='mt-1 px-2'>
-                            <div className='text-truncate'>Apollo analytics</div>
+                            <div>Apollo analytics</div>
                         </div>
                     </NavLink>
                 }

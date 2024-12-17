@@ -329,7 +329,7 @@ const ConsultationDetailsPage = () => {
             className={`w-100 bg-body ${isMobile ? "vh-100" : "wrapper"}`}
             style={{ padding: "20px" }}
           >
-            <Space direction="vertical" style={{ gap: "20px" }}>
+            <Space className="position-relative" direction="vertical" style={{ gap: "20px" }}>
               <div
                 style={{
                   display: "flex",
@@ -341,7 +341,7 @@ const ConsultationDetailsPage = () => {
                   <DatePicker
                     value={filters.startDate ? dayjs(filters.startDate) : ""}
                     onChange={handleStartDateChange}
-                    format="YYYY-MM-DD"
+                    format="DD-MM-YYYY"
                     placeholder="Start Date"
                     disabledDate={
                       (current) =>
@@ -352,7 +352,7 @@ const ConsultationDetailsPage = () => {
                   <DatePicker
                     value={filters.endDate ? dayjs(filters.endDate) : ""}
                     onChange={handleEndDateChange}
-                    format="YYYY-MM-DD"
+                    format="DD-MM-YYYY"
                     placeholder="End Date"
                     disabledDate={(current) =>
                       current &&
@@ -379,7 +379,7 @@ const ConsultationDetailsPage = () => {
                 rowKey="tcm_id"
                 loading={loading}
                 pagination={false}
-                scroll={{ y: 600 }}
+                scroll={{ y: 500 }}
                 onScroll={handleTableScroll}
                 onChange={handleChange}
                 bordered
