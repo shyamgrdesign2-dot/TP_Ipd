@@ -157,17 +157,16 @@ const ConsultationDetailsPage = () => {
           </Text>
         </Space>
       ),
-      //   sorter: (a, b) => a.patientName.localeCompare(b.patientName),
-      //   showSorterTooltip: { title: "Click to sort alphabetically" },
+      sorter: (a, b) => a.patientName.localeCompare(b.patientName),
+      showSorterTooltip: { title: "Click to sort alphabetically" },
     },
     {
       title: "Consultation Date & Time",
       dataIndex: "consultationDateTime",
       key: "consultationDateTime",
       render: (datetime) => moment.utc(datetime).format("DD/MM/YY hh:mm A"),
-      //   defaultSortOrder: "ascend",
-      //   sorter: (a, b) =>
-      //     moment(a.consultationDateTime) - moment(b.consultationDateTime), // Sorting by date
+      sorter: (a, b) =>
+        moment(a.consultationDateTime) - moment(b.consultationDateTime), // Sorting by date
     },
     {
       title: "Doctor Name",
