@@ -8,11 +8,12 @@ export const fetchApolloConsultations = async function ({
   startDate,
   endDate,
   umIds,
+  search
 }) {
   let consultations = [];
   try {
     consultations = await api.get(
-      `api/v1/apollo/owner?page=${page}&startdate=${startDate}&enddate=${endDate}&um_ids=${umIds}`,
+      `api/v1/apollo/owner?page=${page}&startdate=${startDate}&enddate=${endDate}&um_ids=${umIds}&search=${search}`,
       baseUrl
     );
   } catch (e) {
