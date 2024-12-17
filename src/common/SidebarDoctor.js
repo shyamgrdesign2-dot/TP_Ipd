@@ -32,6 +32,8 @@ function SidebarDoctor() {
 
     const navigate = useNavigate();
 
+    const isApolloConsultationsEnabled = useFeatureIsOn('apollo-consultations');
+
     useEffect(() => {
         if (profile) {
             const getStorageData = async () => {
@@ -183,7 +185,21 @@ function SidebarDoctor() {
                     )
                 })}
 
-                <NavLink to="/apollo-consultations" replace={true} className={({ isActive, isPending }) =>
+                {isApolloConsultationsEnabled && 
+                    <NavLink to="/apollo-consultations" replace={true} className={({ isActive, isPending }) =>
+                        isPending ? "pending" : isActive ? "active" : ""
+                    }
+                    onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
+                    onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
+                    >
+                        <img src={getIcon("data_analytics", hoveredItem)} alt="apollo" />
+                        <div className='mt-1 px-2'>
+                            <div className='text-truncate'>Apollo analytics</div>
+                        </div>
+                    </NavLink>
+                }
+
+                <NavLink to="/bulk_messages" replace={true} className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "active" : ""
                 }
                 onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
