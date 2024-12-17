@@ -276,12 +276,17 @@ export const ImmunisationColumns = [
   {
     title: "REMARKS",
     key: "remarks",
-    width: "34%",
+    width: "27%",
   },
   {
     title: "PRINT IN Rx",
-    key: "printInRx",
-    width: "12%",
+    key: "enablePrint",
+    width: "10%",
+  },
+  {
+    title: "Action",
+    key: "action",
+    width: "9%",
   },
 ];
 

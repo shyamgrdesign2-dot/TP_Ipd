@@ -48,11 +48,14 @@ export const updateEnablePrint = (ancHistory) => {
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999); // End of today (11:59 PM)
 
-  return ancHistory.map((item) => {
+  // removing Deleted Entry
+  const updatedAncHistory = ancHistory?.filter((item) => !item?.isDeleted);
+
+  return updatedAncHistory.map((item) => {
     const updatedAt = new Date(item.updated_at);
 
     // Check if updated_at is within today's range
-    if (updatedAt >= todayStart && updatedAt <= todayEnd) {
+    if (updatedAt >= todayStart && updatedAt <= todayEnd && item.enablePrint) {
       return { ...item, enablePrint: true };
     } else {
       return { ...item, enablePrint: false };
@@ -71,3 +74,100 @@ export const splitByTrimester = (data) => {
 
   return [firstTrimester, secondTrimester, thirdTrimester];
 };
+
+export function mergeData(
+  arrayData,
+  defaultData,
+  ancDoctorList,
+  userId,
+  isAncScheduler
+) {
+  // Start with a copy of the existing arrayData
+  const updatedArrayData = [...arrayData];
+
+  // Loop through defaultData and check if each item is present in arrayData
+  defaultData.forEach((defaultItem) => {
+    const isPresent = arrayData.some(
+      (arrayItem) =>
+        arrayItem.masterId === defaultItem.id &&
+        arrayItem.master.name === defaultItem.name
+    );
+
+    // If not present, add it to updatedArrayData
+    if (!isPresent) {
+      const updatedObject = {
+        masterId: defaultItem.id,
+        master: {
+          name: defaultItem.name,
+          default: true,
+        },
+        status: "Due",
+        notes: null,
+        enablePrint: false,
+        created_at: new Date().toISOString(),
+        created_by: userId,
+        updated_at: new Date().toISOString(),
+        updated_by: userId,
+      };
+
+      // Conditionally add weekRange if it should be included
+      if (isAncScheduler) {
+        updatedObject.weekRange = {
+          start: defaultItem.weekRange.start,
+          end: defaultItem.weekRange.end,
+        };
+        updatedObject.dueDate = null;
+      } else {
+        updatedObject.givenDate = null;
+        updatedObject.dueDate = null;
+      }
+      updatedArrayData.push(updatedObject);
+    }
+  });
+
+  ancDoctorList.forEach((defaultItem) => {
+    const isPresent = arrayData.some(
+      (arrayItem) =>
+        arrayItem.masterId === defaultItem.id &&
+        arrayItem.master.name === defaultItem.name
+    );
+
+    // If not present, add it to updatedArrayData
+    if (
+      !isPresent &&
+      defaultItem.id &&
+      defaultItem?.weekRange?.start &&
+      defaultItem?.weekRange?.end
+    ) {
+      const updatedObject = {
+        masterId: defaultItem.id,
+        master: {
+          name: defaultItem.name,
+          default: false,
+        },
+        status: "Due",
+        notes: null,
+        enablePrint: false,
+        created_at: new Date().toISOString(),
+        created_by: userId,
+        updated_at: new Date().toISOString(),
+        updated_by: userId,
+      };
+
+      // Conditionally add weekRange if it should be included
+      if (isAncScheduler) {
+        updatedObject.weekRange = {
+          start: defaultItem.weekRange.start,
+          end: defaultItem.weekRange.end,
+        };
+        updatedObject.dueDate = null;
+      } else {
+        updatedObject.givenDate = null;
+        updatedObject.dueDate = null;
+      }
+      updatedArrayData.push(updatedObject);
+    }
+  });
+
+  return updatedArrayData;
+}
