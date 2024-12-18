@@ -98,7 +98,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
           break;
 
         case "Doctor is inactive":
-          setMessage("Your plan is inactive. Please activate your plan.");
+          setMessage("Your account has been locked, please contact admin.");
           setIsButtonDisabled(false);
           break;
 
@@ -205,7 +205,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
                 break;
 
               case "Doctor is inactive":
-                setMessage("Your plan is inactive. Please activate your plan.");
+                setMessage("Your account has been locked, please contact admin.");
                 break;
 
               default:
