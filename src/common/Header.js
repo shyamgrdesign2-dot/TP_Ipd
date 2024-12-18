@@ -507,12 +507,26 @@ function Header({ locationPath }) {
     setQRCodeVisible(true);
   }
 
+  const openAndCloseTab = () => {
+    // Open the URL in a new tab
+    const newTab = window.open("https://doctor-uat.tatvacare.in/#logout_user=1", "_blank");
+
+    // Close the tab after 3 seconds
+    if (newTab) {
+      setTimeout(() => {
+        newTab.close();
+      }, 3000);
+    }
+  };
+
   const handleLogout = () => {
     // Clear local storage
     localStorage.clear();
 
     // Clear session storage (if used)
     sessionStorage.clear();
+
+    openAndCloseTab();
 
     // Redirect to the login page
     navigate("/login");
