@@ -20,7 +20,7 @@ const AuthContainer = () => {
 
     // Set state based on query params
     if (viewParam) setCurrentView(viewParam || "loginWithOtp");
-    if (reason) setReason(reasonParam);
+    if (reasonParam) setReason(reasonParam);
     if (mobileNumber) setMobileNumber(mobileNumber);
   }, []);
 
