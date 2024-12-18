@@ -75,7 +75,7 @@ export const splitByTrimester = (data) => {
   return [firstTrimester, secondTrimester, thirdTrimester];
 };
 
-export function mergeData(
+export function mergeDefaultAndDoctorList(
   arrayData,
   defaultData,
   ancDoctorList,
