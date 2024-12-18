@@ -57,6 +57,7 @@
   
           input {
             margin-right: 6px;
+            margin-top: 7px;
           }
   
           label {
@@ -132,6 +133,20 @@
         &:hover {
           background-color: #f0f3ff;
         }
+      }
+
+      .disable {
+        background: transparent;
+        color: #5f5f5f;
+        border: 1px solid #939393;
+        padding: 10px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: bold;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.3s;
+
       }
   
       .links {
