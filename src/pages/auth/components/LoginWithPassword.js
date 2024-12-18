@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginWithPassword } from "../authService";
 import "../auth.scss";
@@ -16,62 +16,65 @@ const LoginWithPassword = ({ handleView }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(null);
-
+    setError(null); // Reset any previous errors
+    setMessage(null); // Clear any existing messages
+  
+    // Step 1: Input Validation
+    const trimmedMobileNumber = mobileNumber?.trim();
+    const trimmedPassword = password?.trim();
+  
+    if (!trimmedMobileNumber || !/^\d{10}$/.test(trimmedMobileNumber)) {
+      setMessage("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+  
+    if (!trimmedPassword) {
+      setMessage("Please enter your password.");
+      return;
+    }
+  
     try {
-      const response = await loginWithPassword(mobileNumber, password);
-
-      // Extract the response fields
-      const { message, statusCode, doctor_unique_id, ssoUrl } = response;
-
-      // Check if the response contains an ssoUrl
+      // Step 2: Call login API
+      setMobileNumber(trimmedMobileNumber)
+      const response = await loginWithPassword(trimmedMobileNumber, trimmedPassword);
+  
+      // Step 3: Extract response fields
+      const { message, ssoUrl } = response;
+  
+      // Step 4: Handle SSO URL Redirection
       if (ssoUrl) {
-        // Append device type to the SSO URL
         const updatedSsoUrl = isMobile
           ? `${ssoUrl}&device_type=mobile`
           : `${ssoUrl}&device_type=desktop`;
-
-        // Redirect to the updated SSO URL
+  
         window.location.href = updatedSsoUrl;
         return;
       }
-
-      // Handle different messages from the response
+  
+      // Step 5: Handle Server Response Messages
       switch (message) {
-        case "Password not set":
-          if (statusCode === 204) {
-            // Navigate to set-password page
-            navigate("/set-password", {
-              state: { doctor_unique_id, mobileNumber },
-            });
-          }
-          break;
-
         case "Doctor does not exists!":
-          // Show a user-friendly message
-          setMessage("User is not registered with us");
+          setMessage("User is not registered with us.");
           break;
-
+  
         case "Login with otp":
-          // Navigate to login with OTP page
-          navigate("/login-otp");
+          // Redirect to login with OTP page and pass the mobile number
+          window.location.href = `/login?view=loginWithOtp&reason=setPassword&number=${trimmedMobileNumber}`;
           break;
-
+  
         case "Doctor is inactive":
-          // Show a message about inactive plan
           setMessage("Your plan is inactive. Please activate your plan.");
           break;
-
+  
         case "Invalid username and password":
-          // Show an invalid OTP message
-          setMessage("Invalid username or password,Please try again");
+          setMessage("Invalid username or password. Please try again.");
           break;
-
+  
         default:
-          setMessage("Unexpected response. Please try again.");
-          break;
+          throw new Error("Unexpected response from server.");
       }
     } catch (error) {
+      // Step 6: Error Handling
       console.error("Login failed:", error);
       setMessage("Login failed. Please try again.");
     }
@@ -131,9 +134,9 @@ const LoginWithPassword = ({ handleView }) => {
 
         <div
           className="links"
-          onClick={() =>
-            handleSwitch({ view: "loginWithOtp", reason: "forgotPassword" })
-          }
+          onClick={() => {
+            window.location.href = `/login?view=loginWithOtp&reason=forgotPassword&number=${mobileNumber}`
+          }}
         >
           Forgot/Set Password?
         </div>
@@ -144,7 +147,9 @@ const LoginWithPassword = ({ handleView }) => {
 
         <button
           className="otp-button"
-          onClick={() => handleSwitch({ view: "loginWithOtp" })}
+          onClick={() => {
+            window.location.href = `/login?view=loginWithOtp&number=${mobileNumber}`;
+          }}
         >
           Login via OTP
         </button>

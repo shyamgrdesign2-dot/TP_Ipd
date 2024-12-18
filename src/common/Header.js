@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Select, Button, Checkbox, Popover, Drawer, Dropdown } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
-import { isChrome, isSafari } from "react-device-detect";
+import { isChrome, isSafari, isBrowser } from "react-device-detect";
 import axios from 'axios';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button as ButtonOPD } from "antd";
@@ -642,25 +642,28 @@ function Header({ locationPath }) {
       },
     ];
   
-    // Log Out Section
-    const logoutItem = [
-      {
-        type: "divider",
-      },
-      {
-        label: (
-          <>
-          <a onClick={handleLogout}>
-            <div className="title-common me-5 d-flex align-items-center" >
-              <i className="icon-exit me-3 color-red"></i> 
-              <span className="color-red">Log Out</span>
-            </div>
-          </a>
-          </>
-        ),
-        key: "8",
-      },
-    ];
+  // Log Out Section, If isBrowser is false, then don't include logoutItem
+  const logoutItem = isBrowser
+    ? [
+        {
+          type: "divider",
+        },
+        {
+          label: (
+            <>
+              <a onClick={handleLogout}>
+                <div className="title-common me-5 d-flex align-items-center">
+                  <i className="icon-exit me-3 color-red"></i>
+                  <span className="color-red">Log Out</span>
+                </div>
+              </a>
+            </>
+          ),
+          key: "8",
+        },
+      ]
+    : [];
+
   
     // Combine commonItems, extraItems (if applicable), and logoutItem (always at the end)
     const items = isOpdPlansAccessableFromGB
