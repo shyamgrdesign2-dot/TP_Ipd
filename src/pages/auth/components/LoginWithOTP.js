@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { validateUser, verifyAccessToken } from "../authService";
 import "../auth.scss"; // Assuming the provided styles are in this CSS file
 import { isMobile } from "react-device-detect";
-import tavaPracticeLogo from "../../../assets/images/website-images/tatvacare_logo_with_tag.png";
 
 const LoginWithOTP = ({ reason, handleView, number }) => {
   const navigate = useNavigate();
@@ -14,7 +13,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
   const [message, setMessage] = useState("");
   const [otp, setOtp] = useState("");
 
-  // Timer states
+  // Timer and resend state
   const [countdown, setCountdown] = useState(0);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
@@ -29,7 +28,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
         captchaRenderId: "captch-id",
         exposeMethods: true,
         success: (data) => {
-          void 0; // No operation
+            void 0;
         },
         failure: (error) => {
           console.error("OTP Verification Failed:", error);
@@ -54,8 +53,10 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
     }
 
     return () => {
-      // Do not remove the script since it might be used globally
-      // This cleanup is optional
+      const existingScript = document.getElementById(scriptId);
+      if (existingScript) {
+        document.body.removeChild(existingScript);
+      }
     };
   }, []);
 
@@ -71,10 +72,8 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
     }
 
     // Check for Captcha Verification
-    if (!window.isCaptchaVerified || !window.isCaptchaVerified()) {
-      setMessage(
-        "Captcha verification is required. Please check the box to proceed."
-      );
+    if (!isOtpSent && !(window.isCaptchaVerified())) {
+      setMessage("Captcha verification is required. Please check the box to proceed.");
       return;
     }
 
@@ -139,16 +138,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
         setMessage("Verification OTP has been sent. Please check your SMS.");
 
         // Start the countdown timer
-        setCountdown(30);
-        timer = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev === 1) {
-              clearInterval(timer);
-              setIsButtonDisabled(false);
-            }
-            return prev - 1;
-          });
-        }, 1000);
+        startTimer();
       },
       (error) => {
         console.error("Error sending OTP:", error);
@@ -156,6 +146,20 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
         setIsButtonDisabled(false);
       }
     );
+  };
+
+  // Function to start the countdown timer
+  const startTimer = () => {
+    setCountdown(30); // Reset the timer to 30 seconds
+    timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === 1) {
+          clearInterval(timer);
+          setIsButtonDisabled(false); // Enable the resend button
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
 
   const handleVerifyOtp = () => {
@@ -242,24 +246,24 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
     handleView(data);
   };
 
+  useEffect(() => {
+    // Reset OTP state when the mobile number changes
+    setIsOtpSent(false);
+    setCountdown(0);
+    setMessage("");
+    clearInterval(timer); // Clear the timer on mobile number change
+  }, [mobileNumber]);
+
   return (
     <div className="login-container background-image">
       <div className="login-card">
-        {/* <img
-          src={tavaPracticeLogo}
-          alt="Logo"
-          style={{
-            filter:
-              "brightness(0) saturate(100%) invert(13%) sepia(95%) saturate(7474%) hue-rotate(2deg) brightness(100%) contrast(107%)",
-          }}
-        /> */}
-        <img
+
+      <img
           src="https://diginextloginprod.z10.web.core.windows.net/phone_number_login_ui/images/main-logo.png"
           alt="Company Logo"
           style={{ width: "100%", marginBottom: "1rem" }}
         ></img>
         <h1>Login with OTP</h1>
-        {/* <p>Enter your mobile number to receive an OTP</p> */}
 
         <div className="color-red">{message}</div>
         <form>
@@ -283,7 +287,6 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
               : "Send OTP"}
           </button>
 
-          {/* <label htmlFor="otp">Enter OTP</label> */}
           {isOtpSent && (
             <>
               <label htmlFor="otp">Enter OTP</label>
