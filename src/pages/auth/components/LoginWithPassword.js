@@ -63,7 +63,7 @@ const LoginWithPassword = ({ handleView }) => {
           break;
   
         case "Doctor is inactive":
-          setMessage("Your plan is inactive. Please activate your plan.");
+          setMessage("Your account has been locked, please contact admin.");
           break;
   
         case "Invalid username and password":
