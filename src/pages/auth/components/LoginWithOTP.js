@@ -5,9 +5,9 @@ import "../auth.scss"; // Assuming the provided styles are in this CSS file
 import { isMobile } from "react-device-detect";
 import tavaPracticeLogo from "../../../assets/images/website-images/tatvacare_logo_with_tag.png";
 
-const LoginWithOTP = ({ handleView, isResetPassowrd }) => {
+const LoginWithOTP = ({ reason, handleView, number }) => {
   const navigate = useNavigate();
-  const [mobileNumber, setMobileNumber] = useState("");
+  const [mobileNumber, setMobileNumber] = useState(number);
   const [isValidUser, setIsValidUser] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [error, setError] = useState(null);
@@ -17,19 +17,6 @@ const LoginWithOTP = ({ handleView, isResetPassowrd }) => {
   // Timer states
   const [countdown, setCountdown] = useState(0);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-
-  useEffect(() => {
-    let timer;
-    if (countdown > 0) {
-      timer = setInterval(() => {
-        setCountdown((prev) => prev - 1);
-      }, 1000);
-    } else {
-      setIsButtonDisabled(false);
-    }
-
-    return () => clearInterval(timer);
-  }, [countdown]);
 
   useEffect(() => {
     const scriptId = "msg91-otp-script"; // Unique ID for the script
@@ -72,42 +59,33 @@ const LoginWithOTP = ({ handleView, isResetPassowrd }) => {
     };
   }, []);
 
+  let timer; // Global timer reference
+
   const handleSendOtp = async () => {
     if (isButtonDisabled) return; // Prevent multiple clicks
 
-    try {
-      // Disable the button immediately
-      setIsButtonDisabled(true);
-      setMessage(""); // Clear any existing messages
+    // Mobile number validation (only 10 digits allowed)
+    if (!/^\d{10}$/.test(mobileNumber.trim())) {
+      setMessage("Please enter a valid 10-digit mobile number");
+      return;
+    }
 
+    // Check for Captcha Verification
+    if (!window.isCaptchaVerified || !window.isCaptchaVerified()) {
+      setMessage(
+        "Captcha verification is required. Please check the box to proceed."
+      );
+      return;
+    }
+
+    try {
+      setIsButtonDisabled(true); // Disable the button immediately
       setMessage("");
-      // Check if the user is already validated
+
       if (isValidUser) {
-        // const isCaptchaVerified = window.isCaptchaVerified();
-        // if (!isCaptchaVerified) {
-        //   setMessage(
-        //     "Captcha verification is required. Please check the box to proceed."
-        //   );
-        //   return;
-        // }
         sendOtp();
         return;
       }
-
-      // Validate mobile number
-      if (!mobileNumber || mobileNumber.length < 10) {
-        setMessage("Please enter a valid mobile number");
-        return;
-      }
-
-      //   // Check Captcha verification
-      //   const isCaptchaVerified = window.isCaptchaVerified();
-      //   if (!isCaptchaVerified) {
-      //     setMessage(
-      //       "Captcha verification is required. Please check the box to proceed."
-      //     );
-      //     return;
-      //   }
 
       // Step 1: Validate the user
       const response = await validateUser(mobileNumber);
@@ -116,63 +94,68 @@ const LoginWithOTP = ({ handleView, isResetPassowrd }) => {
       // Step 2: Handle validation responses
       switch (message) {
         case "Doctor does not exists!":
-          setMessage(
-            "User is not registered with us, Please enter the registered number"
-          );
-          return;
+          setMessage("Phone number not registered");
+          setIsButtonDisabled(false);
+          break;
 
         case "Doctor is inactive":
           setMessage("Your plan is inactive. Please activate your plan.");
-          return;
+          setIsButtonDisabled(false);
+          break;
 
         case "Doctor exists!":
-          // Mark the user as valid and proceed to send OTP
           setIsValidUser(true);
-          sendOtp(); // Call OTP sending method
+          sendOtp();
           break;
 
         default:
           setMessage("Unexpected response from server.");
-          break;
+          setIsButtonDisabled(false);
       }
     } catch (error) {
       console.error("Error during user validation:", error);
       setMessage("Failed to validate user. Please try again.");
+      setIsButtonDisabled(false);
     }
   };
 
   // Function to send OTP
   const sendOtp = () => {
-    if (window.sendOtp) {
-      window.sendOtp(
-        `91${mobileNumber}`,
-        (data) => {
-          setIsOtpSent(true);
-          setMessage("Verification code has been sent. Please check your SMS.");
-
-          // Start the countdown timer
-          setCountdown(30);
-          const timer = setInterval(() => {
-            setCountdown((prev) => {
-              if (prev === 1) {
-                clearInterval(timer);
-                setIsButtonDisabled(false); // Re-enable button after countdown
-              }
-              return prev - 1;
-            });
-          }, 1000);
-        },
-        (error) => {
-          console.error("Error sending OTP:", error);
-          setMessage("Failed to send OTP. Please try again.");
-          setIsButtonDisabled(false); // Re-enable button
-        }
-      );
-    } else {
+    if (!window.sendOtp) {
       console.error("sendOtp method not found!");
-      setMessage("OTP service is unavailable.");
-      setIsButtonDisabled(false); // Re-enable button
+      setMessage(
+        "OTP service is currently unavailable. Please try again later."
+      );
+      setIsButtonDisabled(false);
+      return;
     }
+
+    if (timer) clearInterval(timer); // Clear any existing timers
+
+    window.sendOtp(
+      `91${mobileNumber}`,
+      (data) => {
+        setIsOtpSent(true);
+        setMessage("Verification OTP has been sent. Please check your SMS.");
+
+        // Start the countdown timer
+        setCountdown(30);
+        timer = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev === 1) {
+              clearInterval(timer);
+              setIsButtonDisabled(false);
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      },
+      (error) => {
+        console.error("Error sending OTP:", error);
+        setMessage("Failed to send OTP. Please try again.");
+        setIsButtonDisabled(false);
+      }
+    );
   };
 
   const handleVerifyOtp = () => {
@@ -206,23 +189,15 @@ const LoginWithOTP = ({ handleView, isResetPassowrd }) => {
 
             switch (responseMessage) {
               case "Password not set":
-                if (statusCode === 204) {
-                  // Update the parent state or call a function to render the SetPassword component
-                  handleSwitch({
-                    view: "SetPassword",
-                    doctor_unique_id,
-                    mobileNumber,
-                  });
-                }
+                handleSwitch({
+                  view: "setPassword",
+                  doctor_unique_id,
+                  mobileNumber,
+                });
                 break;
 
               case "Doctor does not exists!":
                 setMessage("User is not registered with us");
-                break;
-
-              case "Login with otp":
-                // Update the parent state or call a function to render the LoginWithOtp component
-                handleSwitch("loginWithOtp");
                 break;
 
               case "Doctor is inactive":
@@ -230,8 +205,12 @@ const LoginWithOTP = ({ handleView, isResetPassowrd }) => {
                 break;
 
               default:
-                if (isResetPassowrd) {
-                  handleSwitch({ view: "setPassword" });
+                if (reason === "forgotPassword") {
+                    handleSwitch({
+                        view: "setPassword",
+                        doctor_unique_id,
+                        mobileNumber,
+                      });
                 } else if (ssoUrl) {
                   // Redirect to SSO URL if applicable // append the url with device_type=desktop
                   // Append device type to the SSO URL
@@ -244,7 +223,6 @@ const LoginWithOTP = ({ handleView, isResetPassowrd }) => {
                 } else {
                   throw new Error("Unexpected response from server.");
                 }
-                break;
             }
           } catch (error) {
             console.error("Error during OTP verification:", error);
@@ -296,7 +274,7 @@ const LoginWithOTP = ({ handleView, isResetPassowrd }) => {
           <div id="captch-id"></div>
           <button
             type="button"
-            className="otp-button"
+            className={isButtonDisabled ? "disable" : "otp-button"}
             onClick={handleSendOtp}
             disabled={isButtonDisabled}
           >
@@ -333,7 +311,9 @@ const LoginWithOTP = ({ handleView, isResetPassowrd }) => {
 
         <button
           className="otp-button"
-          onClick={() => handleSwitch({ view: "loginWithPassword" })}
+          onClick={() => {
+            window.location.href = "/login?view=loginWithPassword";
+          }}
         >
           Login with Password
         </button>
