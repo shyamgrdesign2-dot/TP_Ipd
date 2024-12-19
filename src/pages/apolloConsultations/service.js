@@ -8,7 +8,7 @@ export const fetchApolloConsultations = async function ({
   startDate,
   endDate,
   umIds,
-  search
+  search,
 }) {
   let consultations = [];
   try {

@@ -25,6 +25,7 @@ import MedicalCertificate from "./pages/MedicalCertificate";
 import CertificatePrintView from "./pages/CertificatePrintView";
 import DoctorProfile from "./pages/DoctorProfile";
 import DoctorWebsiteSetting from "./pages/DoctorWebsiteSetting";
+import MessageCreateCampaign from "./pages/MessageCreateCampaign";
 
 import { store, persistor } from "./redux/store";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
@@ -34,7 +35,18 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
 import TalkativeWidget from "./components/TalkativeWidget";
 import SmartRxDigitise from "./pages/SmartRxDigitise";
+import DemoExpirationBanner from "./common/DemoExpirationBanner";
+import PlanExpirationBanner from "./common/PlanExpirationBanner";
+import DoctorModal from "./common/DoctorModal";
+import ExpiredPlanCard from "./common/ExpiredPlanCard";
 import ApolloConsultations from "./pages/apolloConsultations/ApolloConsultations";
+
+// Import Auth Components (IN Development - Would require this snippet in future)
+// import LoginWithPassword from './pages/auth/components/LoginWithPassword';
+// import LoginWithOTP from './pages/auth/components/LoginWithOTP';
+// import SetPassword from './pages/auth/components/SetPassword';
+
+import AuthContainer from "./pages/auth/auth";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -53,6 +65,8 @@ function App() {
   );
 
   const navigate = useNavigate();
+
+  const isLoginPage = location.pathname === "/login"; // Check if the current path is "/login"
 
   useEffect(() => {
     // Load features asynchronously when the app renders
@@ -113,8 +127,17 @@ function App() {
           />
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
+              {!isLoginPage && (
+                <>
+                  <DemoExpirationBanner />
+                  <PlanExpirationBanner />
+                  <ExpiredPlanCard />
+                  <DoctorModal />
+                </>
+              )}
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
+                <Route path="create-campaign" element={<MessageCreateCampaign />} />
                 <Route path="patient_details" element={<PatientDetails />} />
                 <Route
                   path="prescription"
@@ -145,6 +168,12 @@ function App() {
                 />
                 <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
                 <Route path="apollo-consultations" element={<ApolloConsultations />} />
+
+                {/* Auth Routes */}
+                {/* <Route path="/login-password" element={<LoginWithPassword />} /> */}
+                {/* <Route path="/login-otp" element={<LoginWithOTP />} /> */}
+                {/* <Route path="/set-password" element={<SetPassword />} /> */}
+                <Route path="/login" element={<AuthContainer />} />
               </Routes>
             </PersistGate>
           </Provider>
