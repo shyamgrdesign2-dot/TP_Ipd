@@ -7,13 +7,14 @@ import { isMobile } from "react-device-detect";
 import { Spin } from "antd";
 
 const SetPassword = ({ number, data }) => {
-  const [mobileNumber, setMobileNumber] = useState(number === "null" ? "" : number)
+  const [mobileNumber, setMobileNumber] = useState(
+    number === "null" ? "" : number
+  );
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false); // Loader state
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -44,12 +45,12 @@ const SetPassword = ({ number, data }) => {
   const handleSetPassword = async (e) => {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
+    setMessage("");
     setLoading(true); // Show loader
 
     // Validate passwords match
     if (newPassword !== confirmPassword) {
-      setMessage("Passwords do not match.");
+      setError("Passwords do not match.");
       setLoading(false); // Hide loader
       return;
     }
@@ -60,7 +61,7 @@ const SetPassword = ({ number, data }) => {
     );
 
     if (failedCriteria.length > 0) {
-      setMessage("Password must meet the following criteria:");
+      setError("Password must meet the following criteria:");
       setError(failedCriteria.map((criterion) => criterion.text));
       setLoading(false); // Hide loader
       return;
@@ -88,11 +89,11 @@ const SetPassword = ({ number, data }) => {
         // Redirect to the updated SSO URL
         window.location.href = updatedSsoUrl;
       } else {
-        setMessage("Unable to set password");
+        setError("Unable to set password");
         window.location.href = `/login`;
       }
     } catch (error) {
-      setMessage("Failed to set password. Please try again.");
+      setError("Failed to set password. Please try again.");
     } finally {
       setLoading(false); // Hide loader
     }
@@ -144,9 +145,15 @@ const SetPassword = ({ number, data }) => {
           ></img>
           <h1>Set Password</h1>
           <p>Please provide your new password details.</p>
-          <div className="color-red" style={{ fontSize: "14px" }}>
+
+          {/* <div className="color-red" style={{ fontSize: "14px" }}>
             {message}
-          </div>
+          </div> */}
+
+          {/* Display success and error messages */}
+          {message && <div className= "color-blue" style={{fontSize: "14px" }}>{message}</div>}
+          {error && <div className="color-red" style={{fontSize: "14px" }}>{error}</div>}
+
           {error && (
             <div className="criteria-container">
               <ul className="color-red">

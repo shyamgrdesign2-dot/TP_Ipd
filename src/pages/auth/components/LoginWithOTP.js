@@ -7,7 +7,9 @@ import { Spin } from "antd";
 
 const LoginWithOTP = ({ reason, handleView, number }) => {
   const navigate = useNavigate();
-  const [mobileNumber, setMobileNumber] = useState(number === "null" ? "" : number);
+  const [mobileNumber, setMobileNumber] = useState(
+    number === "null" ? "" : number
+  );
   const [isValidUser, setIsValidUser] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [error, setError] = useState(null);
@@ -16,7 +18,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
   const [loading, setLoading] = useState(false); // Loader state
 
   useEffect(() => {
-    if (number !== "null" || number !== "" ) {
+    if (number !== "null" || number !== "") {
       setMobileNumber(number);
     }
   }, [number]);
@@ -75,13 +77,13 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
 
     // Mobile number validation (only 10 digits allowed)
     if (!/^\d{10}$/.test(mobileNumber?.trim())) {
-      setMessage("Please enter a valid 10-digit mobile number");
+      setError("Please enter a valid 10-digit mobile number");
       return;
     }
 
     // Check for Captcha Verification
     if (!isOtpSent && !window.isCaptchaVerified()) {
-      setMessage(
+      setError(
         "Captcha verification is required. Please check the box to proceed."
       );
       return;
@@ -90,6 +92,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
     try {
       setIsButtonDisabled(true); // Disable the button immediately
       setMessage("");
+      setError(null);
       setLoading(true); // Show loader
 
       if (isValidUser) {
@@ -101,7 +104,6 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
         }
         return;
       }
-  
 
       // Step 1: Validate the user
       const response = await validateUser(mobileNumber);
@@ -110,12 +112,12 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       // Step 2: Handle validation responses
       switch (message) {
         case "Doctor does not exists!":
-          setMessage("Phone number not registered");
+          setError("Phone number not registered");
           setIsButtonDisabled(false);
           break;
 
         case "Doctor is inactive":
-          setMessage(
+          setError(
             "Your account has been locked by Admin. Please contact support@tatvacare.in/9974062363"
           );
           setIsButtonDisabled(false);
@@ -127,12 +129,12 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
           break;
 
         default:
-          setMessage("Unexpected response from server.");
+          setError("Unexpected response from server.");
           setIsButtonDisabled(false);
       }
     } catch (error) {
       console.error("Error during user validation:", error);
-      setMessage("Failed to validate user. Please try again.");
+      setError("Failed to validate user. Please try again.");
       setIsButtonDisabled(false);
     } finally {
       setLoading(false); // Hide loader
@@ -143,9 +145,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
   const sendOtp = () => {
     if (!window.sendOtp) {
       console.error("sendOtp method not found!");
-      setMessage(
-        "OTP service is currently unavailable. Please try again later."
-      );
+      setError("OTP service is currently unavailable. Please try again later.");
       setIsButtonDisabled(false);
       setLoading(false); // Hide loader
       return;
@@ -159,6 +159,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       (data) => {
         setIsOtpSent(true);
         setMessage("Verification OTP has been sent. Please check your SMS.");
+        setError(null); // Clear error message
 
         // Start the countdown timer
         startTimer();
@@ -166,7 +167,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       },
       (error) => {
         console.error("Error sending OTP:", error);
-        setMessage("Failed to send OTP. Please try again.");
+        setError("Failed to send OTP. Please try again.");
         setIsButtonDisabled(false);
         setLoading(false); // Hide loader
       }
@@ -188,37 +189,40 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
   };
 
   // Retry OTP Method
-const retryOtp = () => {
-  if (!window.retryOtp) {
-    console.error("retryOtp method not found!");
-    setMessage("Retry service is unavailable. Please try again later.");
-    setIsButtonDisabled(false);
-    setLoading(false); // Hide loader
-    return;
-  }
-
-  setLoading(true); // Show loader
-
-  window.retryOtp(
-    "11",
-    (data) => {
-      setMessage("OTP has been resent. Please check your SMS.");
-      startTimer(); // Restart the countdown timer
-      setLoading(false); // Hide loader
-    },
-    (error) => {
-      console.error("Error retrying OTP:", error);
-      setMessage("Failed to resend OTP. Please try again.");
+  const retryOtp = () => {
+    if (!window.retryOtp) {
+      console.error("retryOtp method not found!");
+      setError("Retry service is unavailable. Please try again later.");
       setIsButtonDisabled(false);
       setLoading(false); // Hide loader
+      return;
     }
-  );
-};
+
+    setLoading(true); // Show loader
+
+    window.retryOtp(
+      "11",
+      (data) => {
+        setMessage("OTP has been resent. Please check your SMS.");
+        setError(null); // Clear error message
+        startTimer(); // Restart the countdown timer
+        setLoading(false); // Hide loader
+      },
+      (error) => {
+        console.error("Error retrying OTP:", error);
+        setError("Failed to resend OTP. Please try again.");
+        setIsButtonDisabled(false);
+        setLoading(false); // Hide loader
+      }
+    );
+  };
 
   const handleVerifyOtp = () => {
     setMessage("");
+    setError(null);
+
     if (!otp || otp.length < 6) {
-      setMessage("Please enter a valid OTP");
+      setError("Please enter a valid OTP");
       return;
     }
 
@@ -231,7 +235,7 @@ const retryOtp = () => {
 
           // Check if the message is "Invalid OTP"
           if (message === "Invalid OTP") {
-            setMessage("Invalid OTP. Please try again.");
+            setError("Invalid OTP. Please try again.");
             setLoading(false); // Hide loader
             return;
           }
@@ -256,11 +260,11 @@ const retryOtp = () => {
                 break;
 
               case "Doctor does not exists!":
-                setMessage("User is not registered with us");
+                setError("User is not registered with us");
                 break;
 
               case "Doctor is inactive":
-                setMessage(
+                setError(
                   "Your account has been locked by Admin. Please contact support@tatvacare.in / 9974062363"
                 );
                 break;
@@ -293,7 +297,7 @@ const retryOtp = () => {
         },
         (error) => {
           console.error("Error verifying OTP:", error);
-          setMessage("Failed to verify OTP. Please try again.");
+          setError("Failed to verify OTP. Please try again.");
           setLoading(false); // Hide loader
         }
       );
@@ -312,6 +316,7 @@ const retryOtp = () => {
     setIsOtpSent(false);
     setCountdown(0);
     setMessage("");
+    setError(null);
     clearInterval(timer); // Clear the timer on mobile number change
   }, [mobileNumber]);
 
@@ -335,7 +340,7 @@ const retryOtp = () => {
         >
           <Spin size="large" />
         </div>
-      )} 
+      )}
       <div className="login-card">
         <img
           src="https://diginextloginprod.z10.web.core.windows.net/phone_number_login_ui/images/main-logo.png"
@@ -346,7 +351,10 @@ const retryOtp = () => {
           {reason === "forgotPassword" ? "Reset Password" : "Login with OTP"}
         </h1>
 
-        <div className="color-red">{message}</div>
+        {/* Display success and error messages */}
+        {message && <div className= "color-blue" style={{fontSize: "14px" }}>{message}</div>}
+        {error && <div className="color-red" style={{fontSize: "14px" }}>{error}</div>}
+
         <form>
           <label htmlFor="mobileNumber">Mobile Number *</label>
           <input
