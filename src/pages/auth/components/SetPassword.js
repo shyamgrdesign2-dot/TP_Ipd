@@ -7,6 +7,7 @@ import { isMobile } from "react-device-detect";
 import { Spin } from "antd";
 
 const SetPassword = ({ number, data }) => {
+  const [mobileNumber, setMobileNumber] = useState(number === "null" ? "" : number)
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -72,7 +73,7 @@ const SetPassword = ({ number, data }) => {
 
       // Call loginWithPassword API after password is successfully set
       const loginResponse = await loginWithPassword(
-        number || data?.mobileNumber,
+        mobileNumber || data?.mobileNumber,
         newPassword
       );
       const { ssoUrl, message } = loginResponse;
