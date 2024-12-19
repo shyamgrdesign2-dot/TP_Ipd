@@ -30,7 +30,7 @@ import {
 } from "../../../../redux/obstetricSlice";
 import { fetchSearchAnc } from "../../service";
 
-const AncScheduler = ({ ancHistory = [] }) => {
+const AncScheduler = ({ ancHistory = [], handleDrawerMedicalReport }) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const { patient_data } = state;
@@ -380,6 +380,16 @@ const AncScheduler = ({ ancHistory = [] }) => {
           </table>
         </div>
       </div>
+      <div className="text-greycolor" style={{ padding: "10px 40px 50px" }}>
+        View Uploaded Test Reports Here:{" "}
+        <span
+          className="text-primary"
+          style={{ cursor: "pointer", textDecoration: "underline" }}
+          onClick={handleDrawerMedicalReport}
+        >
+          Medical Records
+        </span>
+      </div>
       {immunisationPopup && (
         <AncImmunisationPopup
           onCancel={() => {
@@ -403,6 +413,7 @@ const AncScheduler = ({ ancHistory = [] }) => {
           }
           editIndex={editIndex}
           activeCategory={activeCategory}
+          ancSchedulerData={ancSchedulerData}
         />
       )}
       {shouldShowPrintPreview && (

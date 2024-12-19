@@ -49,7 +49,7 @@ export const updateEnablePrint = (ancHistory) => {
   todayEnd.setHours(23, 59, 59, 999); // End of today (11:59 PM)
 
   // removing Deleted Entry
-  const updatedAncHistory = ancHistory?.filter((item) => !item?.isDeleted);
+  const updatedAncHistory = ancHistory?.filter((item) => !item?.deleted);
 
   return updatedAncHistory.map((item) => {
     const modifiedAt = new Date(item.modifiedAt);

@@ -24,7 +24,10 @@ import {
 import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import AncImmunisationPopup from "../ancImmunisationPopup/AncImmunisationPopup";
-import { mergeDefaultAndDoctorList, updateEnablePrint } from "../../utils/helper";
+import {
+  mergeDefaultAndDoctorList,
+  updateEnablePrint,
+} from "../../utils/helper";
 
 const ImmunisationHistory = ({ immunisationHistoryData = [] }) => {
   const dispatch = useDispatch();
@@ -342,6 +345,7 @@ const ImmunisationHistory = ({ immunisationHistoryData = [] }) => {
               : searchSelected
           }
           editIndex={editIndex}
+          ancSchedulerData={immunisationHistory}
         />
       )}
     </div>

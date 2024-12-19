@@ -50,6 +50,7 @@ const Obstetric = ({
   handleDrawerObstetric,
   handleCollapsed,
   isPreviousPregnancyOverview = false,
+  handleDrawerMedicalReport,
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -501,7 +502,10 @@ const Obstetric = ({
             </TabPane>
             <TabPane tab="ANC Scheduler" key="ancScheduler">
               <div ref={ancSchedulerRef}>
-                <AncScheduler ancHistory={obstetricDetails?.ancHistory} />
+                <AncScheduler
+                  ancHistory={obstetricDetails?.ancHistory}
+                  handleDrawerMedicalReport={handleDrawerMedicalReport}
+                />
               </div>
             </TabPane>
             <TabPane tab="Immunization History" key="immunizationHistory">
