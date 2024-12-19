@@ -159,6 +159,9 @@ function PastPregnancy({
         ...pregnancyHistory,
         {
           ...data,
+          examinationHistory: [],
+          ancHistory: [],
+          immunisationHistory: [],
           createdAt: new Date().toISOString(),
           createdBy: decodedToken?.result?.user_id,
           modifiedAt: new Date().toISOString(),
@@ -168,7 +171,6 @@ function PastPregnancy({
     }
     const payload = {
       ...obstetricDetails,
-      patientId: patient_data.patient_unique_id,
       pregnancyHistory: newPastPregnancy,
     };
     dispatch(addObstetricDetails(payload));
@@ -185,7 +187,6 @@ function PastPregnancy({
     }
     const payload = {
       ...obstetricDetails,
-      patientId: patient_data.patient_unique_id,
       pregnancyHistory: newPastPregnancy,
     };
     dispatch(addObstetricDetails(payload));
@@ -579,7 +580,6 @@ function PastPregnancy({
     setShowConfirmPopup((prev) => !prev);
   };
 
-
   return (
     <>
       <Card bordered={false} className="search-modalCard">
@@ -607,7 +607,9 @@ function PastPregnancy({
           </div>
           <Button
             onClick={
-              isCompletePregnancy ? toggleConfirmationPopup : addPastPregnancyData
+              isCompletePregnancy
+                ? toggleConfirmationPopup
+                : addPastPregnancyData
             }
             className="btn btn-primary3 btn-41 px-4 me-20"
             disabled={

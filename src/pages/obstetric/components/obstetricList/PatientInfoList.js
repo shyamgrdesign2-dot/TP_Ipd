@@ -6,8 +6,9 @@ import { useSelector } from "react-redux";
 import { Divider } from "antd";
 
 const PatientInfoList = () => {
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const { examinationHistory } = obstetricDetails;
+  const { obstetricDetails: allObstetricDetails } = useSelector((state) => state.obstetric);
+  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
+  const { examinationHistory } = obstetricDetails || [];
   const [infoAccordionItems, setInfoAccordionItems] = useState([]);
 
   useEffect(() => {

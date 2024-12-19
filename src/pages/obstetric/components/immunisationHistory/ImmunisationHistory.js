@@ -24,7 +24,7 @@ import {
 import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import AncImmunisationPopup from "../ancImmunisationPopup/AncImmunisationPopup";
-import { mergeDefaultAndDoctorList } from "../../utils/helper";
+import { mergeDefaultAndDoctorList, updateEnablePrint } from "../../utils/helper";
 
 const ImmunisationHistory = ({ immunisationHistoryData = [] }) => {
   const dispatch = useDispatch();
@@ -33,9 +33,7 @@ const ImmunisationHistory = ({ immunisationHistoryData = [] }) => {
   const { userId } = useSelector((state) => state.doctors);
   const { obstetricDetails, defaultImmunisation, immunisationDoctorList } =
     useSelector((state) => state.obstetric);
-  const [immunisationHistory, setImmunisationHistory] = useState(
-    immunisationHistoryData
-  );
+  const [immunisationHistory, setImmunisationHistory] = useState([]);
   const [immunisationPopup, setImmunisationPopup] = useState("");
   const [editIndex, setEditIndex] = useState(-1);
   const [searchSelected, setSearchSelected] = useState(null);
@@ -43,11 +41,13 @@ const ImmunisationHistory = ({ immunisationHistoryData = [] }) => {
   const [searchOptions, setSearchOptions] = useState([]);
 
   useEffect(() => {
-    setImmunisationHistory(immunisationHistoryData);
+    const updatedImmunisationHistory = updateEnablePrint(
+      immunisationHistoryData
+    );
+    setImmunisationHistory(updatedImmunisationHistory);
   }, [immunisationHistoryData]);
 
   useEffect(() => {
-    const immunisationHistoryData = [...immunisationHistory];
     const newImmunisationHistory = mergeDefaultAndDoctorList(
       immunisationHistoryData,
       defaultImmunisation,
@@ -56,8 +56,10 @@ const ImmunisationHistory = ({ immunisationHistoryData = [] }) => {
     );
     const payload = {
       ...obstetricDetails,
-      patientId: patient_data.patient_unique_id,
-      immunisationHistory: newImmunisationHistory,
+      currentPregnancy: {
+        ...obstetricDetails?.currentPregnancy,
+        immunisationHistory: newImmunisationHistory,
+      },
     };
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
@@ -167,8 +169,10 @@ const ImmunisationHistory = ({ immunisationHistoryData = [] }) => {
       }
       const payload = {
         ...obstetricDetails,
-        patientId: patient_data.patient_unique_id,
-        immunisationHistory: updatedData,
+        currentPregnancy: {
+          ...obstetricDetails?.currentPregnancy,
+          immunisationHistory: updatedData,
+        },
       };
       setImmunisationHistory(updatedData);
       dispatch(addObstetricDetails(payload));

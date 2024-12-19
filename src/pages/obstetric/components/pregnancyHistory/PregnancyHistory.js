@@ -3,7 +3,6 @@ import "./PregnancyHistory.scss";
 import arrow from "../../../../assets/images/arrow.svg";
 import pregnancyHistoryImg from "../../../../assets/images/pregnancy-history.svg";
 import moment from "moment";
-import { useSelector } from "react-redux";
 import {
   AbortionColumns,
   EctopicColumns,

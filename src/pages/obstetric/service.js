@@ -33,7 +33,7 @@ export const addObstetricData = async function (payload) {
   try {
     res = await api.post(`/obstetric`, payload, baseUrl);
   } catch (e) {
-    console.error("Error while addObstetricData: ", e);
+    console.error("Error while adding Obstetric Data: ", e);
   }
   return res;
 };
@@ -43,7 +43,7 @@ export const updateObstetricData = async function (id, payload, userId) {
   try {
     res = await api.patch(`/obstetric/${id}/${userId}`, payload, baseUrl);
   } catch (e) {
-    console.error("Error while addObstetricData: ", e);
+    console.error("Error while updating Obstetric Data: ", e);
   }
   return res;
 };
@@ -64,7 +64,7 @@ export const updatePrefillObstetricData = async function (payload, userId) {
   try {
     res = await api.patch(`/prefilled/${userId}`, payload, baseUrl);
   } catch (e) {
-    console.error("Error while addObstetricData: ", e);
+    console.error("Error while updating prefill Obstetric Data: ", e);
   }
   return res;
 };
@@ -212,6 +212,38 @@ export const fetchAncDoctorList = async function () {
       "Error while fetching doctor list for ANC Scheduler details: ",
       e
     );
+  }
+  return res;
+};
+
+export const fetchObstetricDetails = async function (patientUniqueId) {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/gyneac/obstetric-history/${patientUniqueId}`,
+      ancImmunisationbaseUrl
+    );
+    res = res?.data;
+  } catch (e) {
+    console.error("Error while fetching Obstetric details: ", e);
+  }
+  return res;
+};
+
+export const upsertObstetricDetails = async function (
+  patientUniqueId,
+  payload
+) {
+  let res = {};
+  try {
+    res = await api.post(
+      `/api/v1/gyneac/obstetric-history/${patientUniqueId}`,
+      payload,
+      ancImmunisationbaseUrl
+    );
+    res = res?.data;
+  } catch (e) {
+    console.error("Error while upserting Obstetric details: ", e);
   }
   return res;
 };
