@@ -14,6 +14,7 @@ import {
   getModuleContents,
   getModules,
 } from "../../redux/customModuleSlice";
+import { savePrintsettings } from "../../redux/doctorsSlice";
 import CashManagerContext from "../../context/CashManagerContext";
 import { customizedPad } from "../../redux/doctorsSlice";
 import { MESSAGE_KEY } from "../../utils/constants";
@@ -25,9 +26,12 @@ const TabAddCustomModule = () => {
   const [newModuleName, setNewModuleName] = useState("");
   const dispatch = useDispatch();
   const { customModules } = useSelector((state) => state.customModules);
-  const { userId, customizedPadRightList, customizedPadLeftList } = useSelector(
-    (state) => state.doctors
-  );
+  const {
+    userId,
+    customizedPadRightList,
+    customizedPadLeftList,
+    defaultPrintSettings,
+  } = useSelector((state) => state.doctors);
   const { setCustomModuleContents, tcmId } = useContext(CashManagerContext);
 
   useEffect(() => {
@@ -95,6 +99,33 @@ const TabAddCustomModule = () => {
             },
           })
         );
+
+        const rxNewModule = {
+          id: newModule.module_id,
+          title: newModule.name,
+          format: "inline",
+          enable: "Y",
+          custom_status: "Y",
+          is_custom_module: true,
+        };
+
+        const rxPrescription = {
+          ...defaultPrintSettings?.prescription,
+          case_option: [
+            ...(defaultPrintSettings?.prescription?.case_option || []),
+            rxNewModule,
+          ],
+        };
+
+        const sendData = {
+          ...defaultPrintSettings,
+          prescription: JSON.stringify(rxPrescription),
+          header_footer: JSON.stringify(defaultPrintSettings?.header_footer),
+          page_format: JSON.stringify(defaultPrintSettings?.page_format),
+        };
+
+        dispatch(savePrintsettings(sendData));
+
         setShowInput(false);
         message.open({
           key: MESSAGE_KEY,

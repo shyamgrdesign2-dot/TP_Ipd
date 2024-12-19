@@ -69,25 +69,6 @@ const customModuleSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {
-    setCustomModulesPrintConfig: (state, action) => {
-      const { module_id, printConfig } = action.payload;
-
-      state.customModules = module_id
-        ? state.customModules.map((module) =>
-            module.module_id === module_id
-              ? {
-                  ...module,
-                  printConfig: { ...module.printConfig, ...printConfig },
-                }
-              : module
-          )
-        : state.customModules.map((module) => ({
-            ...module,
-            printConfig: { ...module.printConfig, ...printConfig },
-          }));
-    },
-  },
   extraReducers: (builder) => {
     builder
       .addCase(addModule.pending, (state) => {
@@ -168,5 +149,4 @@ const customModuleSlice = createSlice({
   },
 });
 
-export const { setCustomModulesPrintConfig } = customModuleSlice.actions;
 export default customModuleSlice.reducer;

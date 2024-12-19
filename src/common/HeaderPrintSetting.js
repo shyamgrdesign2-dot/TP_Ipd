@@ -134,7 +134,7 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
             }
 
             const action = await dispatch(savePrintsettings(sendData));
-            const customModuleAction = await dispatch(addModule({ userId, modules: customModules }));
+
             if (action.meta.requestStatus === "fulfilled") {
                 navigate(-1)
             } else {
@@ -159,16 +159,39 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
         setIsBackModalOpen(!isBackModalOpen);
     }, [isBackModalOpen]);
 
-    const onYesLeaveClick = () => {
+    const onYesLeaveClick = async() => {
         if (flag === 1) {
             navigate(-1);
             dispatch(setCurrentSessionRx(null));
         } else if (flag === 3) {
             navigate(-1);
         } else {
-            dispatch(getDefaultPrintsettings({ default: true }));
-            if(customModules?.length > 0)
-            dispatch(addModule({ userId, modules: customModules?.map((cm) => ({ ...cm, printConfig: {format: "inline", isEnabled: true} }))}));
+            await dispatch(getDefaultPrintsettings({ default: true }));
+            if(customModules?.length > 0) {
+                const rxPrescription = {
+                    ...defaultPrintSettings?.prescription,
+                    case_option: [
+                      ...(defaultPrintSettings?.prescription?.case_option || []),
+                      ...customModules?.map((module) => ({
+                        id: module.module_id,
+                        title: module.name,
+                        format: "inline",
+                        enable: "Y",
+                        custom_status: "Y",
+                        is_custom_module: true,
+                      })),
+                    ],
+                  };
+          
+                  const sendData = {
+                    ...defaultPrintSettings,
+                    prescription: JSON.stringify(rxPrescription),
+                    header_footer: JSON.stringify(defaultPrintSettings?.header_footer),
+                    page_format: JSON.stringify(defaultPrintSettings?.page_format),
+                  };
+          
+                  dispatch(savePrintsettings(sendData));
+            }
             showHideBackModal();
             dispatch(setCurrentSessionRx(null));
         }
