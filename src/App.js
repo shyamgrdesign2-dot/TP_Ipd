@@ -35,6 +35,7 @@ import ErrorFallback from "./common/ErrorFallback";
 import TalkativeWidget from "./components/TalkativeWidget";
 import SmartRxDigitise from "./pages/SmartRxDigitise";
 import ApolloConsultations from "./pages/apolloConsultations/ApolloConsultations";
+import AuthContainer from "./pages/auth/auth";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -53,6 +54,8 @@ function App() {
   );
 
   const navigate = useNavigate();
+
+  const isLoginPage = location.pathname === "/login"; // Check if the current path is "/login"
 
   useEffect(() => {
     // Load features asynchronously when the app renders
@@ -113,6 +116,14 @@ function App() {
           />
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
+              {/* {!isLoginPage && (
+                <>
+                  <DemoExpirationBanner />
+                  <PlanExpirationBanner />
+                  <ExpiredPlanCard />
+                  <DoctorModal />
+                </>
+              )} */}
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route path="patient_details" element={<PatientDetails />} />
@@ -145,6 +156,9 @@ function App() {
                 />
                 <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
                 <Route path="apollo-consultations" element={<ApolloConsultations />} />
+
+                {/* Auth Route */}
+                <Route path="/login" element={<AuthContainer />} />
               </Routes>
             </PersistGate>
           </Provider>

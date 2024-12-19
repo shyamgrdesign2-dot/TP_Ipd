@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Select, Button, Checkbox, Popover, Drawer, Dropdown } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
-import { isChrome, isSafari } from "react-device-detect";
+import { isChrome, isSafari, isBrowser } from "react-device-detect";
 import axios from 'axios';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button as ButtonOPD } from "antd";
@@ -506,6 +506,44 @@ function Header({ locationPath }) {
   const handleShowQRCode = () => {
     setQRCodeVisible(true);
   }
+
+  const iframeRef = useRef(null);
+
+  const openUrlSilently = () => {
+    // Create an invisible iframe to load the URL
+    const iframe = document.createElement("iframe");
+    iframe.src = config.pedia_logout_url;
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "none";
+    iframe.style.visibility = "hidden";
+    document.body.appendChild(iframe);
+
+    iframeRef.current = iframe;
+
+    // Remove the iframe after 3 seconds
+    setTimeout(() => {
+      if (iframeRef.current) {
+        document.body.removeChild(iframeRef.current);
+        iframeRef.current = null;
+      }
+    }, 3000);
+  };
+
+  const handleLogout = () => {
+    // Clear local storage
+    localStorage.clear();
+
+    // Clear session storage (if used)
+    sessionStorage.clear();
+
+    // openAndCloseTab();
+
+    openUrlSilently();
+
+    // Redirect to the login page
+    navigate("/login");
+  };
   
   const handleClick = () => {
     dispatch(openModal());
@@ -514,7 +552,7 @@ function Header({ locationPath }) {
   const getMenuItems = () => {
     const commonItems = [
       {
-        label:
+        label: (
           <>
             <div className="me-3">
               {profile?.um_image ? (
@@ -526,52 +564,67 @@ function Header({ locationPath }) {
                 />
               ) : planDetails?.currentPlanStatus === "PAID" ? (
                 <PremiumUser />
-              ) :
-                <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
-              }
+              ) : (
+                <div className="rounded-pill patientProfile patientProfile52 border">
+                  {makeDefaultLogo(profile?.um_name)}
+                </div>
+              )}
             </div>
             <div>
-              <div className="text-black titleprint">{(profile?.um_name)}</div>
-              <div className="title-common">{(profile?.um_contact)}</div>
+              <div className="text-black titleprint">{profile?.um_name}</div>
+              <div className="title-common">{profile?.um_contact}</div>
             </div>
           </>
-        ,
-        key: '0',
-      },
-      { 
-        type: 'divider',
+        ),
+        key: "0",
       },
       {
-        label: 
+        type: "divider",
+      },
+      {
+        label: (
           <a onClick={() => setUpWebsiteUrl(1)}>
-            <div className="title-common me-5 d-flex align-items-center"><i className="icon-profile me-3"></i>My Profile</div>
+            <div className="title-common me-5 d-flex align-items-center">
+              <i className="icon-profile me-3"></i>My Profile
+            </div>
             <i className="icon-right iconrotate180"></i>
-          </a>,
-        key: '2',
+          </a>
+        ),
+        key: "2",
       },
       {
-        label:
+        label: (
           <a onClick={() => setUpWebsiteUrl(2)}>
-            <div className="title-common me-5 d-flex align-items-center"><i className="icon-group me-3"></i>{`${profile?.website_publish && profile?.publish_url ? 'Visit' : 'Setup'} My Website`}</div>
+            <div className="title-common me-5 d-flex align-items-center">
+              <i className="icon-group me-3"></i>
+              {`${profile?.website_publish && profile?.publish_url ? "Visit" : "Setup"} My Website`}
+            </div>
             <i className="icon-right iconrotate180"></i>
-          </a>,
-        key: '3',
+          </a>
+        ),
+        key: "3",
       },
       {
-        label:
+        label: (
           <a onClick={myAvailability}>
-            <div className="title-common me-5 d-flex align-items-center"><i className="icon-calendar me-3"></i>My Availability</div>
+            <div className="title-common me-5 d-flex align-items-center">
+              <i className="icon-calendar me-3"></i>My Availability
+            </div>
             <i className="icon-right iconrotate180"></i>
-          </a>,
-        key: '4',
+          </a>
+        ),
+        key: "4",
       },
       {
-        label:
+        label: (
           <a onClick={accountSettings}>
-            <div className="title-common me-5 d-flex align-items-center"><i className="icon-setting me-3"></i>Account Setting</div>
+            <div className="title-common me-5 d-flex align-items-center">
+              <i className="icon-setting me-3"></i>Account Setting
+            </div>
             <i className="icon-right iconrotate180"></i>
-          </a>,
-        key: '5',
+          </a>
+        ),
+        key: "5",
       },
       // {
       //   label:
@@ -591,7 +644,7 @@ function Header({ locationPath }) {
       // },
 
 
-      // CSS Also comment
+            // CSS Also comment
       // {
       //   type: 'divider',
       // },
@@ -612,14 +665,37 @@ function Header({ locationPath }) {
             <i className="icon-right iconrotate180"></i>
           </a>
         ),
-        key: '6',
+        key: "6",
       },
     ];
   
-    // Combine common items with opd based on isOpdPlansAccessableFromGB
+  // Log Out Section, If isBrowser is false, then don't include logoutItem
+  const logoutItem = isBrowser
+    ? [
+        {
+          type: "divider",
+        },
+        {
+          label: (
+            <>
+              <a onClick={handleLogout}>
+                <div className="title-common me-5 d-flex align-items-center">
+                  <i className="icon-exit me-3 color-red"></i>
+                  <span className="color-red">Log Out</span>
+                </div>
+              </a>
+            </>
+          ),
+          key: "8",
+        },
+      ]
+    : [];
+
+  
+    // Combine commonItems, extraItems (if applicable), and logoutItem (always at the end)
     const items = isOpdPlansAccessableFromGB
-      ? [...commonItems, ...extraItems]
-      : commonItems;
+      ? [...commonItems, ...extraItems, ...logoutItem]
+      : [...commonItems, ...logoutItem];
   
     // If not admin, filter out account setting item, else return all items
     return !tokenData?.admin ? items.filter((item) => item.key !== "5") : items;
