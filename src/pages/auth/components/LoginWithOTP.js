@@ -3,15 +3,23 @@ import { useNavigate } from "react-router-dom";
 import { validateUser, verifyAccessToken } from "../authService";
 import "../auth.scss"; // Assuming the provided styles are in this CSS file
 import { isMobile } from "react-device-detect";
+import { Spin } from "antd";
 
 const LoginWithOTP = ({ reason, handleView, number }) => {
   const navigate = useNavigate();
-  const [mobileNumber, setMobileNumber] = useState(number);
+  const [mobileNumber, setMobileNumber] = useState(number || "");
   const [isValidUser, setIsValidUser] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState("");
   const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState(false); // Loader state
+
+  useEffect(() => {
+    if (number) {
+      setMobileNumber(number);
+    }
+  }, [number]);
 
   // Timer and resend state
   const [countdown, setCountdown] = useState(0);
@@ -28,7 +36,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
         captchaRenderId: "captch-id",
         exposeMethods: true,
         success: (data) => {
-            void 0;
+          void 0;
         },
         failure: (error) => {
           console.error("OTP Verification Failed:", error);
@@ -72,14 +80,17 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
     }
 
     // Check for Captcha Verification
-    if (!isOtpSent && !(window.isCaptchaVerified())) {
-      setMessage("Captcha verification is required. Please check the box to proceed.");
+    if (!isOtpSent && !window.isCaptchaVerified()) {
+      setMessage(
+        "Captcha verification is required. Please check the box to proceed."
+      );
       return;
     }
 
     try {
       setIsButtonDisabled(true); // Disable the button immediately
       setMessage("");
+      setLoading(true); // Show loader
 
       if (isValidUser) {
         sendOtp();
@@ -98,7 +109,9 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
           break;
 
         case "Doctor is inactive":
-          setMessage("Your account has been locked, please contact admin.");
+          setMessage(
+            "Your account has been locked by Admin. Please contact support@tatvacare.in/9974062363"
+          );
           setIsButtonDisabled(false);
           break;
 
@@ -115,6 +128,8 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       console.error("Error during user validation:", error);
       setMessage("Failed to validate user. Please try again.");
       setIsButtonDisabled(false);
+    } finally {
+      setLoading(false); // Hide loader
     }
   };
 
@@ -126,11 +141,13 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
         "OTP service is currently unavailable. Please try again later."
       );
       setIsButtonDisabled(false);
+      setLoading(false); // Hide loader
       return;
     }
 
     if (timer) clearInterval(timer); // Clear any existing timers
 
+    setLoading(true); // Show loader
     window.sendOtp(
       `91${mobileNumber}`,
       (data) => {
@@ -139,11 +156,13 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
 
         // Start the countdown timer
         startTimer();
+        setLoading(false); // Hide loader
       },
       (error) => {
         console.error("Error sending OTP:", error);
         setMessage("Failed to send OTP. Please try again.");
         setIsButtonDisabled(false);
+        setLoading(false); // Hide loader
       }
     );
   };
@@ -169,6 +188,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       return;
     }
 
+    setLoading(true); // Show loader
     if (window.verifyOtp) {
       window.verifyOtp(
         otp,
@@ -178,6 +198,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
           // Check if the message is "Invalid OTP"
           if (message === "Invalid OTP") {
             setMessage("Invalid OTP. Please try again.");
+            setLoading(false); // Hide loader
             return;
           }
 
@@ -205,16 +226,18 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
                 break;
 
               case "Doctor is inactive":
-                setMessage("Your account has been locked, please contact admin.");
+                setMessage(
+                  "Your account has been locked by Admin. Please contact support@tatvacare.in / 9974062363"
+                );
                 break;
 
               default:
                 if (reason === "forgotPassword") {
-                    handleSwitch({
-                        view: "setPassword",
-                        doctor_unique_id,
-                        mobileNumber,
-                      });
+                  handleSwitch({
+                    view: "setPassword",
+                    doctor_unique_id,
+                    mobileNumber,
+                  });
                 } else if (ssoUrl) {
                   // Redirect to SSO URL if applicable // append the url with device_type=desktop
                   // Append device type to the SSO URL
@@ -230,15 +253,19 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
             }
           } catch (error) {
             console.error("Error during OTP verification:", error);
+          } finally {
+            setLoading(false); // Hide loader
           }
         },
         (error) => {
           console.error("Error verifying OTP:", error);
           setMessage("Failed to verify OTP. Please try again.");
+          setLoading(false); // Hide loader
         }
       );
     } else {
       console.error("verifyOtp method not found!");
+      setLoading(false); // Hide loader
     }
   };
 
@@ -256,29 +283,52 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
 
   return (
     <div className="login-container background-image">
+      {loading && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgb(194 194 194 / 70%)",
+            // backdropFilter: "blur(8px)", // Blur effect
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <Spin size="large" />
+        </div>
+      )} 
       <div className="login-card">
-
-      <img
+        <img
           src="https://diginextloginprod.z10.web.core.windows.net/phone_number_login_ui/images/main-logo.png"
           alt="Company Logo"
           style={{ width: "100%", marginBottom: "1rem" }}
         ></img>
-        <h1>Login with OTP</h1>
+        <h1>
+          {reason === "forgotPassword" ? "Reset Password" : "Login with OTP"}
+        </h1>
 
         <div className="color-red">{message}</div>
         <form>
-          <label htmlFor="mobile">Mobile Number</label>
+          <label htmlFor="mobileNumber">Mobile Number *</label>
           <input
             type="text"
             id="mobile"
             placeholder="Enter your mobile number"
-            value={mobileNumber}
+            value={mobileNumber || ""}
             onChange={(e) => setMobileNumber(e.target.value)}
+            className="common-width"
           />
           <div id="captch-id"></div>
           <button
             type="button"
-            className={isButtonDisabled ? "disable" : "otp-button"}
+            className={`otp-button ${
+              isButtonDisabled ? "disable" : ""
+            } common-width`}
             onClick={handleSendOtp}
             disabled={isButtonDisabled}
           >
@@ -296,10 +346,12 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
                 placeholder="Enter OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
+                className="common-width"
               />
+              <br />
               <button
                 type="button"
-                className="login-button"
+                className="login-button common-width"
                 onClick={handleVerifyOtp}
               >
                 Verify OTP
@@ -307,19 +359,27 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
             </>
           )}
         </form>
+        {reason === "forgotPassword" ? (
+          <br />
+        ) : (
+          <>
+            <div className="separator">
+              <span>OR</span>
+            </div>
 
-        <div className="separator">
-          <span>OR</span>
-        </div>
+            <button
+              type="button"
+              className="otp-button common-width"
+              onClick={() => {
+                window.location.href = `/login?view=loginWithPassword&number=${mobileNumber}`;
+              }}
+            >
+              Login with Password
+            </button>
 
-        <button
-          className="otp-button"
-          onClick={() => {
-            window.location.href = "/login?view=loginWithPassword";
-          }}
-        >
-          Login with Password
-        </button>
+            <br />
+          </>
+        )}
       </div>
     </div>
   );

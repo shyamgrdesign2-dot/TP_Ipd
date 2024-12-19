@@ -509,17 +509,13 @@ function Header({ locationPath }) {
 
   const openAndCloseTab = () => {
     // Open the URL in a new tab
-    const newTab = window.open(
-      "https://doctor-uat.tatvacare.in/#logout_user=1",
-      "_blank",
-      "noopener,noreferrer,width=1,height=1,left=-1000,top=-1000"
-    );
+    const newTab = window.open("https://doctor-uat.tatvacare.in/#logout_user=1", "_blank");
 
     // Close the tab after 3 seconds
     if (newTab) {
       setTimeout(() => {
         newTab.close();
-      }, 3000);
+      }, 2500);
     }
   };
 
