@@ -4,38 +4,64 @@ import { setPassword, loginWithPassword } from "../authService"; // Import the n
 import { useLocation } from "react-router-dom";
 import "../auth.scss";
 import { isMobile } from "react-device-detect";
+import { Spin } from "antd";
 
-const SetPassword = ({ mobileNumber, data }) => {
+const SetPassword = ({ number, data }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [loading, setLoading] = useState(false); // Loader state
   const navigate = useNavigate();
   const { state } = useLocation();
+
+  const passwordCriteria = [
+    {
+      id: "lengthCheck",
+      text: "At least 8 characters long.",
+      test: (pwd) => pwd.length >= 8,
+    },
+    {
+      id: "specialCharCheck",
+      text: "Contains at least one special character.",
+      test: (pwd) => /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
+    },
+    {
+      id: "uppercaseCheck",
+      text: "Contains at least one uppercase letter.",
+      test: (pwd) => /[A-Z]/.test(pwd),
+    },
+    {
+      id: "lowercaseCheck",
+      text: "Contains at least one lowercase letter.",
+      test: (pwd) => /[a-z]/.test(pwd),
+    },
+  ];
 
   const handleSetPassword = async (e) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    setLoading(true); // Show loader
 
     // Validate passwords match
     if (newPassword !== confirmPassword) {
       setMessage("Passwords do not match.");
+      setLoading(false); // Hide loader
       return;
     }
 
-    // Validate password strength
-    const passwordValidation = validatePassword(newPassword);
-    if (!passwordValidation.isValid) {
-      setMessage(
-        "Password must meet the following criteria:\n" +
-        `${!passwordValidation.lengthCheck ? "- At least 8 characters long.\n" : ""}` +
-        `${!passwordValidation.specialCharCheck ? "- Contains at least one special character.\n" : ""}` +
-        `${!passwordValidation.uppercaseCheck ? "- Contains at least one uppercase letter.\n" : ""}` +
-        `${!passwordValidation.lowercaseCheck ? "- Contains at least one lowercase letter.\n" : ""}`
-      );
+    // Validate password
+    const failedCriteria = passwordCriteria.filter(
+      (criterion) => !criterion.test(newPassword)
+    );
+
+    if (failedCriteria.length > 0) {
+      setMessage("Password must meet the following criteria:");
+      setError(failedCriteria.map((criterion) => criterion.text));
+      setLoading(false); // Hide loader
       return;
     }
 
@@ -46,7 +72,7 @@ const SetPassword = ({ mobileNumber, data }) => {
 
       // Call loginWithPassword API after password is successfully set
       const loginResponse = await loginWithPassword(
-        mobileNumber || data?.mobileNumber,
+        number || data?.mobileNumber,
         newPassword
       );
       const { ssoUrl, message } = loginResponse;
@@ -66,6 +92,8 @@ const SetPassword = ({ mobileNumber, data }) => {
       }
     } catch (error) {
       setMessage("Failed to set password. Please try again.");
+    } finally {
+      setLoading(false); // Hide loader
     }
   };
 
@@ -77,7 +105,8 @@ const SetPassword = ({ mobileNumber, data }) => {
     const lowercaseCheck = /[a-z]/.test(password);
 
     return {
-      isValid: lengthCheck && specialCharCheck && uppercaseCheck && lowercaseCheck,
+      isValid:
+        lengthCheck && specialCharCheck && uppercaseCheck && lowercaseCheck,
       lengthCheck,
       specialCharCheck,
       uppercaseCheck,
@@ -86,61 +115,95 @@ const SetPassword = ({ mobileNumber, data }) => {
   };
 
   return (
-    <div className="login-container background-image">
-      <div className="login-card">
-        <img
-          src="https://diginextloginprod.z10.web.core.windows.net/phone_number_login_ui/images/main-logo.png"
-          alt="Company Logo"
-          style={{ width: "100%", marginBottom: "1rem" }}
-        ></img>
-        <h1>Set Password</h1>
-        <p>Please provide your new password details.</p>
-        <div className="color-red" style={{fontSize:"14px"}}>{message}</div>
-        <form onSubmit={handleSetPassword}>
-          <label htmlFor="newPassword">New Password *</label>
-          <input
-            type={showPassword ? "text" : "password"}
-            id="newPassword"
-            placeholder="New Password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            required
-          />
-
-          <label htmlFor="confirmPassword">Confirm Password *</label>
-          <input
-            type={showPassword ? "text" : "password"}
-            id="confirmPassword"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-
-          <div className="show-password">
-            <input
-              type="checkbox"
-              id="showPassword"
-              checked={showPassword}
-              // style={{ marginTop: "7px" }}
-              onChange={() => setShowPassword(!showPassword)}
-            />
-            <label htmlFor="showPassword">Show Password</label>
+    <>
+      {loading && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(255, 255, 255, 0.7)", // Semi-transparent background
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <Spin size="large" />
+        </div>
+      )}
+      <div className="login-container background-image">
+        <div className="login-card">
+          <img
+            src="https://diginextloginprod.z10.web.core.windows.net/phone_number_login_ui/images/main-logo.png"
+            alt="Company Logo"
+            style={{ width: "100%", marginBottom: "1rem" }}
+          ></img>
+          <h1>Set Password</h1>
+          <p>Please provide your new password details.</p>
+          <div className="color-red" style={{ fontSize: "14px" }}>
+            {message}
           </div>
+          {error && (
+            <div className="criteria-container">
+              <ul className="color-red">
+                {error.map((err, index) => (
+                  <li key={index}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <form onSubmit={handleSetPassword}>
+            <label htmlFor="newPassword">New Password *</label>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="newPassword"
+              placeholder="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="common-width"
+              required
+            />
 
-          {error && <div className="error-message color-red">{error}</div>}
-          {success && <div className="success-message color-red">{success}</div>}
+            <label htmlFor="confirmPassword">Confirm Password *</label>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="confirmPassword"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="common-width"
+              required
+            />
 
-          <button type="submit" className="login-button">
-            Set Password
-          </button>
-        </form>
+            <div className="show-password" style={{ marginLeft: "30px" }}>
+              <input
+                type="checkbox"
+                id="showPassword"
+                checked={showPassword}
+                onChange={() => setShowPassword(!showPassword)}
+              />
+              <label
+                htmlFor="showPassword"
+                style={{ marginTop: "2px", marginLeft: "2px" }}
+              >
+                Show Password
+              </label>
+            </div>
 
-        <div className="links">
-          <a href="/login">Back to Login</a>
+            <button type="submit" className="login-button common-width">
+              Set Password
+            </button>
+          </form>
+
+          <div className="links">
+            <a href="/login">Back to Login</a>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

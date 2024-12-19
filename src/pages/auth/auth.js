@@ -68,9 +68,9 @@ const AuthContainer = () => {
           />
         );
       case "loginWithPassword":
-        return <LoginWithPassword />;
+        return <LoginWithPassword number={mobileNumber}/>;
       case "setPassword":
-        return <SetPassword mobileNumber={mobileNumber} data={data} />;
+        return <SetPassword number={mobileNumber} data={data} />;
       default:
         return null;
     }
