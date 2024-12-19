@@ -15,6 +15,7 @@ const SetPassword = ({ number, data }) => {
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
+  const [erroMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false); // Loader state
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -45,12 +46,13 @@ const SetPassword = ({ number, data }) => {
   const handleSetPassword = async (e) => {
     e.preventDefault();
     setError(null);
+    setErrorMessage("");
     setMessage("");
     setLoading(true); // Show loader
 
     // Validate passwords match
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
+      setErrorMessage("Passwords do not match.");
       setLoading(false); // Hide loader
       return;
     }
@@ -61,7 +63,7 @@ const SetPassword = ({ number, data }) => {
     );
 
     if (failedCriteria.length > 0) {
-      setError("Password must meet the following criteria:");
+      setErrorMessage("Password must meet the following criteria:");
       setError(failedCriteria.map((criterion) => criterion.text));
       setLoading(false); // Hide loader
       return;
@@ -89,11 +91,11 @@ const SetPassword = ({ number, data }) => {
         // Redirect to the updated SSO URL
         window.location.href = updatedSsoUrl;
       } else {
-        setError("Unable to set password");
+        setErrorMessage("Unable to set password");
         window.location.href = `/login`;
       }
     } catch (error) {
-      setError("Failed to set password. Please try again.");
+      setErrorMessage("Failed to set password. Please try again.");
     } finally {
       setLoading(false); // Hide loader
     }
@@ -151,8 +153,16 @@ const SetPassword = ({ number, data }) => {
           </div> */}
 
           {/* Display success and error messages */}
-          {message && <div className= "color-blue" style={{fontSize: "14px" }}>{message}</div>}
-          {error && <div className="color-red" style={{fontSize: "14px" }}>{error}</div>}
+          {message && (
+            <div className="color-blue" style={{ fontSize: "14px" }}>
+              {message}
+            </div>
+          )}
+          {erroMessage && (
+            <div className="color-red" style={{ fontSize: "14px" }}>
+              {erroMessage}
+            </div>
+          )}
 
           {error && (
             <div className="criteria-container">
