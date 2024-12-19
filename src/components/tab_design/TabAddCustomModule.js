@@ -86,7 +86,11 @@ const TabAddCustomModule = () => {
               reset: false,
               left: customizedPadLeftList,
               right: [
-                ...customizedPadRightList,
+                ...customizedPadRightList?.filter((e) =>
+                  e.is_custom_module
+                    ? customModules.some((cm) => cm.module_id === e.tmdpm_id)
+                    : true
+                ),
                 {
                   tmdpm_id: newModule.module_id,
                   tmdpm_name: newModule.name,
