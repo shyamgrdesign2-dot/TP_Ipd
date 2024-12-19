@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "antd";
 import { isMobile, isChrome, isSafari } from 'react-device-detect';
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from "react-redux";
 import axios from 'axios';
@@ -22,6 +22,7 @@ import analyticsActiveIcon from '../assets/images/analytics-active.svg';
 import pharmacyActiveIcon from '../assets/images/pharmacy-active.svg';
 import billingsActiveIcon from '../assets/images/billings-active.svg';
 import followUpActiveIcon from '../assets/images/follow-up-active.svg';
+import { useFeatureIsOn } from '@growthbook/growthbook-react';
 
 function SidebarDoctor() {
 
@@ -31,6 +32,10 @@ function SidebarDoctor() {
     const [hoveredItem, setHoveredItem] = useState(null);
 
     const navigate = useNavigate();
+
+    const isApolloConsultationsEnabled = useFeatureIsOn('apollo-consultations');
+
+    const location = useLocation();
 
     useEffect(() => {
         if (profile) {
@@ -182,6 +187,31 @@ function SidebarDoctor() {
                         </NavLink>
                     )
                 })}
+
+                {isApolloConsultationsEnabled && 
+                    <NavLink to="/apollo-consultations" replace={true} className={({ isActive, isPending }) =>
+                        isPending ? "pending" : isActive ? "active" : ""
+                    }
+                    onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
+                    onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
+                    >
+                        <img src={getIcon("data_analytics", hoveredItem || location.pathname === '/apollo-consultations')} alt="apollo" />
+                        <div className='mt-1 px-2'>
+                            <div>Apollo analytics</div>
+                        </div>
+                    </NavLink>
+                }
+
+                <NavLink to="/bulk_messages" replace={true} className={({ isActive, isPending }) =>
+                    isPending ? "pending" : isActive ? "active" : ""
+                }>
+                    <i className='icon-calendarfill'></i>
+                    <div className='mt-1 px-2'>
+                        <div className='mt-1 px-2'>{isMobile ? 'Message' : <div className='text-truncate'>Messages</div>}</div>
+                        <img src={newGif} className='mx-auto d-block text-center mb-2 position-absolute sidebar-message' style={{right: -4, top: 6, zIndex: -1}} alt='New' />
+                    </div>
+                </NavLink>
+
 
                 <Button className="btn btn-delete-prescription mx-auto d-block p-0 mt-2" onClick={() => window.Moengage.track_event("announcement_button_clicked")} id='beamerButton'>
                     <i className="icon-announcement fs-3"></i> <br />

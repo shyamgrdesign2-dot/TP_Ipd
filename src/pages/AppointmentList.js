@@ -9,12 +9,15 @@ import Appointment from "../components/AppointmentData";
 import AddNewPatient from "./AddNewPatient";
 import EditNewPatient from "./EditNewPatient";
 import WalkInConsultation from "./WalkInConsultation";
+import MessagesData from "./MessagesData";
+
 import { useSelector, useDispatch } from "react-redux";
 import WalkInConsultationZydus from "./WalkInConsultationZydus";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { setUserId } from "../redux/doctorsSlice";
 import { getClinicName } from "../utils/utils";
+
 
 function AppointmentList() {
   const dispatch = useDispatch();
@@ -44,14 +47,14 @@ function AppointmentList() {
 
   return (
     <>
-      {(!isMobile || locationPath == "/") && <Header locationPath={locationPath} />}
+      {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && <Header locationPath={locationPath} />}
       <div className="d-flex">
-        {(!isMobile || locationPath == "/") && <SidebarDoctor />}
-        <div className={`w-100 bg-body ${isMobile && locationPath != '/' ? 'vh-100' : 'wrapper'}`}>
-          {(!isMobile || locationPath == "/") && (
+        {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && <SidebarDoctor />}
+        <div className={`w-100 bg-body ${isMobile && locationPath != '/' && locationPath != '/bulk_messages' ? 'vh-100' : 'wrapper'}`}>
+          {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && (
             <Welcome
               locationPath={locationPath}
-              backVisible={locationPath == "/" ? false : true}
+              backVisible={locationPath == "/" || locationPath == "/bulk_messages" ? false : true}
             />
           )}
           <Routes>
@@ -60,6 +63,7 @@ function AppointmentList() {
             <Route path="walk_in_consultation_zydus" element={<WalkInConsultationZydus />} />
             <Route path="add_patient" element={<AddNewPatient />} />
             <Route path="edit_patient" element={<EditNewPatient />} />
+            <Route path="bulk_messages" element={<MessagesData />} />
           </Routes>
         </div>
       </div>

@@ -170,3 +170,10 @@ body {
         }
     }
 }
+
+.custom-table-scroll .ant-table-body {
+    overflow-y: auto; /* Always show vertical scroll */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS devices */
+    scroll-behavior: smooth; /* Smooth scrolling for modern browsers */
+  }
+  

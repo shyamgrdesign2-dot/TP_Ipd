@@ -47,14 +47,18 @@ import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { customizedPad } from "../redux/doctorsSlice";
+import { savePrintsettings } from "../redux/doctorsSlice";
 
 function CustomModule({ module }) {
   const { customModules, searchModuleResults, loading } = useSelector(
     (state) => state.customModules
   );
-  const { userId, customizedPadRightList, customizedPadLeftList } = useSelector(
-    (state) => state.doctors
-  );
+  const {
+    userId,
+    customizedPadRightList,
+    customizedPadLeftList,
+    defaultPrintSettings,
+  } = useSelector((state) => state.doctors);
 
   const dispatch = useDispatch();
 
@@ -331,12 +335,33 @@ function CustomModule({ module }) {
               default: false,
               reset: false,
               left: customizedPadLeftList,
-              right: customizedPadRightList?.filter(
-                (e) => e.tmdpm_id !== moduleToDelete?.module_id
-              ),
+              right: customizedPadRightList
+                ?.filter((e) =>
+                  e.is_custom_module
+                    ? customModules.some((cm) => cm.module_id === e.tmdpm_id)
+                    : true
+                )
+                ?.filter((e) => e.tmdpm_id !== moduleToDelete?.module_id),
             },
           })
         );
+
+        const rxPrescription = {
+          ...defaultPrintSettings?.prescription,
+          case_option: defaultPrintSettings?.prescription?.case_option?.filter(
+            (co) => co.id !== moduleToDelete?.module_id
+          ),
+        };
+
+        const sendData = {
+          ...defaultPrintSettings,
+          prescription: JSON.stringify(rxPrescription),
+          header_footer: JSON.stringify(defaultPrintSettings?.header_footer),
+          page_format: JSON.stringify(defaultPrintSettings?.page_format),
+        };
+
+        dispatch(savePrintsettings(sendData));
+
         message.open({
           key: MESSAGE_KEY,
           type: "",
@@ -958,19 +983,65 @@ function CustomModule({ module }) {
               default: false,
               reset: false,
               left: customizedPadLeftList,
-              right: customizedPadRightList?.map((e) => {
-                if (e.tmdpm_id === module?.module_id) {
-                  return {
-                    ...e,
-                    tmdpm_name: newModuleName,
-                    tmdpm_short_name: newModuleName,
-                  };
-                }
-                return e;
-              }),
+              right: customizedPadRightList
+                ?.filter((e) =>
+                  e.is_custom_module
+                    ? customModules.some((cm) => cm.module_id === e.tmdpm_id)
+                    : true
+                )
+                ?.map((e) => {
+                  if (e.tmdpm_id === module?.module_id) {
+                    return {
+                      ...e,
+                      tmdpm_name: newModuleName,
+                      tmdpm_short_name: newModuleName,
+                    };
+                  }
+                  return e;
+                }),
             },
           })
         );
+
+        const rxPrescription = {
+          ...defaultPrintSettings?.prescription,
+          case_option: (() => {
+            const updatedCaseOptions =
+              defaultPrintSettings?.prescription?.case_option?.map((e) => {
+                if (e.id === module?.module_id) {
+                  return { ...e, title: newModuleName };
+                }
+                return e;
+              }) || [];
+
+            const moduleExists = updatedCaseOptions.some(
+              (e) => e.id === module?.module_id
+            );
+
+            if (!moduleExists) {
+              updatedCaseOptions.push({
+                id: module.module_id,
+                title: newModuleName,
+                format: "inline",
+                enable: "Y",
+                custom_status: "Y",
+                is_custom_module: true,
+              });
+            }
+
+            return updatedCaseOptions;
+          })(),
+        };
+
+        const sendData = {
+          ...defaultPrintSettings,
+          prescription: JSON.stringify(rxPrescription),
+          header_footer: JSON.stringify(defaultPrintSettings?.header_footer),
+          page_format: JSON.stringify(defaultPrintSettings?.page_format),
+        };
+
+        dispatch(savePrintsettings(sendData));
+
         setCanEditName(false);
         message.open({
           key: MESSAGE_KEY,

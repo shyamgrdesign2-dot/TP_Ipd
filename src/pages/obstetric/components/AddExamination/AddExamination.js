@@ -140,6 +140,7 @@ function AddExamination({
         ...examinationHistory,
         {
           ...data,
+          date: new Date(examinationData?.date).toISOString(),
           createdAt: new Date().toISOString(),
           createdBy: decodedToken?.result?.user_id,
           modifiedAt: new Date().toISOString(),
@@ -149,8 +150,10 @@ function AddExamination({
     }
     const payload = {
       ...obstetricDetails,
-      patientId: patient_data.patient_unique_id,
-      examinationHistory: newExaminationHistory,
+      currentPregnancy: {
+        ...obstetricDetails?.currentPregnancy,
+        examinationHistory: newExaminationHistory,
+      },
     };
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
@@ -167,8 +170,10 @@ function AddExamination({
     }
     const payload = {
       ...obstetricDetails,
-      patientId: patient_data.patient_unique_id,
-      examinationHistory: newExaminationHistory,
+      currentPregnancy: {
+        ...obstetricDetails?.currentPregnancy,
+        examinationHistory: newExaminationHistory,
+      },
     };
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());

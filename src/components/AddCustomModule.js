@@ -19,15 +19,20 @@ import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { customizedPad } from "../redux/doctorsSlice";
+import { savePrintsettings } from "../redux/doctorsSlice";
 
 const AddCustomModule = () => {
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
   const dispatch = useDispatch();
   const { customModules } = useSelector((state) => state.customModules);
-  const { userId, customizedPadRightList, customizedPadLeftList } = useSelector(
-    (state) => state.doctors
-  );
+  const {
+    userId,
+    customizedPadRightList,
+    customizedPadLeftList,
+    defaultPrintSettings,
+  } = useSelector((state) => state.doctors);
+
   const { setCustomModuleContents, tcmId } = useContext(CashManagerContext);
 
   useEffect(() => {
@@ -86,7 +91,11 @@ const AddCustomModule = () => {
               reset: false,
               left: customizedPadLeftList,
               right: [
-                ...customizedPadRightList,
+                ...customizedPadRightList?.filter((e) =>
+                  e.is_custom_module
+                    ? customModules.some((cm) => cm.module_id === e.tmdpm_id)
+                    : true
+                ),
                 {
                   tmdpm_id: newModule.module_id,
                   tmdpm_name: newModule.name,
@@ -99,6 +108,33 @@ const AddCustomModule = () => {
             },
           })
         );
+
+        const rxNewModule = {
+          id: newModule.module_id,
+          title: newModule.name,
+          format: "inline",
+          enable: "Y",
+          custom_status: "Y",
+          is_custom_module: true,
+        };
+
+        const rxPrescription = {
+          ...defaultPrintSettings?.prescription,
+          case_option: [
+            ...(defaultPrintSettings?.prescription?.case_option || []),
+            rxNewModule,
+          ],
+        };
+
+        const sendData = {
+          ...defaultPrintSettings,
+          prescription: JSON.stringify(rxPrescription),
+          header_footer: JSON.stringify(defaultPrintSettings?.header_footer),
+          page_format: JSON.stringify(defaultPrintSettings?.page_format),
+        };
+
+        dispatch(savePrintsettings(sendData));
+
         setShowInput(false);
         message.open({
           key: MESSAGE_KEY,

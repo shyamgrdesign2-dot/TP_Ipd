@@ -12,6 +12,13 @@ function ObsHistoryInlineView({
   options,
   obsHistoryData,
 }) {
+  const pregnancyHistory = obsHistoryData?.pregnancyHistory || [];
+  obsHistoryData = obsHistoryData?.currentPregnancy || {};
+  const ancPrintEnabled = obsHistoryData?.ancHistory?.filter((item) => item?.enablePrint);
+  const immunisationPrintEnabled = obsHistoryData?.immunisationHistory?.filter(
+    (item) => item?.enablePrint
+  );
+
   return (
     <View style={{ marginTop: PX_TO_PT * 15 }}>
       <Text
@@ -935,7 +942,7 @@ function ObsHistoryInlineView({
       {options?.includes("history") && (
         <View>
           <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
-            {obsHistoryData?.pregnancyHistory.length > 0 && (
+            {pregnancyHistory.length > 0 && (
               <>
                 <Text
                   style={{
@@ -948,7 +955,7 @@ function ObsHistoryInlineView({
                   Pregnancy history
                 </Text>
 
-                {obsHistoryData?.pregnancyHistory.map((item, i) => (
+                {pregnancyHistory.map((item, i) => (
                   <View key={i}>
                     {("gravidaNumber" in item ||
                       "outcome" in item ||
@@ -2291,6 +2298,320 @@ function ObsHistoryInlineView({
                               )
                             </Text>
                           </>
+                        )}
+                      </>
+                    )}
+                  </View>
+                ))}
+              </>
+            )}
+          </Text>
+        </View>
+      )}
+
+      {options?.includes("ancHistory") && ancPrintEnabled?.length > 0 && (
+        <View>
+          <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+            {obsHistoryData?.ancHistory?.length > 0 && (
+              <>
+                <Text
+                  style={{
+                    color: "#171725",
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                  }}
+                >
+                  ANC Scheduler:&nbsp;
+                </Text>
+                {obsHistoryData?.ancHistory.map((item, i) => (
+                  <View key={i}>
+                    {item?.enablePrint && (
+                      <>
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {item?.master?.name}
+                        </Text>
+
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                          }}
+                        >
+                          <Text>&nbsp;(</Text>
+                        </Text>
+
+                        {item?.dueDate && (
+                          <>
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 400,
+                              }}
+                            >
+                              Due date on{" "}
+                              {moment(item?.dueDate).format("DD/MM/YYYY")}
+                            </Text>
+                            {(item?.status || item?.notes) && (
+                              <Text
+                                style={{
+                                  color: "#171725",
+                                  fontFamily:
+                                    printSettings?.page_format?.font_family,
+                                  fontSize:
+                                    PX_TO_PT *
+                                    printSettings?.page_format?.font_size,
+                                  fontWeight: 400,
+                                }}
+                              >
+                                ,&nbsp;
+                              </Text>
+                            )}
+                          </>
+                        )}
+
+                        {item?.status && (
+                          <>
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 400,
+                              }}
+                            >
+                              {item?.status}
+                            </Text>
+                            {item?.notes && (
+                              <Text
+                                style={{
+                                  color: "#171725",
+                                  fontFamily:
+                                    printSettings?.page_format?.font_family,
+                                  fontSize:
+                                    PX_TO_PT *
+                                    printSettings?.page_format?.font_size,
+                                  fontWeight: 400,
+                                }}
+                              >
+                                ,&nbsp;
+                              </Text>
+                            )}
+                          </>
+                        )}
+
+                        {item?.notes && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                            }}
+                          >
+                            {item?.notes}
+                          </Text>
+                        )}
+
+                        {(item?.master ||
+                          item?.dueDate ||
+                          item?.status ||
+                          item?.notes) && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            <Text>{`)`}</Text>
+                          </Text>
+                        )}
+
+                        {i !== ancPrintEnabled?.length - 1 && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            ,&nbsp;
+                          </Text>
+                        )}
+                      </>
+                    )}
+                  </View>
+                ))}
+              </>
+            )}
+          </Text>
+        </View>
+      )}
+
+      {options?.includes("immunisationHistory") && immunisationPrintEnabled?.length > 0 && (
+        <View>
+          <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+            {obsHistoryData?.immunisationHistory.length > 0 && (
+              <>
+                <Text
+                  style={{
+                    color: "#171725",
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                  }}
+                >
+                  Immunisation Vaccine:&nbsp;
+                </Text>
+                {obsHistoryData?.immunisationHistory.map((item, i) => (
+                  <View key={i}>
+                    {item?.enablePrint && (
+                      <>
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {item?.master?.name}
+                        </Text>
+
+                        {(item?.givenDate || item?.notes) && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            <Text>&nbsp;(</Text>
+                          </Text>
+                        )}
+
+                        {item?.givenDate && (
+                          <>
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 400,
+                              }}
+                            >
+                              {item?.status === "Finished" && item?.givenDate
+                                ? `Given on ${moment(item?.givenDate).format(
+                                    "DD/MM/YYYY"
+                                  )}`
+                                : item?.status === "Finished"
+                                ? "Given"
+                                : "Due"}
+                            </Text>
+                            {item?.notes && (
+                              <Text
+                                style={{
+                                  color: "#171725",
+                                  fontFamily:
+                                    printSettings?.page_format?.font_family,
+                                  fontSize:
+                                    PX_TO_PT *
+                                    printSettings?.page_format?.font_size,
+                                  fontWeight: 400,
+                                }}
+                              >
+                                ,&nbsp;
+                              </Text>
+                            )}
+                          </>
+                        )}
+
+                        {item?.notes && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                            }}
+                          >
+                            {item?.notes}
+                          </Text>
+                        )}
+
+                        {(item?.givenDate || item?.notes) && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            <Text>{`)`}</Text>
+                          </Text>
+                        )}
+
+                        {i !==
+                          immunisationPrintEnabled?.length - 1 && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            ,&nbsp;
+                          </Text>
                         )}
                       </>
                     )}

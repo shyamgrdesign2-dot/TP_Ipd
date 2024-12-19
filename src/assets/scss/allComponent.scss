@@ -753,6 +753,16 @@
             }
         }
     }
+    &.obstetric-collapse {
+        &.ant-collapse {
+            .ant-collapse-item {
+                border-bottom: none !important;
+            }
+            .ant-collapse-content {
+                border-bottom: none !important;
+            }
+        }
+    }
 }
 
 // Tablet design
@@ -1191,7 +1201,7 @@ body {
 }
 
 .ant-picker {
-    &:hover {
+    &:hover, &:focus-within {
         border-color: $theme !important;
     }
 }
@@ -2469,9 +2479,30 @@ body {
     line-height: 21.2px;
 }
 
+.show-more-link {
+    font-size: 14px;
+    color: #4B4AD5 !important; /* Ensures the text color applies */
+    font-weight: 500;
+    margin: 0;
+    text-decoration: underline !important;
+  }
+  
+  .show-more-link > span {
+    color: #4B4AD5 !important; /* Targets the text specifically inside the button */
+  }
+  
+  .show-more-link .anticon {
+    color: #4B4AD5 !important; /* Applies the color to the Ant Design icon */
+  }
+  
+  .show-more-link:hover {
+    text-decoration: underline !important;
+  }
+
 .color-red{
     color: rgb(251, 113, 113) !important;
 }
+
 .color-blue{
     color: rgb(88, 88, 212) !important;
 }
