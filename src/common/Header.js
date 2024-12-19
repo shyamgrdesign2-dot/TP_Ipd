@@ -507,24 +507,12 @@ function Header({ locationPath }) {
     setQRCodeVisible(true);
   }
 
-  // const openAndCloseTab = () => {
-  //   // Open the URL in a new tab
-  //   const newTab = window.open("https://doctor-uat.tatvacare.in/#logout_user=1", "_blank");
-
-  //   // Close the tab after 3 seconds
-  //   if (newTab) {
-  //     setTimeout(() => {
-  //       newTab.close();
-  //     }, 2500);
-  //   }
-  // };
-
   const iframeRef = useRef(null);
 
   const openUrlSilently = () => {
     // Create an invisible iframe to load the URL
     const iframe = document.createElement("iframe");
-    iframe.src = "https://doctor-uat.tatvacare.in/#logout_user=1";
+    iframe.src = config.pedia_logout_url;
     iframe.style.width = "0";
     iframe.style.height = "0";
     iframe.style.border = "none";

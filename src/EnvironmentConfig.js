@@ -44,6 +44,7 @@ const dev = {
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
+  pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
 };
 
 const qa = {
@@ -92,6 +93,7 @@ const qa = {
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
+  pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
 };
 
 const uat = {
@@ -143,6 +145,7 @@ const uat = {
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
+  pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
 };
 
 const prod = {
@@ -189,6 +192,7 @@ const prod = {
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.com",
   upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-prod.tatvacare.in",
+  pedia_logout_url: "https://health.tatvacare.in/#logout_user=1",
 };
 
 const getEnv = () => {
