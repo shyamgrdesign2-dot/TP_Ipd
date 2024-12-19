@@ -256,3 +256,134 @@ export const OutcomeOptions = {
   abortion: "Abortion",
   ectopic: "Ectopic",
 };
+
+export const ImmunisationColumns = [
+  {
+    title: "VACCINE NAME",
+    key: "vaccineName",
+    width: "22%",
+  },
+  {
+    title: "STATUS",
+    key: "status",
+    width: "16%",
+  },
+  {
+    title: "GIVEN DATE",
+    key: "givenDate",
+    width: "16%",
+  },
+  {
+    title: "REMARKS",
+    key: "remarks",
+    width: "27%",
+  },
+  {
+    title: "PRINT IN Rx",
+    key: "enablePrint",
+    width: "10%",
+  },
+  {
+    title: "Action",
+    key: "action",
+    width: "9%",
+  },
+];
+
+export const AncSchedulerColumns = [
+  {
+    title: "TEST NAME",
+    key: "testName",
+    width: "20%",
+  },
+  {
+    title: "WEEK RANGE",
+    key: "weekRange",
+    width: "10%",
+  },
+  {
+    title: "DUE DATE",
+    key: "dueDate",
+    width: "15%",
+  },
+  {
+    title: "STATUS",
+    key: "status",
+    width: "16%",
+  },
+  {
+    title: "REMARKS",
+    key: "remarks",
+    width: "23%",
+  },
+  {
+    title: "PRINT IN Rx",
+    key: "enablePrint",
+    width: "10%",
+  },
+  {
+    title: "Action",
+    key: "action",
+    width: "7%",
+  },
+];
+
+export const AncPrintPreviewColumns = [
+  {
+    title: "TEST NAME",
+    key: "testName",
+    width: "22%",
+  },
+  {
+    title: "WEEK RANGE",
+    key: "weekRange",
+    width: "10%",
+  },
+  {
+    title: "DUE DATE",
+    key: "dueDate",
+    width: "11%",
+  },
+  {
+    title: "STATUS",
+    key: "status",
+    width: "13%",
+  },
+  {
+    title: "REMARKS",
+    key: "remarks",
+    width: "25%",
+  },
+  {
+    title: "SELECT TO PRINT",
+    key: "enablePrint",
+    width: "19%",
+  },
+];
+
+export const AncPrintedColumns = [
+  {
+    title: "Test Name",
+    dataIndex: "testName",
+    key: "age",
+    width: "30%",
+  },
+  {
+    title: "Due Date",
+    dataIndex: "dueDate",
+    key: "dueDate",
+    width: "20%",
+  },
+  {
+    title: "Status",
+    dataIndex: "status",
+    key: "status",
+    width: "20%",
+  },
+  {
+    title: "Remark",
+    dataIndex: "remarks",
+    key: "remarks",
+    width: "30%",
+  },
+];
