@@ -34,6 +34,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
 import TalkativeWidget from "./components/TalkativeWidget";
 import SmartRxDigitise from "./pages/SmartRxDigitise";
+import ApolloConsultations from "./pages/apolloConsultations/ApolloConsultations";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -143,6 +144,7 @@ function App() {
                   element={<DoctorWebsiteSetting />}
                 />
                 <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
+                <Route path="apollo-consultations" element={<ApolloConsultations />} />
               </Routes>
             </PersistGate>
           </Provider>

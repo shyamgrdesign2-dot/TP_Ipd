@@ -84,6 +84,7 @@ import { getDecodedToken } from "../utils/localStorage";
 import DDxList from "../components/medical_certificate/DDxList";
 import SurgicalBox from "../components/SurgicalBox";
 import AddCustomModule from "../components/AddCustomModule";
+import CustomModule from "../components/CustomModule";
 
 function Prescription() {
   const {
@@ -103,6 +104,9 @@ function Prescription() {
   const examinationHistory = obstetricDetails?.examinationHistory || [];
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
+  );
+  const { customModules } = useSelector(
+    (state) => state.customModules
   );
   const dispatch = useDispatch();
   const decodedToken = getDecodedToken();
@@ -416,7 +420,9 @@ function Prescription() {
         setAdditionalNote(caseManagerData.visit_advice);
       }
       if(caseManagerData?.moduleContents?.length){
-        setCustomModuleContents(caseManagerData?.moduleContents)
+        setCustomModuleContents(caseManagerData?.moduleContents?.filter(
+          (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
+        ))
       }
     }
   }, []);
@@ -1081,6 +1087,9 @@ const getGenerateDDx = async (field) => {
                   />
                 )}
                 {customizedPadRightList?.map((e, i) => {
+                  const customModule = customModules?.find(
+                    (m) => m.module_id === e.tmdpm_id
+                  )
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
                       <SymptomsBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
@@ -1110,14 +1119,15 @@ const getGenerateDDx = async (field) => {
                       {" "}
                       <InvestigationBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
                     </div>
-                  ) : (
+                  ) : 
                     e.tmdpm_id === 15 &&
-                    e.tmdpm_status === 0 && (
+                    e.tmdpm_status === 0 ? (
                       <div key={i} className="prescription-box-sm">
                         <TabFollowUpBox />
                       </div>
+                    ) : e.is_custom_module && e.tmdpm_status === 0 && customModule && (
+                      <CustomModule module={customModule} />
                     )
-                  );
                 })}
                 <AddCustomModule />
               </Content>

@@ -543,7 +543,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
     {
       dataIndex: "title",
       key: "title",
-      render: (text, record, i) => (
+      render: (text, record) => (
           <div className="d-flex align-items-center justify-content-between text-start">
             <div
               className="d-flex align-items-center cursor-pointer Preview-color-icon"
@@ -555,7 +555,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
               ></i>
               <span style={{ wordBreak: "break-word" }}>{record.module_name}</span>
             </div>
-            <Form.Item className="mb-0 form_addnewpatient ">
+            <Form.Item className="mb-0 form_addnewpatient">
               <Radio.Group
                 className={`d-flex gender-radio all-change-radio ${isMobile ? "segmented-radio-mobile" : ""
                   }`}
@@ -604,9 +604,9 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
           <Form.Item className="mb-0">
             <Radio.Group className={`d-flex gender-radio all-change-radio ${isMobile ? 'segmented-radio-mobile' : ''}`} onChange={onMainCaseOptionChange}
               value={
-                printSettings?.prescription?.case_option.every(e => e.format === 'inline') ? 'inline'
-                  : printSettings?.prescription?.case_option.every(e => e.format === 'listview') ? 'listview'
-                    : printSettings?.prescription?.case_option.every(e => e.format === 'table') ? 'table'
+                printSettings?.prescription?.case_option.every(e => e.format === 'inline') && customModulesRxData?.every(e => e.printConfig?.format === 'inline') ? 'inline'
+                  : printSettings?.prescription?.case_option.every(e => e.format === 'listview') && customModulesRxData?.every(e => e.printConfig?.format === 'listview') ? 'listview'
+                    : printSettings?.prescription?.case_option.every(e => e.format === 'table') && customModulesRxData?.every(e => e.printConfig?.format === 'table') ? 'table'
                       : null}>
               <Radio.Button className="w-100 text-center" value="inline">Inline</Radio.Button>
               <Radio.Button className="w-100 text-center" value="listview">List View</Radio.Button>
@@ -667,24 +667,21 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                                 ({ ...option, key: option.id })
               )}
               showHeader={false}
+              locale={{ emptyText: <div></div> }}
             />
           </SortableContext>
         </DndContext>
       )}
 
-      {caseManagerData?.moduleContents?.length > 0 && (
+      {customModulesRxData?.length > 0 && (
             <Table
-            className={`customize-table customize-table-format table-display-patient dragicon-position ${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}
-            pagination={false}
-            components={{
-              body: {
-                row: CustomRow,
-              },
-            }}
-            rowKey="id"
-            columns={customModulesTable}
-            dataSource={customModulesRxData}
-            showHeader={false}
+              className={`customize-table customize-table-format table-display-patient ${isMobile ? 'radio-width-static' : 'radio-width-static-web'}`}
+              pagination={false}
+              rowKey="id"
+              columns={customModulesTable}
+              dataSource={customModulesRxData}
+              showHeader={false}
+              locale={{ emptyText: <div></div> }}
           />
       )}
 
