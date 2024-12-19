@@ -195,7 +195,7 @@ function MessageCreateCampaign() {
             }
 
             setScheduleType(2)
-            setScheduleDateTime(moment(`${campaign_data?.campaign_date} ${campaign_data?.campaign_time}`, showDateTimeFormat).format(dateTimeFormat))
+            campaign_data?.draft === 0 && setScheduleDateTime(moment(`${campaign_data?.campaign_date} ${campaign_data?.campaign_time}`, showDateTimeFormat).format(dateTimeFormat))
         }
     }, [doctorList, allTemplateList, campaign_data]);
 
@@ -799,8 +799,8 @@ function MessageCreateCampaign() {
         var sendData = {
             campaign_id: template?.id,
             send_on: send_on,
-            campaign_date: moment(scheduleDateTime).format(dateFormat1),
-            campaign_time: moment(scheduleDateTime).format(timeFormat1),
+            campaign_date: scheduleDateTime ? moment(scheduleDateTime).format(dateFormat1) : moment().add(1, 'day').format(dateFormat1),
+            campaign_time: scheduleDateTime ? moment(scheduleDateTime).format(timeFormat1) : moment().add(1, 'day').format(timeFormat1),
             msg_rowData: sendTemplate(),
             draft: draft,
             sender_type: sender_type,
