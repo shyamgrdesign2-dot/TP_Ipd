@@ -7,7 +7,7 @@ import { Spin } from "antd";
 import tavaPracticeLogo from "../../../assets/images/website-images/tatvacare_logo_with_tag.png";
 
 const LoginWithPassword = ({ handleView, number }) => {
-  const [mobileNumber, setMobileNumber] = useState(number);
+  const [mobileNumber, setMobileNumber] = useState(number === "null" ? "" : number);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);

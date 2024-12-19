@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { validateUser, verifyAccessToken } from "../authService";
 import "../auth.scss"; // Assuming the provided styles are in this CSS file
@@ -7,7 +7,7 @@ import { Spin } from "antd";
 
 const LoginWithOTP = ({ reason, handleView, number }) => {
   const navigate = useNavigate();
-  const [mobileNumber, setMobileNumber] = useState(number || "");
+  const [mobileNumber, setMobileNumber] = useState(number === "null" ? "" : number);
   const [isValidUser, setIsValidUser] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [error, setError] = useState(null);
@@ -16,7 +16,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
   const [loading, setLoading] = useState(false); // Loader state
 
   useEffect(() => {
-    if (number) {
+    if (number !== "null" || number !== "" ) {
       setMobileNumber(number);
     }
   }, [number]);
