@@ -93,9 +93,15 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       setLoading(true); // Show loader
 
       if (isValidUser) {
-        sendOtp();
+        // Use `retryOtp` if OTP was already sent
+        if (isOtpSent) {
+          retryOtp();
+        } else {
+          sendOtp();
+        }
         return;
       }
+  
 
       // Step 1: Validate the user
       const response = await validateUser(mobileNumber);
@@ -180,6 +186,34 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       });
     }, 1000);
   };
+
+  // Retry OTP Method
+const retryOtp = () => {
+  if (!window.retryOtp) {
+    console.error("retryOtp method not found!");
+    setMessage("Retry service is unavailable. Please try again later.");
+    setIsButtonDisabled(false);
+    setLoading(false); // Hide loader
+    return;
+  }
+
+  setLoading(true); // Show loader
+
+  window.retryOtp(
+    "11",
+    (data) => {
+      setMessage("OTP has been resent. Please check your SMS.");
+      startTimer(); // Restart the countdown timer
+      setLoading(false); // Hide loader
+    },
+    (error) => {
+      console.error("Error retrying OTP:", error);
+      setMessage("Failed to resend OTP. Please try again.");
+      setIsButtonDisabled(false);
+      setLoading(false); // Hide loader
+    }
+  );
+};
 
   const handleVerifyOtp = () => {
     setMessage("");
