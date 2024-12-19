@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { validateUser, verifyAccessToken } from "../authService";
 import "../auth.scss"; // Assuming the provided styles are in this CSS file
@@ -74,7 +74,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
     if (isButtonDisabled) return; // Prevent multiple clicks
 
     // Mobile number validation (only 10 digits allowed)
-    if (!/^\d{10}$/.test(mobileNumber.trim())) {
+    if (!/^\d{10}$/.test(mobileNumber?.trim())) {
       setMessage("Please enter a valid 10-digit mobile number");
       return;
     }
