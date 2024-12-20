@@ -960,6 +960,10 @@ function CustomModule({ module }) {
       message.error("Module name cannot be empty.");
       return;
     }
+    if (customModules.some((cm) => cm.name === newModuleName.trim())) {
+      message.error("Module name already exists.");
+      return;
+    }
 
     try {
       const action = await dispatch(

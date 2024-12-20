@@ -40,6 +40,56 @@ const TabAddCustomModule = () => {
     }
   }, [tcmId]);
 
+  useEffect(() => {
+    syncPrintSettings();
+  }, [customModules]);
+
+  const syncPrintSettings = useCallback(() => {
+    const updatedCaseOptions = [
+      ...(defaultPrintSettings?.prescription?.case_option || []),
+    ];
+
+    let updateFlag = false;
+
+    customModules.forEach((module) => {
+      const { module_id: moduleId, name } = module;
+
+      const existsInCaseOptions =
+        defaultPrintSettings?.prescription?.case_option?.some(
+          (option) => option.is_custom_module && option.id === moduleId
+        );
+
+      if (!existsInCaseOptions) {
+        const newCaseOption = {
+          id: moduleId,
+          title: name,
+          format: "inline",
+          enable: "Y",
+          custom_status: "Y",
+          is_custom_module: true,
+        };
+        updatedCaseOptions.push(newCaseOption);
+        updateFlag = true;
+      }
+    });
+
+    if (updateFlag) {
+      const rxPrescription = {
+        ...defaultPrintSettings?.prescription,
+        case_option: updatedCaseOptions,
+      };
+
+      const sendData = {
+        ...defaultPrintSettings,
+        prescription: JSON.stringify(rxPrescription),
+        header_footer: JSON.stringify(defaultPrintSettings?.header_footer),
+        page_format: JSON.stringify(defaultPrintSettings?.page_format),
+      };
+
+      dispatch(savePrintsettings(sendData));
+    }
+  }, []);
+
   const getCustomModuleContents = useCallback(async () => {
     const action = await dispatch(getModuleContents(tcmId));
     if (action.meta.requestStatus === "fulfilled") {
