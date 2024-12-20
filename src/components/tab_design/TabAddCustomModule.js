@@ -45,32 +45,53 @@ const TabAddCustomModule = () => {
   }, [customModules]);
 
   const syncPrintSettings = useCallback(() => {
-    const updatedCaseOptions = [
-      ...(defaultPrintSettings?.prescription?.case_option || []),
-    ];
+    const customModuleMap = new Map(
+      customModules.map((module) => [module.module_id, module.name])
+    );
 
     let updateFlag = false;
 
-    customModules.forEach((module) => {
-      const { module_id: moduleId, name } = module;
+    const updatedCaseOptions = [];
 
-      const existsInCaseOptions =
-        defaultPrintSettings?.prescription?.case_option?.some(
-          (option) => option.is_custom_module && option.id === moduleId
-        );
+    // Process existing case_option
+    (defaultPrintSettings?.prescription?.case_option || []).forEach(
+      (option) => {
+        if (option.is_custom_module) {
+          const newName = customModuleMap.get(option.id);
 
-      if (!existsInCaseOptions) {
-        const newCaseOption = {
-          id: moduleId,
-          title: name,
-          format: "inline",
-          enable: "Y",
-          custom_status: "Y",
-          is_custom_module: true,
-        };
-        updatedCaseOptions.push(newCaseOption);
-        updateFlag = true;
+          if (newName) {
+            // Update name if it's different
+            if (option.title !== newName) {
+              updatedCaseOptions.push({
+                ...option,
+                title: newName, // Create a new object with updated title
+              });
+              updateFlag = true;
+            } else {
+              updatedCaseOptions.push(option); // Retain unchanged custom module
+            }
+            customModuleMap.delete(option.id); // Remove from map to avoid duplicate addition
+          } else {
+            updateFlag = true; // Custom module no longer exists, so it will be removed
+          }
+        } else {
+          // Retain non-custom modules
+          updatedCaseOptions.push(option);
+        }
       }
+    );
+
+    // Add remaining custom modules from customModuleMap
+    customModuleMap.forEach((name, moduleId) => {
+      updatedCaseOptions.push({
+        id: moduleId,
+        title: name,
+        format: "inline",
+        enable: "Y",
+        custom_status: "Y",
+        is_custom_module: true,
+      });
+      updateFlag = true;
     });
 
     if (updateFlag) {
@@ -88,7 +109,7 @@ const TabAddCustomModule = () => {
 
       dispatch(savePrintsettings(sendData));
     }
-  }, []);
+  }, [customModules]);
 
   const getCustomModuleContents = useCallback(async () => {
     const action = await dispatch(getModuleContents(tcmId));
@@ -153,32 +174,6 @@ const TabAddCustomModule = () => {
             },
           })
         );
-
-        const rxNewModule = {
-          id: newModule.module_id,
-          title: newModule.name,
-          format: "inline",
-          enable: "Y",
-          custom_status: "Y",
-          is_custom_module: true,
-        };
-
-        const rxPrescription = {
-          ...defaultPrintSettings?.prescription,
-          case_option: [
-            ...(defaultPrintSettings?.prescription?.case_option || []),
-            rxNewModule,
-          ],
-        };
-
-        const sendData = {
-          ...defaultPrintSettings,
-          prescription: JSON.stringify(rxPrescription),
-          header_footer: JSON.stringify(defaultPrintSettings?.header_footer),
-          page_format: JSON.stringify(defaultPrintSettings?.page_format),
-        };
-
-        dispatch(savePrintsettings(sendData));
 
         setShowInput(false);
         message.open({
