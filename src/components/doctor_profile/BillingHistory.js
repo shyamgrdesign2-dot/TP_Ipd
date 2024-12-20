@@ -122,20 +122,21 @@ const SubscriptionTable = () => {
     },
     {
       title: "Invoice/Receipt",
-      key: "invoiceReceipt",
-      dataIndex: "invoiceReceipt",
+      key: "invoice",
+      dataIndex: "invoice",
       render: (text, record) =>
         record?.status === "APPROVED" &&
-        (record?.invoiceReceipt || record?.paymentReceipt) ? (
+        (record?.invoice || record?.paymentReceipt) ? (
           <div
             onClick={() =>
               handleDownload(
                 record?.paymentType === "PARTIAL"
                   ? record?.paymentReceipt
-                  : record?.invoiceReceipt,
+                  : record?.invoice,
                 record?.paymentType === "PARTIAL" ? "Receipt" : "Invoice"
               )
             }
+            style={{ cursor: "pointer" }}
           >
             <DownloadOutlined className="custom-icon" />
           </div>
