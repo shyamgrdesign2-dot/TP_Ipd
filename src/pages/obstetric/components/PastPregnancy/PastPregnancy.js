@@ -1,10 +1,22 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Button, Card, DatePicker, Input, Tooltip, Select, Radio } from "antd";
+import {
+  Button,
+  Card,
+  DatePicker,
+  Input,
+  Tooltip,
+  Select,
+  Radio,
+  message,
+} from "antd";
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import "./pastPregnancy.scss";
 import { EllipsisOutlined, DeleteOutlined } from "@ant-design/icons";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
+import {
+  MESSAGE_KEY,
+  PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+} from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
@@ -14,8 +26,13 @@ import {
   patientDiagnosisUpdated,
 } from "../../../../redux/obstetricSlice";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
+import imgCloseVisit from "./../../../../assets/images/close-visit.svg";
+import visitEnd from "./../../../../assets/images/check-badge.svg";
 import { isDecimalCheck, isNumberCheck } from "../../utils/helper";
 import CommonModal from "../../../../common/CommonModal";
+import { upsertObstetricDetails } from "../../service";
+import { errorMessage } from "../../../../utils/utils";
+import { getOrdinalSuffix } from "../../../growthChart/growthChartHelper";
 
 function PastPregnancy({
   close,
@@ -26,6 +43,7 @@ function PastPregnancy({
   setIsPastPregnancyUpdated,
   isCompletePregnancy,
   gravidity,
+  setLoader,
 }) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
@@ -63,7 +81,7 @@ function PastPregnancy({
 
   useEffect(() => {
     if (isCompletePregnancy) {
-      handlePastPregnancyDataChange("gravidaNumber", gravidity);
+      handlePastPregnancyDataChange("gravidity", gravidity);
     }
   }, []);
 
@@ -166,17 +184,58 @@ function PastPregnancy({
           createdBy: decodedToken?.result?.user_id,
           modifiedAt: new Date().toISOString(),
           modifiedBy: decodedToken?.result?.user_id,
+          ...obstetricDetails?.currentPregnancy,
         },
       ];
     }
     const payload = {
       ...obstetricDetails,
       pregnancyHistory: newPastPregnancy,
+      currentPregnancy: null,
     };
+
     dispatch(addObstetricDetails(payload));
     dispatch(obstetricDetailsUpdated());
     dispatch(patientDiagnosisUpdated());
     setIsDataAddedOrEdited(false);
+
+    if (isCompletePregnancy) {
+      setLoader(true);
+      const obstetricResponse = await upsertObstetricDetails(
+        patient_data.patient_unique_id,
+        payload
+      );
+      setLoader(false);
+      if (obstetricResponse) {
+        message.open({
+          key: MESSAGE_KEY,
+          type: "",
+          className: "message-appointment",
+          content: (
+            <div className="d-flex align-items-center">
+              <img src={visitEnd} className="me-3" />
+              <div>
+                <div className="fontroboto text-start fw-normal mt-1">
+                  {patient_data?.pm_fullname}’s{" "}
+                  {pastPregnancyData?.gravidity
+                    ? `${getOrdinalSuffix(pastPregnancyData?.gravidity)} `
+                    : ""}
+                  Pregnancy closed successfully
+                </div>
+              </div>
+              <img
+                src={imgCloseVisit}
+                className="ms-3"
+                onClick={() => message.destroy()}
+              />
+            </div>
+          ),
+          duration: 5,
+        });
+      } else {
+        errorMessage("Error while Completing Pregnancy!");
+      }
+    }
     close();
   };
 
@@ -226,7 +285,7 @@ function PastPregnancy({
           <Select
             style={{ width: 170, height: 40, outline: "none" }}
             onChange={(value) =>
-              handlePastPregnancyDataChange("gravidaNumber", value)
+              handlePastPregnancyDataChange("gravidity", value)
             }
             options={[
               { value: "1", label: "1" },
@@ -241,9 +300,9 @@ function PastPregnancy({
             ]}
             placeholder="Select"
             className="custom-select"
-            value={pastPregnancyData?.gravidaNumber}
+            value={pastPregnancyData?.gravidity}
             allowClear
-            disabled={isCompletePregnancy && pastPregnancyData.gravidaNumber}
+            disabled={isCompletePregnancy && pastPregnancyData.gravidity}
           />
         </div>
         <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
@@ -613,7 +672,7 @@ function PastPregnancy({
             }
             className="btn btn-primary3 btn-41 px-4 me-20"
             disabled={
-              !pastPregnancyData.gravidaNumber || !pastPregnancyData.outcome
+              !pastPregnancyData.gravidity || !pastPregnancyData.outcome
             }
           >
             {isCompletePregnancy ? "Complete Pregnancy" : "Done"}
@@ -739,7 +798,6 @@ function PastPregnancy({
                 </div>
                 <Button
                   onClick={() => {
-                    toggleConfirmationPopup();
                     addPastPregnancyData();
                   }}
                   className="lh-lg btn btn-primary3 btn-41 px-4"
