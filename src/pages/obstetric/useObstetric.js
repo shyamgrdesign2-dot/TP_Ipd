@@ -1,5 +1,5 @@
 import React from "react";
-import { fetchObstetricDetails } from "./service";
+import { fetchAllObstetricDetails } from "./service";
 import { useSelector } from "react-redux";
 
 export default function useObstetric(patientId) {
@@ -11,7 +11,7 @@ export default function useObstetric(patientId) {
   }, []);
 
   const getObstetrics = async () => {
-    const res = await fetchObstetricDetails(patientId, userId, true);
+    const res = await fetchAllObstetricDetails(patientId, userId, true);
     setObstetrics(res);
   };
 

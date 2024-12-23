@@ -137,6 +137,39 @@ export const LiveColumns = [
   },
 ];
 
+export const LiveColumnsWithPregnancyHistory = [
+  {
+    title: "Mode of delivery",
+    key: "deliveryMode",
+    width: "22%",
+  },
+  {
+    title: "Date of delivery / Age",
+    key: "dateOfDelivery",
+    width: "12%",
+  },
+  {
+    title: "Gender",
+    key: "gender",
+    width: "12%",
+  },
+  {
+    title: "Baby's Weight",
+    key: "babysWeight",
+    width: "12%",
+  },
+  {
+    title: "Postpartum Remark",
+    key: "remarks",
+    width: "30%",
+  },
+  {
+    title: "Overview",
+    key: "overview",
+    width: "12%",
+  },
+];
+
 export const EctopicColumns = [
   {
     title: "Period of gestation",
@@ -160,6 +193,34 @@ export const EctopicColumns = [
   },
 ];
 
+export const EctopicColumnsWithPregnancyHistory = [
+  {
+    title: "Period of gestation",
+    key: "monthOfPregnancy",
+    width: "22%",
+  },
+  {
+    title: "Location",
+    key: "location",
+    width: "18%",
+  },
+  {
+    title: "Mode of management",
+    key: "modeOfAbortion",
+    width: "18%",
+  },
+  {
+    title: "Postpartum Remark",
+    key: "remarks",
+    width: "30%",
+  },
+  {
+    title: "Overview",
+    key: "overview",
+    width: "12%",
+  },
+];
+
 export const AbortionColumns = [
   {
     title: "Period of gestation",
@@ -180,6 +241,34 @@ export const AbortionColumns = [
     title: "Remarks",
     key: "remarks",
     width: "42%",
+  },
+];
+
+export const AbortionColumnsWithPregnancyHistory = [
+  {
+    title: "Period of gestation",
+    key: "monthOfPregnancy",
+    width: "22%",
+  },
+  {
+    title: "Type of Miscarriage",
+    key: "typeOfAbortion",
+    width: "18%",
+  },
+  {
+    title: "Mode of Miscarriage",
+    key: "modeOfAbortion",
+    width: "18%",
+  },
+  {
+    title: "Postpartum Remark",
+    key: "remarks",
+    width: "30%",
+  },
+  {
+    title: "Overview",
+    key: "overview",
+    width: "12%",
   },
 ];
 

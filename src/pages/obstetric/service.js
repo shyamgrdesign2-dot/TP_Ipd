@@ -9,7 +9,7 @@ export const fetchAllObstetricDetails = async function (
   patient_unique_id,
   userId,
   todaysExamination,
-  gravidaNumber
+  gravidity
 ) {
   let res = {};
   try {
@@ -18,8 +18,8 @@ export const fetchAllObstetricDetails = async function (
     res = await api.get(
       `/obstetric/${patient_unique_id}/${userId || doctorId}${
         todaysExamination ? "?todaysExamination=true" : ""
-      }${gravidaNumber ? `&gravidaNumber=${gravidaNumber}` : ""}`,
-      baseUrl
+      }${gravidity ? `&gravidaNumber=${gravidity}` : ""}`,
+      ancImmunisationbaseUrl
     );
     res = res.data;
   } catch (e) {

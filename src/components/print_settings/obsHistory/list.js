@@ -966,7 +966,7 @@ function ObsHistoryListView({
                             {String.fromCharCode(97 + i)}.&nbsp;
                           </Text>
 
-                          {"gravidaNumber" in item && (
+                          {"gravidity" in item && (
                             <>
                               <Text
                                 style={{
@@ -992,7 +992,7 @@ function ObsHistoryListView({
                                   fontWeight: 400,
                                 }}
                               >
-                                {item?.gravidaNumber
+                                {item?.gravidity
                                   ?.toString()
                                   .padStart(2, "0")}
                               </Text>

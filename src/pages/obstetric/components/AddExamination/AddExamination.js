@@ -34,7 +34,8 @@ function AddExamination({
     date: moment().format(dateFormat),
     heightOfFundusUnit: "weeks",
   });
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const { obstetricDetails: allObstetricDetails } = useSelector((state) => state.obstetric);
+  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { examinationHistory = [] } = obstetricDetails;
   const { state } = useLocation();
   const { patient_data } = state;
@@ -149,9 +150,9 @@ function AddExamination({
       ];
     }
     const payload = {
-      ...obstetricDetails,
+      ...allObstetricDetails,
       currentPregnancy: {
-        ...obstetricDetails?.currentPregnancy,
+        ...allObstetricDetails?.currentPregnancy,
         examinationHistory: newExaminationHistory,
       },
     };
@@ -169,9 +170,9 @@ function AddExamination({
       newExaminationHistory.splice(editIndex, 1);
     }
     const payload = {
-      ...obstetricDetails,
+      ...allObstetricDetails,
       currentPregnancy: {
-        ...obstetricDetails?.currentPregnancy,
+        ...allObstetricDetails?.currentPregnancy,
         examinationHistory: newExaminationHistory,
       },
     };

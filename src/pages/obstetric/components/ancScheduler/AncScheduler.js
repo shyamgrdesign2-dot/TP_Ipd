@@ -30,7 +30,11 @@ import {
 } from "../../../../redux/obstetricSlice";
 import { fetchSearchAnc } from "../../service";
 
-const AncScheduler = ({ ancHistory = [], handleDrawerMedicalReport }) => {
+const AncScheduler = ({
+  ancHistory = [],
+  handleDrawerMedicalReport,
+  isPreviousPregnancyOverview,
+}) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const { patient_data } = state;
@@ -91,24 +95,26 @@ const AncScheduler = ({ ancHistory = [], handleDrawerMedicalReport }) => {
   }, [ancHistory]);
 
   useEffect(() => {
-    const ancHistoryData = ancHistory || [];
-    const newAncHistory = mergeDefaultAndDoctorList(
-      ancHistoryData,
-      defaultAncSchedule,
-      ancDoctorList,
-      userId,
-      true
-    );
-    const payload = {
-      ...obstetricDetails,
-      currentPregnancy: {
-        ...obstetricDetails?.currentPregnancy,
-        ancHistory: newAncHistory,
-      },
-    };
-    dispatch(addObstetricDetails(payload));
-    dispatch(patientDiagnosisUpdated());
-    dispatch(obstetricDetailsUpdated());
+    if (!isPreviousPregnancyOverview) {
+      const ancHistoryData = ancHistory || [];
+      const newAncHistory = mergeDefaultAndDoctorList(
+        ancHistoryData,
+        defaultAncSchedule,
+        ancDoctorList,
+        userId,
+        true
+      );
+      const payload = {
+        ...obstetricDetails,
+        currentPregnancy: {
+          ...obstetricDetails?.currentPregnancy,
+          ancHistory: newAncHistory,
+        },
+      };
+      dispatch(addObstetricDetails(payload));
+      dispatch(patientDiagnosisUpdated());
+      dispatch(obstetricDetailsUpdated());
+    }
   }, []);
 
   useEffect(() => {
@@ -135,9 +141,12 @@ const AncScheduler = ({ ancHistory = [], handleDrawerMedicalReport }) => {
   };
 
   const renderTableHeader = () => {
+    const tableColumns = isPreviousPregnancyOverview
+      ? AncSchedulerColumns?.slice(0, -2)
+      : AncSchedulerColumns;
     return (
       <tr>
-        {AncSchedulerColumns?.map((header, index) => (
+        {tableColumns?.map((header, index) => (
           <th
             key={index}
             className="obstetricTcell theaderCellStyle"
@@ -211,7 +220,7 @@ const AncScheduler = ({ ancHistory = [], handleDrawerMedicalReport }) => {
           <td className="obstetricTcell">{master?.name}</td>
           <td className="obstetricTcell weekRange">
             {`${weekRange?.start} - ${weekRange?.end} weeks`}
-            {!master?.default && (
+            {!master?.default && !isPreviousPregnancyOverview && (
               <i
                 className="icon-Edit fs-6 d-flex justify-content-end"
                 style={{ cursor: "pointer" }}
@@ -236,6 +245,7 @@ const AncScheduler = ({ ancHistory = [], handleDrawerMedicalReport }) => {
                 format: "DD-MM-YYYY",
                 type: "mask",
               }}
+              disabled={isPreviousPregnancyOverview}
             />
           </td>
           <td className="obstetricTcell">
@@ -252,6 +262,7 @@ const AncScheduler = ({ ancHistory = [], handleDrawerMedicalReport }) => {
               }`}
               value={status || "Due"}
               allowClear={false}
+              disabled={isPreviousPregnancyOverview}
             />
           </td>
 
@@ -263,37 +274,42 @@ const AncScheduler = ({ ancHistory = [], handleDrawerMedicalReport }) => {
                 handleImmunisationChange("notes", i, e.target.value)
               }
               className="textareaPlaceholder immunisationRemarks"
+              disabled={isPreviousPregnancyOverview}
             />
           </td>
-          <td className="obstetricTcell">
-            <Switch
-              checked={enablePrint}
-              onChange={() =>
-                handleImmunisationChange("enablePrint", i, !enablePrint)
-              }
-            />
-          </td>
-          <td className="obstetricTcell">
-            {master?.default ? (
-              <Tooltip
-                title={<div>Default ANC Scheduler cannot be deleted</div>}
-                overlayClassName="ancTooltip"
-                placement="topLeft"
-              >
-                <i className="icon-delete" style={{ color: "#A2A2A8" }} />
-              </Tooltip>
-            ) : (
-              <Button
-                className="btn btn-delete-prescription p-0"
-                onClick={() => {
-                  setImmunisationPopup("delete");
-                  setEditIndex(i);
-                }}
-              >
-                <i className="icon-delete" style={{ color: "#454551" }} />
-              </Button>
-            )}
-          </td>
+          {!isPreviousPregnancyOverview && (
+            <>
+              <td className="obstetricTcell">
+                <Switch
+                  checked={enablePrint}
+                  onChange={() =>
+                    handleImmunisationChange("enablePrint", i, !enablePrint)
+                  }
+                />
+              </td>
+              <td className="obstetricTcell">
+                {master?.default ? (
+                  <Tooltip
+                    title={<div>Default ANC Scheduler cannot be deleted</div>}
+                    overlayClassName="ancTooltip"
+                    placement="topLeft"
+                  >
+                    <i className="icon-delete" style={{ color: "#A2A2A8" }} />
+                  </Tooltip>
+                ) : (
+                  <Button
+                    className="btn btn-delete-prescription p-0"
+                    onClick={() => {
+                      setImmunisationPopup("delete");
+                      setEditIndex(i);
+                    }}
+                  >
+                    <i className="icon-delete" style={{ color: "#454551" }} />
+                  </Button>
+                )}
+              </td>
+            </>
+          )}
         </tr>
       );
     });
@@ -340,32 +356,36 @@ const AncScheduler = ({ ancHistory = [], handleDrawerMedicalReport }) => {
             </Button>
           ))}
         </div>
-        <div>
-          <Button
-            type="button"
-            className="btn-41 btn ant-btn-text btn-input anotherVisitBtn d-flex align-items-center"
-            onClick={() => setShouldShowPrintPreview(true)}
+        {!isPreviousPregnancyOverview && (
+          <div>
+            <Button
+              type="button"
+              className="btn-41 btn ant-btn-text btn-input anotherVisitBtn d-flex align-items-center"
+              onClick={() => setShouldShowPrintPreview(true)}
+            >
+              <i className="icon-Print me-2" />
+              <span>Print ANC Scheduler</span>
+            </Button>
+          </div>
+        )}
+      </div>
+      {!isPreviousPregnancyOverview && (
+        <div style={{ padding: "25px 40px 15px" }}>
+          <AutoComplete
+            value={searchQuery}
+            onSearch={onSearch}
+            options={searchOptions}
+            className="autocomplete-custom w-100"
+            onSelect={onSelect}
+            defaultActiveFirstOption={true}
           >
-            <i className="icon-Print me-2" />
-            <span>Print ANC Scheduler</span>
-          </Button>
+            <Input
+              placeholder="Search & add new test"
+              prefix={<i className="icon-search" />}
+            />
+          </AutoComplete>
         </div>
-      </div>
-      <div style={{ padding: "25px 40px 15px" }}>
-        <AutoComplete
-          value={searchQuery}
-          onSearch={onSearch}
-          options={searchOptions}
-          className="autocomplete-custom w-100"
-          onSelect={onSelect}
-          defaultActiveFirstOption={true}
-        >
-          <Input
-            placeholder="Search & add new test"
-            prefix={<i className="icon-search" />}
-          />
-        </AutoComplete>
-      </div>
+      )}
       <div className="examinationTableViewContainer">
         <div className="tableWrappwer">
           <table
