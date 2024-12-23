@@ -13,6 +13,7 @@ import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
 import calculatorIcon from '../assets/images/calculator.svg';
 import calculatorIconBlue from '../assets/images/calculator-blue.svg';
+import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
 import { MenuOutlined } from '@ant-design/icons';
 import {
@@ -579,6 +580,31 @@ function MedicationsBox() {
     [sinceOptions, medicationData]
   );
 
+  const onAutoFillDuration = (index) => {
+    const { tmm_days_duration_type, tmm_days, tmm_duration_type } = medicationData[index]
+    medicationData.forEach(e => {
+      e.tmm_days_duration_type = tmm_days_duration_type;
+      e.tmm_days = tmm_days;
+      e.tmm_duration_type = tmm_duration_type;
+    });
+    setMedicationData((prev) => [...prev]);
+    message.open({
+      key: MESSAGE_KEY,
+      type: '',
+      className: 'message-appointment',
+      content: (
+        <div className='d-flex align-items-center'>
+          <img src={visitEnd} className='me-2' />
+          <div>
+            <div className='text-start fs-18 fontroboto'>Autofilled this Duration to all medicines</div>
+          </div>
+          <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+        </div>
+      ),
+      duration: 3,
+    });
+  }
+
   const onChangeNoteChild = useCallback(
     (e, i) => {
       medicationData[i].tmm_remarks = capitalizeAfterSentence(e.target.value);
@@ -951,12 +977,12 @@ function MedicationsBox() {
                     </Popover>
                   </div>
                 </Col>
-                <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+                <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                   <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
                     <label>WHEN</label>
                   </div>
                 </Col>
-                <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+                <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                   <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
                     <label>DURATION</label>
                   </div>
@@ -1068,7 +1094,7 @@ function MedicationsBox() {
                                       allowClear
                                     />
                                   </Col>
-                                  <Col lg={5} md={5} sm={5} xs={5} className="border-end">
+                                  <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                                     <Select
                                       className="autocomplete-custom w-100 h-100 inputborder"
                                       placeholder="e.g Before Food"
@@ -1085,7 +1111,7 @@ function MedicationsBox() {
                                       allowClear
                                     />
                                   </Col>
-                                  <Col lg={3} md={3} sm={3} xs={3} className="border-end">
+                                  <Col lg={4} md={4} sm={4} xs={4} className="border-end autofill">
                                     <AutoComplete
                                       defaultValue={item.tmm_days_duration_type}
                                       value={hasNumber(item.tmm_days_duration_type) ? item.tmm_days_duration_type : capitalize(item.tmm_days_duration_type, true)}
@@ -1101,6 +1127,9 @@ function MedicationsBox() {
                                       onClear={() => onSearchSinceChid("", item?.index)}
                                       allowClear
                                     />
+                                    {item?.tmm_days_duration_type && (
+                                      <div className="badge-autofill" onClick={() => onAutoFillDuration(item?.index)}><i className="icon-copyIcon fs-14 me-1" /> Autofill to all meds</div>
+                                    )}
                                   </Col>
                                   <Col lg={6} md={6} sm={6} xs={6} className="border-end">
                                     <TextArea
