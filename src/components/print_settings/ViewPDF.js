@@ -340,11 +340,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         return customModule ? customModule.name : '';
     }
 
-    const customModulesPrintConfigMap = customModules.reduce((acc, cur) => {
-        acc[cur.module_id] = cur.printConfig;
-        return acc;
-    },{})
-
     return (
         <Document>
             <Page
@@ -571,6 +566,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                 <View>
                     {printSettings?.prescription?.case_option?.map((option, index) => {
+                        let customModule = caseManagerData?.moduleContents?.find(e => e.module_id === option?.id);
+                        if(customModule) {
+                            customModule = {...customModule, name: getCustomModuleName(option?.id)};
+                        }
                         return (
                             option?.id === 1 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
@@ -4456,7 +4455,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         ))
                                     }
                                 </>
-                            ) : option?.id === 16 && option?.enable === 'Y' && option?.custom_status === 'Y' && (
+                            ) : option?.id === 16 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     {caseManagerData.surgeries.length > 0 && (
                                         option?.format === 'inline' ? (
@@ -4509,59 +4508,56 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         )
                                     )}
                                 </>
-                            ) 
+                            ) : option?.is_custom_module === true && option?.enable === 'Y' && option?.custom_status === 'Y' && customModule?.content?.length > 0 && (
+                                option?.format === 'inline' ? (
+                                    <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
+                                        {customModule?.content?.map((item, i) => {
+                                            return (
+                                                <Text key={i}>
+                                                    {item.title && <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{"\n"}{item.title}&nbsp;</Text>}
+                                                    {item.notes &&
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{"\n"}{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}&nbsp;</Text>
+                                                    }
+                                                </Text>
+                                            )
+                                        })}
+                                    </Text>
+                                ) : option?.format === 'listview' ? (
+                                    <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
+                                        {customModule?.content.map((item, i) => {
+                                            return (
+                                                <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                    {item.title && <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;</Text>}
+                                                    {item.notes &&
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.title ? "\n" : ""}{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}</Text>
+                                                    }
+                                                </Text>
+                                            )
+                                        })}
+                                    </View>
+                                ) : (customModule?.content?.some((item) => item.title || item.notes) &&
+                                    <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
+                                        <View style={styles.table}>
+                                            <View style={styles.row}>
+                                                {customModule?.content?.some((item) => item.title) && <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>}
+                                                {customModule?.content?.some((item) => item.notes) && <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTES</Text>}
+                                            </View>
+                                            {customModule?.content.map((item, i) => (
+                                                <View style={styles.row} key={i}>
+                                                    {customModule?.content?.some((item) => item.title) &&<Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}</Text>}
+                                                    {customModule?.content?.some((item) => item.notes) &&<Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.trim()?.replace(/\n+/g, "\n") || '-'}</Text>}
+                                                </View>
+                                            ))}
+                                        </View>
+                                    </View>
+                                )
+                            )
                         )
                     })}
-                    <>
-                        {caseManagerData?.moduleContents.length > 0 && caseManagerData?.moduleContents?.map((module, mid) => customModulesPrintConfigMap[module.module_id]?.isEnabled === "true" && module.content?.length > 0 ? (
-                            customModulesPrintConfigMap[module.module_id]?.format === 'inline' ? (
-                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{getCustomModuleName(module.module_id)}:&nbsp;</Text>
-                                    {module?.content?.map((item, i) => {
-                                        return (
-                                            <Text key={i}>
-                                                {item.title && <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{"\n"}{item.title}&nbsp;</Text>}
-                                                {item.notes &&
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{"\n"}{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}&nbsp;</Text>
-                                                }
-                                            </Text>
-                                        )
-                                    })}
-                                </Text>
-                            ) : customModulesPrintConfigMap[module.module_id]?.format === 'listview' ? (
-                                <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{getCustomModuleName(module.module_id)}:&nbsp;</Text>
-                                    {module?.content.map((item, i) => {
-                                        return (
-                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                {item.title && <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;</Text>}
-                                                {item.notes &&
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.title ? "\n" : ""}{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}</Text>
-                                                }
-                                            </Text>
-                                        )
-                                    })}
-                                </View>
-                            ) : (module?.content?.some((item) => item.title || item.notes) &&
-                                <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{getCustomModuleName(module.module_id)}:&nbsp;</Text>
-                                    <View style={styles.table}>
-                                        <View style={styles.row}>
-                                            {module?.content?.some((item) => item.title) && <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>}
-                                            {module?.content?.some((item) => item.notes) && <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTES</Text>}
-                                        </View>
-                                        {module?.content.map((item, i) => (
-                                            <View style={styles.row} key={i}>
-                                                {module?.content?.some((item) => item.title) &&<Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}</Text>}
-                                                {module?.content?.some((item) => item.notes) &&<Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.trim()?.replace(/\n+/g, "\n") || '-'}</Text>}
-                                            </View>
-                                        ))}
-                                    </View>
-                                </View>
-                            )
-                        ):"")}
-                    </>
                 </View>
 
                 <View style={{ marginTop: PX_TO_PT * 29 }} wrap={false}>
