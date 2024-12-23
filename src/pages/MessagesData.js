@@ -33,7 +33,7 @@ const showDateFormat = 'DD MMM YYYY'
 
 function MessagesData() {
 
-    const { tabCountObj, userCampaignList, userPurchaseList, campaignDetails, loading, popup, error } = useSelector((state) => state.bulkMessages);
+    const { tabCountObj, userCampaignList, userPurchaseList, campaignDetails, loading, popup, errorObj } = useSelector((state) => state.bulkMessages);
     const dispatch = useDispatch();
 
     const [isModalOpen, setIsModalOpen] = useState(false);

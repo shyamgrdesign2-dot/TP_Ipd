@@ -9,6 +9,7 @@ const initialState = {
   templates: [],
   loading: false,
   error: null,
+  errorObj: { visible: false, message: '' },
 };
 
 export const addTemplate = createAsyncThunk(
@@ -63,22 +64,32 @@ export const getSymptomsTemplates = createAsyncThunk(
 
 export const getFrequentlySearchedSymptoms = createAsyncThunk(
   "symptoms/getFrequentlySearchedSymptoms",
-  async () => {
-    let result = {};
-    result = await ApiSymptoms.getFrequentlySearchedSymptoms();
-    if (result.status) {
-      return result.data;
-    } else {
-      throw Error(result.error);
+  async (_, { rejectWithValue }) => {
+    try {
+      const result = await ApiSymptoms.getFrequentlySearchedSymptoms();
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
     }
   }
 );
 
 export const searchSymptoms = createAsyncThunk(
   "symptoms/searchSymptoms",
-  async (data) => {
-    let result = {};
-    result = await ApiSymptoms.searchSymptoms(data.searchQuery);
+  async (data, { rejectWithValue }) => {
+    try {
+      const result = await ApiSymptoms.searchSymptoms(data.searchQuery);
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
+    }
+  }
+);
+
+export const singleTemplateDetails = createAsyncThunk(
+  "symptoms/singleTemplateDetails",
+  async (templateId) => {
+    const result = await ApiSymptoms.singleTemplateDetails(templateId);
     if (result.status) {
       return result.data;
     } else {
@@ -97,8 +108,10 @@ const symptomsSlice = createSlice({
       })
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedSymptomsList = action.payload.symptoms;
-        state.templates.unshift(action.payload);
+        state.selectedSymptomsList = action.payload.symptoms.join(', ');
+
+        const { tst_id, tst_template_name, symptoms } = action.payload
+        state.templates.unshift({ tst_id: tst_id, tst_template_name: tst_template_name, symptoms: symptoms.map((e) => e.symptom_name).join(', ') });
       })
       .addCase(addTemplate.rejected, (state, action) => {
         state.loading = false;
@@ -113,7 +126,8 @@ const symptomsSlice = createSlice({
           (e) => e.tst_id == action.payload.tst_id
         );
         if (index !== -1) {
-          state.templates[index] = action.payload;
+          const { tst_id, tst_template_name, symptoms } = action.payload
+          state.templates[index] = { tst_id: tst_id, tst_template_name: tst_template_name, symptoms: symptoms.map((e) => e.symptom_name).join(', ') };
         }
       })
       .addCase(updateTemplate.rejected, (state, action) => {

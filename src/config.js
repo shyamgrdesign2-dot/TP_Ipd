@@ -42,4 +42,5 @@ export default {
   bulk_messages: env.bulk_messages,
   upload_doc_api_url: env.upload_doc_api_url,
   central_auth_api_url: env.central_auth_api_url,
+  searchengine_url: env.searchengine_url,
 };

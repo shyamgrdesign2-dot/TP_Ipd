@@ -10,7 +10,7 @@ const initialState = {
     loading: false,
     popup: false,
     campaignDetails: null,
-    error: { visible: false, message: '' },
+    errorObj: { visible: false, message: '' },
     categoryList: [],
     allTemplateList: [],
     templateLoading: false,
@@ -247,14 +247,14 @@ const bulkMessagesSlice = createSlice({
                 state.campaignDetails = action.payload;
             })
             .addCase(userCampaignDetails.rejected, (state, action) => {
-                state.error = { visible: action.payload.visible, message: action.payload.message }
+                state.errorObj = { visible: action.payload.visible, message: action.payload.message }
                 state.campaignDetails = null;
             })
             .addCase(listCategory.fulfilled, (state, action) => {
                 state.categoryList = action.payload;
             })
             .addCase(listCategory.rejected, (state, action) => {
-                state.error = { visible: action.payload.visible, message: action.payload.message }
+                state.errorObj = { visible: action.payload.visible, message: action.payload.message }
                 state.categoryList = [];
             })
             .addCase(listAllTemplate.pending, (state, action) => {
@@ -266,21 +266,21 @@ const bulkMessagesSlice = createSlice({
             })
             .addCase(listAllTemplate.rejected, (state, action) => {
                 state.templateLoading = false
-                state.error = { visible: action.payload.visible, message: action.payload.message }
+                state.errorObj = { visible: action.payload.visible, message: action.payload.message }
                 state.allTemplateList = [];
             })
             .addCase(listDoctor.fulfilled, (state, action) => {
                 state.doctorList = action.payload;
             })
             .addCase(listDoctor.rejected, (state, action) => {
-                state.error = { visible: action.payload.visible, message: action.payload.message }
+                state.errorObj = { visible: action.payload.visible, message: action.payload.message }
                 state.doctorList = [];
             })
             .addCase(searchPatient.fulfilled, (state, action) => {
                 state.patientCount = action?.payload?.length;
             })
             .addCase(searchPatient.rejected, (state, action) => {
-                state.error = { visible: action.payload.visible, message: action.payload.message }
+                state.errorObj = { visible: action.payload.visible, message: action.payload.message }
                 state.patientCount = 0;
             })
             .addCase(userCampaignAdd.pending, (state) => {
