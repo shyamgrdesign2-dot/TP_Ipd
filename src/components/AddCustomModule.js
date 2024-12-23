@@ -19,15 +19,20 @@ import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { customizedPad } from "../redux/doctorsSlice";
+import { savePrintsettings } from "../redux/doctorsSlice";
 
 const AddCustomModule = () => {
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
   const dispatch = useDispatch();
   const { customModules } = useSelector((state) => state.customModules);
-  const { userId, customizedPadRightList, customizedPadLeftList } = useSelector(
-    (state) => state.doctors
-  );
+  const {
+    userId,
+    customizedPadRightList,
+    customizedPadLeftList,
+    defaultPrintSettings,
+  } = useSelector((state) => state.doctors);
+
   const { setCustomModuleContents, tcmId } = useContext(CashManagerContext);
 
   useEffect(() => {
@@ -35,6 +40,77 @@ const AddCustomModule = () => {
       getCustomModuleContents();
     }
   }, [tcmId]);
+
+  useEffect(() => {
+    syncPrintSettings();
+  }, [customModules]);
+
+  const syncPrintSettings = useCallback(() => {
+    const customModuleMap = new Map(
+      customModules.map((module) => [module.module_id, module.name])
+    );
+
+    let updateFlag = false;
+
+    const updatedCaseOptions = [];
+
+    // Process existing case_option
+    (defaultPrintSettings?.prescription?.case_option || []).forEach(
+      (option) => {
+        if (option.is_custom_module) {
+          const newName = customModuleMap.get(option.id);
+
+          if (newName) {
+            // Update name if it's different
+            if (option.title !== newName) {
+              updatedCaseOptions.push({
+                ...option,
+                title: newName, // Create a new object with updated title
+              });
+              updateFlag = true;
+            } else {
+              updatedCaseOptions.push(option); // Retain unchanged custom module
+            }
+            customModuleMap.delete(option.id); // Remove from map to avoid duplicate addition
+          } else {
+            updateFlag = true; // Custom module no longer exists, so it will be removed
+          }
+        } else {
+          // Retain non-custom modules
+          updatedCaseOptions.push(option);
+        }
+      }
+    );
+
+    // Add remaining custom modules from customModuleMap
+    customModuleMap.forEach((name, moduleId) => {
+      updatedCaseOptions.push({
+        id: moduleId,
+        title: name,
+        format: "inline",
+        enable: "Y",
+        custom_status: "Y",
+        is_custom_module: true,
+      });
+      updateFlag = true;
+    });
+
+    if (updateFlag) {
+      const rxPrescription = {
+        ...defaultPrintSettings?.prescription,
+        case_option: updatedCaseOptions,
+      };
+
+      const sendData = {
+        ...defaultPrintSettings,
+        prescription: JSON.stringify(rxPrescription),
+        header_footer: JSON.stringify(defaultPrintSettings?.header_footer),
+        page_format: JSON.stringify(defaultPrintSettings?.page_format),
+      };
+
+      dispatch(savePrintsettings(sendData));
+    }
+  }, [customModules]);
 
   const getCustomModuleContents = useCallback(async () => {
     const action = await dispatch(getModuleContents(tcmId));
@@ -56,6 +132,10 @@ const AddCustomModule = () => {
   const handleAddModule = async () => {
     if (!newModuleName.trim()) {
       message.error("Module name cannot be empty.");
+      return;
+    }
+    if (customModules.some((cm) => cm.name === newModuleName.trim())) {
+      message.error("Module name already exists.");
       return;
     }
     if (customModules.length >= 5) {
@@ -86,7 +166,11 @@ const AddCustomModule = () => {
               reset: false,
               left: customizedPadLeftList,
               right: [
-                ...customizedPadRightList,
+                ...customizedPadRightList?.filter((e) =>
+                  e.is_custom_module
+                    ? customModules.some((cm) => cm.module_id === e.tmdpm_id)
+                    : true
+                ),
                 {
                   tmdpm_id: newModule.module_id,
                   tmdpm_name: newModule.name,
@@ -99,6 +183,7 @@ const AddCustomModule = () => {
             },
           })
         );
+
         setShowInput(false);
         message.open({
           key: MESSAGE_KEY,

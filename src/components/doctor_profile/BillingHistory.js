@@ -6,76 +6,8 @@ import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import billingsIcon from "../../assets/images/billings.svg";
 import { fetchSubscriptionDetails } from "../../redux/subscriptionSlice";
-
-const columns = [
-  {
-    title: "Plan",
-    key: "productType",
-    dataIndex: "productType",
-    render: (text) => (
-      <span style={{ fontWeight: "600", fontSize: "16px", color: "#333" }}>
-        {text || ""}
-      </span>
-    ),
-  },
-  {
-    title: "Reference",
-    key: "txId",
-    dataIndex: "txId",
-    render: (text) => (
-      <span style={{ fontSize: "14px", color: "#555" }}>{text || ""}</span>
-    ),
-  },
-  {
-    title: "Amount Paid",
-    key: "paymentAmount",
-    dataIndex: "paymentAmount",
-    render: (text) => (
-      <span style={{ fontSize: "14px", color: "#555" }}>{text || ""}</span>
-    ),
-  },
-  {
-    title: "Status",
-    key: "status",
-    dataIndex: "status",
-    render: (text) => (
-      <span style={{ fontSize: "14px", color: "#555" }}>{text || ""}</span>
-    ),
-  },
-  {
-    title: "Paid on",
-    key: "paymentDate",
-    dataIndex: "paymentDate",
-    render: (text) => (
-      <span style={{ fontSize: "14px", color: "#555" }}>
-        {text ? moment(text).format("DD MMM YYYY") : ""}
-      </span>
-    ),
-  },
-  {
-    title: "Plan Expires on",
-    key: "planExpiryDate",
-    dataIndex: "planExpiryDate",
-    render: (text) => (
-      <span style={{ fontSize: "14px", color: "#555" }}>
-        {text ? moment(text).format("DD MMM YYYY") : ""}
-      </span>
-    ),
-  },
-  {
-    title: "Invoice",
-    key: "invoiceReceipt",
-    dataIndex: "invoiceReceipt",
-    render: (text) =>
-      text ? (
-        <a href={text} download rel="noopener noreferrer">
-          <DownloadOutlined className="custom-icon" />
-        </a>
-      ) : (
-        ""
-      ),
-  },
-];
+import saveAs from "file-saver";
+import axios from "axios";
 
 const styles = {
   table: {
@@ -108,6 +40,111 @@ const SubscriptionTable = () => {
       pageSize: pagination.pageSize,
     });
   };
+
+  async function handleDownload(pdfUrl, name) {
+    try {
+      const response = await axios({
+        url: pdfUrl,
+        method: "GET",
+        responseType: "blob",
+      });
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
+      saveAs(blob, `${name}.pdf`);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  }
+
+  const columns = [
+    {
+      title: "Product",
+      key: "productName",
+      dataIndex: "productName",
+      render: (text) => (
+        <span style={{ fontWeight: "600", fontSize: "16px", color: "#333" }}>
+          {text || ""}
+        </span>
+      ),
+    },
+    {
+      title: "Payment Type",
+      key: "paymentType",
+      dataIndex: "paymentType",
+      render: (text) => (
+        <span style={{ fontSize: "14px", color: "#555" }}>{text || ""}</span>
+      ),
+    },
+    {
+      title: "Reference",
+      key: "txId",
+      dataIndex: "txId",
+      render: (text) => (
+        <span style={{ fontSize: "14px", color: "#555" }}>{text || ""}</span>
+      ),
+    },
+    {
+      title: "Amount Paid",
+      key: "paidAmount",
+      dataIndex: "paidAmount",
+      render: (text) => (
+        <span style={{ fontSize: "14px", color: "#555" }}>{text || ""}</span>
+      ),
+    },
+    {
+      title: "Status",
+      key: "status",
+      dataIndex: "status",
+      render: (text) => (
+        <span style={{ fontSize: "14px", color: "#555" }}>{text || ""}</span>
+      ),
+    },
+    {
+      title: "Paid on",
+      key: "paymentDate",
+      dataIndex: "paymentDate",
+      render: (text) => (
+        <span style={{ fontSize: "14px", color: "#555" }}>
+          {text ? moment(text).format("DD MMM YYYY") : ""}
+        </span>
+      ),
+    },
+    {
+      title: "Plan Expires on",
+      key: "paymentPlanExpiryDate",
+      dataIndex: "paymentPlanExpiryDate",
+      render: (text) => (
+        <span style={{ fontSize: "14px", color: "#555" }}>
+          {text ? moment(text).format("DD MMM YYYY") : ""}
+        </span>
+      ),
+    },
+    {
+      title: "Invoice/Receipt",
+      key: "invoice",
+      dataIndex: "invoice",
+      render: (text, record) =>
+        record?.status === "APPROVED" &&
+        (record?.invoice || record?.paymentReceipt) ? (
+          <div
+            onClick={() =>
+              handleDownload(
+                record?.paymentType === "PARTIAL"
+                  ? record?.paymentReceipt
+                  : record?.invoice,
+                record?.paymentType === "PARTIAL" ? "Receipt" : "Invoice"
+              )
+            }
+            style={{ cursor: "pointer" }}
+          >
+            <DownloadOutlined className="custom-icon" />
+          </div>
+        ) : (
+          ""
+        ),
+    },
+  ];
 
   return (
     <Table

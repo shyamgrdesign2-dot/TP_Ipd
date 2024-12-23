@@ -721,12 +721,15 @@ function TabCustomModule({ module }) {
               default: false,
               reset: false,
               left: customizedPadLeftList,
-              right: customizedPadRightList?.filter(
-                (e) => e.tmdpm_id !== moduleToDelete?.module_id
+              right: customizedPadRightList?.filter((e) =>
+                e.is_custom_module
+                  ? customModules.some((cm) => cm.module_id === e.tmdpm_id)
+                  : true
               ),
             },
           })
         );
+
         message.open({
           key: MESSAGE_KEY,
           type: "",
@@ -878,19 +881,26 @@ function TabCustomModule({ module }) {
               default: false,
               reset: false,
               left: customizedPadLeftList,
-              right: customizedPadRightList?.map((e) => {
-                if (e.tmdpm_id === module?.module_id) {
-                  return {
-                    ...e,
-                    tmdpm_name: newModuleName,
-                    tmdpm_short_name: newModuleName,
-                  };
-                }
-                return e;
-              }),
+              right: customizedPadRightList
+                ?.filter((e) =>
+                  e.is_custom_module
+                    ? customModules.some((cm) => cm.module_id === e.tmdpm_id)
+                    : true
+                )
+                ?.map((e) => {
+                  if (e.tmdpm_id === module?.module_id) {
+                    return {
+                      ...e,
+                      tmdpm_name: newModuleName,
+                      tmdpm_short_name: newModuleName,
+                    };
+                  }
+                  return e;
+                }),
             },
           })
         );
+
         setCanEditName(false);
         message.open({
           key: MESSAGE_KEY,
