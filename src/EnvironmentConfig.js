@@ -45,6 +45,7 @@ const dev = {
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
+  searchengine_url: "https://pm-searchengine-uat.tatvacare.in"
 };
 
 const qa = {
@@ -94,6 +95,7 @@ const qa = {
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
+  searchengine_url: "https://pm-searchengine-uat.tatvacare.in"
 };
 
 const uat = {
@@ -146,6 +148,7 @@ const uat = {
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
+  searchengine_url: "https://pm-searchengine-uat.tatvacare.in"
 };
 
 const prod = {
@@ -193,6 +196,7 @@ const prod = {
   bulk_messages: "https://pm-communication-prod.tatvacare.in",
   upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-prod.tatvacare.in",
+  searchengine_url: "https://pm-searchengine-prod.tatvacare.in"
 };
 
 const getEnv = () => {

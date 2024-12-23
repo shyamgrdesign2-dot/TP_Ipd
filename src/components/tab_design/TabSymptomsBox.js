@@ -16,6 +16,7 @@ import {
     deleteTemplate,
     getSymptomsTemplates,
     getFrequentlySearchedSymptoms,
+    singleTemplateDetails,
 } from "../../redux/symptomsSlice";
 
 import TabSymptomsSearch from "../../components/tab_design/TabSymptomsSearch";
@@ -24,7 +25,7 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import DifferentialDiagnosis from "../DifferentialDiagnosis";
 import { setIsDDxReadyToGenerate, setIsSymptomsBox } from "../../redux/ddxSlice";
 
-function TabSymptomsBox({handleDDxDrawer, generatedDDx}) {
+function TabSymptomsBox({ handleDDxDrawer, generatedDDx }) {
     const {
         selectedSymptomsList,
         parentOptionsList,
@@ -124,10 +125,10 @@ function TabSymptomsBox({handleDDxDrawer, generatedDDx}) {
 
     // Handle Parent Drawer
     const handleDrawerParent = useCallback(() => {
-      setParentDrawer(!parentDrawer);
-      if (isSymptomsBox) {
-        dispatch(setIsSymptomsBox(false));
-      }
+        setParentDrawer(!parentDrawer);
+        if (isSymptomsBox) {
+            dispatch(setIsSymptomsBox(false));
+        }
     }, [parentDrawer]);
 
     const onSelectParent = useCallback(
@@ -188,15 +189,18 @@ function TabSymptomsBox({handleDDxDrawer, generatedDDx}) {
         }
     };
 
-    const onTemplateSelected = (template) => {
+    const onTemplateSelected = async (template) => {
         window.Moengage.track_event("symptom_template_used", {
             "template_name": template.tst_template_name
         });
-        const updatedData = template.symptoms.map(e => {
-            return { ...e, unique_id: uuidv4(), since: "", severity: "", note: e.note ? e.note : "" }
-        })
-        setSymptomsData([...symptomsData, ...updatedData]);
-        handleDrawerTemplate();
+        const action = await dispatch(singleTemplateDetails(template.tst_id));
+        if (action.meta.requestStatus === "fulfilled") {
+            const updatedData = action?.payload;
+            setSymptomsData([...symptomsData, ...updatedData]);
+            handleDrawerTemplate();
+        } else {
+            errorMessage(action.error)
+        }
     };
 
     const onDeleteTemplateClicked = async (tst_id) => {
@@ -407,12 +411,7 @@ function TabSymptomsBox({handleDDxDrawer, generatedDDx}) {
                                             <div className="text-truncate w-100">
                                                 <div className="title text-main2">{template.tst_template_name}</div>
                                                 <div className="text-truncate">
-                                                    {template.symptoms.map((item, ii) => {
-                                                        return (
-                                                            <span key={ii}>{`${item.symptom_name}${template.symptoms.length - 1 != ii ? ", " : ""
-                                                                }`}</span>
-                                                        );
-                                                    })}
+                                                    <span>{template.symptoms}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -492,12 +491,7 @@ function TabSymptomsBox({handleDDxDrawer, generatedDDx}) {
                                     <div className="text-truncate w-100">
                                         <div className="title text-main2">{option.data.value}</div>
                                         <div className="text-truncate">
-                                            {JSON.parse(option.data.key).symptoms.map((item, ii) => {
-                                                return (
-                                                    <span key={ii}>{`${item.symptom_name}${JSON.parse(option.data.key).symptoms.length - 1 != ii ? ", " : ""
-                                                        }`}</span>
-                                                );
-                                            })}
+                                            <span>{JSON.parse(option.data.key).symptoms}</span>
                                         </div>
                                     </div>
                                 </div>

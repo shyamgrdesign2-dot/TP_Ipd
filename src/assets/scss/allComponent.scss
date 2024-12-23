@@ -2357,7 +2357,7 @@ body {
             display: flex;
         }
     }
-    .badge-tapper {
+    .badge-tapper, .badge-autofill {
         position: absolute;
         bottom: 0;
         padding: 3px 8px;
@@ -2372,6 +2372,13 @@ body {
         cursor: pointer;
         i {
             font-size: 16px;
+        }
+    }
+    .autofill {
+        &:hover {
+            .badge-autofill {
+                display: flex;
+            }
         }
     }
 }
@@ -2503,3 +2510,6 @@ body {
     color: rgb(251, 113, 113) !important;
 }
 
+.color-blue{
+    color: rgb(88, 88, 212) !important;
+}
