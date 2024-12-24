@@ -235,7 +235,7 @@ const AncScheduler = ({
             <DatePicker
               key={"date"}
               onChange={(date) => {
-                const formattedDate = date?.format("YYYY-MM-DD");
+                const formattedDate = date?.toISOString();
                 handleImmunisationChange("dueDate", i, formattedDate);
               }}
               disabledDate={disabledDate}
