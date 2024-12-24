@@ -137,7 +137,7 @@ const AncScheduler = ({
   ];
 
   const disabledDate = (current) => {
-    return current && current >= moment().add(1, "days").startOf("day");
+    return current && current < moment().add(0, "days").startOf("day");
   };
 
   const renderTableHeader = () => {
@@ -429,7 +429,7 @@ const AncScheduler = ({
           ancDetails={
             immunisationPopup === "edit"
               ? ancSchedulerData?.[activeCategory]?.[editIndex]
-              : searchSelected
+              : { ...searchSelected, weekRange: {} }
           }
           editIndex={editIndex}
           activeCategory={activeCategory}

@@ -63,7 +63,10 @@ const Obstetric = ({
     immunisationDoctorList,
     obstetricDetails: allObstetricDetails,
   } = useSelector((state) => state.obstetric);
-  const isPregnancyCompleted = Object.keys(obstetricDetails).length === 0;
+  const isPregnancyCompleted =
+    Object.keys(obstetricDetails)?.length === 0 &&
+    allObstetricDetails &&
+    Object.keys(allObstetricDetails)?.length !== 0;
   const {
     gravidity,
     parity,
@@ -207,7 +210,7 @@ const Obstetric = ({
       patient_data.patient_unique_id
     );
     if (
-      Object.keys(obstetricDetails).length !== 0 &&
+      (Object.keys(obstetricDetails).length !== 0 || !isPregnancyCompleted) &&
       !prefillObstetricResponse?.lmp &&
       !obstetricDetails?.lmp
     ) {
@@ -316,7 +319,7 @@ const Obstetric = ({
   };
 
   const obstetricSaveBtnHandler = async () => {
-    if (obstetricDetails === null) {
+    if (obstetricDetails && Object.keys(obstetricDetails)?.length === 0) {
       setShowLmpPopup(true);
     } else {
       if (isPatientDiagnosisUpdated) {
