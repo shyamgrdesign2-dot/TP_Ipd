@@ -431,7 +431,7 @@ export const AncPrintPreviewColumns = [
   {
     title: "DUE DATE",
     key: "dueDate",
-    width: "11%",
+    width: "13%",
   },
   {
     title: "STATUS",
@@ -441,7 +441,7 @@ export const AncPrintPreviewColumns = [
   {
     title: "REMARKS",
     key: "remarks",
-    width: "25%",
+    width: "23%",
   },
   {
     title: "SELECT TO PRINT",

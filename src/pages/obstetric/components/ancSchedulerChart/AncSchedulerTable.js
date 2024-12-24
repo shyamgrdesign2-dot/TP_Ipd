@@ -1,3 +1,5 @@
+import moment from "moment";
+
 const AncSchedulerTable = ({ dataSource, columns }) => {
   const renderTableHeader = () => {
     return (
@@ -21,7 +23,7 @@ const AncSchedulerTable = ({ dataSource, columns }) => {
     return dataSource.map((item, i) => (
       <tr key={i}>
         <td className="tcell text-welcome">{item?.master?.name}</td>
-        <td className="tcell text-welcome">{item.dueDate ?? "-"}</td>
+        <td className="tcell text-welcome">{item.dueDate ? moment(item.dueDate).format("DD/MM/YYYY") : "-"}</td>
         <td className="tcell text-welcome">{item.status ?? "-"}</td>
         <td className="tcell text-welcome">{item.notes ?? "-"}</td>
       </tr>

@@ -47,13 +47,18 @@ const AncImmunisationPopup = ({
     popupType !== "delete"
   );
   const trimesterRange =
-    range.start >= 1 && range.start <= 12
+    Number(range?.start) === 0 && Number(range?.end) === 0
+      ? null
+      : range.start >= 1 && range.start <= 12
       ? 0
       : range.start >= 13 && range.start <= 27
       ? 1
-      : range.start
+      : range.start < 55 &&
+        range.end >= range.start &&
+        Number(range?.start) !== 0
       ? 2
       : null;
+
   const trimesterList = ["First", "Second", "Third"];
 
   const addOrEditCustomScheduler = async () => {
@@ -359,6 +364,8 @@ const AncImmunisationPopup = ({
                   disabled={
                     (popupType === "add" || popupType === "edit") &&
                     (!name ||
+                      Number(range?.end) === 0 ||
+                      Number(range?.start) === 0 ||
                       ((!range?.start ||
                         !range?.end ||
                         range?.start > range?.end) &&
@@ -369,7 +376,9 @@ const AncImmunisationPopup = ({
                     {popupType === "delete"
                       ? "Yes, Remove"
                       : popupType === "add"
-                      ? "Add Custom Test"
+                      ? activeCategory >= 0
+                        ? "Add Custom Test"
+                        : "Add Custom Vaccine"
                       : "save"}
                   </span>
                 </Button>
