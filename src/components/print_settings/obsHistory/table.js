@@ -946,8 +946,8 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        {"gravidaNumber" in item
-                          ? item?.gravidaNumber?.toString()?.padStart(2, "0")
+                        {"gravidity" in item
+                          ? item?.gravidity?.toString()?.padStart(2, "0")
                           : `-`}
                       </Text>
                       <Text
