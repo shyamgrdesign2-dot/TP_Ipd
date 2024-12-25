@@ -16,6 +16,7 @@ import {
     deleteTemplate,
     getExaminationTemplates,
     getFrequentlySearchedExamination,
+    singleTemplateDetails,
 } from "../../redux/examinationSlice";
 
 import TabExaminationSearch from "../../components/tab_design/TabExaminationSearch";
@@ -144,12 +145,15 @@ function TabExaminationBox() {
         }
     };
 
-    const onTemplateSelected = (template) => {
-        const updatedData = template.examination.map(e => {
-            return { ...e, unique_id: uuidv4(), note: e.note ? e.note : "" }
-        })
-        setExaminationData([...examinationData, ...updatedData]);
-        handleDrawerTemplate();
+    const onTemplateSelected = async (template) => {
+        const action = await dispatch(singleTemplateDetails(template.tet_id));
+        if (action.meta.requestStatus === "fulfilled") {
+            const updatedData = action?.payload;
+            setExaminationData([...examinationData, ...updatedData]);
+            handleDrawerTemplate();
+        } else {
+            errorMessage(action.error)
+        }
     };
 
     const onDeleteTemplateClicked = async (tet_id) => {
@@ -360,12 +364,7 @@ function TabExaminationBox() {
                                             <div className="text-truncate w-100">
                                                 <div className="title text-main2">{template.tet_template_name}</div>
                                                 <div className="text-truncate">
-                                                    {template.examination.map((item, ii) => {
-                                                        return (
-                                                            <span key={ii}>{`${item.examination_name}${template.examination.length - 1 != ii ? ", " : ""
-                                                                }`}</span>
-                                                        );
-                                                    })}
+                                                    <span>{template.examination}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -445,12 +444,7 @@ function TabExaminationBox() {
                                     <div className="text-truncate w-100">
                                         <div className="title text-main2">{option.data.value}</div>
                                         <div className="text-truncate">
-                                            {JSON.parse(option.data.key).examination.map((item, ii) => {
-                                                return (
-                                                    <span key={ii}>{`${item.examination_name}${JSON.parse(option.data.key).examination.length - 1 != ii ? ", " : ""
-                                                        }`}</span>
-                                                );
-                                            })}
+                                            <span>{JSON.parse(option.data.key).examination}</span>
                                         </div>
                                     </div>
                                 </div>

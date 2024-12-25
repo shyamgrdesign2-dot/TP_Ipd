@@ -108,7 +108,7 @@ const symptomsSlice = createSlice({
       })
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedSymptomsList = action.payload.symptoms.join(', ');
+        state.selectedSymptomsList = action.payload.symptoms;
 
         const { tst_id, tst_template_name, symptoms } = action.payload
         state.templates.unshift({ tst_id: tst_id, tst_template_name: tst_template_name, symptoms: symptoms.map((e) => e.symptom_name).join(', ') });
