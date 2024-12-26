@@ -117,14 +117,14 @@ const Examination = ({ examinationHistory, handleExaminationDrawer, handlePastPr
               <i className="icon-Add" />
               <span>Add another visit</span>
             </Button>
-            {/* or
+            or
             <Button
               type="button"
               className="btn-41 btn ant-btn-tex anotherVisitBtn completePregnancyBtn"
               onClick={handlePastPregnancyDrawer}
             >
               <span className="completePregnancy">Complete Pregnancy</span>
-            </Button> */}
+            </Button>
           </div>
         </>
       ) : (

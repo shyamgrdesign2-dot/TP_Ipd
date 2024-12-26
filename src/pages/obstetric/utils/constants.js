@@ -266,17 +266,17 @@ export const ImmunisationColumns = [
   {
     title: "STATUS",
     key: "status",
-    width: "16%",
+    width: "13%",
   },
   {
     title: "GIVEN DATE",
     key: "givenDate",
-    width: "16%",
+    width: "13%",
   },
   {
     title: "REMARKS",
     key: "remarks",
-    width: "34%",
+    width: "40%",
   },
   {
     title: "PRINT IN Rx",
@@ -289,7 +289,7 @@ export const AncSchedulerColumns = [
   {
     title: "TEST NAME",
     key: "testName",
-    width: "20%",
+    width: "24%",
   },
   {
     title: "WEEK RANGE",
@@ -299,45 +299,7 @@ export const AncSchedulerColumns = [
   {
     title: "DUE DATE",
     key: "dueDate",
-    width: "15%",
-  },
-  {
-    title: "STATUS",
-    key: "status",
-    width: "16%",
-  },
-  {
-    title: "REMARKS",
-    key: "remarks",
-    width: "23%",
-  },
-  {
-    title: "PRINT IN Rx",
-    key: "printInRx",
-    width: "10%",
-  },
-  {
-    title: "Action",
-    key: "action",
-    width: "7%",
-  },
-];
-
-export const AncPrintPreviewColumns = [
-  {
-    title: "TEST NAME",
-    key: "testName",
-    width: "22%",
-  },
-  {
-    title: "WEEK RANGE",
-    key: "weekRange",
-    width: "10%",
-  },
-  {
-    title: "DUE DATE",
-    key: "dueDate",
-    width: "11%",
+    width: "13%",
   },
   {
     title: "STATUS",
@@ -347,38 +309,11 @@ export const AncPrintPreviewColumns = [
   {
     title: "REMARKS",
     key: "remarks",
-    width: "25%",
+    width: "30%",
   },
   {
-    title: "SELECT TO PRINT",
+    title: "PRINT IN Rx",
     key: "printInRx",
-    width: "19%",
-  },
-];
-
-export const AncPrintedColumns = [
-  {
-    title: "Test Name",
-    dataIndex: "testName",
-    key: "age",
-    width: "30%",
-  },
-  {
-    title: "Due Date",
-    dataIndex: "dueDate",
-    key: "dueDate",
-    width: "20%",
-  },
-  {
-    title: "Status",
-    dataIndex: "status",
-    key: "status",
-    width: "20%",
-  },
-  {
-    title: "Remark",
-    dataIndex: "remarks",
-    key: "remarks",
-    width: "30%",
+    width: "10%",
   },
 ];

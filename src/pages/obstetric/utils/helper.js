@@ -43,13 +43,13 @@ export const getTypeOfAbortion = (typeOfAbortion) => {
 };
 
 export const splitByTrimester = (data) => {
-  const firstTrimester = data?.filter(
-    (item) => item?.weekRange?.start >= 1 && item?.weekRange?.start <= 12
+  const firstTrimester = data.filter(
+    (item) => item.weekStart >= 1 && item.weekStart <= 12
   );
-  const secondTrimester = data?.filter(
-    (item) => item.weekRange?.start >= 13 && item?.weekRange?.start <= 27
+  const secondTrimester = data.filter(
+    (item) => item.weekStart >= 13 && item.weekStart <= 27
   );
-  const thirdTrimester = data?.filter((item) => item?.weekRange?.start >= 28);
+  const thirdTrimester = data.filter((item) => item.weekStart >= 28);
 
   return [firstTrimester, secondTrimester, thirdTrimester];
 };
