@@ -13,9 +13,7 @@ import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import "./pastPregnancy.scss";
 import { EllipsisOutlined, DeleteOutlined } from "@ant-design/icons";
-import {
-  MESSAGE_KEY,
-} from "../../../../utils/constants";
+import { MESSAGE_KEY } from "../../../../utils/constants";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import {
@@ -180,22 +178,20 @@ function PastPregnancy({
           createdBy: userId,
           modifiedAt: new Date().toISOString(),
           modifiedBy: userId,
-          ...obstetricDetails?.currentPregnancy,
+          ...obstetricDetails,
         },
       ];
     }
-    const payload = {
+    let payload = {
       ...allObstetricDetails,
       pregnancyHistory: newPastPregnancy,
     };
 
-    dispatch(addObstetricDetails(payload));
-    dispatch(obstetricDetailsUpdated());
-    dispatch(patientDiagnosisUpdated());
-    setIsDataAddedOrEdited(false);
-
     if (isCompletePregnancy) {
-      payload.currentPregnancy = null;
+      payload = {
+        ...payload,
+        currentPregnancy: null,
+      };
       setLoader(true);
       const obstetricResponse = await upsertObstetricDetails(
         patient_data.patient_unique_id,
@@ -232,6 +228,10 @@ function PastPregnancy({
         errorMessage("Error while Completing Pregnancy!");
       }
     }
+    dispatch(addObstetricDetails(payload));
+    dispatch(obstetricDetailsUpdated());
+    dispatch(patientDiagnosisUpdated());
+    setIsDataAddedOrEdited(false);
     close();
   };
 
@@ -251,6 +251,52 @@ function PastPregnancy({
     close();
   };
 
+  const obstetricDeleteBtnHandler = async () => {
+    let newPastPregnancy = [...pregnancyHistory];
+    if (editIndex >= 0) {
+      newPastPregnancy.splice(editIndex, 1);
+    }
+    const payload = {
+      ...obstetricDetails,
+      pregnancyHistory: newPastPregnancy,
+    };
+
+    dispatch(addObstetricDetails(payload));
+    dispatch(resetUpdatedPatientDiagnosis());
+    setDoneLoader(true);
+    const obstetricResponse = await upsertObstetricDetails(
+      patient_data.patient_unique_id,
+      payload
+    );
+    setDoneLoader(false);
+    if (obstetricResponse) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: "",
+        className: "message-appointment",
+        content: (
+          <div className="d-flex align-items-center">
+            <img src={visitEnd} className="me-3" />
+            <div>
+              <div className="fontroboto text-start fw-normal mt-1">
+                Past Pregnancy Details deleted successfully
+              </div>
+            </div>
+            <img
+              src={imgCloseVisit}
+              className="ms-3"
+              onClick={() => message.destroy()}
+            />
+          </div>
+        ),
+        duration: 5,
+      });
+    } else {
+      errorMessage("Error while adding data");
+    }
+    close();
+  };
+
   const TABLE_PAST_PREGNANCY = useMemo(() => {
     return (
       <div className="past-pregnancy-wrap-body past-pregnancy-child-width">
@@ -264,7 +310,11 @@ function PastPregnancy({
                 title={
                   <div
                     className="tooltip-content"
-                    onClick={deletePastPregnancyData}
+                    onClick={
+                      isPregnancyCompleted
+                        ? obstetricDeleteBtnHandler
+                        : deletePastPregnancyData
+                    }
                   >
                     <DeleteOutlined className="delete-icon" />
                     <span>Delete</span>

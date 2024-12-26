@@ -6,6 +6,7 @@ import { handlePrintClick } from "../../../../utils/utils";
 import { useReactToPrint } from "react-to-print";
 import FullPageLoader from "../../../vaccination/components/Loader";
 import AncSchedulerChart from "../ancSchedulerChart/AncSchedulerChart";
+import moment from "moment";
 
 const AncPrintPreview = ({
   ancSchedulerData,
@@ -109,7 +110,9 @@ const AncPrintPreview = ({
                 <td className="ancPrintPreviewTcell weekRange">
                   {`${weekRange?.start} - ${weekRange?.end}`}
                 </td>
-                <td className="ancPrintPreviewTcell">{dueDate}</td>
+                <td className="ancPrintPreviewTcell">
+                  {dueDate ? moment(dueDate).format("DD/MM/YYYY") : ""}
+                </td>
                 <td className="ancPrintPreviewTcell">{status}</td>
 
                 <td className="ancPrintPreviewTcell">{notes}</td>
