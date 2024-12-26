@@ -13,6 +13,12 @@ function ObsHistoryTableView({
   options,
   obsHistoryData,
 }) {
+  const ancPrintEnabled = obsHistoryData?.ancHistory?.filter(
+    (item) => item?.enablePrint
+  );
+  const immunisationPrintEnabled = obsHistoryData?.immunisationHistory?.filter(
+    (item) => item?.enablePrint
+  );
   return (
     <View style={{ marginTop: PX_TO_PT * 15 }}>
       <Text
@@ -1594,7 +1600,7 @@ function ObsHistoryTableView({
           ))}
         </View>
       )}
-      {options?.includes("ancHistory") && (
+      {options?.includes("ancHistory") && ancPrintEnabled?.length > 0 && (
         <View>
           <Text
             style={{
@@ -1676,78 +1682,81 @@ function ObsHistoryTableView({
                 Remarks
               </Text>
             </View>
-            {obsHistoryData?.ancHistory?.map((item, i) => (
-              <View style={styles.row} key={i}>
-                <Text
-                  style={[
-                    styles.cell,
-                    {
-                      flex: 1.3,
-                      color: "#171725",
-                      fontFamily: printSettings?.page_format?.font_family,
-                      fontSize:
-                        PX_TO_PT * printSettings?.page_format?.font_size,
-                      fontWeight: 400,
-                    },
-                  ]}
-                >
-                  {item?.master?.name ?? ""}
-                </Text>
-                <Text
-                  style={[
-                    styles.cell,
-                    {
-                      flex: 0.6,
-                      color: "#171725",
-                      fontFamily: printSettings?.page_format?.font_family,
-                      fontSize:
-                        PX_TO_PT * printSettings?.page_format?.font_size,
-                      fontWeight: 400,
-                    },
-                  ]}
-                >
-                  {item?.dueDate
-                    ? moment(item?.dueDate).format("DD/MM/YYYY")
-                    : ""}
-                </Text>
-                <Text
-                  style={[
-                    styles.cell,
-                    {
-                      flex: 0.6,
-                      color: "#171725",
-                      fontFamily: printSettings?.page_format?.font_family,
-                      fontSize:
-                        PX_TO_PT * printSettings?.page_format?.font_size,
-                      fontWeight: 400,
-                    },
-                  ]}
-                >
-                  {item?.status ?? ""}
-                </Text>
+            {obsHistoryData?.ancHistory?.map((item, i) => {
+              if (item?.enablePrint) {
+                return (
+                  <View style={styles.row} key={i}>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 1.3,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                        },
+                      ]}
+                    >
+                      {item?.master?.name ?? ""}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 0.6,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                        },
+                      ]}
+                    >
+                      {item?.dueDate
+                        ? moment(item?.dueDate).format("DD/MM/YYYY")
+                        : ""}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 0.6,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                        },
+                      ]}
+                    >
+                      {item?.status ?? ""}
+                    </Text>
 
-                <Text
-                  style={[
-                    styles.cell,
-                    {
-                      flex: 1.3,
-                      color: "#171725",
-                      fontFamily: printSettings?.page_format?.font_family,
-                      fontSize:
-                        PX_TO_PT * printSettings?.page_format?.font_size,
-                      fontWeight: 400,
-                    },
-                  ]}
-                >
-                  {item?.notes ?? ""}
-                </Text>
-              </View>
-            ))}
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 1.3,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                        },
+                      ]}
+                    >
+                      {item?.notes ?? ""}
+                    </Text>
+                  </View>
+              );
+            }})}
           </View>
         </View>
       )}
 
-      {options?.includes("immunisationHistory") && (
+      {options?.includes("immunisationHistory") && immunisationPrintEnabled?.length > 0 && (
         <View>
           <Text
             style={{
@@ -1814,60 +1823,63 @@ function ObsHistoryTableView({
                 Remarks
               </Text>
             </View>
-            {obsHistoryData?.immunisationHistory?.map((item, i) => (
-              <View style={styles.row} key={i}>
-                <Text
-                  style={[
-                    styles.cell,
-                    {
-                      flex: 1,
-                      color: "#171725",
-                      fontFamily: printSettings?.page_format?.font_family,
-                      fontSize:
-                        PX_TO_PT * printSettings?.page_format?.font_size,
-                      fontWeight: 400,
-                    },
-                  ]}
-                >
-                  {item?.master?.name ?? ""}
-                </Text>
-                <Text
-                  style={[
-                    styles.cell,
-                    {
-                      flex: 0.5,
-                      color: "#171725",
-                      fontFamily: printSettings?.page_format?.font_family,
-                      fontSize:
-                        PX_TO_PT * printSettings?.page_format?.font_size,
-                      fontWeight: 400,
-                    },
-                  ]}
-                >
-                  {item?.status === "Finished" && item?.givenDate
+            {obsHistoryData?.immunisationHistory?.map((item, i) => {
+              if (item?.enablePrint) {
+                return (
+                  <View style={styles.row} key={i}>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 1,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                        },
+                      ]}
+                    >
+                      {item?.master?.name ?? ""}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 0.5,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                        },
+                      ]}
+                    >
+                      {item?.status === "Finished" && item?.givenDate
                     ? `Given on ${moment(item?.givenDate).format("DD/MM/YYYY")}`
-                    : item?.status === "Finished"
-                    ? "Given"
-                    : ""}
-                </Text>
+                        : item?.status === "Finished"
+                        ? "Given"
+                        : ""}
+                    </Text>
 
-                <Text
-                  style={[
-                    styles.cell,
-                    {
-                      flex: 1.5,
-                      color: "#171725",
-                      fontFamily: printSettings?.page_format?.font_family,
-                      fontSize:
-                        PX_TO_PT * printSettings?.page_format?.font_size,
-                      fontWeight: 400,
-                    },
-                  ]}
-                >
-                  {item?.notes ?? ""}
-                </Text>
-              </View>
-            ))}
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 1.5,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                        },
+                      ]}
+                    >
+                      {item?.notes ?? ""}
+                    </Text>
+                  </View>
+                )}
+            })}
           </View>
         </View>
       )}

@@ -12,7 +12,7 @@ import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { AncSchedulerColumns } from "../../utils/constants";
 import {
-  mergeData,
+  mergeDefaultAndDoctorList,
   splitByTrimester,
   updateEnablePrint,
 } from "../../utils/helper";
@@ -92,7 +92,7 @@ const AncScheduler = ({ ancHistory = [] }) => {
 
   useEffect(() => {
     const ancHistoryData = [...ancHistory];
-    const newAncHistory = mergeData(
+    const newAncHistory = mergeDefaultAndDoctorList(
       ancHistoryData,
       defaultAncSchedule,
       ancDoctorList,

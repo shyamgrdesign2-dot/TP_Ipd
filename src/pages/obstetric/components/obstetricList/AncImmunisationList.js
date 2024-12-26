@@ -1,61 +1,42 @@
-import React from "react";
-
-const mockAncScheduler = [
-  {
-    id: 1,
-    title: "Dating and viability Pregnancy",
-    dueDate: "14/01/2024",
-    status: "Due",
-    description: "Lorem ipsum dolor sit amet",
-  },
-  {
-    id: 2,
-    title: "Nuchal Translucency",
-    dueDate: "22/04/2023",
-    status: "Given",
-    description: "Lorem ipsum dolor sit amet",
-  },
-  {
-    id: 2,
-    title: "Anomaly Scan",
-    dueDate: "22/04/2023",
-    status: "Due",
-    description: "Lorem ipsum dolor sit amet",
-  },
-  {
-    id: 2,
-    title: "Fetal Echo Scan",
-    dueDate: "22/04/2023",
-    status: "Due",
-    description: "Lorem ipsum dolor sit amet",
-  },
-];
-
-const mockImmunisationVaccine = [
-  {
-    id: 1,
-    title: "Td/TT",
-    status: "Due",
-    description: "Lorem ipsum dolor sit amet",
-  },
-  {
-    id: 2,
-    title: "Flue Vaccine",
-    status: "Given",
-    description: "Lorem ipsum dolor sit amet",
-  },
-  {
-    id: 3,
-    title: "Tdap",
-    status: "Due",
-    description: "Lorem ipsum dolor sit amet",
-  },
-];
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { mergeDefaultAndDoctorList } from "../../utils/helper";
 
 const AncImmunisationList = ({ handleDrawerObstetric }) => {
+  const {
+    obstetricDetails,
+    defaultAncSchedule,
+    defaultImmunisation,
+    ancDoctorList,
+    immunisationDoctorList,
+  } = useSelector((state) => state.obstetric);
+  const { userId } = useSelector((state) => state.doctors);
+
+  const [immunisationHistory, setImmunisationHistory] = useState([]);
+  const [ancHistory, setAncHistory] = useState([]);
+
+  useEffect(() => {
+    const newImmunisationHistory = mergeDefaultAndDoctorList(
+      obstetricDetails?.immunisationHistory,
+      defaultImmunisation,
+      immunisationDoctorList,
+      userId
+    );
+    setImmunisationHistory(newImmunisationHistory);
+
+    const newAncHistory = mergeDefaultAndDoctorList(
+      obstetricDetails?.ancHistory,
+      defaultAncSchedule,
+      ancDoctorList,
+      userId,
+      true
+    );
+    setAncHistory(newAncHistory);
+  }, []);
+
   return (
     <div>
-      {mockAncScheduler?.length > 0 && (
+      {ancHistory?.length > 0 && (
         <div
           className="cardbody-data border rounded"
           style={{ padding: "0 14px", marginTop: "8px" }}
@@ -81,19 +62,35 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
                 paddingLeft: 0,
               }}
             >
-              {mockAncScheduler?.map((item, index) => (
-                <li key={index} style={{ fontWeight: 400 }}>
-                  <span style={{ fontWeight: 500 }}>{index + 1}. </span>
-                  <span style={{ fontWeight: 500 }}>{item.title}</span> (Due
-                  Date from {item.dueDate}, {item.status}, {item.description})
-                </li>
-              ))}
+              {ancHistory?.map((item, index) => {
+                if (
+                  !item?.isDeleted &&
+                  (item?.dueDate ||
+                    item?.status ||
+                    item?.notes ||
+                    item?.enablePrint)
+                ) {
+                  return (
+                    <li key={index} style={{ fontWeight: 400 }}>
+                      <span style={{ fontWeight: 500 }}>{index + 1}. </span>
+                      <span style={{ fontWeight: 500 }}>
+                        {item?.master?.name}
+                      </span>{" "}
+                      ({item.dueDate ? "Due Date from" + item.dueDate : ""}
+                      {item.dueDate && item.status ? ", " : ""}
+                      {item.status ?? ""}
+                      {(item.status || item.dueDate) && item.notes ? ", " : ""}
+                      {item.notes ?? ""})
+                    </li>
+                  );
+                }
+              })}
             </ol>
           </div>
         </div>
       )}
 
-      {mockImmunisationVaccine?.length > 0 && (
+      {immunisationHistory?.length > 0 && (
         <div
           className="cardbody-data border rounded"
           style={{ padding: "0 14px", marginTop: "8px" }}
@@ -119,13 +116,26 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
                 paddingLeft: 0,
               }}
             >
-              {mockImmunisationVaccine?.map((item, index) => (
-                <li key={index} style={{ fontWeight: 400 }}>
-                  <span style={{ fontWeight: 500 }}>{index + 1}. </span>
-                  <span style={{ fontWeight: 500 }}>{item.title}</span> (
-                  {item.status}, {item.description})
-                </li>
-              ))}
+              {immunisationHistory?.map((item, index) => {
+                if (
+                  !item?.isDeleted &&
+                  (item?.givenDate ||
+                    item?.status ||
+                    item?.notes ||
+                    item?.enablePrint)
+                ) {
+                  return (
+                    <li key={index} style={{ fontWeight: 400 }}>
+                      <span style={{ fontWeight: 500 }}>{index + 1}. </span>
+                      <span style={{ fontWeight: 500 }}>
+                        {item?.master?.name}
+                      </span>{" "}
+                      ({item?.status}
+                      {item?.notes ? ", " + item?.notes : ""})
+                    </li>
+                  );
+                }
+              })}
             </ol>
           </div>
         </div>
