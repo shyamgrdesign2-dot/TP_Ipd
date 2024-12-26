@@ -13,8 +13,6 @@ function ObsHistoryTableView({
   options,
   obsHistoryData,
 }) {
-  const pregnancyHistory = obsHistoryData?.pregnancyHistory || [];
-  obsHistoryData = obsHistoryData?.currentPregnancy || {};
   const ancPrintEnabled = obsHistoryData?.ancHistory?.filter(
     (item) => item?.enablePrint
   );
@@ -653,7 +651,7 @@ function ObsHistoryTableView({
       )}
 
       {options?.includes("history") &&
-        pregnancyHistory?.length > 0 && (
+        obsHistoryData?.pregnancyHistory?.length > 0 && (
           <View>
             <Text
               style={{
@@ -671,7 +669,7 @@ function ObsHistoryTableView({
             >
               Pregnancy history
             </Text>
-            {pregnancyHistory?.map((item, i) => {
+            {obsHistoryData?.pregnancyHistory.map((item, i) => {
               return (
                 <View key={i} wrap={false}>
                   <View style={[styles.table, { marginTop: 0 }]}>

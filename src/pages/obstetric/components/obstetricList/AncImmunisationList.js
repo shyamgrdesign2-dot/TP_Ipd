@@ -17,7 +17,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
 
   useEffect(() => {
     const newImmunisationHistory = mergeDefaultAndDoctorList(
-      obstetricDetails?.currentPregnancy?.immunisationHistory || [],
+      obstetricDetails?.immunisationHistory,
       defaultImmunisation,
       immunisationDoctorList,
       userId
@@ -25,7 +25,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
     setImmunisationHistory(newImmunisationHistory);
 
     const newAncHistory = mergeDefaultAndDoctorList(
-      obstetricDetails?.currentPregnancy?.ancHistory || [],
+      obstetricDetails?.ancHistory,
       defaultAncSchedule,
       ancDoctorList,
       userId,

@@ -606,7 +606,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                         ({ ...option, key: option.id })
                                         : (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ?
                                           ({ ...option, key: option.id })
-                                          : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?.id) ?
+                                          : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?._id) ?
                                             ({ ...option, key: option.id })
                                             : (caseManagerData.labParamsData?.length > 0 && option.id === 15) ? ({ ...option, key: option.id })
                                              : (caseManagerData?.surgeries?.length > 0 && option.id === 16) ?

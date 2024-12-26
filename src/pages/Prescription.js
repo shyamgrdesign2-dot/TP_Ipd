@@ -49,7 +49,7 @@ import { useAccess } from "./vaccination/useAccess";
 import { getGynecDetails } from "../api/services/ApiGynec";
 import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
-import { fetchObstetricDetails } from "./obstetric/service";
+import { fetchAllObstetricDetails } from "./obstetric/service";
 import { addObstetricDetails } from "../redux/obstetricSlice";
 import { getClinicName } from "../utils/utils";
 import UploadDocument from "./medicalRecords/UploadDocument";
@@ -98,10 +98,9 @@ function Prescription() {
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
-  const { obstetricDetails: allObstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
+  const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
-  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
-  const examinationHistory = obstetricDetails?.examinationHistory || [];
+  const { examinationHistory = [] } = obstetricDetails;
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
@@ -212,8 +211,9 @@ function Prescription() {
   const baseUrl = env.lab_params_api_url;
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchObstetricDetails(
+    const obstetricResponse = await fetchAllObstetricDetails(
       patient_data.patient_unique_id,
+      userId
     );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
@@ -901,12 +901,12 @@ const getGenerateDDx = async (field) => {
               onClick={handleDrawerObstetric}
             >
               <i
-                    className={`${examinationHistory?.length > 0
+                    className={`${examinationHistory.length > 0
                       ? "icon-Edit"
                       : "icon-Add"
                 } me-1 fs-5`}
               ></i>
-                  <span>{`${examinationHistory?.length > 0 ? "Edit" : "Add"
+                  <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"
                     }`}</span>
             </button>
           </div>

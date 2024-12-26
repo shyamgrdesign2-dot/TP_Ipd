@@ -13,14 +13,15 @@ import LmpPopup from "./components/lmpPopup/LmpPopup";
 import { useSelector, useDispatch } from "react-redux";
 import { Drawer } from "antd";
 import {
+  addObstetricData,
+  fetchAllObstetricDetails,
   fetchAncDoctorList,
   fetchDefaultAnc,
   fetchDefaultImmunisation,
   fetchImmunisationDoctorList,
-  fetchObstetricDetails,
   fetchPrefillObstetricDetails,
+  updateObstetricData,
   updatePrefillObstetricData,
-  upsertObstetricDetails,
 } from "./service";
 import {
   addObstetricDetails,
@@ -62,7 +63,6 @@ const Obstetric = ({
     defaultImmunisation,
     ancDoctorList,
     immunisationDoctorList,
-    obstetricDetails: allObstetricDetails,
   } = useSelector((state) => state.obstetric);
   const {
     gravidity,
@@ -249,8 +249,9 @@ const Obstetric = ({
   };
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchObstetricDetails(
-      patient_data.patient_unique_id
+    const obstetricResponse = await fetchAllObstetricDetails(
+      patient_data.patient_unique_id,
+      userId
     );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
@@ -318,29 +319,33 @@ const Obstetric = ({
         return acc;
       }, {});
       const payload = {
-        ...allObstetricDetails,
-        currentPregnancy: {
-          ...patientDiagnosisData,
-          ...pastPregnancy,
-          examinationHistory: obstetricDetails?.examinationHistory || [],
-          ancHistory: obstetricDetails?.ancHistory || [],
-          immunisationHistory: obstetricDetails?.immunisationHistory || [],
-          patientId: patient_data.patient_unique_id,
-          diagnosisNotes: patientDiagnosisNotes?.trim(),
-          createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-          createdBy: obstetricDetails?.createdBy || tokenData?.user_id,
-          modifiedAt: new Date().toISOString(),
-          modifiedBy: tokenData?.user_id,
-        },
-        pregnancyHistory: allObstetricDetails?.pregnancyHistory || [],
+        ...obstetricDetails,
+        ...patientDiagnosisData,
+        ...pastPregnancy,
+        patientId: patient_data.patient_unique_id,
+        diagnosisNotes: patientDiagnosisNotes?.trim(),
+        createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
+        createdBy: obstetricDetails?.createdBy || tokenData?.user_id,
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: tokenData?.user_id,
       };
       dispatch(addObstetricDetails(payload));
       dispatch(resetUpdatedPatientDiagnosis());
       setLoader(true);
-      const obstetricResponse = await upsertObstetricDetails(
-        patient_data.patient_unique_id,
-        payload
-      );
+      const obstetricResponse = obstetricDetails?._id
+        ? await updateObstetricData(
+            obstetricDetails?.patientId,
+            {
+              ...payload,
+              gravidity: payload.gravidity ?? null,
+              parity: payload.parity ?? null,
+              livingChildren: payload.livingChildren ?? null,
+              abortion: payload.abortion ?? null,
+              ectopicPregnancies: payload.ectopicPregnancies ?? null,
+            },
+            userId
+          )
+        : await addObstetricData(payload);
       const prefillObstetricPayload = {};
       Object.keys(prefillObstetricData).forEach((key) => {
         if (prefillObstetricData[key]) {
@@ -349,12 +354,12 @@ const Obstetric = ({
       });
       await updatePrefillObstetricData(prefillObstetricPayload, userId);
       setLoader(false);
-      if (obstetricResponse) {
+      if (obstetricResponse?.data) {
         trackUpdateEvent();
         setShowSuccess(true);
         getAllObstetricDetails();
       } else {
-        errorMessage("Error while adding data");
+        errorMessage(obstetricResponse?.message || "Error while adding data");
       }
     }
     setTimeout(() => {
@@ -448,7 +453,7 @@ const Obstetric = ({
         <div className="scrollableContainer">
           <div className="pregnancyHistoryTitle">Pregnancy history</div>
           <PregnancyHistory
-            pregnancyHistory={allObstetricDetails?.pregnancyHistory}
+            pregnancyHistory={obstetricDetails?.pregnancyHistory}
             continueExaminationHandler={continueExaminationHandler}
             handlePastPregnancyDrawer={handlePastPregnancyDrawer}
             setEditIndex={setPastPregnancyEditIndex}
@@ -479,7 +484,7 @@ const Obstetric = ({
             {!isPreviousPregnancyOverview && (
               <TabPane tab="Pregnancy History" key="pregnancyHistory">
                 <PregnancyHistory
-                  pregnancyHistory={allObstetricDetails?.pregnancyHistory}
+                  pregnancyHistory={obstetricDetails?.pregnancyHistory}
                   continueExaminationHandler={continueExaminationHandler}
                   handlePastPregnancyDrawer={handlePastPregnancyDrawer}
                   setEditIndex={setPastPregnancyEditIndex}

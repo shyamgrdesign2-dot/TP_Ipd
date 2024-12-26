@@ -70,7 +70,7 @@ import { useAccess } from "./vaccination/useAccess";
 import { getGynecDetails } from "../api/services/ApiGynec";
 import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
-import { fetchObstetricDetails } from "./obstetric/service";
+import { fetchAllObstetricDetails } from "./obstetric/service";
 import {
   addObstetricDetails,
   navigateToObstetric,
@@ -110,10 +110,9 @@ function SmartPrescription() {
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
-  const { obstetricDetails: allObstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
+  const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
-  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
-  const examinationHistory = obstetricDetails?.examinationHistory || [];
+  const { examinationHistory = [] } = obstetricDetails;
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
@@ -243,7 +242,7 @@ function SmartPrescription() {
   const baseUrlLabParams = env.lab_params_api_url;
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchObstetricDetails(
+    const obstetricResponse = await fetchAllObstetricDetails(
       patient_data.patient_unique_id,
       userId
     );
@@ -896,10 +895,10 @@ function SmartPrescription() {
             >
               <i
                 className={`${
-                  examinationHistory?.length > 0 ? "icon-Edit" : "icon-Add"
+                  examinationHistory.length > 0 ? "icon-Edit" : "icon-Add"
                 } me-1 fs-5`}
               ></i>
-              <span>{`${examinationHistory?.length > 0 ? "Edit" : "Add"}`}</span>
+              <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"}`}</span>
             </button>
           </div>
           {(obstetricDetails?.lmp ||
@@ -909,7 +908,7 @@ function SmartPrescription() {
             obstetricDetails?.livingChildren ||
             obstetricDetails?.abortion ||
             obstetricDetails?.ectopicPregnancies ||
-            examinationHistory?.length > 0) && <ObstetricList obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} />}
+            examinationHistory?.length > 0) && <ObstetricList />}
         </div>
       ) : e.tmdpm_id === 18 && e.tmdpm_status === 0 ? (
         <>
@@ -1681,7 +1680,7 @@ function SmartPrescription() {
             width="100%"
             push={false}
           >
-            <Obstetric obstetricDetails={obstetricDetails} obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} />
+            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
           </Drawer>
         )}
         {uploadDocDrawer && (

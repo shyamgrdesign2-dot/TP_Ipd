@@ -52,14 +52,10 @@ export const updateEnablePrint = (ancHistory) => {
   const updatedAncHistory = ancHistory?.filter((item) => !item?.isDeleted);
 
   return updatedAncHistory.map((item) => {
-    const modifiedAt = new Date(item.modifiedAt);
+    const updatedAt = new Date(item.updated_at);
 
     // Check if updated_at is within today's range
-    if (
-      modifiedAt >= todayStart &&
-      modifiedAt <= todayEnd &&
-      item.enablePrint
-    ) {
+    if (updatedAt >= todayStart && updatedAt <= todayEnd && item.enablePrint) {
       return { ...item, enablePrint: true };
     } else {
       return { ...item, enablePrint: false };
@@ -108,10 +104,10 @@ export function mergeDefaultAndDoctorList(
         status: "Due",
         notes: null,
         enablePrint: false,
-        createdAt: new Date().toISOString(),
-        createdBy: userId,
-        modifiedAt: new Date().toISOString(),
-        modifiedBy: userId,
+        created_at: new Date().toISOString(),
+        created_by: userId,
+        updated_at: new Date().toISOString(),
+        updated_by: userId,
       };
 
       // Conditionally add weekRange if it should be included
@@ -152,10 +148,10 @@ export function mergeDefaultAndDoctorList(
         status: "Due",
         notes: null,
         enablePrint: false,
-        createdAt: new Date().toISOString(),
-        createdBy: userId,
-        modifiedAt: new Date().toISOString(),
-        modifiedBy: userId,
+        created_at: new Date().toISOString(),
+        created_by: userId,
+        updated_at: new Date().toISOString(),
+        updated_by: userId,
       };
 
       // Conditionally add weekRange if it should be included

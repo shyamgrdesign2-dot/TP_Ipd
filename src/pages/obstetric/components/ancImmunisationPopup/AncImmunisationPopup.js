@@ -117,10 +117,10 @@ const AncImmunisationPopup = ({
             master: {
               name: name,
             },
-            createdAt: new Date().toISOString(),
-            createdBy: userId,
-            modifiedAt: new Date().toISOString(),
-            modifiedBy: userId,
+            created_at: new Date().toISOString(),
+            created_by: userId,
+            updated_at: new Date().toISOString(),
+            updated_by: userId,
           },
         ];
       }
@@ -133,8 +133,8 @@ const AncImmunisationPopup = ({
           },
           default: false,
           enablePrint: true,
-          modifiedAt: new Date().toISOString(),
-          modifiedBy: userId,
+          updated_at: new Date().toISOString(),
+          updated_by: userId,
         };
       } else {
         newImmunisationHistory = [
@@ -149,10 +149,10 @@ const AncImmunisationPopup = ({
             master: {
               name: name,
             },
-            createdAt: new Date().toISOString(),
-            createdBy: userId,
-            modifiedAt: new Date().toISOString(),
-            modifiedBy: userId,
+            created_at: new Date().toISOString(),
+            created_by: userId,
+            updated_at: new Date().toISOString(),
+            updated_by: userId,
           },
         ];
       }
@@ -160,11 +160,9 @@ const AncImmunisationPopup = ({
 
     const payload = {
       ...obstetricDetails,
-      currentCategory: {
-        ...obstetricDetails.currentCategory,
-        ancHistory: newAncHistory,
-        immunisationHistory: newImmunisationHistory,
-      },
+      patientId: patient_data.patient_unique_id,
+      ancHistory: newAncHistory,
+      immunisationHistory: newImmunisationHistory,
     };
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
@@ -181,10 +179,8 @@ const AncImmunisationPopup = ({
     const newAncHistory = ancSchedulerData.flat();
     const payload = {
       ...obstetricDetails,
-      currentPregnancy: {
-        ...obstetricDetails?.currentPregnancy,
-        ancHistory: newAncHistory,
-      }
+      patientId: patient_data.patient_unique_id,
+      ancHistory: newAncHistory,
     };
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
