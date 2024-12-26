@@ -524,6 +524,50 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
         [printSettings]
     );
 
+    const updateMargin = useCallback(
+        (type, position, value, limit) => {
+            setPrintSettings((prev) => {
+                // Ensure header_footer and margin objects exist
+                const headerFooter = prev.header_footer || {};
+                const marginObj = headerFooter[type] || {};
+    
+                // Update the margin value if within limit
+                if (value <= limit) {
+                    marginObj[position] = value;
+                }
+    
+                return {
+                    ...prev,
+                    header_footer: {
+                        ...headerFooter,
+                        [type]: {
+                            ...marginObj,
+                        },
+                    },
+                };
+            });
+        },
+        []
+    );
+    
+    const onMarginChange = (type, position, limit) => (e) => {
+        const value = e.target.value;
+        updateMargin(type, position, value, limit);
+    };
+    
+    // Handlers for custom letterhead margins
+    const onCustomLetterheadTopMarginChange = onMarginChange("custom_letterhead_margin", "top", 15);
+    const onCustomLetterheadLeftMarginChange = onMarginChange("custom_letterhead_margin", "left", 10);
+    const onCustomLetterheadRightMarginChange = onMarginChange("custom_letterhead_margin", "right", 10);
+    const onCustomLetterheadBottomMarginChange = onMarginChange("custom_letterhead_margin", "bottom", 15);
+    
+    // Handlers for uploaded letterhead margins
+    const onUploadedLetterheadTopMarginChange = onMarginChange("uploaded_letterhead_margin", "top", 15);
+    const onUploadedLetterheadLeftMarginChange = onMarginChange("uploaded_letterhead_margin", "left", 10);
+    const onUploadedLetterheadRightMarginChange = onMarginChange("uploaded_letterhead_margin", "right", 10);
+    const onUploadedLetterheadBottomMarginChange = onMarginChange("uploaded_letterhead_margin", "bottom", 15);
+    
+
     //Display Patient Info
     const patientInfoTable = [
         {
@@ -941,6 +985,64 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                     </Form.Item>
                                 </div>
 
+                                <div className="mt-5">
+                                <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                                    <Col lg="24">
+                                        <div className="title-common">Set page margins to display your own letterhead</div>
+                                    </Col>
+                                </Row>
+                                <div className="">
+                                    <div className="my-3 text-center">
+                                        <label className="mb-1">Top (cm)</label> <br />
+                                        <Input className='inputheight41-group' value={printSettings?.header_footer?.custom_letterhead_margin?.top} onChange={onCustomLetterheadTopMarginChange} style={{ width: 70 }} />
+                                    </div>
+                                    <Row className="align-items-center justify-content-around form_addnewpatient mb-1">
+                                        <Col lg="6">
+                                            <div className="text-center">
+                                                <label className="mb-1">Left (cm)</label> <br />
+                                                <Input className='inputheight41-group' value={printSettings?.header_footer?.custom_letterhead_margin?.left} onChange={onCustomLetterheadLeftMarginChange} style={{ width: 70 }} />
+                                            </div>
+                                        </Col>
+                                        <Col lg="12">
+                                            <img src={rxDisplayArea} />
+                                        </Col>
+                                        <Col lg="6">
+                                            <div className="text-center">
+                                                <label className="mb-1">Right (cm)</label> <br />
+                                                <Input className='inputheight41-group' value={printSettings?.header_footer?.custom_letterhead_margin?.right} onChange={onCustomLetterheadRightMarginChange} style={{ width: 70 }} />
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                    <div className="my-3 text-center">
+                                        <Input className='inputheight41-group' value={printSettings?.header_footer?.custom_letterhead_margin?.bottom} onChange={onCustomLetterheadBottomMarginChange} style={{ width: 70 }} /> <br />
+                                        <label className="mb-1">Bottom (cm)</label>
+                                    </div>
+                                </div>
+
+                                {caseManagerData !== undefined && (
+                                    <>
+                                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                                            <Col lg="18">
+                                                <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
+                                                <div className="fontroboto text-greycolor" style={{ marginLeft: 37, fontSize: 13 }}> You can edit your WhatsApp preview </div>
+                                            </Col>
+                                            <Col lg="6">
+                                                <div className="d-flex align-items-center" onClick={handleDrawerOwnLetterHead}>
+                                                    <i className="icon-Preview"></i>
+                                                    <button className='btn btn-text'>
+                                                        <span>Preview Now</span>
+                                                    </button>
+                                                </div>
+                                            </Col>
+                                        </Row>
+                                        <Drawer closeIcon={false} placement="right" onClose={handleDrawerOwnLetterHead} open={isOwnLetterHead} width="100%">
+                                            <WhatsappConfigure handleDrawerOwnLetterHead={handleDrawerOwnLetterHead} />
+                                        </Drawer>
+                                    </>
+                                )}
+
+                            </div>
+
                                 {caseManagerData !== undefined && (
                                     <>
                                         <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
@@ -1119,7 +1221,63 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                         }
                                     />
                                 </div>
+                                <div className="mt-5">
+                                <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                                    <Col lg="24">
+                                        <div className="title-common">Set page margins to display your own letterhead</div>
+                                    </Col>
+                                </Row>
+                                <div className="">
+                                    <div className="my-3 text-center">
+                                        <label className="mb-1">Top (cm)</label> <br />
+                                        <Input className='inputheight41-group' value={printSettings?.header_footer?.uploaded_letterhead_margin?.top} onChange={onUploadedLetterheadTopMarginChange} style={{ width: 70 }} />
+                                    </div>
+                                    <Row className="align-items-center justify-content-around form_addnewpatient mb-1">
+                                        <Col lg="6">
+                                            <div className="text-center">
+                                                <label className="mb-1">Left (cm)</label> <br />
+                                                <Input className='inputheight41-group' value={printSettings?.header_footer?.uploaded_letterhead_margin?.left} onChange={onUploadedLetterheadLeftMarginChange} style={{ width: 70 }} />
+                                            </div>
+                                        </Col>
+                                        <Col lg="12">
+                                            <img src={rxDisplayArea} />
+                                        </Col>
+                                        <Col lg="6">
+                                            <div className="text-center">
+                                                <label className="mb-1">Right (cm)</label> <br />
+                                                <Input className='inputheight41-group' value={printSettings?.header_footer?.uploaded_letterhead_margin?.right} onChange={onUploadedLetterheadRightMarginChange} style={{ width: 70 }} />
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                    <div className="my-3 text-center">
+                                        <Input className='inputheight41-group' value={printSettings?.header_footer?.uploaded_letterhead_margin?.bottom} onChange={onUploadedLetterheadBottomMarginChange} style={{ width: 70 }} /> <br />
+                                        <label className="mb-1">Bottom (cm)</label>
+                                    </div>
+                                </div>
 
+                                {caseManagerData !== undefined && (
+                                    <>
+                                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
+                                            <Col lg="18">
+                                                <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
+                                                <div className="fontroboto text-greycolor" style={{ marginLeft: 37, fontSize: 13 }}> You can edit your WhatsApp preview </div>
+                                            </Col>
+                                            <Col lg="6">
+                                                <div className="d-flex align-items-center" onClick={handleDrawerOwnLetterHead}>
+                                                    <i className="icon-Preview"></i>
+                                                    <button className='btn btn-text'>
+                                                        <span>Preview Now</span>
+                                                    </button>
+                                                </div>
+                                            </Col>
+                                        </Row>
+                                        <Drawer closeIcon={false} placement="right" onClose={handleDrawerOwnLetterHead} open={isOwnLetterHead} width="100%">
+                                            <WhatsappConfigure handleDrawerOwnLetterHead={handleDrawerOwnLetterHead} />
+                                        </Drawer>
+                                    </>
+                                )}
+
+                            </div>
                                 {caseManagerData !== undefined && (
                                     <>
                                         <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
