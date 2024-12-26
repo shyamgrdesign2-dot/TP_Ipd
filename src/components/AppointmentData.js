@@ -802,7 +802,7 @@ function AppointmentData({ locationPath }) {
             ellipsis: true,
             render: (text, record) => (
                 <div>
-                    <span className="text-primary"><Link to="/patient_details" state={{ patient_data: record }}>{record.pm_fullname}</Link></span>
+                    <span className="text-primary"><Link to="/patient_details" state={{ patient_data: record }}>{`${record.pm_salutation && record.pm_salutation + " "}${record.pm_fullname}`}</Link></span>
                     <br />
                     <small>
                         {genderAge(record)}
