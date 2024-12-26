@@ -233,7 +233,7 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
     setInfoAccordionItems(data);
 
     setAccordionItems(accordionItemsData);
-  }, [examinationHistory]);
+  }, []);
 
   return (
     <>

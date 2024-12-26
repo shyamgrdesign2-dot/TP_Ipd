@@ -7,7 +7,10 @@ const initialState = {
   isObstetricDetailsUpdated: false,
   isNavigateToObstetric: false,
   currentSessionRx: null,
-  defaultAncSchedule: null,
+  defaultAncSchedule: [],
+  defaultImmunisation: [],
+  ancDoctorList: [],
+  immunisationDoctorList: [],
 };
 
 const obstetricSlice = createSlice({
@@ -55,6 +58,15 @@ const obstetricSlice = createSlice({
     setDefaultAncSchedule: (state, action) => {
       state.defaultAncSchedule = action.payload;
     },
+    setDefaultImmunisation: (state, action) => {
+      state.defaultImmunisation = action.payload;
+    },
+    setAncDoctorList: (state, action) => {
+      state.ancDoctorList = action.payload;
+    },
+    setImmunisationDoctorList: (state, action) => {
+      state.immunisationDoctorList = action.payload;
+    },
   },
 });
 
@@ -66,6 +78,9 @@ export const {
   obstetricDetailsUpdated,
   navigateToObstetric,
   setCurrentSessionRx,
-  setDefaultAncSchedule
+  setDefaultAncSchedule,
+  setDefaultImmunisation,
+  setAncDoctorList,
+  setImmunisationDoctorList,
 } = obstetricSlice.actions;
 export default obstetricSlice.reducer;

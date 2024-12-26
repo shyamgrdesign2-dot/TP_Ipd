@@ -11,13 +11,16 @@ import dayjs from "dayjs";
 import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { AncSchedulerColumns } from "../../utils/constants";
-import { splitByTrimester, updateEnablePrint } from "../../utils/helper";
+import {
+  mergeData,
+  splitByTrimester,
+  updateEnablePrint,
+} from "../../utils/helper";
 import "./AncScheduler.scss";
 import AncImmunisationPopup from "../ancImmunisationPopup/AncImmunisationPopup";
 import { removeBeforeWhiteSpace } from "../../../../utils/utils";
 import AncPrintPreview from "../ancPrintPreview/AncPrintPreview";
 import { useLocation } from "react-router-dom";
-import { fetchSearchDiagnosis } from "../../service";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import {
@@ -25,20 +28,17 @@ import {
   obstetricDetailsUpdated,
   patientDiagnosisUpdated,
 } from "../../../../redux/obstetricSlice";
+import { fetchSearchAnc } from "../../service";
 
-const AncScheduler = ({ ancHistory }) => {
+const AncScheduler = ({ ancHistory = [] }) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const { patient_data } = state;
   const { userId } = useSelector((state) => state.doctors);
-  const { obstetricDetails, defaultAncSchedule } = useSelector(
+  const { obstetricDetails, defaultAncSchedule, ancDoctorList } = useSelector(
     (state) => state.obstetric
   );
-  const [ancSchedulerData, setAncSchedulerData] = useState(
-    ancHistory?.length > 0
-      ? splitByTrimester(updateEnablePrint(ancHistory))
-      : []
-  );
+  const [ancSchedulerData, setAncSchedulerData] = useState([]);
   const [activeCategory, setActiveCategory] = useState(0);
   const [immunisationPopup, setImmunisationPopup] = useState("");
   const [editIndex, setEditIndex] = useState(-1);
@@ -48,7 +48,7 @@ const AncScheduler = ({ ancHistory }) => {
   const [shouldShowPrintPreview, setShouldShowPrintPreview] = useState(false);
 
   const getSearchOptions = async () => {
-    const searchOptionsRes = await fetchSearchDiagnosis(
+    const searchOptionsRes = await fetchSearchAnc(
       searchQuery,
       patient_data.patient_unique_id
     );
@@ -86,35 +86,27 @@ const AncScheduler = ({ ancHistory }) => {
 
   useEffect(() => {
     if (ancHistory?.length) {
-      setAncSchedulerData(splitByTrimester(ancHistory));
+      setAncSchedulerData(splitByTrimester(updateEnablePrint(ancHistory)));
     }
   }, [ancHistory]);
 
   useEffect(() => {
-    if (ancHistory?.length === 0) {
-      const defaultData = defaultAncSchedule?.map((item) => ({
-        masterId: item.id,
-        name: item?.master?.name,
-        weekRange: item.weekRange,
-        dueDate: null,
-        status: "Due",
-        notes: null,
-        enablePrint: false,
-        created_at: new Date().toISOString(),
-        created_by: userId,
-        updated_at: new Date().toISOString(),
-        updated_by: userId,
-      }));
-      const newAncHistory = [...ancHistory, ...defaultData];
-      const payload = {
-        ...obstetricDetails,
-        patientId: patient_data.patient_unique_id,
-        ancHistory: newAncHistory,
-      };
-      dispatch(addObstetricDetails(payload));
-      dispatch(patientDiagnosisUpdated());
-      dispatch(obstetricDetailsUpdated());
-    }
+    const ancHistoryData = [...ancHistory];
+    const newAncHistory = mergeData(
+      ancHistoryData,
+      defaultAncSchedule,
+      ancDoctorList,
+      userId,
+      true
+    );
+    const payload = {
+      ...obstetricDetails,
+      patientId: patient_data.patient_unique_id,
+      ancHistory: newAncHistory,
+    };
+    dispatch(addObstetricDetails(payload));
+    dispatch(patientDiagnosisUpdated());
+    dispatch(obstetricDetailsUpdated());
   }, []);
 
   useEffect(() => {
@@ -182,18 +174,30 @@ const AncScheduler = ({ ancHistory }) => {
 
   const renderTableData = () => {
     const handleImmunisationChange = (key, index, value) => {
-      const updatedData = ancSchedulerData.map((innerArray) => {
+      const updatedData = ancSchedulerData.map((innerArray, trimesterIndex) => {
         const newArray = [...innerArray];
-        newArray[index] = { ...newArray[index], [key]: value };
-        if (key !== "enablePrint") {
-          newArray[index] = {
-            ...newArray[index],
-            enablePrint: true,
-          };
+        if (trimesterIndex === activeCategory) {
+          newArray[index] = { ...newArray[index], [key]: value };
+          if (key !== "enablePrint") {
+            newArray[index] = {
+              ...newArray[index],
+              enablePrint: true,
+            };
+          }
+          return newArray;
+        } else {
+          return newArray;
         }
-        return newArray;
       });
       setAncSchedulerData(updatedData);
+      const newAncHistory = updatedData?.flat();
+      const payload = {
+        ...obstetricDetails,
+        patientId: patient_data.patient_unique_id,
+        ancHistory: newAncHistory,
+      };
+      dispatch(addObstetricDetails(payload));
+      dispatch(obstetricDetailsUpdated());
     };
 
     return ancSchedulerData?.[activeCategory]?.map((item, i) => {
@@ -235,17 +239,15 @@ const AncScheduler = ({ ancHistory }) => {
               style={{ padding: 0 }}
               onChange={(value) => handleImmunisationChange("status", i, value)}
               options={[
-                { value: "due", label: "Due" },
-                { value: "completed", label: "Completed" },
+                { value: "Due", label: "Due" },
+                { value: "Finished", label: "Completed" },
               ]}
               placeholder="Select"
               className={`ancSchedulerBox custom-immunisation-select ${
-                status === "completed" || status === "Finished"
-                  ? "custom-immunisation-given-select"
-                  : ""
+                status === "Finished" ? "custom-immunisation-given-select" : ""
               }`}
-              value={status || "due"}
-              allowClear
+              value={status || "Due"}
+              allowClear={false}
             />
           </td>
 

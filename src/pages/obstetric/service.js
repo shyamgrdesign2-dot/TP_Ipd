@@ -48,16 +48,6 @@ export const updateObstetricData = async function (id, payload, userId) {
   return res;
 };
 
-export const deleteObstetricData = async function (id, userId) {
-  let res = {};
-  try {
-    res = await api.delete(`/obstetric/${id}/${userId}`, baseUrl);
-  } catch (e) {
-    console.error("Error while addObstetricData: ", e);
-  }
-  return res;
-};
-
 export const fetchPrefillObstetricDetails = async function (patient_unique_id) {
   let res = {};
   try {
@@ -92,10 +82,7 @@ export const fetchDefaultAnc = async function () {
   return res;
 };
 
-export const fetchSearchDiagnosis = async function (
-  searchQuery,
-  patientUniqueId
-) {
+export const fetchSearchAnc = async function (searchQuery, patientUniqueId) {
   let res = {};
   try {
     res = await api.get(
@@ -134,6 +121,97 @@ export const deleteCustomAncScheduler = async function (id) {
     );
   } catch (e) {
     console.error("Error while deleting custom ANC Scheduler: ", e);
+  }
+  return res;
+};
+
+export const fetchDefaultImmunisation = async function () {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/gyneac/immunisation/default-list`,
+      ancImmunisationbaseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching default Immunisation details: ", e);
+  }
+  return res;
+};
+
+export const fetchSearchImmunisation = async function (
+  searchQuery,
+  patientUniqueId
+) {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/gyneac/immunisation/search?search=${searchQuery}&patient_unique_id=${patientUniqueId}`,
+      ancImmunisationbaseUrl
+    );
+  } catch (e) {
+    console.error(
+      "Error while fetching serach diagnosis for Immunisation: ",
+      e
+    );
+  }
+  return res;
+};
+
+export const upsertCustomImmunisation = async function (payload) {
+  let res = {};
+  try {
+    res = await api.post(
+      `/api/v1/gyneac/immunisation`,
+      payload,
+      ancImmunisationbaseUrl
+    );
+  } catch (e) {
+    console.error("Error while upserting custom Immunisation: ", e);
+  }
+  return res;
+};
+
+export const deleteCustomImmunisation = async function (id) {
+  let res = {};
+  try {
+    res = await api.delete(
+      `/api/v1/gyneac/immunisation/${id}`,
+      ancImmunisationbaseUrl
+    );
+  } catch (e) {
+    console.error("Error while deleting custom Immunisation: ", e);
+  }
+  return res;
+};
+
+export const fetchImmunisationDoctorList = async function () {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/gyneac/immunisation/doctor-list`,
+      ancImmunisationbaseUrl
+    );
+  } catch (e) {
+    console.error(
+      "Error while fetching doctor list for Immunisation details: ",
+      e
+    );
+  }
+  return res;
+};
+
+export const fetchAncDoctorList = async function () {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/gyneac/anc-scheduler/doctor-list`,
+      ancImmunisationbaseUrl
+    );
+  } catch (e) {
+    console.error(
+      "Error while fetching doctor list for ANC Scheduler details: ",
+      e
+    );
   }
   return res;
 };

@@ -49,8 +49,8 @@ import { useAccess } from "./vaccination/useAccess";
 import { getGynecDetails } from "../api/services/ApiGynec";
 import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
-import { fetchAllObstetricDetails, fetchDefaultAnc } from "./obstetric/service";
-import { addObstetricDetails, setDefaultAncSchedule } from "../redux/obstetricSlice";
+import { fetchAllObstetricDetails } from "./obstetric/service";
+import { addObstetricDetails } from "../redux/obstetricSlice";
 import { getClinicName } from "../utils/utils";
 import UploadDocument from "./medicalRecords/UploadDocument";
 import MedicalRecords from "./medicalRecords/MedicalRecords";
@@ -217,10 +217,6 @@ function Prescription() {
     );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
-    }
-    const defaultAncResponse = await fetchDefaultAnc();
-    if (defaultAncResponse) {
-      dispatch(setDefaultAncSchedule(defaultAncResponse));
     }
   };
 
