@@ -154,7 +154,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
           {item.notes ? (
             <div className="text-truncate small">{item.notes}</div>
           ) : (
-            <div className="text-truncate small">Add Notes</div>
+            <div className="text-truncate small">Add details</div>
           )}
         </div>
       </div>
@@ -228,12 +228,11 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
               </span>
             </div>
             <div className="p-4">
-              <label className="title-common">Add Notes</label>
               <Input.TextArea
                 value={
                   selectedIndex != null && moduleData?.[selectedIndex]?.notes
                 }
-                placeholder="Enter any specific notes here"
+                placeholder="Add details here"
                 className="textareaPlaceholder"
                 rows={3}
                 onChange={onChangeInputNoteChild}
