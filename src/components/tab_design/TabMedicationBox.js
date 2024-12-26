@@ -33,6 +33,7 @@ import { v4 as uuidv4 } from "uuid";
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 import calculatorIcon from '../../assets/images/calculator.svg';
+import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
 import CashManagerContext from "../../context/CashManagerContext";
 
@@ -785,7 +786,7 @@ function TabMedicationBox() {
             setMedicationData(removedArray);
           }}
           axis="xy"
-          pressDelay={100}
+          pressDelay={150}
         />
       )
     );
@@ -1311,6 +1312,37 @@ function TabMedicationBox() {
     },
     [childIndex, childDrawerData]
   );
+
+  const onAutoFillDuration = () => {
+    const { tmm_days_duration_type, tmm_days, tmm_duration_type } = childDrawerData[childIndex]
+    childDrawerData.forEach(e => {
+      e.tmm_days_duration_type = tmm_days_duration_type;
+      e.tmm_days = tmm_days;
+      e.tmm_duration_type = tmm_duration_type;
+    });
+    setChildDrawerData((prev) => [...prev]);
+    medicationData.forEach(e => {
+      e.tmm_days_duration_type = tmm_days_duration_type;
+      e.tmm_days = tmm_days;
+      e.tmm_duration_type = tmm_duration_type;
+    });
+    setMedicationData((prev) => [...prev]);
+    message.open({
+      key: MESSAGE_KEY,
+      type: '',
+      className: 'message-appointment',
+      content: (
+        <div className='d-flex align-items-center'>
+          <img src={visitEnd} className='me-2' />
+          <div>
+            <div className='text-start fs-18 fontroboto'>Autofilled this Duration to all medicines</div>
+          </div>
+          <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+        </div>
+      ),
+      duration: 3,
+    });
+  }
 
   const handleDurationMoreOptionsVisible = useCallback(
     () => {
@@ -2151,7 +2183,12 @@ function TabMedicationBox() {
                 onChange={onChangeSinceChild}
               /> */}
             </div>
-            <label className="title-common mb-1">Note</label>
+
+            {childDrawerData[childIndex].tmm_days_duration_type && (
+              <div className="text-primary d-flex align-items-center"><i className="icon-copyIcon fs-16 me-1" /> <span className="text-primary text-decoration-underline" onClick={onAutoFillDuration}>Autofill this duration for all added meds.</span></div>
+            )}
+
+            <label className="title-common mb-1 mt-3">Note</label>
             <Input.TextArea
               value={
                 childDrawerData[childIndex].tmm_remarks

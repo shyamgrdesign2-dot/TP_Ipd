@@ -27,7 +27,8 @@ import {
   deleteTemplate,
   getExaminationTemplates,
   getFrequentlySearchedExamination,
-  searchExamination
+  searchExamination,
+  singleTemplateDetails
 } from "../redux/examinationSlice";
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -124,11 +125,12 @@ function ExaminationBox() {
         ),
       });
     } else {
-      searchParentQuery &&
+      searchParentQuery && parentOptionsList.findIndex(e => e.examination_name?.toLowerCase()?.trim() == searchParentQuery?.toLowerCase()?.trim()) === -1 &&
         data.push({
           key: JSON.stringify({
             unique_id: uuidv4(),
             change: 1,
+            pms_default: 0,
             examination_name: searchParentQuery
           }),
           value: searchParentQuery,
@@ -189,12 +191,13 @@ function ExaminationBox() {
         label: <div>{e.examination_name}</div>,
       });
     });
-    if (searchChildQuery?.query) {
+    if (searchChildQuery?.query && childOptionsList.findIndex(e => e.examination_name?.toLowerCase()?.trim() == searchChildQuery?.query?.toLowerCase()?.trim()) === -1) {
       data.push({
         key: JSON.stringify({
           ...examinationData[searchChildQuery.index],
           unique_id: uuidv4(),
           change: 1,
+          pms_default: 0,
           examination_name: searchChildQuery.query
         }),
         value: searchChildQuery.query,
@@ -279,12 +282,15 @@ function ExaminationBox() {
     }
   };
 
-  const onTemplateSelected = (template) => {
-    const updatedData = template.examination.map(e => {
-      return { ...e, unique_id: uuidv4(), note: e.note ? e.note : "" }
-    })
-    setExaminationData([...examinationData, ...updatedData]);
-    showHideTemplatesListPopover();
+  const onTemplateSelected = async (template) => {
+    const action = await dispatch(singleTemplateDetails(template.tet_id));
+    if (action.meta.requestStatus === "fulfilled") {
+      const updatedData = action?.payload;
+      setExaminationData([...examinationData, ...updatedData]);
+      showHideTemplatesListPopover();
+    } else {
+      errorMessage(action.error)
+    }
   };
 
   const onDeleteTemplateClicked = async (tet_id) => {
@@ -458,6 +464,7 @@ function ExaminationBox() {
                               placeholder="Examination Name"
                               bordered={false}
                               defaultOpen={false}
+                              disabled={item?.pms_default ? true : false}
                               onSearch={(query) => onSearchChild(query, index)}
                               onFocus={() => onFocusChid(index)}
                               options={childSearchOptions}
@@ -591,12 +598,7 @@ function ExaminationBox() {
                   >
                     <div className="title text-main2">{template.tet_template_name}</div>
                     <div className="text-truncate">
-                      {template.examination.map((item, ii) => {
-                        return (
-                          <span key={ii}>{`${item.examination_name}${template.examination.length - 1 != ii ? ", " : ""
-                            }`}</span>
-                        );
-                      })}
+                      <span>{template.examination}</span>
                     </div>
                   </div>
                   <Button
@@ -687,12 +689,7 @@ function ExaminationBox() {
                   <div className="text-truncate w-100">
                     <div className="title text-main2">{option.data.value}</div>
                     <div className="text-truncate">
-                      {JSON.parse(option.data.key).examination.map((item, ii) => {
-                        return (
-                          <span key={ii}>{`${item.examination_name}${JSON.parse(option.data.key).examination.length - 1 != ii ? ", " : ""
-                            }`}</span>
-                        );
-                      })}
+                      <span>{JSON.parse(option.data.key).examination}</span>
                     </div>
                   </div>
                 </div>

@@ -153,6 +153,7 @@ const SetPassword = ({ number, data }) => {
           </div> */}
 
           {/* Display success and error messages */}
+
           {message && (
             <div className="color-blue" style={{ fontSize: "14px" }}>
               {message}

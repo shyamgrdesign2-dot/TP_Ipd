@@ -858,7 +858,7 @@ function Header({ locationPath }) {
               </div>
           </Modal>
 
-          {locationPath == "/" ? (
+          {locationPath == "/" || locationPath == "/bulk_messages" ? (
             <div onClick={handleDrawervideo} className="cursor-pointer me-2 video-animat">
               <img src={playIcon} />
               <img src={videorotate} />
@@ -944,7 +944,7 @@ function Header({ locationPath }) {
               ) :  planDetails?.currentPlanStatus === "PAID" ? (
                 <PremiumUser />
               ) :
-                <div className='rounded-pill patientProfile patientProfile52 border'>{makeDefaultLogo(profile?.um_name)}</div>
+                <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
               }
             </a>
           </Dropdown>
