@@ -610,7 +610,6 @@ const Obstetric = ({
             setIsDataAddedOrEdited={setIsDataAddedOrEdited}
             setIsPastPregnancyUpdated={setIsPastPregnancyUpdated}
             isCompletePregnancy={isCompletePregnancy}
-            isPregnancyCompleted={isPregnancyCompleted}
             gravidity={gravidity}
             setLoader={setLoader}
           />

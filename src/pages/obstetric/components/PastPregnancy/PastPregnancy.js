@@ -15,14 +15,15 @@ import "./pastPregnancy.scss";
 import { EllipsisOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
   MESSAGE_KEY,
+  PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
 } from "../../../../utils/constants";
+import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import {
   addObstetricDetails,
   obstetricDetailsUpdated,
   patientDiagnosisUpdated,
-  resetUpdatedPatientDiagnosis,
 } from "../../../../redux/obstetricSlice";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
 import imgCloseVisit from "./../../../../assets/images/close-visit.svg";
@@ -30,7 +31,7 @@ import visitEnd from "./../../../../assets/images/check-badge.svg";
 import { isDecimalCheck, isNumberCheck } from "../../utils/helper";
 import CommonModal from "../../../../common/CommonModal";
 import { upsertObstetricDetails } from "../../service";
-import { errorMessage, getClinicName } from "../../../../utils/utils";
+import { errorMessage } from "../../../../utils/utils";
 import { getOrdinalSuffix } from "../../../growthChart/growthChartHelper";
 
 function PastPregnancy({
@@ -41,7 +42,6 @@ function PastPregnancy({
   setIsDataAddedOrEdited,
   setIsPastPregnancyUpdated,
   isCompletePregnancy,
-  isPregnancyCompleted,
   gravidity,
   setLoader,
 }) {
@@ -49,13 +49,8 @@ function PastPregnancy({
   const scrollContainerRef = useRef(null);
   const [pastPregnancyData, setPastPregnancyData] = useState({});
   const [shouldShowConfirmPopup, setShowConfirmPopup] = useState(false);
-  const [doneLoader, setDoneLoader] = useState(false);
-  const { profile, userId } = useSelector((state) => state.doctors);
-  const { obstetricDetails: allObstetricDetails } = useSelector(
-    (state) => state.obstetric
-  );
-  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
-  const { pregnancyHistory = [] } = allObstetricDetails;
+  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const { pregnancyHistory = [] } = obstetricDetails;
   const { state } = useLocation();
   const { patient_data } = state;
 
@@ -152,6 +147,15 @@ function PastPregnancy({
 
   const addPastPregnancyData = async () => {
     setIsPastPregnancyUpdated(true);
+    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+    let decodedToken;
+    if (token) {
+      try {
+        decodedToken = jwtDecode(token);
+      } catch (e) {
+        console.log(e);
+      }
+    }
     let newPastPregnancy = [...pregnancyHistory] || [];
     const data = {};
     Object.keys(pastPregnancyData).forEach((key) => {
@@ -166,7 +170,7 @@ function PastPregnancy({
       newPastPregnancy[editIndex] = {
         ...data,
         modifiedAt: new Date().toISOString(),
-        modifiedBy: userId,
+        modifiedBy: decodedToken?.result?.user_id,
       };
     } else {
       newPastPregnancy = [
@@ -177,16 +181,17 @@ function PastPregnancy({
           ancHistory: [],
           immunisationHistory: [],
           createdAt: new Date().toISOString(),
-          createdBy: userId,
+          createdBy: decodedToken?.result?.user_id,
           modifiedAt: new Date().toISOString(),
-          modifiedBy: userId,
+          modifiedBy: decodedToken?.result?.user_id,
           ...obstetricDetails?.currentPregnancy,
         },
       ];
     }
     const payload = {
-      ...allObstetricDetails,
+      ...obstetricDetails,
       pregnancyHistory: newPastPregnancy,
+      currentPregnancy: null,
     };
 
     dispatch(addObstetricDetails(payload));
@@ -195,7 +200,6 @@ function PastPregnancy({
     setIsDataAddedOrEdited(false);
 
     if (isCompletePregnancy) {
-      payload.currentPregnancy = null;
       setLoader(true);
       const obstetricResponse = await upsertObstetricDetails(
         patient_data.patient_unique_id,
@@ -635,90 +639,6 @@ function PastPregnancy({
     setShowConfirmPopup((prev) => !prev);
   };
 
-  const obstetricSaveBtnHandler = async () => {
-    let newPastPregnancy = [...pregnancyHistory] || [];
-    const data = {};
-    Object.keys(pastPregnancyData).forEach((key) => {
-      if (![undefined, null, ""].includes(pastPregnancyData[key])) {
-        data[key] =
-          key === "remarks"
-            ? pastPregnancyData[key]?.trim()
-            : pastPregnancyData[key];
-      }
-    });
-    if (pregnancyHistory?.length > 0 && editIndex >= 0) {
-      newPastPregnancy[editIndex] = {
-        ...data,
-        modifiedAt: new Date().toISOString(),
-        modifiedBy: userId,
-      };
-    } else {
-      newPastPregnancy = [
-        ...pregnancyHistory,
-        {
-          ...data,
-          examinationHistory: [],
-          ancHistory: [],
-          immunisationHistory: [],
-          createdAt: new Date().toISOString(),
-          createdBy: userId,
-          modifiedAt: new Date().toISOString(),
-          modifiedBy: userId,
-          ...obstetricDetails?.currentPregnancy,
-        },
-      ];
-    }
-    const payload = {
-      ...allObstetricDetails,
-      pregnancyHistory: newPastPregnancy,
-    };
-
-    dispatch(addObstetricDetails(payload));
-    dispatch(resetUpdatedPatientDiagnosis());
-    setDoneLoader(true);
-    const obstetricResponse = await upsertObstetricDetails(
-      patient_data.patient_unique_id,
-      payload
-    );
-    setDoneLoader(false);
-    if (obstetricResponse) {
-      const clinic_name = getClinicName(profile?.hospital_data);
-      const attributes = {
-        clinic_name,
-        doctor_id: profile?.doctor_unique_id,
-        patient_number: patient_data?.pm_contact_no,
-        patient_id: patient_data?.patient_unique_id,
-      };
-      window.Moengage.track_event("TP_Obs_history_updated", attributes);
-      window.Moengage.track_event("TP_Past_pregnancy_updated", attributes);
-      message.open({
-        key: MESSAGE_KEY,
-        type: "",
-        className: "message-appointment",
-        content: (
-          <div className="d-flex align-items-center">
-            <img src={visitEnd} className="me-3" />
-            <div>
-              <div className="fontroboto text-start fw-normal mt-1">
-                Past Pregnancy Details added successfully
-              </div>
-            </div>
-            <img
-              src={imgCloseVisit}
-              className="ms-3"
-              onClick={() => message.destroy()}
-            />
-          </div>
-        ),
-        duration: 5,
-      });
-    } else {
-      errorMessage("Error while adding data");
-    }
-
-    close();
-  };
-
   return (
     <>
       <Card bordered={false} className="search-modalCard">
@@ -748,21 +668,14 @@ function PastPregnancy({
             onClick={
               isCompletePregnancy
                 ? toggleConfirmationPopup
-                : isPregnancyCompleted
-                ? obstetricSaveBtnHandler
                 : addPastPregnancyData
             }
             className="btn btn-primary3 btn-41 px-4 me-20"
             disabled={
               !pastPregnancyData.gravidity || !pastPregnancyData.outcome
             }
-            loading={doneLoader}
           >
-            {isCompletePregnancy
-              ? "Complete Pregnancy"
-              : isPregnancyCompleted
-              ? "Save"
-              : "Done"}
+            {isCompletePregnancy ? "Complete Pregnancy" : "Done"}
           </Button>
         </div>
 
@@ -884,7 +797,9 @@ function PastPregnancy({
                   {isCompletePregnancy ? "No, Keep It Open" : "Yes Leave"}
                 </div>
                 <Button
-                  onClick={addPastPregnancyData}
+                  onClick={() => {
+                    addPastPregnancyData();
+                  }}
                   className="lh-lg btn btn-primary3 btn-41 px-4"
                 >
                   <span>Yes, Complete Pregnancy</span>

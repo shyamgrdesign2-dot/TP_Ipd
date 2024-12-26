@@ -228,7 +228,7 @@ const ImmunisationHistory = ({
             <DatePicker
               key={"date"}
               onChange={(date) => {
-                const formattedDate = date?.toISOString();
+                const formattedDate = date?.format("YYYY-MM-DD");
                 handleImmunisationChange("givenDate", i, formattedDate);
               }}
               disabledDate={disabledDate}
