@@ -15,7 +15,7 @@ const SetPassword = ({ number, data }) => {
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
-  const [erroMessage, setErrorMessage] = useState(null)
+  const [erroMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false); // Loader state
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -46,7 +46,7 @@ const SetPassword = ({ number, data }) => {
   const handleSetPassword = async (e) => {
     e.preventDefault();
     setError(null);
-    setErrorMessage("")
+    setErrorMessage("");
     setMessage("");
     setLoading(true); // Show loader
 
@@ -153,8 +153,17 @@ const SetPassword = ({ number, data }) => {
           </div> */}
 
           {/* Display success and error messages */}
-          {message && <div className= "color-blue" style={{fontSize: "14px" }}>{message}</div>}
-          {erroMessage && <div className="color-red" style={{fontSize: "14px" }}>{erroMessage}</div>}
+
+          {message && (
+            <div className="color-blue" style={{ fontSize: "14px" }}>
+              {message}
+            </div>
+          )}
+          {erroMessage && (
+            <div className="color-red" style={{ fontSize: "14px" }}>
+              {erroMessage}
+            </div>
+          )}
 
           {error && (
             <div className="criteria-container">

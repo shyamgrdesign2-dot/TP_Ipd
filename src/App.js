@@ -40,6 +40,7 @@ import PlanExpirationBanner from "./common/PlanExpirationBanner";
 import DoctorModal from "./common/DoctorModal";
 import ExpiredPlanCard from "./common/ExpiredPlanCard";
 import ApolloConsultations from "./pages/apolloConsultations/ApolloConsultations";
+import AuthContainer from "./pages/auth/auth";
 
 // Import Auth Components (IN Development - Would require this snippet in future)
 // import LoginWithPassword from './pages/auth/components/LoginWithPassword';
@@ -169,10 +170,7 @@ function App() {
                 <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
                 <Route path="apollo-consultations" element={<ApolloConsultations />} />
 
-                {/* Auth Routes */}
-                {/* <Route path="/login-password" element={<LoginWithPassword />} /> */}
-                {/* <Route path="/login-otp" element={<LoginWithOTP />} /> */}
-                {/* <Route path="/set-password" element={<SetPassword />} /> */}
+                {/* Auth Route */}
                 <Route path="/login" element={<AuthContainer />} />
               </Routes>
             </PersistGate>

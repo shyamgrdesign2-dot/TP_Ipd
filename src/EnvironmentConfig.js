@@ -42,9 +42,10 @@ const dev = {
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   opd_encryption_url: "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
-  bulk_messages: "https://pm-communication-uat.tatvacare.in",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
+  pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
+  bulk_messages: "https://pm-communication-uat.tatvacare.in",
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
   razorPay_key: "rzp_test_PoLtBba5t8qJIm"
 };
@@ -93,9 +94,10 @@ const qa = {
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   opd_encryption_url: "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
-  bulk_messages: "https://pm-communication-uat.tatvacare.in",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
+  pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
+  bulk_messages: "https://pm-communication-uat.tatvacare.in",
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
   razorPay_key: "rzp_test_PoLtBba5t8qJIm"
 };
@@ -147,9 +149,10 @@ const uat = {
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   opd_encryption_url: "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
-  bulk_messages: "https://pm-communication-uat.tatvacare.in",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
+  pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
+  bulk_messages: "https://pm-communication-uat.tatvacare.in",
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
   razorPay_key: "rzp_test_PoLtBba5t8qJIm"
 };
@@ -196,9 +199,10 @@ const prod = {
   api_key: "TC_12o89l11327dfrt55",
   opd_encryption_url: "https://api.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.com",
-  bulk_messages: "https://pm-communication-prod.tatvacare.in",
   upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-prod.tatvacare.in",
+  pedia_logout_url: "https://health.tatvacare.in/#logout_user=1",
+  bulk_messages: "https://pm-communication-prod.tatvacare.in",
   searchengine_url: "https://pm-searchengine-prod.tatvacare.in",
   razorPay_key: "rzp_live_GvLkPHHNSMs2G3"
 };
