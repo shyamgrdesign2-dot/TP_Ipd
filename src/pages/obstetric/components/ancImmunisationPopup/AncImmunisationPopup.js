@@ -10,9 +10,9 @@ import {
   patientDiagnosisUpdated,
 } from "../../../../redux/obstetricSlice";
 import { useDispatch } from "react-redux";
-import { splitByTrimester } from "../../utils/helper";
 import {
   deleteCustomAncScheduler,
+  deleteCustomImmunisation,
   upsertCustomAncScheduler,
   upsertCustomImmunisation,
 } from "../../service";
@@ -25,11 +25,15 @@ const AncImmunisationPopup = ({
   ancDetails,
   editIndex,
   activeCategory,
+  ancSchedulerData,
 }) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const { patient_data } = state;
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const { obstetricDetails: allObstetricDetails } = useSelector(
+    (state) => state.obstetric
+  );
+  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { ancHistory = [], immunisationHistory = [] } = obstetricDetails;
   const { userId } = useSelector((state) => state.doctors);
   const [name, setName] = useState(
@@ -54,12 +58,12 @@ const AncImmunisationPopup = ({
 
   const addOrEditCustomScheduler = async () => {
     if (
-      (ancDetails?.isCustom ||
-        (ancDetails?.masterId && editIndex >= 0) ||
-        (ancDetails?.id &&
-          (name !== ancDetails?.name ||
-            range?.start !== ancDetails?.weekRange?.start ||
-            range?.end !== ancDetails?.weekRange?.end))) &&
+      ancDetails?.isCustom ||
+      (ancDetails?.masterId && editIndex >= 0) ||
+      (ancDetails?.id &&
+        (name !== ancDetails?.name ||
+          range?.start !== ancDetails?.weekRange?.start ||
+          range?.end !== ancDetails?.weekRange?.end)) ||
       shouldSelectForAllPatients
     ) {
       if (activeCategory >= 0) {
@@ -74,6 +78,7 @@ const AncImmunisationPopup = ({
         const customSchedulerRes = await upsertCustomAncScheduler(
           customSchedulerPayload
         );
+        ancDetails.id = customSchedulerRes?.id;
       } else {
         const customSchedulerPayload = {
           id: ancDetails?.masterId || ancDetails?.id,
@@ -85,6 +90,7 @@ const AncImmunisationPopup = ({
         const customSchedulerRes = await upsertCustomImmunisation(
           customSchedulerPayload
         );
+        ancDetails.id = customSchedulerRes?.id;
       }
     }
 
@@ -92,11 +98,13 @@ const AncImmunisationPopup = ({
     let newImmunisationHistory = [...immunisationHistory];
     if (activeCategory >= 0) {
       if (editIndex >= 0) {
-        const ancSchedulerData = splitByTrimester(ancHistory);
         ancSchedulerData[activeCategory][editIndex] = {
           ...ancSchedulerData[activeCategory][editIndex],
           master: {
             name: name,
+            weekRange: shouldSelectForAllPatients
+              ? range
+              : ancSchedulerData[activeCategory][editIndex]?.master?.weekRange,
           },
           weekRange: range,
           enablePrint: true,
@@ -113,7 +121,7 @@ const AncImmunisationPopup = ({
             dueDate: null,
             status: "Due",
             notes: null,
-            enablePrint: true,
+            enablePrint: false,
             master: {
               name: name,
             },
@@ -144,7 +152,7 @@ const AncImmunisationPopup = ({
             givenDate: null,
             status: "Due",
             notes: null,
-            enablePrint: true,
+            enablePrint: false,
             default: false,
             master: {
               name: name,
@@ -160,40 +168,59 @@ const AncImmunisationPopup = ({
 
     const payload = {
       ...obstetricDetails,
-      currentCategory: {
-        ...obstetricDetails.currentCategory,
+      currentPregnancy: {
+        ...obstetricDetails.currentPregnancy,
         ancHistory: newAncHistory,
         immunisationHistory: newImmunisationHistory,
       },
     };
     dispatch(addObstetricDetails(payload));
-    dispatch(patientDiagnosisUpdated());
     dispatch(obstetricDetailsUpdated());
     onCancel();
   };
 
   const deleteCustomScheduler = () => {
-    const ancSchedulerData = splitByTrimester(ancHistory);
-    ancSchedulerData[activeCategory][editIndex] = {
-      ...ancSchedulerData[activeCategory][editIndex],
-      isDeleted: true,
-    };
-    const newAncHistory = ancSchedulerData.flat();
-    const payload = {
-      ...obstetricDetails,
-      currentPregnancy: {
-        ...obstetricDetails?.currentPregnancy,
-        ancHistory: newAncHistory,
+    if (activeCategory >= 0) {
+      ancSchedulerData[activeCategory][editIndex] = {
+        ...ancSchedulerData[activeCategory][editIndex],
+        deleted: true,
+      };
+      if (shouldSelectForAllPatients) {
+        deleteCustomAncScheduler(
+          ancSchedulerData[activeCategory][editIndex]?.masterId
+        );
+        ancSchedulerData[activeCategory].splice(editIndex, 1);
       }
-    };
-    dispatch(addObstetricDetails(payload));
-    dispatch(patientDiagnosisUpdated());
-    dispatch(obstetricDetailsUpdated());
-    if (shouldSelectForAllPatients) {
-      ancSchedulerData[activeCategory].splice(editIndex, 1);
-      deleteCustomAncScheduler(
-        ancSchedulerData[activeCategory][editIndex]?.masterId
-      );
+      const newAncHistory = ancSchedulerData.flat();
+      const payload = {
+        ...obstetricDetails,
+        currentPregnancy: {
+          ...obstetricDetails?.currentPregnancy,
+          ancHistory: newAncHistory,
+        },
+      };
+      dispatch(addObstetricDetails(payload));
+      dispatch(patientDiagnosisUpdated());
+      dispatch(obstetricDetailsUpdated());
+    } else {
+      ancSchedulerData[editIndex] = {
+        ...ancSchedulerData[editIndex],
+        deleted: true,
+      };
+      if (shouldSelectForAllPatients) {
+        ancSchedulerData.splice(editIndex, 1);
+        deleteCustomImmunisation(ancSchedulerData[editIndex]?.masterId);
+      }
+      const payload = {
+        ...obstetricDetails,
+        currentPregnancy: {
+          ...obstetricDetails?.currentPregnancy,
+          immunisationHistory: ancSchedulerData,
+        },
+      };
+      dispatch(addObstetricDetails(payload));
+      dispatch(patientDiagnosisUpdated());
+      dispatch(obstetricDetailsUpdated());
     }
     onCancel();
   };

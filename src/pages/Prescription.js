@@ -1214,6 +1214,7 @@ const getGenerateDDx = async (field) => {
               obstetricDetails={obstetricDetails}
               obstetricDrawer={obstetricDrawer}
               handleDrawerObstetric={handleDrawerObstetric}
+              handleDrawerMedicalReport={handleDrawerMedicalReport}
             />
           </Drawer>
         )}

@@ -5,7 +5,7 @@ const AncSchedulerTable = ({ dataSource, columns }) => {
         {columns?.map((header, index) => (
           <th
             key={index}
-            className="cell headerCellStyle"
+            className="cell headerCellStyle text-welcome"
             style={{
               width: `${header.width}`,
             }}
@@ -20,10 +20,10 @@ const AncSchedulerTable = ({ dataSource, columns }) => {
   const renderTableData = () => {
     return dataSource.map((item, i) => (
       <tr key={i}>
-        <td className="tcell">{item?.master?.name}</td>
-        <td className="tcell">{item.dueDate ?? "-"}</td>
-        <td className="tcell">{item.status ?? "-"}</td>
-        <td className="tcell">{item.notes ?? "-"}</td>
+        <td className="tcell text-welcome">{item?.master?.name}</td>
+        <td className="tcell text-welcome">{item.dueDate ?? "-"}</td>
+        <td className="tcell text-welcome">{item.status ?? "-"}</td>
+        <td className="tcell text-welcome">{item.notes ?? "-"}</td>
       </tr>
     ));
   };
