@@ -98,13 +98,13 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
           <div className="mt-2 d-flex flex-column">
             <div className="d-flex justify-content-between">
               <div style={{ fontWeight: 600, marginBottom: 14 }}>
-                Immunization Vaccines
+                Immunisation Vaccines
               </div>
               <div>
                 <i
                   className="icon-Edit me-1 fs-5"
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleDrawerObstetric("immunizationHistory")}
+                  onClick={() => handleDrawerObstetric("immunisationHistory")}
                 />
               </div>
             </div>

@@ -11,7 +11,7 @@ export default function useObstetric(patientId) {
   }, []);
 
   const getObstetrics = async () => {
-    const res = await fetchObstetricDetails(patientId, userId, true);
+    const res = await fetchObstetricDetails(patientId, true);
     setObstetrics(res);
   };
 

@@ -20,9 +20,8 @@ import AncImmunisationList from "../obstetricList/AncImmunisationList";
 export default function VisitObstetric() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { obstetricDetails: allObstetricDetails, isObstetricDetailsFetched } = useSelector(
-    (state) => state.obstetric
-  );
+  const { obstetricDetails: allObstetricDetails, isObstetricDetailsFetched } =
+    useSelector((state) => state.obstetric);
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { userId } = useSelector((state) => state.doctors);
   const { state } = useLocation();
@@ -36,9 +35,8 @@ export default function VisitObstetric() {
 
   const currentDate = moment();
   const visitDate = lmpDate ? moment(lmpDate) : null;
-  const visitedMonth = getOrdinalSuffix(
-    currentDate.diff(visitDate, "months") + 1
-  );
+  const visitedMonth =
+    visitDate && getOrdinalSuffix(currentDate.diff(visitDate, "months") + 1);
 
   useEffect(() => {
     if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
@@ -188,7 +186,7 @@ export default function VisitObstetric() {
                       : ""}
                   </span>
                 </div>
-                <div>{visitedMonth} Month</div>
+                <div>{visitedMonth ? `${visitedMonth} Month` : ""}</div>
                 {measurementDetails()}
                 {previousVisit?.notes?.length ? (
                   <div

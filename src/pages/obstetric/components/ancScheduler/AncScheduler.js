@@ -37,7 +37,7 @@ const AncScheduler = ({
 }) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
-  const { patient_data } = state;
+  const { patient_data } = state || {};
   const { userId } = useSelector((state) => state.doctors);
   const { obstetricDetails, defaultAncSchedule, ancDoctorList } = useSelector(
     (state) => state.obstetric
@@ -97,13 +97,19 @@ const AncScheduler = ({
   useEffect(() => {
     if (!isPreviousPregnancyOverview) {
       const ancHistoryData = ancHistory || [];
-      const newAncHistory = mergeDefaultAndDoctorList(
+      let newAncHistory = mergeDefaultAndDoctorList(
         ancHistoryData,
         defaultAncSchedule,
         ancDoctorList,
         userId,
         true
       );
+      newAncHistory = newAncHistory.sort((a, b) => {
+        if (a.weekRange.start === b.weekRange.start) {
+          return a.weekRange.end - b.weekRange.end;
+        }
+        return a.weekRange.start - b.weekRange.start;
+      });
       const payload = {
         ...obstetricDetails,
         currentPregnancy: {
@@ -254,11 +260,11 @@ const AncScheduler = ({
               onChange={(value) => handleImmunisationChange("status", i, value)}
               options={[
                 { value: "Due", label: "Due" },
-                { value: "Finished", label: "Completed" },
+                { value: "Completed", label: "Completed" },
               ]}
               placeholder="Select"
               className={`ancSchedulerBox custom-immunisation-select ${
-                status === "Finished" ? "custom-immunisation-given-select" : ""
+                status === "Completed" ? "custom-immunisation-given-select" : ""
               }`}
               value={status || "Due"}
               allowClear={false}

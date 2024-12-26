@@ -2486,13 +2486,11 @@ function ObsHistoryListView({
                                   fontWeight: 400,
                                 }}
                               >
-                                {item?.status === "Finished" && item?.givenDate
+                                {item?.status === "Given" && item?.givenDate
                                   ? `Given on ${moment(item?.givenDate).format(
                                       "DD/MM/YYYY"
-                                    )}`
-                                  : item?.status === "Finished"
-                                  ? "Given"
-                                  : "Due"}
+                                    )}` : item?.status
+                                }
                               </Text>
                               {item?.notes && (
                                 <Text
