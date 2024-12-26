@@ -38,7 +38,6 @@ function AddExamination({
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { examinationHistory = [] } = obstetricDetails;
   const { state } = useLocation();
-  const { patient_data } = state;
 
   useEffect(() => {
     if (editIndex >= 0 && examinationHistory?.toReversed()?.[editIndex]) {
