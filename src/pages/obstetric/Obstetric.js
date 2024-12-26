@@ -15,10 +15,6 @@ import { Drawer } from "antd";
 import {
   addObstetricData,
   fetchAllObstetricDetails,
-  fetchAncDoctorList,
-  fetchDefaultAnc,
-  fetchDefaultImmunisation,
-  fetchImmunisationDoctorList,
   fetchPrefillObstetricDetails,
   updateObstetricData,
   updatePrefillObstetricData,
@@ -27,10 +23,6 @@ import {
   addObstetricDetails,
   navigateToObstetric,
   resetUpdatedPatientDiagnosis,
-  setAncDoctorList,
-  setDefaultAncSchedule,
-  setDefaultImmunisation,
-  setImmunisationDoctorList,
 } from "../../redux/obstetricSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import moment from "moment";
@@ -56,14 +48,9 @@ const Obstetric = ({
   const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data } = state;
-  const {
-    isPatientDiagnosisUpdated,
-    isNavigateToObstetric,
-    defaultAncSchedule,
-    defaultImmunisation,
-    ancDoctorList,
-    immunisationDoctorList,
-  } = useSelector((state) => state.obstetric);
+  const { isPatientDiagnosisUpdated, isNavigateToObstetric } = useSelector(
+    (state) => state.obstetric
+  );
   const {
     gravidity,
     parity,
@@ -171,36 +158,7 @@ const Obstetric = ({
   useEffect(() => {
     getPrefillObstetricDetails();
     scrollToBottom();
-    getDefaultAndDoctorList();
   }, []);
-
-  const getDefaultAndDoctorList = async () => {
-    if (defaultAncSchedule?.length === 0) {
-      const defaultAncResponse = await fetchDefaultAnc();
-      if (defaultAncResponse) {
-        dispatch(setDefaultAncSchedule(defaultAncResponse));
-      }
-    }
-    if (defaultImmunisation?.length === 0) {
-      const defaultImmunisationResponse = await fetchDefaultImmunisation();
-      if (defaultImmunisationResponse) {
-        dispatch(setDefaultImmunisation(defaultImmunisationResponse));
-      }
-    }
-    if (ancDoctorList?.length === 0) {
-      const ancDoctorListResponse = await fetchAncDoctorList();
-      if (ancDoctorListResponse) {
-        dispatch(setAncDoctorList(ancDoctorListResponse));
-      }
-    }
-    if (immunisationDoctorList?.length === 0) {
-      const immunisationDoctorListResponse =
-        await fetchImmunisationDoctorList();
-      if (immunisationDoctorListResponse) {
-        dispatch(setImmunisationDoctorList(immunisationDoctorListResponse));
-      }
-    }
-  };
 
   const getPrefillObstetricDetails = async () => {
     const prefillObstetricResponse = await fetchPrefillObstetricDetails(
@@ -511,7 +469,14 @@ const Obstetric = ({
             </TabPane>
             <TabPane tab="Immunization History" key="immunizationHistory">
               <ImmunisationHistory
-                immunisationHistoryData={obstetricDetails?.immunisationHistory}
+                examinationHistory={obstetricDetails?.examinationHistory}
+                handleExaminationDrawer={handleExaminationDrawer}
+                handlePastPregnancyDrawer={() => {
+                  handlePastPregnancyDrawer();
+                  setIsCompletePregnancy(true);
+                }}
+                setEditIndex={setExaminationEditIndex}
+                bottomRef={examinationRef}
               />
             </TabPane>
           </Tabs>
