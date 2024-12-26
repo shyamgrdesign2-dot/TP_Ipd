@@ -138,6 +138,7 @@ function TabCustomModule({ module }) {
 
   // Handle Parent Drawer
   const handleDrawerParent = useCallback(() => {
+    setSelectedIndex(moduleData.length);
     setParentDrawer(!parentDrawer);
   }, [parentDrawer]);
 
@@ -357,9 +358,9 @@ function TabCustomModule({ module }) {
     <div
       style={{
         width:
-          item.title.length > 12 && item.title.length < 24
+          item?.title?.length > 12 && item.title?.length < 24
             ? `${item.title.length * 10.5}px`
-            : item.title.length >= 24
+            : item?.title?.length >= 24
             ? "256px"
             : "150px",
       }}
@@ -615,7 +616,7 @@ function TabCustomModule({ module }) {
                   <i className="icon-Cross fs-3"></i>
                 </Button>
                 <div className="modal-title text-truncate-twolines">
-                  {childDrawerData.title}
+                  {childDrawerData.title || "Notes"}
                 </div>
               </div>
               <Button

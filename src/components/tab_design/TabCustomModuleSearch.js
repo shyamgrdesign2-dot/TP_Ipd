@@ -149,9 +149,9 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
     <div
       style={{
         width:
-          item.title.length > 12 && item.title.length < 24
+          item?.title?.length > 12 && item?.title?.length < 24
             ? `${item.title.length * 10.5}px`
-            : item.title.length >= 24
+            : item?.title?.length >= 24
             ? "256px"
             : "150px",
         zIndex: 9999,
@@ -188,13 +188,16 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
   const SortableList = SortableContainer(({ items }) => {
     return (
       <div className="d-flex flex-wrap">
-        {items.map((item, index) => (
-          <SortableItem
-            key={`item-${index}`}
-            index={index}
-            item={{ ...item, index }}
-          />
-        ))}
+        {items.map(
+          (item, index) =>
+            (item?.title || item?.notes) && (
+              <SortableItem
+                key={`item-${index}`}
+                index={index}
+                item={{ ...item, index }}
+              />
+            )
+        )}
       </div>
     );
   });
@@ -220,6 +223,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
   const onChangeInputNoteChild = useCallback(
     (e) => {
       const tempModuleData = [...moduleData];
+      if (!tempModuleData[selectedIndex]) tempModuleData[selectedIndex] = {};
       tempModuleData[selectedIndex].notes = capitalizeAfterSentence(
         e.target.value
       );
@@ -231,19 +235,21 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
   //Child Componet
   const CHILD_DRAWER_DATA = useMemo(() => {
     return (
-      selectedIndex != null &&
-      moduleData[selectedIndex] !== undefined && (
+      selectedIndex != null && (
         <>
           <div className="h-100">
             <div className="selectedchip-header d-flex flex-column justify-content-center title px-20">
               <span className="text-truncate-twolines">
-                {selectedIndex != null && moduleData[selectedIndex].title}
+                {selectedIndex != null &&
+                  (moduleData?.[selectedIndex]?.title || "Notes")}
               </span>
             </div>
             <div className="p-4">
               <label className="title-common">Add Notes</label>
               <Input.TextArea
-                value={selectedIndex != null && moduleData[selectedIndex].notes}
+                value={
+                  selectedIndex != null && moduleData?.[selectedIndex]?.notes
+                }
                 placeholder="Enter any specific notes here"
                 className="textareaPlaceholder"
                 rows={3}
@@ -274,16 +280,17 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
           <Row gutter={0} className="h-100">
             <Col md={14}>
               <div className="bg-white h-100 p-14">
-                {moduleData.length > 0 && !searchChildQuery && (
-                  <>
-                    <div className="title2">Added</div>
-                    <div className="d-flex flex-wrap">
-                      <span ref={tourRef} className="pt-3">
-                        {TABLE_CUSTOM_MODULE}
-                      </span>
-                    </div>
-                  </>
-                )}
+                {moduleData?.some((e) => e.title || e.notes) &&
+                  !searchChildQuery && (
+                    <>
+                      <div className="title2">Added</div>
+                      <div className="d-flex flex-wrap">
+                        <span ref={tourRef} className="pt-3">
+                          {TABLE_CUSTOM_MODULE}
+                        </span>
+                      </div>
+                    </>
+                  )}
                 <div>
                   <div className="title2">
                     {searchChildQuery.length > 0
@@ -345,10 +352,10 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
                                 key={i}
                                 type="text"
                                 style={{
-                                  width: item?.title.length > 26 && "250px",
+                                  width: item?.title?.length > 26 && "250px",
                                 }}
                                 className={`${
-                                  item?.title.length > 26 &&
+                                  item?.title?.length > 26 &&
                                   "chips-custom-break"
                                 } btn btn-primary2 chips-custom mb-14 me-14`}
                                 onClick={() => onSelectParent(item?.title)}
