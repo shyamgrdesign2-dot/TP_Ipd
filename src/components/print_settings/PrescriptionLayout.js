@@ -160,6 +160,14 @@ const obsHistoryCheckboxOptions = [
     label: "Examination",
     value: "examination",
   },
+  {
+    label: "ANC Scheduler",
+    value: "ancHistory",
+  },
+  {
+    label: "Immunisation History",
+    value: "immunisationHistory",
+  },
 ];
 
 function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetails }) {
@@ -395,6 +403,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
       children: (
         <div className="d-flex align-items-center">
           <Checkbox.Group
+            style={{ columnGap: "4px" }}
             options={obsHistoryCheckboxOptions}
             value={record?.obs_history_option}
             onChange={(checkedValues) =>
