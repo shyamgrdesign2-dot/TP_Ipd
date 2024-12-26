@@ -138,8 +138,9 @@ function TabCustomModule({ module }) {
 
   // Handle Parent Drawer
   const handleDrawerParent = useCallback(() => {
+    setSelectedIndex(moduleData.length);
     setParentDrawer(!parentDrawer);
-  }, [parentDrawer]);
+  }, [parentDrawer, moduleData]);
 
   const onSelectParent = useCallback(
     (e) => {
@@ -357,9 +358,9 @@ function TabCustomModule({ module }) {
     <div
       style={{
         width:
-          item.title.length > 12 && item.title.length < 24
+          item?.title?.length > 12 && item.title?.length < 24
             ? `${item.title.length * 10.5}px`
-            : item.title.length >= 24
+            : item?.title?.length >= 24
             ? "256px"
             : "150px",
       }}
@@ -393,13 +394,16 @@ function TabCustomModule({ module }) {
   const SortableList = SortableContainer(({ items }) => {
     return (
       <div className="d-flex flex-wrap">
-        {items.map((item, index) => (
-          <SortableItem
-            key={`item-${index}`}
-            index={index}
-            item={{ ...item, index }}
-          />
-        ))}
+        {items.map(
+          (item, index) =>
+            (item?.title || item?.notes) && (
+              <SortableItem
+                key={`item-${index}`}
+                index={index}
+                item={{ ...item, index }}
+              />
+            )
+        )}
       </div>
     );
   });
@@ -615,7 +619,7 @@ function TabCustomModule({ module }) {
                   <i className="icon-Cross fs-3"></i>
                 </Button>
                 <div className="modal-title text-truncate-twolines">
-                  {childDrawerData.title}
+                  {childDrawerData.title || "Notes"}
                 </div>
               </div>
               <Button

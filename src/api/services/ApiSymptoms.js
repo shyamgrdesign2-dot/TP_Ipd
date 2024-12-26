@@ -2,6 +2,7 @@ import api from "./axiosService";
 import config from '../../config';
 
 const baseUrl = { customBaseUrl: config.symptoms_api_url }
+const baseSearchEngineUrl = { customBaseUrl: config.searchengine_url };
 
 const ApiSymptoms = {};
 
@@ -22,7 +23,7 @@ ApiSymptoms.getSymptomsTemplates = function (query) {
 };
 
 ApiSymptoms.getFrequentlySearchedSymptoms = function () {
-  return api.get(`/api/v1/symptoms/frequentlySymptoms`, baseUrl);
+  return api.get(`/api/v1/symptom/frequentlySymptoms`, baseSearchEngineUrl);
 };
 
 // ApiSymptoms.getFrequentlySearchedSymptoms = function () {
@@ -32,9 +33,14 @@ ApiSymptoms.getFrequentlySearchedSymptoms = function () {
 // };
 
 ApiSymptoms.searchSymptoms = function (query) {
-  return api.post(`/api/v1/symptoms/searchSymptoms`, {
+  return api.post(`/api/v1/symptom/search`, {
     search: query
-  }, baseUrl);
+  }, baseSearchEngineUrl);
 };
+
+ApiSymptoms.singleTemplateDetails = function (templateId) {
+  return api.get(`/api/v1/symptoms/singleTemplateDetails/${templateId}`, baseUrl);
+};
+
 
 export default ApiSymptoms;

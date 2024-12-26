@@ -25,6 +25,7 @@ import MedicalCertificate from "./pages/MedicalCertificate";
 import CertificatePrintView from "./pages/CertificatePrintView";
 import DoctorProfile from "./pages/DoctorProfile";
 import DoctorWebsiteSetting from "./pages/DoctorWebsiteSetting";
+import MessageCreateCampaign from "./pages/MessageCreateCampaign";
 
 import { store, persistor } from "./redux/store";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
@@ -34,6 +35,10 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
 import TalkativeWidget from "./components/TalkativeWidget";
 import SmartRxDigitise from "./pages/SmartRxDigitise";
+import DemoExpirationBanner from "./common/DemoExpirationBanner";
+import PlanExpirationBanner from "./common/PlanExpirationBanner";
+import DoctorModal from "./common/DoctorModal";
+import ExpiredPlanCard from "./common/ExpiredPlanCard";
 import ApolloConsultations from "./pages/apolloConsultations/ApolloConsultations";
 import AuthContainer from "./pages/auth/auth";
 
@@ -126,6 +131,7 @@ function App() {
               )} */}
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
+                <Route path="create-campaign" element={<MessageCreateCampaign />} />
                 <Route path="patient_details" element={<PatientDetails />} />
                 <Route
                   path="prescription"

@@ -1,17 +1,26 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Button from "react-bootstrap/Button";
+import { Drawer } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { userCredit } from "../redux/bulkMessagesSlice";
+
 import { getDecodedToken } from "../utils/localStorage";
+import CreditImg from "../assets/images/credit_icon.svg"
 import config from "../config";
+import AvailableCredits from "../components/bulk_messages/AvailableCredits";
 
 function Welcome(props) {
 
-  const navigate = useNavigate();
-
   const { locationPath, backVisible } = props;
 
+  const { userCreditObj } = useSelector((state) => state.bulkMessages);
   const { profile } = useSelector((state) => state.doctors);
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+
+  const [availableCredit, setAvailableCredit] = useState(false);
   const decodedToken = getDecodedToken();
 
   const clickWalkInConsultation = () => {
@@ -27,50 +36,91 @@ function Welcome(props) {
     }
   }
 
+  const handleAvailableCredit = useCallback(
+    () => {
+      setAvailableCredit(!availableCredit)
+    },
+    [availableCredit]
+  );
+
   return (
-    <div className="welcomesection position-relative">
-      <div className="bg-welcome d-flex justify-content-between align-items-center">
-        <div className="d-flex align-items-center">
-          {backVisible && (
-            <div onClick={() => navigate(-1)} className="lh-1 me-1 px-2 text-dark cursor-pointer">
-              <i className="fs-3 icon-right"></i>
-            </div>
-          )}
-          <div>
-            {locationPath == "/add_patient" ? (
-              <h1>Add New Patient</h1>
-            ) : locationPath == "/edit_patient" ? (
-              <h1>Edit Patient Details</h1>
-            ) : (locationPath == "/walk_in_consultation" || locationPath == "/walk_in_consultation_zydus") ? (
-              <h1>Start Walk-In Consultation</h1>
-            ) : (
-              <h1>Welcome Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
-            )}
-            {locationPath == "/" && <p>{"Your Appointments"}</p>}
-          </div>
-          <img
-            src={require("../assets/images/bg-welcome.png")}
-            className="welcomeig d-inline-block align-top"
-            alt="Welcome"
-          />
-        </div>
-        <div className="d-flex gap-1">
-          <div>
-            {locationPath == "/" && (
-              <div className="d-lg-flex d-block">
-                <Button
-                  variant="primary"
-                  className="px-3 btn-41"
-                  onClick={clickWalkInConsultation}>
-                  {"Start Walk-in Consultation"}
-                </Button>
+    <>
+      <div className="welcomesection position-relative">
+        <div className="bg-welcome d-flex justify-content-between align-items-center">
+          <div className="d-flex align-items-center">
+            {backVisible && (
+              <div onClick={() => navigate(-1)} className="lh-1 me-1 px-2 text-dark cursor-pointer">
+                <i className="fs-3 icon-right"></i>
               </div>
             )}
+            <div>
+              {locationPath == "/add_patient" ? (
+                <h1>Add New Patient</h1>
+              ) : locationPath == "/edit_patient" ? (
+                <h1>Edit Patient Details</h1>
+              ) : (locationPath == "/walk_in_consultation" || locationPath == "/walk_in_consultation_zydus") ? (
+                <h1>Start Walk-In Consultation</h1>
+              ) : locationPath == "/bulk_messages" ? (
+                <h1>Messages</h1>
+              ) : (
+                <h1>Welcome Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
+              )}
+              {locationPath == "/" && <p>{"Your Appointments"}</p>}
+              {locationPath == "/bulk_messages" && <p className="text-main fw-medium fs-14">{"Engage patients with timely updates and reminders"}</p>}
+            </div>
+            <img
+              src={require("../assets/images/bg-welcome.png")}
+              className="welcomeig d-inline-block align-top"
+              alt="Welcome"
+            />
+          </div>
+          <div className="d-flex gap-1">
+            <div>
+              {locationPath == "/" &&
+                <div className="d-lg-flex d-block">
+                  <Button
+                    variant="primary"
+                    className="px-3 btn-41"
+                    onClick={clickWalkInConsultation}>
+                    {"Start Walk-in Consultation"}
+                  </Button>
+                </div>
+              }
+              {locationPath == "/bulk_messages" &&
+                <div className="d-lg-flex d-block">
+                  <Button
+                    onClick={handleAvailableCredit}
+                    className="px-3 btn-41 btn-message d-flex align-items-center">
+                    <img src={CreditImg} width={19} className="me-2" />
+                    {`Available Credits: ${userCreditObj?.userCredit}`}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    className="px-3 btn-41 ms-3 d-flex align-items-center"
+                    onClick={() => navigate('/create-campaign')}>
+                    <i className="icon-Add me-2"></i>
+                    {"Create New Campaign"}
+                  </Button>
+                </div>
+              }
+            </div>
           </div>
         </div>
+        <div className="pb-5">&nbsp;</div>
       </div>
-      <div className="pb-5">&nbsp;</div>
-    </div>
+
+      {/* Message Credits Drawer */}
+      <Drawer
+        className="modalWidth-645" width="auto"
+        title="Buy Message Credits"
+        placement="right"
+        closable
+        open={availableCredit}
+        onClose={handleAvailableCredit}
+      >
+        <AvailableCredits handleAvailableCredit={handleAvailableCredit} />
+      </Drawer>
+    </>
   );
 }
 

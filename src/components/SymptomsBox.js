@@ -27,14 +27,15 @@ import {
   deleteTemplate,
   getSymptomsTemplates,
   getFrequentlySearchedSymptoms,
-  searchSymptoms
+  searchSymptoms,
+  singleTemplateDetails
 } from "../redux/symptomsSlice";
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DifferentialDiagnosis from "./DifferentialDiagnosis";
 import { setIsDDxReadyToGenerate } from "../redux/ddxSlice";
 
-function SymptomsBox({handleDDxDrawer, generatedDDx}) {
+function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
   const {
     selectedSymptomsList,
     parentOptionsList,
@@ -160,11 +161,12 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
         ),
       });
     } else {
-      searchParentQuery &&
+      searchParentQuery && parentOptionsList.findIndex(e => e.symptom_name?.toLowerCase()?.trim() == searchParentQuery?.toLowerCase()?.trim()) === -1 &&
         data.push({
           key: JSON.stringify({
             unique_id: uuidv4(),
             change: 1,
+            pms_default: 0,
             symptom_name: searchParentQuery
           }),
           value: searchParentQuery,
@@ -242,12 +244,13 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
         label: <div>{e.symptom_name}</div>,
       });
     });
-    if (searchChildQuery?.query) {
+    if (searchChildQuery?.query && childOptionsList.findIndex(e => e.symptom_name?.toLowerCase()?.trim() == searchChildQuery?.query?.toLowerCase()?.trim()) === -1) {
       data.push({
         key: JSON.stringify({
           ...symptomsData[searchChildQuery.index],
           unique_id: uuidv4(),
           change: 1,
+          pms_default: 0,
           symptom_name: searchChildQuery.query
         }),
         value: searchChildQuery.query,
@@ -383,15 +386,18 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
     }
   };
 
-  const onTemplateSelected = (template) => {
+  const onTemplateSelected = async (template) => {
     window.Moengage.track_event("symptom_template_used", {
       "template_name": template.tst_template_name
     });
-    const updatedData = template.symptoms.map(e => {
-      return { ...e, unique_id: uuidv4(), since: "", severity: "", note: e.note ? e.note : "" }
-    })
-    setSymptomsData([...symptomsData, ...updatedData]);
-    showHideTemplatesListPopover();
+    const action = await dispatch(singleTemplateDetails(template.tst_id));
+    if (action.meta.requestStatus === "fulfilled") {
+      const updatedData = action?.payload;
+      setSymptomsData([...symptomsData, ...updatedData]);
+      showHideTemplatesListPopover();
+    } else {
+      errorMessage(action.error)
+    }
   };
 
   const onDeleteTemplateClicked = async (tst_id) => {
@@ -643,6 +649,7 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
                               placeholder="Symptom Name"
                               bordered={false}
                               defaultOpen={false}
+                              disabled={item?.pms_default ? true : false}
                               onSearch={(query) => onSearchChild(query, index)}
                               onFocus={() => onFocusChid(index)}
                               options={childSearchOptions}
@@ -753,12 +760,7 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
                   >
                     <div className="title text-main2">{template.tst_template_name}</div>
                     <div className="text-truncate">
-                      {template.symptoms.map((item, ii) => {
-                        return (
-                          <span key={ii}>{`${item.symptom_name}${template.symptoms.length - 1 != ii ? ", " : ""
-                            }`}</span>
-                        );
-                      })}
+                      <span>{template.symptoms}</span>
                     </div>
                   </div>
                   <Button
@@ -849,12 +851,7 @@ function SymptomsBox({handleDDxDrawer, generatedDDx}) {
                   <div className="text-truncate w-100">
                     <div className="title text-main2">{option.data.value}</div>
                     <div className="text-truncate">
-                      {JSON.parse(option.data.key).symptoms.map((item, ii) => {
-                        return (
-                          <span key={ii}>{`${item.symptom_name}${JSON.parse(option.data.key).symptoms.length - 1 != ii ? ", " : ""
-                            }`}</span>
-                        );
-                      })}
+                      <span>{JSON.parse(option.data.key).symptoms}</span>
                     </div>
                   </div>
                 </div>

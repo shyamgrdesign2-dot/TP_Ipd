@@ -9,6 +9,7 @@ const initialState = {
   templates: [],
   loading: false,
   error: null,
+  errorObj: { visible: false, message: '' },
 };
 
 export const addTemplate = createAsyncThunk(
@@ -63,22 +64,32 @@ export const getExaminationTemplates = createAsyncThunk(
 
 export const getFrequentlySearchedExamination = createAsyncThunk(
   "examination/getFrequentlySearchedExamination",
-  async () => {
-    let result = {};
-    result = await ApiExamination.getFrequentlySearchedExamination();
-    if (result.status) {
-      return result.data;
-    } else {
-      throw Error(result.error);
+  async (_, { rejectWithValue }) => {
+    try {
+      const result = await ApiExamination.getFrequentlySearchedExamination();
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
     }
   }
 );
 
 export const searchExamination = createAsyncThunk(
   "examination/searchExamination",
-  async (data) => {
-    let result = {};
-    result = await ApiExamination.searchExamination(data.searchQuery);
+  async (data, { rejectWithValue }) => {
+    try {
+      const result = await ApiExamination.searchExamination(data.searchQuery);
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
+    }
+  }
+);
+
+export const singleTemplateDetails = createAsyncThunk(
+  "examination/singleTemplateDetails",
+  async (templateId) => {
+    const result = await ApiExamination.singleTemplateDetails(templateId);
     if (result.status) {
       return result.data;
     } else {
@@ -98,7 +109,9 @@ const examinationSlice = createSlice({
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedExaminationList = action.payload.examination;
-        state.templates.unshift(action.payload);
+
+        const { tet_id, tet_template_name, examination } = action.payload
+        state.templates.unshift({ tet_id: tet_id, tet_template_name: tet_template_name, examination: examination.map((e) => e.examination_name).join(', ') });
       })
       .addCase(addTemplate.rejected, (state, action) => {
         state.loading = false;
@@ -113,7 +126,8 @@ const examinationSlice = createSlice({
           (e) => e.tet_id == action.payload.tet_id
         );
         if (index !== -1) {
-          state.templates[index] = action.payload;
+          const { tet_id, tet_template_name, examination } = action.payload
+          state.templates[index] = { tet_id: tet_id, tet_template_name: tet_template_name, examination: examination.map((e) => e.examination_name).join(', ') };
         }
       })
       .addCase(updateTemplate.rejected, (state, action) => {

@@ -9,6 +9,10 @@ export const TAB_QUEUE = 0;
 export const TAB_FINISHED = 3;
 export const TAB_CANCELLED = 4;
 
+export const TAB_CAMPAIGN = 0;
+export const TAB_DRAFT = 1;
+export const TAB_PURCHASE = 2;
+
 export const TAB_PRESCRIPTION = 1;
 export const TAB_HEADER_FOOTER = 2;
 export const TAB_PAGE_FORMAT = 3;

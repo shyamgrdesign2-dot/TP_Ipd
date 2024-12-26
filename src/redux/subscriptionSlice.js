@@ -48,14 +48,14 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         last_plan_active_date,
         last_plan_expiry_date,
         productType,
-        billingHistory: response?.body?.payments?.content?.filter(
-          (plan) => plan?.planStatus?.code !== "TRIAL"
-        ),
+        billingHistory: response?.body?.payments?.content,
         expiry_reminder_days,
         is_owner,
         is_pm_renew_requested,
         totalPages: response?.body?.payments?.totalPages,
-        expiresIn: moment(plan_expiry_date).diff(moment(), "days"),
+        expiresIn: moment(plan_expiry_date)
+          .startOf("day")
+          .diff(moment().startOf("day"), "days"),
       };
     }
   }

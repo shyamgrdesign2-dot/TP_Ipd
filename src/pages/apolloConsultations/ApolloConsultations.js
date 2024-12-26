@@ -411,9 +411,9 @@ const ConsultationDetailsPage = () => {
                     <Text>{selectedConsultation.patientName}</Text>
                     <Text strong>Consultation Date:</Text>
                     <Text>
-                      {moment
-                        .utc(selectedConsultation.consultationDateTime)
-                        .format("DD/MM/YY hh:mm A")}
+                      {moment(selectedConsultation.consultationDateTime).format(
+                        "DD/MM/YY hh:mm A"
+                      )}
                     </Text>
                     <Text strong>Remarks:</Text>
                     <Input.TextArea

@@ -48,6 +48,7 @@ import TabMedicationMoreModal from "./TabMedicationMoreModal";
 
 import noRecordFound from '../../assets/images/no-record-round.svg';
 import calculatorIconBlue from '../../assets/images/calculator-blue.svg';
+import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
 import { EXTRA_OPTIONS, MESSAGE_KEY } from "../../utils/constants";
 
@@ -500,7 +501,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             setMedicationData(removedArray);
           }}
           axis="xy"
-          pressDelay={100}
+          pressDelay={150}
         />
       )
     );
@@ -906,6 +907,31 @@ function TabMedicationSearch({ passIndex, onClose }) {
     },
     [selectedIndex, medicationData]
   );
+
+  const onAutoFillDuration = () => {
+    const { tmm_days_duration_type, tmm_days, tmm_duration_type } = medicationData[selectedIndex]
+    medicationData.forEach(e => {
+      e.tmm_days_duration_type = tmm_days_duration_type;
+      e.tmm_days = tmm_days;
+      e.tmm_duration_type = tmm_duration_type;
+    });
+    setMedicationData((prev) => [...prev]);
+    message.open({
+      key: MESSAGE_KEY,
+      type: '',
+      className: 'message-appointment',
+      content: (
+        <div className='d-flex align-items-center'>
+          <img src={visitEnd} className='me-2' />
+          <div>
+            <div className='text-start fs-18 fontroboto'>Autofilled this Duration to all medicines</div>
+          </div>
+          <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+        </div>
+      ),
+      duration: 3,
+    });
+  }
 
   const handleDurationMoreOptionsVisible = useCallback(
     () => {
@@ -1630,7 +1656,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                   onChange={onChangeSegmentedSinceChild}
                 /> */}
               </div>
-              <div className="mt-3 mb-3">
+              <div className="mt-3 mb-2">
                 <div className="segement-static d-flex">
                   {sinceOptions.map((item, i) => {
                     return (
@@ -1688,7 +1714,12 @@ function TabMedicationSearch({ passIndex, onClose }) {
                   onChange={onChangeSinceChild}
                 /> */}
               </div>
-              <label className="title-common mb-1">Note</label>
+
+              {medicationData[selectedIndex].tmm_days_duration_type && (
+                <div className="text-primary d-flex align-items-center"><i className="icon-copyIcon fs-16 me-1" /> <span className="text-primary text-decoration-underline" onClick={onAutoFillDuration}>Autofill this duration for all added meds.</span></div>
+              )}
+
+              <label className="title-common mb-1 mt-3">Note</label>
               <Input.TextArea
                 value={
                   medicationData[selectedIndex].tmm_remarks
