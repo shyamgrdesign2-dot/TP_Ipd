@@ -1250,6 +1250,7 @@ const getGenerateDDx = async (field) => {
             open={medicalReportDrawer}
             width="50%"
             push={false}
+            zIndex={9999}
           >
             <MedicalRecords
               medicalReportDrawer={medicalReportDrawer}

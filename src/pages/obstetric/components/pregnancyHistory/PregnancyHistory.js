@@ -1,16 +1,21 @@
-import { Button } from "antd";
+import { Button, Drawer } from "antd";
 import "./PregnancyHistory.scss";
 import arrow from "../../../../assets/images/arrow.svg";
 import pregnancyHistoryImg from "../../../../assets/images/pregnancy-history.svg";
 import moment from "moment";
 import {
   AbortionColumns,
+  AbortionColumnsWithPregnancyHistory,
   EctopicColumns,
+  EctopicColumnsWithPregnancyHistory,
   LiveColumns,
+  LiveColumnsWithPregnancyHistory,
   OutcomeOptions,
 } from "../../utils/constants";
 import { getTypeOfAbortion } from "../../utils/helper";
 import { ABORTION, MISCARRIAGE } from "../../../../utils/constants";
+import { useState } from "react";
+import Obstetric from "../../Obstetric";
 
 const PregnancyHistory = ({
   pregnancyHistory,
@@ -19,7 +24,16 @@ const PregnancyHistory = ({
   setEditIndex,
   bottomRef,
   isPregnancyCompleted,
+  handleDrawerMedicalReport,
 }) => {
+  const [obstetricDrawer, setObstetricDrawer] = useState(false);
+  const [previousObstetricDetails, setPreviousObstetricDetails] = useState({});
+
+  // Drawer Obstetric
+  const handleDrawerObstetric = () => {
+    setPreviousObstetricDetails({});
+    setObstetricDrawer(false);
+  };
 
   const renderTableTitle = (gravidaItem, i) => {
     const onEdit = () => {
@@ -27,7 +41,7 @@ const PregnancyHistory = ({
     };
     return (
       <div className="tcell theaderCellStyle tableTitle">
-        <div>{`G ${gravidaItem.gravidaNumber}, ${
+        <div>{`G ${gravidaItem.gravidity}, ${
           gravidaItem.outcome === ABORTION ? MISCARRIAGE : gravidaItem.outcome
         }${gravidaItem.termLength ? `, ${gravidaItem.termLength}` : ""}`}</div>
         <div className="editIcon" onClick={onEdit}>
@@ -87,6 +101,18 @@ const PregnancyHistory = ({
               {babysWeight ? babysWeight + " Kg" : "-"}
             </td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
+            {Object.keys(gravidaItem)?.length > 15 && (
+              <td
+                className="obstetricTcell pregnancyTcell text-primary text-decoration-underline cursor-pointer"
+                style={{ fontWeight: 500 }}
+                onClick={() => {
+                  setPreviousObstetricDetails(gravidaItem);
+                  setObstetricDrawer(true);
+                }}
+              >
+                Detailed View
+              </td>
+            )}
           </tr>
         ) : outcome === OutcomeOptions.ectopic ? (
           <tr>
@@ -98,6 +124,18 @@ const PregnancyHistory = ({
               {modeOfManagement}
             </td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
+            {Object.keys(gravidaItem)?.length > 15 && (
+              <td
+                className="obstetricTcell pregnancyTcell text-primary text-decoration-underline cursor-pointer"
+                style={{ fontWeight: 500 }}
+                onClick={() => {
+                  setPreviousObstetricDetails(gravidaItem);
+                  setObstetricDrawer(true);
+                }}
+              >
+                Detailed View
+              </td>
+            )}
           </tr>
         ) : outcome === OutcomeOptions.abortion ? (
           <tr>
@@ -109,6 +147,18 @@ const PregnancyHistory = ({
             </td>
             <td className="obstetricTcell pregnancyTcell">{modeOfAbortion}</td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
+            {Object.keys(gravidaItem)?.length > 15 && (
+              <td
+                className="obstetricTcell pregnancyTcell text-primary text-decoration-underline cursor-pointer"
+                style={{ fontWeight: 500 }}
+                onClick={() => {
+                  setPreviousObstetricDetails(gravidaItem);
+                  setObstetricDrawer(true);
+                }}
+              >
+                Detailed View
+              </td>
+            )}
           </tr>
         ) : null}
       </>
@@ -125,11 +175,20 @@ const PregnancyHistory = ({
               gravidaItem.outcome === OutcomeOptions.live ||
               gravidaItem.outcome === OutcomeOptions.stillBirth
             ) {
-              columns = LiveColumns;
+              columns =
+                Object.keys(gravidaItem)?.length > 15
+                  ? LiveColumnsWithPregnancyHistory
+                  : LiveColumns;
             } else if (gravidaItem.outcome === OutcomeOptions.ectopic) {
-              columns = EctopicColumns;
+              columns =
+                Object.keys(gravidaItem)?.length > 15
+                  ? EctopicColumnsWithPregnancyHistory
+                  : EctopicColumns;
             } else if (gravidaItem.outcome === OutcomeOptions.abortion) {
-              columns = AbortionColumns;
+              columns =
+                Object.keys(gravidaItem)?.length > 15
+                  ? AbortionColumnsWithPregnancyHistory
+                  : AbortionColumns;
             }
             return (
               <div key={index}>
@@ -201,6 +260,24 @@ const PregnancyHistory = ({
             <img src={arrow} alt="arrow" />
           </div>
         </div>
+      )}
+      {obstetricDrawer && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerObstetric}
+          open={obstetricDrawer}
+          width="90%"
+          push={false}
+        >
+          <Obstetric
+            obstetricDetails={previousObstetricDetails}
+            obstetricDrawer={obstetricDrawer}
+            handleDrawerObstetric={handleDrawerObstetric}
+            handleDrawerMedicalReport={handleDrawerMedicalReport}
+            isPreviousPregnancyOverview={true}
+          />
+        </Drawer>
       )}
     </div>
   );

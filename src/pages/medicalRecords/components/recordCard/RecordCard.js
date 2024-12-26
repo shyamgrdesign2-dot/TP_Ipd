@@ -349,6 +349,7 @@ const RecordCard = ({
           width="100%"
           height={"100%"}
           push={false}
+          zIndex={9999}
         >
           <DocumentPreview
             onClose={handlePreview}

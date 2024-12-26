@@ -957,7 +957,7 @@ function ObsHistoryInlineView({
 
                 {pregnancyHistory.map((item, i) => (
                   <View key={i}>
-                    {("gravidaNumber" in item ||
+                    {("gravidity" in item ||
                       "outcome" in item ||
                       "termLength" in item ||
                       "deliveryMode" in item ||
@@ -993,7 +993,7 @@ function ObsHistoryInlineView({
                           </>
                         </Text>
 
-                        {"gravidaNumber" in item && (
+                        {"gravidity" in item && (
                           <>
                             <Text
                               style={{
@@ -1019,7 +1019,7 @@ function ObsHistoryInlineView({
                                 fontWeight: 400,
                               }}
                             >
-                              {item?.gravidaNumber?.toString().padStart(2, "0")}
+                              {item?.gravidity?.toString().padStart(2, "0")}
                             </Text>
                             {("outcome" in item ||
                               "termLength" in item ||
