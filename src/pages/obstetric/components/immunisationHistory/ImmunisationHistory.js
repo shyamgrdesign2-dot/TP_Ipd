@@ -29,10 +29,7 @@ import {
   updateEnablePrint,
 } from "../../utils/helper";
 
-const ImmunisationHistory = ({
-  immunisationHistoryData = [],
-  isPreviousPregnancyOverview,
-}) => {
+const ImmunisationHistory = ({ immunisationHistoryData = [] }) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const { patient_data } = state;
@@ -54,24 +51,22 @@ const ImmunisationHistory = ({
   }, [immunisationHistoryData]);
 
   useEffect(() => {
-    if (!isPreviousPregnancyOverview) {
-      const newImmunisationHistory = mergeDefaultAndDoctorList(
-        immunisationHistoryData,
-        defaultImmunisation,
-        immunisationDoctorList,
-        userId
-      );
-      const payload = {
-        ...obstetricDetails,
-        currentPregnancy: {
-          ...obstetricDetails?.currentPregnancy,
-          immunisationHistory: newImmunisationHistory,
-        },
-      };
-      dispatch(addObstetricDetails(payload));
-      dispatch(patientDiagnosisUpdated());
-      dispatch(obstetricDetailsUpdated());
-    }
+    const newImmunisationHistory = mergeDefaultAndDoctorList(
+      immunisationHistoryData,
+      defaultImmunisation,
+      immunisationDoctorList,
+      userId
+    );
+    const payload = {
+      ...obstetricDetails,
+      currentPregnancy: {
+        ...obstetricDetails?.currentPregnancy,
+        immunisationHistory: newImmunisationHistory,
+      },
+    };
+    dispatch(addObstetricDetails(payload));
+    dispatch(patientDiagnosisUpdated());
+    dispatch(obstetricDetailsUpdated());
   }, []);
 
   useEffect(() => {
@@ -129,12 +124,9 @@ const ImmunisationHistory = ({
   };
 
   const renderTableHeader = () => {
-    const tableColumns = isPreviousPregnancyOverview
-      ? ImmunisationColumns?.slice(0, -2)
-      : ImmunisationColumns;
     return (
       <tr>
-        {tableColumns?.map((header, index) => (
+        {ImmunisationColumns?.map((header, index) => (
           <th
             key={index}
             className="obstetricTcell theaderCellStyle"
@@ -196,7 +188,7 @@ const ImmunisationHistory = ({
         <tr key={i}>
           <td className="obstetricTcell">
             {master?.name}
-            {!master?.default && !isPreviousPregnancyOverview && (
+            {!master?.default && (
               <i
                 className="icon-Edit fs-6 d-flex justify-content-end"
                 style={{ cursor: "pointer" }}
@@ -221,7 +213,6 @@ const ImmunisationHistory = ({
               }`}
               value={status || "Due"}
               allowClear={false}
-              disabled={isPreviousPregnancyOverview}
             />
           </td>
           <td className="obstetricTcell">
@@ -238,7 +229,6 @@ const ImmunisationHistory = ({
                 format: "DD-MM-YYYY",
                 type: "mask",
               }}
-              disabled={isPreviousPregnancyOverview}
             />
           </td>
           <td className="obstetricTcell">
@@ -250,44 +240,39 @@ const ImmunisationHistory = ({
               }
               className="textareaPlaceholder immunisationRemarks"
               styles={{ border: "none" }}
-              disabled={isPreviousPregnancyOverview}
             />
           </td>
-          {!isPreviousPregnancyOverview && (
-            <>
-              <td className="obstetricTcell">
-                <Switch
-                  checked={enablePrint}
-                  onChange={() =>
-                    handleImmunisationChange("enablePrint", i, !enablePrint)
-                  }
-                />
-              </td>
-              <td className="obstetricTcell">
-                {master?.default ? (
-                  <Tooltip
-                    title={
-                      <div>Default Immunisation vaccine cannot be deleted</div>
-                    }
-                    overlayClassName="ancTooltip"
-                    placement="topLeft"
-                  >
-                    <i className="icon-delete" style={{ color: "#A2A2A8" }} />
-                  </Tooltip>
-                ) : (
-                  <Button
-                    className="btn btn-delete-prescription p-0"
-                    onClick={() => {
-                      setImmunisationPopup("delete");
-                      setEditIndex(i);
-                    }}
-                  >
-                    <i className="icon-delete" style={{ color: "#454551" }} />
-                  </Button>
-                )}
-              </td>
-            </>
-          )}
+          <td className="obstetricTcell">
+            <Switch
+              checked={enablePrint}
+              onChange={() =>
+                handleImmunisationChange("enablePrint", i, !enablePrint)
+              }
+            />
+          </td>
+          <td className="obstetricTcell">
+            {master?.default ? (
+              <Tooltip
+                title={
+                  <div>Default Immunisation vaccine cannot be deleted</div>
+                }
+                overlayClassName="ancTooltip"
+                placement="topLeft"
+              >
+                <i className="icon-delete" style={{ color: "#A2A2A8" }} />
+              </Tooltip>
+            ) : (
+              <Button
+                className="btn btn-delete-prescription p-0"
+                onClick={() => {
+                  setImmunisationPopup("delete");
+                  setEditIndex(i);
+                }}
+              >
+                <i className="icon-delete" style={{ color: "#454551" }} />
+              </Button>
+            )}
+          </td>
         </tr>
       );
     });
@@ -310,23 +295,21 @@ const ImmunisationHistory = ({
   return (
     <div>
       <div className="examinationTableViewContainer">
-        {!isPreviousPregnancyOverview && (
-          <div style={{ paddingBottom: 30 }}>
-            <AutoComplete
-              value={searchQuery}
-              onSearch={onSearch}
-              options={searchOptions}
-              className="autocomplete-custom w-100"
-              onSelect={onSelect}
-              defaultActiveFirstOption={true}
-            >
-              <Input
-                placeholder="Search & add new vaccine"
-                prefix={<i className="icon-search" />}
-              />
-            </AutoComplete>
-          </div>
-        )}
+        <div style={{ paddingBottom: 30 }}>
+          <AutoComplete
+            value={searchQuery}
+            onSearch={onSearch}
+            options={searchOptions}
+            className="autocomplete-custom w-100"
+            onSelect={onSelect}
+            defaultActiveFirstOption={true}
+          >
+            <Input
+              placeholder="Search & add new vaccine"
+              prefix={<i className="icon-search" />}
+            />
+          </AutoComplete>
+        </div>
         <div className="tableWrappwer">
           <table
             className="tableView"

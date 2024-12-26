@@ -42,6 +42,8 @@ import { Container, Navbar } from "react-bootstrap";
 import ImmunisationHistory from "./components/immunisationHistory/ImmunisationHistory";
 import AncScheduler from "./components/ancScheduler/AncScheduler";
 
+const isPregnancyCompleted = false;
+
 const Obstetric = ({
   obstetricDetails,
   obstetricDrawer,
@@ -63,7 +65,6 @@ const Obstetric = ({
     immunisationDoctorList,
     obstetricDetails: allObstetricDetails,
   } = useSelector((state) => state.obstetric);
-  const isPregnancyCompleted = Object.keys(obstetricDetails).length === 0;
   const {
     gravidity,
     parity,
@@ -206,11 +207,7 @@ const Obstetric = ({
     const prefillObstetricResponse = await fetchPrefillObstetricDetails(
       patient_data.patient_unique_id
     );
-    if (
-      Object.keys(obstetricDetails).length !== 0 &&
-      !prefillObstetricResponse?.lmp &&
-      !obstetricDetails?.lmp
-    ) {
+    if (!obstetricDetails?.lmp && !prefillObstetricResponse?.lmp) {
       setShowLmpPopup(true);
     }
     setPrefillObstetricData(prefillObstetricResponse);
@@ -316,58 +313,54 @@ const Obstetric = ({
   };
 
   const obstetricSaveBtnHandler = async () => {
-    if (obstetricDetails === null) {
-      setShowLmpPopup(true);
-    } else {
-      if (isPatientDiagnosisUpdated) {
-        const pastPregnancy = pastPregnancyData.reduce((acc, item) => {
-          acc[item.key] = item.value;
-          return acc;
-        }, {});
-        const payload = {
-          ...allObstetricDetails,
-          currentPregnancy: {
-            ...patientDiagnosisData,
-            ...pastPregnancy,
-            examinationHistory: obstetricDetails?.examinationHistory || [],
-            ancHistory: obstetricDetails?.ancHistory || [],
-            immunisationHistory: obstetricDetails?.immunisationHistory || [],
-            patientId: patient_data.patient_unique_id,
-            diagnosisNotes: patientDiagnosisNotes?.trim(),
-            createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-            createdBy: obstetricDetails?.createdBy || tokenData?.user_id,
-            modifiedAt: new Date().toISOString(),
-            modifiedBy: tokenData?.user_id,
-          },
-          pregnancyHistory: allObstetricDetails?.pregnancyHistory || [],
-        };
-        dispatch(addObstetricDetails(payload));
-        dispatch(resetUpdatedPatientDiagnosis());
-        setLoader(true);
-        const obstetricResponse = await upsertObstetricDetails(
-          patient_data.patient_unique_id,
-          payload
-        );
-        const prefillObstetricPayload = {};
-        Object.keys(prefillObstetricData).forEach((key) => {
-          if (prefillObstetricData[key]) {
-            prefillObstetricPayload[key] = prefillObstetricData[key];
-          }
-        });
-        await updatePrefillObstetricData(prefillObstetricPayload, userId);
-        setLoader(false);
-        if (obstetricResponse) {
-          trackUpdateEvent();
-          setShowSuccess(true);
-          getAllObstetricDetails();
-        } else {
-          errorMessage("Error while adding data");
+    if (isPatientDiagnosisUpdated) {
+      const pastPregnancy = pastPregnancyData.reduce((acc, item) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {});
+      const payload = {
+        ...allObstetricDetails,
+        currentPregnancy: {
+          ...patientDiagnosisData,
+          ...pastPregnancy,
+          examinationHistory: obstetricDetails?.examinationHistory || [],
+          ancHistory: obstetricDetails?.ancHistory || [],
+          immunisationHistory: obstetricDetails?.immunisationHistory || [],
+          patientId: patient_data.patient_unique_id,
+          diagnosisNotes: patientDiagnosisNotes?.trim(),
+          createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
+          createdBy: obstetricDetails?.createdBy || tokenData?.user_id,
+          modifiedAt: new Date().toISOString(),
+          modifiedBy: tokenData?.user_id,
+        },
+        pregnancyHistory: allObstetricDetails?.pregnancyHistory || [],
+      };
+      dispatch(addObstetricDetails(payload));
+      dispatch(resetUpdatedPatientDiagnosis());
+      setLoader(true);
+      const obstetricResponse = await upsertObstetricDetails(
+        patient_data.patient_unique_id,
+        payload
+      );
+      const prefillObstetricPayload = {};
+      Object.keys(prefillObstetricData).forEach((key) => {
+        if (prefillObstetricData[key]) {
+          prefillObstetricPayload[key] = prefillObstetricData[key];
         }
+      });
+      await updatePrefillObstetricData(prefillObstetricPayload, userId);
+      setLoader(false);
+      if (obstetricResponse) {
+        trackUpdateEvent();
+        setShowSuccess(true);
+        getAllObstetricDetails();
+      } else {
+        errorMessage("Error while adding data");
       }
-      setTimeout(() => {
-        handleObstetricBackBtn();
-      }, 1000);
     }
+    setTimeout(() => {
+      handleObstetricBackBtn();
+    }, 1000);
   };
 
   const clearObstetricData = () => {
@@ -461,8 +454,7 @@ const Obstetric = ({
             handlePastPregnancyDrawer={handlePastPregnancyDrawer}
             setEditIndex={setPastPregnancyEditIndex}
             bottomRef={pregnancyRef}
-            isPregnancyCompleted={isPregnancyCompleted}
-            handleDrawerMedicalReport={handleDrawerMedicalReport}
+            isPregnancyCompleted
           />
         </div>
       ) : (
@@ -478,7 +470,6 @@ const Obstetric = ({
             setPatientDiagnosisNotes={setPatientDiagnosisNotes}
             isFixed={isFixed}
             setPrefillObstetricData={setPrefillObstetricData}
-            isPreviousPregnancyOverview={isPreviousPregnancyOverview}
           />
 
           <Tabs
@@ -507,7 +498,6 @@ const Obstetric = ({
                 }}
                 setEditIndex={setExaminationEditIndex}
                 bottomRef={examinationRef}
-                isPreviousPregnancyOverview={isPreviousPregnancyOverview}
               />
             </TabPane>
             <TabPane tab="ANC Scheduler" key="ancScheduler">
@@ -515,14 +505,12 @@ const Obstetric = ({
                 <AncScheduler
                   ancHistory={obstetricDetails?.ancHistory}
                   handleDrawerMedicalReport={handleDrawerMedicalReport}
-                  isPreviousPregnancyOverview={isPreviousPregnancyOverview}
                 />
               </div>
             </TabPane>
             <TabPane tab="Immunization History" key="immunizationHistory">
               <ImmunisationHistory
                 immunisationHistoryData={obstetricDetails?.immunisationHistory}
-                isPreviousPregnancyOverview={isPreviousPregnancyOverview}
               />
             </TabPane>
           </Tabs>
@@ -543,10 +531,10 @@ const Obstetric = ({
       )}
       {showLmpPopup && (
         <LmpPopup
+          handleDrawerObstetric={handleDrawerObstetric}
           lmpDate={lmpDate}
           setLmpDate={setLmpDate}
           setShowLmpPopup={setShowLmpPopup}
-          isPregnancyCompleted={isPregnancyCompleted}
         />
       )}
       {examinationDrawer && (
@@ -611,7 +599,6 @@ const Obstetric = ({
             setIsPastPregnancyUpdated={setIsPastPregnancyUpdated}
             isCompletePregnancy={isCompletePregnancy}
             gravidity={gravidity}
-            setLoader={setLoader}
           />
         </Drawer>
       )}
