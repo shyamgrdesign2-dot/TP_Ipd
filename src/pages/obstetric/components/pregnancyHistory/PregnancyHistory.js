@@ -1,39 +1,26 @@
-import { Button, Drawer } from "antd";
+import { Button } from "antd";
 import "./PregnancyHistory.scss";
 import arrow from "../../../../assets/images/arrow.svg";
 import pregnancyHistoryImg from "../../../../assets/images/pregnancy-history.svg";
 import moment from "moment";
+import { useSelector } from "react-redux";
 import {
   AbortionColumns,
-  AbortionColumnsWithPregnancyHistory,
   EctopicColumns,
-  EctopicColumnsWithPregnancyHistory,
   LiveColumns,
-  LiveColumnsWithPregnancyHistory,
   OutcomeOptions,
 } from "../../utils/constants";
 import { getTypeOfAbortion } from "../../utils/helper";
 import { ABORTION, MISCARRIAGE } from "../../../../utils/constants";
-import { useState } from "react";
-import Obstetric from "../../Obstetric";
 
 const PregnancyHistory = ({
-  pregnancyHistory,
   continueExaminationHandler,
   handlePastPregnancyDrawer,
   setEditIndex,
   bottomRef,
-  isPregnancyCompleted,
-  handleDrawerMedicalReport,
 }) => {
-  const [obstetricDrawer, setObstetricDrawer] = useState(false);
-  const [previousObstetricDetails, setPreviousObstetricDetails] = useState({});
-
-  // Drawer Obstetric
-  const handleDrawerObstetric = () => {
-    setPreviousObstetricDetails({});
-    setObstetricDrawer(false);
-  };
+  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const { pregnancyHistory } = obstetricDetails;
 
   const renderTableTitle = (gravidaItem, i) => {
     const onEdit = () => {
@@ -41,7 +28,7 @@ const PregnancyHistory = ({
     };
     return (
       <div className="tcell theaderCellStyle tableTitle">
-        <div>{`G ${gravidaItem.gravidity}, ${
+        <div>{`G ${gravidaItem.gravidaNumber}, ${
           gravidaItem.outcome === ABORTION ? MISCARRIAGE : gravidaItem.outcome
         }${gravidaItem.termLength ? `, ${gravidaItem.termLength}` : ""}`}</div>
         <div className="editIcon" onClick={onEdit}>
@@ -101,18 +88,6 @@ const PregnancyHistory = ({
               {babysWeight ? babysWeight + " Kg" : "-"}
             </td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
-            {Object.keys(gravidaItem)?.length > 15 && (
-              <td
-                className="obstetricTcell pregnancyTcell text-primary text-decoration-underline cursor-pointer"
-                style={{ fontWeight: 500 }}
-                onClick={() => {
-                  setPreviousObstetricDetails(gravidaItem);
-                  setObstetricDrawer(true);
-                }}
-              >
-                Detailed View
-              </td>
-            )}
           </tr>
         ) : outcome === OutcomeOptions.ectopic ? (
           <tr>
@@ -124,18 +99,6 @@ const PregnancyHistory = ({
               {modeOfManagement}
             </td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
-            {Object.keys(gravidaItem)?.length > 15 && (
-              <td
-                className="obstetricTcell pregnancyTcell text-primary text-decoration-underline cursor-pointer"
-                style={{ fontWeight: 500 }}
-                onClick={() => {
-                  setPreviousObstetricDetails(gravidaItem);
-                  setObstetricDrawer(true);
-                }}
-              >
-                Detailed View
-              </td>
-            )}
           </tr>
         ) : outcome === OutcomeOptions.abortion ? (
           <tr>
@@ -147,18 +110,6 @@ const PregnancyHistory = ({
             </td>
             <td className="obstetricTcell pregnancyTcell">{modeOfAbortion}</td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
-            {Object.keys(gravidaItem)?.length > 15 && (
-              <td
-                className="obstetricTcell pregnancyTcell text-primary text-decoration-underline cursor-pointer"
-                style={{ fontWeight: 500 }}
-                onClick={() => {
-                  setPreviousObstetricDetails(gravidaItem);
-                  setObstetricDrawer(true);
-                }}
-              >
-                Detailed View
-              </td>
-            )}
           </tr>
         ) : null}
       </>
@@ -175,20 +126,11 @@ const PregnancyHistory = ({
               gravidaItem.outcome === OutcomeOptions.live ||
               gravidaItem.outcome === OutcomeOptions.stillBirth
             ) {
-              columns =
-                Object.keys(gravidaItem)?.length > 15
-                  ? LiveColumnsWithPregnancyHistory
-                  : LiveColumns;
+              columns = LiveColumns;
             } else if (gravidaItem.outcome === OutcomeOptions.ectopic) {
-              columns =
-                Object.keys(gravidaItem)?.length > 15
-                  ? EctopicColumnsWithPregnancyHistory
-                  : EctopicColumns;
+              columns = EctopicColumns;
             } else if (gravidaItem.outcome === OutcomeOptions.abortion) {
-              columns =
-                Object.keys(gravidaItem)?.length > 15
-                  ? AbortionColumnsWithPregnancyHistory
-                  : AbortionColumns;
+              columns = AbortionColumns;
             }
             return (
               <div key={index}>
@@ -219,14 +161,10 @@ const PregnancyHistory = ({
               <i className="icon-Add" />
               <span>Add past pregnancy details</span>
             </Button>
-            {!isPregnancyCompleted && (
-              <div className="continueBtn" onClick={continueExaminationHandler}>
-                <div className="continueText">
-                  Continue to Current Examination
-                </div>
-                <img src={arrow} alt="arrow" />
-              </div>
-            )}
+            <div className="continueBtn" onClick={continueExaminationHandler}>
+              <div className="continueText">Continue to Examination</div>
+              <img src={arrow} alt="arrow" />
+            </div>
           </div>
         </div>
       ) : (
@@ -256,28 +194,10 @@ const PregnancyHistory = ({
             style={{ paddingBottom: "20px" }}
             onClick={continueExaminationHandler}
           >
-            <div className="continueText">Continue to Current Examination</div>
+            <div className="continueText">Continue to Examination</div>
             <img src={arrow} alt="arrow" />
           </div>
         </div>
-      )}
-      {obstetricDrawer && (
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={handleDrawerObstetric}
-          open={obstetricDrawer}
-          width="90%"
-          push={false}
-        >
-          <Obstetric
-            obstetricDetails={previousObstetricDetails}
-            obstetricDrawer={obstetricDrawer}
-            handleDrawerObstetric={handleDrawerObstetric}
-            handleDrawerMedicalReport={handleDrawerMedicalReport}
-            isPreviousPregnancyOverview={true}
-          />
-        </Drawer>
       )}
     </div>
   );

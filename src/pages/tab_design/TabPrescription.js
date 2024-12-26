@@ -65,8 +65,8 @@ import { useAccess } from "../vaccination/useAccess";
 import { getGynecDetails } from "../../api/services/ApiGynec";
 import Obstetric from "../obstetric/Obstetric";
 import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
-import { fetchObstetricDetails } from "../obstetric/service";
-import { addObstetricDetails } from "../../redux/obstetricSlice";
+import { fetchAllObstetricDetails } from "../obstetric/service";
+import { addObstetricDetails, navigateToObstetric } from "../../redux/obstetricSlice";
 import { setAllUploadedDocs, setPatientUploadedDocs, setUploadDocCategories } from "../../redux/uploadDocSlice";
 import { fetchAllDocumentCategories, fetchAllPatientDocs, fetchDocsUploadedByPatient } from "../medicalRecords/service";
 import TabUploadDocumentList from "../medicalRecords/components/uploadDocumentList/TabUploadDocumentList";
@@ -104,10 +104,9 @@ function TabPrescription() {
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
-  const { obstetricDetails: allObstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
+  const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
-  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
-  const { examinationHistory = [] } = obstetricDetails || [];
+  const { examinationHistory = [] } = obstetricDetails;
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
@@ -216,7 +215,7 @@ function TabPrescription() {
   const [isFileTypeError, setIsFileTypeError] = useState(null);
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchObstetricDetails(
+    const obstetricResponse = await fetchAllObstetricDetails(
       patient_data.patient_unique_id,
       userId
     );
@@ -442,9 +441,9 @@ function TabPrescription() {
   };
 
   // Drawer Obstetric
-  const handleDrawerObstetric = (obstetricKey) => {
+  const handleDrawerObstetric = () => {
     setCollapsedFlag(6);
-    setObstetricDrawer(typeof obstetricKey === "string" ? obstetricKey : !obstetricDrawer);
+    setObstetricDrawer(!obstetricDrawer);
   };
 
   const getLabParams = async () => {
@@ -553,12 +552,13 @@ function TabPrescription() {
 
   useEffect(() => {
     if (isNavigateToObstetric) {
-      handleDrawerObstetric(isNavigateToObstetric);
+      handleDrawerObstetric();
+      dispatch(navigateToObstetric());
     }
   }, [isNavigateToObstetric]);
 
   useEffect(() => {
-    if (collapsedFlag === 6 && examinationHistory?.length === 0 && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies) {
+    if (collapsedFlag === 6 && examinationHistory.length === 0 && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies) {
       setCollapsed(false);
     }
   }, [collapsedFlag, collapsed])
@@ -1023,7 +1023,7 @@ function TabPrescription() {
                         className="mb-3 text-center btn btn-action"
                         style={{ padding: "0px" }}
                         onClick={() =>
-                          examinationHistory?.length === 0 &&
+                          examinationHistory.length === 0 &&
                           !obstetricDetails?.lmp &&
                           !obstetricDetails?.edd &&
                           !obstetricDetails?.gravidity &&
@@ -1186,7 +1186,6 @@ function TabPrescription() {
                 />
               ) : collapsedFlag === 6 ? (
                 <TabObstetricList
-                  obstetricDrawer={obstetricDrawer}
                   handleCollapsed={() => setCollapsed(!collapsed)}
                   handleDrawerObstetric={handleDrawerObstetric}
                 />
@@ -1377,11 +1376,8 @@ function TabPrescription() {
             push={false}
           >
             <Obstetric
-              obstetricDetails={obstetricDetails}
-              obstetricDrawer={obstetricDrawer}
               handleDrawerObstetric={handleDrawerObstetric}
               handleCollapsed={(flag) => handleCollapsed(flag)}
-              handleDrawerMedicalReport={handleDrawerMedicalReport}
             />
           </Drawer>
         )}

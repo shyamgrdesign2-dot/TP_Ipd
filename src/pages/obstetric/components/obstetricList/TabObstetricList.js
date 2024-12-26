@@ -6,14 +6,10 @@ import { useSelector } from "react-redux";
 import { obstetricTabListColumns } from "../../utils/constants";
 import { isPrimigravida } from "../../utils/helper";
 import moment from "moment";
-import AncImmunisationList from "./AncImmunisationList";
 
 const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
-  const { obstetricDetails: allObstetricDetails } = useSelector(
-    (state) => state.obstetric
-  );
-  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
-  const { examinationHistory = [] } = obstetricDetails || [];
+  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const { examinationHistory = [] } = obstetricDetails;
   const [accordionItems, setAccordionItems] = useState([]);
   const [infoAccordionItems, setInfoAccordionItems] = useState([]);
 
@@ -236,7 +232,7 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
     setInfoAccordionItems(data);
 
     setAccordionItems(accordionItemsData);
-  }, []);
+  }, [examinationHistory]);
 
   return (
     <>
@@ -305,34 +301,6 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
               ))}
             </Collapse>
           </div>
-          {obstetricDetails?.ancHistory?.length > 0 &&
-            obstetricDetails?.immunisationHistory?.length > 0 && (
-              <div
-                className="border rounded-3 bg-body mt-3"
-                style={{ padding: "16px" }}
-              >
-                <Collapse
-                  items={[
-                    {
-                      key: "anc",
-                      label: (
-                        <span style={{ fontWeight: 600 }}>
-                          ANC Scheduler & Immunization Vaccines
-                        </span>
-                      ),
-                      children: (
-                        <AncImmunisationList
-                          handleDrawerObstetric={handleDrawerObstetric}
-                        />
-                      ),
-                    },
-                  ]}
-                  defaultActiveKey={["anc"]}
-                  className="prescriptiontab-accordian history-sider-box obstetric-collapse"
-                  expandIconPosition={"end"}
-                />
-              </div>
-            )}
         </div>
       </div>
     </>
