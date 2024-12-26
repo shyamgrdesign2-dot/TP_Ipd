@@ -65,7 +65,7 @@ import { useAccess } from "../vaccination/useAccess";
 import { getGynecDetails } from "../../api/services/ApiGynec";
 import Obstetric from "../obstetric/Obstetric";
 import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
-import { fetchAllObstetricDetails } from "../obstetric/service";
+import { fetchObstetricDetails } from "../obstetric/service";
 import { addObstetricDetails } from "../../redux/obstetricSlice";
 import { setAllUploadedDocs, setPatientUploadedDocs, setUploadDocCategories } from "../../redux/uploadDocSlice";
 import { fetchAllDocumentCategories, fetchAllPatientDocs, fetchDocsUploadedByPatient } from "../medicalRecords/service";
@@ -104,9 +104,10 @@ function TabPrescription() {
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
-  const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
+  const { obstetricDetails: allObstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
-  const { examinationHistory = [] } = obstetricDetails;
+  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
+  const { examinationHistory = [] } = obstetricDetails || [];
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
@@ -215,7 +216,7 @@ function TabPrescription() {
   const [isFileTypeError, setIsFileTypeError] = useState(null);
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchAllObstetricDetails(
+    const obstetricResponse = await fetchObstetricDetails(
       patient_data.patient_unique_id,
       userId
     );
@@ -557,7 +558,7 @@ function TabPrescription() {
   }, [isNavigateToObstetric]);
 
   useEffect(() => {
-    if (collapsedFlag === 6 && examinationHistory.length === 0 && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies) {
+    if (collapsedFlag === 6 && examinationHistory?.length === 0 && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies) {
       setCollapsed(false);
     }
   }, [collapsedFlag, collapsed])
@@ -1022,7 +1023,7 @@ function TabPrescription() {
                         className="mb-3 text-center btn btn-action"
                         style={{ padding: "0px" }}
                         onClick={() =>
-                          examinationHistory.length === 0 &&
+                          examinationHistory?.length === 0 &&
                           !obstetricDetails?.lmp &&
                           !obstetricDetails?.edd &&
                           !obstetricDetails?.gravidity &&

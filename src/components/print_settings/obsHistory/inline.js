@@ -12,6 +12,8 @@ function ObsHistoryInlineView({
   options,
   obsHistoryData,
 }) {
+  const pregnancyHistory = obsHistoryData?.pregnancyHistory || [];
+  obsHistoryData = obsHistoryData?.currentPregnancy || {};
   const ancPrintEnabled = obsHistoryData?.ancHistory?.filter((item) => item?.enablePrint);
   const immunisationPrintEnabled = obsHistoryData?.immunisationHistory?.filter(
     (item) => item?.enablePrint
@@ -940,7 +942,7 @@ function ObsHistoryInlineView({
       {options?.includes("history") && (
         <View>
           <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
-            {obsHistoryData?.pregnancyHistory.length > 0 && (
+            {pregnancyHistory.length > 0 && (
               <>
                 <Text
                   style={{
@@ -953,7 +955,7 @@ function ObsHistoryInlineView({
                   Pregnancy history
                 </Text>
 
-                {obsHistoryData?.pregnancyHistory.map((item, i) => (
+                {pregnancyHistory.map((item, i) => (
                   <View key={i}>
                     {("gravidaNumber" in item ||
                       "outcome" in item ||

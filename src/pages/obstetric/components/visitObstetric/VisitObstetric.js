@@ -4,7 +4,7 @@ import obstetricImg from "../../../../assets/images/obstetric-dark.svg";
 import { Card } from "react-bootstrap";
 import { Button } from "antd";
 import "./VisitObstetric.scss";
-import { fetchAllObstetricDetails } from "../../service";
+import { fetchObstetricDetails } from "../../service";
 import moment from "moment";
 import { getOrdinalSuffix } from "../../../growthChart/growthChartHelper";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,9 +20,10 @@ import AncImmunisationList from "../obstetricList/AncImmunisationList";
 export default function VisitObstetric() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { obstetricDetails, isObstetricDetailsFetched } = useSelector(
+  const { obstetricDetails: allObstetricDetails, isObstetricDetailsFetched } = useSelector(
     (state) => state.obstetric
   );
+  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { userId } = useSelector((state) => state.doctors);
   const { state } = useLocation();
   const { patient_data } = state;
@@ -85,7 +86,7 @@ export default function VisitObstetric() {
   };
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchAllObstetricDetails(
+    const obstetricResponse = await fetchObstetricDetails(
       patient_data.patient_unique_id,
       userId
     );

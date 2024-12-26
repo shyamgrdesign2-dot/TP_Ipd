@@ -117,10 +117,10 @@ const AncImmunisationPopup = ({
             master: {
               name: name,
             },
-            created_at: new Date().toISOString(),
-            created_by: userId,
-            updated_at: new Date().toISOString(),
-            updated_by: userId,
+            createdAt: new Date().toISOString(),
+            createdBy: userId,
+            modifiedAt: new Date().toISOString(),
+            modifiedBy: userId,
           },
         ];
       }
@@ -133,8 +133,8 @@ const AncImmunisationPopup = ({
           },
           default: false,
           enablePrint: true,
-          updated_at: new Date().toISOString(),
-          updated_by: userId,
+          modifiedAt: new Date().toISOString(),
+          modifiedBy: userId,
         };
       } else {
         newImmunisationHistory = [
@@ -149,10 +149,10 @@ const AncImmunisationPopup = ({
             master: {
               name: name,
             },
-            created_at: new Date().toISOString(),
-            created_by: userId,
-            updated_at: new Date().toISOString(),
-            updated_by: userId,
+            createdAt: new Date().toISOString(),
+            createdBy: userId,
+            modifiedAt: new Date().toISOString(),
+            modifiedBy: userId,
           },
         ];
       }
@@ -160,9 +160,11 @@ const AncImmunisationPopup = ({
 
     const payload = {
       ...obstetricDetails,
-      patientId: patient_data.patient_unique_id,
-      ancHistory: newAncHistory,
-      immunisationHistory: newImmunisationHistory,
+      currentCategory: {
+        ...obstetricDetails.currentCategory,
+        ancHistory: newAncHistory,
+        immunisationHistory: newImmunisationHistory,
+      },
     };
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
@@ -179,8 +181,10 @@ const AncImmunisationPopup = ({
     const newAncHistory = ancSchedulerData.flat();
     const payload = {
       ...obstetricDetails,
-      patientId: patient_data.patient_unique_id,
-      ancHistory: newAncHistory,
+      currentPregnancy: {
+        ...obstetricDetails?.currentPregnancy,
+        ancHistory: newAncHistory,
+      }
     };
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());

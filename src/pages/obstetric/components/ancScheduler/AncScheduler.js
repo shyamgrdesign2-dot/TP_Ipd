@@ -91,7 +91,7 @@ const AncScheduler = ({ ancHistory = [] }) => {
   }, [ancHistory]);
 
   useEffect(() => {
-    const ancHistoryData = [...ancHistory];
+    const ancHistoryData = ancHistory || [];
     const newAncHistory = mergeDefaultAndDoctorList(
       ancHistoryData,
       defaultAncSchedule,
@@ -101,8 +101,10 @@ const AncScheduler = ({ ancHistory = [] }) => {
     );
     const payload = {
       ...obstetricDetails,
-      patientId: patient_data.patient_unique_id,
-      ancHistory: newAncHistory,
+      currentPregnancy: {
+        ...obstetricDetails?.currentPregnancy,
+        ancHistory: newAncHistory,
+      },
     };
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
@@ -193,8 +195,10 @@ const AncScheduler = ({ ancHistory = [] }) => {
       const newAncHistory = updatedData?.flat();
       const payload = {
         ...obstetricDetails,
-        patientId: patient_data.patient_unique_id,
-        ancHistory: newAncHistory,
+        currentPregnancy: {
+          ...obstetricDetails?.currentPregnancy,
+          ancHistory: newAncHistory,
+        },
       };
       dispatch(addObstetricDetails(payload));
       dispatch(obstetricDetailsUpdated());

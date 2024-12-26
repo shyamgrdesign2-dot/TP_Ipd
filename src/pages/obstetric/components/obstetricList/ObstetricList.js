@@ -8,8 +8,11 @@ import PatientInfoList from "./PatientInfoList";
 import AncImmunisationList from "./AncImmunisationList";
 
 const ObstetricList = ({ handleDrawerObstetric }) => {
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const { examinationHistory } = obstetricDetails;
+  const { obstetricDetails: allObstetricDetails } = useSelector(
+    (state) => state.obstetric
+  );
+  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
+  const { examinationHistory } = obstetricDetails || [];
   const [accordionItems, setAccordionItems] = useState([]);
   const [infoAccordionItems, setInfoAccordionItems] = useState([]);
 
