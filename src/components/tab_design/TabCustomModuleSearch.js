@@ -15,10 +15,6 @@ import { capitalizeAfterSentence } from "../../utils/utils";
 
 import CashManagerContext from "../../context/CashManagerContext";
 import { searchModule } from "../../redux/customModuleSlice";
-import { updateDragDrop } from "../../redux/doctorsSlice";
-
-import dragChips from "../../../src/assets/images/drag-chips.gif";
-import tagNew from "../../../src/assets/images/tag-new.svg";
 
 import TabSearchHeader from "./TabSearchHeader";
 
@@ -26,13 +22,10 @@ import { SortableContainer, SortableElement } from "react-sortable-hoc";
 
 function TabCustomModuleSearch({ passIndex, onClose, module }) {
   const { searchModuleResults } = useSelector((state) => state.customModules);
-  const { dragDrop } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
   const { customModuleContents, setCustomModuleContents } =
     useContext(CashManagerContext);
-
-  const [searchParentQuery, setSearchParentQuery] = useState("");
 
   const [childSearchOptions, setChildSearchOptions] = useState([]);
 
@@ -132,17 +125,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
   };
 
   // Tour Drag & Drop
-  const [tourOpen, setTourOpen] = useState(false);
   const tourRef = useRef(null);
-
-  useEffect(() => {
-    // dispatch(updateDragDrop(''));
-    setTimeout(() => {
-      if (moduleData?.length > 1 && !dragDrop?.examination) {
-        setTourOpen(true);
-      }
-    }, 400);
-  }, [moduleData]);
 
   // Drag & Drop
   const SortableItem = SortableElement(({ item }) => (
@@ -270,7 +253,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
     <>
       <Card bordered={false} className="search-modalCard h-100">
         <TabSearchHeader
-          placeholder="Search Examinations"
+          placeholder={`Search ${module?.name}`}
           searchQuery={searchChildQuery}
           onSearchParent={onSearchParent}
           disabled={moduleData.length > 0 ? false : true}
