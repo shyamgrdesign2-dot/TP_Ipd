@@ -140,7 +140,7 @@ function TabCustomModule({ module }) {
   const handleDrawerParent = useCallback(() => {
     setSelectedIndex(moduleData.length);
     setParentDrawer(!parentDrawer);
-  }, [parentDrawer]);
+  }, [parentDrawer, moduleData]);
 
   const onSelectParent = useCallback(
     (e) => {
