@@ -15,14 +15,14 @@ const AncSchedulerChart = ({ selectedPrintData }) => {
         className="d-flex flex-column align-items-center print-template"
         style={{ fontFamily: "Poppins" }}
       >
-        <div className="header text-welcome">ANC Scheduler</div>
+        <div className="header">ANC Scheduler</div>
         <div className="details">
           <div style={{ height: "36px" }}>
-            <div className="text-welcome">
+            <div>
               <b style={{ fontWeight: 600 }}>Name:</b>{" "}
               {patients_details?.pm_fullname}
             </div>
-            <div className="text-welcome">
+            <div>
               <b style={{ fontWeight: 600 }}>Age/Gender:</b>{" "}
               {ageString ? `${ageString}, ` : ""}
               {patients_details?.pm_gender}

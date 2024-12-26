@@ -1681,7 +1681,7 @@ function SmartPrescription() {
             width="100%"
             push={false}
           >
-            <Obstetric obstetricDetails={obstetricDetails} obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} handleDrawerMedicalReport={handleDrawerMedicalReport} />
+            <Obstetric obstetricDetails={obstetricDetails} obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} />
           </Drawer>
         )}
         {uploadDocDrawer && (

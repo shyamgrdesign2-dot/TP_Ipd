@@ -1381,7 +1381,6 @@ function TabPrescription() {
               obstetricDrawer={obstetricDrawer}
               handleDrawerObstetric={handleDrawerObstetric}
               handleCollapsed={(flag) => handleCollapsed(flag)}
-              handleDrawerMedicalReport={handleDrawerMedicalReport}
             />
           </Drawer>
         )}

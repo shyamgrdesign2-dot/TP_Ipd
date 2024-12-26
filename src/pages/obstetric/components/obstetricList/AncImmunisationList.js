@@ -64,7 +64,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
             >
               {ancHistory?.map((item, index) => {
                 if (
-                  !item?.deleted &&
+                  !item?.isDeleted &&
                   (item?.dueDate ||
                     item?.status ||
                     item?.notes ||
@@ -118,7 +118,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
             >
               {immunisationHistory?.map((item, index) => {
                 if (
-                  !item?.deleted &&
+                  !item?.isDeleted &&
                   (item?.givenDate ||
                     item?.status ||
                     item?.notes ||

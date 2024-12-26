@@ -284,29 +284,26 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
         ))}
       </Collapse>
 
-      {obstetricDetails?.ancHistory?.length > 0 &&
-        obstetricDetails?.immunisationHistory?.length > 0 && (
-          <Collapse
-            items={[
-              {
-                key: "anc",
-                label: (
-                  <span style={{ fontWeight: 600 }}>
-                    ANC Scheduler & Immunisation Vaccine
-                  </span>
-                ),
-                children: (
-                  <AncImmunisationList
-                    handleDrawerObstetric={handleDrawerObstetric}
-                  />
-                ),
-              },
-            ]}
-            defaultActiveKey={["anc"]}
-            className="prescriptiontab-accordian history-sider-box history-sider-box-white"
-            expandIconPosition={"end"}
-          />
-        )}
+      <Collapse
+        items={[
+          {
+            key: "anc",
+            label: (
+              <span style={{ fontWeight: 600 }}>
+                ANC Scheduler & Immunisation Vaccine
+              </span>
+            ),
+            children: (
+              <AncImmunisationList
+                handleDrawerObstetric={handleDrawerObstetric}
+              />
+            ),
+          },
+        ]}
+        defaultActiveKey={["anc"]}
+        className="prescriptiontab-accordian history-sider-box history-sider-box-white"
+        expandIconPosition={"end"}
+      />
     </div>
   );
 };
