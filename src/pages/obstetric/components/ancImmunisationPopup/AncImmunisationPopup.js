@@ -18,6 +18,8 @@ const AncImmunisationPopup = ({
   onCancel,
   title,
   description,
+  shouldSelectForAllPatients,
+  handleSelectForAllPatients,
   ancDetails,
   editIndex,
   activeCategory,
@@ -28,16 +30,11 @@ const AncImmunisationPopup = ({
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { ancHistory = [] } = obstetricDetails;
   const { userId } = useSelector((state) => state.doctors);
-  const [name, setName] = useState(
-    ancDetails?.master?.name || ancDetails?.name
-  );
+  const [name, setName] = useState(ancDetails?.name);
   const [range, setRange] = useState({
     start: ancDetails?.weekRange?.start,
     end: ancDetails?.weekRange?.end,
   });
-  const [shouldSelectForAllPatients, setShouldSelectForAllPatients] = useState(
-    popupType !== "delete"
-  );
 
   const addOrEditCustomScheduler = async () => {
     if (ancDetails?.isCustom) {
@@ -60,7 +57,6 @@ const AncImmunisationPopup = ({
         ...ancSchedulerData[activeCategory][editIndex],
         name: name,
         weekRange: range,
-        enablePrint: true,
         updated_at: new Date().toISOString(),
         updated_by: userId,
       };
@@ -74,7 +70,7 @@ const AncImmunisationPopup = ({
           dueDate: null,
           status: "Due",
           notes: null,
-          enablePrint: true,
+          enablePrint: false,
           master: {
             name: name,
           },
@@ -91,6 +87,7 @@ const AncImmunisationPopup = ({
       patientId: patient_data.patient_unique_id,
       ancHistory: newAncHistory,
     };
+    console.log("obstetricDetails", obstetricDetails);
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
     dispatch(obstetricDetailsUpdated());
@@ -110,10 +107,6 @@ const AncImmunisationPopup = ({
     dispatch(patientDiagnosisUpdated());
     dispatch(obstetricDetailsUpdated());
     onCancel();
-  };
-
-  const handleSelectForAllPatients = () => {
-    setShouldSelectForAllPatients((prev) => !prev);
   };
 
   return (
@@ -154,7 +147,6 @@ const AncImmunisationPopup = ({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     style={{ height: 38 }}
-                    disabled={ancDetails?.master?.default}
                   />
                 </div>
 
@@ -210,10 +202,6 @@ const AncImmunisationPopup = ({
                       : deleteCustomScheduler
                   }
                   className="lh-lg btn btn-primary3 btn-41 px-4"
-                  disabled={
-                    (popupType === "add" || popupType === "edit") &&
-                    (!name || !range?.start || !range?.end)
-                  }
                 >
                   <span>
                     {popupType === "delete"

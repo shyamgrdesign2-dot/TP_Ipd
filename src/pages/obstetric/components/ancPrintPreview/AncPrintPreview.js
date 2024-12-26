@@ -66,7 +66,7 @@ const AncPrintPreview = ({
               fontSize: 12,
             }}
           >
-            {header.key === "enablePrint" ? (
+            {header.key === "printInRx" ? (
               <>
                 <Checkbox onClick={selectAllHandler} className="me-2" />
                 {header.title}

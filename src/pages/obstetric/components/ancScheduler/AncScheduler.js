@@ -11,7 +11,7 @@ import dayjs from "dayjs";
 import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { AncSchedulerColumns } from "../../utils/constants";
-import { splitByTrimester, updateEnablePrint } from "../../utils/helper";
+import { splitByTrimester } from "../../utils/helper";
 import "./AncScheduler.scss";
 import AncImmunisationPopup from "../ancImmunisationPopup/AncImmunisationPopup";
 import { removeBeforeWhiteSpace } from "../../../../utils/utils";
@@ -35,14 +35,14 @@ const AncScheduler = ({ ancHistory }) => {
     (state) => state.obstetric
   );
   const [ancSchedulerData, setAncSchedulerData] = useState(
-    ancHistory?.length > 0
-      ? splitByTrimester(updateEnablePrint(ancHistory))
-      : []
+    splitByTrimester(ancHistory)
   );
   const [activeCategory, setActiveCategory] = useState(0);
   const [immunisationPopup, setImmunisationPopup] = useState("");
   const [editIndex, setEditIndex] = useState(-1);
   const [searchSelected, setSearchSelected] = useState(null);
+  const [shouldSelectForAllPatients, setShouldSelectForAllPatients] =
+    useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOptions, setSearchOptions] = useState([]);
   const [shouldShowPrintPreview, setShouldShowPrintPreview] = useState(false);
@@ -56,7 +56,7 @@ const AncScheduler = ({ ancHistory }) => {
     searchOptionsRes?.map((e) => {
       return data.push({
         key: JSON.stringify({ ...e }),
-        value: e.id,
+        value: e.name,
         label: <div>{e.name}</div>,
       });
     });
@@ -182,34 +182,35 @@ const AncScheduler = ({ ancHistory }) => {
 
   const renderTableData = () => {
     const handleImmunisationChange = (key, index, value) => {
-      const updatedData = ancSchedulerData.map((innerArray) => {
-        const newArray = [...innerArray];
-        newArray[index] = { ...newArray[index], [key]: value };
-        if (key !== "enablePrint") {
-          newArray[index] = {
-            ...newArray[index],
-            enablePrint: true,
-          };
-        }
-        return newArray;
+      setAncSchedulerData((prev) => {
+        [...prev][index][key] = value;
+        return [...prev];
       });
-      setAncSchedulerData(updatedData);
     };
 
     return ancSchedulerData?.[activeCategory]?.map((item, i) => {
-      const { master, weekRange, status, dueDate, notes, enablePrint } = item;
+      const {
+        master,
+        weekRange,
+        status,
+        dueDate,
+        notes,
+        enablePrint,
+        isDefault,
+      } = item;
       return (
         <tr key={i}>
           <td className="obstetricTcell">{master?.name}</td>
           <td className="obstetricTcell weekRange">
             {`${weekRange?.start} - ${weekRange?.end} weeks`}
-            {!master?.default && (
+            {!isDefault && (
               <i
                 className="icon-Edit fs-6 d-flex justify-content-end"
                 style={{ cursor: "pointer" }}
                 onClick={() => {
                   setEditIndex(i);
                   setImmunisationPopup("edit");
+                  setShouldSelectForAllPatients(true);
                 }}
               />
             )}
@@ -219,7 +220,7 @@ const AncScheduler = ({ ancHistory }) => {
               key={"date"}
               onChange={(date) => {
                 const formattedDate = date?.format("YYYY-MM-DD");
-                handleImmunisationChange("dueDate", i, formattedDate);
+                handleImmunisationChange("givenDate", i, formattedDate);
               }}
               disabledDate={disabledDate}
               value={dueDate ? dayjs(moment(dueDate)) : ""}
@@ -240,9 +241,7 @@ const AncScheduler = ({ ancHistory }) => {
               ]}
               placeholder="Select"
               className={`ancSchedulerBox custom-immunisation-select ${
-                status === "completed" || status === "Finished"
-                  ? "custom-immunisation-given-select"
-                  : ""
+                status === "Completed" ? "custom-immunisation-given-select" : ""
               }`}
               value={status || "due"}
               allowClear
@@ -268,24 +267,15 @@ const AncScheduler = ({ ancHistory }) => {
             />
           </td>
           <td className="obstetricTcell">
-            {master?.default ? (
-              <Tooltip
-                title={<div>Default ANC Scheduler cannot be deleted</div>}
-                overlayClassName="ancTooltip"
-                placement="topLeft"
-              >
-                <i className="icon-delete" style={{ color: "#A2A2A8" }} />
-              </Tooltip>
-            ) : (
-              <Button
-                className="btn btn-delete-prescription p-0"
+            {!isDefault && (
+              <i
+                className="icon-delete"
+                style={{ cursor: "pointer" }}
                 onClick={() => {
                   setImmunisationPopup("delete");
                   setEditIndex(i);
                 }}
-              >
-                <i className="icon-delete" style={{ color: "#454551" }} />
-              </Button>
+              />
             )}
           </td>
         </tr>
@@ -293,11 +283,16 @@ const AncScheduler = ({ ancHistory }) => {
     });
   };
 
-  const onSelect = (value, option) => {
+  const handleSelectForAllPatients = () => {
+    setShouldSelectForAllPatients((prev) => !prev);
+  };
+
+  const onSelect = (value, e) => {
     setImmunisationPopup("add");
+    setShouldSelectForAllPatients(true);
     setSearchQuery("");
-    const key = option.key && JSON.parse(option.key);
-    setSearchSelected({ ...key, isCustom: option.isCustom });
+    const key = e.key && JSON.parse(e.key);
+    setSearchSelected({ ...key, isCustom: e.isCustom });
   };
 
   const onSearch = useCallback(
@@ -378,18 +373,23 @@ const AncScheduler = ({ ancHistory }) => {
         <AncImmunisationPopup
           onCancel={() => {
             setImmunisationPopup(null);
+            setShouldSelectForAllPatients(false);
             setEditIndex(-1);
             setSearchSelected(null);
           }}
           title={
             immunisationPopup === "delete"
-              ? `Remove ${ancSchedulerData?.[activeCategory]?.[editIndex]?.master?.name}`
+              ? "Remove Dummy test"
               : immunisationPopup === "add"
               ? "Add New Test"
               : "Edit Test Details"
           }
-          description={`Are you sure you want to remove this "${ancSchedulerData?.[activeCategory]?.[editIndex]?.master?.name}" from the list`}
+          description={
+            "Are you sure you want to remove this “Dummy test” from the list"
+          }
           popupType={immunisationPopup}
+          shouldSelectForAllPatients={shouldSelectForAllPatients}
+          handleSelectForAllPatients={handleSelectForAllPatients}
           ancDetails={
             immunisationPopup === "edit"
               ? ancSchedulerData?.[activeCategory]?.[editIndex]
