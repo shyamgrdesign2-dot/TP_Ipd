@@ -59,7 +59,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
             });
         });
         if (searchChildQuery.length > 0) {
-            searchChildQuery &&
+            searchChildQuery && childOptionsList.findIndex(e => e.examination_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 && 
                 data.push({
                     key: JSON.stringify({
                         unique_id: uuidv4(),
@@ -294,11 +294,14 @@ function TabExaminationSearch({ passIndex, onClose }) {
                                         {searchChildQuery.length > 0 ? 'Search Results' : 'Frequently Used'}
                                     </div>
                                     <div className="mt-3">
+                                        {console.log(childSearchOptions)}
+                                        {console.log(childSearchOptions.filter(e => ![...examinationData.map(e1 => e1.examination_name)].includes(e.value)))}
                                         {searchChildQuery.length > 0 ? (
                                             childSearchOptions.length > 0 &&
                                             childSearchOptions.filter(e => ![...examinationData.map(e1 => e1.examination_name)].includes(e.value)).map((item, i) => {
                                                 return (
-                                                    i === childSearchOptions.length - 1 ? (
+                                                    // i === childSearchOptions.length - 1 ? (
+                                                    JSON.parse(item.key).change === 1 ? (
                                                         <Button
                                                             key={i}
                                                             type="text"

@@ -68,7 +68,7 @@ function TabSymptomsSearch({ passIndex, onClose }) {
             });
         });
         if (searchChildQuery.length > 0) {
-            searchChildQuery &&
+            searchChildQuery && childOptionsList.findIndex(e => e.symptom_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 &&
                 data.push({
                     key: JSON.stringify({
                         unique_id: uuidv4(),
@@ -532,7 +532,8 @@ function TabSymptomsSearch({ passIndex, onClose }) {
                                             childSearchOptions.length > 0 &&
                                             childSearchOptions.filter(e => ![...symptomsData.map(e1 => e1.symptom_name)].includes(e.value)).map((item, i) => {
                                                 return (
-                                                    i === childSearchOptions.length - 1 ? (
+                                                    // i === childSearchOptions.length - 1 ? (
+                                                    JSON.parse(item.key).change === 1 ? (
                                                         <Button
                                                             key={i}
                                                             type="text"
