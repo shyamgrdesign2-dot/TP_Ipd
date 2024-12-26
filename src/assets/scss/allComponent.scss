@@ -2375,6 +2375,14 @@ body {
         }
     }
     .autofill {
+        overflow: hidden;
+        .badge-autofill {
+            padding: 2px 1px;
+            white-space: nowrap;
+            i {
+                margin-right: 2px;
+            }
+        }
         &:hover {
             .badge-autofill {
                 display: flex;

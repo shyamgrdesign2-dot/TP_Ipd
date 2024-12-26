@@ -1128,7 +1128,7 @@ function MedicationsBox() {
                                       allowClear
                                     />
                                     {item?.tmm_days_duration_type && (
-                                      <div className="badge-autofill" onClick={() => onAutoFillDuration(item?.index)}><i className="icon-copyIcon fs-14 me-1" /> Autofill to all meds</div>
+                                      <div className="badge-autofill" onClick={() => onAutoFillDuration(item?.index)}><i className="icon-copyIcon fs-12-1" />Autofill to all meds</div>
                                     )}
                                   </Col>
                                   <Col lg={6} md={6} sm={6} xs={6} className="border-end">
