@@ -7,8 +7,7 @@ import PregnancyHistory from "./components/pregnancyHistory/PregnancyHistory";
 import AddExamination from "./components/AddExamination/AddExamination";
 import alertIcon from "./../../assets/images/alertIcon.svg";
 import tagNew from "./../../assets/images/new-gif.gif";
-import { Button, Tabs, Tour } from "antd";
-import TabPane from "antd/es/tabs/TabPane";
+import { Button, Tabs } from "antd";
 import LmpPopup from "./components/lmpPopup/LmpPopup";
 import { useSelector, useDispatch } from "react-redux";
 import { Drawer } from "antd";
@@ -19,6 +18,7 @@ import {
   fetchImmunisationDoctorList,
   fetchObstetricDetails,
   fetchPrefillObstetricDetails,
+  fetchTour,
   updatePrefillObstetricData,
   upsertObstetricDetails,
 } from "./service";
@@ -41,6 +41,9 @@ import CommonModal from "../../common/CommonModal";
 import { Container, Navbar } from "react-bootstrap";
 import ImmunisationHistory from "./components/immunisationHistory/ImmunisationHistory";
 import AncScheduler from "./components/ancScheduler/AncScheduler";
+import Tour from "../../common/Tour";
+
+const { TabPane } = Tabs;
 
 const Obstetric = ({
   obstetricDetails,
@@ -98,14 +101,13 @@ const Obstetric = ({
   const [activeTab, setActiveTab] = useState(
     obstetricDrawer === "ancScheduler"
       ? "ancScheduler"
-      : obstetricDrawer === "immunizationHistory"
-      ? "immunizationHistory"
+      : obstetricDrawer === "immunisationHistory"
+      ? "immunisationHistory"
       : obstetricDetails?.examinationHistory?.length
       ? "examination"
       : "pregnancyHistory"
   );
   const [lmpDate, setLmpDate] = useState("");
-  const [tokenData, setTokenData] = useState(null);
 
   const [patientDiagnosisNotes, setPatientDiagnosisNotes] =
     useState(diagnosisNotes);
@@ -143,11 +145,31 @@ const Obstetric = ({
 
   const pregnancyRef = useRef(null);
   const examinationRef = useRef(null);
-  const [tourOpen, setTourOpen] = useState(true);
   const tourRef = useRef(null);
-  const ancSchedulerRef = useRef(null);
-  const immunizationHistoryRef = useRef(null);
   const { profile, userId } = useSelector((state) => state.doctors);
+  const [runTour, setRunTour] = useState(false);
+
+  const startTour = () => {
+    setRunTour(true); // Trigger the tour to start
+  };
+
+  useEffect(() => {
+    if (runTour) {
+      // Automatically trigger the hidden button's click after 1 second
+      setTimeout(() => {
+        const elements = document.getElementsByClassName(
+          "react-joyride__beacon"
+        );
+        if (elements.length > 0) {
+          elements[0].click(); // Access the first element in the collection and trigger a click
+        } else {
+          console.log(
+            "No elements with the class 'react-joyride__beacon' were found."
+          );
+        }
+      }, 1000);
+    }
+  }, [runTour]);
 
   useEffect(() => {
     if (examinationEditIndex >= 0) {
@@ -160,16 +182,6 @@ const Obstetric = ({
       handlePastPregnancyDrawer();
     }
   }, [pastPregnancyEditIndex]);
-
-  useEffect(() => {
-    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    try {
-      const decoded = jwtDecode(token);
-      setTokenData(decoded.result);
-    } catch (e) {
-      console.error("Error while token decoding: ", e);
-    }
-  }, []);
 
   useEffect(() => {
     getPrefillObstetricDetails();
@@ -191,16 +203,27 @@ const Obstetric = ({
       }
     }
     if (ancDoctorList?.length === 0) {
-      const ancDoctorListResponse = await fetchAncDoctorList();
+      let ancDoctorListResponse = await fetchAncDoctorList();
+      ancDoctorListResponse = ancDoctorListResponse?.filter(
+        (item) => !item?.deleted
+      );
       if (ancDoctorListResponse) {
         dispatch(setAncDoctorList(ancDoctorListResponse));
       }
     }
     if (immunisationDoctorList?.length === 0) {
-      const immunisationDoctorListResponse =
-        await fetchImmunisationDoctorList();
+      let immunisationDoctorListResponse = await fetchImmunisationDoctorList();
+      immunisationDoctorListResponse = immunisationDoctorListResponse?.filter(
+        (item) => !item?.deleted
+      );
       if (immunisationDoctorListResponse) {
         dispatch(setImmunisationDoctorList(immunisationDoctorListResponse));
+      }
+    }
+    const tourResponse = await fetchTour();
+    if (tourResponse && Object.keys(tourResponse)?.length > 0) {
+      if (!tourResponse.anc) {
+        setRunTour(true);
       }
     }
   };
@@ -212,7 +235,8 @@ const Obstetric = ({
     if (
       (Object.keys(obstetricDetails).length !== 0 || !isPregnancyCompleted) &&
       !prefillObstetricResponse?.lmp &&
-      !obstetricDetails?.lmp
+      !obstetricDetails?.lmp &&
+      obstetricDetails?.lmp !== null
     ) {
       setShowLmpPopup(true);
     }
@@ -338,9 +362,9 @@ const Obstetric = ({
             patientId: patient_data.patient_unique_id,
             diagnosisNotes: patientDiagnosisNotes?.trim(),
             createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-            createdBy: obstetricDetails?.createdBy || tokenData?.user_id,
+            createdBy: obstetricDetails?.createdBy || userId,
             modifiedAt: new Date().toISOString(),
-            modifiedBy: tokenData?.user_id,
+            modifiedBy: userId,
           },
           pregnancyHistory: allObstetricDetails?.pregnancyHistory || [],
         };
@@ -377,6 +401,10 @@ const Obstetric = ({
     handleDrawerObstetric();
     getAllObstetricDetails();
     dispatch(resetUpdatedPatientDiagnosis());
+    if (isNavigateToObstetric) {
+      navigate(-1);
+      dispatch(navigateToObstetric(false));
+    }
   };
 
   const tabChangeHandler = (key) => {
@@ -392,41 +420,58 @@ const Obstetric = ({
     }
   };
 
-  const onTourHandle = () => {
-    setTourOpen(!tourOpen);
-  };
-
   const steps = [
     {
-      description: (
-        <>
-          <div className="fw-medium fs-18 pt-3">
-            ANC Scheduler & Immunisation History{" "}
+      target: ".ant-tabs-nav-list > :nth-child(3)", // Target the ANC Scheduler tab
+      content: (
+        <div style={{ padding: 0 }}>
+          <div className="d-flex align-items-center justify-content-between">
+            <span className="fw-medium fs-18">ANC Scheduler</span>
+
             <img
               className="img-fluid ms-2"
               width={52}
-              height={22}
+              height={20}
               src={tagNew}
             />
           </div>
           <div className="pt-1">
-            Track and manage your patients' antenatal care <br />
-            (ANC) journey effortlessly with the ANC Scheduler, <br />
-            and access Immunisation records to streamline care <br />
-            and improve outcomes.
+            Track and manage your patients' antenatal care (ANC) journey
+            effortlessly with the ANC Scheduler
           </div>
-        </>
+        </div>
       ),
-      target: () => ancSchedulerRef.current,
-      nextButtonProps: {
-        children: "Got it",
-        onClick: onTourHandle,
-      },
+      placement: "bottom",
+    },
+    {
+      target: ".ant-tabs-nav-list > :nth-child(4)", // Target the Immunisation History tab
+      content: (
+        <div>
+          <div className="d-flex align-items-center justify-content-between">
+            <span className="fw-medium fs-18">Immunisation History</span>
+
+            <img
+              className="img-fluid ms-2"
+              width={52}
+              height={20}
+              src={tagNew}
+            />
+          </div>
+          <div className="pt-1">
+            Access Immunisation records to streamline care and improve outcomes.
+          </div>
+        </div>
+      ),
+      placement: "bottom",
     },
   ];
 
   return (
     <div className="vaccinationWrapper">
+      {/* Hidden Button */}
+      <button style={{ display: "none" }} ref={tourRef} onClick={startTour}>
+        Show Tour
+      </button>
       {isPreviousPregnancyOverview ? (
         <Navbar className="headerprescription p-0">
           <Container fluid className="h-100 gx-0 w-100">
@@ -514,34 +559,19 @@ const Obstetric = ({
               />
             </TabPane>
             <TabPane tab="ANC Scheduler" key="ancScheduler">
-              <div ref={ancSchedulerRef}>
-                <AncScheduler
-                  ancHistory={obstetricDetails?.ancHistory}
-                  handleDrawerMedicalReport={handleDrawerMedicalReport}
-                  isPreviousPregnancyOverview={isPreviousPregnancyOverview}
-                />
-              </div>
+              <AncScheduler
+                ancHistory={obstetricDetails?.ancHistory}
+                handleDrawerMedicalReport={handleDrawerMedicalReport}
+                isPreviousPregnancyOverview={isPreviousPregnancyOverview}
+              />
             </TabPane>
-            <TabPane tab="Immunization History" key="immunizationHistory">
+            <TabPane tab="Immunisation History" key="immunisationHistory">
               <ImmunisationHistory
                 immunisationHistoryData={obstetricDetails?.immunisationHistory}
                 isPreviousPregnancyOverview={isPreviousPregnancyOverview}
               />
             </TabPane>
           </Tabs>
-          {/* <div className="d-flex flex-wrap">
-            <span className="pt-3">{TABLE_SYMPTOMS}</span> */}
-          {/* <Tour
-            placement="top"
-            closeIcon={false}
-            open={tourOpen}
-            steps={steps}
-            onClose={onTourHandle}
-            styles={{
-              marginTop: "-50px",
-            }}
-          /> */}
-          {/* </div> */}
         </div>
       )}
       {showLmpPopup && (
@@ -550,6 +580,7 @@ const Obstetric = ({
           setLmpDate={setLmpDate}
           setShowLmpPopup={setShowLmpPopup}
           isPregnancyCompleted={isPregnancyCompleted}
+          setPatientDiagnosisData={setPatientDiagnosisData}
         />
       )}
       {examinationDrawer && (
@@ -666,6 +697,7 @@ const Obstetric = ({
           </>
         }
       />
+      <Tour run={runTour} steps={steps} />
     </div>
   );
 };

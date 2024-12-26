@@ -317,7 +317,7 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
                       key: "anc",
                       label: (
                         <span style={{ fontWeight: 600 }}>
-                          ANC Scheduler & Immunization Vaccines
+                          ANC Scheduler & Immunisation Vaccines
                         </span>
                       ),
                       children: (

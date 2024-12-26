@@ -1857,11 +1857,10 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.status === "Finished" && item?.givenDate
+                      {item?.status === "Given" && item?.givenDate
                     ? `Given on ${moment(item?.givenDate).format("DD/MM/YYYY")}`
-                        : item?.status === "Finished"
-                        ? "Given"
-                        : ""}
+                        : item?.status
+                      }
                     </Text>
 
                     <Text

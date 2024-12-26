@@ -216,11 +216,16 @@ export const fetchAncDoctorList = async function () {
   return res;
 };
 
-export const fetchObstetricDetails = async function (patientUniqueId) {
+export const fetchObstetricDetails = async function (
+  patientUniqueId,
+  todaysExamination
+) {
   let res = {};
   try {
     res = await api.get(
-      `/api/v1/gyneac/obstetric-history/${patientUniqueId}`,
+      `/api/v1/gyneac/obstetric-history/${patientUniqueId}${
+        todaysExamination ? "?todaysExamination=true" : ""
+      }`,
       ancImmunisationbaseUrl
     );
     res = res?.data;
@@ -244,6 +249,33 @@ export const upsertObstetricDetails = async function (
     res = res?.data;
   } catch (e) {
     console.error("Error while upserting Obstetric details: ", e);
+  }
+  return res;
+};
+
+export const fetchTour = async function () {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/gyneac/obstetric-history/tour`,
+      ancImmunisationbaseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching Tour details: ", e);
+  }
+  return res;
+};
+
+export const updateTour = async function (payload) {
+  let res = {};
+  try {
+    res = await api.post(
+      `/api/v1/gyneac/obstetric-history/tour`,
+      payload,
+      ancImmunisationbaseUrl
+    );
+  } catch (e) {
+    console.error("Error while updating Tour details: ", e);
   }
   return res;
 };

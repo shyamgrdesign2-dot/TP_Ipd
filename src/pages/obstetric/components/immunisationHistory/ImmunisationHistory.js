@@ -178,6 +178,9 @@ const ImmunisationHistory = ({
       if (key !== "enablePrint") {
         updatedData[index] = { ...updatedData[index], enablePrint: true };
       }
+      if (key === "givenDate" && value) {
+        updatedData[index] = { ...updatedData[index], status: "Given" };
+      }
       const payload = {
         ...obstetricDetails,
         currentPregnancy: {
@@ -213,11 +216,11 @@ const ImmunisationHistory = ({
               onChange={(value) => handleImmunisationChange("status", i, value)}
               options={[
                 { value: "Due", label: "Due" },
-                { value: "Finished", label: "Given" },
+                { value: "Given", label: "Given" },
               ]}
               placeholder="Select"
               className={`custom-immunisation-select ${
-                status === "Finished" ? "custom-immunisation-given-select" : ""
+                status === "Given" ? "custom-immunisation-given-select" : ""
               }`}
               value={status || "Due"}
               allowClear={false}

@@ -19,6 +19,7 @@ const LmpPopup = ({
   setLmpDate,
   setShowLmpPopup,
   isPregnancyCompleted,
+  setPatientDiagnosisData,
 }) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
@@ -71,6 +72,10 @@ const LmpPopup = ({
       dispatch(addObstetricDetails(payload));
       dispatch(obstetricDetailsUpdated());
     }
+    setPatientDiagnosisData((prevState) => ({
+      ...prevState,
+      lmp: null,
+    }));
     setShowLmpPopup(false);
   };
 

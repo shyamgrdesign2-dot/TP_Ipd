@@ -292,7 +292,7 @@ function Vaccination({ handleDrawerVaccination }) {
             <div>
               <h2>Vaccination</h2>
               <p>
-                Immunization schedule recommended by <b>IAP</b>
+                Immunisation schedule recommended by <b>IAP</b>
               </p>
             </div>
             <img
