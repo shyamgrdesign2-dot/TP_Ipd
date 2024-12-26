@@ -501,7 +501,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             setMedicationData(removedArray);
           }}
           axis="xy"
-          pressDelay={100}
+          pressDelay={150}
         />
       )
     );
