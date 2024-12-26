@@ -12,6 +12,7 @@ import imgCloseVisit from '../../assets/images/close-visit.svg';
 import { errorMessage, onlyNumberFormat } from "../../utils/utils";
 import { MESSAGE_KEY } from "../../utils/constants";
 import { paymentOrder, verifyPayment, userRedeemCode } from "../../redux/bulkMessagesSlice";
+import config from "../../config";
 
 function AvailableCredits({ handleAvailableCredit }) {
     const dispatch = useDispatch();
@@ -87,7 +88,7 @@ function AvailableCredits({ handleAvailableCredit }) {
 
     const initRazorPayPayment = (data) => {
         const options = {
-            key: 'rzp_test_PoLtBba5t8qJIm',
+            key: config.razorPay_key,
             amount: data.amount,
             currency: data.currency,
             name: 'Purchase bulk messages',

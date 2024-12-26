@@ -43,4 +43,5 @@ export default {
   upload_doc_api_url: env.upload_doc_api_url,
   central_auth_api_url: env.central_auth_api_url,
   searchengine_url: env.searchengine_url,
+  razorPay_key: env.razorPay_key,
 };
