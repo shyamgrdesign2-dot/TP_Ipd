@@ -50,7 +50,7 @@ import { getGynecDetails } from "../api/services/ApiGynec";
 import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
 import { fetchAllObstetricDetails } from "./obstetric/service";
-import { addObstetricDetails, navigateToObstetric } from "../redux/obstetricSlice";
+import { addObstetricDetails } from "../redux/obstetricSlice";
 import { getClinicName } from "../utils/utils";
 import UploadDocument from "./medicalRecords/UploadDocument";
 import MedicalRecords from "./medicalRecords/MedicalRecords";
@@ -469,8 +469,10 @@ function Prescription() {
   };
 
   // Drawer Obstetric
-  const handleDrawerObstetric = () => {
-    setObstetricDrawer(!obstetricDrawer);
+  const handleDrawerObstetric = (obstetricKey) => {
+    setObstetricDrawer(
+      typeof obstetricKey === "string" ? obstetricKey : !obstetricDrawer
+    );
   };
 
   useEffect(() => {
@@ -483,8 +485,7 @@ function Prescription() {
 
   useEffect(() => {
     if (isNavigateToObstetric) {
-      handleDrawerObstetric();
-      dispatch(navigateToObstetric());
+      handleDrawerObstetric(isNavigateToObstetric);
     }
   }, [isNavigateToObstetric]);
 
@@ -916,7 +917,7 @@ const getGenerateDDx = async (field) => {
             obstetricDetails?.livingChildren ||
             obstetricDetails?.abortion ||
             obstetricDetails?.ectopicPregnancies ||
-            examinationHistory?.length > 0) && <ObstetricList />}
+            examinationHistory?.length > 0) && <ObstetricList obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} />}
         </div>
           ) : e.tmdpm_id === 18 &&
             e.tmdpm_status === 0 ? (
@@ -1209,7 +1210,11 @@ const getGenerateDDx = async (field) => {
             width="100%"
             push={false}
           >
-            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
+            <Obstetric
+              obstetricDetails={obstetricDetails}
+              obstetricDrawer={obstetricDrawer}
+              handleDrawerObstetric={handleDrawerObstetric}
+            />
           </Drawer>
         )}
         {uploadDocDrawer && (

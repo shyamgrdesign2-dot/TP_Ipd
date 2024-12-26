@@ -256,3 +256,64 @@ export const OutcomeOptions = {
   abortion: "Abortion",
   ectopic: "Ectopic",
 };
+
+export const ImmunisationColumns = [
+  {
+    title: "VACCINE NAME",
+    key: "vaccineName",
+    width: "22%",
+  },
+  {
+    title: "STATUS",
+    key: "status",
+    width: "13%",
+  },
+  {
+    title: "GIVEN DATE",
+    key: "givenDate",
+    width: "13%",
+  },
+  {
+    title: "REMARKS",
+    key: "remarks",
+    width: "40%",
+  },
+  {
+    title: "PRINT IN Rx",
+    key: "printInRx",
+    width: "12%",
+  },
+];
+
+export const AncSchedulerColumns = [
+  {
+    title: "TEST NAME",
+    key: "testName",
+    width: "24%",
+  },
+  {
+    title: "WEEK RANGE",
+    key: "weekRange",
+    width: "10%",
+  },
+  {
+    title: "DUE DATE",
+    key: "dueDate",
+    width: "13%",
+  },
+  {
+    title: "STATUS",
+    key: "status",
+    width: "13%",
+  },
+  {
+    title: "REMARKS",
+    key: "remarks",
+    width: "30%",
+  },
+  {
+    title: "PRINT IN Rx",
+    key: "printInRx",
+    width: "10%",
+  },
+];

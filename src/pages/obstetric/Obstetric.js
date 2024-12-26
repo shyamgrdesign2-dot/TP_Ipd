@@ -20,9 +20,10 @@ import {
 } from "./service";
 import {
   addObstetricDetails,
+  navigateToObstetric,
   resetUpdatedPatientDiagnosis,
 } from "../../redux/obstetricSlice";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import moment from "moment";
 import { jwtDecode } from "jwt-decode";
@@ -30,12 +31,24 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import { errorMessage, getClinicName } from "../../utils/utils";
 import SuccessPopup from "../growthChart/components/SuccessPopup";
 import CommonModal from "../../common/CommonModal";
+import { Container, Navbar } from "react-bootstrap";
+import ImmunisationHistory from "./components/immunisationHistory/ImmunisationHistory";
+import AncScheduler from "./components/ancScheduler/AncScheduler";
 
-const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
+const isPregnancyCompleted = false;
+
+const Obstetric = ({
+  obstetricDetails,
+  obstetricDrawer,
+  handleDrawerObstetric,
+  handleCollapsed,
+  isPreviousPregnancyOverview = false,
+}) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data } = state;
-  const { obstetricDetails, isPatientDiagnosisUpdated } = useSelector(
+  const { isPatientDiagnosisUpdated, isNavigateToObstetric } = useSelector(
     (state) => state.obstetric
   );
   const {
@@ -65,8 +78,13 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   const [examinationEditIndex, setExaminationEditIndex] = useState(-1);
   const [pastPregnancyEditIndex, setPastPregnancyEditIndex] = useState(-1);
   const [isFixed, setIsFixed] = useState(false);
+  const [isCompletePregnancy, setIsCompletePregnancy] = useState(false);
   const [activeTab, setActiveTab] = useState(
-    obstetricDetails?.examinationHistory?.length
+    obstetricDrawer === "ancScheduler"
+      ? "ancScheduler"
+      : obstetricDrawer === "immunizationHistory"
+      ? "immunizationHistory"
+      : obstetricDetails?.examinationHistory?.length
       ? "examination"
       : "pregnancyHistory"
   );
@@ -299,7 +317,7 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
       }
     }
     setTimeout(() => {
-      handleDrawerObstetric();
+      handleObstetricBackBtn();
     }, 1000);
   };
 
@@ -314,52 +332,117 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
     scrollToBottom();
   };
 
+  const handleObstetricBackBtn = () => {
+    handleDrawerObstetric();
+    if (isNavigateToObstetric) {
+      navigate(-1);
+      dispatch(navigateToObstetric(false));
+    }
+  };
+
   return (
     <div className="vaccinationWrapper">
-      <VaccineHeader
-        handleDrawerVaccination={obstetricSaveBtnHandler}
-        handleObstetricBackBtn={handleDrawerObstetric}
-        clearObstetricData={clearObstetricData}
-        loader={loader}
-        isObstetric={true}
-      />
-
-      <div className="scrollableContainer" onScroll={handleScroll}>
-        <PatientDiagnosis
-          lmpDate={lmpDate}
-          patientDiagnosisData={patientDiagnosisData}
-          pastPregnancyData={pastPregnancyData}
-          patientDiagnosisNotes={patientDiagnosisNotes}
-          setLmpDate={setLmpDate}
-          setPatientDiagnosisData={setPatientDiagnosisData}
-          setPastPregnancyData={setPastPregnancyData}
-          setPatientDiagnosisNotes={setPatientDiagnosisNotes}
-          isFixed={isFixed}
-          setPrefillObstetricData={setPrefillObstetricData}
+      {isPreviousPregnancyOverview ? (
+        <Navbar className="headerprescription p-0">
+          <Container fluid className="h-100 gx-0 w-100">
+            <div
+              className="d-flex align-items-center"
+              style={{ fontSize: 24, fontWeight: 600, paddingLeft: 16, gap: 8 }}
+            >
+              <Button
+                type="text"
+                className="h-100"
+                onClick={handleObstetricBackBtn}
+              >
+                <i className="icon-Cross fs-3" />
+              </Button>
+              Overview ({gravidity} Pregrancy)
+            </div>
+          </Container>
+        </Navbar>
+      ) : (
+        <VaccineHeader
+          handleDrawerVaccination={obstetricSaveBtnHandler}
+          handleObstetricBackBtn={handleObstetricBackBtn}
+          clearObstetricData={clearObstetricData}
+          loader={loader}
+          isPregnancyCompleted={isPregnancyCompleted}
+          isObstetric={true}
         />
+      )}
+      {isPregnancyCompleted ? (
+        <div className="scrollableContainer">
+          <div className="pregnancyHistoryTitle">Pregnancy history</div>
+          <PregnancyHistory
+            pregnancyHistory={obstetricDetails?.pregnancyHistory}
+            continueExaminationHandler={continueExaminationHandler}
+            handlePastPregnancyDrawer={handlePastPregnancyDrawer}
+            setEditIndex={setPastPregnancyEditIndex}
+            bottomRef={pregnancyRef}
+            isPregnancyCompleted
+          />
+        </div>
+      ) : (
+        <div className="scrollableContainer" onScroll={handleScroll}>
+          <PatientDiagnosis
+            lmpDate={lmpDate}
+            patientDiagnosisData={patientDiagnosisData}
+            pastPregnancyData={pastPregnancyData}
+            patientDiagnosisNotes={patientDiagnosisNotes}
+            setLmpDate={setLmpDate}
+            setPatientDiagnosisData={setPatientDiagnosisData}
+            setPastPregnancyData={setPastPregnancyData}
+            setPatientDiagnosisNotes={setPatientDiagnosisNotes}
+            isFixed={isFixed}
+            setPrefillObstetricData={setPrefillObstetricData}
+          />
 
-        <Tabs
-          className="obstetricTab"
-          activeKey={activeTab}
-          onChange={(key) => tabChangeHandler(key)}
-        >
-          <TabPane tab="Pregnancy History" key="pregnancyHistory">
-            <PregnancyHistory
-              continueExaminationHandler={continueExaminationHandler}
-              handlePastPregnancyDrawer={handlePastPregnancyDrawer}
-              setEditIndex={setPastPregnancyEditIndex}
-              bottomRef={pregnancyRef}
-            />
-          </TabPane>
-          <TabPane tab="Examination" key="examination">
-            <Examination
-              handleExaminationDrawer={handleExaminationDrawer}
-              setEditIndex={setExaminationEditIndex}
-              bottomRef={examinationRef}
-            />
-          </TabPane>
-        </Tabs>
-      </div>
+          <Tabs
+            className="obstetricTab"
+            activeKey={activeTab}
+            onChange={(key) => tabChangeHandler(key)}
+          >
+            {!isPreviousPregnancyOverview && (
+              <TabPane tab="Pregnancy History" key="pregnancyHistory">
+                <PregnancyHistory
+                  pregnancyHistory={obstetricDetails?.pregnancyHistory}
+                  continueExaminationHandler={continueExaminationHandler}
+                  handlePastPregnancyDrawer={handlePastPregnancyDrawer}
+                  setEditIndex={setPastPregnancyEditIndex}
+                  bottomRef={pregnancyRef}
+                />
+              </TabPane>
+            )}
+            <TabPane tab="Examination" key="examination">
+              <Examination
+                examinationHistory={obstetricDetails?.examinationHistory}
+                handleExaminationDrawer={handleExaminationDrawer}
+                handlePastPregnancyDrawer={() => {
+                  handlePastPregnancyDrawer();
+                  setIsCompletePregnancy(true);
+                }}
+                setEditIndex={setExaminationEditIndex}
+                bottomRef={examinationRef}
+              />
+            </TabPane>
+            <TabPane tab="ANC Scheduler" key="ancScheduler">
+              <AncScheduler />
+            </TabPane>
+            <TabPane tab="Immunization History" key="immunizationHistory">
+              <ImmunisationHistory
+                examinationHistory={obstetricDetails?.examinationHistory}
+                handleExaminationDrawer={handleExaminationDrawer}
+                handlePastPregnancyDrawer={() => {
+                  handlePastPregnancyDrawer();
+                  setIsCompletePregnancy(true);
+                }}
+                setEditIndex={setExaminationEditIndex}
+                bottomRef={examinationRef}
+              />
+            </TabPane>
+          </Tabs>
+        </div>
+      )}
       {showLmpPopup && (
         <LmpPopup
           handleDrawerObstetric={handleDrawerObstetric}
@@ -405,7 +488,8 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
           closeIcon={false}
           placement="right"
           onClose={() => {
-            if (isDataAddedOrEdited) {
+            setIsCompletePregnancy(false);
+            if (isDataAddedOrEdited && !isCompletePregnancy) {
               toggleDeletePopup();
             } else {
               setPastPregnancyEditIndex(-1);
@@ -421,11 +505,14 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
             close={() => {
               handlePastPregnancyDrawer();
               resetPastPregnancyEditIndex();
+              setIsCompletePregnancy(false);
             }}
             toggleDeletePopup={toggleDeletePopup}
             isDataAddedOrEdited={isDataAddedOrEdited}
             setIsDataAddedOrEdited={setIsDataAddedOrEdited}
             setIsPastPregnancyUpdated={setIsPastPregnancyUpdated}
+            isCompletePregnancy={isCompletePregnancy}
+            gravidity={gravidity}
           />
         </Drawer>
       )}

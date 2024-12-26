@@ -66,7 +66,7 @@ import { getGynecDetails } from "../../api/services/ApiGynec";
 import Obstetric from "../obstetric/Obstetric";
 import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
 import { fetchAllObstetricDetails } from "../obstetric/service";
-import { addObstetricDetails, navigateToObstetric } from "../../redux/obstetricSlice";
+import { addObstetricDetails } from "../../redux/obstetricSlice";
 import { setAllUploadedDocs, setPatientUploadedDocs, setUploadDocCategories } from "../../redux/uploadDocSlice";
 import { fetchAllDocumentCategories, fetchAllPatientDocs, fetchDocsUploadedByPatient } from "../medicalRecords/service";
 import TabUploadDocumentList from "../medicalRecords/components/uploadDocumentList/TabUploadDocumentList";
@@ -441,9 +441,9 @@ function TabPrescription() {
   };
 
   // Drawer Obstetric
-  const handleDrawerObstetric = () => {
+  const handleDrawerObstetric = (obstetricKey) => {
     setCollapsedFlag(6);
-    setObstetricDrawer(!obstetricDrawer);
+    setObstetricDrawer(typeof obstetricKey === "string" ? obstetricKey : !obstetricDrawer);
   };
 
   const getLabParams = async () => {
@@ -552,8 +552,7 @@ function TabPrescription() {
 
   useEffect(() => {
     if (isNavigateToObstetric) {
-      handleDrawerObstetric();
-      dispatch(navigateToObstetric());
+      handleDrawerObstetric(isNavigateToObstetric);
     }
   }, [isNavigateToObstetric]);
 
@@ -1186,6 +1185,7 @@ function TabPrescription() {
                 />
               ) : collapsedFlag === 6 ? (
                 <TabObstetricList
+                  obstetricDrawer={obstetricDrawer}
                   handleCollapsed={() => setCollapsed(!collapsed)}
                   handleDrawerObstetric={handleDrawerObstetric}
                 />
@@ -1376,6 +1376,8 @@ function TabPrescription() {
             push={false}
           >
             <Obstetric
+              obstetricDetails={obstetricDetails}
+              obstetricDrawer={obstetricDrawer}
               handleDrawerObstetric={handleDrawerObstetric}
               handleCollapsed={(flag) => handleCollapsed(flag)}
             />
