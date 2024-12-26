@@ -42,13 +42,6 @@ import ExpiredPlanCard from "./common/ExpiredPlanCard";
 import ApolloConsultations from "./pages/apolloConsultations/ApolloConsultations";
 import AuthContainer from "./pages/auth/auth";
 
-// Import Auth Components (IN Development - Would require this snippet in future)
-// import LoginWithPassword from './pages/auth/components/LoginWithPassword';
-// import LoginWithOTP from './pages/auth/components/LoginWithOTP';
-// import SetPassword from './pages/auth/components/SetPassword';
-
-import AuthContainer from "./pages/auth/auth";
-
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
   clientKey: config?.GROWTHBOOK_CLIENTKEY,
