@@ -394,13 +394,16 @@ function TabCustomModule({ module }) {
   const SortableList = SortableContainer(({ items }) => {
     return (
       <div className="d-flex flex-wrap">
-        {items.map((item, index) => (
-          <SortableItem
-            key={`item-${index}`}
-            index={index}
-            item={{ ...item, index }}
-          />
-        ))}
+        {items.map(
+          (item, index) =>
+            (item?.title || item?.notes) && (
+              <SortableItem
+                key={`item-${index}`}
+                index={index}
+                item={{ ...item, index }}
+              />
+            )
+        )}
       </div>
     );
   });
