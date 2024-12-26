@@ -1019,29 +1019,7 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                     </div>
                                 </div>
 
-                                {caseManagerData !== undefined && (
-                                    <>
-                                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
-                                            <Col lg="18">
-                                                <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
-                                                <div className="fontroboto text-greycolor" style={{ marginLeft: 37, fontSize: 13 }}> You can edit your WhatsApp preview </div>
-                                            </Col>
-                                            <Col lg="6">
-                                                <div className="d-flex align-items-center" onClick={handleDrawerOwnLetterHead}>
-                                                    <i className="icon-Preview"></i>
-                                                    <button className='btn btn-text'>
-                                                        <span>Preview Now</span>
-                                                    </button>
-                                                </div>
-                                            </Col>
-                                        </Row>
-                                        <Drawer closeIcon={false} placement="right" onClose={handleDrawerOwnLetterHead} open={isOwnLetterHead} width="100%">
-                                            <WhatsappConfigure handleDrawerOwnLetterHead={handleDrawerOwnLetterHead} />
-                                        </Drawer>
-                                    </>
-                                )}
-
-                            </div>
+                                </div>
 
                                 {caseManagerData !== undefined && (
                                     <>
@@ -1254,30 +1232,7 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                         <label className="mb-1">Bottom (cm)</label>
                                     </div>
                                 </div>
-
-                                {caseManagerData !== undefined && (
-                                    <>
-                                        <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
-                                            <Col lg="18">
-                                                <div className="title-common"><img className="img-fluid me-2" width={25} src={wtsp} alt="Header" /> See WhatsApp Rx preview </div>
-                                                <div className="fontroboto text-greycolor" style={{ marginLeft: 37, fontSize: 13 }}> You can edit your WhatsApp preview </div>
-                                            </Col>
-                                            <Col lg="6">
-                                                <div className="d-flex align-items-center" onClick={handleDrawerOwnLetterHead}>
-                                                    <i className="icon-Preview"></i>
-                                                    <button className='btn btn-text'>
-                                                        <span>Preview Now</span>
-                                                    </button>
-                                                </div>
-                                            </Col>
-                                        </Row>
-                                        <Drawer closeIcon={false} placement="right" onClose={handleDrawerOwnLetterHead} open={isOwnLetterHead} width="100%">
-                                            <WhatsappConfigure handleDrawerOwnLetterHead={handleDrawerOwnLetterHead} />
-                                        </Drawer>
-                                    </>
-                                )}
-
-                            </div>
+                                </div>
                                 {caseManagerData !== undefined && (
                                     <>
                                         <Row justify="space-between" className="align-items-center form_addnewpatient mb-1">
