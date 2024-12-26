@@ -41,15 +41,3 @@ export const getTypeOfAbortion = (typeOfAbortion) => {
     ? "Missed Miscarriage"
     : typeOfAbortion;
 };
-
-export const splitByTrimester = (data) => {
-  const firstTrimester = data.filter(
-    (item) => item.weekStart >= 1 && item.weekStart <= 12
-  );
-  const secondTrimester = data.filter(
-    (item) => item.weekStart >= 13 && item.weekStart <= 27
-  );
-  const thirdTrimester = data.filter((item) => item.weekStart >= 28);
-
-  return [firstTrimester, secondTrimester, thirdTrimester];
-};

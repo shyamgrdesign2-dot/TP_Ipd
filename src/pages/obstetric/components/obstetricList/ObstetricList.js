@@ -4,10 +4,8 @@ import ReadMore from "../../../../common/ReadMore";
 import { useSelector } from "react-redux";
 import moment from "moment";
 import { isPrimigravida } from "../../utils/helper";
-import PatientInfoList from "./PatientInfoList";
-import AncImmunisationList from "./AncImmunisationList";
 
-const ObstetricList = ({ handleDrawerObstetric }) => {
+const ObstetricList = ({ isPatientSummary = false }) => {
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { examinationHistory } = obstetricDetails;
   const [accordionItems, setAccordionItems] = useState([]);
@@ -255,52 +253,50 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
   }, [examinationHistory]);
 
   return (
-    <div className="overflow-y-auto" style={{ padding: "10px 10px 0px" }}>
-      <PatientInfoList />
-      <Collapse
-        defaultActiveKey={[0]}
-        className="prescriptiontab-accordian history-sider-box history-sider-box-white"
-        expandIconPosition={"end"}
-      >
-        {accordionItems?.map((item, index) => (
-          <React.Fragment key={index}>
-            <Collapse.Panel header={item.label} key={item.key}>
-              {item.content}
-            </Collapse.Panel>
-            {index <= accordionItems.length - 1 && (
-              <Divider
-                dashed
-                style={{
-                  borderTop: "1px dotted #D0D5DD",
-                  margin: "6px 0",
-                  width: "100%",
-                }}
-              />
-            )}
-          </React.Fragment>
-        ))}
-      </Collapse>
-
-      <Collapse
-        items={[
-          {
-            key: "anc",
-            label: (
-              <span style={{ fontWeight: 600 }}>
-                ANC Scheduler & Immunisation Vaccine
-              </span>
-            ),
-            children: (
-              <AncImmunisationList
-                handleDrawerObstetric={handleDrawerObstetric}
-              />
-            ),
-          },
-        ]}
-        defaultActiveKey={["anc"]}
-        className="prescriptiontab-accordian history-sider-box history-sider-box-white"
-        expandIconPosition={"end"}
-      />
+    <div
+      className={isPatientSummary ? "" : "overflow-y-auto"}
+      style={{ maxHeight: "300px", padding: "10px 10px 0px" }}
+    >
+      {infoAccordionItems?.map((item, index) => (
+        <React.Fragment key={index}>
+          {item.content}
+          {index < infoAccordionItems?.length - 1 && (
+            <Divider
+              dashed
+              style={{
+                borderTop: "1px dotted #D0D5DD",
+                margin: "6px 0",
+                width: "100%",
+              }}
+            />
+          )}
+        </React.Fragment>
+      ))}
+      {!isPatientSummary && (
+        <Collapse
+          defaultActiveKey={[0]}
+          className="prescriptiontab-accordian history-sider-box history-sider-box-white"
+          expandIconPosition={"end"}
+        >
+          {accordionItems?.map((item, index) => (
+            <React.Fragment key={index}>
+              <Collapse.Panel header={item.label} key={item.key}>
+                {item.content}
+              </Collapse.Panel>
+              {index < accordionItems.length - 1 && (
+                <Divider
+                  dashed
+                  style={{
+                    borderTop: "1px dotted #D0D5DD",
+                    margin: "6px 0",
+                    width: "100%",
+                  }}
+                />
+              )}
+            </React.Fragment>
+          ))}
+        </Collapse>
+      )}
     </div>
   );
 };

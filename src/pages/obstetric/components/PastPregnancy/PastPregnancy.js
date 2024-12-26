@@ -13,9 +13,7 @@ import {
   obstetricDetailsUpdated,
   patientDiagnosisUpdated,
 } from "../../../../redux/obstetricSlice";
-import alertIcon from "./../../../../assets/images/alertIcon.svg";
 import { isDecimalCheck, isNumberCheck } from "../../utils/helper";
-import CommonModal from "../../../../common/CommonModal";
 
 function PastPregnancy({
   close,
@@ -24,13 +22,10 @@ function PastPregnancy({
   isDataAddedOrEdited,
   setIsDataAddedOrEdited,
   setIsPastPregnancyUpdated,
-  isCompletePregnancy,
-  gravidity,
 }) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const [pastPregnancyData, setPastPregnancyData] = useState({});
-  const [shouldShowConfirmPopup, setShowConfirmPopup] = useState(false);
   const { obstetricDetails } = useSelector((state) => state.obstetric);
   const { pregnancyHistory = [] } = obstetricDetails;
   const { state } = useLocation();
@@ -60,12 +55,6 @@ function PastPregnancy({
       setPastPregnancyData({ ...data, ...age });
     }
   }, [editIndex]);
-
-  useEffect(() => {
-    if (isCompletePregnancy) {
-      handlePastPregnancyDataChange("gravidaNumber", gravidity);
-    }
-  }, []);
 
   const handlePastPregnancyDataChange = (field, value) => {
     let temp = {};
@@ -242,7 +231,6 @@ function PastPregnancy({
             className="custom-select"
             value={pastPregnancyData?.gravidaNumber}
             allowClear
-            disabled={isCompletePregnancy && pastPregnancyData.gravidaNumber}
           />
         </div>
         <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
@@ -568,17 +556,12 @@ function PastPregnancy({
   }, [pastPregnancyData]);
 
   const closeBtnHandler = () => {
-    if (isDataAddedOrEdited && !isCompletePregnancy) {
+    if (isDataAddedOrEdited) {
       toggleDeletePopup();
     } else {
       close();
     }
   };
-
-  const toggleConfirmationPopup = () => {
-    setShowConfirmPopup((prev) => !prev);
-  };
-
 
   return (
     <>
@@ -599,22 +582,16 @@ function PastPregnancy({
             >
               <i className="icon-Cross fs-3"></i>
             </Button>
-            <div className="modal-title">
-              {isCompletePregnancy
-                ? "Complete Pregnancy"
-                : "Past pregnancy details"}
-            </div>
+            <div className="modal-title">Past pregnancy details</div>
           </div>
           <Button
-            onClick={
-              isCompletePregnancy ? toggleConfirmationPopup : addPastPregnancyData
-            }
+            onClick={addPastPregnancyData}
             className="btn btn-primary3 btn-41 px-4 me-20"
             disabled={
               !pastPregnancyData.gravidaNumber || !pastPregnancyData.outcome
             }
           >
-            {isCompletePregnancy ? "Complete Pregnancy" : "Done"}
+            Done
           </Button>
         </div>
 
@@ -687,9 +664,7 @@ function PastPregnancy({
           </div>
           {!!pastPregnancyData.outcome && (
             <>
-              <div className="remarks px-2 py-2">
-                {isCompletePregnancy ? "Postpartum Remark" : "Note"}
-              </div>
+              <div className="remarks px-2 py-2">Note</div>
               <div className="remarks px-2 py-2">
                 <Input.TextArea
                   placeholder="Enter remarks"
@@ -707,48 +682,6 @@ function PastPregnancy({
           )}
         </div>
       </Card>
-      <CommonModal
-        isModalOpen={shouldShowConfirmPopup}
-        onCancel={toggleConfirmationPopup}
-        modalWidth={500}
-        title={"Confirm Complete Pregnancy"}
-        modalBody={
-          <>
-            <div className="alert-warning rounded-10px p-2 patient-details">
-              <div className="d-flex align-items-center">
-                <img className="me-3" src={alertIcon} alt="Warning" />
-                <span>
-                  Once you close this pregnancy, you will no longer be able to
-                  edit the patient’s visit information or diagnosis notes, and
-                  it cannot be reopened.
-                </span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div
-                  onClick={() => {
-                    toggleConfirmationPopup();
-                    close();
-                  }}
-                  className="me-4 text-decoration-underline btn p-0 text-main"
-                >
-                  {isCompletePregnancy ? "No, Keep It Open" : "Yes Leave"}
-                </div>
-                <Button
-                  onClick={() => {
-                    toggleConfirmationPopup();
-                    addPastPregnancyData();
-                  }}
-                  className="lh-lg btn btn-primary3 btn-41 px-4"
-                >
-                  <span>Yes, Complete Pregnancy</span>
-                </Button>
-              </div>
-            </div>
-          </>
-        }
-      />
     </>
   );
 }

@@ -14,8 +14,7 @@ import {
 } from "../../../../redux/obstetricSlice";
 import { visitColumn } from "../../utils/constants";
 import { useAccess } from "../../../vaccination/useAccess";
-import PatientInfoList from "../obstetricList/PatientInfoList";
-import AncImmunisationList from "../obstetricList/AncImmunisationList";
+import ObstetricList from "../obstetricList/ObstetricList";
 
 export default function VisitObstetric() {
   const navigate = useNavigate();
@@ -113,13 +112,13 @@ export default function VisitObstetric() {
     );
   };
 
-  const obstetricNavigate = (obstetricKey) => {
+  const obstetricNavigate = () => {
     navigate("/prescription", {
       state: {
         patient_data: patient_data,
       },
     });
-    dispatch(navigateToObstetric(obstetricKey));
+    dispatch(navigateToObstetric());
   };
 
   return (
@@ -172,9 +171,7 @@ export default function VisitObstetric() {
               obstetricDetails?.livingChildren ||
               obstetricDetails?.abortion ||
               obstetricDetails?.ectopicPregnancies) && (
-              <div style={{ padding: "10px 20px 0px" }}>
-                <PatientInfoList />
-              </div>
+              <ObstetricList isPatientSummary />
             )}
             {Object.keys(previousVisit)?.length > 0 && (
               <div className="visitBody visitObstetricContainer">
@@ -199,9 +196,6 @@ export default function VisitObstetric() {
                 ) : null}
               </div>
             )}
-            <div style={{ padding: "0px 20px 10px" }}>
-              <AncImmunisationList handleDrawerObstetric={obstetricNavigate} />
-            </div>
             {validVisitDetails.length > 2 && (
               <Card.Footer
                 className="bg-white py-3 viewLessOrMore"
