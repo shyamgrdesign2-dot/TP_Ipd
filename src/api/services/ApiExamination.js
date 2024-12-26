@@ -2,6 +2,7 @@ import api from "./axiosService";
 import config from '../../config';
 
 const baseUrl = { customBaseUrl: config.examination_api_url }
+const baseSearchEngineUrl = { customBaseUrl: config.searchengine_url };
 
 const ApiExamination = {};
 
@@ -22,7 +23,7 @@ ApiExamination.getExaminationTemplates = function (query) {
 };
 
 ApiExamination.getFrequentlySearchedExamination = function () {
-  return api.get(`/api/v1/examination/frequentlyExamination`, baseUrl);
+  return api.get(`/api/v1/examination/frequentlyExaminations`, baseSearchEngineUrl);
 };
 
 // ApiExamination.getFrequentlySearchedExamination = function () {
@@ -32,9 +33,13 @@ ApiExamination.getFrequentlySearchedExamination = function () {
 // };
 
 ApiExamination.searchExamination = function (query) {
-  return api.post(`/api/v1/examination/searchExamination`, {
+  return api.post(`/api/v1/examination/search`, {
     search: query
-  }, baseUrl);
+  }, baseSearchEngineUrl);
+};
+
+ApiExamination.singleTemplateDetails = function (templateId) {
+  return api.get(`/api/v1/examination/singleTemplateDetails/${templateId}`, baseUrl);
 };
 
 export default ApiExamination;

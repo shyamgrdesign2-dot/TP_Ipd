@@ -64,6 +64,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
                     key: JSON.stringify({
                         unique_id: uuidv4(),
                         change: 1,
+                        pms_default: 0,
                         examination_name: searchChildQuery
                     }),
                     value: searchChildQuery
@@ -124,7 +125,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
                 <>
                     <div className="fw-medium fs-18 pt-3">Reorder chips <img className="img-fluid ms-2" src={tagNew} /></div>
                     <div className="pt-1">Hold and drag the chips to reorder them.</div>
-                    <img className="img-fluid my-2 rounded-2" style={{backgroundColor: '#E2E2EA80'}} width={329} height={107} src={dragChips} />
+                    <img className="img-fluid my-2 rounded-2" style={{ backgroundColor: '#E2E2EA80' }} width={329} height={107} src={dragChips} />
                 </>
             ,
             target: () => tourRef.current,
@@ -256,10 +257,10 @@ function TabExaminationSearch({ passIndex, onClose }) {
     }, [selectedIndex, examinationData]);
 
     const handleClose = () => {
-      onClose();
-      if(examinationData?.length > 0){
-        dispatch(setIsDDxReadyToGenerate(true));   
-      }
+        onClose();
+        if (examinationData?.length > 0) {
+            dispatch(setIsDDxReadyToGenerate(true));
+        }
     };
 
     return (
