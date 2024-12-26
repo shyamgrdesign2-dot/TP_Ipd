@@ -45,7 +45,8 @@ const dev = {
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
-  searchengine_url: "https://pm-searchengine-uat.tatvacare.in"
+  searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
+  razorPay_key: "rzp_test_PoLtBba5t8qJIm"
 };
 
 const qa = {
@@ -95,7 +96,8 @@ const qa = {
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
-  searchengine_url: "https://pm-searchengine-uat.tatvacare.in"
+  searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
+  razorPay_key: "rzp_test_PoLtBba5t8qJIm"
 };
 
 const uat = {
@@ -148,7 +150,8 @@ const uat = {
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
-  searchengine_url: "https://pm-searchengine-uat.tatvacare.in"
+  searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
+  razorPay_key: "rzp_test_PoLtBba5t8qJIm"
 };
 
 const prod = {
@@ -196,7 +199,8 @@ const prod = {
   bulk_messages: "https://pm-communication-prod.tatvacare.in",
   upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-prod.tatvacare.in",
-  searchengine_url: "https://pm-searchengine-prod.tatvacare.in"
+  searchengine_url: "https://pm-searchengine-prod.tatvacare.in",
+  razorPay_key: "rzp_live_GvLkPHHNSMs2G3"
 };
 
 const getEnv = () => {
