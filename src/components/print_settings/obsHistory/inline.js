@@ -12,11 +12,6 @@ function ObsHistoryInlineView({
   options,
   obsHistoryData,
 }) {
-  const ancPrintEnabled = obsHistoryData?.ancHistory?.filter((item) => item?.enablePrint);
-  const immunisationPrintEnabled = obsHistoryData?.immunisationHistory?.filter(
-    (item) => item?.enablePrint
-  );
-
   return (
     <View style={{ marginTop: PX_TO_PT * 15 }}>
       <Text
@@ -2307,10 +2302,10 @@ function ObsHistoryInlineView({
         </View>
       )}
 
-      {options?.includes("ancHistory") && ancPrintEnabled?.length > 0 && (
+      {options?.includes("ancHistory") && (
         <View>
           <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
-            {obsHistoryData?.ancHistory?.length > 0 && (
+            {obsHistoryData?.ancHistory.length > 0 && (
               <>
                 <Text
                   style={{
@@ -2324,7 +2319,10 @@ function ObsHistoryInlineView({
                 </Text>
                 {obsHistoryData?.ancHistory.map((item, i) => (
                   <View key={i}>
-                    {item?.enablePrint && (
+                    {(item?.master ||
+                      item?.dueDate ||
+                      item?.status ||
+                      item?.notes) && (
                       <>
                         <Text
                           style={{
@@ -2452,7 +2450,7 @@ function ObsHistoryInlineView({
                           </Text>
                         )}
 
-                        {i !== ancPrintEnabled?.length - 1 && (
+                        {i !== obsHistoryData?.ancHistory?.length - 1 && (
                           <Text
                             style={{
                               color: "#171725",
@@ -2477,7 +2475,7 @@ function ObsHistoryInlineView({
         </View>
       )}
 
-      {options?.includes("immunisationHistory") && immunisationPrintEnabled?.length > 0 && (
+      {options?.includes("immunisationHistory") && (
         <View>
           <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
             {obsHistoryData?.immunisationHistory.length > 0 && (
@@ -2494,7 +2492,7 @@ function ObsHistoryInlineView({
                 </Text>
                 {obsHistoryData?.immunisationHistory.map((item, i) => (
                   <View key={i}>
-                    {item?.enablePrint && (
+                    {(item?.master || item?.givenDate || item?.notes) && (
                       <>
                         <Text
                           style={{
@@ -2595,8 +2593,7 @@ function ObsHistoryInlineView({
                           </Text>
                         )}
 
-                        {i !==
-                          immunisationPrintEnabled?.length - 1 && (
+                        {i !== obsHistoryData?.ancHistory?.length - 1 && (
                           <Text
                             style={{
                               color: "#171725",

@@ -13,12 +13,6 @@ function ObsHistoryListView({
   obsHistoryData,
 }) {
   let obsListViewCounter = 1;
-  const ancPrintEnabled = obsHistoryData?.ancHistory?.filter(
-    (item) => item?.enablePrint
-  );
-  const immunisationPrintEnabled = obsHistoryData?.immunisationHistory?.filter(
-    (item) => item?.enablePrint
-  );
 
   return (
     <View style={{ marginTop: PX_TO_PT * 15 }}>
@@ -2212,7 +2206,7 @@ function ObsHistoryListView({
         </View>
       )}
 
-      {options?.includes("ancHistory") && ancPrintEnabled?.length > 0 && (
+      {options?.includes("ancHistory") && (
         <View>
           <Text style={{ lineHeight: 1.4 }}>
             {obsHistoryData?.ancHistory?.length > 0 && (
@@ -2228,10 +2222,12 @@ function ObsHistoryListView({
                   &nbsp;{obsListViewCounter++}.&nbsp;ANC Scheduler&nbsp;:
                 </Text>
 
-                {obsHistoryData?.ancHistory?.map((item, i) => {
+                {obsHistoryData?.ancHistory.map((item, i) => {
                   return (
                     <View key={i}>
-                      {item?.enablePrint && (
+                      {(item?.master ||
+                        item?.dueDate ||
+                        item?.notes) && (
                         <>
                           <Text
                             style={{
@@ -2400,7 +2396,7 @@ function ObsHistoryListView({
         </View>
       )}
 
-      {options?.includes("immunisationHistory") && immunisationPrintEnabled?.length > 0 && (
+      {options?.includes("immunisationHistory") && (
         <View>
           <Text style={{ lineHeight: 1.4 }}>
             {obsHistoryData?.immunisationHistory?.length > 0 && (
@@ -2416,10 +2412,13 @@ function ObsHistoryListView({
                   &nbsp;{obsListViewCounter++}.&nbsp;Immunisation Vaccine&nbsp;:
                 </Text>
 
-                {obsHistoryData?.immunisationHistory?.map((item, i) => {
+                {obsHistoryData?.immunisationHistory.map((item, i) => {
                   return (
                     <View key={i}>
-                      {item?.enablePrint && (
+                      {(item?.master ||
+                        item?.givenDate ||
+                        item?.status ||
+                        item?.notes) && (
                         <>
                           <Text
                             style={{

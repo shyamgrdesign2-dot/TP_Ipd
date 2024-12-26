@@ -24,7 +24,7 @@ import {
 import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import AncImmunisationPopup from "../ancImmunisationPopup/AncImmunisationPopup";
-import { mergeDefaultAndDoctorList } from "../../utils/helper";
+import { mergeData } from "../../utils/helper";
 
 const ImmunisationHistory = ({ immunisationHistoryData = [] }) => {
   const dispatch = useDispatch();
@@ -48,7 +48,7 @@ const ImmunisationHistory = ({ immunisationHistoryData = [] }) => {
 
   useEffect(() => {
     const immunisationHistoryData = [...immunisationHistory];
-    const newImmunisationHistory = mergeDefaultAndDoctorList(
+    const newImmunisationHistory = mergeData(
       immunisationHistoryData,
       defaultImmunisation,
       immunisationDoctorList,
