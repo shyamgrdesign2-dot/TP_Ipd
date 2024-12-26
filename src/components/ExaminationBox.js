@@ -125,7 +125,7 @@ function ExaminationBox() {
         ),
       });
     } else {
-      searchParentQuery &&
+      searchParentQuery && parentOptionsList.findIndex(e => e.examination_name?.toLowerCase()?.trim() == searchParentQuery?.toLowerCase()?.trim()) === -1 &&
         data.push({
           key: JSON.stringify({
             unique_id: uuidv4(),
@@ -191,7 +191,7 @@ function ExaminationBox() {
         label: <div>{e.examination_name}</div>,
       });
     });
-    if (searchChildQuery?.query) {
+    if (searchChildQuery?.query && childOptionsList.findIndex(e => e.examination_name?.toLowerCase()?.trim() == searchChildQuery?.query?.toLowerCase()?.trim()) === -1) {
       data.push({
         key: JSON.stringify({
           ...examinationData[searchChildQuery.index],

@@ -161,7 +161,7 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
         ),
       });
     } else {
-      searchParentQuery &&
+      searchParentQuery && parentOptionsList.findIndex(e => e.symptom_name?.toLowerCase()?.trim() == searchParentQuery?.toLowerCase()?.trim()) === -1 &&
         data.push({
           key: JSON.stringify({
             unique_id: uuidv4(),
@@ -244,7 +244,7 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
         label: <div>{e.symptom_name}</div>,
       });
     });
-    if (searchChildQuery?.query) {
+    if (searchChildQuery?.query && childOptionsList.findIndex(e => e.symptom_name?.toLowerCase()?.trim() == searchChildQuery?.query?.toLowerCase()?.trim()) === -1) {
       data.push({
         key: JSON.stringify({
           ...symptomsData[searchChildQuery.index],
