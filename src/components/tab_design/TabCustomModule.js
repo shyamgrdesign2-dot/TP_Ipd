@@ -42,7 +42,6 @@ import {
   capitalizeAfterSentence,
 } from "../../utils/utils";
 import { addModule, searchModule } from "../../redux/customModuleSlice";
-import { customizedPad } from "../../redux/doctorsSlice";
 
 import TabCustomModuleSearch from "../../components/tab_design/TabCustomModuleSearch";
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
@@ -52,9 +51,7 @@ function TabCustomModule({ module }) {
   const { customModules, latestSearchedModules, loading } = useSelector(
     (state) => state.customModules
   );
-  const { userId, customizedPadRightList, customizedPadLeftList } = useSelector(
-    (state) => state.doctors
-  );
+  const { userId } = useSelector((state) => state.doctors);
 
   const dispatch = useDispatch();
 
@@ -719,20 +716,6 @@ function TabCustomModule({ module }) {
             (item) => item.module_id !== moduleToDelete?.module_id
           );
         });
-        dispatch(
-          customizedPad({
-            data: {
-              default: false,
-              reset: false,
-              left: customizedPadLeftList,
-              right: customizedPadRightList?.filter((e) =>
-                e.is_custom_module
-                  ? customModules.some((cm) => cm.module_id === e.tmdpm_id)
-                  : true
-              ),
-            },
-          })
-        );
 
         message.open({
           key: MESSAGE_KEY,
@@ -879,32 +862,6 @@ function TabCustomModule({ module }) {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
-        dispatch(
-          customizedPad({
-            data: {
-              default: false,
-              reset: false,
-              left: customizedPadLeftList,
-              right: customizedPadRightList
-                ?.filter((e) =>
-                  e.is_custom_module
-                    ? customModules.some((cm) => cm.module_id === e.tmdpm_id)
-                    : true
-                )
-                ?.map((e) => {
-                  if (e.tmdpm_id === module?.module_id) {
-                    return {
-                      ...e,
-                      tmdpm_name: newModuleName,
-                      tmdpm_short_name: newModuleName,
-                    };
-                  }
-                  return e;
-                }),
-            },
-          })
-        );
-
         setCanEditName(false);
         message.open({
           key: MESSAGE_KEY,
