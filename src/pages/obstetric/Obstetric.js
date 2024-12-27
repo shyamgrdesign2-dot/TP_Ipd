@@ -342,59 +342,59 @@ const Obstetric = ({
     }
   };
 
+  const startNewPregnancyHandler = () => {
+    setShowLmpPopup(true);
+  };
+
   const obstetricSaveBtnHandler = async () => {
-    if (obstetricDetails && Object.keys(obstetricDetails)?.length === 0) {
-      setShowLmpPopup(true);
-    } else {
-      if (isPatientDiagnosisUpdated) {
-        const pastPregnancy = pastPregnancyData.reduce((acc, item) => {
-          acc[item.key] = item.value;
-          return acc;
-        }, {});
-        const payload = {
-          ...allObstetricDetails,
-          currentPregnancy: {
-            ...patientDiagnosisData,
-            ...pastPregnancy,
-            examinationHistory: obstetricDetails?.examinationHistory || [],
-            ancHistory: obstetricDetails?.ancHistory || [],
-            immunisationHistory: obstetricDetails?.immunisationHistory || [],
-            patientId: patient_data.patient_unique_id,
-            diagnosisNotes: patientDiagnosisNotes?.trim(),
-            createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-            createdBy: obstetricDetails?.createdBy || userId,
-            modifiedAt: new Date().toISOString(),
-            modifiedBy: userId,
-          },
-          pregnancyHistory: allObstetricDetails?.pregnancyHistory || [],
-        };
-        dispatch(addObstetricDetails(payload));
-        dispatch(resetUpdatedPatientDiagnosis());
-        setLoader(true);
-        const obstetricResponse = await upsertObstetricDetails(
-          patient_data.patient_unique_id,
-          payload
-        );
-        const prefillObstetricPayload = {};
-        Object.keys(prefillObstetricData).forEach((key) => {
-          if (prefillObstetricData[key]) {
-            prefillObstetricPayload[key] = prefillObstetricData[key];
-          }
-        });
-        await updatePrefillObstetricData(prefillObstetricPayload, userId);
-        setLoader(false);
-        if (obstetricResponse) {
-          trackUpdateEvent();
-          setShowSuccess(true);
-          getAllObstetricDetails();
-        } else {
-          errorMessage("Error while adding data");
+    if (isPatientDiagnosisUpdated) {
+      const pastPregnancy = pastPregnancyData.reduce((acc, item) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {});
+      const payload = {
+        ...allObstetricDetails,
+        currentPregnancy: {
+          ...patientDiagnosisData,
+          ...pastPregnancy,
+          examinationHistory: obstetricDetails?.examinationHistory || [],
+          ancHistory: obstetricDetails?.ancHistory || [],
+          immunisationHistory: obstetricDetails?.immunisationHistory || [],
+          patientId: patient_data.patient_unique_id,
+          diagnosisNotes: patientDiagnosisNotes?.trim(),
+          createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
+          createdBy: obstetricDetails?.createdBy || userId,
+          modifiedAt: new Date().toISOString(),
+          modifiedBy: userId,
+        },
+        pregnancyHistory: allObstetricDetails?.pregnancyHistory || [],
+      };
+      dispatch(addObstetricDetails(payload));
+      dispatch(resetUpdatedPatientDiagnosis());
+      setLoader(true);
+      const obstetricResponse = await upsertObstetricDetails(
+        patient_data.patient_unique_id,
+        payload
+      );
+      const prefillObstetricPayload = {};
+      Object.keys(prefillObstetricData).forEach((key) => {
+        if (prefillObstetricData[key]) {
+          prefillObstetricPayload[key] = prefillObstetricData[key];
         }
+      });
+      await updatePrefillObstetricData(prefillObstetricPayload, userId);
+      setLoader(false);
+      if (obstetricResponse) {
+        trackUpdateEvent();
+        setShowSuccess(true);
+        getAllObstetricDetails();
+      } else {
+        errorMessage("Error while adding data");
       }
-      setTimeout(() => {
-        handleObstetricBackBtn();
-      }, 1000);
     }
+    setTimeout(() => {
+      handleObstetricBackBtn();
+    }, 1000);
   };
 
   const clearObstetricData = () => {
@@ -501,6 +501,7 @@ const Obstetric = ({
             handleDrawerVaccination={obstetricSaveBtnHandler}
             handleObstetricBackBtn={handleObstetricBackBtn}
             clearObstetricData={clearObstetricData}
+            startNewPregnancyHandler={startNewPregnancyHandler}
             loader={loader}
             isPregnancyCompleted={isPregnancyCompleted}
             isObstetric={true}

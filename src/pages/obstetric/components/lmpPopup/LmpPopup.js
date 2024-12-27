@@ -37,7 +37,7 @@ const LmpPopup = ({
     }
   };
 
-  const lmpPopupHandler = () => {
+  const lmpPopupHandler = (laterBtn) => {
     if (isPregnancyCompleted) {
       message.open({
         key: MESSAGE_KEY,
@@ -72,10 +72,12 @@ const LmpPopup = ({
       dispatch(addObstetricDetails(payload));
       dispatch(obstetricDetailsUpdated());
     }
-    setPatientDiagnosisData((prevState) => ({
-      ...prevState,
-      lmp: prevState?.lmp || null,
-    }));
+    if (laterBtn) {
+      setPatientDiagnosisData((prevState) => ({
+        ...prevState,
+        lmp: null,
+      }));
+    }
     setShowLmpPopup(false);
   };
 
@@ -133,7 +135,7 @@ const LmpPopup = ({
               borderColor: "#4B4AD5",
             }}
             className="lmpBtn"
-            onClick={lmpPopupHandler}
+            onClick={() => lmpPopupHandler(true)}
           >
             <span className="lmpBtnTxt">Do it later</span>
           </Button>
