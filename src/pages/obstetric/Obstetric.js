@@ -6,38 +6,70 @@ import PatientDiagnosis from "./components/patientDiagnosis/PatientDiagnosis";
 import PregnancyHistory from "./components/pregnancyHistory/PregnancyHistory";
 import AddExamination from "./components/AddExamination/AddExamination";
 import alertIcon from "./../../assets/images/alertIcon.svg";
+import tagNew from "./../../assets/images/new-gif.gif";
 import { Button, Tabs } from "antd";
-import TabPane from "antd/es/tabs/TabPane";
 import LmpPopup from "./components/lmpPopup/LmpPopup";
 import { useSelector, useDispatch } from "react-redux";
 import { Drawer } from "antd";
 import {
-  addObstetricData,
-  fetchAllObstetricDetails,
+  fetchAncDoctorList,
+  fetchDefaultAnc,
+  fetchDefaultImmunisation,
+  fetchImmunisationDoctorList,
+  fetchObstetricDetails,
   fetchPrefillObstetricDetails,
-  updateObstetricData,
+  fetchTour,
   updatePrefillObstetricData,
+  upsertObstetricDetails,
 } from "./service";
 import {
   addObstetricDetails,
+  navigateToObstetric,
   resetUpdatedPatientDiagnosis,
+  setAncDoctorList,
+  setDefaultAncSchedule,
+  setDefaultImmunisation,
+  setImmunisationDoctorList,
 } from "../../redux/obstetricSlice";
-import { useLocation } from "react-router-dom";
-import dayjs from "dayjs";
+import { useLocation, useNavigate } from "react-router-dom";
 import moment from "moment";
 import { jwtDecode } from "jwt-decode";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import { errorMessage, getClinicName } from "../../utils/utils";
 import SuccessPopup from "../growthChart/components/SuccessPopup";
 import CommonModal from "../../common/CommonModal";
+import { Container, Navbar } from "react-bootstrap";
+import ImmunisationHistory from "./components/immunisationHistory/ImmunisationHistory";
+import AncScheduler from "./components/ancScheduler/AncScheduler";
+import Tour from "../../common/Tour";
 
-const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
+const { TabPane } = Tabs;
+
+const Obstetric = ({
+  obstetricDetails,
+  obstetricDrawer,
+  handleDrawerObstetric,
+  handleCollapsed,
+  isPreviousPregnancyOverview = false,
+  handleDrawerMedicalReport,
+}) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data } = state;
-  const { obstetricDetails, isPatientDiagnosisUpdated } = useSelector(
-    (state) => state.obstetric
-  );
+  const {
+    isPatientDiagnosisUpdated,
+    isNavigateToObstetric,
+    defaultAncSchedule,
+    defaultImmunisation,
+    ancDoctorList,
+    immunisationDoctorList,
+    obstetricDetails: allObstetricDetails,
+  } = useSelector((state) => state.obstetric);
+  const isPregnancyCompleted =
+    Object.keys(obstetricDetails)?.length === 0 &&
+    allObstetricDetails &&
+    Object.keys(allObstetricDetails)?.length !== 0;
   const {
     gravidity,
     parity,
@@ -65,13 +97,17 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   const [examinationEditIndex, setExaminationEditIndex] = useState(-1);
   const [pastPregnancyEditIndex, setPastPregnancyEditIndex] = useState(-1);
   const [isFixed, setIsFixed] = useState(false);
+  const [isCompletePregnancy, setIsCompletePregnancy] = useState(false);
   const [activeTab, setActiveTab] = useState(
-    obstetricDetails?.examinationHistory?.length
+    obstetricDrawer === "ancScheduler"
+      ? "ancScheduler"
+      : obstetricDrawer === "immunisationHistory"
+      ? "immunisationHistory"
+      : obstetricDetails?.examinationHistory?.length
       ? "examination"
       : "pregnancyHistory"
   );
   const [lmpDate, setLmpDate] = useState("");
-  const [tokenData, setTokenData] = useState(null);
 
   const [patientDiagnosisNotes, setPatientDiagnosisNotes] =
     useState(diagnosisNotes);
@@ -109,7 +145,31 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
 
   const pregnancyRef = useRef(null);
   const examinationRef = useRef(null);
+  const tourRef = useRef(null);
   const { profile, userId } = useSelector((state) => state.doctors);
+  const [runTour, setRunTour] = useState(false);
+
+  const startTour = () => {
+    setRunTour(true); // Trigger the tour to start
+  };
+
+  useEffect(() => {
+    if (runTour) {
+      // Automatically trigger the hidden button's click after 1 second
+      setTimeout(() => {
+        const elements = document.getElementsByClassName(
+          "react-joyride__beacon"
+        );
+        if (elements.length > 0) {
+          elements[0].click(); // Access the first element in the collection and trigger a click
+        } else {
+          console.log(
+            "No elements with the class 'react-joyride__beacon' were found."
+          );
+        }
+      }, 1000);
+    }
+  }, [runTour]);
 
   useEffect(() => {
     if (examinationEditIndex >= 0) {
@@ -124,25 +184,60 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   }, [pastPregnancyEditIndex]);
 
   useEffect(() => {
-    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    try {
-      const decoded = jwtDecode(token);
-      setTokenData(decoded.result);
-    } catch (e) {
-      console.error("Error while token decoding: ", e);
-    }
-  }, []);
-
-  useEffect(() => {
     getPrefillObstetricDetails();
     scrollToBottom();
+    getDefaultAndDoctorList();
   }, []);
+
+  const getDefaultAndDoctorList = async () => {
+    if (defaultAncSchedule?.length === 0) {
+      const defaultAncResponse = await fetchDefaultAnc();
+      if (defaultAncResponse) {
+        dispatch(setDefaultAncSchedule(defaultAncResponse));
+      }
+    }
+    if (defaultImmunisation?.length === 0) {
+      const defaultImmunisationResponse = await fetchDefaultImmunisation();
+      if (defaultImmunisationResponse) {
+        dispatch(setDefaultImmunisation(defaultImmunisationResponse));
+      }
+    }
+    if (ancDoctorList?.length === 0) {
+      let ancDoctorListResponse = await fetchAncDoctorList();
+      ancDoctorListResponse = ancDoctorListResponse?.filter(
+        (item) => !item?.deleted
+      );
+      if (ancDoctorListResponse) {
+        dispatch(setAncDoctorList(ancDoctorListResponse));
+      }
+    }
+    if (immunisationDoctorList?.length === 0) {
+      let immunisationDoctorListResponse = await fetchImmunisationDoctorList();
+      immunisationDoctorListResponse = immunisationDoctorListResponse?.filter(
+        (item) => !item?.deleted
+      );
+      if (immunisationDoctorListResponse) {
+        dispatch(setImmunisationDoctorList(immunisationDoctorListResponse));
+      }
+    }
+    const tourResponse = await fetchTour();
+    if (tourResponse && Object.keys(tourResponse)?.length > 0) {
+      if (!tourResponse.anc) {
+        setRunTour(true);
+      }
+    }
+  };
 
   const getPrefillObstetricDetails = async () => {
     const prefillObstetricResponse = await fetchPrefillObstetricDetails(
       patient_data.patient_unique_id
     );
-    if (!obstetricDetails?.lmp && !prefillObstetricResponse?.lmp) {
+    if (
+      (Object.keys(obstetricDetails).length !== 0 || !isPregnancyCompleted) &&
+      !prefillObstetricResponse?.lmp &&
+      !obstetricDetails?.lmp &&
+      obstetricDetails?.lmp !== null
+    ) {
       setShowLmpPopup(true);
     }
     setPrefillObstetricData(prefillObstetricResponse);
@@ -185,9 +280,8 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   };
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchAllObstetricDetails(
-      patient_data.patient_unique_id,
-      userId
+    const obstetricResponse = await fetchObstetricDetails(
+      patient_data.patient_unique_id
     );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
@@ -249,64 +343,68 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
   };
 
   const obstetricSaveBtnHandler = async () => {
-    if (isPatientDiagnosisUpdated) {
-      const pastPregnancy = pastPregnancyData.reduce((acc, item) => {
-        acc[item.key] = item.value;
-        return acc;
-      }, {});
-      const payload = {
-        ...obstetricDetails,
-        ...patientDiagnosisData,
-        ...pastPregnancy,
-        patientId: patient_data.patient_unique_id,
-        diagnosisNotes: patientDiagnosisNotes?.trim(),
-        createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
-        createdBy: obstetricDetails?.createdBy || tokenData?.user_id,
-        modifiedAt: new Date().toISOString(),
-        modifiedBy: tokenData?.user_id,
-      };
-      dispatch(addObstetricDetails(payload));
-      dispatch(resetUpdatedPatientDiagnosis());
-      setLoader(true);
-      const obstetricResponse = obstetricDetails?._id
-        ? await updateObstetricData(
-            obstetricDetails?.patientId,
-            {
-              ...payload,
-              gravidity: payload.gravidity ?? null,
-              parity: payload.parity ?? null,
-              livingChildren: payload.livingChildren ?? null,
-              abortion: payload.abortion ?? null,
-              ectopicPregnancies: payload.ectopicPregnancies ?? null,
-            },
-            userId
-          )
-        : await addObstetricData(payload);
-      const prefillObstetricPayload = {};
-      Object.keys(prefillObstetricData).forEach((key) => {
-        if (prefillObstetricData[key]) {
-          prefillObstetricPayload[key] = prefillObstetricData[key];
+    if (obstetricDetails && Object.keys(obstetricDetails)?.length === 0) {
+      setShowLmpPopup(true);
+    } else {
+      if (isPatientDiagnosisUpdated) {
+        const pastPregnancy = pastPregnancyData.reduce((acc, item) => {
+          acc[item.key] = item.value;
+          return acc;
+        }, {});
+        const payload = {
+          ...allObstetricDetails,
+          currentPregnancy: {
+            ...patientDiagnosisData,
+            ...pastPregnancy,
+            examinationHistory: obstetricDetails?.examinationHistory || [],
+            ancHistory: obstetricDetails?.ancHistory || [],
+            immunisationHistory: obstetricDetails?.immunisationHistory || [],
+            patientId: patient_data.patient_unique_id,
+            diagnosisNotes: patientDiagnosisNotes?.trim(),
+            createdAt: obstetricDetails?.createdAt || new Date().toISOString(),
+            createdBy: obstetricDetails?.createdBy || userId,
+            modifiedAt: new Date().toISOString(),
+            modifiedBy: userId,
+          },
+          pregnancyHistory: allObstetricDetails?.pregnancyHistory || [],
+        };
+        dispatch(addObstetricDetails(payload));
+        dispatch(resetUpdatedPatientDiagnosis());
+        setLoader(true);
+        const obstetricResponse = await upsertObstetricDetails(
+          patient_data.patient_unique_id,
+          payload
+        );
+        const prefillObstetricPayload = {};
+        Object.keys(prefillObstetricData).forEach((key) => {
+          if (prefillObstetricData[key]) {
+            prefillObstetricPayload[key] = prefillObstetricData[key];
+          }
+        });
+        await updatePrefillObstetricData(prefillObstetricPayload, userId);
+        setLoader(false);
+        if (obstetricResponse) {
+          trackUpdateEvent();
+          setShowSuccess(true);
+          getAllObstetricDetails();
+        } else {
+          errorMessage("Error while adding data");
         }
-      });
-      await updatePrefillObstetricData(prefillObstetricPayload, userId);
-      setLoader(false);
-      if (obstetricResponse?.data) {
-        trackUpdateEvent();
-        setShowSuccess(true);
-        getAllObstetricDetails();
-      } else {
-        errorMessage(obstetricResponse?.message || "Error while adding data");
       }
+      setTimeout(() => {
+        handleObstetricBackBtn();
+      }, 1000);
     }
-    setTimeout(() => {
-      handleDrawerObstetric();
-    }, 1000);
   };
 
   const clearObstetricData = () => {
     handleDrawerObstetric();
     getAllObstetricDetails();
     dispatch(resetUpdatedPatientDiagnosis());
+    if (isNavigateToObstetric) {
+      navigate(-1);
+      dispatch(navigateToObstetric(false));
+    }
   };
 
   const tabChangeHandler = (key) => {
@@ -314,169 +412,307 @@ const Obstetric = ({ handleDrawerObstetric, handleCollapsed }) => {
     scrollToBottom();
   };
 
+  const handleObstetricBackBtn = () => {
+    handleDrawerObstetric();
+    if (isNavigateToObstetric) {
+      navigate(-1);
+      dispatch(navigateToObstetric(false));
+    }
+  };
+
+  const steps = [
+    {
+      target: ".ant-tabs-nav-list > :nth-child(3)", // Target the ANC Scheduler tab
+      content: (
+        <div style={{ padding: 0 }}>
+          <div className="d-flex align-items-center justify-content-between">
+            <span className="fw-medium fs-18">ANC Scheduler</span>
+
+            <img
+              className="img-fluid ms-2"
+              width={52}
+              height={20}
+              src={tagNew}
+            />
+          </div>
+          <div className="pt-1">
+            Track and manage your patients' antenatal care (ANC) journey
+            effortlessly with the ANC Scheduler
+          </div>
+        </div>
+      ),
+      placement: "bottom",
+    },
+    {
+      target: ".ant-tabs-nav-list > :nth-child(4)", // Target the Immunisation History tab
+      content: (
+        <div>
+          <div className="d-flex align-items-center justify-content-between">
+            <span className="fw-medium fs-18">Immunisation History</span>
+
+            <img
+              className="img-fluid ms-2"
+              width={52}
+              height={20}
+              src={tagNew}
+            />
+          </div>
+          <div className="pt-1">
+            Access Immunisation records to streamline care and improve outcomes.
+          </div>
+        </div>
+      ),
+      placement: "bottom",
+    },
+  ];
+
   return (
-    <div className="vaccinationWrapper">
-      <VaccineHeader
-        handleDrawerVaccination={obstetricSaveBtnHandler}
-        handleObstetricBackBtn={handleDrawerObstetric}
-        clearObstetricData={clearObstetricData}
-        loader={loader}
-        isObstetric={true}
-      />
-
-      <div className="scrollableContainer" onScroll={handleScroll}>
-        <PatientDiagnosis
-          lmpDate={lmpDate}
-          patientDiagnosisData={patientDiagnosisData}
-          pastPregnancyData={pastPregnancyData}
-          patientDiagnosisNotes={patientDiagnosisNotes}
-          setLmpDate={setLmpDate}
-          setPatientDiagnosisData={setPatientDiagnosisData}
-          setPastPregnancyData={setPastPregnancyData}
-          setPatientDiagnosisNotes={setPatientDiagnosisNotes}
-          isFixed={isFixed}
-          setPrefillObstetricData={setPrefillObstetricData}
-        />
-
-        <Tabs
-          className="obstetricTab"
-          activeKey={activeTab}
-          onChange={(key) => tabChangeHandler(key)}
-        >
-          <TabPane tab="Pregnancy History" key="pregnancyHistory">
+    <>
+      <div className="vaccinationWrapper">
+        {/* Hidden Button */}
+        <button style={{ display: "none" }} ref={tourRef} onClick={startTour}>
+          Show Tour
+        </button>
+        {isPreviousPregnancyOverview ? (
+          <Navbar className="headerprescription p-0">
+            <Container fluid className="h-100 gx-0 w-100">
+              <div
+                className="d-flex align-items-center"
+                style={{
+                  fontSize: 24,
+                  fontWeight: 600,
+                  paddingLeft: 16,
+                  gap: 8,
+                }}
+              >
+                <Button
+                  type="text"
+                  className="h-100"
+                  onClick={handleObstetricBackBtn}
+                >
+                  <i className="icon-Cross fs-3" />
+                </Button>
+                Overview ({gravidity} Pregrancy)
+              </div>
+            </Container>
+          </Navbar>
+        ) : (
+          <VaccineHeader
+            handleDrawerVaccination={obstetricSaveBtnHandler}
+            handleObstetricBackBtn={handleObstetricBackBtn}
+            clearObstetricData={clearObstetricData}
+            loader={loader}
+            isPregnancyCompleted={isPregnancyCompleted}
+            isObstetric={true}
+          />
+        )}
+        {isPregnancyCompleted ? (
+          <div className="scrollableContainer">
+            <div className="pregnancyHistoryTitle">Pregnancy history</div>
             <PregnancyHistory
+              pregnancyHistory={allObstetricDetails?.pregnancyHistory}
               continueExaminationHandler={continueExaminationHandler}
               handlePastPregnancyDrawer={handlePastPregnancyDrawer}
               setEditIndex={setPastPregnancyEditIndex}
               bottomRef={pregnancyRef}
+              isPregnancyCompleted={isPregnancyCompleted}
+              handleDrawerMedicalReport={handleDrawerMedicalReport}
             />
-          </TabPane>
-          <TabPane tab="Examination" key="examination">
-            <Examination
-              handleExaminationDrawer={handleExaminationDrawer}
-              setEditIndex={setExaminationEditIndex}
-              bottomRef={examinationRef}
+          </div>
+        ) : (
+          <div className="scrollableContainer" onScroll={handleScroll}>
+            <PatientDiagnosis
+              lmpDate={lmpDate}
+              patientDiagnosisData={patientDiagnosisData}
+              pastPregnancyData={pastPregnancyData}
+              patientDiagnosisNotes={patientDiagnosisNotes}
+              setLmpDate={setLmpDate}
+              setPatientDiagnosisData={setPatientDiagnosisData}
+              setPastPregnancyData={setPastPregnancyData}
+              setPatientDiagnosisNotes={setPatientDiagnosisNotes}
+              isFixed={isFixed}
+              setPrefillObstetricData={setPrefillObstetricData}
+              isPreviousPregnancyOverview={isPreviousPregnancyOverview}
             />
-          </TabPane>
-        </Tabs>
-      </div>
-      {showLmpPopup && (
-        <LmpPopup
-          handleDrawerObstetric={handleDrawerObstetric}
-          lmpDate={lmpDate}
-          setLmpDate={setLmpDate}
-          setShowLmpPopup={setShowLmpPopup}
-        />
-      )}
-      {examinationDrawer && (
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={() => {
-            if (isDataAddedOrEdited) {
-              toggleDeletePopup();
-            } else {
-              setExaminationEditIndex(-1);
-              handleExaminationDrawer();
-            }
-          }}
-          open={examinationDrawer}
-          className="modalWidth-563"
-          width="auto"
-        >
-          <AddExamination
-            editIndex={examinationEditIndex}
-            close={() => {
-              handleExaminationDrawer();
-              resetExaminationEditIndex();
-            }}
-            handleCollapsed={handleCollapsed}
-            toggleDeletePopup={toggleDeletePopup}
-            isDataAddedOrEdited={isDataAddedOrEdited}
-            setIsDataAddedOrEdited={setIsDataAddedOrEdited}
-            setIsExaminationUpdated={setIsExaminationUpdated}
-            prefillObstetricData={prefillObstetricData}
-            setPrefillObstetricData={setPrefillObstetricData}
-          />
-        </Drawer>
-      )}
-      {pastPregnancyDrawer && (
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={() => {
-            if (isDataAddedOrEdited) {
-              toggleDeletePopup();
-            } else {
-              setPastPregnancyEditIndex(-1);
-              handlePastPregnancyDrawer();
-            }
-          }}
-          open={pastPregnancyDrawer}
-          className="modalWidth-563"
-          width="auto"
-        >
-          <PastPregnancy
-            editIndex={pastPregnancyEditIndex}
-            close={() => {
-              handlePastPregnancyDrawer();
-              resetPastPregnancyEditIndex();
-            }}
-            toggleDeletePopup={toggleDeletePopup}
-            isDataAddedOrEdited={isDataAddedOrEdited}
-            setIsDataAddedOrEdited={setIsDataAddedOrEdited}
-            setIsPastPregnancyUpdated={setIsPastPregnancyUpdated}
-          />
-        </Drawer>
-      )}
-      <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
-      <CommonModal
-        isModalOpen={shouldShowDeletePopup}
-        onCancel={toggleDeletePopup}
-        modalWidth={500}
-        title={"You may lose your data"}
-        modalBody={
-          <>
-            <div className="alert-warning rounded-10px p-2 patient-details">
-              <div className="d-flex align-items-center">
-                <img className="me-3" src={alertIcon} alt="Warning" />
-                <span>
-                  Are you sure you want to leave? <br />
-                  You will permanently lose your
-                  {examinationDrawer ? " Examination" : " Past pregnancy"} data.
-                </span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div
-                  onClick={() => {
-                    if (examinationDrawer) {
-                      handleExaminationDrawer();
-                      resetExaminationEditIndex();
-                    } else {
-                      handlePastPregnancyDrawer();
-                      resetPastPregnancyEditIndex();
-                    }
-                    setIsDataAddedOrEdited(false);
-                    toggleDeletePopup();
+
+            <Tabs
+              className="obstetricTab"
+              activeKey={activeTab}
+              onChange={(key) => tabChangeHandler(key)}
+            >
+              {!isPreviousPregnancyOverview && (
+                <TabPane tab="Pregnancy History" key="pregnancyHistory">
+                  <PregnancyHistory
+                    pregnancyHistory={allObstetricDetails?.pregnancyHistory}
+                    continueExaminationHandler={continueExaminationHandler}
+                    handlePastPregnancyDrawer={handlePastPregnancyDrawer}
+                    setEditIndex={setPastPregnancyEditIndex}
+                    bottomRef={pregnancyRef}
+                  />
+                </TabPane>
+              )}
+              <TabPane tab="Examination" key="examination">
+                <Examination
+                  examinationHistory={obstetricDetails?.examinationHistory}
+                  handleExaminationDrawer={handleExaminationDrawer}
+                  handlePastPregnancyDrawer={() => {
+                    handlePastPregnancyDrawer();
+                    setIsCompletePregnancy(true);
                   }}
-                  className="me-4 text-decoration-underline btn p-0 text-main"
-                >
-                  Yes Leave
+                  setEditIndex={setExaminationEditIndex}
+                  bottomRef={examinationRef}
+                  isPreviousPregnancyOverview={isPreviousPregnancyOverview}
+                />
+              </TabPane>
+              <TabPane tab="ANC Scheduler" key="ancScheduler">
+                <AncScheduler
+                  ancHistory={obstetricDetails?.ancHistory}
+                  handleDrawerMedicalReport={handleDrawerMedicalReport}
+                  isPreviousPregnancyOverview={isPreviousPregnancyOverview}
+                />
+              </TabPane>
+              <TabPane tab="Immunisation History" key="immunisationHistory">
+                <ImmunisationHistory
+                  immunisationHistoryData={
+                    obstetricDetails?.immunisationHistory
+                  }
+                  isPreviousPregnancyOverview={isPreviousPregnancyOverview}
+                />
+              </TabPane>
+            </Tabs>
+          </div>
+        )}
+        {showLmpPopup && (
+          <LmpPopup
+            lmpDate={lmpDate}
+            setLmpDate={setLmpDate}
+            setShowLmpPopup={setShowLmpPopup}
+            isPregnancyCompleted={isPregnancyCompleted}
+            setPatientDiagnosisData={setPatientDiagnosisData}
+          />
+        )}
+        {examinationDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={() => {
+              if (isDataAddedOrEdited) {
+                toggleDeletePopup();
+              } else {
+                setExaminationEditIndex(-1);
+                handleExaminationDrawer();
+              }
+            }}
+            open={examinationDrawer}
+            className="modalWidth-563"
+            width="auto"
+          >
+            <AddExamination
+              editIndex={examinationEditIndex}
+              close={() => {
+                handleExaminationDrawer();
+                resetExaminationEditIndex();
+              }}
+              handleCollapsed={handleCollapsed}
+              toggleDeletePopup={toggleDeletePopup}
+              isDataAddedOrEdited={isDataAddedOrEdited}
+              setIsDataAddedOrEdited={setIsDataAddedOrEdited}
+              setIsExaminationUpdated={setIsExaminationUpdated}
+              prefillObstetricData={prefillObstetricData}
+              setPrefillObstetricData={setPrefillObstetricData}
+            />
+          </Drawer>
+        )}
+        {pastPregnancyDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={() => {
+              setIsCompletePregnancy(false);
+              if (isDataAddedOrEdited && !isCompletePregnancy) {
+                toggleDeletePopup();
+              } else {
+                setPastPregnancyEditIndex(-1);
+                handlePastPregnancyDrawer();
+              }
+            }}
+            open={pastPregnancyDrawer}
+            className="modalWidth-563"
+            width="auto"
+          >
+            <PastPregnancy
+              editIndex={pastPregnancyEditIndex}
+              close={() => {
+                handlePastPregnancyDrawer();
+                resetPastPregnancyEditIndex();
+                setIsCompletePregnancy(false);
+              }}
+              toggleDeletePopup={toggleDeletePopup}
+              isDataAddedOrEdited={isDataAddedOrEdited}
+              setIsDataAddedOrEdited={setIsDataAddedOrEdited}
+              setIsPastPregnancyUpdated={setIsPastPregnancyUpdated}
+              isCompletePregnancy={isCompletePregnancy}
+              isPregnancyCompleted={isPregnancyCompleted}
+              gravidity={gravidity}
+              setLoader={setLoader}
+            />
+          </Drawer>
+        )}
+        <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
+        <CommonModal
+          isModalOpen={shouldShowDeletePopup}
+          onCancel={toggleDeletePopup}
+          modalWidth={500}
+          title={"You may lose your data"}
+          modalBody={
+            <>
+              <div className="alert-warning rounded-10px p-2 patient-details">
+                <div className="d-flex align-items-center">
+                  <img className="me-3" src={alertIcon} alt="Warning" />
+                  <span>
+                    Are you sure you want to leave? <br />
+                    You will permanently lose your
+                    {examinationDrawer
+                      ? " Examination"
+                      : " Past pregnancy"}{" "}
+                    data.
+                  </span>
                 </div>
-                <Button
-                  onClick={toggleDeletePopup}
-                  className="lh-lg btn btn-primary3 btn-41 px-4"
-                >
-                  <span>No, Stay</span>
-                </Button>
               </div>
-            </div>
-          </>
-        }
-      />
-    </div>
+              <div className="mt-4">
+                <div className="d-flex align-items-center mt-2 justify-content-end">
+                  <div
+                    onClick={() => {
+                      if (examinationDrawer) {
+                        handleExaminationDrawer();
+                        resetExaminationEditIndex();
+                      } else {
+                        handlePastPregnancyDrawer();
+                        resetPastPregnancyEditIndex();
+                      }
+                      setIsDataAddedOrEdited(false);
+                      toggleDeletePopup();
+                    }}
+                    className="me-4 text-decoration-underline btn p-0 text-main"
+                  >
+                    Yes Leave
+                  </div>
+                  <Button
+                    onClick={toggleDeletePopup}
+                    className="lh-lg btn btn-primary3 btn-41 px-4"
+                  >
+                    <span>No, Stay</span>
+                  </Button>
+                </div>
+              </div>
+            </>
+          }
+        />
+      </div>
+      <div>
+        <Tour run={runTour} steps={steps} />
+      </div>
+    </>
   );
 };
 

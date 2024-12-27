@@ -23,12 +23,25 @@
 
 .anotherVisit {
   padding: 0 0 40px 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 18px;
 
   .anotherVisitBtn {
     width: 180px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    .completePregnancy {
+      color: #fc5a5a !important;
+    }
+  }
+
+  .completePregnancyBtn {
+    border-radius: 10px;
+    border: 1px solid #fc5a5a !important;
   }
 }
 
@@ -52,7 +65,7 @@
   }
 }
 
-.labParamsTcell{
+.labParamsTcell {
   border-left: 1px solid #ddd;
   padding: 8px !important;
   vertical-align: middle;
@@ -73,7 +86,49 @@
 }
 
 .column-border {
-    border: 1px solid white;
+  border: 1px solid white;
+}
+
+.immunisationRemarks {
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0px !important;
+}
+
+.custom-immunisation-select {
+  .ant-select-selector {
+    width: 136px !important;
+    height: 40px !important;
+    line-height: 40px;
+    border: none !important;
+    padding: 0px !important;
+  }
+
+  &.ant-select-single .ant-select-selector .ant-select-selection-item {
+    color: #ed8a00 !important;
+  }
+}
+
+.custom-immunisation-given-select {
+  &.ant-select-single .ant-select-selector .ant-select-selection-item {
+    color: #19bb7a !important;
+  }
+}
+
+.weekRange {
+  padding: 6px !important;
+}
+
+.anc-custom-checkbox {
+  .ant-checkbox .ant-checkbox-inner {
+    width: 22px;
+    height: 22px;
+    border-radius: 8px;
+  }
+  .ant-checkbox-checked .ant-checkbox-inner:after {
+    width: 6px;
+    height: 10px;
+  }
 }
 
 // /* Apply borders between columns */

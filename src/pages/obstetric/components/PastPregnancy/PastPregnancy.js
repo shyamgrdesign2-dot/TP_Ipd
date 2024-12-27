@@ -1,19 +1,35 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Button, Card, DatePicker, Input, Tooltip, Select, Radio } from "antd";
+import {
+  Button,
+  Card,
+  DatePicker,
+  Input,
+  Tooltip,
+  Select,
+  Radio,
+  message,
+} from "antd";
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import "./pastPregnancy.scss";
 import { EllipsisOutlined, DeleteOutlined } from "@ant-design/icons";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
-import { jwtDecode } from "jwt-decode";
+import { MESSAGE_KEY } from "../../../../utils/constants";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import {
   addObstetricDetails,
   obstetricDetailsUpdated,
   patientDiagnosisUpdated,
+  resetUpdatedPatientDiagnosis,
 } from "../../../../redux/obstetricSlice";
+import alertIcon from "./../../../../assets/images/alertIcon.svg";
+import imgCloseVisit from "./../../../../assets/images/close-visit.svg";
+import visitEnd from "./../../../../assets/images/check-badge.svg";
 import { isDecimalCheck, isNumberCheck } from "../../utils/helper";
+import CommonModal from "../../../../common/CommonModal";
+import { upsertObstetricDetails } from "../../service";
+import { errorMessage, getClinicName } from "../../../../utils/utils";
+import { getOrdinalSuffix } from "../../../growthChart/growthChartHelper";
 
 function PastPregnancy({
   close,
@@ -22,12 +38,22 @@ function PastPregnancy({
   isDataAddedOrEdited,
   setIsDataAddedOrEdited,
   setIsPastPregnancyUpdated,
+  isCompletePregnancy,
+  isPregnancyCompleted,
+  gravidity,
+  setLoader,
 }) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const [pastPregnancyData, setPastPregnancyData] = useState({});
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const { pregnancyHistory = [] } = obstetricDetails;
+  const [shouldShowConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [doneLoader, setDoneLoader] = useState(false);
+  const { profile, userId } = useSelector((state) => state.doctors);
+  const { obstetricDetails: allObstetricDetails } = useSelector(
+    (state) => state.obstetric
+  );
+  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
+  const { pregnancyHistory = [] } = allObstetricDetails;
   const { state } = useLocation();
   const { patient_data } = state;
 
@@ -55,6 +81,12 @@ function PastPregnancy({
       setPastPregnancyData({ ...data, ...age });
     }
   }, [editIndex]);
+
+  useEffect(() => {
+    if (isCompletePregnancy) {
+      handlePastPregnancyDataChange("gravidity", gravidity);
+    }
+  }, []);
 
   const handlePastPregnancyDataChange = (field, value) => {
     let temp = {};
@@ -118,15 +150,6 @@ function PastPregnancy({
 
   const addPastPregnancyData = async () => {
     setIsPastPregnancyUpdated(true);
-    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    let decodedToken;
-    if (token) {
-      try {
-        decodedToken = jwtDecode(token);
-      } catch (e) {
-        console.log(e);
-      }
-    }
     let newPastPregnancy = [...pregnancyHistory] || [];
     const data = {};
     Object.keys(pastPregnancyData).forEach((key) => {
@@ -141,25 +164,70 @@ function PastPregnancy({
       newPastPregnancy[editIndex] = {
         ...data,
         modifiedAt: new Date().toISOString(),
-        modifiedBy: decodedToken?.result?.user_id,
+        modifiedBy: userId,
       };
     } else {
       newPastPregnancy = [
         ...pregnancyHistory,
         {
           ...data,
+          examinationHistory: [],
+          ancHistory: [],
+          immunisationHistory: [],
           createdAt: new Date().toISOString(),
-          createdBy: decodedToken?.result?.user_id,
+          createdBy: userId,
           modifiedAt: new Date().toISOString(),
-          modifiedBy: decodedToken?.result?.user_id,
+          modifiedBy: userId,
+          ...obstetricDetails,
         },
       ];
     }
-    const payload = {
-      ...obstetricDetails,
-      patientId: patient_data.patient_unique_id,
+    let payload = {
+      ...allObstetricDetails,
       pregnancyHistory: newPastPregnancy,
     };
+
+    if (isCompletePregnancy) {
+      payload = {
+        ...payload,
+        currentPregnancy: null,
+      };
+      setLoader(true);
+      const obstetricResponse = await upsertObstetricDetails(
+        patient_data.patient_unique_id,
+        payload
+      );
+      setLoader(false);
+      if (obstetricResponse) {
+        message.open({
+          key: MESSAGE_KEY,
+          type: "",
+          className: "message-appointment",
+          content: (
+            <div className="d-flex align-items-center">
+              <img src={visitEnd} className="me-3" />
+              <div>
+                <div className="fontroboto text-start fw-normal mt-1">
+                  {patient_data?.pm_fullname}’s{" "}
+                  {pastPregnancyData?.gravidity
+                    ? `${getOrdinalSuffix(pastPregnancyData?.gravidity)} `
+                    : ""}
+                  Pregnancy closed successfully
+                </div>
+              </div>
+              <img
+                src={imgCloseVisit}
+                className="ms-3"
+                onClick={() => message.destroy()}
+              />
+            </div>
+          ),
+          duration: 5,
+        });
+      } else {
+        errorMessage("Error while Completing Pregnancy!");
+      }
+    }
     dispatch(addObstetricDetails(payload));
     dispatch(obstetricDetailsUpdated());
     dispatch(patientDiagnosisUpdated());
@@ -174,13 +242,58 @@ function PastPregnancy({
     }
     const payload = {
       ...obstetricDetails,
-      patientId: patient_data.patient_unique_id,
       pregnancyHistory: newPastPregnancy,
     };
     dispatch(addObstetricDetails(payload));
     dispatch(obstetricDetailsUpdated());
     dispatch(patientDiagnosisUpdated());
     setIsDataAddedOrEdited(false);
+    close();
+  };
+
+  const obstetricDeleteBtnHandler = async () => {
+    let newPastPregnancy = [...pregnancyHistory];
+    if (editIndex >= 0) {
+      newPastPregnancy.splice(editIndex, 1);
+    }
+    const payload = {
+      ...obstetricDetails,
+      pregnancyHistory: newPastPregnancy,
+    };
+
+    dispatch(addObstetricDetails(payload));
+    dispatch(resetUpdatedPatientDiagnosis());
+    setDoneLoader(true);
+    const obstetricResponse = await upsertObstetricDetails(
+      patient_data.patient_unique_id,
+      payload
+    );
+    setDoneLoader(false);
+    if (obstetricResponse) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: "",
+        className: "message-appointment",
+        content: (
+          <div className="d-flex align-items-center">
+            <img src={visitEnd} className="me-3" />
+            <div>
+              <div className="fontroboto text-start fw-normal mt-1">
+                Past Pregnancy Details deleted successfully
+              </div>
+            </div>
+            <img
+              src={imgCloseVisit}
+              className="ms-3"
+              onClick={() => message.destroy()}
+            />
+          </div>
+        ),
+        duration: 5,
+      });
+    } else {
+      errorMessage("Error while adding data");
+    }
     close();
   };
 
@@ -197,7 +310,11 @@ function PastPregnancy({
                 title={
                   <div
                     className="tooltip-content"
-                    onClick={deletePastPregnancyData}
+                    onClick={
+                      isPregnancyCompleted
+                        ? obstetricDeleteBtnHandler
+                        : deletePastPregnancyData
+                    }
                   >
                     <DeleteOutlined className="delete-icon" />
                     <span>Delete</span>
@@ -214,7 +331,7 @@ function PastPregnancy({
           <Select
             style={{ width: 170, height: 40, outline: "none" }}
             onChange={(value) =>
-              handlePastPregnancyDataChange("gravidaNumber", value)
+              handlePastPregnancyDataChange("gravidity", value)
             }
             options={[
               { value: "1", label: "1" },
@@ -229,8 +346,9 @@ function PastPregnancy({
             ]}
             placeholder="Select"
             className="custom-select"
-            value={pastPregnancyData?.gravidaNumber}
+            value={pastPregnancyData?.gravidity}
             allowClear
+            disabled={isCompletePregnancy && pastPregnancyData.gravidity}
           />
         </div>
         <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
@@ -556,11 +674,99 @@ function PastPregnancy({
   }, [pastPregnancyData]);
 
   const closeBtnHandler = () => {
-    if (isDataAddedOrEdited) {
+    if (isDataAddedOrEdited && !isCompletePregnancy) {
       toggleDeletePopup();
     } else {
       close();
     }
+  };
+
+  const toggleConfirmationPopup = () => {
+    setShowConfirmPopup((prev) => !prev);
+  };
+
+  const obstetricSaveBtnHandler = async () => {
+    let newPastPregnancy = [...pregnancyHistory] || [];
+    const data = {};
+    Object.keys(pastPregnancyData).forEach((key) => {
+      if (![undefined, null, ""].includes(pastPregnancyData[key])) {
+        data[key] =
+          key === "remarks"
+            ? pastPregnancyData[key]?.trim()
+            : pastPregnancyData[key];
+      }
+    });
+    if (pregnancyHistory?.length > 0 && editIndex >= 0) {
+      newPastPregnancy[editIndex] = {
+        ...data,
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: userId,
+      };
+    } else {
+      newPastPregnancy = [
+        ...pregnancyHistory,
+        {
+          ...data,
+          examinationHistory: [],
+          ancHistory: [],
+          immunisationHistory: [],
+          createdAt: new Date().toISOString(),
+          createdBy: userId,
+          modifiedAt: new Date().toISOString(),
+          modifiedBy: userId,
+          ...obstetricDetails?.currentPregnancy,
+        },
+      ];
+    }
+    const payload = {
+      ...allObstetricDetails,
+      pregnancyHistory: newPastPregnancy,
+    };
+
+    dispatch(addObstetricDetails(payload));
+    dispatch(resetUpdatedPatientDiagnosis());
+    setDoneLoader(true);
+    const obstetricResponse = await upsertObstetricDetails(
+      patient_data.patient_unique_id,
+      payload
+    );
+    setDoneLoader(false);
+    if (obstetricResponse) {
+      const clinic_name = getClinicName(profile?.hospital_data);
+      const attributes = {
+        clinic_name,
+        doctor_id: profile?.doctor_unique_id,
+        patient_number: patient_data?.pm_contact_no,
+        patient_id: patient_data?.patient_unique_id,
+      };
+      window.Moengage.track_event("TP_Obs_history_updated", attributes);
+      window.Moengage.track_event("TP_Past_pregnancy_updated", attributes);
+      message.open({
+        key: MESSAGE_KEY,
+        type: "",
+        className: "message-appointment",
+        content: (
+          <div className="d-flex align-items-center">
+            <img src={visitEnd} className="me-3" />
+            <div>
+              <div className="fontroboto text-start fw-normal mt-1">
+                Past Pregnancy Details added successfully
+              </div>
+            </div>
+            <img
+              src={imgCloseVisit}
+              className="ms-3"
+              onClick={() => message.destroy()}
+            />
+          </div>
+        ),
+        duration: 5,
+      });
+    } else {
+      errorMessage("Error while adding data");
+    }
+
+    close();
   };
 
   return (
@@ -582,16 +788,31 @@ function PastPregnancy({
             >
               <i className="icon-Cross fs-3"></i>
             </Button>
-            <div className="modal-title">Past pregnancy details</div>
+            <div className="modal-title">
+              {isCompletePregnancy
+                ? "Complete Pregnancy"
+                : "Past pregnancy details"}
+            </div>
           </div>
           <Button
-            onClick={addPastPregnancyData}
+            onClick={
+              isCompletePregnancy
+                ? toggleConfirmationPopup
+                : isPregnancyCompleted
+                ? obstetricSaveBtnHandler
+                : addPastPregnancyData
+            }
             className="btn btn-primary3 btn-41 px-4 me-20"
             disabled={
-              !pastPregnancyData.gravidaNumber || !pastPregnancyData.outcome
+              !pastPregnancyData.gravidity || !pastPregnancyData.outcome
             }
+            loading={doneLoader}
           >
-            Done
+            {isCompletePregnancy
+              ? "Complete Pregnancy"
+              : isPregnancyCompleted
+              ? "Save"
+              : "Done"}
           </Button>
         </div>
 
@@ -664,7 +885,9 @@ function PastPregnancy({
           </div>
           {!!pastPregnancyData.outcome && (
             <>
-              <div className="remarks px-2 py-2">Note</div>
+              <div className="remarks px-2 py-2">
+                {isCompletePregnancy ? "Postpartum Remark" : "Note"}
+              </div>
               <div className="remarks px-2 py-2">
                 <Input.TextArea
                   placeholder="Enter remarks"
@@ -682,6 +905,45 @@ function PastPregnancy({
           )}
         </div>
       </Card>
+      <CommonModal
+        isModalOpen={shouldShowConfirmPopup}
+        onCancel={toggleConfirmationPopup}
+        modalWidth={500}
+        title={"Confirm Complete Pregnancy"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className="me-3" src={alertIcon} alt="Warning" />
+                <span>
+                  Once you close this pregnancy, you will no longer be able to
+                  edit the patient’s visit information or diagnosis notes, and
+                  it cannot be reopened.
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div
+                  onClick={() => {
+                    toggleConfirmationPopup();
+                    close();
+                  }}
+                  className="me-4 text-decoration-underline btn p-0 text-main"
+                >
+                  {isCompletePregnancy ? "No, Keep It Open" : "Yes Leave"}
+                </div>
+                <Button
+                  onClick={addPastPregnancyData}
+                  className="lh-lg btn btn-primary3 btn-41 px-4"
+                >
+                  <span>Yes, Complete Pregnancy</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
     </>
   );
 }

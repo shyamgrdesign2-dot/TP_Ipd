@@ -137,6 +137,39 @@ export const LiveColumns = [
   },
 ];
 
+export const LiveColumnsWithPregnancyHistory = [
+  {
+    title: "Mode of delivery",
+    key: "deliveryMode",
+    width: "22%",
+  },
+  {
+    title: "Date of delivery / Age",
+    key: "dateOfDelivery",
+    width: "12%",
+  },
+  {
+    title: "Gender",
+    key: "gender",
+    width: "12%",
+  },
+  {
+    title: "Baby's Weight",
+    key: "babysWeight",
+    width: "12%",
+  },
+  {
+    title: "Postpartum Remark",
+    key: "remarks",
+    width: "30%",
+  },
+  {
+    title: "Overview",
+    key: "overview",
+    width: "12%",
+  },
+];
+
 export const EctopicColumns = [
   {
     title: "Period of gestation",
@@ -160,6 +193,34 @@ export const EctopicColumns = [
   },
 ];
 
+export const EctopicColumnsWithPregnancyHistory = [
+  {
+    title: "Period of gestation",
+    key: "monthOfPregnancy",
+    width: "22%",
+  },
+  {
+    title: "Location",
+    key: "location",
+    width: "18%",
+  },
+  {
+    title: "Mode of management",
+    key: "modeOfAbortion",
+    width: "18%",
+  },
+  {
+    title: "Postpartum Remark",
+    key: "remarks",
+    width: "30%",
+  },
+  {
+    title: "Overview",
+    key: "overview",
+    width: "12%",
+  },
+];
+
 export const AbortionColumns = [
   {
     title: "Period of gestation",
@@ -180,6 +241,34 @@ export const AbortionColumns = [
     title: "Remarks",
     key: "remarks",
     width: "42%",
+  },
+];
+
+export const AbortionColumnsWithPregnancyHistory = [
+  {
+    title: "Period of gestation",
+    key: "monthOfPregnancy",
+    width: "22%",
+  },
+  {
+    title: "Type of Miscarriage",
+    key: "typeOfAbortion",
+    width: "18%",
+  },
+  {
+    title: "Mode of Miscarriage",
+    key: "modeOfAbortion",
+    width: "18%",
+  },
+  {
+    title: "Postpartum Remark",
+    key: "remarks",
+    width: "30%",
+  },
+  {
+    title: "Overview",
+    key: "overview",
+    width: "12%",
   },
 ];
 
@@ -256,3 +345,134 @@ export const OutcomeOptions = {
   abortion: "Abortion",
   ectopic: "Ectopic",
 };
+
+export const ImmunisationColumns = [
+  {
+    title: "VACCINE NAME",
+    key: "vaccineName",
+    width: "22%",
+  },
+  {
+    title: "STATUS",
+    key: "status",
+    width: "16%",
+  },
+  {
+    title: "GIVEN DATE",
+    key: "givenDate",
+    width: "16%",
+  },
+  {
+    title: "REMARKS",
+    key: "remarks",
+    width: "27%",
+  },
+  {
+    title: "PRINT IN Rx",
+    key: "enablePrint",
+    width: "10%",
+  },
+  {
+    title: "Action",
+    key: "action",
+    width: "9%",
+  },
+];
+
+export const AncSchedulerColumns = [
+  {
+    title: "TEST NAME",
+    key: "testName",
+    width: "20%",
+  },
+  {
+    title: "WEEK RANGE",
+    key: "weekRange",
+    width: "10%",
+  },
+  {
+    title: "DUE DATE",
+    key: "dueDate",
+    width: "15%",
+  },
+  {
+    title: "STATUS",
+    key: "status",
+    width: "16%",
+  },
+  {
+    title: "REMARKS",
+    key: "remarks",
+    width: "23%",
+  },
+  {
+    title: "PRINT IN Rx",
+    key: "enablePrint",
+    width: "10%",
+  },
+  {
+    title: "Action",
+    key: "action",
+    width: "7%",
+  },
+];
+
+export const AncPrintPreviewColumns = [
+  {
+    title: "TEST NAME",
+    key: "testName",
+    width: "22%",
+  },
+  {
+    title: "WEEK RANGE",
+    key: "weekRange",
+    width: "10%",
+  },
+  {
+    title: "DUE DATE",
+    key: "dueDate",
+    width: "13%",
+  },
+  {
+    title: "STATUS",
+    key: "status",
+    width: "13%",
+  },
+  {
+    title: "REMARKS",
+    key: "remarks",
+    width: "23%",
+  },
+  {
+    title: "SELECT TO PRINT",
+    key: "enablePrint",
+    width: "19%",
+  },
+];
+
+export const AncPrintedColumns = [
+  {
+    title: "Test Name",
+    dataIndex: "testName",
+    key: "age",
+    width: "30%",
+  },
+  {
+    title: "Due Date",
+    dataIndex: "dueDate",
+    key: "dueDate",
+    width: "20%",
+  },
+  {
+    title: "Status",
+    dataIndex: "status",
+    key: "status",
+    width: "20%",
+  },
+  {
+    title: "Remark",
+    dataIndex: "remarks",
+    key: "remarks",
+    width: "30%",
+  },
+];

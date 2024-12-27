@@ -34,10 +34,10 @@ function AddExamination({
     date: moment().format(dateFormat),
     heightOfFundusUnit: "weeks",
   });
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
+  const { obstetricDetails: allObstetricDetails } = useSelector((state) => state.obstetric);
+  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { examinationHistory = [] } = obstetricDetails;
   const { state } = useLocation();
-  const { patient_data } = state;
 
   useEffect(() => {
     if (editIndex >= 0 && examinationHistory?.toReversed()?.[editIndex]) {
@@ -140,6 +140,7 @@ function AddExamination({
         ...examinationHistory,
         {
           ...data,
+          date: new Date(examinationData?.date).toISOString(),
           createdAt: new Date().toISOString(),
           createdBy: decodedToken?.result?.user_id,
           modifiedAt: new Date().toISOString(),
@@ -148,9 +149,11 @@ function AddExamination({
       ];
     }
     const payload = {
-      ...obstetricDetails,
-      patientId: patient_data.patient_unique_id,
-      examinationHistory: newExaminationHistory,
+      ...allObstetricDetails,
+      currentPregnancy: {
+        ...allObstetricDetails?.currentPregnancy,
+        examinationHistory: newExaminationHistory,
+      },
     };
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
@@ -166,9 +169,11 @@ function AddExamination({
       newExaminationHistory.splice(editIndex, 1);
     }
     const payload = {
-      ...obstetricDetails,
-      patientId: patient_data.patient_unique_id,
-      examinationHistory: newExaminationHistory,
+      ...allObstetricDetails,
+      currentPregnancy: {
+        ...allObstetricDetails?.currentPregnancy,
+        examinationHistory: newExaminationHistory,
+      },
     };
     dispatch(addObstetricDetails(payload));
     dispatch(patientDiagnosisUpdated());
