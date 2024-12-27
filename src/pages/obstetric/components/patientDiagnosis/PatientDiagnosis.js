@@ -143,6 +143,8 @@ export default function PatientDiagnosis({
                     "lmp"
                   );
                   setLmpDate(dayjs(dateString, "DD-MM-YYYY").toISOString());
+                } else {
+                  handlePatientDiagnosis(null, "lmp");
                 }
               }}
               disabled={isPreviousPregnancyOverview}
@@ -211,7 +213,7 @@ export default function PatientDiagnosis({
               className="timeIntervalValue"
               style={{ marginLeft: "10px" }}
               placeholder="Ex : 3"
-              value={patientDiagnosisData.gestationWeeks}
+              value={patientDiagnosisData.gestationWeeks ?? ""}
               onInput={(e) => {
                 e.target.value = e.target.value.replace(/[^0-9]/g, "");
               }}
@@ -222,7 +224,7 @@ export default function PatientDiagnosis({
                   e.target.validity.valid && e.target.value <= 50
                 )
               }
-              disabled={isPreviousPregnancyOverview}
+              disabled={true}
             />
             <span
               className="timeInterval spanStyle"
@@ -233,7 +235,7 @@ export default function PatientDiagnosis({
             <Input
               className="timeIntervalValue"
               placeholder="Ex : 2"
-              value={patientDiagnosisData.gestationDays}
+              value={patientDiagnosisData.gestationDays ?? ""}
               onInput={(e) => {
                 e.target.value = e.target.value.replace(/[^0-6]/g, "");
               }}
@@ -244,7 +246,7 @@ export default function PatientDiagnosis({
                   e.target.validity.valid && e.target.value <= 6
                 )
               }
-              disabled={isPreviousPregnancyOverview}
+              disabled={true}
             />
             <span
               className="timeInterval spanStyle"
