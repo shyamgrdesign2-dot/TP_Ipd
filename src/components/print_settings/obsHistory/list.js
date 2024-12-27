@@ -21,6 +21,18 @@ function ObsHistoryListView({
   const immunisationPrintEnabled = obsHistoryData?.immunisationHistory?.filter(
     (item) => item?.enablePrint
   );
+  const today = moment();
+  const lmpDate = obsHistoryData?.lmp ? moment(obsHistoryData.lmp) : null;
+
+  let gestationWeeks = null;
+  let adjustedLmpDate = null;
+  let gestationDays = null;
+
+  if (lmpDate) {
+    gestationWeeks = today.diff(lmpDate, "weeks");
+    adjustedLmpDate = lmpDate.clone().add(gestationWeeks, "weeks");
+    gestationDays = today.diff(adjustedLmpDate, "days");
+  }
 
   return (
     <View style={{ marginTop: PX_TO_PT * 15 }}>
@@ -422,10 +434,8 @@ function ObsHistoryListView({
             {("lmp" in obsHistoryData ||
               "edd" in obsHistoryData ||
               "ceed" in obsHistoryData ||
-              ("gestationWeeks" in obsHistoryData &&
-                obsHistoryData?.gestationWeeks != null) ||
-              ("gestationDays" in obsHistoryData &&
-                obsHistoryData?.gestationDays != null) ||
+              gestationWeeks != null ||
+              gestationDays != null ||
               "blood" in obsHistoryData ||
               "husbandsBlood" in obsHistoryData ||
               "consang" in obsHistoryData ||
@@ -484,10 +494,8 @@ function ObsHistoryListView({
 
                     {("edd" in obsHistoryData ||
                       "ceed" in obsHistoryData ||
-                      ("gestationWeeks" in obsHistoryData &&
-                        obsHistoryData?.gestationWeeks != null) ||
-                      ("gestationDays" in obsHistoryData &&
-                        obsHistoryData?.gestationDays != null) ||
+                      gestationWeeks != null ||
+                      gestationDays != null ||
                       "blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
@@ -536,10 +544,8 @@ function ObsHistoryListView({
                       {moment(obsHistoryData?.edd).format("DD MMM YYYY")}
                     </Text>
                     {("ceed" in obsHistoryData ||
-                      ("gestationWeeks" in obsHistoryData &&
-                        obsHistoryData?.gestationWeeks != null) ||
-                      ("gestationDays" in obsHistoryData &&
-                        obsHistoryData?.gestationDays != null) ||
+                      gestationWeeks != null ||
+                      gestationDays != null ||
                       "blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
@@ -587,10 +593,8 @@ function ObsHistoryListView({
                     >
                       {moment(obsHistoryData?.ceed).format("DD MMM YYYY")}
                     </Text>
-                    {(("gestationWeeks" in obsHistoryData &&
-                      obsHistoryData?.gestationWeeks != null) ||
-                      ("gestationDays" in obsHistoryData &&
-                        obsHistoryData?.gestationDays != null) ||
+                    {(gestationWeeks != null ||
+                      gestationDays != null ||
                       "blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
@@ -614,10 +618,8 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {(("gestationWeeks" in obsHistoryData &&
-                  obsHistoryData?.gestationWeeks != null) ||
-                  ("gestationDays" in obsHistoryData &&
-                    obsHistoryData?.gestationDays != null)) && (
+                {(gestationWeeks != null ||
+                  gestationDays != null) && (
                   <>
                     <Text
                       style={{
@@ -639,19 +641,15 @@ function ObsHistoryListView({
                         fontWeight: 400,
                       }}
                     >
-                      {"gestationWeeks" in obsHistoryData &&
-                      obsHistoryData?.gestationWeeks != null
-                        ? `${obsHistoryData?.gestationWeeks}W`
+                      {gestationWeeks != null
+                        ? `${gestationWeeks}W`
                         : ""}
-                      {"gestationWeeks" in obsHistoryData &&
-                      obsHistoryData?.gestationWeeks != null &&
-                      "gestationDays" in obsHistoryData &&
-                      obsHistoryData?.gestationDays != null
+                      {gestationWeeks != null &&
+                      gestationDays != null
                         ? `,`
                         : ``}
-                      {"gestationDays" in obsHistoryData &&
-                      obsHistoryData?.gestationDays != null
-                        ? `${obsHistoryData?.gestationDays}D`
+                      {gestationDays != null
+                        ? `${gestationDays}D`
                         : ""}
                     </Text>
                   </>
@@ -1741,7 +1739,7 @@ function ObsHistoryListView({
                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </Text>
 
-                    <Text
+                    <Text 
                       style={{
                         color: "#171725",
                         fontFamily: printSettings?.page_format?.font_family,
@@ -1750,20 +1748,7 @@ function ObsHistoryListView({
                         fontWeight: 500,
                       }}
                     >
-                      Visit&nbsp;
-                    </Text>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item?.visitNumber
-                        ? item?.visitNumber
-                        : obsHistoryData?.examinationHistory.length - i}
+                      {item?.date ? moment(item?.date).format("DD MMM YYYY") : ""}
                     </Text>
 
                     {("pallor" in item ||
