@@ -340,30 +340,57 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         return customModule ? customModule.name : '';
     }
 
+    const getMarginByFormat = (letterheadFormat, headerFooter, position, defaultValue) => {
+        const marginType = 
+            letterheadFormat === 0 ? "custom_letterhead_margin" :
+            letterheadFormat === 1 ? "uploaded_letterhead_margin" :
+            letterheadFormat === 2 ? "margin" : null;
+
+        return marginType && headerFooter?.[marginType]?.[position] >= 0
+            ? (headerFooter?.[marginType]?.[position] || defaultValue) * 25
+            : PX_TO_PT * 30;
+    };
+
+    const calculatePadding = (mode, printSettings, fileFooter, PX_TO_PT) => {
+        const { letterhead_format, header_footer, whatsapp_letterhead_format } = printSettings || {};
+        const footer = header_footer?.footer;
+
+        if (mode !== NORMAL) {
+            return {
+                paddingTop: PX_TO_PT * 30,
+                paddingBottom: whatsapp_letterhead_format === 1
+                    ? fileFooter
+                        ? 110
+                        : PX_TO_PT * 30
+                    : footer?.title
+                        ? 35 + parseInt(footer?.font_size)
+                        : PX_TO_PT * 30,
+                paddingLeft: PX_TO_PT * 30,
+                paddingRight: PX_TO_PT * 30,
+            };
+        }
+
+        return {
+            paddingTop: [0,1,2].includes(letterhead_format)
+                ? getMarginByFormat(letterhead_format, header_footer, "top", 0)
+                : PX_TO_PT * 30,
+            paddingBottom: getMarginByFormat(letterhead_format, header_footer, "bottom", 0),
+            paddingLeft: [0,1,2].includes(letterhead_format)
+                ? getMarginByFormat(letterhead_format, header_footer, "left", 0)
+                : PX_TO_PT * 30,
+            paddingRight: [0,1,2].includes(letterhead_format)
+                ? getMarginByFormat(letterhead_format, header_footer, "right", 0)
+                : PX_TO_PT * 30,
+        };
+    };
+
+    const paddingStyles = calculatePadding(mode, printSettings, fileFooter, PX_TO_PT);
+
     return (
         <Document>
             <Page
                 size="A4"
-                style={{
-                    // flex: 1,
-                    paddingTop: mode == NORMAL ? printSettings?.letterhead_format != 2 ? PX_TO_PT * 30 : printSettings?.header_footer?.margin?.top ? printSettings?.header_footer?.margin?.top * 25 : 0 : PX_TO_PT * 30,
-                    paddingBottom: mode == NORMAL ?
-                        printSettings?.letterhead_format != 2 ?
-                            printSettings?.letterhead_format == 1 ?
-                                fileFooter ? 110 : PX_TO_PT * 30
-                                : printSettings?.header_footer?.footer?.title ?
-                                    35 + parseInt(printSettings?.header_footer?.footer?.font_size)
-                                    : PX_TO_PT * 30
-                            : printSettings?.header_footer?.margin?.bottom ? printSettings?.header_footer?.margin?.bottom * 25
-                                : 0
-                        : printSettings?.whatsapp_letterhead_format == 1 ?
-                            fileFooter ? 110 : PX_TO_PT * 30
-                            : printSettings?.header_footer?.footer?.title ?
-                                35 + parseInt(printSettings?.header_footer?.footer?.font_size)
-                                : PX_TO_PT * 30,
-                    paddingLeft: mode == NORMAL ? printSettings?.letterhead_format != 2 ? PX_TO_PT * 30 : printSettings?.header_footer?.margin?.left ? printSettings?.header_footer?.margin?.left * 25 : 0 : PX_TO_PT * 30,
-                    paddingRight: mode == NORMAL ? printSettings?.letterhead_format != 2 ? PX_TO_PT * 30 : printSettings?.header_footer?.margin?.right ? printSettings?.header_footer?.margin?.right * 25 : 0 : PX_TO_PT * 30,
-                }}
+                style={paddingStyles}
                 wrap={!smartRxData}>
 
                 <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed>
