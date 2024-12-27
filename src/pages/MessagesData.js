@@ -530,7 +530,7 @@ function MessagesData() {
                                 variant="primary"
                                 className="px-3 mt-4 btn-41 d-flex align-items-center">
                                 <i className="icon-Add me-2"></i>
-                                {"Create New Campaign"}
+                                {"Choose new Template"}
                             </Button>
                         </>
                     ) : (
