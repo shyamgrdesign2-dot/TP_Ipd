@@ -467,238 +467,252 @@ const Obstetric = ({
   ];
 
   return (
-    <div className="vaccinationWrapper">
-      {/* Hidden Button */}
-      <button style={{ display: "none" }} ref={tourRef} onClick={startTour}>
-        Show Tour
-      </button>
-      {isPreviousPregnancyOverview ? (
-        <Navbar className="headerprescription p-0">
-          <Container fluid className="h-100 gx-0 w-100">
-            <div
-              className="d-flex align-items-center"
-              style={{ fontSize: 24, fontWeight: 600, paddingLeft: 16, gap: 8 }}
-            >
-              <Button
-                type="text"
-                className="h-100"
-                onClick={handleObstetricBackBtn}
+    <>
+      <div className="vaccinationWrapper">
+        {/* Hidden Button */}
+        <button style={{ display: "none" }} ref={tourRef} onClick={startTour}>
+          Show Tour
+        </button>
+        {isPreviousPregnancyOverview ? (
+          <Navbar className="headerprescription p-0">
+            <Container fluid className="h-100 gx-0 w-100">
+              <div
+                className="d-flex align-items-center"
+                style={{
+                  fontSize: 24,
+                  fontWeight: 600,
+                  paddingLeft: 16,
+                  gap: 8,
+                }}
               >
-                <i className="icon-Cross fs-3" />
-              </Button>
-              Overview ({gravidity} Pregrancy)
-            </div>
-          </Container>
-        </Navbar>
-      ) : (
-        <VaccineHeader
-          handleDrawerVaccination={obstetricSaveBtnHandler}
-          handleObstetricBackBtn={handleObstetricBackBtn}
-          clearObstetricData={clearObstetricData}
-          loader={loader}
-          isPregnancyCompleted={isPregnancyCompleted}
-          isObstetric={true}
-        />
-      )}
-      {isPregnancyCompleted ? (
-        <div className="scrollableContainer">
-          <div className="pregnancyHistoryTitle">Pregnancy history</div>
-          <PregnancyHistory
-            pregnancyHistory={allObstetricDetails?.pregnancyHistory}
-            continueExaminationHandler={continueExaminationHandler}
-            handlePastPregnancyDrawer={handlePastPregnancyDrawer}
-            setEditIndex={setPastPregnancyEditIndex}
-            bottomRef={pregnancyRef}
+                <Button
+                  type="text"
+                  className="h-100"
+                  onClick={handleObstetricBackBtn}
+                >
+                  <i className="icon-Cross fs-3" />
+                </Button>
+                Overview ({gravidity} Pregrancy)
+              </div>
+            </Container>
+          </Navbar>
+        ) : (
+          <VaccineHeader
+            handleDrawerVaccination={obstetricSaveBtnHandler}
+            handleObstetricBackBtn={handleObstetricBackBtn}
+            clearObstetricData={clearObstetricData}
+            loader={loader}
             isPregnancyCompleted={isPregnancyCompleted}
-            handleDrawerMedicalReport={handleDrawerMedicalReport}
+            isObstetric={true}
           />
-        </div>
-      ) : (
-        <div className="scrollableContainer" onScroll={handleScroll}>
-          <PatientDiagnosis
-            lmpDate={lmpDate}
-            patientDiagnosisData={patientDiagnosisData}
-            pastPregnancyData={pastPregnancyData}
-            patientDiagnosisNotes={patientDiagnosisNotes}
-            setLmpDate={setLmpDate}
-            setPatientDiagnosisData={setPatientDiagnosisData}
-            setPastPregnancyData={setPastPregnancyData}
-            setPatientDiagnosisNotes={setPatientDiagnosisNotes}
-            isFixed={isFixed}
-            setPrefillObstetricData={setPrefillObstetricData}
-            isPreviousPregnancyOverview={isPreviousPregnancyOverview}
-          />
+        )}
+        {isPregnancyCompleted ? (
+          <div className="scrollableContainer">
+            <div className="pregnancyHistoryTitle">Pregnancy history</div>
+            <PregnancyHistory
+              pregnancyHistory={allObstetricDetails?.pregnancyHistory}
+              continueExaminationHandler={continueExaminationHandler}
+              handlePastPregnancyDrawer={handlePastPregnancyDrawer}
+              setEditIndex={setPastPregnancyEditIndex}
+              bottomRef={pregnancyRef}
+              isPregnancyCompleted={isPregnancyCompleted}
+              handleDrawerMedicalReport={handleDrawerMedicalReport}
+            />
+          </div>
+        ) : (
+          <div className="scrollableContainer" onScroll={handleScroll}>
+            <PatientDiagnosis
+              lmpDate={lmpDate}
+              patientDiagnosisData={patientDiagnosisData}
+              pastPregnancyData={pastPregnancyData}
+              patientDiagnosisNotes={patientDiagnosisNotes}
+              setLmpDate={setLmpDate}
+              setPatientDiagnosisData={setPatientDiagnosisData}
+              setPastPregnancyData={setPastPregnancyData}
+              setPatientDiagnosisNotes={setPatientDiagnosisNotes}
+              isFixed={isFixed}
+              setPrefillObstetricData={setPrefillObstetricData}
+              isPreviousPregnancyOverview={isPreviousPregnancyOverview}
+            />
 
-          <Tabs
-            className="obstetricTab"
-            activeKey={activeTab}
-            onChange={(key) => tabChangeHandler(key)}
-          >
-            {!isPreviousPregnancyOverview && (
-              <TabPane tab="Pregnancy History" key="pregnancyHistory">
-                <PregnancyHistory
-                  pregnancyHistory={allObstetricDetails?.pregnancyHistory}
-                  continueExaminationHandler={continueExaminationHandler}
-                  handlePastPregnancyDrawer={handlePastPregnancyDrawer}
-                  setEditIndex={setPastPregnancyEditIndex}
-                  bottomRef={pregnancyRef}
+            <Tabs
+              className="obstetricTab"
+              activeKey={activeTab}
+              onChange={(key) => tabChangeHandler(key)}
+            >
+              {!isPreviousPregnancyOverview && (
+                <TabPane tab="Pregnancy History" key="pregnancyHistory">
+                  <PregnancyHistory
+                    pregnancyHistory={allObstetricDetails?.pregnancyHistory}
+                    continueExaminationHandler={continueExaminationHandler}
+                    handlePastPregnancyDrawer={handlePastPregnancyDrawer}
+                    setEditIndex={setPastPregnancyEditIndex}
+                    bottomRef={pregnancyRef}
+                  />
+                </TabPane>
+              )}
+              <TabPane tab="Examination" key="examination">
+                <Examination
+                  examinationHistory={obstetricDetails?.examinationHistory}
+                  handleExaminationDrawer={handleExaminationDrawer}
+                  handlePastPregnancyDrawer={() => {
+                    handlePastPregnancyDrawer();
+                    setIsCompletePregnancy(true);
+                  }}
+                  setEditIndex={setExaminationEditIndex}
+                  bottomRef={examinationRef}
+                  isPreviousPregnancyOverview={isPreviousPregnancyOverview}
                 />
               </TabPane>
-            )}
-            <TabPane tab="Examination" key="examination">
-              <Examination
-                examinationHistory={obstetricDetails?.examinationHistory}
-                handleExaminationDrawer={handleExaminationDrawer}
-                handlePastPregnancyDrawer={() => {
-                  handlePastPregnancyDrawer();
-                  setIsCompletePregnancy(true);
-                }}
-                setEditIndex={setExaminationEditIndex}
-                bottomRef={examinationRef}
-                isPreviousPregnancyOverview={isPreviousPregnancyOverview}
-              />
-            </TabPane>
-            <TabPane tab="ANC Scheduler" key="ancScheduler">
-              <AncScheduler
-                ancHistory={obstetricDetails?.ancHistory}
-                handleDrawerMedicalReport={handleDrawerMedicalReport}
-                isPreviousPregnancyOverview={isPreviousPregnancyOverview}
-              />
-            </TabPane>
-            <TabPane tab="Immunisation History" key="immunisationHistory">
-              <ImmunisationHistory
-                immunisationHistoryData={obstetricDetails?.immunisationHistory}
-                isPreviousPregnancyOverview={isPreviousPregnancyOverview}
-              />
-            </TabPane>
-          </Tabs>
-        </div>
-      )}
-      {showLmpPopup && (
-        <LmpPopup
-          lmpDate={lmpDate}
-          setLmpDate={setLmpDate}
-          setShowLmpPopup={setShowLmpPopup}
-          isPregnancyCompleted={isPregnancyCompleted}
-          setPatientDiagnosisData={setPatientDiagnosisData}
-        />
-      )}
-      {examinationDrawer && (
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={() => {
-            if (isDataAddedOrEdited) {
-              toggleDeletePopup();
-            } else {
-              setExaminationEditIndex(-1);
-              handleExaminationDrawer();
-            }
-          }}
-          open={examinationDrawer}
-          className="modalWidth-563"
-          width="auto"
-        >
-          <AddExamination
-            editIndex={examinationEditIndex}
-            close={() => {
-              handleExaminationDrawer();
-              resetExaminationEditIndex();
-            }}
-            handleCollapsed={handleCollapsed}
-            toggleDeletePopup={toggleDeletePopup}
-            isDataAddedOrEdited={isDataAddedOrEdited}
-            setIsDataAddedOrEdited={setIsDataAddedOrEdited}
-            setIsExaminationUpdated={setIsExaminationUpdated}
-            prefillObstetricData={prefillObstetricData}
-            setPrefillObstetricData={setPrefillObstetricData}
-          />
-        </Drawer>
-      )}
-      {pastPregnancyDrawer && (
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={() => {
-            setIsCompletePregnancy(false);
-            if (isDataAddedOrEdited && !isCompletePregnancy) {
-              toggleDeletePopup();
-            } else {
-              setPastPregnancyEditIndex(-1);
-              handlePastPregnancyDrawer();
-            }
-          }}
-          open={pastPregnancyDrawer}
-          className="modalWidth-563"
-          width="auto"
-        >
-          <PastPregnancy
-            editIndex={pastPregnancyEditIndex}
-            close={() => {
-              handlePastPregnancyDrawer();
-              resetPastPregnancyEditIndex();
-              setIsCompletePregnancy(false);
-            }}
-            toggleDeletePopup={toggleDeletePopup}
-            isDataAddedOrEdited={isDataAddedOrEdited}
-            setIsDataAddedOrEdited={setIsDataAddedOrEdited}
-            setIsPastPregnancyUpdated={setIsPastPregnancyUpdated}
-            isCompletePregnancy={isCompletePregnancy}
+              <TabPane tab="ANC Scheduler" key="ancScheduler">
+                <AncScheduler
+                  ancHistory={obstetricDetails?.ancHistory}
+                  handleDrawerMedicalReport={handleDrawerMedicalReport}
+                  isPreviousPregnancyOverview={isPreviousPregnancyOverview}
+                />
+              </TabPane>
+              <TabPane tab="Immunisation History" key="immunisationHistory">
+                <ImmunisationHistory
+                  immunisationHistoryData={
+                    obstetricDetails?.immunisationHistory
+                  }
+                  isPreviousPregnancyOverview={isPreviousPregnancyOverview}
+                />
+              </TabPane>
+            </Tabs>
+          </div>
+        )}
+        {showLmpPopup && (
+          <LmpPopup
+            lmpDate={lmpDate}
+            setLmpDate={setLmpDate}
+            setShowLmpPopup={setShowLmpPopup}
             isPregnancyCompleted={isPregnancyCompleted}
-            gravidity={gravidity}
-            setLoader={setLoader}
+            setPatientDiagnosisData={setPatientDiagnosisData}
           />
-        </Drawer>
-      )}
-      <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
-      <CommonModal
-        isModalOpen={shouldShowDeletePopup}
-        onCancel={toggleDeletePopup}
-        modalWidth={500}
-        title={"You may lose your data"}
-        modalBody={
-          <>
-            <div className="alert-warning rounded-10px p-2 patient-details">
-              <div className="d-flex align-items-center">
-                <img className="me-3" src={alertIcon} alt="Warning" />
-                <span>
-                  Are you sure you want to leave? <br />
-                  You will permanently lose your
-                  {examinationDrawer ? " Examination" : " Past pregnancy"} data.
-                </span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div
-                  onClick={() => {
-                    if (examinationDrawer) {
-                      handleExaminationDrawer();
-                      resetExaminationEditIndex();
-                    } else {
-                      handlePastPregnancyDrawer();
-                      resetPastPregnancyEditIndex();
-                    }
-                    setIsDataAddedOrEdited(false);
-                    toggleDeletePopup();
-                  }}
-                  className="me-4 text-decoration-underline btn p-0 text-main"
-                >
-                  Yes Leave
+        )}
+        {examinationDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={() => {
+              if (isDataAddedOrEdited) {
+                toggleDeletePopup();
+              } else {
+                setExaminationEditIndex(-1);
+                handleExaminationDrawer();
+              }
+            }}
+            open={examinationDrawer}
+            className="modalWidth-563"
+            width="auto"
+          >
+            <AddExamination
+              editIndex={examinationEditIndex}
+              close={() => {
+                handleExaminationDrawer();
+                resetExaminationEditIndex();
+              }}
+              handleCollapsed={handleCollapsed}
+              toggleDeletePopup={toggleDeletePopup}
+              isDataAddedOrEdited={isDataAddedOrEdited}
+              setIsDataAddedOrEdited={setIsDataAddedOrEdited}
+              setIsExaminationUpdated={setIsExaminationUpdated}
+              prefillObstetricData={prefillObstetricData}
+              setPrefillObstetricData={setPrefillObstetricData}
+            />
+          </Drawer>
+        )}
+        {pastPregnancyDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={() => {
+              setIsCompletePregnancy(false);
+              if (isDataAddedOrEdited && !isCompletePregnancy) {
+                toggleDeletePopup();
+              } else {
+                setPastPregnancyEditIndex(-1);
+                handlePastPregnancyDrawer();
+              }
+            }}
+            open={pastPregnancyDrawer}
+            className="modalWidth-563"
+            width="auto"
+          >
+            <PastPregnancy
+              editIndex={pastPregnancyEditIndex}
+              close={() => {
+                handlePastPregnancyDrawer();
+                resetPastPregnancyEditIndex();
+                setIsCompletePregnancy(false);
+              }}
+              toggleDeletePopup={toggleDeletePopup}
+              isDataAddedOrEdited={isDataAddedOrEdited}
+              setIsDataAddedOrEdited={setIsDataAddedOrEdited}
+              setIsPastPregnancyUpdated={setIsPastPregnancyUpdated}
+              isCompletePregnancy={isCompletePregnancy}
+              isPregnancyCompleted={isPregnancyCompleted}
+              gravidity={gravidity}
+              setLoader={setLoader}
+            />
+          </Drawer>
+        )}
+        <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
+        <CommonModal
+          isModalOpen={shouldShowDeletePopup}
+          onCancel={toggleDeletePopup}
+          modalWidth={500}
+          title={"You may lose your data"}
+          modalBody={
+            <>
+              <div className="alert-warning rounded-10px p-2 patient-details">
+                <div className="d-flex align-items-center">
+                  <img className="me-3" src={alertIcon} alt="Warning" />
+                  <span>
+                    Are you sure you want to leave? <br />
+                    You will permanently lose your
+                    {examinationDrawer
+                      ? " Examination"
+                      : " Past pregnancy"}{" "}
+                    data.
+                  </span>
                 </div>
-                <Button
-                  onClick={toggleDeletePopup}
-                  className="lh-lg btn btn-primary3 btn-41 px-4"
-                >
-                  <span>No, Stay</span>
-                </Button>
               </div>
-            </div>
-          </>
-        }
-      />
-      <Tour run={runTour} steps={steps} />
-    </div>
+              <div className="mt-4">
+                <div className="d-flex align-items-center mt-2 justify-content-end">
+                  <div
+                    onClick={() => {
+                      if (examinationDrawer) {
+                        handleExaminationDrawer();
+                        resetExaminationEditIndex();
+                      } else {
+                        handlePastPregnancyDrawer();
+                        resetPastPregnancyEditIndex();
+                      }
+                      setIsDataAddedOrEdited(false);
+                      toggleDeletePopup();
+                    }}
+                    className="me-4 text-decoration-underline btn p-0 text-main"
+                  >
+                    Yes Leave
+                  </div>
+                  <Button
+                    onClick={toggleDeletePopup}
+                    className="lh-lg btn btn-primary3 btn-41 px-4"
+                  >
+                    <span>No, Stay</span>
+                  </Button>
+                </div>
+              </div>
+            </>
+          }
+        />
+      </div>
+      <div>
+        <Tour run={runTour} steps={steps} />
+      </div>
+    </>
   );
 };
 

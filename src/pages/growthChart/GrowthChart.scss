@@ -23,6 +23,6 @@
   }
 }
 .scrollableContainer {
-  overflow-y: auto;
+  overflow-y: auto !important;
   height: calc(100vh - 60px);
 }
