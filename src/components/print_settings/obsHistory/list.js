@@ -1741,7 +1741,7 @@ function ObsHistoryListView({
                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </Text>
 
-                    <Text
+                    <Text 
                       style={{
                         color: "#171725",
                         fontFamily: printSettings?.page_format?.font_family,
@@ -1750,20 +1750,7 @@ function ObsHistoryListView({
                         fontWeight: 500,
                       }}
                     >
-                      Visit&nbsp;
-                    </Text>
-                    <Text
-                      style={{
-                        color: "#171725",
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item?.visitNumber
-                        ? item?.visitNumber
-                        : obsHistoryData?.examinationHistory.length - i}
+                      {item?.date ? moment(item?.date).format("DD MMM YYYY") : ""}
                     </Text>
 
                     {("pallor" in item ||

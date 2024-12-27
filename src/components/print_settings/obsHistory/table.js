@@ -1266,7 +1266,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 0.5,
+                        flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1276,7 +1276,7 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    Rx
+                    Date
                   </Text>
                   <Text
                     style={[
@@ -1314,7 +1314,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.3,
+                        flex: 1.1,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1330,7 +1330,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.5,
+                        flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1362,7 +1362,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.5,
+                        flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1378,7 +1378,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1,
+                        flex: 0.8,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1418,7 +1418,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 0.5,
+                        flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1428,9 +1428,7 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {item?.visitNumber
-                      ? item?.visitNumber
-                      : obsHistoryData?.examinationHistory.length - i}
+                    {item?.date ? moment(item?.date).format("DD MMM YYYY") : ""}
                   </Text>
                   <Text
                     style={[
@@ -1468,7 +1466,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.3,
+                        flex: 1.1,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1485,7 +1483,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.5,
+                        flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1523,7 +1521,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.5,
+                        flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1539,7 +1537,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1,
+                        flex: 0.8,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
