@@ -21,6 +21,19 @@ function ObsHistoryTableView({
   const immunisationPrintEnabled = obsHistoryData?.immunisationHistory?.filter(
     (item) => item?.enablePrint
   );
+  const today = moment();
+  const lmpDate = obsHistoryData?.lmp ? moment(obsHistoryData.lmp) : null;
+
+  let gestationWeeks = null;
+  let adjustedLmpDate = null;
+  let gestationDays = null;
+
+  if (lmpDate) {
+    gestationWeeks = today.diff(lmpDate, "weeks");
+    adjustedLmpDate = lmpDate.clone().add(gestationWeeks, "weeks");
+    gestationDays = today.diff(adjustedLmpDate, "days");
+  }
+
   return (
     <View style={{ marginTop: PX_TO_PT * 15 }}>
       <Text
@@ -524,19 +537,15 @@ function ObsHistoryTableView({
                   styles.minHeight38,
                 ]}
               >
-                {"gestationWeeks" in obsHistoryData &&
-                obsHistoryData?.gestationWeeks != null
-                  ? `${obsHistoryData?.gestationWeeks}W`
+                {gestationWeeks != null
+                  ? `${gestationWeeks}W`
                   : ""}
-                {"gestationWeeks" in obsHistoryData &&
-                obsHistoryData?.gestationWeeks != null &&
-                "gestationDays" in obsHistoryData &&
-                obsHistoryData?.gestationDays != null
+                {gestationWeeks != null &&
+                gestationDays != null
                   ? `,`
                   : `-`}
-                {"gestationDays" in obsHistoryData &&
-                obsHistoryData?.gestationDays != null
-                  ? `${obsHistoryData?.gestationDays}D`
+                {gestationDays != null
+                  ? `${gestationDays}D`
                   : ""}
               </Text>
               <Text
