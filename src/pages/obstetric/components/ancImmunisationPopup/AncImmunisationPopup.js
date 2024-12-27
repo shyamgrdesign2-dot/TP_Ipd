@@ -72,30 +72,34 @@ const AncImmunisationPopup = ({
       shouldSelectForAllPatients
     ) {
       if (activeCategory >= 0) {
-        const customSchedulerPayload = {
-          id: ancDetails?.masterId || ancDetails?.id,
-          name: name,
-          weekRange: range,
-          patient_unique_id: shouldSelectForAllPatients
-            ? 0
-            : patient_data.patient_unique_id,
-        };
-        const customSchedulerRes = await upsertCustomAncScheduler(
-          customSchedulerPayload
-        );
-        ancDetails.id = customSchedulerRes?.id;
+        if (shouldSelectForAllPatients) {
+          const customSchedulerPayload = {
+            id: ancDetails?.masterId || ancDetails?.id,
+            name: name,
+            weekRange: range,
+            patient_unique_id: shouldSelectForAllPatients
+              ? 0
+              : patient_data.patient_unique_id,
+          };
+          const customSchedulerRes = await upsertCustomAncScheduler(
+            customSchedulerPayload
+          );
+          ancDetails.id = customSchedulerRes?.id;
+        }
       } else {
-        const customSchedulerPayload = {
-          id: ancDetails?.masterId || ancDetails?.id,
-          name: name,
-          patient_unique_id: shouldSelectForAllPatients
-            ? 0
-            : patient_data.patient_unique_id,
-        };
-        const customSchedulerRes = await upsertCustomImmunisation(
-          customSchedulerPayload
-        );
-        ancDetails.id = customSchedulerRes?.id;
+        if (shouldSelectForAllPatients) {
+          const customSchedulerPayload = {
+            id: ancDetails?.masterId || ancDetails?.id,
+            name: name,
+            patient_unique_id: shouldSelectForAllPatients
+              ? 0
+              : patient_data.patient_unique_id,
+          };
+          const customSchedulerRes = await upsertCustomImmunisation(
+            customSchedulerPayload
+          );
+          ancDetails.id = customSchedulerRes?.id;
+        }
       }
     }
 
@@ -312,7 +316,9 @@ const AncImmunisationPopup = ({
                         />
                       </div>
                     </div>
-                    {range?.start > range?.end ? (
+                    {range?.start &&
+                    range?.end &&
+                    Number(range?.start) > Number(range?.end) ? (
                       <div className="mt-3 ancImmunisationWarning">
                         <span className="warningTip" />
                         Start date cannot be greater than End date
@@ -368,7 +374,7 @@ const AncImmunisationPopup = ({
                       Number(range?.start) === 0 ||
                       ((!range?.start ||
                         !range?.end ||
-                        range?.start > range?.end) &&
+                        Number(range?.start) > Number(range?.end)) &&
                         activeCategory >= 0))
                   }
                 >

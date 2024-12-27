@@ -25,6 +25,7 @@ function VaccineHeader({
   tablePrintHandler,
   handleObstetricBackBtn,
   clearObstetricData,
+  startNewPregnancyHandler,
   loader,
   isObstetric,
   isGrowthChart,
@@ -289,7 +290,7 @@ function VaccineHeader({
                 <Button
                   type="primary"
                   className="btn-41 btn px-4 me-4 ant-btn-text align-items-center d-flex"
-                  onClick={handleDrawerVaccination}
+                  onClick={startNewPregnancyHandler}
                   loading={isObstetric && loader}
                   disabled={isObstetric && loader}
                 >
