@@ -74,7 +74,7 @@ const LmpPopup = ({
     }
     setPatientDiagnosisData((prevState) => ({
       ...prevState,
-      lmp: null,
+      lmp: prevState?.lmp || null,
     }));
     setShowLmpPopup(false);
   };
