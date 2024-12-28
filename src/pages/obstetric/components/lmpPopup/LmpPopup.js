@@ -106,7 +106,7 @@ const LmpPopup = ({
         >
           <div style={{ marginBottom: 15 }}>
             <label style={{ marginBottom: 8 }} className="lmpLabel">
-              LMP date <span className="mandatory">*</span>
+              LMP date
             </label>
             <DatePicker
               placeholder="Select Date"

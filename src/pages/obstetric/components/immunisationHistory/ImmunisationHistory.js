@@ -312,7 +312,10 @@ const ImmunisationHistory = ({
 
   return (
     <div>
-      <div className="examinationTableViewContainer">
+      <div
+        className="examinationTableViewContainer"
+        style={{ paddingBottom: 40 }}
+      >
         {!isPreviousPregnancyOverview && (
           <div style={{ paddingBottom: 30 }}>
             <AutoComplete

@@ -241,7 +241,7 @@ function PastPregnancy({
       newPastPregnancy.splice(editIndex, 1);
     }
     const payload = {
-      ...obstetricDetails,
+      ...allObstetricDetails,
       pregnancyHistory: newPastPregnancy,
     };
     dispatch(addObstetricDetails(payload));
@@ -257,7 +257,7 @@ function PastPregnancy({
       newPastPregnancy.splice(editIndex, 1);
     }
     const payload = {
-      ...obstetricDetails,
+      ...allObstetricDetails,
       pregnancyHistory: newPastPregnancy,
     };
 
@@ -714,7 +714,6 @@ function PastPregnancy({
           createdBy: userId,
           modifiedAt: new Date().toISOString(),
           modifiedBy: userId,
-          ...obstetricDetails?.currentPregnancy,
         },
       ];
     }
@@ -821,10 +820,10 @@ function PastPregnancy({
             <div className="past-pregnancy-wrap-body past-pregnancy-parent-width">
               <div className="past-pregnancy-head">Parameter</div>
               <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5">
-                Gravida number
+                Gravida number <span className="lab-params-warning">*</span>
               </div>
               <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5">
-                Outcome
+                Outcome <span className="lab-params-warning">*</span>
               </div>
               {["Live", "Still birth"].includes(pastPregnancyData.outcome) && (
                 <>

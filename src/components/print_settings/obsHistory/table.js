@@ -1725,7 +1725,7 @@ function ObsHistoryTableView({
                     >
                       {item?.dueDate
                         ? moment(item?.dueDate).format("DD/MM/YYYY")
-                        : ""}
+                        : "-"}
                     </Text>
                     <Text
                       style={[
@@ -1740,7 +1740,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.status ?? ""}
+                      {item?.status ?? "-"}
                     </Text>
 
                     <Text
@@ -1756,7 +1756,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.notes ?? ""}
+                      {item?.notes ?? "-"}
                     </Text>
                   </View>
               );
@@ -1883,7 +1883,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.notes ?? ""}
+                      {item?.notes ?? "-"}
                     </Text>
                   </View>
                 )}
