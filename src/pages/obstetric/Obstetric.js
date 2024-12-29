@@ -33,8 +33,6 @@ import {
 } from "../../redux/obstetricSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import moment from "moment";
-import { jwtDecode } from "jwt-decode";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import { errorMessage, getClinicName } from "../../utils/utils";
 import SuccessPopup from "../growthChart/components/SuccessPopup";
 import CommonModal from "../../common/CommonModal";
@@ -115,9 +113,16 @@ const Obstetric = ({
 
   const today = moment();
   const lmpValue = moment(lmp);
-  const gestationWeeks = today.diff(lmpValue, "weeks");
-  const tempDate = lmpValue.clone().add(gestationWeeks, "weeks");
-  const gestationDays = today.diff(tempDate, "days");
+
+  let gestationWeeks = null;
+  let adjustedLmpDate = null;
+  let gestationDays = null;
+
+  if (lmp) {
+    gestationWeeks = today.diff(lmpValue, "weeks");
+    adjustedLmpDate = lmpValue.clone().add(gestationWeeks, "weeks");
+    gestationDays = today.diff(adjustedLmpDate, "days");
+  }
 
   const [patientDiagnosisData, setPatientDiagnosisData] = useState({
     lmp: lmp,
@@ -148,10 +153,6 @@ const Obstetric = ({
   const tourRef = useRef(null);
   const { profile, userId } = useSelector((state) => state.doctors);
   const [runTour, setRunTour] = useState(false);
-
-  const startTour = () => {
-    setRunTour(true); // Trigger the tour to start
-  };
 
   useEffect(() => {
     if (runTour) {
@@ -221,7 +222,11 @@ const Obstetric = ({
       }
     }
     const tourResponse = await fetchTour();
-    if (tourResponse && Object.keys(tourResponse)?.length > 0) {
+    if (
+      tourResponse &&
+      Object.keys(tourResponse)?.length > 0 &&
+      !isPregnancyCompleted
+    ) {
       if (!tourResponse.anc) {
         setRunTour(true);
       }
@@ -470,7 +475,11 @@ const Obstetric = ({
     <>
       <div className="vaccinationWrapper">
         {/* Hidden Button */}
-        <button style={{ display: "none" }} ref={tourRef} onClick={startTour}>
+        <button
+          style={{ display: "none" }}
+          ref={tourRef}
+          onClick={() => setRunTour(true)}
+        >
           Show Tour
         </button>
         {isPreviousPregnancyOverview ? (

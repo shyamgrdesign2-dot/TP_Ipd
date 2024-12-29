@@ -467,7 +467,7 @@ function ObsHistoryListView({
                   &nbsp;{"\n"}
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;Details&nbsp;(
                 </Text>
-                {"lmp" in obsHistoryData && (
+                {obsHistoryData?.lmp && (
                   <>
                     <Text
                       style={{

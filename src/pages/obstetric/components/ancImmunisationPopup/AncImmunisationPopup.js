@@ -1,18 +1,22 @@
 import { Button, Checkbox, Input } from "antd";
 import CommonModal from "../../../../common/CommonModal";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
   addObstetricDetails,
   obstetricDetailsUpdated,
   patientDiagnosisUpdated,
+  setAncDoctorList,
+  setImmunisationDoctorList,
 } from "../../../../redux/obstetricSlice";
 import { useDispatch } from "react-redux";
 import {
   deleteCustomAncScheduler,
   deleteCustomImmunisation,
+  fetchAncDoctorList,
+  fetchImmunisationDoctorList,
   upsertCustomAncScheduler,
   upsertCustomImmunisation,
 } from "../../service";
@@ -26,13 +30,16 @@ const AncImmunisationPopup = ({
   editIndex,
   activeCategory,
   ancSchedulerData,
+  setActiveCategory,
 }) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const { patient_data } = state;
-  const { obstetricDetails: allObstetricDetails } = useSelector(
-    (state) => state.obstetric
-  );
+  const {
+    obstetricDetails: allObstetricDetails,
+    ancDoctorList,
+    immunisationDoctorList,
+  } = useSelector((state) => state.obstetric);
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { ancHistory = [], immunisationHistory = [] } = obstetricDetails;
   const { userId } = useSelector((state) => state.doctors);
@@ -61,45 +68,55 @@ const AncImmunisationPopup = ({
 
   const trimesterList = ["First", "Second", "Third"];
 
+  useEffect(() => {
+    let isEditedItemPresentInDoctorList = false;
+    if (activeCategory >= 0) {
+      isEditedItemPresentInDoctorList = ancDoctorList?.find(
+        (item) => item.id === ancDetails?.masterId
+      );
+    } else {
+      isEditedItemPresentInDoctorList = immunisationDoctorList?.find(
+        (item) => item.id === ancDetails?.masterId
+      );
+    }
+
+    if (editIndex >= 0) {
+      setShouldSelectForAllPatients(isEditedItemPresentInDoctorList);
+    }
+  }, []);
+
   const addOrEditCustomScheduler = async () => {
     if (
       ancDetails?.isCustom ||
       (ancDetails?.masterId && editIndex >= 0) ||
-      (ancDetails?.id &&
-        (name !== ancDetails?.name ||
-          range?.start !== ancDetails?.weekRange?.start ||
-          range?.end !== ancDetails?.weekRange?.end)) ||
+      (ancDetails?.id && name !== ancDetails?.name) ||
       shouldSelectForAllPatients
     ) {
       if (activeCategory >= 0) {
-        if (shouldSelectForAllPatients) {
-          const customSchedulerPayload = {
-            id: ancDetails?.masterId || ancDetails?.id,
-            name: name,
-            weekRange: range,
-            patient_unique_id: shouldSelectForAllPatients
-              ? 0
-              : patient_data.patient_unique_id,
-          };
-          const customSchedulerRes = await upsertCustomAncScheduler(
-            customSchedulerPayload
-          );
-          ancDetails.id = customSchedulerRes?.id;
-        }
+        const customSchedulerPayload = {
+          id: ancDetails?.masterId || ancDetails?.id,
+          name: name,
+          weekRange: range,
+          patient_unique_id: shouldSelectForAllPatients
+            ? 0
+            : patient_data.patient_unique_id,
+        };
+        const customSchedulerRes = await upsertCustomAncScheduler(
+          customSchedulerPayload
+        );
+        ancDetails.id = customSchedulerRes?.id;
       } else {
-        if (shouldSelectForAllPatients) {
-          const customSchedulerPayload = {
-            id: ancDetails?.masterId || ancDetails?.id,
-            name: name,
-            patient_unique_id: shouldSelectForAllPatients
-              ? 0
-              : patient_data.patient_unique_id,
-          };
-          const customSchedulerRes = await upsertCustomImmunisation(
-            customSchedulerPayload
-          );
-          ancDetails.id = customSchedulerRes?.id;
-        }
+        const customSchedulerPayload = {
+          id: ancDetails?.masterId || ancDetails?.id,
+          name: name,
+          patient_unique_id: shouldSelectForAllPatients
+            ? 0
+            : patient_data.patient_unique_id,
+        };
+        const customSchedulerRes = await upsertCustomImmunisation(
+          customSchedulerPayload
+        );
+        ancDetails.id = customSchedulerRes?.id;
       }
     }
 
@@ -141,6 +158,9 @@ const AncImmunisationPopup = ({
           },
         ];
       }
+      if (trimesterRange !== activeCategory) {
+        setActiveCategory(trimesterRange);
+      }
     } else {
       if (editIndex >= 0) {
         newImmunisationHistory[editIndex] = {
@@ -176,15 +196,36 @@ const AncImmunisationPopup = ({
     }
 
     const payload = {
-      ...obstetricDetails,
+      ...allObstetricDetails,
       currentPregnancy: {
-        ...obstetricDetails.currentPregnancy,
+        ...allObstetricDetails.currentPregnancy,
         ancHistory: newAncHistory,
         immunisationHistory: newImmunisationHistory,
       },
     };
     dispatch(addObstetricDetails(payload));
     dispatch(obstetricDetailsUpdated());
+
+    if (shouldSelectForAllPatients) {
+      if (activeCategory >= 0) {
+        let ancDoctorListResponse = await fetchAncDoctorList();
+        ancDoctorListResponse = ancDoctorListResponse?.filter(
+          (item) => !item?.deleted
+        );
+        if (ancDoctorListResponse) {
+          dispatch(setAncDoctorList(ancDoctorListResponse));
+        }
+      } else {
+        let immunisationDoctorListResponse =
+          await fetchImmunisationDoctorList();
+        immunisationDoctorListResponse = immunisationDoctorListResponse?.filter(
+          (item) => !item?.deleted
+        );
+        if (immunisationDoctorListResponse) {
+          dispatch(setImmunisationDoctorList(immunisationDoctorListResponse));
+        }
+      }
+    }
     onCancel();
   };
 
@@ -202,9 +243,9 @@ const AncImmunisationPopup = ({
       }
       const newAncHistory = ancSchedulerData.flat();
       const payload = {
-        ...obstetricDetails,
+        ...allObstetricDetails,
         currentPregnancy: {
-          ...obstetricDetails?.currentPregnancy,
+          ...allObstetricDetails?.currentPregnancy,
           ancHistory: newAncHistory,
         },
       };
@@ -221,9 +262,9 @@ const AncImmunisationPopup = ({
         deleteCustomImmunisation(ancSchedulerData[editIndex]?.masterId);
       }
       const payload = {
-        ...obstetricDetails,
+        ...allObstetricDetails,
         currentPregnancy: {
-          ...obstetricDetails?.currentPregnancy,
+          ...allObstetricDetails?.currentPregnancy,
           immunisationHistory: ancSchedulerData,
         },
       };
@@ -323,7 +364,10 @@ const AncImmunisationPopup = ({
                         <span className="warningTip" />
                         Start date cannot be greater than End date
                       </div>
-                    ) : trimesterRange && trimesterRange !== activeCategory ? (
+                    ) : range?.start &&
+                      range?.end &&
+                      trimesterRange >= 0 &&
+                      trimesterRange !== activeCategory ? (
                       <div className="mt-3 ancImmunisationWarning">
                         <span className="warningTip" />
                         <b>Week {range.start}</b> belongs to the

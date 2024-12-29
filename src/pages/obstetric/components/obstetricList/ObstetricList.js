@@ -259,7 +259,14 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
 
   return (
     <div className="overflow-y-auto" style={{ padding: "10px 10px 0px" }}>
-      <PatientInfoList />
+      {(obstetricDetails?.lmp ||
+        obstetricDetails?.edd ||
+        obstetricDetails?.gravidity ||
+        obstetricDetails?.parity ||
+        obstetricDetails?.livingChildren ||
+        obstetricDetails?.abortion ||
+        obstetricDetails?.ectopicPregnancies) && <PatientInfoList />}
+
       <Collapse
         defaultActiveKey={[0]}
         className="prescriptiontab-accordian history-sider-box history-sider-box-white"

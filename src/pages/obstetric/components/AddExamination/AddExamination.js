@@ -4,10 +4,7 @@ import dayjs from "dayjs";
 import moment from "moment";
 import "./addExamination.scss";
 import { EllipsisOutlined, DeleteOutlined } from "@ant-design/icons";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
-import { jwtDecode } from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
 import {
   addObstetricDetails,
   obstetricDetailsUpdated,
@@ -34,10 +31,12 @@ function AddExamination({
     date: moment().format(dateFormat),
     heightOfFundusUnit: "weeks",
   });
-  const { obstetricDetails: allObstetricDetails } = useSelector((state) => state.obstetric);
+  const { obstetricDetails: allObstetricDetails } = useSelector(
+    (state) => state.obstetric
+  );
+  const { userId } = useSelector((state) => state.doctors);
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { examinationHistory = [] } = obstetricDetails;
-  const { state } = useLocation();
 
   useEffect(() => {
     if (editIndex >= 0 && examinationHistory?.toReversed()?.[editIndex]) {
@@ -112,15 +111,6 @@ function AddExamination({
 
   const addExaminationData = async () => {
     setIsExaminationUpdated(true);
-    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    let decodedToken;
-    if (token) {
-      try {
-        decodedToken = jwtDecode(token);
-      } catch (e) {
-        console.log(e);
-      }
-    }
     let newExaminationHistory = [...examinationHistory].toReversed() || [];
     const data = {};
     Object.keys(examinationData).forEach((key) => {
@@ -133,7 +123,7 @@ function AddExamination({
       newExaminationHistory[editIndex] = {
         ...data,
         modifiedAt: new Date().toISOString(),
-        modifiedBy: decodedToken?.result?.user_id,
+        modifiedBy: userId,
       };
     } else {
       newExaminationHistory = [
@@ -142,9 +132,9 @@ function AddExamination({
           ...data,
           date: new Date(examinationData?.date).toISOString(),
           createdAt: new Date().toISOString(),
-          createdBy: decodedToken?.result?.user_id,
+          createdBy: userId,
           modifiedAt: new Date().toISOString(),
-          modifiedBy: decodedToken?.result?.user_id,
+          modifiedBy: userId,
         },
       ];
     }
@@ -152,7 +142,7 @@ function AddExamination({
       ...allObstetricDetails,
       currentPregnancy: {
         ...allObstetricDetails?.currentPregnancy,
-        examinationHistory: newExaminationHistory,
+        examinationHistory: newExaminationHistory?.toReversed(),
       },
     };
     dispatch(addObstetricDetails(payload));
@@ -172,7 +162,7 @@ function AddExamination({
       ...allObstetricDetails,
       currentPregnancy: {
         ...allObstetricDetails?.currentPregnancy,
-        examinationHistory: newExaminationHistory,
+        examinationHistory: newExaminationHistory?.toReversed(),
       },
     };
     dispatch(addObstetricDetails(payload));
