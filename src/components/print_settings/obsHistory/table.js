@@ -486,7 +486,7 @@ function ObsHistoryTableView({
                   styles.minHeight38,
                 ]}
               >
-                {"lmp" in obsHistoryData
+                {obsHistoryData?.lmp
                   ? moment(obsHistoryData?.lmp).format("DD MMM YYYY")
                   : `-`}
               </Text>
