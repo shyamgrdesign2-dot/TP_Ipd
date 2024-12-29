@@ -351,7 +351,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             : PX_TO_PT * 30;
     };
 
-    const calculatePadding = (mode, printSettings, fileFooter, PX_TO_PT) => {
+    const calculatePadding = () => {
         const { letterhead_format, header_footer, whatsapp_letterhead_format } = printSettings || {};
         const footer = header_footer?.footer;
 
@@ -374,7 +374,15 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             paddingTop: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "top", 0)
                 : PX_TO_PT * 30,
-            paddingBottom: getMarginByFormat(letterhead_format, header_footer, "bottom", 0),
+            paddingBottom: [0,2].includes(letterhead_format)
+                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0)
+                : letterhead_format === 1
+                    ? fileFooter
+                        ? 110
+                        : PX_TO_PT * 30
+                    : footer?.title
+                        ? 35 + parseInt(footer?.font_size)
+                        : PX_TO_PT * 30,
             paddingLeft: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "left", 0)
                 : PX_TO_PT * 30,
@@ -384,7 +392,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         };
     };
 
-    const paddingStyles = calculatePadding(mode, printSettings, fileFooter, PX_TO_PT);
+    const paddingStyles = calculatePadding();
 
     return (
         <Document>
