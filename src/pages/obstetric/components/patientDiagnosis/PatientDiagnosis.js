@@ -88,6 +88,14 @@ export default function PatientDiagnosis({
         ...prevState,
         [key]: newValue,
       }));
+      if (key === "lmp" && newValue === null) {
+        setPatientDiagnosisData((prevState) => ({
+          ...prevState,
+          edd: undefined,
+          gestationWeeks: undefined,
+          gestationDays: undefined,
+        }));
+      }
       dispatch(patientDiagnosisUpdated());
       dispatch(obstetricDetailsUpdated());
     }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { mergeDefaultAndDoctorList } from "../../utils/helper";
+import moment from "moment";
 
 const AncImmunisationList = ({ handleDrawerObstetric }) => {
   const {
@@ -14,6 +15,24 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
 
   const [immunisationHistory, setImmunisationHistory] = useState([]);
   const [ancHistory, setAncHistory] = useState([]);
+
+  const shouldShowAncHistory = ancHistory.find(
+    (item) =>
+      !item?.deleted &&
+      (item?.dueDate ||
+        item?.status === "Completed" ||
+        item?.notes ||
+        item?.enablePrint)
+  );
+
+  const shouldShowImmunisation = immunisationHistory.find(
+    (item) =>
+      !item?.deleted &&
+      (item?.givenDate ||
+        item?.status === "Given" ||
+        item?.notes ||
+        item?.enablePrint)
+  );
 
   useEffect(() => {
     const newImmunisationHistory = mergeDefaultAndDoctorList(
@@ -36,7 +55,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
 
   return (
     <div>
-      {ancHistory?.length > 0 && (
+      {ancHistory?.length > 0 && shouldShowAncHistory && (
         <div
           className="cardbody-data border rounded"
           style={{ padding: "0 14px", marginTop: "8px" }}
@@ -66,7 +85,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
                 if (
                   !item?.deleted &&
                   (item?.dueDate ||
-                    item?.status ||
+                    item?.status === "Completed" ||
                     item?.notes ||
                     item?.enablePrint)
                 ) {
@@ -76,7 +95,11 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
                       <span style={{ fontWeight: 500 }}>
                         {item?.master?.name}
                       </span>{" "}
-                      ({item.dueDate ? "Due Date from" + item.dueDate : ""}
+                      (
+                      {item.dueDate
+                        ? "Due Date from " +
+                          moment(item?.dueDate).format("DD/MM/YYYY")
+                        : ""}
                       {item.dueDate && item.status ? ", " : ""}
                       {item.status ?? ""}
                       {(item.status || item.dueDate) && item.notes ? ", " : ""}
@@ -90,7 +113,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
         </div>
       )}
 
-      {immunisationHistory?.length > 0 && (
+      {immunisationHistory?.length > 0 && shouldShowImmunisation && (
         <div
           className="cardbody-data border rounded"
           style={{ padding: "0 14px", marginTop: "8px" }}
@@ -120,7 +143,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
                 if (
                   !item?.deleted &&
                   (item?.givenDate ||
-                    item?.status ||
+                    item?.status === "Given" ||
                     item?.notes ||
                     item?.enablePrint)
                 ) {

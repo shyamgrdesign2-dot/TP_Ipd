@@ -472,7 +472,7 @@ function ObsHistoryInlineView({
                 >
                   (
                 </Text>
-                {"lmp" in obsHistoryData && (
+                {obsHistoryData?.lmp && (
                   <>
                     <Text
                       style={{

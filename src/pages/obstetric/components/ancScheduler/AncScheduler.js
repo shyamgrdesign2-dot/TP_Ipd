@@ -39,9 +39,12 @@ const AncScheduler = ({
   const { state } = useLocation();
   const { patient_data } = state || {};
   const { userId } = useSelector((state) => state.doctors);
-  const { obstetricDetails, defaultAncSchedule, ancDoctorList } = useSelector(
-    (state) => state.obstetric
-  );
+  const {
+    obstetricDetails: allObstetricDetails,
+    defaultAncSchedule,
+    ancDoctorList,
+  } = useSelector((state) => state.obstetric);
+  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const [ancSchedulerData, setAncSchedulerData] = useState([]);
   const [activeCategory, setActiveCategory] = useState(0);
   const [immunisationPopup, setImmunisationPopup] = useState("");
@@ -111,15 +114,27 @@ const AncScheduler = ({
         return a.weekRange.start - b.weekRange.start;
       });
       const payload = {
-        ...obstetricDetails,
+        ...allObstetricDetails,
         currentPregnancy: {
-          ...obstetricDetails?.currentPregnancy,
+          ...obstetricDetails,
           ancHistory: newAncHistory,
         },
       };
       dispatch(addObstetricDetails(payload));
       dispatch(patientDiagnosisUpdated());
       dispatch(obstetricDetailsUpdated());
+    }
+    if (obstetricDetails?.lmp) {
+      const today = moment();
+      const lmp = moment(obstetricDetails?.lmp);
+      const gestationInWeeks = today.diff(lmp, "weeks");
+      if (gestationInWeeks <= 40 && gestationInWeeks >= 28) {
+        setActiveCategory(2);
+      } else if (gestationInWeeks <= 27 && gestationInWeeks >= 13) {
+        setActiveCategory(1);
+      } else {
+        setActiveCategory(0);
+      }
     }
   }, []);
 
@@ -209,9 +224,9 @@ const AncScheduler = ({
       setAncSchedulerData(updatedData);
       const newAncHistory = updatedData?.flat();
       const payload = {
-        ...obstetricDetails,
+        ...allObstetricDetails,
         currentPregnancy: {
-          ...obstetricDetails?.currentPregnancy,
+          ...obstetricDetails,
           ancHistory: newAncHistory,
         },
       };
@@ -440,6 +455,7 @@ const AncScheduler = ({
           editIndex={editIndex}
           activeCategory={activeCategory}
           ancSchedulerData={ancSchedulerData}
+          setActiveCategory={setActiveCategory}
         />
       )}
       {shouldShowPrintPreview && (
