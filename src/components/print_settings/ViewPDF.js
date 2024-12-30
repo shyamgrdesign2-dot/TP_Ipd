@@ -372,22 +372,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
         return {
             paddingTop: [0,1,2].includes(letterhead_format)
-                ? getMarginByFormat(letterhead_format, header_footer, "top", 0)
+                ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
                 : PX_TO_PT * 30,
-            paddingBottom: [0,2].includes(letterhead_format)
-                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0)
-                : letterhead_format === 1
-                    ? fileFooter
-                        ? 110
-                        : PX_TO_PT * 30
-                    : footer?.title
-                        ? 35 + parseInt(footer?.font_size)
-                        : PX_TO_PT * 30,
             paddingLeft: [0,1,2].includes(letterhead_format)
-                ? getMarginByFormat(letterhead_format, header_footer, "left", 0)
+                ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
                 : PX_TO_PT * 30,
             paddingRight: [0,1,2].includes(letterhead_format)
-                ? getMarginByFormat(letterhead_format, header_footer, "right", 0)
+                ? getMarginByFormat(letterhead_format, header_footer, "right", 0.5)
                 : PX_TO_PT * 30,
         };
     };
@@ -4715,10 +4706,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                 <View style={{
                     position: 'absolute',
-                    bottom: PX_TO_PT * 30,
-                    left: PX_TO_PT * 30,
-                    right: PX_TO_PT * 30,
-                    // marginTop: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 29 : 0 : 29)
+                    bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
+                    left: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
+                    right: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
                 }} fixed>
                     {mode == NORMAL ? (
                         printSettings?.letterhead_format === 0 ? (
@@ -4729,7 +4719,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         ) : printSettings?.letterhead_format === 1 && (
                             fileFooter && fileFooter?.imageShow && (
                                 <Image
-                                    style={{ width: '100%', height: 80, objectFit: 'fill' }}
+                                    style={{ width: '100%', objectFit: 'cover' }}
                                     src={fileFooter?.showFile} />
                             )
                         )
@@ -4742,7 +4732,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         ) : printSettings?.whatsapp_letterhead_format === 1 && (
                             fileFooter && fileFooter?.imageShow && (
                                 <Image
-                                    style={{ width: '100%', height: 80, objectFit: 'fill' }}
+                                    style={{ width: '100%', objectFit: 'cover' }}
                                     src={fileFooter?.showFile} />
                             )
                         )
