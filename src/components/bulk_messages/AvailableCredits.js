@@ -92,7 +92,7 @@ function AvailableCredits({ handleAvailableCredit }) {
             amount: data.amount,
             currency: data.currency,
             name: 'Purchase bulk messages',
-            description: 'description',
+            description: '',
             image: '',
             order_id: data.id,
             handler: async (response) => {

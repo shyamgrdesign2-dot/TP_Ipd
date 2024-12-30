@@ -368,10 +368,14 @@ function MessageCreateCampaign() {
             // }
             const isEmpty = !Object.values(data).some(x => !x);
             if (isEmpty) {
-                if (patientCount !== 0) {
-                    setStepCurrent(prev => prev + 1);
+                if (schedule_type === 1 && scheduleDateTime) {
+                    if (patientCount !== 0) {
+                        setStepCurrent(prev => prev + 1);
+                    } else {
+                        errorMessage('We need at least 1 patient to proceed');
+                    }
                 } else {
-                    errorMessage('We need at least 1 patient to proceed');
+                    errorMessage('Please fill up schedule for later');
                 }
             } else {
                 errorMessage('Please fill up all fields in compose message');
@@ -536,6 +540,9 @@ function MessageCreateCampaign() {
     // Schedule Radio
     const handleScheduleType = useCallback((e) => {
         setScheduleType(e.target.value);
+        if (e.target.value === 2) {
+            setScheduleDateTime("")
+        }
     }, [schedule_type]);
 
     // const disabledDate = (current) => {
@@ -867,12 +874,13 @@ function MessageCreateCampaign() {
         })
         return msg_rowData;
     }
+
     const onAddEditCampaign = async (draft) => {
         var sendData = {
             campaign_id: template?.id,
             send_on: send_on,
-            campaign_date: scheduleDateTime ? moment(scheduleDateTime).format(dateFormat1) : moment().add(1, 'day').format(dateFormat1),
-            campaign_time: scheduleDateTime ? moment(scheduleDateTime).format(timeFormat1) : moment().add(1, 'day').format(timeFormat1),
+            campaign_date: scheduleDateTime ? moment(scheduleDateTime).format(dateFormat1) : moment().format(dateFormat1),
+            campaign_time: scheduleDateTime ? moment(scheduleDateTime).format(timeFormat1) : moment().format(timeFormat1),
             msg_rowData: sendTemplate(),
             draft: draft,
             sender_type: sender_type,
@@ -908,6 +916,7 @@ function MessageCreateCampaign() {
             sendData['change'] = change ? 1 : 0
             sendData['draft'] = campaign_data?.draft === 0 ? campaign_data?.draft : draft
         }
+
 
         const action = campaign_data !== undefined ? await dispatch(userCampaignEdit(sendData)) : await dispatch(userCampaignAdd(sendData));
         if (action.meta.requestStatus === "fulfilled") {
@@ -1229,7 +1238,9 @@ function MessageCreateCampaign() {
                                                                     ) : dateStatus === 6 ? (
                                                                         'Last 1 year'
                                                                     ) : (
-                                                                        'Custom range'
+                                                                        <>
+                                                                            {moment(dateRange.startDate).format(showDateFormat)} - {moment(dateRange.endDate).format(showDateFormat)}
+                                                                        </>
                                                                     )}
                                                                 </span>
                                                                 <i className="mx-2 fs-18 icon-calendar"></i>
