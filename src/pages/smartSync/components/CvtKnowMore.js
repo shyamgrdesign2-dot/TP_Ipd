@@ -27,8 +27,8 @@ const CvtKnowMore = ({ handleCollapsed }) => {
   };
 
   const video_link = {
-    link: "https://youtu.be/UgeyXlHItXI",
-    thumbnail: "https://i.ytimg.com/vi/mAZ7Sa86PnQ/hqdefault.jpg",
+    link: "https://www.youtube.com/embed//UgeyXlHItXI",
+    thumbnail: "https://i.ytimg.com/vi/UgeyXlHItXI/maxresdefault.jpg",
   };
 
   return (
@@ -130,10 +130,8 @@ const CvtKnowMore = ({ handleCollapsed }) => {
 
         <div 
           id="digitisationProcess" 
-          className="video-section"                   
-          onClick={() => {
-            setVideoLink(true)
-          }}>
+          className="video-section"
+        >
           <span className="section-side-header">Digitisation Process</span>
           <div className="know-more-section-tilte">
             How Smart Rx Digitisation Works?
@@ -142,19 +140,23 @@ const CvtKnowMore = ({ handleCollapsed }) => {
             <div className="instruction-cvt-tutorial">
               Please watch this video to know how Smart Rx Digitisation Works👇
             </div>
-            <div className="pb-3 mb-15">
-              <div className="cvt-play me-14">
-                <button
-                  type="button"
-                >
-                  <img src={playIcons} width="54.871px" height="54.871px" />
-                </button>
-                <div className="thumbnail-title">Smart Rx Digitization</div>
-                <div className="smartsync-video-title">
-                  How Smart Rx Digitisation Works?
-                </div>
-                <div className="smartsync-video-length">4:02</div>
-              </div>
+            <div
+              className="d-flex align-items-center justify-content-center"
+              style={{
+                background: `url(${video_link?.thumbnail})`,
+                width: 447,
+                height: 250,
+                borderRadius: 24,
+                cursor: "pointer",
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+              }}
+              onClick={() => {
+                setVideoLink(true)
+              }}
+            >
+              <img width={55} height={55} src={playIcons} />
             </div>
           </div>
         </div>

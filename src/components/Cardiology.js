@@ -433,6 +433,7 @@ function Cardiology(props) {
         tcm_id: viewCaseManagerData?.tcm_id,
         print_url: viewCaseManagerData?.print_rx_url,
         digitisedData: rxDigitisedData,
+        page:"patient-summary"
       },
     })
   };

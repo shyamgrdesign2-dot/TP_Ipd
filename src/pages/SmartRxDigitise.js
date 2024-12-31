@@ -85,10 +85,25 @@ function SmartRxDigitise() {
                 },
             });
             
-            // Navigate to a different page on successful API call
-            if(response.status === 204){
-                navigate('/print-smart-rx', { replace: true, state: { patient_data:patient_data, smartRxData:smartRxFilesData, tcm_id:tcm_id, print_url:print_url, showProgressbar:false, page:"digitise"} })
+            // Handle navigation based on the API response
+            if (response.status === 204) {
+                if (state?.page === "patient-summary" || state?.page === "pending-digitization") {
+                    navigate(-1); // Go back to the previous page
+                } else {
+                    navigate('/print-smart-rx', {
+                        replace: true,
+                        state: {
+                            patient_data,
+                            smartRxData: smartRxFilesData,
+                            tcm_id,
+                            print_url,
+                            showProgressbar: false,
+                            page: "digitise"
+                        }
+                    });
+                }
             }
+
         } catch (error) {
             console.error('Error saving data:', error);
         }
