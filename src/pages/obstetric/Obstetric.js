@@ -210,10 +210,23 @@ const Obstetric = ({
   }, [pastPregnancyEditIndex]);
 
   useEffect(() => {
-    getPrefillObstetricDetails();
+    if (!isPreviousPregnancyOverview) {
+      getPrefillObstetricDetails();
+      getDefaultAndDoctorList();
+    }
     scrollToBottom();
-    getDefaultAndDoctorList();
   }, []);
+
+  const resetDataAfterPregnancyCompleted = () => {
+    setLmpDate("");
+    setPatientDiagnosisNotes("");
+    setPatientDiagnosisData({});
+    setPastPregnancyData((prev) => {
+      return prev.map((item) => {
+        return { ...item, value: null };
+      });
+    });
+  };
 
   const tourHandler = async () => {
     setRunTour(false);
@@ -677,6 +690,9 @@ const Obstetric = ({
               isPregnancyCompleted={isPregnancyCompleted}
               gravidity={gravidity}
               setLoader={setLoader}
+              resetDataAfterPregnancyCompleted={
+                resetDataAfterPregnancyCompleted
+              }
             />
           </Drawer>
         )}

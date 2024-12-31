@@ -108,6 +108,23 @@ function TabPrescription() {
     useSelector((state) => state.obstetric);
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { examinationHistory = [] } = obstetricDetails || [];
+  const shouldShowAncHistory = obstetricDetails?.ancHistory?.find(
+    (item) =>
+      !item?.deleted &&
+      (item?.dueDate ||
+        item?.status === "Completed" ||
+        item?.notes ||
+        item?.enablePrint)
+  );
+
+  const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
+    (item) =>
+      !item?.deleted &&
+      (item?.givenDate ||
+        item?.status === "Given" ||
+        item?.notes ||
+        item?.enablePrint)
+  );
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
@@ -558,7 +575,7 @@ function TabPrescription() {
   }, [isNavigateToObstetric]);
 
   useEffect(() => {
-    if (collapsedFlag === 6 && examinationHistory?.length === 0 && obstetricDetails?.ancHistory?.length === 0 && obstetricDetails?.immunisationHistory?.length === 0 && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies) {
+    if (collapsedFlag === 6 && examinationHistory?.length === 0 && !shouldShowImmunisation && !shouldShowAncHistory && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies) {
       setCollapsed(false);
     }
   }, [collapsedFlag, collapsed])
@@ -1024,8 +1041,8 @@ function TabPrescription() {
                         style={{ padding: "0px" }}
                         onClick={() =>
                           examinationHistory?.length === 0 &&
-                          obstetricDetails?.ancHistory?.length === 0 &&
-                          obstetricDetails?.immunisationHistory?.length === 0 &&
+                          !shouldShowAncHistory &&
+                          !shouldShowImmunisation &&
                           !obstetricDetails?.lmp &&
                           !obstetricDetails?.edd &&
                           !obstetricDetails?.gravidity &&

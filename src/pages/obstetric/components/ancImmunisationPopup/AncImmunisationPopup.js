@@ -53,6 +53,7 @@ const AncImmunisationPopup = ({
   const [shouldSelectForAllPatients, setShouldSelectForAllPatients] = useState(
     popupType !== "delete"
   );
+  const isAncSheduler = activeCategory >= 0;
   const trimesterRange =
     Number(range?.start) === 0 && Number(range?.end) === 0
       ? null
@@ -70,7 +71,7 @@ const AncImmunisationPopup = ({
 
   useEffect(() => {
     let isEditedItemPresentInDoctorList = false;
-    if (activeCategory >= 0) {
+    if (isAncSheduler) {
       isEditedItemPresentInDoctorList = ancDoctorList?.find(
         (item) => item.id === ancDetails?.masterId
       );
@@ -92,7 +93,7 @@ const AncImmunisationPopup = ({
       (ancDetails?.id && name !== ancDetails?.name) ||
       shouldSelectForAllPatients
     ) {
-      if (activeCategory >= 0) {
+      if (isAncSheduler) {
         const customSchedulerPayload = {
           id: ancDetails?.masterId || ancDetails?.id,
           name: name,
@@ -122,7 +123,7 @@ const AncImmunisationPopup = ({
 
     let newAncHistory = [...ancHistory];
     let newImmunisationHistory = [...immunisationHistory];
-    if (activeCategory >= 0) {
+    if (isAncSheduler) {
       if (editIndex >= 0) {
         ancSchedulerData[activeCategory][editIndex] = {
           ...ancSchedulerData[activeCategory][editIndex],
@@ -207,7 +208,7 @@ const AncImmunisationPopup = ({
     dispatch(obstetricDetailsUpdated());
 
     if (shouldSelectForAllPatients) {
-      if (activeCategory >= 0) {
+      if (isAncSheduler) {
         let ancDoctorListResponse = await fetchAncDoctorList();
         ancDoctorListResponse = ancDoctorListResponse?.filter(
           (item) => !item?.deleted
@@ -230,7 +231,7 @@ const AncImmunisationPopup = ({
   };
 
   const deleteCustomScheduler = () => {
-    if (activeCategory >= 0) {
+    if (isAncSheduler) {
       ancSchedulerData[activeCategory][editIndex] = {
         ...ancSchedulerData[activeCategory][editIndex],
         deleted: true,
@@ -258,8 +259,8 @@ const AncImmunisationPopup = ({
         deleted: true,
       };
       if (shouldSelectForAllPatients) {
-        ancSchedulerData.splice(editIndex, 1);
         deleteCustomImmunisation(ancSchedulerData[editIndex]?.masterId);
+        ancSchedulerData.splice(editIndex, 1);
       }
       const payload = {
         ...allObstetricDetails,
@@ -321,7 +322,7 @@ const AncImmunisationPopup = ({
                   />
                 </div>
 
-                {activeCategory >= 0 && (
+                {isAncSheduler && (
                   <div>
                     <div className="d-flex gap-5 mt-4 align-items-center">
                       <label style={{ fontWeight: 500 }}>
@@ -401,8 +402,8 @@ const AncImmunisationPopup = ({
                     checked={shouldSelectForAllPatients}
                   />
                   <div>
-                    Set this {activeCategory >= 0 ? "test" : "vaccine"} as
-                    default for all patients
+                    Set this {isAncSheduler ? "test" : "vaccine"} as default for
+                    all patients
                   </div>
                 </div>
               </>
@@ -431,14 +432,14 @@ const AncImmunisationPopup = ({
                       ((!range?.start ||
                         !range?.end ||
                         Number(range?.start) > Number(range?.end)) &&
-                        activeCategory >= 0))
+                        isAncSheduler))
                   }
                 >
                   <span>
                     {popupType === "delete"
                       ? "Yes, Remove"
                       : popupType === "add"
-                      ? activeCategory >= 0
+                      ? isAncSheduler
                         ? "Add Custom Test"
                         : "Add Custom Vaccine"
                       : "save"}
