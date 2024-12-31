@@ -42,6 +42,7 @@ function PastPregnancy({
   isPregnancyCompleted,
   gravidity,
   setLoader,
+  resetDataAfterPregnancyCompleted,
 }) {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
@@ -224,6 +225,7 @@ function PastPregnancy({
           ),
           duration: 5,
         });
+        resetDataAfterPregnancyCompleted();
       } else {
         errorMessage("Error while Completing Pregnancy!");
       }

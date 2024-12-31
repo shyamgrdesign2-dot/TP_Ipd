@@ -16,6 +16,23 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
   const { examinationHistory = [] } = obstetricDetails || [];
   const [accordionItems, setAccordionItems] = useState([]);
   const [infoAccordionItems, setInfoAccordionItems] = useState([]);
+  const shouldShowAncHistory = obstetricDetails?.ancHistory?.find(
+    (item) =>
+      !item?.deleted &&
+      (item?.dueDate ||
+        item?.status === "Completed" ||
+        item?.notes ||
+        item?.enablePrint)
+  );
+
+  const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
+    (item) =>
+      !item?.deleted &&
+      (item?.givenDate ||
+        item?.status === "Given" ||
+        item?.notes ||
+        item?.enablePrint)
+  );
 
   const measurementDetails = (obsVisit) => {
     return (
@@ -240,6 +257,12 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
     setAccordionItems(accordionItemsData);
   }, []);
 
+  useEffect(() => {
+    if (examinationHistory?.length === 0) {
+      setAccordionItems([]);
+    }
+  }, [examinationHistory]);
+
   return (
     <>
       <div className="text-white align-items-center bg-secondary d-flex justify-content-between lh-lg px-2 py-2">
@@ -309,8 +332,7 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
               </Collapse>
             </div>
           )}
-          {(obstetricDetails?.ancHistory?.length > 0 ||
-            obstetricDetails?.immunisationHistory?.length > 0) && (
+          {(shouldShowAncHistory || shouldShowImmunisation) && (
             <div
               className="border rounded-3 bg-body mt-3"
               style={{ padding: "16px" }}

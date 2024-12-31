@@ -16,6 +16,24 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
   const [accordionItems, setAccordionItems] = useState([]);
   const [infoAccordionItems, setInfoAccordionItems] = useState([]);
 
+  const shouldShowAncHistory = obstetricDetails?.ancHistory?.find(
+    (item) =>
+      !item?.deleted &&
+      (item?.dueDate ||
+        item?.status === "Completed" ||
+        item?.notes ||
+        item?.enablePrint)
+  );
+
+  const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
+    (item) =>
+      !item?.deleted &&
+      (item?.givenDate ||
+        item?.status === "Given" ||
+        item?.notes ||
+        item?.enablePrint)
+  );
+
   useEffect(() => {
     const accordionItemsData = examinationHistory?.map((visitItem, i) => ({
       key: i,
@@ -291,8 +309,7 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
         ))}
       </Collapse>
 
-      {(obstetricDetails?.ancHistory?.length > 0 ||
-        obstetricDetails?.immunisationHistory?.length > 0) && (
+      {(shouldShowAncHistory || shouldShowImmunisation) && (
         <Collapse
           items={[
             {

@@ -2202,7 +2202,7 @@ function ObsHistoryListView({
       {options?.includes("ancHistory") && ancPrintEnabled?.length > 0 && (
         <View>
           <Text style={{ lineHeight: 1.4 }}>
-            {obsHistoryData?.ancHistory?.length > 0 && (
+            {ancPrintEnabled?.length > 0 && (
               <>
                 <Text
                   style={{
@@ -2215,7 +2215,7 @@ function ObsHistoryListView({
                   &nbsp;{obsListViewCounter++}.&nbsp;ANC Scheduler&nbsp;:
                 </Text>
 
-                {obsHistoryData?.ancHistory?.map((item, i) => {
+                {ancPrintEnabled?.map((item, i) => {
                   return (
                     <View key={i}>
                       {item?.enablePrint && (
@@ -2390,7 +2390,7 @@ function ObsHistoryListView({
       {options?.includes("immunisationHistory") && immunisationPrintEnabled?.length > 0 && (
         <View>
           <Text style={{ lineHeight: 1.4 }}>
-            {obsHistoryData?.immunisationHistory?.length > 0 && (
+            {immunisationPrintEnabled?.length > 0 && (
               <>
                 <Text
                   style={{
@@ -2403,7 +2403,7 @@ function ObsHistoryListView({
                   &nbsp;{obsListViewCounter++}.&nbsp;Immunisation Vaccine&nbsp;:
                 </Text>
 
-                {obsHistoryData?.immunisationHistory?.map((item, i) => {
+                {immunisationPrintEnabled?.map((item, i) => {
                   return (
                     <View key={i}>
                       {item?.enablePrint && (
@@ -2442,7 +2442,7 @@ function ObsHistoryListView({
                             </>
                           )}
 
-                          {(item?.givenDate || item?.notes) && (
+                          {(item?.givenDate || item?.notes || item?.status) && (
                             <Text
                               style={{
                                 color: "#171725",
@@ -2458,7 +2458,7 @@ function ObsHistoryListView({
                             </Text>
                           )}
 
-                          {item?.givenDate && (
+                          {(item?.givenDate || item?.status) && (
                             <>
                               <Text
                                 style={{
@@ -2508,6 +2508,21 @@ function ObsHistoryListView({
                               }}
                             >
                               {item?.notes}
+                            </Text>
+                          )}
+                          {(item?.givenDate || item?.notes || item?.status) && (
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 500,
+                              }}
+                            >
+                              <Text>{`)`}</Text>
                             </Text>
                           )}
                         </>

@@ -101,7 +101,7 @@ const PregnancyHistory = ({
               {babysWeight ? babysWeight + " Kg" : "-"}
             </td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
-            {Object.keys(gravidaItem)?.length > 15 && (
+            {gravidaItem?.examinationHistory?.length > 0 && (
               <td
                 className="obstetricTcell pregnancyTcell text-primary text-decoration-underline cursor-pointer"
                 style={{ fontWeight: 500 }}
@@ -124,7 +124,7 @@ const PregnancyHistory = ({
               {modeOfManagement}
             </td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
-            {Object.keys(gravidaItem)?.length > 15 && (
+            {gravidaItem?.examinationHistory?.length > 0 && (
               <td
                 className="obstetricTcell pregnancyTcell text-primary text-decoration-underline cursor-pointer"
                 style={{ fontWeight: 500 }}
@@ -147,7 +147,7 @@ const PregnancyHistory = ({
             </td>
             <td className="obstetricTcell pregnancyTcell">{modeOfAbortion}</td>
             <td className="obstetricTcell pregnancyTcell">{remarks}</td>
-            {Object.keys(gravidaItem)?.length > 15 && (
+            {gravidaItem?.examinationHistory?.length > 0 && (
               <td
                 className="obstetricTcell pregnancyTcell text-primary text-decoration-underline cursor-pointer"
                 style={{ fontWeight: 500 }}
@@ -176,17 +176,17 @@ const PregnancyHistory = ({
               gravidaItem.outcome === OutcomeOptions.stillBirth
             ) {
               columns =
-                Object.keys(gravidaItem)?.length > 15
+                gravidaItem?.examinationHistory?.length > 0
                   ? LiveColumnsWithPregnancyHistory
                   : LiveColumns;
             } else if (gravidaItem.outcome === OutcomeOptions.ectopic) {
               columns =
-                Object.keys(gravidaItem)?.length > 15
+                gravidaItem?.examinationHistory?.length > 0
                   ? EctopicColumnsWithPregnancyHistory
                   : EctopicColumns;
             } else if (gravidaItem.outcome === OutcomeOptions.abortion) {
               columns =
-                Object.keys(gravidaItem)?.length > 15
+                gravidaItem?.examinationHistory?.length > 0
                   ? AbortionColumnsWithPregnancyHistory
                   : AbortionColumns;
             }

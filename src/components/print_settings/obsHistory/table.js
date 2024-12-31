@@ -47,7 +47,17 @@ function ObsHistoryTableView({
         Obstetric History&nbsp;:&nbsp;
       </Text>
 
-      {options?.includes("gplae") && (
+      {options?.includes("gplae") && (("gravidity" in obsHistoryData &&
+        obsHistoryData?.gravidity != null) ||
+        ("parity" in obsHistoryData && obsHistoryData?.parity != null) ||
+        ("livingChildren" in obsHistoryData &&
+          obsHistoryData?.livingChildren != null) ||
+        ("abortion" in obsHistoryData &&
+          obsHistoryData?.abortion != null) ||
+        ("ectopicPregnancies" in obsHistoryData &&
+          obsHistoryData?.ectopicPregnancies != null) ||
+        ("diagnosisNotes" in obsHistoryData &&
+          obsHistoryData?.diagnosisNotes != null)) && (
         <View>
           <Text
             style={{
@@ -1703,7 +1713,7 @@ function ObsHistoryTableView({
                 Remarks
               </Text>
             </View>
-            {obsHistoryData?.ancHistory?.map((item, i) => {
+            {ancPrintEnabled?.map((item, i) => {
               if (item?.enablePrint) {
                 return (
                   <View style={styles.row} key={i}>
@@ -1848,7 +1858,7 @@ function ObsHistoryTableView({
                 Remarks
               </Text>
             </View>
-            {obsHistoryData?.immunisationHistory?.map((item, i) => {
+            {immunisationPrintEnabled?.map((item, i) => {
               if (item?.enablePrint) {
                 return (
                   <View style={styles.row} key={i}>
