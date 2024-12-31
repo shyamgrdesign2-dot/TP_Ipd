@@ -232,7 +232,9 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
       ),
     };
 
-    data.push(updateData);
+    if (hasPatientInfo || obstetricDetails.lmp || obstetricDetails.edd) {
+      data.push(updateData);
+    }
     setInfoAccordionItems(data);
 
     setAccordionItems(accordionItemsData);
@@ -262,36 +264,15 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
             <i className="icon-Add me-2 fs-21"></i>
             Add or Edit History
           </Button>
-          <div
-            className="border rounded-3 bg-body mt-3"
-            style={{ padding: "16px" }}
-          >
-            {infoAccordionItems?.map((item, index) => (
-              <React.Fragment key={index}>
-                {item.content}
-                {index < infoAccordionItems?.length - 1 && (
-                  <Divider
-                    dashed
-                    style={{
-                      borderTop: "1px dotted #D0D5DD",
-                      margin: "6px 0",
-                      width: "100%",
-                    }}
-                  />
-                )}
-              </React.Fragment>
-            ))}
-            <Collapse
-              defaultActiveKey={[0]}
-              className="prescriptiontab-accordian history-sider-box history-sider-box-white obstetricAccordian"
-              expandIconPosition={"end"}
+          {(infoAccordionItems?.length > 0 || accordionItems?.length > 0) && (
+            <div
+              className="border rounded-3 bg-body mt-3"
+              style={{ padding: "16px" }}
             >
-              {accordionItems?.map((item, index) => (
-                <React.Fragment key={item.key}>
-                  <Collapse.Panel header={item.label} key={item.key}>
-                    {item.content}
-                  </Collapse.Panel>
-                  {index < accordionItems.length - 1 && (
+              {infoAccordionItems?.map((item, index) => (
+                <React.Fragment key={index}>
+                  {item.content}
+                  {index < infoAccordionItems?.length - 1 && (
                     <Divider
                       dashed
                       style={{
@@ -303,36 +284,59 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
                   )}
                 </React.Fragment>
               ))}
-            </Collapse>
-          </div>
-          {obstetricDetails?.ancHistory?.length > 0 &&
-            obstetricDetails?.immunisationHistory?.length > 0 && (
-              <div
-                className="border rounded-3 bg-body mt-3"
-                style={{ padding: "16px" }}
+              <Collapse
+                defaultActiveKey={[0]}
+                className="prescriptiontab-accordian history-sider-box history-sider-box-white obstetricAccordian"
+                expandIconPosition={"end"}
               >
-                <Collapse
-                  items={[
-                    {
-                      key: "anc",
-                      label: (
-                        <span style={{ fontWeight: 600 }}>
-                          ANC Scheduler & Immunisation Vaccines
-                        </span>
-                      ),
-                      children: (
-                        <AncImmunisationList
-                          handleDrawerObstetric={handleDrawerObstetric}
-                        />
-                      ),
-                    },
-                  ]}
-                  defaultActiveKey={["anc"]}
-                  className="prescriptiontab-accordian history-sider-box obstetric-collapse"
-                  expandIconPosition={"end"}
-                />
-              </div>
-            )}
+                {accordionItems?.map((item, index) => (
+                  <React.Fragment key={item.key}>
+                    <Collapse.Panel header={item.label} key={item.key}>
+                      {item.content}
+                    </Collapse.Panel>
+                    {index < accordionItems.length - 1 && (
+                      <Divider
+                        dashed
+                        style={{
+                          borderTop: "1px dotted #D0D5DD",
+                          margin: "6px 0",
+                          width: "100%",
+                        }}
+                      />
+                    )}
+                  </React.Fragment>
+                ))}
+              </Collapse>
+            </div>
+          )}
+          {(obstetricDetails?.ancHistory?.length > 0 ||
+            obstetricDetails?.immunisationHistory?.length > 0) && (
+            <div
+              className="border rounded-3 bg-body mt-3"
+              style={{ padding: "16px" }}
+            >
+              <Collapse
+                items={[
+                  {
+                    key: "anc",
+                    label: (
+                      <span style={{ fontWeight: 600 }}>
+                        ANC Scheduler & Immunisation Vaccines
+                      </span>
+                    ),
+                    children: (
+                      <AncImmunisationList
+                        handleDrawerObstetric={handleDrawerObstetric}
+                      />
+                    ),
+                  },
+                ]}
+                defaultActiveKey={["anc"]}
+                className="prescriptiontab-accordian history-sider-box obstetric-collapse"
+                expandIconPosition={"end"}
+              />
+            </div>
+          )}
         </div>
       </div>
     </>

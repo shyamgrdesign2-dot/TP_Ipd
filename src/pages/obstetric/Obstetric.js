@@ -20,6 +20,7 @@ import {
   fetchPrefillObstetricDetails,
   fetchTour,
   updatePrefillObstetricData,
+  updateTour,
   upsertObstetricDetails,
 } from "./service";
 import {
@@ -39,7 +40,7 @@ import CommonModal from "../../common/CommonModal";
 import { Container, Navbar } from "react-bootstrap";
 import ImmunisationHistory from "./components/immunisationHistory/ImmunisationHistory";
 import AncScheduler from "./components/ancScheduler/AncScheduler";
-import Tour from "../../common/Tour";
+import "./Obstetric.scss";
 
 const { TabPane } = Tabs;
 
@@ -150,9 +151,33 @@ const Obstetric = ({
 
   const pregnancyRef = useRef(null);
   const examinationRef = useRef(null);
-  const tourRef = useRef(null);
   const { profile, userId } = useSelector((state) => state.doctors);
   const [runTour, setRunTour] = useState(false);
+
+  useEffect(() => {
+    if (runTour) {
+      const tab3 = document.querySelector(".ant-tabs-nav-list > :nth-child(3)");
+      const tab4 = document.querySelector(".ant-tabs-nav-list > :nth-child(4)");
+      const tooltip = document.querySelector(".tour-container");
+      const tabFocus = document.querySelector(".tab-focus");
+
+      if (tab3 && tab4 && tooltip && tabFocus) {
+        const tab3Rect = tab3.getBoundingClientRect();
+        const tab4Rect = tab4.getBoundingClientRect();
+
+        // Position the tooltip centrally between tab3 and tab4
+        tooltip.style.top = `${tab3Rect.bottom - 45}px`;
+        tooltip.style.left = `${
+          (tab3Rect.left + tab4Rect.right) / 2 - tooltip.offsetWidth / 2 + 15
+        }px`;
+
+        // Position the tab-focus div
+        tabFocus.style.left = `${
+          (tab3Rect.left + tab4Rect.right) / 2 - tabFocus.offsetWidth / 2 + 15
+        }px`;
+      }
+    }
+  }, [runTour]);
 
   useEffect(() => {
     if (runTour) {
@@ -190,6 +215,32 @@ const Obstetric = ({
     getDefaultAndDoctorList();
   }, []);
 
+  const tourHandler = async () => {
+    setRunTour(false);
+    await updateTour({
+      anc: true,
+      immunisation: true,
+    });
+  };
+
+  const tooltip = () => (
+    <div className="tour-container">
+      <div className="d-flex align-items-center justify-content-between">
+        <div className="title-sami fs-16">
+          ANC Scheduler & Immunisation History
+        </div>
+        <img className="img-fluid" width={52} height={20} src={tagNew} />
+      </div>
+      <div className="py-3">
+        Track and manage your patients' antenatal care (ANC) journey
+        effortlessly with the ANC Scheduler. Access immunisation records to
+        streamline care and improve outcomes.
+      </div>
+      <button className="tour-button" onClick={tourHandler}>
+        Got it
+      </button>
+    </div>
+  );
   const getDefaultAndDoctorList = async () => {
     if (defaultAncSchedule?.length === 0) {
       const defaultAncResponse = await fetchDefaultAnc();
@@ -425,63 +476,9 @@ const Obstetric = ({
     }
   };
 
-  const steps = [
-    {
-      target: ".ant-tabs-nav-list > :nth-child(3)", // Target the ANC Scheduler tab
-      content: (
-        <div style={{ padding: 0 }}>
-          <div className="d-flex align-items-center justify-content-between">
-            <span className="fw-medium fs-18">ANC Scheduler</span>
-
-            <img
-              className="img-fluid ms-2"
-              width={52}
-              height={20}
-              src={tagNew}
-            />
-          </div>
-          <div className="pt-1">
-            Track and manage your patients' antenatal care (ANC) journey
-            effortlessly with the ANC Scheduler
-          </div>
-        </div>
-      ),
-      placement: "bottom",
-    },
-    {
-      target: ".ant-tabs-nav-list > :nth-child(4)", // Target the Immunisation History tab
-      content: (
-        <div>
-          <div className="d-flex align-items-center justify-content-between">
-            <span className="fw-medium fs-18">Immunisation History</span>
-
-            <img
-              className="img-fluid ms-2"
-              width={52}
-              height={20}
-              src={tagNew}
-            />
-          </div>
-          <div className="pt-1">
-            Access Immunisation records to streamline care and improve outcomes.
-          </div>
-        </div>
-      ),
-      placement: "bottom",
-    },
-  ];
-
   return (
     <>
       <div className="vaccinationWrapper">
-        {/* Hidden Button */}
-        <button
-          style={{ display: "none" }}
-          ref={tourRef}
-          onClick={() => setRunTour(true)}
-        >
-          Show Tour
-        </button>
         {isPreviousPregnancyOverview ? (
           <Navbar className="headerprescription p-0">
             <Container fluid className="h-100 gx-0 w-100">
@@ -531,20 +528,35 @@ const Obstetric = ({
           </div>
         ) : (
           <div className="scrollableContainer" onScroll={handleScroll}>
-            <PatientDiagnosis
-              lmpDate={lmpDate}
-              patientDiagnosisData={patientDiagnosisData}
-              pastPregnancyData={pastPregnancyData}
-              patientDiagnosisNotes={patientDiagnosisNotes}
-              setLmpDate={setLmpDate}
-              setPatientDiagnosisData={setPatientDiagnosisData}
-              setPastPregnancyData={setPastPregnancyData}
-              setPatientDiagnosisNotes={setPatientDiagnosisNotes}
-              isFixed={isFixed}
-              setPrefillObstetricData={setPrefillObstetricData}
-              isPreviousPregnancyOverview={isPreviousPregnancyOverview}
-            />
+            <div style={{ position: "relative" }}>
+              <PatientDiagnosis
+                lmpDate={lmpDate}
+                patientDiagnosisData={patientDiagnosisData}
+                pastPregnancyData={pastPregnancyData}
+                patientDiagnosisNotes={patientDiagnosisNotes}
+                setLmpDate={setLmpDate}
+                setPatientDiagnosisData={setPatientDiagnosisData}
+                setPastPregnancyData={setPastPregnancyData}
+                setPatientDiagnosisNotes={setPatientDiagnosisNotes}
+                isFixed={isFixed}
+                setPrefillObstetricData={setPrefillObstetricData}
+                isPreviousPregnancyOverview={isPreviousPregnancyOverview}
+              />
 
+              {runTour && (
+                <>
+                  {/* Overlay */}
+                  <div className="overlay"></div>
+                  {/* Tab Focus */}
+                  <div className="tab-focus">
+                    <span>ANC Scheduler</span>
+                    <span>Immunisation History</span>
+                  </div>
+                  {/* Tooltip */}
+                  {tooltip()}
+                </>
+              )}
+            </div>
             <Tabs
               className="obstetricTab"
               activeKey={activeTab}
@@ -718,9 +730,6 @@ const Obstetric = ({
             </>
           }
         />
-      </div>
-      <div>
-        <Tour run={runTour} steps={steps} />
       </div>
     </>
   );

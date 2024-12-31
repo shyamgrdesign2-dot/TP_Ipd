@@ -305,7 +305,19 @@ function ObsHistoryTableView({
         </View>
       )}
 
-      {options?.includes("diagnosis") && (
+      {options?.includes("diagnosis") && (obsHistoryData?.lmp ||
+        "edd" in obsHistoryData ||
+        "ceed" in obsHistoryData ||
+        gestationWeeks != null ||
+        gestationDays != null ||
+        "blood" in obsHistoryData ||
+        "husbandsBlood" in obsHistoryData ||
+        "consang" in obsHistoryData ||
+        "maritialStatus" in obsHistoryData ||
+        ("marriageDurationYears" in obsHistoryData &&
+          obsHistoryData?.marriageDurationYears != null) ||
+        ("marriageDurationMonths" in obsHistoryData &&
+          obsHistoryData?.marriageDurationMonths != null)) && (
         <View>
           <Text
             style={{
@@ -593,7 +605,7 @@ function ObsHistoryTableView({
                   styles.minHeight38,
                 ]}
               >
-                {Boolean(obsHistoryData?.consang) ? `Yes` : `No`}
+                {obsHistoryData?.consang ? Boolean(obsHistoryData?.consang) ? `Yes` : `No` : `-`}
               </Text>
               <Text
                 style={[
@@ -1243,7 +1255,7 @@ function ObsHistoryTableView({
           </View>
         )}
 
-      {options?.includes("examination") && (
+      {options?.includes("examination") && obsHistoryData?.examinationHistory?.length > 0 && (
         <View>
           <Text
             style={{
@@ -1705,6 +1717,7 @@ function ObsHistoryTableView({
                           fontSize:
                             PX_TO_PT * printSettings?.page_format?.font_size,
                           fontWeight: 400,
+                          textAlign: "center",
                         },
                       ]}
                     >
@@ -1720,6 +1733,7 @@ function ObsHistoryTableView({
                           fontSize:
                             PX_TO_PT * printSettings?.page_format?.font_size,
                           fontWeight: 400,
+                          textAlign: "center",
                         },
                       ]}
                     >
@@ -1737,6 +1751,7 @@ function ObsHistoryTableView({
                           fontSize:
                             PX_TO_PT * printSettings?.page_format?.font_size,
                           fontWeight: 400,
+                          textAlign: "center",
                         },
                       ]}
                     >
@@ -1753,13 +1768,14 @@ function ObsHistoryTableView({
                           fontSize:
                             PX_TO_PT * printSettings?.page_format?.font_size,
                           fontWeight: 400,
+                          textAlign: "center",
                         },
                       ]}
                     >
                       {item?.notes ?? "-"}
                     </Text>
                   </View>
-              );
+                );
             }})}
           </View>
         </View>
@@ -1846,6 +1862,7 @@ function ObsHistoryTableView({
                           fontSize:
                             PX_TO_PT * printSettings?.page_format?.font_size,
                           fontWeight: 400,
+                          textAlign: "center",
                         },
                       ]}
                     >
@@ -1861,13 +1878,15 @@ function ObsHistoryTableView({
                           fontSize:
                             PX_TO_PT * printSettings?.page_format?.font_size,
                           fontWeight: 400,
+                          textAlign: "center",
                         },
                       ]}
                     >
                       {item?.status === "Given" && item?.givenDate
-                    ? `Given on ${moment(item?.givenDate).format("DD/MM/YYYY")}`
-                        : item?.status
-                      }
+                        ? `Given on ${moment(item?.givenDate).format(
+                            "DD/MM/YYYY"
+                          )}`
+                        : item?.status}
                     </Text>
 
                     <Text
@@ -1880,6 +1899,7 @@ function ObsHistoryTableView({
                           fontSize:
                             PX_TO_PT * printSettings?.page_format?.font_size,
                           fontWeight: 400,
+                          textAlign: "center",
                         },
                       ]}
                     >

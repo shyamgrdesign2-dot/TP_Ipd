@@ -218,7 +218,11 @@ export default function PatientDiagnosis({
           <div className="history-badge">
             Gestation :
             <Input
-              className="timeIntervalValue"
+              className={`timeIntervalValue ${
+                isMobile && isPreviousPregnancyOverview
+                  ? "timeIntervalValueForPreviousPregnancy"
+                  : ""
+              }`}
               style={{ marginLeft: "10px" }}
               placeholder="Ex : 3"
               value={patientDiagnosisData.gestationWeeks ?? ""}
@@ -241,7 +245,11 @@ export default function PatientDiagnosis({
               Weeks
             </span>
             <Input
-              className="timeIntervalValue"
+              className={`timeIntervalValue ${
+                isMobile && isPreviousPregnancyOverview
+                  ? "timeIntervalValueForPreviousPregnancy"
+                  : ""
+              }`}
               placeholder="Ex : 2"
               value={patientDiagnosisData.gestationDays ?? ""}
               onInput={(e) => {
@@ -266,7 +274,13 @@ export default function PatientDiagnosis({
               Days
             </span>
           </div>
-          <div className="history-badge patientBloodStyleContainer">
+          <div
+            className={`history-badge patientBloodStyleContainer ${
+              isMobile && isPreviousPregnancyOverview
+                ? "bloodContainerForPreviousPregnancy"
+                : ""
+            }`}
+          >
             {isMobile ? "Blood :" : "Patient Blood Group :"}
             <DropdownButton
               className="diagnosisSelect bloodGroup"
@@ -293,8 +307,18 @@ export default function PatientDiagnosis({
         </div>
 
         <div className="rowContainer">
-          <div className="history-badge husbandBloodStyleContainer">
-            {isMobile ? "Husband's blood :" : "Husband's Blood Group :"}
+          <div
+            className={`history-badge husbandBloodStyleContainer ${
+              isMobile && isPreviousPregnancyOverview
+                ? "husbandBloodForPreviousPregnancy"
+                : ""
+            }`}
+          >
+            {isMobile && isPreviousPregnancyOverview
+              ? "Husband's :"
+              : isMobile
+              ? "Husband's blood :"
+              : "Husband's Blood Group :"}
             <DropdownButton
               className="diagnosisSelect husbandBlood"
               title={
@@ -360,7 +384,11 @@ export default function PatientDiagnosis({
           <div className="history-badge">
             Marriage duration :{" "}
             <Input
-              className="timeIntervalValue"
+              className={`timeIntervalValue ${
+                isMobile && isPreviousPregnancyOverview
+                  ? "timeIntervalValueForPreviousPregnancy"
+                  : ""
+              }`}
               style={{ marginLeft: "10px" }}
               placeholder="Ex : 3"
               value={patientDiagnosisData.marriageDurationYears}
@@ -378,7 +406,11 @@ export default function PatientDiagnosis({
             />
             <span className="timeInterval spanStyle">Years</span>
             <Input
-              className="timeIntervalValue"
+              className={`timeIntervalValue ${
+                isMobile && isPreviousPregnancyOverview
+                  ? "timeIntervalValueForPreviousPregnancy"
+                  : ""
+              }`}
               placeholder="Ex : 2"
               value={patientDiagnosisData.marriageDurationMonths}
               onInput={(e) => {

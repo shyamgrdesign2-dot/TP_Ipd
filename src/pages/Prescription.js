@@ -917,7 +917,10 @@ const getGenerateDDx = async (field) => {
             obstetricDetails?.livingChildren ||
             obstetricDetails?.abortion ||
             obstetricDetails?.ectopicPregnancies ||
-            examinationHistory?.length > 0) && <ObstetricList obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} />}
+            examinationHistory?.length > 0 ||
+            obstetricDetails?.ancHistory?.length > 0 ||
+            obstetricDetails?.immunisationHistory?.length > 0
+            ) && <ObstetricList obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} />}
         </div>
           ) : e.tmdpm_id === 18 &&
             e.tmdpm_status === 0 ? (

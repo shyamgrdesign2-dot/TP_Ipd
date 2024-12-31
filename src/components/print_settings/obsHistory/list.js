@@ -431,7 +431,7 @@ function ObsHistoryListView({
       {options?.includes("diagnosis") && (
         <View>
           <Text style={{ marginTop: 5, lineHeight: 1.4 }}>
-            {("lmp" in obsHistoryData ||
+            {(obsHistoryData?.lmp ||
               "edd" in obsHistoryData ||
               "ceed" in obsHistoryData ||
               gestationWeeks != null ||
@@ -1699,7 +1699,7 @@ function ObsHistoryListView({
         </View>
       )}
 
-      {options?.includes("examination") && (
+      {options?.includes("examination") && obsHistoryData?.examinationHistory?.length > 0 && (
         <View>
           <Text style={{ lineHeight: 1.4 }}>
             <Text
