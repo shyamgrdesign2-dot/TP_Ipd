@@ -51,7 +51,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
       true
     );
     setAncHistory(newAncHistory);
-  }, []);
+  }, [obstetricDetails?.currentPregnancy]);
 
   return (
     <div>

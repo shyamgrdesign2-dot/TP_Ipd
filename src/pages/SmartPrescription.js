@@ -117,6 +117,22 @@ function SmartPrescription() {
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
+  const shouldShowAncHistory = obstetricDetails?.ancHistory?.find(
+  (item) =>
+    !item?.deleted &&
+    (item?.dueDate ||
+      item?.status === "Completed" ||
+      item?.notes ||
+      item?.enablePrint)
+  );
+  const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
+  (item) =>
+    !item?.deleted &&
+    (item?.givenDate ||
+      item?.status === "Given" ||
+      item?.notes ||
+      item?.enablePrint)
+  );
   const dispatch = useDispatch();
 
   const { state } = useLocation();
@@ -910,8 +926,8 @@ function SmartPrescription() {
             obstetricDetails?.abortion ||
             obstetricDetails?.ectopicPregnancies ||
             examinationHistory?.length > 0 ||
-            obstetricDetails?.ancHistory?.length > 0 ||
-            obstetricDetails?.immunisationHistory?.length > 0) && <ObstetricList obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} />}
+            shouldShowAncHistory ||
+            shouldShowImmunisation) && <ObstetricList obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} />}
         </div>
       ) : e.tmdpm_id === 18 && e.tmdpm_status === 0 ? (
         <>

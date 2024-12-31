@@ -2293,7 +2293,7 @@ function ObsHistoryInlineView({
       {options?.includes("ancHistory") && ancPrintEnabled?.length > 0 && (
         <View>
           <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
-            {obsHistoryData?.ancHistory?.length > 0 && (
+            {ancPrintEnabled?.length > 0 && (
               <>
                 <Text
                   style={{
@@ -2305,7 +2305,7 @@ function ObsHistoryInlineView({
                 >
                   ANC Scheduler:&nbsp;
                 </Text>
-                {obsHistoryData?.ancHistory.map((item, i) => (
+                {ancPrintEnabled?.map((item, i) => (
                   <View key={i}>
                     {item?.enablePrint && (
                       <>
@@ -2464,7 +2464,7 @@ function ObsHistoryInlineView({
         immunisationPrintEnabled?.length > 0 && (
           <View>
             <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
-              {obsHistoryData?.immunisationHistory.length > 0 && (
+              {immunisationPrintEnabled?.length > 0 && (
                 <>
                   <Text
                     style={{
@@ -2477,7 +2477,7 @@ function ObsHistoryInlineView({
                   >
                     Immunisation Vaccine:&nbsp;
                   </Text>
-                  {obsHistoryData?.immunisationHistory.map((item, i) => (
+                  {immunisationPrintEnabled?.map((item, i) => (
                     <View key={i}>
                       {item?.enablePrint && (
                         <>
@@ -2495,7 +2495,7 @@ function ObsHistoryInlineView({
                             {item?.master?.name}
                           </Text>
 
-                          {(item?.givenDate || item?.notes) && (
+                          {(item?.givenDate || item?.notes || item?.status) && (
                             <Text
                               style={{
                                 color: "#171725",
@@ -2510,8 +2510,7 @@ function ObsHistoryInlineView({
                               <Text>&nbsp;(</Text>
                             </Text>
                           )}
-
-                          {item?.givenDate && (
+                          {(item?.givenDate || item?.status) && (
                             <>
                               <Text
                                 style={{
@@ -2564,7 +2563,7 @@ function ObsHistoryInlineView({
                             </Text>
                           )}
 
-                          {(item?.givenDate || item?.notes) && (
+                          {(item?.givenDate || item?.notes || item?.status) && (
                             <Text
                               style={{
                                 color: "#171725",
