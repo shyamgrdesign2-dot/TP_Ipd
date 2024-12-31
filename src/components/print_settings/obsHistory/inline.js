@@ -438,7 +438,7 @@ function ObsHistoryInlineView({
       {options?.includes("diagnosis") && (
         <View>
           <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
-            {("lmp" in obsHistoryData ||
+            {(obsHistoryData?.lmp ||
               "edd" in obsHistoryData ||
               "ceed" in obsHistoryData ||
               gestationWeeks != null ||
@@ -1730,7 +1730,7 @@ function ObsHistoryInlineView({
         </View>
       )}
 
-      {options?.includes("examination") && (
+      {options?.includes("examination") && obsHistoryData?.examinationHistory?.length > 0 && (
         <View>
           <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
             {obsHistoryData?.examinationHistory.length > 0 && (

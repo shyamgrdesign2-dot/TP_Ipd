@@ -336,9 +336,15 @@ const AncImmunisationPopup = ({
                               ""
                             );
                           }}
-                          onChange={(e) =>
-                            setRange({ ...range, start: e.target.value })
-                          }
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            // Accept only numbers greater than zero
+                            if (value && parseInt(value, 10) > 0) {
+                              setRange({ ...range, start: value });
+                            } else {
+                              setRange({ ...range, start: "" }); // Clear invalid values
+                            }
+                          }}
                           style={{ width: 92, height: 38 }}
                         />
                         -
@@ -350,9 +356,15 @@ const AncImmunisationPopup = ({
                               ""
                             );
                           }}
-                          onChange={(e) =>
-                            setRange({ ...range, end: e.target.value })
-                          }
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            // Accept only numbers greater than zero
+                            if (value && parseInt(value, 10) > 0) {
+                              setRange({ ...range, end: value });
+                            } else {
+                              setRange({ ...range, end: "" }); // Clear invalid values
+                            }
+                          }}
                           style={{ width: 92, height: 38 }}
                         />
                       </div>
@@ -364,8 +376,8 @@ const AncImmunisationPopup = ({
                         <span className="warningTip" />
                         Start date cannot be greater than End date
                       </div>
-                    ) : range?.start &&
-                      range?.end &&
+                    ) : Number(range?.start) &&
+                      Number(range?.end) &&
                       trimesterRange >= 0 &&
                       trimesterRange !== activeCategory ? (
                       <div className="mt-3 ancImmunisationWarning">
