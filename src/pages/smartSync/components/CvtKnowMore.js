@@ -11,11 +11,12 @@ import playIcons from "../../../assets/images/tube-icon.svg";
 import redCrossIcon from "../../../assets/images/red-cross.svg";
 import greenRightIcon from "../../../assets/images/green-right.svg";
 import structuredRxGif from "../../../assets/images/structuredRx.gif";
+import VideoModal from "../../../common/VideoModal";
 
 const { TabPane } = Tabs;
 
 const CvtKnowMore = ({ handleCollapsed }) => {
-  const [videoLink, setVideoLink] = useState(null);
+  const [videoLink, setVideoLink] = useState(false);
   const { loading, videoList } = useSelector((state) => state.doctors);
 
   const scrollToSection = (sectionId) => {
@@ -23,6 +24,11 @@ const CvtKnowMore = ({ handleCollapsed }) => {
     if (section) {
       section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+  };
+
+  const video_link = {
+    link: "https://youtu.be/UgeyXlHItXI",
+    thumbnail: "https://i.ytimg.com/vi/mAZ7Sa86PnQ/hqdefault.jpg",
   };
 
   return (
@@ -122,7 +128,12 @@ const CvtKnowMore = ({ handleCollapsed }) => {
           </div>
         </div>
 
-        <div id="digitisationProcess" className="video-section">
+        <div 
+          id="digitisationProcess" 
+          className="video-section"                   
+          onClick={() => {
+            setVideoLink(true)
+          }}>
           <span className="section-side-header">Digitisation Process</span>
           <div className="know-more-section-tilte">
             How Smart Rx Digitisation Works?
@@ -135,9 +146,6 @@ const CvtKnowMore = ({ handleCollapsed }) => {
               <div className="cvt-play me-14">
                 <button
                   type="button"
-                  // onClick={() => {
-                  //   setVideoLink(item1)
-                  // }}
                 >
                   <img src={playIcons} width="54.871px" height="54.871px" />
                 </button>
@@ -150,6 +158,13 @@ const CvtKnowMore = ({ handleCollapsed }) => {
             </div>
           </div>
         </div>
+
+        {videoLink && (
+          <VideoModal
+            videoLink={video_link}
+            onCancel={() => setVideoLink(false)}
+          />
+        )}
 
         <div id="tipsForRxWriting" className="section">
           <span className="section-side-header">Tips for Rx writting</span>
