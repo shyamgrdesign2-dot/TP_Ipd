@@ -155,12 +155,14 @@ function MessagesData() {
         [searchQuery]
     );
 
-    const onChange = useCallback(
-        (key) => {
-            setSelectedTab(key);
-        },
-        [selectedTab]
-    );
+    const onChange = (key) => {
+        setSelectedTab(key);
+        setDateRange({
+            startDate: moment().format(dateFormat),
+            endDate: moment().format(dateFormat),
+        });
+        setDateStatus(1);
+    }
 
     const handlePickerModal = useCallback(
         () => {
@@ -168,6 +170,10 @@ function MessagesData() {
         },
         [pickerModal]
     );
+
+    const disabledDate = (current) => {
+        return current && current > dayjs().endOf("day");
+    };
 
     const rangePresets = [
         {
@@ -291,6 +297,8 @@ function MessagesData() {
 
         if (record?.campaign_sent) {
             return items.filter((item) => item.key !== "edit_campaign" && item.key !== "delete_campaign");
+        } else if (record?.edit_status) {
+            return items.filter((item) => item.key !== "edit_campaign");
         } else {
             return items;
         }
@@ -530,7 +538,7 @@ function MessagesData() {
                                 variant="primary"
                                 className="px-3 mt-4 btn-41 d-flex align-items-center">
                                 <i className="icon-Add me-2"></i>
-                                {"Create New Campaign"}
+                                {"Choose new Template"}
                             </Button>
                         </>
                     ) : (
@@ -585,12 +593,15 @@ function MessagesData() {
                                     ) : dateStatus === 6 ? (
                                         'Last 1 year'
                                     ) : (
-                                        'Custom range'
+                                        <>
+                                            {moment(dateRange.startDate).format(showDateFormat)} - {moment(dateRange.endDate).format(showDateFormat)}
+                                        </>
                                     )}
                                 </span>
                                 <i className="mx-2 fs-18 icon-calendar"></i>
                             </div>
                             <RangePicker
+                                disabledDate={(current) => selectedTab !== TAB_CAMPAIGN ? disabledDate(current) : null}
                                 open={pickerModal}
                                 presets={rangePresets}
                                 format={showDateFormat}
@@ -618,13 +629,13 @@ function MessagesData() {
                                         </div>
                                     </div>}
                                 onOpenChange={() => { }}
-                            // value={[dateRange.startDate != dateRange.endDate
-                            //     ? dayjs(moment(dateRange.startDate).format(showDateFormat), showDateFormat)
-                            //     : "",
-                            // dateRange.startDate != dateRange.endDate
-                            //     ? dayjs(moment(dateRange.endDate).format(showDateFormat), showDateFormat)
-                            //     : ""]
-                            // }
+                                value={[dateRange.startDate != dateRange.endDate
+                                    ? dayjs(moment(dateRange.startDate).format(showDateFormat), showDateFormat)
+                                    : "",
+                                dateRange.startDate != dateRange.endDate
+                                    ? dayjs(moment(dateRange.endDate).format(showDateFormat), showDateFormat)
+                                    : ""]
+                                }
                             />
 
                         </div>

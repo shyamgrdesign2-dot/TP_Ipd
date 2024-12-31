@@ -92,7 +92,7 @@ function AvailableCredits({ handleAvailableCredit }) {
             amount: data.amount,
             currency: data.currency,
             name: 'Purchase bulk messages',
-            description: 'description',
+            description: '',
             image: '',
             order_id: data.id,
             handler: async (response) => {
@@ -155,7 +155,7 @@ function AvailableCredits({ handleAvailableCredit }) {
             {userCreditObj?.offer_flag === 0 && (
                 <div className="badge-discount py-2 w-100 rounded-0 text-center"> <img src={DiscountIcon} className="me-1" alt="Discount" />Get <span className="fw-medium">20% extra</span> credits on purchases over <span className="fw-medium">₹2000!</span></div>
             )}
-            <div className="bg-white overflow-y-auto p-20 d-flex flex-column justify-content-between" style={{ minHeight: 'calc( 100vh - 98px)' }}>
+            <div className="bg-white overflow-y-auto p-20 d-flex flex-column justify-content-between" style={{ minHeight: userCreditObj?.offer_flag === 0 ? 'calc(100vh - 98px)' : 'calc(100vh - 61px)'}}>
                 <div>
                     <div className="px-3 available-credits">
                         <img src={CreditImg} width={19} className="me-2" />
@@ -221,6 +221,7 @@ function AvailableCredits({ handleAvailableCredit }) {
                     <Button className="mt-5 lh-lg btn btn-primary3 btn-54 w-100" onClick={clickBuyNow}>
                         <span>Buy Now</span>
                     </Button>
+                    <div className="mt-2 fs-12-1 text-center"><span className="fw-semibold">Note: </span>An additional <span className="fw-semibold">18% GST</span> will be added to the total amount at checkout.</div>
                 </div>
             </div>
             <Modal
