@@ -294,6 +294,11 @@ const AncScheduler = ({
               onChange={(e) =>
                 handleImmunisationChange("notes", i, e.target.value)
               }
+              onBlur={(e) => {
+                // Trim only when the user leaves the input field (onBlur)
+                const trimmedValue = e.target.value.trim();
+                handleImmunisationChange("notes", i, trimmedValue);
+              }}
               className="textareaPlaceholder immunisationRemarks"
               disabled={isPreviousPregnancyOverview}
             />

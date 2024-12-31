@@ -171,6 +171,9 @@
           text-align: center;
           border-radius: 0 !important;
         }
+        .timeIntervalValueForPreviousPregnancy {
+          width: 35px;
+        }
       }
     }
   }
@@ -197,7 +200,7 @@
   }
 
   .diagnosisNotesStyle {
-    // width: 50%;
+    width: 50%;
     display: flex;
     padding-right: 40px;
     align-items: flex-start;
@@ -245,6 +248,10 @@
   }
 }
 
+.husbandBloodForPreviousPregnancy {
+  width: 150px !important;
+}
+
 .patientBloodStyleContainer {
   width: 160px !important;
   position: relative;
@@ -281,6 +288,10 @@
       }
     }
   }
+}
+
+.bloodContainerForPreviousPregnancy {
+  width: 115px !important;
 }
 
 .consangStyleContainer {
@@ -362,6 +373,6 @@
   font-weight: 500;
   line-height: 24px;
   text-align: left;
-  background: #A461D81A;
-  color: #A461D8 !important;
+  background: #a461d81a;
+  color: #a461d8 !important;
 }

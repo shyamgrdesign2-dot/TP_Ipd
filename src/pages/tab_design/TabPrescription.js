@@ -558,7 +558,7 @@ function TabPrescription() {
   }, [isNavigateToObstetric]);
 
   useEffect(() => {
-    if (collapsedFlag === 6 && examinationHistory?.length === 0 && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies) {
+    if (collapsedFlag === 6 && examinationHistory?.length === 0 && obstetricDetails?.ancHistory?.length === 0 && obstetricDetails?.immunisationHistory?.length === 0 && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies) {
       setCollapsed(false);
     }
   }, [collapsedFlag, collapsed])
@@ -1024,6 +1024,8 @@ function TabPrescription() {
                         style={{ padding: "0px" }}
                         onClick={() =>
                           examinationHistory?.length === 0 &&
+                          obstetricDetails?.ancHistory?.length === 0 &&
+                          obstetricDetails?.immunisationHistory?.length === 0 &&
                           !obstetricDetails?.lmp &&
                           !obstetricDetails?.edd &&
                           !obstetricDetails?.gravidity &&

@@ -348,7 +348,7 @@ function PastPregnancy({
             className="custom-select"
             value={pastPregnancyData?.gravidity}
             allowClear
-            disabled={isCompletePregnancy && pastPregnancyData.gravidity}
+            disabled={isCompletePregnancy && gravidity}
           />
         </div>
         <div className="past-pregnancy-row past-pregnancy-row-60 d-flex align-items-center px-2 py-5 w-100">
