@@ -63,7 +63,6 @@ function MedicalHistoryBox(props) {
         note: ''
     }
     const FAMILY_HISTORY = {
-        since: '',
         relationship: '',
         note: ''
     }
@@ -1552,30 +1551,30 @@ function MedicalHistoryBox(props) {
                                                         </div>
                                                         {i===cloneMedicalHistoryData?.length-1 && (
                                                             <div key={i} className="pt-3 pb-4">
-                                                            <div className="d-flex align-items-center justify-content-between mb-3">
-                                                            <div className="d-flex align-items-center">
-                                                                <div className="titleprint">Additional History</div>
-                                                                <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={onExpandCollapseRemarks}>
-                                                                    <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${!expandRemarks ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
-                                                                </Button>
-                                                            </div>
-                                                            </div>
-                                                            {expandRemarks && 
-                                                                <div style={{ position: "relative", width: "100%" }}>
-                                                                    <TextArea
-                                                                        value={remarks}
-                                                                        placeholder="Write your additional history"
-                                                                        className="textareaPlaceholder"
-                                                                        rows={3}
-                                                                        onChange={onRemarksChange}
-                                                                        maxLength={5000}
-                                                                        autoSize={{ minRows: 3, maxRows: 6 }}
-                                                                    />
-                                                                    <div className="additional-history-count">
-                                                                        {remarks?.length || 0}/{5000}
+                                                                <div className="d-flex align-items-center justify-content-between mb-3">
+                                                                    <div className="d-flex align-items-center">
+                                                                        <div className="titleprint">Additional History</div>
+                                                                        <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={onExpandCollapseRemarks}>
+                                                                            <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${!expandRemarks ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                                                                        </Button>
                                                                     </div>
                                                                 </div>
-                                                            }
+                                                                {expandRemarks &&
+                                                                    <div style={{ position: "relative", width: "100%" }}>
+                                                                        <TextArea
+                                                                            value={remarks}
+                                                                            placeholder="Write your additional history"
+                                                                            className="textareaPlaceholder"
+                                                                            rows={3}
+                                                                            onChange={onRemarksChange}
+                                                                            maxLength={5000}
+                                                                            autoSize={{ minRows: 3, maxRows: 6 }}
+                                                                        />
+                                                                        <div className="additional-history-count">
+                                                                            {remarks?.length || 0}/{5000}
+                                                                        </div>
+                                                                    </div>
+                                                                }
                                                             </div>
                                                         )}
                                                     </div>
@@ -1654,6 +1653,7 @@ function MedicalHistoryBox(props) {
 
                                                         <div className="p-3">
                                                             {isMobile ? (
+                                                                selectData?.tmmhs_id !== 3 &&
                                                                 <>
                                                                     <div className="mt-2">
                                                                         <label className="title-common mb-1"> Since</label>
@@ -1687,23 +1687,25 @@ function MedicalHistoryBox(props) {
                                                                 </>
                                                             ) : (
                                                                 <Row gutter={20} className="mt-2">
-                                                                    <Col lg={selectData?.tmmhs_id == 3 ? 12 : 24} >
-                                                                        <label className="title-common mb-1"> Since</label>
-                                                                        <AutoComplete
-                                                                            defaultValue={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since}
-                                                                            value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since}
-                                                                            placeholder="Since"
-                                                                            defaultOpen={false}
-                                                                            onSearch={(query) => onSearchSinceChid(query)}
-                                                                            onBlur={() => onBlurSinceChid()}
-                                                                            options={sinceOptions}
-                                                                            className="autocomplete-custom w-100"
-                                                                            defaultActiveFirstOption={true}
-                                                                            onSelect={(data) => onSelectSinceChild(data)}
-                                                                        />
-                                                                    </Col>
+                                                                    {selectData?.tmmhs_id !== 3 &&
+                                                                        <Col lg={24} >
+                                                                            <label className="title-common mb-1"> Since</label>
+                                                                            <AutoComplete
+                                                                                defaultValue={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since}
+                                                                                value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.since}
+                                                                                placeholder="Since"
+                                                                                defaultOpen={false}
+                                                                                onSearch={(query) => onSearchSinceChid(query)}
+                                                                                onBlur={() => onBlurSinceChid()}
+                                                                                options={sinceOptions}
+                                                                                className="autocomplete-custom w-100"
+                                                                                defaultActiveFirstOption={true}
+                                                                                onSelect={(data) => onSelectSinceChild(data)}
+                                                                            />
+                                                                        </Col>
+                                                                    }
                                                                     {selectData?.tmmhs_id == 3 && (
-                                                                        <Col lg={12}>
+                                                                        <Col lg={24}>
                                                                             <label className="title-common mb-1"> Relationship</label>
                                                                             <Popover
                                                                                 open={popOver}
@@ -1779,7 +1781,7 @@ function MedicalHistoryBox(props) {
                                                                 </div>
                                                             )}
                                                             {selectData?.tmmhs_id == 3 && isMobile && (
-                                                                <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                                <div>
                                                                     <label className="title-common mb-1"> Relationship</label>
                                                                     <Popover
                                                                         open={popOver}
