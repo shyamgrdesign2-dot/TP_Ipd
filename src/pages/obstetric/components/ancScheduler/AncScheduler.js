@@ -122,8 +122,6 @@ const AncScheduler = ({
         },
       };
       dispatch(addObstetricDetails(payload));
-      dispatch(patientDiagnosisUpdated());
-      dispatch(obstetricDetailsUpdated());
     }
     if (obstetricDetails?.lmp) {
       const today = moment();
@@ -233,6 +231,7 @@ const AncScheduler = ({
       };
       dispatch(addObstetricDetails(payload));
       dispatch(obstetricDetailsUpdated());
+      dispatch(patientDiagnosisUpdated());
     };
 
     return ancSchedulerData?.[activeCategory]?.map((item, i) => {

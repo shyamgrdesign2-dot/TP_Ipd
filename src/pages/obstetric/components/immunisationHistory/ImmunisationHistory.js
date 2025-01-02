@@ -70,8 +70,6 @@ const ImmunisationHistory = ({
         },
       };
       dispatch(addObstetricDetails(payload));
-      dispatch(patientDiagnosisUpdated());
-      dispatch(obstetricDetailsUpdated());
     }
   }, []);
 
@@ -191,6 +189,7 @@ const ImmunisationHistory = ({
       };
       setImmunisationHistory(updatedData);
       dispatch(addObstetricDetails(payload));
+      dispatch(patientDiagnosisUpdated());
       dispatch(obstetricDetailsUpdated());
     };
 
