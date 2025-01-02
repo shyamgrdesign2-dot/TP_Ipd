@@ -11,11 +11,12 @@ import playIcons from "../../../assets/images/tube-icon.svg";
 import redCrossIcon from "../../../assets/images/red-cross.svg";
 import greenRightIcon from "../../../assets/images/green-right.svg";
 import structuredRxGif from "../../../assets/images/structuredRx.gif";
+import VideoModal from "../../../common/VideoModal";
 
 const { TabPane } = Tabs;
 
 const CvtKnowMore = ({ handleCollapsed }) => {
-  const [videoLink, setVideoLink] = useState(null);
+  const [videoLink, setVideoLink] = useState(false);
   const { loading, videoList } = useSelector((state) => state.doctors);
 
   const scrollToSection = (sectionId) => {
@@ -23,6 +24,11 @@ const CvtKnowMore = ({ handleCollapsed }) => {
     if (section) {
       section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+  };
+
+  const video_link = {
+    link: "https://www.youtube.com/embed//UgeyXlHItXI",
+    thumbnail: "https://i.ytimg.com/vi/UgeyXlHItXI/maxresdefault.jpg",
   };
 
   return (
@@ -122,7 +128,10 @@ const CvtKnowMore = ({ handleCollapsed }) => {
           </div>
         </div>
 
-        <div id="digitisationProcess" className="video-section">
+        <div 
+          id="digitisationProcess" 
+          className="video-section"
+        >
           <span className="section-side-header">Digitisation Process</span>
           <div className="know-more-section-tilte">
             How Smart Rx Digitisation Works?
@@ -131,25 +140,33 @@ const CvtKnowMore = ({ handleCollapsed }) => {
             <div className="instruction-cvt-tutorial">
               Please watch this video to know how Smart Rx Digitisation Works👇
             </div>
-            <div className="pb-3 mb-15">
-              <div className="cvt-play me-14">
-                <button
-                  type="button"
-                  // onClick={() => {
-                  //   setVideoLink(item1)
-                  // }}
-                >
-                  <img src={playIcons} width="54.871px" height="54.871px" />
-                </button>
-                <div className="thumbnail-title">Smart Rx Digitization</div>
-                <div className="smartsync-video-title">
-                  How Smart Rx Digitisation Works?
-                </div>
-                <div className="smartsync-video-length">4:02</div>
-              </div>
+            <div
+              className="d-flex align-items-center justify-content-center"
+              style={{
+                background: `url(${video_link?.thumbnail})`,
+                width: 447,
+                height: 250,
+                borderRadius: 24,
+                cursor: "pointer",
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+              }}
+              onClick={() => {
+                setVideoLink(true)
+              }}
+            >
+              <img width={55} height={55} src={playIcons} />
             </div>
           </div>
         </div>
+
+        {videoLink && (
+          <VideoModal
+            videoLink={video_link}
+            onCancel={() => setVideoLink(false)}
+          />
+        )}
 
         <div id="tipsForRxWriting" className="section">
           <span className="section-side-header">Tips for Rx writting</span>

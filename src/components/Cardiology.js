@@ -59,8 +59,6 @@ function Cardiology(props) {
         module_name: customModulesMap.get(content.module_id),
     }))
 
-  console.log({customModulesRxData});
-
   const [filteredInfo, setFilteredInfo] = useState({});
   const [setSortedInfo] = useState({});
   const [smartRxFile, setSmartRxFile] = useState([]);
@@ -69,6 +67,7 @@ function Cardiology(props) {
   const [rxDigitisedData, setRxDigitisedData] = useState(null);
   const [isRxdigitised, setIsRxdigitised] = useState(null);
   const [cvtDrawer, setCvtDrawer] = useState(false);
+  const [printUrl, setPrintUrl] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -85,6 +84,7 @@ function Cardiology(props) {
 
   useEffect(() => {
     setSmartRxFile([]);
+    setShowDigitalRx(false)
     if (viewCaseManagerData?.tcm_id) {
       fetchData();
     }
@@ -111,6 +111,30 @@ function Cardiology(props) {
       dispatch(getModules(userId));
     }
   }, [viewCaseManagerData]);
+
+  // Function to update rxDigitize parameter in the URL
+  const updateRxDigitizeInUrl = (url, showDigitalRx) => {
+    const urlObj = new URL(url);
+
+    if (showDigitalRx) {
+        urlObj.searchParams.set('rxDigitize', 'true');
+    } else {
+        urlObj.searchParams.delete('rxDigitize');
+    }
+
+    // setPrintUrl(urlObj.toString());
+    return urlObj.toString();
+  };
+
+  useEffect(() => {
+    if (viewCaseManagerData?.print_url) {
+        setPrintUrl(viewCaseManagerData?.print_url)
+        // Only modify the URL if showDigitalRx is true, else keep printUrl unchanged
+        const updatedUrl = updateRxDigitizeInUrl(viewCaseManagerData?.print_url, showDigitalRx);
+        // setPreviewUrl(updatedUrl);
+        setPrintUrl(updatedUrl);
+    }
+  }, [showDigitalRx]);
 
   const fetchData = async () => {
     const payload = {
@@ -152,14 +176,14 @@ function Cardiology(props) {
   );
 
   async function printRxInAppContent() {
-    navigate(
-      `/patient_details/?url=${viewCaseManagerData?.print_rx_url}&key=print`,
-      { replace: true, state: { patient_data: patient_data } }
-    );
-    navigate(0, { replace: true });
+      navigate(
+        `/patient_details/?url=${viewCaseManagerData?.print_rx_url}&key=print`,
+        { replace: true, state: { patient_data: patient_data } }
+      );
+      navigate(0, { replace: true });
   }
   async function printRxContent() {
-    await window.open(viewCaseManagerData?.print_rx_url);
+      await window.open(viewCaseManagerData?.print_rx_url);
   };
 
   const handleChange = (pagination, filters, sorter) => {
@@ -330,6 +354,11 @@ function Cardiology(props) {
   ];
 
   const printContent = async () => {
+    if (showDigitalRx){
+      await window.open(printUrl)
+    } else{
+      await window.open(viewCaseManagerData?.print_rx_url);
+    }
     await window.open(viewCaseManagerData?.print_url);
   };
 
@@ -404,6 +433,7 @@ function Cardiology(props) {
         tcm_id: viewCaseManagerData?.tcm_id,
         print_url: viewCaseManagerData?.print_rx_url,
         digitisedData: rxDigitisedData,
+        page:"patient-summary"
       },
     })
   };
