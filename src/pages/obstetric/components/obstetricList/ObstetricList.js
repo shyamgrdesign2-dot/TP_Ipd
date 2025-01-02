@@ -277,13 +277,15 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
 
   return (
     <div className="overflow-y-auto" style={{ padding: "10px 10px 0px" }}>
-      {(obstetricDetails?.lmp ||
-        obstetricDetails?.edd ||
-        obstetricDetails?.gravidity ||
-        obstetricDetails?.parity ||
-        obstetricDetails?.livingChildren ||
-        obstetricDetails?.abortion ||
-        obstetricDetails?.ectopicPregnancies) && <PatientInfoList />}
+      {obstetricDetails?.lmp ||
+      obstetricDetails?.edd ||
+      obstetricDetails?.gravidity ||
+      obstetricDetails?.parity ||
+      obstetricDetails?.livingChildren ||
+      obstetricDetails?.abortion ||
+      obstetricDetails?.ectopicPregnancies ? (
+        <PatientInfoList />
+      ) : null}
 
       <Collapse
         defaultActiveKey={[0]}
@@ -309,7 +311,7 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
         ))}
       </Collapse>
 
-      {(shouldShowAncHistory || shouldShowImmunisation) && (
+      {shouldShowAncHistory || shouldShowImmunisation ? (
         <Collapse
           items={[
             {
@@ -330,7 +332,7 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
           className="prescriptiontab-accordian history-sider-box history-sider-box-white"
           expandIconPosition={"end"}
         />
-      )}
+      ) : null}
     </div>
   );
 };

@@ -68,7 +68,8 @@ const Obstetric = ({
   const isPregnancyCompleted =
     Object.keys(obstetricDetails)?.length === 0 &&
     allObstetricDetails &&
-    Object.keys(allObstetricDetails)?.length !== 0;
+    Object.keys(allObstetricDetails)?.length > 2;
+
   const {
     gravidity,
     parity,
@@ -171,7 +172,6 @@ const Obstetric = ({
       getPrefillObstetricDetails();
       getDefaultAndDoctorList();
     }
-    scrollToBottom();
   }, []);
 
   const resetDataAfterPregnancyCompleted = () => {
@@ -250,6 +250,8 @@ const Obstetric = ({
     ) {
       if (!tourResponse.anc) {
         setRunTour(true);
+      } else {
+        scrollToBottom();
       }
     }
   };
@@ -540,6 +542,7 @@ const Obstetric = ({
                     handlePastPregnancyDrawer={handlePastPregnancyDrawer}
                     setEditIndex={setPastPregnancyEditIndex}
                     bottomRef={pregnancyRef}
+                    handleDrawerMedicalReport={handleDrawerMedicalReport}
                   />
                 </TabPane>
               )}
