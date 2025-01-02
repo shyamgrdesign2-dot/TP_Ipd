@@ -652,6 +652,26 @@ function ObsHistoryListView({
                         ? `${gestationDays}D`
                         : ""}
                     </Text>
+                    {("blood" in obsHistoryData ||
+                      "husbandsBlood" in obsHistoryData ||
+                      "consang" in obsHistoryData ||
+                      "maritialStatus" in obsHistoryData ||
+                      ("marriageDurationYears" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationYears != null) ||
+                      ("marriageDurationMonths" in obsHistoryData &&
+                        obsHistoryData?.marriageDurationMonths != null)) && (
+                      <Text
+                        style={{
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                        }}
+                      >
+                        &nbsp;|&nbsp;
+                      </Text>
+                    )}
                   </>
                 )}
 
@@ -666,9 +686,7 @@ function ObsHistoryListView({
                         fontWeight: 500,
                       }}
                     >
-                      &nbsp;
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Blood
-                      group&nbsp;:&nbsp;
+                      Blood group&nbsp;:&nbsp;
                     </Text>
                     <Text
                       style={{
