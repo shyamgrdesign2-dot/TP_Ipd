@@ -14,7 +14,10 @@ import { v4 as uuidv4 } from "uuid";
 import { capitalizeAfterSentence } from "../../utils/utils";
 
 import CashManagerContext from "../../context/CashManagerContext";
-import { searchModule } from "../../redux/customModuleSlice";
+import {
+  clearSearchResults,
+  searchModule,
+} from "../../redux/customModuleSlice";
 
 import TabSearchHeader from "./TabSearchHeader";
 
@@ -39,6 +42,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
 
   //Parent AutoComplete
   useEffect(() => {
+    dispatch(clearSearchResults());
     const timeOutId = setTimeout(() => {
       dispatch(
         searchModule({
