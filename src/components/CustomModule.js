@@ -192,12 +192,6 @@ function CustomModule({ module }) {
       query: moduleData[i].title,
       index: i,
     });
-    dispatch(
-      searchModule({
-        moduleId: module?.module_id,
-        keyword: searchChildQuery?.query,
-      })
-    );
   };
 
   const onSearchChild = useCallback(

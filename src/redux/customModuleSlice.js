@@ -119,23 +119,62 @@ const customModuleSlice = createSlice({
       })
       .addCase(searchModule.fulfilled, (state, action) => {
         state.loading = false;
-        const uniqueResults = action.payload
-          ?.flatMap((item) =>
-            item.moduleContents
-              .filter((module) => module.content?.title)
-              .map((module) => module.content)
-          )
-          .reduce((acc, content) => {
-            const titleSet = new Set(acc.map((entry) => entry.title));
-            if (!titleSet.has(content.title)) {
-              acc.push(content);
-            }
-            return acc;
-          }, []);
+        let uniqueResults = [];
 
-        state.searchModuleResults = uniqueResults || [];
+        // First try to get results from API response
+        if (action.payload?.length) {
+          uniqueResults = action.payload
+            .flatMap((item) =>
+              item.moduleContents
+                .filter((module) => module.content?.title)
+                .map((module) => module.content)
+            )
+            .reduce((acc, content) => {
+              const titleSet = new Set(acc.map((entry) => entry.title));
+              if (!titleSet.has(content.title)) {
+                acc.push(content);
+              }
+              return acc;
+            }, []);
+        }
+        // If API response is empty, search through customModules
+        else if (action.meta?.arg?.moduleId) {
+          const { moduleId, keyword } = action.meta.arg;
+          const targetModule = state.customModules.find(
+            (module) => module.module_id === moduleId
+          );
+
+          if (targetModule?.templates?.length) {
+            uniqueResults = targetModule.templates
+              .flatMap((template) =>
+                template.content.filter((item) => {
+                  // If keyword is provided, search in both title and notes
+                  if (keyword) {
+                    const searchTerm = keyword.toLowerCase();
+                    return (
+                      item.title?.toLowerCase().includes(searchTerm) ||
+                      item.notes?.toLowerCase().includes(searchTerm)
+                    );
+                  }
+                  // If no keyword, return all items with titles
+                  return item.title;
+                })
+              )
+              .reduce((acc, content) => {
+                const titleSet = new Set(acc.map((entry) => entry.title));
+                if (!titleSet.has(content.title)) {
+                  acc.push(content);
+                }
+                return acc;
+              }, []);
+          }
+        }
+
+        state.searchModuleResults = uniqueResults;
+
+        // Update latest searched modules if moduleId is provided and no keyword
         if (action.meta?.arg?.moduleId && !action.meta?.arg?.keyword) {
-          const { moduleId } = action.meta?.arg;
+          const { moduleId } = action.meta.arg;
           state.latestSearchedModules = {
             ...state.latestSearchedModules,
             [moduleId]: uniqueResults,

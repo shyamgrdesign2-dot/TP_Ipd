@@ -42,8 +42,10 @@ const AddCustomModule = () => {
   }, [tcmId]);
 
   useEffect(() => {
-    syncPrintSettings();
-    syncRightRxPad();
+    if (customModules?.length) {
+      syncPrintSettings();
+      syncRightRxPad();
+    }
   }, [customModules]);
 
   const syncPrintSettings = useCallback(() => {
