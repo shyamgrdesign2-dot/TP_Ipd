@@ -357,9 +357,8 @@ function Cardiology(props) {
     if (showDigitalRx){
       await window.open(printUrl)
     } else{
-      await window.open(viewCaseManagerData?.print_rx_url);
+      await window.open(viewCaseManagerData?.print_url);
     }
-    await window.open(viewCaseManagerData?.print_url);
   };
 
   const printInAppContent = async () => {
