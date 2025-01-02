@@ -164,6 +164,9 @@ function PastPregnancy({
     if (pregnancyHistory?.length > 0 && editIndex >= 0) {
       newPastPregnancy[editIndex] = {
         ...data,
+        dateOfDelivery: data?.dateOfDelivery
+          ? new Date(data?.dateOfDelivery).toISOString()
+          : undefined,
         modifiedAt: new Date().toISOString(),
         modifiedBy: userId,
       };
@@ -172,6 +175,9 @@ function PastPregnancy({
         ...pregnancyHistory,
         {
           ...data,
+          dateOfDelivery: data?.dateOfDelivery
+            ? new Date(data?.dateOfDelivery).toISOString()
+            : undefined,
           examinationHistory: [],
           ancHistory: [],
           immunisationHistory: [],
@@ -467,6 +473,11 @@ function PastPregnancy({
                           "dateOfDelivery",
                           formattedDate
                         );
+                      } else {
+                        handlePastPregnancyDataChange(
+                          "dateOfDelivery",
+                          undefined
+                        );
                       }
                     }}
                     disabledDate={disabledDate}
@@ -703,6 +714,9 @@ function PastPregnancy({
     if (pregnancyHistory?.length > 0 && editIndex >= 0) {
       newPastPregnancy[editIndex] = {
         ...data,
+        dateOfDelivery: data?.dateOfDelivery
+          ? new Date(data?.dateOfDelivery).toISOString()
+          : undefined,
         modifiedAt: new Date().toISOString(),
         modifiedBy: userId,
       };
@@ -711,6 +725,9 @@ function PastPregnancy({
         ...pregnancyHistory,
         {
           ...data,
+          dateOfDelivery: data?.dateOfDelivery
+            ? new Date(data?.dateOfDelivery).toISOString()
+            : undefined,
           examinationHistory: [],
           ancHistory: [],
           immunisationHistory: [],
