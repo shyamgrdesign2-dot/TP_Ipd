@@ -470,7 +470,7 @@ const Obstetric = ({
                 >
                   <i className="icon-Cross fs-3" />
                 </Button>
-                Overview ({gravidity} Pregrancy)
+                Overview ({gravidity} Pregnancy)
               </div>
             </Container>
           </Navbar>
