@@ -389,23 +389,23 @@ function MessageCreateCampaign() {
             // }
             const isEmpty = !Object.values(data).some(x => !x);
             if (isEmpty) {
-                if (schedule_type === 1 && scheduleDateTime) {
-                    if (patientCount !== 0) {
+                if (patientCount !== 0) {
+                    if (schedule_type === 2 && scheduleDateTime) {
+                        setStepCurrent(prev => prev + 1);
+                    } else if (schedule_type === 1) {
+                        setScheduleDateTime(moment().add(30, 'minutes').format(dateTimeFormat));
                         setStepCurrent(prev => prev + 1);
                     } else {
-                        errorMessage('We need at least 1 patient to proceed');
+                        errorMessage('Please fill up schedule for later');
                     }
                 } else {
-                    errorMessage('Please fill up schedule for later');
+                    errorMessage('We need at least 1 patient to proceed');
                 }
             } else {
                 errorMessage('Please fill up all fields in compose message');
             }
         } else {
             setStepCurrent(prev => prev + 1);
-        }
-        if (schedule_type === 1) {
-            setScheduleDateTime(moment().add(30, 'minutes').format(dateTimeFormat))
         }
     };
 
@@ -1246,10 +1246,13 @@ function MessageCreateCampaign() {
                                     <div className="configure-template">
                                         <h5 className="fs-16 mb-0 fw-semibold">Send on</h5>
                                         <div className="mt-3">
-                                            <Radio.Group className="d-flex" onChange={handleSendOn} value={send_on}>
+                                            <Radio.Group className="d-flex pe-4" onChange={handleSendOn} value={send_on}>
+                                                <Radio className="w-50" value={1}>SMS</Radio>
+                                            </Radio.Group>
+                                            {/* <Radio.Group className="d-flex" onChange={handleSendOn} value={send_on}>
                                                 <Radio className="col me-30" value={1}>SMS</Radio>
                                                 <Radio className="col me-0" value={2}>WhatsApp</Radio>
-                                            </Radio.Group>
+                                            </Radio.Group> */}
                                         </div>
                                         <hr className="mb-28 mt-4" />
                                         <div className="my-2 d-flex align-items-center justify-content-between">
