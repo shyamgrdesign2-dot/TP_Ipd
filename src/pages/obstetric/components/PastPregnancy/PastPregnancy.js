@@ -348,7 +348,9 @@ function PastPregnancy({
             ]}
             placeholder="Select"
             className="custom-select"
-            value={pastPregnancyData?.gravidity}
+            value={
+              pastPregnancyData?.gravidity || pastPregnancyData?.gravidaNumber
+            }
             allowClear
             disabled={isCompletePregnancy && gravidity}
           />

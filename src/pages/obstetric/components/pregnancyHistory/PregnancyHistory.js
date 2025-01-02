@@ -41,7 +41,7 @@ const PregnancyHistory = ({
     };
     return (
       <div className="tcell theaderCellStyle tableTitle">
-        <div>{`G ${gravidaItem.gravidity}, ${
+        <div>{`G ${gravidaItem.gravidity || gravidaItem.gravidaNumber}, ${
           gravidaItem.outcome === ABORTION ? MISCARRIAGE : gravidaItem.outcome
         }${gravidaItem.termLength ? `, ${gravidaItem.termLength}` : ""}`}</div>
         <div className="editIcon" onClick={onEdit}>
