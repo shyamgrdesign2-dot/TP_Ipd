@@ -28,6 +28,7 @@ import {
   mergeDefaultAndDoctorList,
   updateEnablePrint,
 } from "../../utils/helper";
+import { isBrowser } from "react-device-detect";
 
 const ImmunisationHistory = ({
   immunisationHistoryData = [],
@@ -172,10 +173,10 @@ const ImmunisationHistory = ({
   };
 
   const renderTableData = () => {
-    const handleImmunisationChange = (key, index, value) => {
+    const handleImmunisationChange = (key, index, value, isOnBlur) => {
       const updatedData = [...immunisationHistory];
       updatedData[index] = { ...updatedData[index], [key]: value };
-      if (key !== "enablePrint") {
+      if (key !== "enablePrint" && !isOnBlur) {
         updatedData[index] = { ...updatedData[index], enablePrint: true };
       }
       if (key === "givenDate" && value) {
@@ -242,6 +243,7 @@ const ImmunisationHistory = ({
                 type: "mask",
               }}
               disabled={isPreviousPregnancyOverview}
+              inputReadOnly={!isBrowser}
             />
           </td>
           <td className="obstetricTcell">
@@ -254,7 +256,7 @@ const ImmunisationHistory = ({
               onBlur={(e) => {
                 // Trim only when the user leaves the input field (onBlur)
                 const trimmedValue = e.target.value.trim();
-                handleImmunisationChange("notes", i, trimmedValue);
+                handleImmunisationChange("notes", i, trimmedValue, true);
               }}
               className="textareaPlaceholder immunisationRemarks"
               styles={{ border: "none" }}

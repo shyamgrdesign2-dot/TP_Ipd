@@ -29,6 +29,7 @@ import {
   patientDiagnosisUpdated,
 } from "../../../../redux/obstetricSlice";
 import { fetchSearchAnc } from "../../service";
+import { isBrowser } from "react-device-detect";
 
 const AncScheduler = ({
   ancHistory = [],
@@ -205,12 +206,12 @@ const AncScheduler = ({
   };
 
   const renderTableData = () => {
-    const handleImmunisationChange = (key, index, value) => {
+    const handleImmunisationChange = (key, index, value, isOnBlur) => {
       const updatedData = ancSchedulerData.map((innerArray, trimesterIndex) => {
         const newArray = [...innerArray];
         if (trimesterIndex === activeCategory) {
           newArray[index] = { ...newArray[index], [key]: value };
-          if (key !== "enablePrint") {
+          if (key !== "enablePrint" && !isOnBlur) {
             newArray[index] = {
               ...newArray[index],
               enablePrint: true,
@@ -267,6 +268,7 @@ const AncScheduler = ({
                 type: "mask",
               }}
               disabled={isPreviousPregnancyOverview}
+              inputReadOnly={!isBrowser}
             />
           </td>
           <td className="obstetricTcell">
@@ -297,7 +299,7 @@ const AncScheduler = ({
               onBlur={(e) => {
                 // Trim only when the user leaves the input field (onBlur)
                 const trimmedValue = e.target.value.trim();
-                handleImmunisationChange("notes", i, trimmedValue);
+                handleImmunisationChange("notes", i, trimmedValue, true);
               }}
               className="textareaPlaceholder immunisationRemarks"
               disabled={isPreviousPregnancyOverview}

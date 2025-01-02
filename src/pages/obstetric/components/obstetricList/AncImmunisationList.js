@@ -16,7 +16,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
   const [immunisationHistory, setImmunisationHistory] = useState([]);
   const [ancHistory, setAncHistory] = useState([]);
 
-  const shouldShowAncHistory = ancHistory.find(
+  const showValidAncHistory = ancHistory.filter(
     (item) =>
       !item?.deleted &&
       (item?.dueDate ||
@@ -25,7 +25,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
         item?.enablePrint)
   );
 
-  const shouldShowImmunisation = immunisationHistory.find(
+  const showValidImmunisation = immunisationHistory.filter(
     (item) =>
       !item?.deleted &&
       (item?.givenDate ||
@@ -55,7 +55,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
 
   return (
     <div>
-      {ancHistory?.length > 0 && shouldShowAncHistory && (
+      {showValidAncHistory?.length > 0 && (
         <div
           className="cardbody-data border rounded"
           style={{ padding: "0 14px", marginTop: "8px" }}
@@ -81,7 +81,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
                 paddingLeft: 0,
               }}
             >
-              {ancHistory?.map((item, index) => {
+              {showValidAncHistory?.map((item, index) => {
                 if (
                   !item?.deleted &&
                   (item?.dueDate ||
@@ -113,7 +113,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
         </div>
       )}
 
-      {immunisationHistory?.length > 0 && shouldShowImmunisation && (
+      {showValidImmunisation?.length > 0 && (
         <div
           className="cardbody-data border rounded"
           style={{ padding: "0 14px", marginTop: "8px" }}
@@ -139,7 +139,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
                 paddingLeft: 0,
               }}
             >
-              {immunisationHistory?.map((item, index) => {
+              {showValidImmunisation?.map((item, index) => {
                 if (
                   !item?.deleted &&
                   (item?.givenDate ||
