@@ -546,7 +546,14 @@ const Obstetric = ({
                   />
                 </TabPane>
               )}
-              <TabPane tab="Examination" key="examination">
+              <TabPane
+                tab={
+                  isPreviousPregnancyOverview
+                    ? "Examination History"
+                    : "Current Examination"
+                }
+                key="examination"
+              >
                 <Examination
                   examinationHistory={obstetricDetails?.examinationHistory}
                   handleExaminationDrawer={handleExaminationDrawer}
@@ -559,7 +566,12 @@ const Obstetric = ({
                   isPreviousPregnancyOverview={isPreviousPregnancyOverview}
                 />
               </TabPane>
-              <TabPane tab="ANC Scheduler" key="ancScheduler">
+              <TabPane
+                tab={
+                  isPreviousPregnancyOverview ? "ANC History" : "ANC Scheduler"
+                }
+                key="ancScheduler"
+              >
                 <AncScheduler
                   ancHistory={obstetricDetails?.ancHistory}
                   handleDrawerMedicalReport={handleDrawerMedicalReport}

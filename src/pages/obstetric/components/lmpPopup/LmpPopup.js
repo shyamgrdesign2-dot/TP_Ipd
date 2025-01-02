@@ -76,9 +76,9 @@ const LmpPopup = ({
       setPatientDiagnosisData((prevState) => ({
         ...prevState,
         lmp: null,
-        edd: null,
-        gestationWeeks: null,
-        gestationDays: null,
+        edd: undefined,
+        gestationWeeks: undefined,
+        gestationDays: undefined,
       }));
     }
     setShowLmpPopup(false);
