@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from "react";
-import { Button, Input, Radio, Modal, message } from "antd";
+import React, { useEffect, useCallback, useState } from "react";
+import { Button, Input, Radio, Modal, message, Select } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 
 import DiscountIcon from "../../assets/images/discount.svg"
@@ -8,27 +8,47 @@ import TicketIcon from "../../assets/images/ticket.svg"
 import redeemVideo from "../../assets/images/redeem-video.mp4";
 import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
+import logoSm from '../../assets/images/logo-sm.svg';
 
 import { errorMessage, onlyNumberFormat } from "../../utils/utils";
 import { MESSAGE_KEY } from "../../utils/constants";
-import { paymentOrder, verifyPayment, userRedeemCode } from "../../redux/bulkMessagesSlice";
+import { paymentOrder, verifyPayment, userRedeemCode, states } from "../../redux/bulkMessagesSlice";
 import config from "../../config";
 
 function AvailableCredits({ handleAvailableCredit }) {
     const dispatch = useDispatch();
 
     const { profile } = useSelector((state) => state.doctors);
-    const { userCreditObj } = useSelector((state) => state.bulkMessages);
+    const { userCreditObj, statesList, userState } = useSelector((state) => state.bulkMessages);
+    const [selectedState, setSelectedState] = useState(null);
     const [creditRadio, setCreditRadio] = useState(null);
     const [creditInput, setCreditInput] = useState(null);
     const [couponCode, setCouponCode] = useState(null);
     const [redeem, setRedeem] = useState(false);
 
+    useEffect(() => {
+        const sendData = {
+            doctor_unique_id: '9QmdYlBWCcNyZzp'
+        };
+        dispatch(states(sendData));
+    }, []);
+
+    useEffect(() => {
+        setSelectedState(userState ? userState : null)
+    }, [userState]);
+
+    const onSelect = useCallback(
+        (data, e) => {
+            setSelectedState(JSON.parse(e.key))
+        },
+        [selectedState]
+    );
+
     const ITEMS = [
-        { amount: 500, credit: 500 },
         { amount: 1000, credit: 1000 },
         { amount: 1500, credit: 1500 },
         { amount: 2000, credit: 2400 },
+        { amount: 2500, credit: 2500 },
     ]
 
     const onRadioGroupChange = (e) => {
@@ -72,14 +92,21 @@ function AvailableCredits({ handleAvailableCredit }) {
 
     const clickBuyNow = async () => {
         if (creditRadio || creditInput) {
-            let sendData = {
-                amount: creditInput ? creditInput : creditRadio
-            }
-            const action = await dispatch(paymentOrder(sendData));
-            if (action.meta.requestStatus === "fulfilled") {
-                initRazorPayPayment(action?.payload);
+            console.log(selectedState)
+            if (selectedState) {
+                const amount = creditInput ? parseFloat(creditInput) : parseFloat(creditRadio)
+                let sendData = {
+                    amount: amount + (amount * 18 / 100),
+                    state_id: selectedState?.id
+                }
+                const action = await dispatch(paymentOrder(sendData));
+                if (action.meta.requestStatus === "fulfilled") {
+                    initRazorPayPayment(action?.payload);
+                } else {
+                    errorMessage(action.payload.message)
+                }
             } else {
-                errorMessage(action.payload.message)
+                errorMessage('Please select state')
             }
         } else {
             errorMessage('Please select or enter amount')
@@ -91,9 +118,9 @@ function AvailableCredits({ handleAvailableCredit }) {
             key: config.razorPay_key,
             amount: data.amount,
             currency: data.currency,
-            name: 'Purchase bulk messages',
-            description: '',
-            image: '',
+            name: 'Tatvacare',
+            description: 'Credit Top-Up',
+            image: logoSm,
             order_id: data.id,
             handler: async (response) => {
                 try {
@@ -108,7 +135,7 @@ function AvailableCredits({ handleAvailableCredit }) {
                 email: profile?.um_email,
             },
             theme: {
-                color: "#3399cc",
+                color: "#4B4AD5",
             },
             modal: {
                 ondismiss: function () {
@@ -155,11 +182,33 @@ function AvailableCredits({ handleAvailableCredit }) {
             {userCreditObj?.offer_flag === 0 && (
                 <div className="badge-discount py-2 w-100 rounded-0 text-center"> <img src={DiscountIcon} className="me-1" alt="Discount" />Get <span className="fw-medium">20% extra</span> credits on purchases over <span className="fw-medium">₹2000!</span></div>
             )}
-            <div className="bg-white overflow-y-auto p-20 d-flex flex-column justify-content-between" style={{ minHeight: userCreditObj?.offer_flag === 0 ? 'calc(100vh - 98px)' : 'calc(100vh - 61px)'}}>
+            <div className="bg-white overflow-y-auto p-20 d-flex flex-column justify-content-between" style={{ minHeight: userCreditObj?.offer_flag === 0 ? 'calc(100vh - 98px)' : 'calc(100vh - 61px)' }}>
                 <div>
-                    <div className="px-3 available-credits">
-                        <img src={CreditImg} width={19} className="me-2" />
-                        Available Credits: {userCreditObj?.userCredit}
+                    <div className="d-flex justify-content-between align-items-center">
+                        <div className="px-3 available-credits">
+                            <img src={CreditImg} width={19} className="me-2" />
+                            Available Credits: {userCreditObj?.userCredit}
+                        </div>
+                        {!userState && (
+                            <Select
+                                showSearch
+                                placeholder="Select state"
+                                value={selectedState && selectedState?.state}
+                                className='appointmentselect'
+                                onSelect={onSelect}
+                                options={statesList?.map((item) => {
+                                    return {
+                                        key: JSON.stringify(item),
+                                        value: item.state,
+                                        label: (
+                                            <div key={item.id}>
+                                                {item.state}
+                                            </div>
+                                        ),
+                                    };
+                                })}
+                            />
+                        )}
                     </div>
                     <div className="mt-3 w-100 rounded-4 p-3" style={{ background: '#FAF8F6' }}>
                         <div className="fw-semibold">Note:</div>
@@ -169,7 +218,7 @@ function AvailableCredits({ handleAvailableCredit }) {
                             <li>To send 1 WhatsApp message: <span className="fw-bold">{userCreditObj?.defaultWhatsAppCredit} credits</span> required</li>
                         </ul>
                     </div>
-                    {userCreditObj?.offer_flag === 0 && (
+                    {/* {userCreditObj?.offer_flag === 0 && (
                         <div className="mt-3">
                             <Input
                                 className="p-3 rounded-4 text-suffix-credits"
@@ -185,14 +234,14 @@ function AvailableCredits({ handleAvailableCredit }) {
                                     </button>
                                 } />
                         </div>
-                    )}
+                    )} */}
                     <div className="mt-3">
                         <Radio.Group className="w-100" onChange={onRadioGroupChange} value={creditRadio}>
                             {ITEMS?.map((e, i) => {
                                 return (
                                     <div key={i} className="mb-3 border pe-3 rounded-4 d-flex align-items-center">
                                         <Radio className="py-3 ps-3 me-auto w-100" value={e.amount}>{`₹${e.amount} (${userCreditObj?.offer_flag === 0 ? e.credit : e.amount} credit)`}</Radio>
-                                        {userCreditObj?.offer_flag === 0 && e.amount >= 2000 && (
+                                        {userCreditObj?.offer_flag === 0 && e.amount === 2000 && (
                                             <div className="fs-12-1 fw-medium badge-discount"> <img src={DiscountIcon} className="me-1" alt="Discount" />Get extra 20%</div>
                                         )}
                                     </div>
@@ -206,13 +255,13 @@ function AvailableCredits({ handleAvailableCredit }) {
                             placeholder="Or Enter Custom amount"
                             inputMode="numeric"
                             suffix={creditInput ?
-                                userCreditObj?.offer_flag === 0 && parseInt(creditInput) >= 2000 ?
+                                userCreditObj?.offer_flag === 0 && parseInt(creditInput) == 2000 ?
                                     `${parseInt(creditInput) + (parseInt(creditInput) * 20 / 100)} Credits`
                                     : `${creditInput} Credits`
                                 : '0 Credits'}
-                            value={creditInput}
+                            value={`${creditInput ? `₹${creditInput}` : ''}`}
                             onChange={onInputChange} />
-                        {userCreditObj?.offer_flag === 0 && creditInput && parseInt(creditInput) >= 2000 && (
+                        {userCreditObj?.offer_flag === 0 && creditInput && parseInt(creditInput) == 2000 && (
                             <div className='mt-1 text-green d-flex align-items-center'><i className="icon-check fs-5 ms-1"></i>Extra 20% credits applied to your purchase!</div>
                         )}
                     </div>
