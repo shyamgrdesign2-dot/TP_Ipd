@@ -80,6 +80,9 @@ function MessageCreateCampaign() {
     const [doctor_name, setdoctor_name] = useState('');
     const [phone_number, setphone_number] = useState('');
     const [link, setlink] = useState('');
+    const [review_link, setreview_link] = useState('');
+    const [vaccine_name, setvaccine_name] = useState('');
+    const [camp_name, setcamp_name] = useState('');
     const [year_no, setyear_no] = useState('');
     const [start_date, setstart_date] = useState('');
     const [end_date, setend_date] = useState('');
@@ -144,6 +147,15 @@ function MessageCreateCampaign() {
             }
             if (campaign_data?.msg_rowData?.hasOwnProperty('link')) {
                 setlink(campaign_data?.msg_rowData?.link)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('review_link')) {
+                setreview_link(campaign_data?.msg_rowData?.review_link)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('vaccine_name')) {
+                setvaccine_name(campaign_data?.msg_rowData?.vaccine_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('camp_name')) {
+                setcamp_name(campaign_data?.msg_rowData?.camp_name)
             }
             if (campaign_data?.msg_rowData?.hasOwnProperty('year_no')) {
                 setyear_no(campaign_data?.msg_rowData?.year_no)
@@ -232,6 +244,15 @@ function MessageCreateCampaign() {
             }
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('link')) {
                 setlink(reuse_campaign_data?.msg_rowData?.link)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('review_link')) {
+                setreview_link(reuse_campaign_data?.msg_rowData?.review_link)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('vaccine_name')) {
+                setvaccine_name(reuse_campaign_data?.msg_rowData?.vaccine_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('camp_name')) {
+                setcamp_name(reuse_campaign_data?.msg_rowData?.camp_name)
             }
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('year_no')) {
                 setyear_no(reuse_campaign_data?.msg_rowData?.year_no)
@@ -459,7 +480,7 @@ function MessageCreateCampaign() {
             value: [dayjs().add(-1, 'y'), dayjs()],
         },
         {
-            label: <div className={`${!dateStatus ? 'active' : ''}`}>Custom range</div>,
+            label: <div className={`${!dateStatus ? 'active' : ''}`} onClick={() => onRangeChange(null)}>Custom range</div>,
             value: null,
         }
     ];
@@ -678,6 +699,54 @@ function MessageCreateCampaign() {
                         />
                     );
                 }
+                else if (part === 'review_link') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: review_link ? parseInt(review_link?.length * 7.55) >= 150 ? review_link?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={review_link}
+                            onChange={(e) => setreview_link(e.target.value)}
+                            placeholder="Enter review link"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'vaccine_name') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: vaccine_name ? parseInt(vaccine_name?.length * 7.55) >= 150 ? vaccine_name?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={vaccine_name}
+                            onChange={(e) => setvaccine_name(e.target.value)}
+                            placeholder="Enter vaccine name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'camp_name') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: camp_name ? parseInt(camp_name?.length * 7.55) >= 150 ? camp_name?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={camp_name}
+                            onChange={(e) => setcamp_name(e.target.value)}
+                            placeholder="Enter Camp name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
                 else if (part === 'year_no') {
                     return (
                         <Input
@@ -784,6 +853,9 @@ function MessageCreateCampaign() {
         doctor_name,
         phone_number,
         link,
+        review_link,
+        vaccine_name,
+        camp_name,
         year_no,
         start_date,
         end_date,
@@ -801,6 +873,9 @@ function MessageCreateCampaign() {
             .replace(/{doctor_name}/g, doctor_name ? doctor_name : '{doctor_name}')
             .replace(/{phone_number}/g, phone_number ? phone_number : '{phone_number}')
             .replace(/{link}/g, link ? link : '{link}')
+            .replace(/{review_link}/g, review_link ? review_link : '{review_link}')
+            .replace(/{vaccine_name}/g, vaccine_name ? vaccine_name : '{vaccine_name}')
+            .replace(/{camp_name}/g, camp_name ? camp_name : '{camp_name}')
             .replace(/{year_no}/g, year_no ? year_no : '{year_no}')
             .replace(/{start_date}/g, start_date ? start_date : '{start_date}')
             .replace(/{end_date}/g, end_date ? end_date : '{end_date}')
@@ -816,6 +891,9 @@ function MessageCreateCampaign() {
         doctor_name,
         phone_number,
         link,
+        review_link,
+        vaccine_name,
+        camp_name,
         year_no,
         start_date,
         end_date,
@@ -848,6 +926,15 @@ function MessageCreateCampaign() {
                 }
                 else if (part === 'link') {
                     msg_rowData['link'] = link;
+                }
+                else if (part === 'review_link') {
+                    msg_rowData['review_link'] = review_link;
+                }
+                else if (part === 'vaccine_name') {
+                    msg_rowData['vaccine_name'] = vaccine_name;
+                }
+                else if (part === 'camp_name') {
+                    msg_rowData['camp_name'] = camp_name;
                 }
                 else if (part === 'year_no') {
                     msg_rowData['year_no'] = year_no;
@@ -1129,6 +1216,9 @@ function MessageCreateCampaign() {
                                                                 .replace(/{doctor_name}/g, `<label class="text-greycolor">{doctor_name}</label>`)
                                                                 .replace(/{phone_number}/g, `<label class="text-greycolor">{phone_number}</label>`)
                                                                 .replace(/{link}/g, `<label class="text-greycolor">{link}</label>`)
+                                                                .replace(/{review_link}/g, `<label class="text-greycolor">{review_link}</label>`)
+                                                                .replace(/{vaccine_name}/g, `<label class="text-greycolor">{vaccine_name}</label>`)
+                                                                .replace(/{camp_name}/g, `<label class="text-greycolor">{camp_name}</label>`)
                                                                 .replace(/{year_no}/g, `<label class="text-greycolor">{year_no}</label>`)
                                                                 .replace(/{start_date}/g, `<label class="text-greycolor">{start_date}</label>`)
                                                                 .replace(/{end_date}/g, `<label class="text-greycolor">{end_date}</label>`)

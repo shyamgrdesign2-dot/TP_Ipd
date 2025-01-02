@@ -107,41 +107,41 @@ function SidebarDoctor() {
     }
 
     const getIcon = (type, isHovered) => {
-      if (isHovered) {
-        switch (type) {
-          case "ipd":
-            return ipdActiveIcon;
-          case "all_patients":
-            return patientsActiveIcon;
-          case "data_analytics":
-            return analyticsActiveIcon;
-          case "pharmacy":
-            return pharmacyActiveIcon;
-          case "opd_billing":
-            return billingsActiveIcon;
-          case "dr_followup_appointment":
-            return followUpActiveIcon;
-          default:
-            return "";
+        if (isHovered) {
+            switch (type) {
+                case "ipd":
+                    return ipdActiveIcon;
+                case "all_patients":
+                    return patientsActiveIcon;
+                case "data_analytics":
+                    return analyticsActiveIcon;
+                case "pharmacy":
+                    return pharmacyActiveIcon;
+                case "opd_billing":
+                    return billingsActiveIcon;
+                case "dr_followup_appointment":
+                    return followUpActiveIcon;
+                default:
+                    return "";
+            }
+        } else {
+            switch (type) {
+                case "ipd":
+                    return ipdIcon;
+                case "all_patients":
+                    return patientsIcon;
+                case "data_analytics":
+                    return analyticsIcon;
+                case "pharmacy":
+                    return pharmacyIcon;
+                case "opd_billing":
+                    return billingsIcon;
+                case "dr_followup_appointment":
+                    return followUpIcon;
+                default:
+                    return "";
+            }
         }
-      } else {
-        switch (type) {
-          case "ipd":
-            return ipdIcon;
-          case "all_patients":
-            return patientsIcon;
-          case "data_analytics":
-            return analyticsIcon;
-          case "pharmacy":
-            return pharmacyIcon;
-          case "opd_billing":
-            return billingsIcon;
-          case "dr_followup_appointment":
-            return followUpIcon;
-          default:
-            return "";
-        }
-      }
     };
 
     return (
@@ -174,13 +174,13 @@ function SidebarDoctor() {
                 </NavLink> */}
 
                 {profile && profile?.module_data?.map((item, i) => {
-                  const isHovered = hoveredItem === i;
+                    const isHovered = hoveredItem === i;
                     return (
                         <NavLink key={i} onClick={() => clickOldModule(item.type)} replace={true} className={({ isActive, isPending }) =>
-                           isHovered ? "" : isPending ? "pending" : isActive ? "" : "active"
+                            isHovered ? "" : isPending ? "pending" : isActive ? "" : "active"
                         }
-                        onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
-                        onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
+                            onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
+                            onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
                         >
                             <img src={getIcon(item.type, isHovered)} alt={`${item.type}`} />
                             <div className='mt-1 px-2'>{item.title}</div>
@@ -188,12 +188,12 @@ function SidebarDoctor() {
                     )
                 })}
 
-                {isApolloConsultationsEnabled && 
+                {isApolloConsultationsEnabled &&
                     <NavLink to="/apollo-consultations" replace={true} className={({ isActive, isPending }) =>
                         isPending ? "pending" : isActive ? "active" : ""
                     }
-                    onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
-                    onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
+                        onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
+                        onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
                     >
                         <img src={getIcon("data_analytics", hoveredItem || location.pathname === '/apollo-consultations')} alt="apollo" />
                         <div className='mt-1 px-2'>
@@ -202,14 +202,14 @@ function SidebarDoctor() {
                     </NavLink>
                 }
 
-                {process.env.REACT_APP_ENV !== "prod" &&(
+                {profile?.ownerDoctor === 1 && (
                     <NavLink to="/bulk_messages" replace={true} className={({ isActive, isPending }) =>
                         isPending ? "pending" : isActive ? "active" : ""
                     }>
                         <i className='icon-calendarfill'></i>
                         <div className='mt-1 px-2'>
                             <div className='mt-1 px-2'>{isMobile ? 'Message' : <div className='text-truncate'>Messages</div>}</div>
-                            <img src={newGif} className='mx-auto d-block text-center mb-2 position-absolute sidebar-message' style={{right: -4, top: 6, zIndex: -1}} alt='New' />
+                            <img src={newGif} className='mx-auto d-block text-center mb-2 position-absolute sidebar-message' style={{ right: -4, top: 6, zIndex: -1 }} alt='New' />
                         </div>
                     </NavLink>
                 )}

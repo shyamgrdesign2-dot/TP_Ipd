@@ -15,7 +15,9 @@ const initialState = {
     allTemplateList: [],
     templateLoading: false,
     doctorList: [],
-    patientCount: 0
+    patientCount: 0,
+    statesList: [],
+    userState: null
 };
 
 export const userCredit = createAsyncThunk(
@@ -204,6 +206,18 @@ export const paymentHistory = createAsyncThunk(
     }
 );
 
+export const states = createAsyncThunk(
+    "bulkMessages/states",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiBulkMessages.states(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
 const bulkMessagesSlice = createSlice({
     name: "bulkMessages",
     initialState,
@@ -322,6 +336,14 @@ const bulkMessagesSlice = createSlice({
             })
             .addCase(verifyPayment.fulfilled, (state, action) => {
                 state.tabCountObj = { ...state.tabCountObj, count_paymentHistory: state.tabCountObj?.count_paymentHistory + 1 };
+            })
+            .addCase(states.fulfilled, (state, action) => {
+                state.statesList = action.payload?.states;
+                state.userState = action.payload?.user_state;
+            })
+            .addCase(states.rejected, (state, action) => {
+                state.statesList = [];
+                state.userState = null;
             })
     },
 });

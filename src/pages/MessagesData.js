@@ -201,7 +201,7 @@ function MessagesData() {
             value: [dayjs().add(-1, 'y'), dayjs()],
         },
         {
-            label: <div className={`${!dateStatus ? 'active' : ''}`}>Custom range</div>,
+            label: <div className={`${!dateStatus ? 'active' : ''}`} onClick={() => onRangeChange(null)}>Custom range</div>,
             value: null,
         }
     ];
