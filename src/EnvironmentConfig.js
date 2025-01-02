@@ -47,7 +47,66 @@ const dev = {
   pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
-  razorPay_key: "rzp_test_PoLtBba5t8qJIm"
+  razorPay_key: "rzp_test_PoLtBba5t8qJIm",
+  tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
+  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in"
+};
+
+const qa_tp = {
+  appointment_api_url: `https://pm-master-webservice-qa.tatvacare.in/`,
+  symptoms_api_url: `https://pm-symptoms-qa.tatvacare.in`,
+  examination_api_url: `https://pm-examination-qa.tatvacare.in`,
+  diagnosis_api_url: `https://pm-diagnosis-qa.tatvacare.in`,
+  advice_api_url: `https://pm-advice-qa.tatvacare.in`,
+  investigation_api_url: `https://pm-investigation-qa.tatvacare.in`,
+  medication_api_url: `https://pm-medicine-qa.tatvacare.in/`,
+  vitals_api_url: `https://pm-vital-qa.tatvacare.in`,
+  casemanager_api_url: `https://pm-casemanager-qa.tatvacare.in`,
+  printsettings_api_url: `https://pm-printsetting-qa.tatvacare.in`,
+  medicalhistory_api_url: `https://pm-medicalhistory-qa.tatvacare.in`,
+  videolibrary_api_url: `https://pm-videolibrary-qa.tatvacare.in`,
+  sso_to_pm_url: `https://pm-uat-dhspl-2.tatvacare.in/api/get_doctor_sso_token.php`,
+  sso_to_pm_admin_url: `https://pm-uat-dhspl-2.tatvacare.in/api/get_doctor_admin_sso_token.php`,
+  sso_to_pm_username: `PM_40d30f01184aedc47`,
+  sso_to_pm_password: `487154d8-b9ad-4314-a0e3-a72d5se84x14`,
+  doctor_website_url: `https://pm-doctor-portal-qa.tatvacare.in/doctor_website/`,
+  vaccination_api_url: `https://pm-vaccination-qa.tatvacare.in/`,
+  GROWTHBOOK_CLIENTKEY: "sdk-8jXEPwxajRuwkiyD",
+  growth_chart_api_url: `https://pm-growth-chart-qa.tatvacare.in`,
+  firebaseApiKey: "AIzaSyAfD-YLOjDLbhC7hwyiumSkNxP2lul_Kc0",
+  firebaseAuthDomain: "diginext-28149.firebaseapp.com",
+  firebaseDatabaseURL: "https://tc-care-default-rtdb.firebaseio.com",
+  firebaseProjectId: "diginext-28149",
+  firebaseStorageBucket: "diginext-28149.appspot.com",
+  firebaseMessagingSenderId: "482265957598",
+  firebaseAppId: "1:482265957598:web:5ecc05efdbed5c63f42e4f",
+  tatvaRedirect: "https://diginextdoctor72093uat.azureedge.net/#/content?auto",
+  gynec_api_url:
+    "https://pm-medicalhistory-qa.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url:
+    "https://pm-medicalhistory-qa.tatvacare.in/api/v1/obstetric-history",
+  tatvaRedirect: "https://doctor-uat.tatvacare.in#bypass_pedia=false",
+  gynec_api_url: "https://pm-medicalhistory-qa.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url: "https://pm-medicalhistory-qa.tatvacare.in/api/v1/obstetric-history",
+  zydus_api_url: `https://pm-ingest-webhook-qa.tatvacare.in`,
+  zydus_business_id: "754811713438773",
+  rx_digitization: "https://pm-rxdigitization-qa.tatvacare.in",
+  visit_api_url: "https://pm-visit-integration-qa.tatvacare.in",
+  user_management_api_url: "https://user-management77913uat.azurewebsites.net",
+  razorpay_integration_url: "https://pm-visit-integration-qa.tatvacare.in",
+  api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
+  api_key: "TC_12o89l11327dfrt55",
+  lab_params_api_url: "https://pm-patient-docs-qa.tatvacare.in",
+  opd_encryption_url: "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
+  opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
+  upload_doc_api_url: "https://pm-patient-docs-qa.tatvacare.in",
+  central_auth_api_url: "https://pm-central-auth-qa.tatvacare.in",
+  pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
+  bulk_messages: "https://pm-communication-qa.tatvacare.in",
+  searchengine_url: "https://pm-searchengine-qa.tatvacare.in",
+  razorPay_key: "rzp_test_PoLtBba5t8qJIm",
+  tatvaAi_api_url: "https://pm-doctor-tatva-qa.tatvacare.in",
+  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in"
 };
 
 const qa = {
@@ -99,7 +158,9 @@ const qa = {
   pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
-  razorPay_key: "rzp_test_PoLtBba5t8qJIm"
+  razorPay_key: "rzp_test_PoLtBba5t8qJIm",
+  tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
+  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in"
 };
 
 const uat = {
@@ -154,7 +215,9 @@ const uat = {
   pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
-  razorPay_key: "rzp_test_PoLtBba5t8qJIm"
+  razorPay_key: "rzp_test_PoLtBba5t8qJIm",
+  tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
+  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in"
 };
 
 const prod = {
@@ -204,13 +267,17 @@ const prod = {
   pedia_logout_url: "https://health.tatvacare.in/#logout_user=1",
   bulk_messages: "https://pm-communication-prod.tatvacare.in",
   searchengine_url: "https://pm-searchengine-prod.tatvacare.in",
-  razorPay_key: "rzp_live_GvLkPHHNSMs2G3"
+  razorPay_key: "rzp_live_GvLkPHHNSMs2G3",
+  tatvaAi_api_url: "https://pm-doctor-tatva-prod.tatvacare.in",
+  tatvaAi_url: "https://tatva-ai-prod.tatvacare.in"
 };
 
 const getEnv = () => {
   switch (process.env.REACT_APP_ENV) {
     case "dev":
       return uat;
+    case "qa_tp":
+      return qa_tp;
     case "qa":
       return qa;
     case "uat":
