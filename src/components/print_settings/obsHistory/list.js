@@ -666,7 +666,7 @@ function ObsHistoryListView({
                         fontWeight: 500,
                       }}
                     >
-                      &nbsp;{"\n"}
+                      &nbsp;
                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Blood
                       group&nbsp;:&nbsp;
                     </Text>
