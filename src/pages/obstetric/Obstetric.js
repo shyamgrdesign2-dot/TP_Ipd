@@ -155,49 +155,6 @@ const Obstetric = ({
   const [runTour, setRunTour] = useState(false);
 
   useEffect(() => {
-    if (runTour) {
-      const tab3 = document.querySelector(".ant-tabs-nav-list > :nth-child(3)");
-      const tab4 = document.querySelector(".ant-tabs-nav-list > :nth-child(4)");
-      const tooltip = document.querySelector(".tour-container");
-      const tabFocus = document.querySelector(".tab-focus");
-
-      if (tab3 && tab4 && tooltip && tabFocus) {
-        const tab3Rect = tab3.getBoundingClientRect();
-        const tab4Rect = tab4.getBoundingClientRect();
-
-        // Position the tooltip centrally between tab3 and tab4
-        tooltip.style.top = `${tab3Rect.bottom - 45}px`;
-        tooltip.style.left = `${
-          (tab3Rect.left + tab4Rect.right) / 2 - tooltip.offsetWidth / 2 + 15
-        }px`;
-
-        // Position the tab-focus div
-        tabFocus.style.left = `${
-          (tab3Rect.left + tab4Rect.right) / 2 - tabFocus.offsetWidth / 2 + 15
-        }px`;
-      }
-    }
-  }, [runTour]);
-
-  useEffect(() => {
-    if (runTour) {
-      // Automatically trigger the hidden button's click after 1 second
-      setTimeout(() => {
-        const elements = document.getElementsByClassName(
-          "react-joyride__beacon"
-        );
-        if (elements.length > 0) {
-          elements[0].click(); // Access the first element in the collection and trigger a click
-        } else {
-          console.log(
-            "No elements with the class 'react-joyride__beacon' were found."
-          );
-        }
-      }, 1000);
-    }
-  }, [runTour]);
-
-  useEffect(() => {
     if (examinationEditIndex >= 0) {
       handleExaminationDrawer();
     }
