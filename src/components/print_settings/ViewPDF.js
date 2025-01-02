@@ -127,7 +127,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     const patientBirthWeight = caseManagerData?.patient_birth_weight ?? null;
 
     const { growthChartData, growthChartImageData, todayGrowthChartData } =
-      growthChartDetails || {};
+        growthChartDetails || {};
     let growthChartImageChunks = []
     if (growthChartImageData) {
         const growthChartOption = printSettings?.prescription?.case_option?.find(o => o.id === 12)?.growth_chart_option;
@@ -160,18 +160,18 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     }
 
     const transformGivenVaccineData = (data) => {
-      const groupedData = {};
+        const groupedData = {};
 
-      data?.forEach((item) => {
-        const { tvc_name, tvac_name, ...rest } = item;
+        data?.forEach((item) => {
+            const { tvc_name, tvac_name, ...rest } = item;
 
-        if (!groupedData[tvc_name]) {
-          groupedData[tvc_name] = { ...rest, tvac_name, tvc_name };
-        } else {
-          groupedData[tvc_name].tvac_name += `, ${tvac_name}`;
-        }
-      });
-      return Object.values(groupedData);
+            if (!groupedData[tvc_name]) {
+                groupedData[tvc_name] = { ...rest, tvac_name, tvc_name };
+            } else {
+                groupedData[tvc_name].tvac_name += `, ${tvac_name}`;
+            }
+        });
+        return Object.values(groupedData);
     };
 
     const transformGivenVaccines = transformGivenVaccineData(todayVaccines?.given);
@@ -260,12 +260,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         return data.map((item) => {
             const groupedInputs = item.inputs.reduce((acc, input) => {
                 if (!acc[input.reportName]) {
-                acc[input.reportName] = [];
+                    acc[input.reportName] = [];
                 }
                 acc[input.reportName].push(input);
                 return acc;
             }, {});
-      
+
             return {
                 date: item.date,
                 groupedInputs,
@@ -276,7 +276,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     const syncLabResultsData = (labResults) => {
         const allReportNames = new Set();
         const allTestNamesByReport = {};
-              
+
         labResults.forEach((result) => {
             Object.keys(result.groupedInputs).forEach((reportName) => {
                 allReportNames.add(reportName);
@@ -288,18 +288,18 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 });
             });
         });
-              
+
         const allReportNamesArray = Array.from(allReportNames);
         const allTestNamesByReportArray = {};
         Object.keys(allTestNamesByReport).forEach((reportName) => {
             allTestNamesByReportArray[reportName] = Array.from(allTestNamesByReport[reportName]);
         });
-              
+
         return labResults.map((result) => {
             const transformedGroupedInputs = {};
-      
+
             allReportNamesArray.forEach((reportName) => {
-                if (!result.groupedInputs[reportName]) {              
+                if (!result.groupedInputs[reportName]) {
                     transformedGroupedInputs[reportName] = allTestNamesByReportArray[reportName].map((testName) => ({
                         reportName,
                         testName,
@@ -307,24 +307,24 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         arrowDirection: "",
                         units: ""
                     }));
-                } else {              
+                } else {
                     const existingTests = result.groupedInputs[reportName];
-                    
+
                     const updatedTests = allTestNamesByReportArray[reportName].map((testName) => {
                         const existingTest = existingTests.find((test) => test.testName === testName);
                         return existingTest || {
-                        reportName,
-                        testName,
-                        value: "-",
-                        arrowDirection: "",
-                        units: ""
+                            reportName,
+                            testName,
+                            value: "-",
+                            arrowDirection: "",
+                            units: ""
                         };
                     });
-            
+
                     transformedGroupedInputs[reportName] = updatedTests;
                 }
             });
-        
+
             return {
                 ...result,
                 groupedInputs: transformedGroupedInputs
@@ -332,38 +332,64 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         });
     };
 
-    const labParamsPatchData = labParamsData ? groupByReportNameForAll(labParamsData) : null;        
-    const labParamsPatchTableData = labParamsPatchData ? syncLabResultsData(labParamsPatchData) : null;   
+    const labParamsPatchData = labParamsData ? groupByReportNameForAll(labParamsData) : null;
+    const labParamsPatchTableData = labParamsPatchData ? syncLabResultsData(labParamsPatchData) : null;
 
     const getCustomModuleName = (id) => {
         const customModule = customModules.find((module) => module.module_id === id);
         return customModule ? customModule.name : '';
     }
 
+    const getMarginByFormat = (letterheadFormat, headerFooter, position, defaultValue) => {
+        const marginType =
+            letterheadFormat === 0 ? "custom_letterhead_margin" :
+                letterheadFormat === 1 ? "uploaded_letterhead_margin" :
+                    letterheadFormat === 2 ? "margin" : null;
+
+        return marginType && headerFooter?.[marginType]?.[position] >= 0
+            ? (headerFooter?.[marginType]?.[position] || defaultValue) * 25
+            : PX_TO_PT * 30;
+    };
+
+    const calculatePadding = () => {
+        const { letterhead_format, header_footer, whatsapp_letterhead_format } = printSettings || {};
+        const footer = header_footer?.footer;
+
+        if (mode !== NORMAL) {
+            return {
+                paddingTop: PX_TO_PT * 30,
+                paddingBottom: whatsapp_letterhead_format === 1
+                    ? fileFooter
+                        ? 110
+                        : PX_TO_PT * 30
+                    : footer?.title
+                        ? 35 + parseInt(footer?.font_size)
+                        : PX_TO_PT * 30,
+                paddingLeft: PX_TO_PT * 30,
+                paddingRight: PX_TO_PT * 30,
+            };
+        }
+
+        return {
+            paddingTop: [0,1,2].includes(letterhead_format)
+                ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
+                : PX_TO_PT * 30,
+            paddingLeft: [0,1,2].includes(letterhead_format)
+                ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
+                : PX_TO_PT * 30,
+            paddingRight: [0,1,2].includes(letterhead_format)
+                ? getMarginByFormat(letterhead_format, header_footer, "right", 0.5)
+                : PX_TO_PT * 30,
+        };
+    };
+
+    const paddingStyles = calculatePadding();
+
     return (
         <Document>
             <Page
                 size="A4"
-                style={{
-                    // flex: 1,
-                    paddingTop: mode == NORMAL ? printSettings?.letterhead_format != 2 ? PX_TO_PT * 30 : printSettings?.header_footer?.margin?.top ? printSettings?.header_footer?.margin?.top * 25 : 0 : PX_TO_PT * 30,
-                    paddingBottom: mode == NORMAL ?
-                        printSettings?.letterhead_format != 2 ?
-                            printSettings?.letterhead_format == 1 ?
-                                fileFooter ? 110 : PX_TO_PT * 30
-                                : printSettings?.header_footer?.footer?.title ?
-                                    35 + parseInt(printSettings?.header_footer?.footer?.font_size)
-                                    : PX_TO_PT * 30
-                            : printSettings?.header_footer?.margin?.bottom ? printSettings?.header_footer?.margin?.bottom * 25
-                                : 0
-                        : printSettings?.whatsapp_letterhead_format == 1 ?
-                            fileFooter ? 110 : PX_TO_PT * 30
-                            : printSettings?.header_footer?.footer?.title ?
-                                35 + parseInt(printSettings?.header_footer?.footer?.font_size)
-                                : PX_TO_PT * 30,
-                    paddingLeft: mode == NORMAL ? printSettings?.letterhead_format != 2 ? PX_TO_PT * 30 : printSettings?.header_footer?.margin?.left ? printSettings?.header_footer?.margin?.left * 25 : 0 : PX_TO_PT * 30,
-                    paddingRight: mode == NORMAL ? printSettings?.letterhead_format != 2 ? PX_TO_PT * 30 : printSettings?.header_footer?.margin?.right ? printSettings?.header_footer?.margin?.right * 25 : 0 : PX_TO_PT * 30,
-                }}
+                style={paddingStyles}
                 wrap={!smartRxData}>
 
                 <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed>
@@ -1048,7 +1074,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {patientBirthWeight && (
                                                     <>
                                                         <Text
-                                                            style={{ 
+                                                            style={{
                                                                 color: '#171725',
                                                                 fontFamily: printSettings?.page_format?.font_family,
                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1056,7 +1082,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             }}>Patient’s birth weight:&nbsp;
                                                         </Text>
                                                         <Text
-                                                            style={{ 
+                                                            style={{
                                                                 color: '#171725',
                                                                 fontFamily: printSettings?.page_format?.font_family,
                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1114,7 +1140,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     {patientBirthWeight && (
                                                         <>
                                                             <Text
-                                                                style={{ 
+                                                                style={{
                                                                     color: '#171725',
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1122,7 +1148,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 }}>Patient’s birth weight:&nbsp;
                                                             </Text>
                                                             <Text
-                                                                style={{ 
+                                                                style={{
                                                                     color: '#171725',
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1176,13 +1202,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>                                                    
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
                                                     Vitals & Body Composition:&nbsp;
 
                                                     {patientBirthWeight && (
                                                         <>
                                                             <Text
-                                                                style={{ 
+                                                                style={{
                                                                     color: '#171725',
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1190,7 +1216,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 }}>Patient’s birth weight:&nbsp;
                                                             </Text>
                                                             <Text
-                                                                style={{ 
+                                                                style={{
                                                                     color: '#171725',
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1326,7 +1352,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
                                                         <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{'\n'}{`Additional History`}&nbsp;</Text>
                                                         <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                        {`(`}{caseManagerData?.medical_history?.[0]?.medical_history_remarks}{`)`}
+                                                            {`(`}{caseManagerData?.medical_history?.[0]?.medical_history_remarks}{`)`}
                                                         </Text>
                                                     </Text>
                                                 )}
@@ -1389,24 +1415,24 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {caseManagerData?.medical_history?.[0]?.medical_history_remarks && (
                                                     <>
                                                         <Text
-                                                        style={{
-                                                        color: '#454551',
-                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                        fontWeight: 500,
-                                                        }}
-                                                        >
-                                                            <Text
                                                             style={{
-                                                                color: '#171725',
+                                                                color: '#454551',
                                                                 fontFamily: printSettings?.page_format?.font_family,
                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                 fontWeight: 500,
                                                             }}
+                                                        >
+                                                            <Text
+                                                                style={{
+                                                                    color: '#171725',
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
                                                             >
-                                                            {'\n'}&nbsp;{medicalHistoryIndex++}. {`Additional History`}&nbsp;:
+                                                                {'\n'}&nbsp;{medicalHistoryIndex++}. {`Additional History`}&nbsp;:
                                                             </Text>
-                                                        {'\n'}
+                                                            {'\n'}
                                                         </Text>
                                                         <Text
                                                             style={{
@@ -1436,9 +1462,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         <View key={i} style={[styles.table, { marginTop: 0 }]}>
                                                                             <View style={styles.row}>
                                                                                 <Text style={[styles.cell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                                                <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
                                                                                 {item?.tmmhs_id != 3 && (
                                                                                     <>
+                                                                                        <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
                                                                                         <Text style={[styles.cell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
                                                                                         {item?.tmmhs_id == 2 && (
                                                                                             <Text style={[styles.cell, { flex: 0.25, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICATION</Text>
@@ -1454,9 +1480,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 return (
                                                                                     <View style={styles.row} key={i1}>
                                                                                         <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item1.title}</Text>
-                                                                                        <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.since ? item1.since : '-'}</Text>
                                                                                         {item?.tmmhs_id != 3 && (
                                                                                             <>
+                                                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.since ? item1.since : '-'}</Text>
                                                                                                 <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.status ? item1.status : '-'}</Text>
                                                                                                 {item?.tmmhs_id == 2 && (
                                                                                                     <Text style={[styles.cell, { flex: 0.25, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.medication ? item1.medication : '-'}</Text>
@@ -1487,7 +1513,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         )
                                                     )
                                                 })}
-                                                {caseManagerData?.medical_history?.[0]?.medical_history_remarks && 
+                                                {caseManagerData?.medical_history?.[0]?.medical_history_remarks &&
                                                     <>
                                                         <Text style={{ color: '#000', marginTop: PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`Additional History : `}</Text>
                                                         <View style={[styles.table, { marginTop: 0 }]}>
@@ -4136,7 +4162,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                             fontWeight: 400,
                                                                         }}
-                                                                        >
+                                                                    >
                                                                         ,&nbsp;
                                                                     </Text>
                                                                 )}
@@ -4161,7 +4187,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 >
                                                                     -&nbsp;
                                                                 </Text>
-                                                                
+
                                                                 {Object.entries(item.groupedInputs).map(([reportName, tests], reportIndex) => (
                                                                     <Text key={reportIndex}>
                                                                         {reportIndex !== 0 && (
@@ -4277,47 +4303,47 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 >
                                                                     -&nbsp;
                                                                 </Text>
-                                                            
+
                                                                 {Object.entries(item.groupedInputs).map(([reportName, tests], reportIndex) => (
                                                                     <Text key={reportIndex}>
-                                                                    {reportIndex !== 0 && (
+                                                                        {reportIndex !== 0 && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                }}
+                                                                            >
+                                                                                ),&nbsp;
+                                                                            </Text>
+                                                                        )}
+
                                                                         <Text
                                                                             style={{
                                                                                 color: "#171725",
                                                                                 fontFamily: printSettings?.page_format?.font_family,
                                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
+                                                                                fontWeight: 500,
                                                                             }}
                                                                         >
-                                                                        ),&nbsp;
+                                                                            {reportName}&nbsp;(
                                                                         </Text>
-                                                                    )}
 
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        {reportName}&nbsp;(
-                                                                    </Text>
-
-                                                                    {tests.map((input, inputIndex) => (
-                                                                        <Text
-                                                                            key={inputIndex}
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                            }}
-                                                                        >
-                                                                        {inputIndex !== 0 && <Text>, </Text>}
-                                                                        {input.testName}:&nbsp;{input.value}&nbsp;{input.testName !== 'Remarks' ? input.units : ''}
-                                                                        </Text>
-                                                                    ))}
+                                                                        {tests.map((input, inputIndex) => (
+                                                                            <Text
+                                                                                key={inputIndex}
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                }}
+                                                                            >
+                                                                                {inputIndex !== 0 && <Text>, </Text>}
+                                                                                {input.testName}:&nbsp;{input.value}&nbsp;{input.testName !== 'Remarks' ? input.units : ''}
+                                                                            </Text>
+                                                                        ))}
                                                                     </Text>
                                                                 ))}
 
@@ -4421,7 +4447,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             >
                                                                                 {test.testName}
                                                                             </Text>
-                                                                        
+
                                                                             {labParamsPatchTableData.map((entry, k) => {
                                                                                 const testResult = entry.groupedInputs[reportName]?.find(
                                                                                     (input) => input.testName === test.testName
@@ -4680,10 +4706,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                 <View style={{
                     position: 'absolute',
-                    bottom: PX_TO_PT * 30,
-                    left: PX_TO_PT * 30,
-                    right: PX_TO_PT * 30,
-                    // marginTop: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 29 : 0 : 29)
+                    bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
+                    left: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
+                    right: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
                 }} fixed>
                     {mode == NORMAL ? (
                         printSettings?.letterhead_format === 0 ? (
@@ -4694,7 +4719,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         ) : printSettings?.letterhead_format === 1 && (
                             fileFooter && fileFooter?.imageShow && (
                                 <Image
-                                    style={{ width: '100%', height: 80, objectFit: 'fill' }}
+                                    style={{ width: '100%', objectFit: 'cover' }}
                                     src={fileFooter?.showFile} />
                             )
                         )
@@ -4707,7 +4732,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         ) : printSettings?.whatsapp_letterhead_format === 1 && (
                             fileFooter && fileFooter?.imageShow && (
                                 <Image
-                                    style={{ width: '100%', height: 80, objectFit: 'fill' }}
+                                    style={{ width: '100%', objectFit: 'cover' }}
                                     src={fileFooter?.showFile} />
                             )
                         )

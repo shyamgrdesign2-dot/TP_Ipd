@@ -7,14 +7,21 @@ import { useSelector } from "react-redux";
 import { ExaminationColumns } from "../../utils/constants";
 import ReadMore from "../../../../common/ReadMore";
 
-const Examination = ({ handleExaminationDrawer, setEditIndex, bottomRef }) => {
-  const { obstetricDetails } = useSelector((state) => state.obstetric);
-  const { examinationHistory } = obstetricDetails;
-
+const Examination = ({
+  examinationHistory,
+  handleExaminationDrawer,
+  handlePastPregnancyDrawer,
+  setEditIndex,
+  bottomRef,
+  isPreviousPregnancyOverview,
+}) => {
+  const tableColumns = isPreviousPregnancyOverview
+    ? ExaminationColumns?.slice(0, -1)
+    : ExaminationColumns;
   const renderTableHeader = () => {
     return (
       <tr>
-        {ExaminationColumns?.map((header, index) => (
+        {tableColumns?.map((header, index) => (
           <th
             key={index}
             className="obstetricTcell theaderCellStyle"
@@ -80,12 +87,14 @@ const Examination = ({ handleExaminationDrawer, setEditIndex, bottomRef }) => {
           <td className="obstetricTcell">
             <ReadMore text={notes || "-"} textLimit={70} />
           </td>
-          <td className="obstetricTcell">
-            <div className="editIcon" onClick={() => onEdit(i)}>
-              <i className={"icon-Edit me-1 fs-5"} />
-              <span className="editText">Edit</span>
-            </div>
-          </td>
+          {!isPreviousPregnancyOverview && (
+            <td className="obstetricTcell">
+              <div className="editIcon" onClick={() => onEdit(i)}>
+                <i className={"icon-Edit me-1 fs-5"} />
+                <span className="editText">Edit</span>
+              </div>
+            </td>
+          )}
         </tr>
       );
     });
@@ -109,17 +118,27 @@ const Examination = ({ handleExaminationDrawer, setEditIndex, bottomRef }) => {
               </table>
             </div>
           </div>
-          <div className="anotherVisit">
-            <Button
-              type="button"
-              className="btn-41 btn ant-btn-text btn-input anotherVisitBtn"
-              onClick={handleExaminationDrawer}
-              ref={bottomRef}
-            >
-              <i className="icon-Add" />
-              <span>Add another visit</span>
-            </Button>
-          </div>
+          {!isPreviousPregnancyOverview ? (
+            <div className="anotherVisit">
+              <Button
+                type="button"
+                className="btn-41 btn ant-btn-text btn-input anotherVisitBtn"
+                onClick={handleExaminationDrawer}
+                ref={bottomRef}
+              >
+                <i className="icon-Add" />
+                <span>Add another visit</span>
+              </Button>
+              or
+              <Button
+                type="button"
+                className="btn-41 btn ant-btn-tex anotherVisitBtn completePregnancyBtn"
+                onClick={handlePastPregnancyDrawer}
+              >
+                <span className="completePregnancy">Complete Pregnancy</span>
+              </Button>
+            </div>
+          ) : null}
         </>
       ) : (
         <div className="emptyDataContainer">

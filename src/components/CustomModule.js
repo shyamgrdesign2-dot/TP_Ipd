@@ -46,17 +46,12 @@ import TextArea from "antd/es/input/TextArea";
 import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
-import { customizedPad } from "../redux/doctorsSlice";
 
 function CustomModule({ module }) {
   const { customModules, searchModuleResults, loading } = useSelector(
     (state) => state.customModules
   );
-  const {
-    userId,
-    customizedPadRightList,
-    customizedPadLeftList,
-  } = useSelector((state) => state.doctors);
+  const { userId } = useSelector((state) => state.doctors);
 
   const dispatch = useDispatch();
 
@@ -197,12 +192,6 @@ function CustomModule({ module }) {
       query: moduleData[i].title,
       index: i,
     });
-    dispatch(
-      searchModule({
-        moduleId: module?.module_id,
-        keyword: searchChildQuery?.query,
-      })
-    );
   };
 
   const onSearchChild = useCallback(
@@ -327,22 +316,6 @@ function CustomModule({ module }) {
             (item) => item.module_id !== moduleToDelete?.module_id
           );
         });
-        dispatch(
-          customizedPad({
-            data: {
-              default: false,
-              reset: false,
-              left: customizedPadLeftList,
-              right: customizedPadRightList
-                ?.filter((e) =>
-                  e.is_custom_module
-                    ? customModules.some((cm) => cm.module_id === e.tmdpm_id)
-                    : true
-                )
-                ?.filter((e) => e.tmdpm_id !== moduleToDelete?.module_id),
-            },
-          })
-        );
 
         message.open({
           key: MESSAGE_KEY,
@@ -963,32 +936,6 @@ function CustomModule({ module }) {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
-        dispatch(
-          customizedPad({
-            data: {
-              default: false,
-              reset: false,
-              left: customizedPadLeftList,
-              right: customizedPadRightList
-                ?.filter((e) =>
-                  e.is_custom_module
-                    ? customModules.some((cm) => cm.module_id === e.tmdpm_id)
-                    : true
-                )
-                ?.map((e) => {
-                  if (e.tmdpm_id === module?.module_id) {
-                    return {
-                      ...e,
-                      tmdpm_name: newModuleName,
-                      tmdpm_short_name: newModuleName,
-                    };
-                  }
-                  return e;
-                }),
-            },
-          })
-        );
-
         setCanEditName(false);
         message.open({
           key: MESSAGE_KEY,

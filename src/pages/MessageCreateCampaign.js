@@ -75,16 +75,21 @@ function MessageCreateCampaign() {
     const [template, setTemplate] = useState(null);
 
     const [clinic_name, setclinic_name] = useState('');
+    const [clinic_address, setclinic_address] = useState('');
     const [festival_name, setfestival_name] = useState('');
-    const [link, setlink] = useState('');
-    const [dr_name, setdr_name] = useState('');
-    const [patient_name, setpatient_name] = useState('');
     const [doctor_name, setdoctor_name] = useState('');
+    const [phone_number, setphone_number] = useState('');
+    const [link, setlink] = useState('');
+    const [review_link, setreview_link] = useState('');
+    const [vaccine_name, setvaccine_name] = useState('');
+    const [camp_name, setcamp_name] = useState('');
+    const [year_no, setyear_no] = useState('');
+    const [start_date, setstart_date] = useState('');
+    const [end_date, setend_date] = useState('');
+    const [start_time, setstart_time] = useState('');
+    const [end_time, setend_time] = useState('');
     const [date, setdate] = useState('');
-    const [appointment_date, setappointment_date] = useState('');
-    const [appointment_time, setappointment_time] = useState('');
-    const [hospital_name, sethospital_name] = useState('');
-    const [hospital_address, sethospital_address] = useState('');
+    const [time, settime] = useState('');
 
     const [dateRange, setDateRange] = useState({
         startDate: moment().format(dateFormat),
@@ -128,35 +133,50 @@ function MessageCreateCampaign() {
             if (campaign_data?.msg_rowData?.hasOwnProperty('clinic_name')) {
                 setclinic_name(campaign_data?.msg_rowData?.clinic_name)
             }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('clinic_address')) {
+                setclinic_address(campaign_data?.msg_rowData?.clinic_address)
+            }
             if (campaign_data?.msg_rowData?.hasOwnProperty('festival_name')) {
                 setfestival_name(campaign_data?.msg_rowData?.festival_name)
-            }
-            if (campaign_data?.msg_rowData?.hasOwnProperty('link')) {
-                setlink(campaign_data?.msg_rowData?.link)
-            }
-            if (campaign_data?.msg_rowData?.hasOwnProperty('dr_name')) {
-                setdr_name(campaign_data?.msg_rowData?.dr_name)
-            }
-            if (campaign_data?.msg_rowData?.hasOwnProperty('patient_name')) {
-                setpatient_name(campaign_data?.msg_rowData?.patient_name)
             }
             if (campaign_data?.msg_rowData?.hasOwnProperty('doctor_name')) {
                 setdoctor_name(campaign_data?.msg_rowData?.doctor_name)
             }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('phone_number')) {
+                setphone_number(campaign_data?.msg_rowData?.phone_number)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('link')) {
+                setlink(campaign_data?.msg_rowData?.link)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('review_link')) {
+                setreview_link(campaign_data?.msg_rowData?.review_link)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('vaccine_name')) {
+                setvaccine_name(campaign_data?.msg_rowData?.vaccine_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('camp_name')) {
+                setcamp_name(campaign_data?.msg_rowData?.camp_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('year_no')) {
+                setyear_no(campaign_data?.msg_rowData?.year_no)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('start_date')) {
+                setstart_date(campaign_data?.msg_rowData?.start_date)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('end_date')) {
+                setend_date(campaign_data?.msg_rowData?.end_date)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('start_time')) {
+                setstart_time(campaign_data?.msg_rowData?.start_time)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('end_time')) {
+                setend_time(campaign_data?.msg_rowData?.end_time)
+            }
             if (campaign_data?.msg_rowData?.hasOwnProperty('date')) {
                 setdate(campaign_data?.msg_rowData?.date)
             }
-            if (campaign_data?.msg_rowData?.hasOwnProperty('appointment_date')) {
-                setappointment_date(campaign_data?.msg_rowData?.appointment_date)
-            }
-            if (campaign_data?.msg_rowData?.hasOwnProperty('appointment_time')) {
-                setappointment_time(campaign_data?.msg_rowData?.appointment_time)
-            }
-            if (campaign_data?.msg_rowData?.hasOwnProperty('hospital_name')) {
-                sethospital_name(campaign_data?.msg_rowData?.hospital_name)
-            }
-            if (campaign_data?.msg_rowData?.hasOwnProperty('hospital_address')) {
-                sethospital_address(campaign_data?.msg_rowData?.hospital_address)
+            if (campaign_data?.msg_rowData?.hasOwnProperty('time')) {
+                settime(campaign_data?.msg_rowData?.time)
             }
 
             setSendOn(campaign_data?.send_on === 'SMS' ? 1 : 2)
@@ -210,35 +230,50 @@ function MessageCreateCampaign() {
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('clinic_name')) {
                 setclinic_name(reuse_campaign_data?.msg_rowData?.clinic_name)
             }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('clinic_address')) {
+                setclinic_address(reuse_campaign_data?.msg_rowData?.clinic_address)
+            }
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('festival_name')) {
                 setfestival_name(reuse_campaign_data?.msg_rowData?.festival_name)
-            }
-            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('link')) {
-                setlink(reuse_campaign_data?.msg_rowData?.link)
-            }
-            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('dr_name')) {
-                setdr_name(reuse_campaign_data?.msg_rowData?.dr_name)
-            }
-            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('patient_name')) {
-                setpatient_name(reuse_campaign_data?.msg_rowData?.patient_name)
             }
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('doctor_name')) {
                 setdoctor_name(reuse_campaign_data?.msg_rowData?.doctor_name)
             }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('phone_number')) {
+                setphone_number(reuse_campaign_data?.msg_rowData?.phone_number)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('link')) {
+                setlink(reuse_campaign_data?.msg_rowData?.link)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('review_link')) {
+                setreview_link(reuse_campaign_data?.msg_rowData?.review_link)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('vaccine_name')) {
+                setvaccine_name(reuse_campaign_data?.msg_rowData?.vaccine_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('camp_name')) {
+                setcamp_name(reuse_campaign_data?.msg_rowData?.camp_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('year_no')) {
+                setyear_no(reuse_campaign_data?.msg_rowData?.year_no)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('start_date')) {
+                setstart_date(reuse_campaign_data?.msg_rowData?.start_date)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('end_date')) {
+                setend_date(reuse_campaign_data?.msg_rowData?.end_date)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('start_time')) {
+                setstart_time(reuse_campaign_data?.msg_rowData?.start_time)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('end_time')) {
+                setend_time(reuse_campaign_data?.msg_rowData?.end_time)
+            }
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('date')) {
                 setdate(reuse_campaign_data?.msg_rowData?.date)
             }
-            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('appointment_date')) {
-                setappointment_date(reuse_campaign_data?.msg_rowData?.appointment_date)
-            }
-            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('appointment_time')) {
-                setappointment_time(reuse_campaign_data?.msg_rowData?.appointment_time)
-            }
-            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('hospital_name')) {
-                sethospital_name(reuse_campaign_data?.msg_rowData?.hospital_name)
-            }
-            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('hospital_address')) {
-                sethospital_address(reuse_campaign_data?.msg_rowData?.hospital_address)
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('time')) {
+                settime(reuse_campaign_data?.msg_rowData?.time)
             }
 
             setSendOn(reuse_campaign_data?.send_on === 'SMS' ? 1 : 2)
@@ -275,7 +310,7 @@ function MessageCreateCampaign() {
                 const genderData = reuse_campaign_data?.gender ? reuse_campaign_data?.gender.split(',') : []
                 setGender(genderData)
             }
-            
+
             setScheduleType(2)
         }
     }, [doctorList, allTemplateList, reuse_campaign_data]);
@@ -307,13 +342,13 @@ function MessageCreateCampaign() {
             }
 
             if (change) {
-                dispatch(searchPatient(sendData));
+                !pickerModal && dispatch(searchPatient(sendData));
             }
         }, 500);
         return () => {
             clearTimeout(timeOutId);
         };
-    }, [change, sender_type, dateRange, gender, min_age, max_age, age_unit, filter_doc]);
+    }, [pickerModal, change, sender_type, dateRange, gender, min_age, max_age, age_unit, filter_doc]);
 
     //Message Details
     const handleAvailableCredit = useCallback(
@@ -342,10 +377,35 @@ function MessageCreateCampaign() {
     }, [popOverVideo]);
 
     // Steps Code
-    const next = () => {
-        setStepCurrent(prev => prev + 1);
-        if (schedule_type === 1) {
-            setScheduleDateTime(moment().add(30, 'minutes').format(dateTimeFormat))
+    const next = async () => {
+        if (stepCurrent === 1) {
+            const data = await sendTemplate()
+            // const emptyKey = Object.keys(data).find(key => !data[key]);
+            // if (emptyKey) {
+            //     errorMessage(`Please fill up ${emptyKey}`)
+            //     return;
+            // } else {
+            //     alert('success')
+            // }
+            const isEmpty = !Object.values(data).some(x => !x);
+            if (isEmpty) {
+                if (patientCount !== 0) {
+                    if (schedule_type === 2 && scheduleDateTime) {
+                        setStepCurrent(prev => prev + 1);
+                    } else if (schedule_type === 1) {
+                        setScheduleDateTime(moment().add(30, 'minutes').format(dateTimeFormat));
+                        setStepCurrent(prev => prev + 1);
+                    } else {
+                        errorMessage('Please fill up schedule for later');
+                    }
+                } else {
+                    errorMessage('We need at least 1 patient to proceed');
+                }
+            } else {
+                errorMessage('Please fill up all fields in compose message');
+            }
+        } else {
+            setStepCurrent(prev => prev + 1);
         }
     };
 
@@ -420,7 +480,7 @@ function MessageCreateCampaign() {
             value: [dayjs().add(-1, 'y'), dayjs()],
         },
         {
-            label: <div className={`${!dateStatus ? 'active' : ''}`}>Custom range</div>,
+            label: <div className={`${!dateStatus ? 'active' : ''}`} onClick={() => onRangeChange(null)}>Custom range</div>,
             value: null,
         }
     ];
@@ -501,6 +561,9 @@ function MessageCreateCampaign() {
     // Schedule Radio
     const handleScheduleType = useCallback((e) => {
         setScheduleType(e.target.value);
+        if (e.target.value === 2) {
+            setScheduleDateTime("")
+        }
     }, [schedule_type]);
 
     // const disabledDate = (current) => {
@@ -556,6 +619,22 @@ function MessageCreateCampaign() {
                         />
                     );
                 }
+                else if (part === 'clinic_address') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: clinic_address ? parseInt(clinic_address?.length * 7.55) >= 150 ? clinic_address?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={clinic_address}
+                            onChange={(e) => setclinic_address(e.target.value)}
+                            placeholder="Enter clinic address"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
                 else if (part === 'festival_name') {
                     return (
                         <Input
@@ -568,54 +647,6 @@ function MessageCreateCampaign() {
                             value={festival_name}
                             onChange={(e) => setfestival_name(e.target.value)}
                             placeholder="Enter festival name"
-                            className="me-1 my-1 fw-medium"
-                        />
-                    );
-                }
-                else if (part === 'link') {
-                    return (
-                        <Input
-                            key={index}
-                            style={{
-                                height: '30px',
-                                width: link ? parseInt(link?.length * 7.55) >= 150 ? link?.length * 7.55 : 150 : 150,
-                                maxWidth: 300
-                            }}
-                            value={link}
-                            onChange={(e) => setlink(e.target.value)}
-                            placeholder="Enter link"
-                            className="me-1 my-1 fw-medium"
-                        />
-                    );
-                }
-                else if (part === 'dr_name') {
-                    return (
-                        <Input
-                            key={index}
-                            style={{
-                                height: '30px',
-                                width: dr_name ? parseInt(dr_name?.length * 7.55) >= 150 ? dr_name?.length * 7.55 : 150 : 150,
-                                maxWidth: 300
-                            }}
-                            value={dr_name}
-                            onChange={(e) => setdr_name(e.target.value)}
-                            placeholder="Enter doctor name"
-                            className="me-1 my-1 fw-medium"
-                        />
-                    );
-                }
-                else if (part === 'patient_name') {
-                    return (
-                        <Input
-                            key={index}
-                            style={{
-                                height: '30px',
-                                width: patient_name ? parseInt(patient_name?.length * 7.55) >= 150 ? patient_name?.length * 7.55 : 150 : 150,
-                                maxWidth: 300
-                            }}
-                            value={patient_name}
-                            onChange={(e) => setpatient_name(e.target.value)}
-                            placeholder="Enter patient name"
                             className="me-1 my-1 fw-medium"
                         />
                     );
@@ -636,6 +667,154 @@ function MessageCreateCampaign() {
                         />
                     );
                 }
+                else if (part === 'phone_number') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: phone_number ? parseInt(phone_number?.length * 7.55) >= 150 ? phone_number?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={phone_number}
+                            onChange={(e) => setphone_number(e.target.value)}
+                            placeholder="Enter phone number"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'link') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: link ? parseInt(link?.length * 7.55) >= 150 ? link?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={link}
+                            onChange={(e) => setlink(e.target.value)}
+                            placeholder="Enter link"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'review_link') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: review_link ? parseInt(review_link?.length * 7.55) >= 150 ? review_link?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={review_link}
+                            onChange={(e) => setreview_link(e.target.value)}
+                            placeholder="Enter review link"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'vaccine_name') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: vaccine_name ? parseInt(vaccine_name?.length * 7.55) >= 150 ? vaccine_name?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={vaccine_name}
+                            onChange={(e) => setvaccine_name(e.target.value)}
+                            placeholder="Enter vaccine name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'camp_name') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: camp_name ? parseInt(camp_name?.length * 7.55) >= 150 ? camp_name?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={camp_name}
+                            onChange={(e) => setcamp_name(e.target.value)}
+                            placeholder="Enter Camp name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'year_no') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: 90,
+                                maxWidth: 300
+                            }}
+                            value={year_no}
+                            onChange={(e) => setyear_no(e.target.value)}
+                            placeholder="Enter Year"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'start_date') {
+                    return (
+                        <DatePicker
+                            className="me-1 my-2"
+                            style={{ width: 150, height: 30 }}
+                            format={showDateFormat}
+                            placeholder='Select start date'
+                            key={index}
+                            value={start_date ? dayjs(start_date, showDateFormat) : ''}
+                            onChange={(date, dateString) => setstart_date(dateString)}
+                        />
+                    );
+                }
+                else if (part === 'end_date') {
+                    return (
+                        <DatePicker
+                            className="me-1 my-2"
+                            style={{ width: 150, height: 30 }}
+                            format={showDateFormat}
+                            placeholder='Select end date'
+                            key={index}
+                            value={end_date ? dayjs(end_date, showDateFormat) : ''}
+                            onChange={(date, dateString) => setend_date(dateString)}
+                        />
+                    );
+                }
+                else if (part === 'start_time') {
+                    return (
+                        <TimePicker
+                            className="me-1 my-2"
+                            style={{ width: 150, height: 30 }}
+                            format={showTimeFormat1}
+                            placeholder='Select start time'
+                            key={index}
+                            value={start_time ? dayjs(start_time, showTimeFormat1) : ''}
+                            onChange={(date, dateString) => setstart_time(dateString)}
+                        />
+                    );
+                }
+                else if (part === 'end_time') {
+                    return (
+                        <TimePicker
+                            className="me-1 my-2"
+                            style={{ width: 150, height: 30 }}
+                            format={showTimeFormat1}
+                            placeholder='Select end time'
+                            key={index}
+                            value={end_time ? dayjs(end_time, showTimeFormat1) : ''}
+                            onChange={(date, dateString) => setend_time(dateString)}
+                        />
+                    );
+                }
                 else if (part === 'date') {
                     return (
                         <DatePicker
@@ -649,61 +828,16 @@ function MessageCreateCampaign() {
                         />
                     );
                 }
-                else if (part === 'appointment_date') {
-                    return (
-                        <DatePicker
-                            className="me-1 my-2"
-                            style={{ width: 150, height: 30 }}
-                            format={showDateFormat}
-                            placeholder='Select appointment date'
-                            key={index}
-                            value={appointment_date ? dayjs(appointment_date, showDateFormat) : ''}
-                            onChange={(date, dateString) => setappointment_date(dateString)}
-                        />
-                    );
-                }
-                else if (part === 'appointment_time') {
+                else if (part === 'time') {
                     return (
                         <TimePicker
                             className="me-1 my-2"
                             style={{ width: 150, height: 30 }}
                             format={showTimeFormat1}
-                            placeholder='Select appointment Time'
+                            placeholder='Select time'
                             key={index}
-                            value={appointment_time ? dayjs(appointment_time, showTimeFormat1) : ''}
-                            onChange={(date, dateString) => setappointment_time(dateString)}
-                        />
-                    );
-                }
-                else if (part === 'hospital_name') {
-                    return (
-                        <Input
-                            key={index}
-                            style={{
-                                height: '30px',
-                                width: hospital_name ? parseInt(hospital_name?.length * 7.55) >= 150 ? hospital_name?.length * 7.55 : 150 : 150,
-                                maxWidth: 300
-                            }}
-                            value={hospital_name}
-                            onChange={(e) => sethospital_name(e.target.value)}
-                            placeholder="Enter hospital name"
-                            className="me-1 my-1 fw-medium"
-                        />
-                    );
-                }
-                else if (part === 'hospital_address') {
-                    return (
-                        <Input
-                            key={index}
-                            style={{
-                                height: '30px',
-                                width: hospital_address ? parseInt(hospital_address?.length * 7.55) >= 165 ? hospital_address?.length * 7.55 : 165 : 165,
-                                maxWidth: 300
-                            }}
-                            value={hospital_address}
-                            onChange={(e) => sethospital_address(e.target.value)}
-                            placeholder="Enter hospital address"
-                            className="me-1 my-1 fw-medium"
+                            value={time ? dayjs(time, showTimeFormat1) : ''}
+                            onChange={(date, dateString) => settime(dateString)}
                         />
                     );
                 }
@@ -714,43 +848,60 @@ function MessageCreateCampaign() {
     }, [
         template,
         clinic_name,
+        clinic_address,
         festival_name,
-        link,
-        dr_name,
-        patient_name,
         doctor_name,
+        phone_number,
+        link,
+        review_link,
+        vaccine_name,
+        camp_name,
+        year_no,
+        start_date,
+        end_date,
+        start_time,
+        end_time,
         date,
-        appointment_date,
-        appointment_time,
-        hospital_name,
-        hospital_address,
+        time
     ]);
 
     const TEMPLATE_TEXT = useMemo(() => {
         return template && template?.text
             .replace(/{clinic_name}/g, clinic_name ? clinic_name : '{clinic_name}')
+            .replace(/{clinic_address}/g, clinic_address ? clinic_address : '{clinic_address}')
             .replace(/{festival_name}/g, festival_name ? festival_name : '{festival_name}')
-            .replace(/{link}/g, link ? link : '{link}')
-            .replace(/{dr_name}/g, dr_name ? dr_name : '{dr_name}')
-            .replace(/{patient_name}/g, patient_name ? patient_name : '{patient_name}')
             .replace(/{doctor_name}/g, doctor_name ? doctor_name : '{doctor_name}')
+            .replace(/{phone_number}/g, phone_number ? phone_number : '{phone_number}')
+            .replace(/{link}/g, link ? link : '{link}')
+            .replace(/{review_link}/g, review_link ? review_link : '{review_link}')
+            .replace(/{vaccine_name}/g, vaccine_name ? vaccine_name : '{vaccine_name}')
+            .replace(/{camp_name}/g, camp_name ? camp_name : '{camp_name}')
+            .replace(/{year_no}/g, year_no ? year_no : '{year_no}')
+            .replace(/{start_date}/g, start_date ? start_date : '{start_date}')
+            .replace(/{end_date}/g, end_date ? end_date : '{end_date}')
+            .replace(/{start_time}/g, start_time ? start_time : '{start_time}')
+            .replace(/{end_time}/g, end_time ? end_time : '{end_time}')
             .replace(/{date}/g, date ? date : '{date}')
-            .replace(/{appointment_date}/g, appointment_date ? appointment_date : '{appointment_date}')
-            .replace(/{appointment_time}/g, appointment_time ? appointment_time : '{appointment_time}')
-            .replace(/{hospital_name}/g, hospital_name ? hospital_name : '{hospital_name}')
-            .replace(/{hospital_address}/g, hospital_address ? hospital_address : '{hospital_address}')
-    }, [template,
+            .replace(/{time}/g, time ? time : '{time}')
+    }, [
+        template,
         clinic_name,
+        clinic_address,
         festival_name,
-        link,
-        dr_name,
-        patient_name,
         doctor_name,
+        phone_number,
+        link,
+        review_link,
+        vaccine_name,
+        camp_name,
+        year_no,
+        start_date,
+        end_date,
+        start_time,
+        end_time,
         date,
-        appointment_date,
-        appointment_time,
-        hospital_name,
-        hospital_address,])
+        time
+    ])
 
 
     const sendTemplate = () => {
@@ -761,46 +912,62 @@ function MessageCreateCampaign() {
                 if (part === 'clinic_name') {
                     msg_rowData['clinic_name'] = clinic_name;
                 }
+                else if (part === 'clinic_address') {
+                    msg_rowData['clinic_address'] = clinic_address;
+                }
                 else if (part === 'festival_name') {
                     msg_rowData['festival_name'] = festival_name;
-                }
-                else if (part === 'link') {
-                    msg_rowData['link'] = link;
-                }
-                else if (part === 'dr_name') {
-                    msg_rowData['dr_name'] = dr_name;
-                }
-                else if (part === 'patient_name') {
-                    msg_rowData['patient_name'] = patient_name;
                 }
                 else if (part === 'doctor_name') {
                     msg_rowData['doctor_name'] = doctor_name;
                 }
+                else if (part === 'phone_number') {
+                    msg_rowData['phone_number'] = phone_number;
+                }
+                else if (part === 'link') {
+                    msg_rowData['link'] = link;
+                }
+                else if (part === 'review_link') {
+                    msg_rowData['review_link'] = review_link;
+                }
+                else if (part === 'vaccine_name') {
+                    msg_rowData['vaccine_name'] = vaccine_name;
+                }
+                else if (part === 'camp_name') {
+                    msg_rowData['camp_name'] = camp_name;
+                }
+                else if (part === 'year_no') {
+                    msg_rowData['year_no'] = year_no;
+                }
+                else if (part === 'start_date') {
+                    msg_rowData['start_date'] = start_date;
+                }
+                else if (part === 'end_date') {
+                    msg_rowData['end_date'] = end_date;
+                }
+                else if (part === 'start_time') {
+                    msg_rowData['start_time'] = start_time;
+                }
+                else if (part === 'end_time') {
+                    msg_rowData['end_time'] = end_time;
+                }
                 else if (part === 'date') {
                     msg_rowData['date'] = date;
                 }
-                else if (part === 'appointment_date') {
-                    msg_rowData['appointment_date'] = appointment_date;
-                }
-                else if (part === 'appointment_time') {
-                    msg_rowData['appointment_time'] = appointment_time;
-                }
-                else if (part === 'hospital_name') {
-                    msg_rowData['hospital_name'] = hospital_name;
-                }
-                else if (part === 'hospital_address') {
-                    msg_rowData['hospital_address'] = hospital_address;
+                else if (part === 'time') {
+                    msg_rowData['time'] = time;
                 }
             }
         })
         return msg_rowData;
     }
+
     const onAddEditCampaign = async (draft) => {
         var sendData = {
             campaign_id: template?.id,
             send_on: send_on,
-            campaign_date: scheduleDateTime ? moment(scheduleDateTime).format(dateFormat1) : moment().add(1, 'day').format(dateFormat1),
-            campaign_time: scheduleDateTime ? moment(scheduleDateTime).format(timeFormat1) : moment().add(1, 'day').format(timeFormat1),
+            campaign_date: scheduleDateTime ? moment(scheduleDateTime).format(dateFormat1) : moment().format(dateFormat1),
+            campaign_time: scheduleDateTime ? moment(scheduleDateTime).format(timeFormat1) : moment().format(timeFormat1),
             msg_rowData: sendTemplate(),
             draft: draft,
             sender_type: sender_type,
@@ -820,13 +987,15 @@ function MessageCreateCampaign() {
                                     'Last 1 year'
                                     :
                                     'custom' : '',
-            start_date: sender_type == 2 ? dateRange.startDate : '',
-            end_date: sender_type == 2 ? dateRange.endDate : '',
             min_age: sender_type == 2 ? min_age ? min_age : '' : '',
             max_age: sender_type == 2 ? max_age ? max_age : '' : '',
             min_age_unit: sender_type == 2 ? age_unit : '',
             max_age_unit: sender_type == 2 ? age_unit : '',
             gender: sender_type == 2 ? gender?.length > 0 ? gender.map(e => e).toString() : '' : '',
+        }
+        if (dateRange.startDate != dateRange.endDate) {
+            sendData['start_date'] = sender_type == 2 ? dateRange.startDate : '';
+            sendData['end_date'] = sender_type == 2 ? dateRange.endDate : '';
         }
 
         if (campaign_data !== undefined) {
@@ -834,6 +1003,7 @@ function MessageCreateCampaign() {
             sendData['change'] = change ? 1 : 0
             sendData['draft'] = campaign_data?.draft === 0 ? campaign_data?.draft : draft
         }
+
 
         const action = campaign_data !== undefined ? await dispatch(userCampaignEdit(sendData)) : await dispatch(userCampaignAdd(sendData));
         if (action.meta.requestStatus === "fulfilled") {
@@ -1041,16 +1211,21 @@ function MessageCreateCampaign() {
                                                         dangerouslySetInnerHTML={{
                                                             __html: e?.text
                                                                 .replace(/{clinic_name}/g, `<label class="text-greycolor">{clinic_name}</label>`)
+                                                                .replace(/{clinic_address}/g, `<label class="text-greycolor">{clinic_address}</label>`)
                                                                 .replace(/{festival_name}/g, `<label class="text-greycolor">{festival_name}</label>`)
-                                                                .replace(/{link}/g, `<label class="text-greycolor">{link}</label>`)
-                                                                .replace(/{dr_name}/g, `<label class="text-greycolor">{dr_name}</label>`)
-                                                                .replace(/{patient_name}/g, `<label class="text-greycolor">{patient_name}</label>`)
                                                                 .replace(/{doctor_name}/g, `<label class="text-greycolor">{doctor_name}</label>`)
+                                                                .replace(/{phone_number}/g, `<label class="text-greycolor">{phone_number}</label>`)
+                                                                .replace(/{link}/g, `<label class="text-greycolor">{link}</label>`)
+                                                                .replace(/{review_link}/g, `<label class="text-greycolor">{review_link}</label>`)
+                                                                .replace(/{vaccine_name}/g, `<label class="text-greycolor">{vaccine_name}</label>`)
+                                                                .replace(/{camp_name}/g, `<label class="text-greycolor">{camp_name}</label>`)
+                                                                .replace(/{year_no}/g, `<label class="text-greycolor">{year_no}</label>`)
+                                                                .replace(/{start_date}/g, `<label class="text-greycolor">{start_date}</label>`)
+                                                                .replace(/{end_date}/g, `<label class="text-greycolor">{end_date}</label>`)
+                                                                .replace(/{start_time}/g, `<label class="text-greycolor">{start_time}</label>`)
+                                                                .replace(/{end_time}/g, `<label class="text-greycolor">{end_time}</label>`)
                                                                 .replace(/{date}/g, `<label class="text-greycolor">{date}</label>`)
-                                                                .replace(/{appointment_date}/g, `<label class="text-greycolor">{appointment_date}</label>`)
-                                                                .replace(/{appointment_time}/g, `<label class="text-greycolor">{appointment_time}</label>`)
-                                                                .replace(/{hospital_name}/g, `<label class="text-greycolor">{hospital_name}</label>`)
-                                                                .replace(/{hospital_address}/g, `<label class="text-greycolor">{hospital_address}</label>`)
+                                                                .replace(/{time}/g, `<label class="text-greycolor">{time}</label>`)
                                                         }}>
                                                     </div>
                                                 </div>
@@ -1071,10 +1246,13 @@ function MessageCreateCampaign() {
                                     <div className="configure-template">
                                         <h5 className="fs-16 mb-0 fw-semibold">Send on</h5>
                                         <div className="mt-3">
-                                            <Radio.Group className="d-flex" onChange={handleSendOn} value={send_on}>
+                                            <Radio.Group className="d-flex pe-4" onChange={handleSendOn} value={send_on}>
+                                                <Radio className="w-50" value={1}>SMS</Radio>
+                                            </Radio.Group>
+                                            {/* <Radio.Group className="d-flex" onChange={handleSendOn} value={send_on}>
                                                 <Radio className="col me-30" value={1}>SMS</Radio>
                                                 <Radio className="col me-0" value={2}>WhatsApp</Radio>
-                                            </Radio.Group>
+                                            </Radio.Group> */}
                                         </div>
                                         <hr className="mb-28 mt-4" />
                                         <div className="my-2 d-flex align-items-center justify-content-between">
@@ -1121,6 +1299,7 @@ function MessageCreateCampaign() {
                                                                     <div className="align-items-center d-flex text-truncate w-100">
                                                                         <div>
                                                                             <div className="py-2">{option.data.label}</div>
+                                                                            <hr className="my-0 position-absolute w-100 bottom-0 start-0" />
                                                                             <div className="position-absolute fw-normal" style={{ top: 36, left: '50%', zIndex: 9 }}>or</div>
                                                                         </div>
                                                                     </div>
@@ -1152,7 +1331,9 @@ function MessageCreateCampaign() {
                                                                     ) : dateStatus === 6 ? (
                                                                         'Last 1 year'
                                                                     ) : (
-                                                                        'Custom range'
+                                                                        <>
+                                                                            {moment(dateRange.startDate).format(showDateFormat)} - {moment(dateRange.endDate).format(showDateFormat)}
+                                                                        </>
                                                                     )}
                                                                 </span>
                                                                 <i className="mx-2 fs-18 icon-calendar"></i>

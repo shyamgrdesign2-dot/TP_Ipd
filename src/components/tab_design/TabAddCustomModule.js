@@ -41,7 +41,10 @@ const TabAddCustomModule = () => {
   }, [tcmId]);
 
   useEffect(() => {
-    syncPrintSettings();
+    if (customModules?.length) {
+      syncPrintSettings();
+      syncRightRxPad();
+    }
   }, [customModules]);
 
   const syncPrintSettings = useCallback(() => {
@@ -111,6 +114,65 @@ const TabAddCustomModule = () => {
     }
   }, [customModules]);
 
+  const syncRightRxPad = useCallback(() => {
+    const customModuleMap = new Map(
+      customModules.map((module) => [module.module_id, module.name])
+    );
+
+    let updateFlag = false;
+
+    const updatedRightRxPad = [];
+
+    (customizedPadRightList || []).forEach((option) => {
+      if (option.is_custom_module) {
+        const newName = customModuleMap.get(option.tmdpm_id);
+
+        if (newName) {
+          if (option.tmdpm_name !== newName) {
+            updatedRightRxPad.push({
+              ...option,
+              tmdpm_name: newName,
+              tmdpm_short_name: newName,
+            });
+            updateFlag = true;
+          } else {
+            updatedRightRxPad.push(option);
+          }
+          customModuleMap.delete(option.tmdpm_id);
+        } else {
+          updateFlag = true;
+        }
+      } else {
+        updatedRightRxPad.push(option);
+      }
+    });
+
+    customModuleMap.forEach((name, moduleId) => {
+      updatedRightRxPad.push({
+        tmdpm_id: moduleId,
+        tmdpm_name: name,
+        tmdpm_short_name: name,
+        tmdpm_type: "R",
+        tmdpm_status: 0,
+        is_custom_module: true,
+      });
+      updateFlag = true;
+    });
+
+    if (updateFlag) {
+      const sendData = {
+        data: {
+          default: false,
+          reset: false,
+          left: customizedPadLeftList,
+          right: updatedRightRxPad,
+        },
+      };
+
+      dispatch(customizedPad(sendData));
+    }
+  }, [customModules]);
+
   const getCustomModuleContents = useCallback(async () => {
     const action = await dispatch(getModuleContents(tcmId));
     if (action.meta.requestStatus === "fulfilled") {
@@ -148,33 +210,6 @@ const TabAddCustomModule = () => {
         })
       );
       if (action.meta.requestStatus === "fulfilled") {
-        const newModule =
-          action?.payload?.modules?.[action?.payload?.modules?.length - 1];
-        dispatch(
-          customizedPad({
-            data: {
-              default: false,
-              reset: false,
-              left: customizedPadLeftList,
-              right: [
-                ...customizedPadRightList?.filter((e) =>
-                  e.is_custom_module
-                    ? customModules.some((cm) => cm.module_id === e.tmdpm_id)
-                    : true
-                ),
-                {
-                  tmdpm_id: newModule.module_id,
-                  tmdpm_name: newModule.name,
-                  tmdpm_short_name: newModule.name,
-                  tmdpm_type: "R",
-                  tmdpm_status: 0,
-                  is_custom_module: true,
-                },
-              ],
-            },
-          })
-        );
-
         setShowInput(false);
         message.open({
           key: MESSAGE_KEY,

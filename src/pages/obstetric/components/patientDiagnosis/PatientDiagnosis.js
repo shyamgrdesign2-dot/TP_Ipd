@@ -38,6 +38,7 @@ export default function PatientDiagnosis({
   setPatientDiagnosisNotes,
   isFixed,
   setPrefillObstetricData,
+  isPreviousPregnancyOverview,
 }) {
   const dispatch = useDispatch();
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
@@ -72,7 +73,7 @@ export default function PatientDiagnosis({
   }, [lmpDate]);
 
   const handlePatientDiagnosis = (newValue, key, isValid = true) => {
-    if (isValid) {
+    if (isValid && !isPreviousPregnancyOverview) {
       if (["lmp", "blood", "maritialStatus"].includes(key)) {
         setPrefillObstetricData((prevState) => ({
           ...prevState,
@@ -87,6 +88,14 @@ export default function PatientDiagnosis({
         ...prevState,
         [key]: newValue,
       }));
+      if (key === "lmp" && newValue === null) {
+        setPatientDiagnosisData((prevState) => ({
+          ...prevState,
+          edd: undefined,
+          gestationWeeks: undefined,
+          gestationDays: undefined,
+        }));
+      }
       dispatch(patientDiagnosisUpdated());
       dispatch(obstetricDetailsUpdated());
     }
@@ -142,8 +151,11 @@ export default function PatientDiagnosis({
                     "lmp"
                   );
                   setLmpDate(dayjs(dateString, "DD-MM-YYYY").toISOString());
+                } else {
+                  handlePatientDiagnosis(null, "lmp");
                 }
               }}
+              disabled={isPreviousPregnancyOverview}
               style={{
                 height: "34px",
                 width: "75%",
@@ -189,6 +201,7 @@ export default function PatientDiagnosis({
                   );
                 }
               }}
+              disabled={isPreviousPregnancyOverview}
               style={{
                 height: "34px",
                 width: "68%",
@@ -205,10 +218,14 @@ export default function PatientDiagnosis({
           <div className="history-badge">
             Gestation :
             <Input
-              className="timeIntervalValue"
+              className={`timeIntervalValue ${
+                isMobile && isPreviousPregnancyOverview
+                  ? "timeIntervalValueForPreviousPregnancy"
+                  : ""
+              }`}
               style={{ marginLeft: "10px" }}
               placeholder="Ex : 3"
-              value={patientDiagnosisData.gestationWeeks}
+              value={patientDiagnosisData.gestationWeeks ?? ""}
               onInput={(e) => {
                 e.target.value = e.target.value.replace(/[^0-9]/g, "");
               }}
@@ -219,6 +236,7 @@ export default function PatientDiagnosis({
                   e.target.validity.valid && e.target.value <= 50
                 )
               }
+              disabled={true}
             />
             <span
               className="timeInterval spanStyle"
@@ -227,9 +245,13 @@ export default function PatientDiagnosis({
               Weeks
             </span>
             <Input
-              className="timeIntervalValue"
+              className={`timeIntervalValue ${
+                isMobile && isPreviousPregnancyOverview
+                  ? "timeIntervalValueForPreviousPregnancy"
+                  : ""
+              }`}
               placeholder="Ex : 2"
-              value={patientDiagnosisData.gestationDays}
+              value={patientDiagnosisData.gestationDays ?? ""}
               onInput={(e) => {
                 e.target.value = e.target.value.replace(/[^0-6]/g, "");
               }}
@@ -240,6 +262,7 @@ export default function PatientDiagnosis({
                   e.target.validity.valid && e.target.value <= 6
                 )
               }
+              disabled={true}
             />
             <span
               className="timeInterval spanStyle"
@@ -251,7 +274,13 @@ export default function PatientDiagnosis({
               Days
             </span>
           </div>
-          <div className="history-badge patientBloodStyleContainer">
+          <div
+            className={`history-badge patientBloodStyleContainer ${
+              isMobile && isPreviousPregnancyOverview
+                ? "bloodContainerForPreviousPregnancy"
+                : ""
+            }`}
+          >
             {isMobile ? "Blood :" : "Patient Blood Group :"}
             <DropdownButton
               className="diagnosisSelect bloodGroup"
@@ -262,6 +291,7 @@ export default function PatientDiagnosis({
                 </div>
               }
               onSelect={(e) => handlePatientDiagnosis(e, "blood")}
+              disabled={isPreviousPregnancyOverview}
             >
               {BloodGroupOptions.map((option) => (
                 <Dropdown.Item
@@ -277,8 +307,18 @@ export default function PatientDiagnosis({
         </div>
 
         <div className="rowContainer">
-          <div className="history-badge husbandBloodStyleContainer">
-            {isMobile ? "Husband's blood :" : "Husband's Blood Group :"}
+          <div
+            className={`history-badge husbandBloodStyleContainer ${
+              isMobile && isPreviousPregnancyOverview
+                ? "husbandBloodForPreviousPregnancy"
+                : ""
+            }`}
+          >
+            {isMobile && isPreviousPregnancyOverview
+              ? "Husband's :"
+              : isMobile
+              ? "Husband's blood :"
+              : "Husband's Blood Group :"}
             <DropdownButton
               className="diagnosisSelect husbandBlood"
               title={
@@ -294,6 +334,7 @@ export default function PatientDiagnosis({
                 </div>
               }
               onSelect={(e) => handlePatientDiagnosis(e, "husbandsBlood")}
+              disabled={isPreviousPregnancyOverview}
             >
               {BloodGroupOptions.map((option) => (
                 <Dropdown.Item
@@ -327,6 +368,7 @@ export default function PatientDiagnosis({
                 </div>
               }
               onSelect={(e) => handlePatientDiagnosis(e, "maritialStatus")}
+              disabled={isPreviousPregnancyOverview}
             >
               {MaritalStatusOptions.map((option) => (
                 <Dropdown.Item
@@ -342,7 +384,11 @@ export default function PatientDiagnosis({
           <div className="history-badge">
             Marriage duration :{" "}
             <Input
-              className="timeIntervalValue"
+              className={`timeIntervalValue ${
+                isMobile && isPreviousPregnancyOverview
+                  ? "timeIntervalValueForPreviousPregnancy"
+                  : ""
+              }`}
               style={{ marginLeft: "10px" }}
               placeholder="Ex : 3"
               value={patientDiagnosisData.marriageDurationYears}
@@ -356,10 +402,15 @@ export default function PatientDiagnosis({
                   e.target.validity.valid && e.target.value <= 100
                 )
               }
+              disabled={isPreviousPregnancyOverview}
             />
             <span className="timeInterval spanStyle">Years</span>
             <Input
-              className="timeIntervalValue"
+              className={`timeIntervalValue ${
+                isMobile && isPreviousPregnancyOverview
+                  ? "timeIntervalValueForPreviousPregnancy"
+                  : ""
+              }`}
               placeholder="Ex : 2"
               value={patientDiagnosisData.marriageDurationMonths}
               onInput={(e) => {
@@ -372,6 +423,7 @@ export default function PatientDiagnosis({
                   e.target.validity.valid && e.target.value <= 11
                 )
               }
+              disabled={isPreviousPregnancyOverview}
             />
             <span
               className="timeInterval spanStyle"
@@ -407,6 +459,7 @@ export default function PatientDiagnosis({
               onSelect={(e) =>
                 handlePatientDiagnosis(e === "yes" ? true : false, "consang")
               }
+              disabled={isPreviousPregnancyOverview}
             >
               {ConsangOptions.map((option) => (
                 <Dropdown.Item
@@ -444,6 +497,7 @@ export default function PatientDiagnosis({
         className={`pastPregnancyContainer ${
           isFixed ? "fixPastPregnancy" : ""
         }`}
+        style={{ left: isFixed && isPreviousPregnancyOverview ? "10%" : "" }}
       >
         <Row gutter={30}>
           {pastPregnancyData.map((item, index) => {
@@ -463,6 +517,7 @@ export default function PatientDiagnosis({
                       e.target.value = e.target.value.replace(/[^0-9]/g, "");
                     }}
                     style={{ width: "40px", height: "28px" }}
+                    disabled={isPreviousPregnancyOverview}
                   />
                 </Form.Item>
               </Col>
@@ -475,12 +530,19 @@ export default function PatientDiagnosis({
         {patientDiagnosisNotes ? (
           <div className="diagnosisNotesStyle">
             <ReadMore text={patientDiagnosisNotes} textLimit={125} />
-            <div className="editStyle" onClick={handleDrawerDiagnosisNotes}>
-              <i className="icon-Edit iconStyle" />
-              <span className="editText">Edit</span>
-            </div>
+            {!isPreviousPregnancyOverview && (
+              <div
+                className="editStyle"
+                onClick={handleDrawerDiagnosisNotes}
+                disabled={isPreviousPregnancyOverview}
+              >
+                <i className="icon-Edit iconStyle" />
+
+                <span className="editText">Edit</span>
+              </div>
+            )}
           </div>
-        ) : (
+        ) : !isPreviousPregnancyOverview ? (
           <button
             className="btn d-flex align-items-center btn-text"
             style={{
@@ -491,9 +553,9 @@ export default function PatientDiagnosis({
             }}
             onClick={handleDrawerDiagnosisNotes}
           >
-            <i className={`icon-Add me-1 fs-5`}></i> Add diagnosis notes
+            <i className={`icon-Add me-1 fs-5`} /> Add diagnosis notes
           </button>
-        )}
+        ) : null}
       </div>
       <Divider
         dashed

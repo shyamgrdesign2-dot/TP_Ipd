@@ -49,8 +49,8 @@ import { useAccess } from "./vaccination/useAccess";
 import { getGynecDetails } from "../api/services/ApiGynec";
 import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
-import { fetchAllObstetricDetails } from "./obstetric/service";
-import { addObstetricDetails, navigateToObstetric } from "../redux/obstetricSlice";
+import { fetchObstetricDetails } from "./obstetric/service";
+import { addObstetricDetails } from "../redux/obstetricSlice";
 import { getClinicName } from "../utils/utils";
 import UploadDocument from "./medicalRecords/UploadDocument";
 import MedicalRecords from "./medicalRecords/MedicalRecords";
@@ -98,9 +98,27 @@ function Prescription() {
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
-  const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
+  const { obstetricDetails: allObstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
-  const { examinationHistory = [] } = obstetricDetails;
+  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
+  const examinationHistory = obstetricDetails?.examinationHistory || [];
+  const shouldShowAncHistory = obstetricDetails?.ancHistory?.find(
+    (item) =>
+      !item?.deleted &&
+      (item?.dueDate ||
+        item?.status === "Completed" ||
+        item?.notes ||
+        item?.enablePrint)
+  );
+
+const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
+  (item) =>
+    !item?.deleted &&
+    (item?.givenDate ||
+      item?.status === "Given" ||
+      item?.notes ||
+      item?.enablePrint)
+  );
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
@@ -211,9 +229,8 @@ function Prescription() {
   const baseUrl = env.lab_params_api_url;
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchAllObstetricDetails(
+    const obstetricResponse = await fetchObstetricDetails(
       patient_data.patient_unique_id,
-      userId
     );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
@@ -469,8 +486,10 @@ function Prescription() {
   };
 
   // Drawer Obstetric
-  const handleDrawerObstetric = () => {
-    setObstetricDrawer(!obstetricDrawer);
+  const handleDrawerObstetric = (obstetricKey) => {
+    setObstetricDrawer(
+      typeof obstetricKey === "string" ? obstetricKey : !obstetricDrawer
+    );
   };
 
   useEffect(() => {
@@ -483,8 +502,7 @@ function Prescription() {
 
   useEffect(() => {
     if (isNavigateToObstetric) {
-      handleDrawerObstetric();
-      dispatch(navigateToObstetric());
+      handleDrawerObstetric(isNavigateToObstetric);
     }
   }, [isNavigateToObstetric]);
 
@@ -900,12 +918,12 @@ const getGenerateDDx = async (field) => {
               onClick={handleDrawerObstetric}
             >
               <i
-                    className={`${examinationHistory.length > 0
+                    className={`${examinationHistory?.length > 0
                       ? "icon-Edit"
                       : "icon-Add"
                 } me-1 fs-5`}
               ></i>
-                  <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"
+                  <span>{`${examinationHistory?.length > 0 ? "Edit" : "Add"
                     }`}</span>
             </button>
           </div>
@@ -916,7 +934,10 @@ const getGenerateDDx = async (field) => {
             obstetricDetails?.livingChildren ||
             obstetricDetails?.abortion ||
             obstetricDetails?.ectopicPregnancies ||
-            examinationHistory?.length > 0) && <ObstetricList />}
+            examinationHistory?.length > 0 ||
+            shouldShowAncHistory ||
+            shouldShowImmunisation
+            ) && <ObstetricList obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} />}
         </div>
           ) : e.tmdpm_id === 18 &&
             e.tmdpm_status === 0 ? (
@@ -1208,8 +1229,14 @@ const getGenerateDDx = async (field) => {
             open={obstetricDrawer}
             width="100%"
             push={false}
+            zIndex={100}
           >
-            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
+            <Obstetric
+              obstetricDetails={obstetricDetails}
+              obstetricDrawer={obstetricDrawer}
+              handleDrawerObstetric={handleDrawerObstetric}
+              handleDrawerMedicalReport={handleDrawerMedicalReport}
+            />
           </Drawer>
         )}
         {uploadDocDrawer && (

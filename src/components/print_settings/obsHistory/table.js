@@ -13,6 +13,27 @@ function ObsHistoryTableView({
   options,
   obsHistoryData,
 }) {
+  const pregnancyHistory = obsHistoryData?.pregnancyHistory || [];
+  obsHistoryData = obsHistoryData?.currentPregnancy || {};
+  const ancPrintEnabled = obsHistoryData?.ancHistory?.filter(
+    (item) => item?.enablePrint
+  );
+  const immunisationPrintEnabled = obsHistoryData?.immunisationHistory?.filter(
+    (item) => item?.enablePrint
+  );
+  const today = moment();
+  const lmpDate = obsHistoryData?.lmp ? moment(obsHistoryData.lmp) : null;
+
+  let gestationWeeks = null;
+  let adjustedLmpDate = null;
+  let gestationDays = null;
+
+  if (lmpDate) {
+    gestationWeeks = today.diff(lmpDate, "weeks");
+    adjustedLmpDate = lmpDate.clone().add(gestationWeeks, "weeks");
+    gestationDays = today.diff(adjustedLmpDate, "days");
+  }
+
   return (
     <View style={{ marginTop: PX_TO_PT * 15 }}>
       <Text
@@ -26,7 +47,17 @@ function ObsHistoryTableView({
         Obstetric History&nbsp;:&nbsp;
       </Text>
 
-      {options?.includes("gplae") && (
+      {options?.includes("gplae") && (("gravidity" in obsHistoryData &&
+        obsHistoryData?.gravidity != null) ||
+        ("parity" in obsHistoryData && obsHistoryData?.parity != null) ||
+        ("livingChildren" in obsHistoryData &&
+          obsHistoryData?.livingChildren != null) ||
+        ("abortion" in obsHistoryData &&
+          obsHistoryData?.abortion != null) ||
+        ("ectopicPregnancies" in obsHistoryData &&
+          obsHistoryData?.ectopicPregnancies != null) ||
+        ("diagnosisNotes" in obsHistoryData &&
+          obsHistoryData?.diagnosisNotes != null)) && (
         <View>
           <Text
             style={{
@@ -284,7 +315,19 @@ function ObsHistoryTableView({
         </View>
       )}
 
-      {options?.includes("diagnosis") && (
+      {options?.includes("diagnosis") && (obsHistoryData?.lmp ||
+        "edd" in obsHistoryData ||
+        "ceed" in obsHistoryData ||
+        gestationWeeks != null ||
+        gestationDays != null ||
+        "blood" in obsHistoryData ||
+        "husbandsBlood" in obsHistoryData ||
+        "consang" in obsHistoryData ||
+        "maritialStatus" in obsHistoryData ||
+        ("marriageDurationYears" in obsHistoryData &&
+          obsHistoryData?.marriageDurationYears != null) ||
+        ("marriageDurationMonths" in obsHistoryData &&
+          obsHistoryData?.marriageDurationMonths != null)) && (
         <View>
           <Text
             style={{
@@ -465,7 +508,7 @@ function ObsHistoryTableView({
                   styles.minHeight38,
                 ]}
               >
-                {"lmp" in obsHistoryData
+                {obsHistoryData?.lmp
                   ? moment(obsHistoryData?.lmp).format("DD MMM YYYY")
                   : `-`}
               </Text>
@@ -516,19 +559,15 @@ function ObsHistoryTableView({
                   styles.minHeight38,
                 ]}
               >
-                {"gestationWeeks" in obsHistoryData &&
-                obsHistoryData?.gestationWeeks != null
-                  ? `${obsHistoryData?.gestationWeeks}W`
+                {gestationWeeks != null
+                  ? `${gestationWeeks}W`
                   : ""}
-                {"gestationWeeks" in obsHistoryData &&
-                obsHistoryData?.gestationWeeks != null &&
-                "gestationDays" in obsHistoryData &&
-                obsHistoryData?.gestationDays != null
+                {gestationWeeks != null &&
+                gestationDays != null
                   ? `,`
                   : `-`}
-                {"gestationDays" in obsHistoryData &&
-                obsHistoryData?.gestationDays != null
-                  ? `${obsHistoryData?.gestationDays}D`
+                {gestationDays != null
+                  ? `${gestationDays}D`
                   : ""}
               </Text>
               <Text
@@ -576,7 +615,7 @@ function ObsHistoryTableView({
                   styles.minHeight38,
                 ]}
               >
-                {Boolean(obsHistoryData?.consang) ? `Yes` : `No`}
+                {obsHistoryData?.consang ? Boolean(obsHistoryData?.consang) ? `Yes` : `No` : `-`}
               </Text>
               <Text
                 style={[
@@ -645,7 +684,7 @@ function ObsHistoryTableView({
       )}
 
       {options?.includes("history") &&
-        obsHistoryData?.pregnancyHistory?.length > 0 && (
+        pregnancyHistory?.length > 0 && (
           <View>
             <Text
               style={{
@@ -663,7 +702,7 @@ function ObsHistoryTableView({
             >
               Pregnancy history
             </Text>
-            {obsHistoryData?.pregnancyHistory.map((item, i) => {
+            {pregnancyHistory?.map((item, i) => {
               return (
                 <View key={i} wrap={false}>
                   <View style={[styles.table, { marginTop: 0 }]}>
@@ -938,8 +977,8 @@ function ObsHistoryTableView({
                           },
                         ]}
                       >
-                        {"gravidaNumber" in item
-                          ? item?.gravidaNumber?.toString()?.padStart(2, "0")
+                        {"gravidity" in item
+                          ? item?.gravidity?.toString()?.padStart(2, "0")
                           : `-`}
                       </Text>
                       <Text
@@ -1226,7 +1265,7 @@ function ObsHistoryTableView({
           </View>
         )}
 
-      {options?.includes("examination") && (
+      {options?.includes("examination") && obsHistoryData?.examinationHistory?.length > 0 && (
         <View>
           <Text
             style={{
@@ -1258,7 +1297,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 0.5,
+                        flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1268,7 +1307,7 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    Rx
+                    Date
                   </Text>
                   <Text
                     style={[
@@ -1306,7 +1345,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.3,
+                        flex: 1.1,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1322,7 +1361,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.5,
+                        flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1354,7 +1393,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.5,
+                        flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1370,7 +1409,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1,
+                        flex: 0.8,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1410,7 +1449,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 0.5,
+                        flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1420,9 +1459,7 @@ function ObsHistoryTableView({
                       },
                     ]}
                   >
-                    {item?.visitNumber
-                      ? item?.visitNumber
-                      : obsHistoryData?.examinationHistory.length - i}
+                    {item?.date ? moment(item?.date).format("DD MMM YYYY") : ""}
                   </Text>
                   <Text
                     style={[
@@ -1460,7 +1497,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.3,
+                        flex: 1.1,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1477,7 +1514,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.5,
+                        flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1515,7 +1552,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.5,
+                        flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1531,7 +1568,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1,
+                        flex: 0.8,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1592,6 +1629,296 @@ function ObsHistoryTableView({
               </Text>
             </View>
           ))}
+        </View>
+      )}
+      {options?.includes("ancHistory") && ancPrintEnabled?.length > 0 && (
+        <View>
+          <Text
+            style={{
+              color: "#000",
+              marginTop: PX_TO_PT * 12,
+              fontFamily: printSettings?.page_format?.font_family,
+              fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+              fontWeight: 500,
+              padding: 6,
+              borderTop: "1px solid #171725",
+              borderLeft: "1px solid #171725",
+              borderRight: "1px solid #171725",
+              backgroundColor: "#E2E2EA",
+            }}
+            wrap={false}
+          >
+            ANC Scheduler
+          </Text>
+          <View style={[styles.table, { marginTop: 0 }]}>
+            <View style={styles.row}>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    flex: 1.3,
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Test Name
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    flex: 0.6,
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Due Date
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    flex: 0.6,
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Status
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    flex: 1.3,
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Remarks
+              </Text>
+            </View>
+            {ancPrintEnabled?.map((item, i) => {
+              if (item?.enablePrint) {
+                return (
+                  <View style={styles.row} key={i}>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 1.3,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      {item?.master?.name ?? ""}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 0.6,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      {item?.dueDate
+                        ? moment(item?.dueDate).format("DD/MM/YYYY")
+                        : "-"}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 0.6,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      {item?.status ?? "-"}
+                    </Text>
+
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 1.3,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      {item?.notes ?? "-"}
+                    </Text>
+                  </View>
+                );
+            }})}
+          </View>
+        </View>
+      )}
+
+      {options?.includes("immunisationHistory") && immunisationPrintEnabled?.length > 0 && (
+        <View>
+          <Text
+            style={{
+              color: "#000",
+              marginTop: PX_TO_PT * 12,
+              fontFamily: printSettings?.page_format?.font_family,
+              fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+              fontWeight: 500,
+              padding: 6,
+              borderTop: "1px solid #171725",
+              borderLeft: "1px solid #171725",
+              borderRight: "1px solid #171725",
+              backgroundColor: "#E2E2EA",
+            }}
+            wrap={false}
+          >
+            Immunisation Vaccine
+          </Text>
+          <View style={[styles.table, { marginTop: 0 }]}>
+            <View style={styles.row}>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    flex: 1,
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Vaccine Name
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    flex: 0.5,
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Status
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  {
+                    flex: 1.5,
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Remarks
+              </Text>
+            </View>
+            {immunisationPrintEnabled?.map((item, i) => {
+              if (item?.enablePrint) {
+                return (
+                  <View style={styles.row} key={i}>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 1,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      {item?.master?.name ?? ""}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 0.5,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      {item?.status === "Given" && item?.givenDate
+                        ? `Given on ${moment(item?.givenDate).format(
+                            "DD/MM/YYYY"
+                          )}`
+                        : item?.status}
+                    </Text>
+
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 1.5,
+                          color: "#171725",
+                          fontFamily: printSettings?.page_format?.font_family,
+                          fontSize:
+                            PX_TO_PT * printSettings?.page_format?.font_size,
+                          fontWeight: 400,
+                          textAlign: "center",
+                        },
+                      ]}
+                    >
+                      {item?.notes ?? "-"}
+                    </Text>
+                  </View>
+                )}
+            })}
+          </View>
         </View>
       )}
     </View>

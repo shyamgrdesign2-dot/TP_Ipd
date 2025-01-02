@@ -12,6 +12,25 @@ function ObsHistoryInlineView({
   options,
   obsHistoryData,
 }) {
+  const pregnancyHistory = obsHistoryData?.pregnancyHistory || [];
+  obsHistoryData = obsHistoryData?.currentPregnancy || {};
+  const ancPrintEnabled = obsHistoryData?.ancHistory?.filter((item) => item?.enablePrint);
+  const immunisationPrintEnabled = obsHistoryData?.immunisationHistory?.filter(
+    (item) => item?.enablePrint
+  );
+  const today = moment();
+  const lmpDate = obsHistoryData?.lmp ? moment(obsHistoryData.lmp) : null;
+
+  let gestationWeeks = null;
+  let adjustedLmpDate = null;
+  let gestationDays = null;
+
+  if (lmpDate) {
+    gestationWeeks = today.diff(lmpDate, "weeks");
+    adjustedLmpDate = lmpDate.clone().add(gestationWeeks, "weeks");
+    gestationDays = today.diff(adjustedLmpDate, "days");
+  }
+
   return (
     <View style={{ marginTop: PX_TO_PT * 15 }}>
       <Text
@@ -419,13 +438,11 @@ function ObsHistoryInlineView({
       {options?.includes("diagnosis") && (
         <View>
           <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
-            {("lmp" in obsHistoryData ||
+            {(obsHistoryData?.lmp ||
               "edd" in obsHistoryData ||
               "ceed" in obsHistoryData ||
-              ("gestationWeeks" in obsHistoryData &&
-                obsHistoryData?.gestationWeeks != null) ||
-              ("gestationDays" in obsHistoryData &&
-                obsHistoryData?.gestationDays != null) ||
+              gestationWeeks != null ||
+              gestationDays != null ||
               "blood" in obsHistoryData ||
               "husbandsBlood" in obsHistoryData ||
               "consang" in obsHistoryData ||
@@ -455,7 +472,7 @@ function ObsHistoryInlineView({
                 >
                   (
                 </Text>
-                {"lmp" in obsHistoryData && (
+                {obsHistoryData?.lmp && (
                   <>
                     <Text
                       style={{
@@ -482,10 +499,8 @@ function ObsHistoryInlineView({
 
                     {("edd" in obsHistoryData ||
                       "ceed" in obsHistoryData ||
-                      ("gestationWeeks" in obsHistoryData &&
-                        obsHistoryData?.gestationWeeks != null) ||
-                      ("gestationDays" in obsHistoryData &&
-                        obsHistoryData?.gestationDays != null) ||
+                      gestationWeeks != null ||
+                      gestationDays != null ||
                       "blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
@@ -534,10 +549,8 @@ function ObsHistoryInlineView({
                       {moment(obsHistoryData?.edd).format("DD MMM YYYY")}
                     </Text>
                     {("ceed" in obsHistoryData ||
-                      ("gestationWeeks" in obsHistoryData &&
-                        obsHistoryData?.gestationWeeks != null) ||
-                      ("gestationDays" in obsHistoryData &&
-                        obsHistoryData?.gestationDays != null) ||
+                      gestationWeeks != null ||
+                      gestationDays != null ||
                       "blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
@@ -585,10 +598,8 @@ function ObsHistoryInlineView({
                     >
                       {moment(obsHistoryData?.ceed).format("DD MMM YYYY")}
                     </Text>
-                    {(("gestationWeeks" in obsHistoryData &&
-                      obsHistoryData?.gestationWeeks != null) ||
-                      ("gestationDays" in obsHistoryData &&
-                        obsHistoryData?.gestationDays != null) ||
+                    {(gestationWeeks != null ||
+                      gestationDays != null ||
                       "blood" in obsHistoryData ||
                       "husbandsBlood" in obsHistoryData ||
                       "consang" in obsHistoryData ||
@@ -612,10 +623,7 @@ function ObsHistoryInlineView({
                   </>
                 )}
 
-                {(("gestationWeeks" in obsHistoryData &&
-                  obsHistoryData?.gestationWeeks != null) ||
-                  ("gestationDays" in obsHistoryData &&
-                    obsHistoryData?.gestationDays != null)) && (
+                {(gestationWeeks != null || gestationDays != null) && (
                   <>
                     <Text
                       style={{
@@ -637,19 +645,14 @@ function ObsHistoryInlineView({
                         fontWeight: 400,
                       }}
                     >
-                      {"gestationWeeks" in obsHistoryData &&
-                      obsHistoryData?.gestationWeeks != null
-                        ? `${obsHistoryData?.gestationWeeks}W`
+                      {gestationWeeks
+                        ? `${gestationWeeks}W`
                         : ""}
-                      {"gestationWeeks" in obsHistoryData &&
-                      obsHistoryData?.gestationWeeks != null &&
-                      "gestationDays" in obsHistoryData &&
-                      obsHistoryData?.gestationDays != null
+                      {gestationWeeks
                         ? `,`
                         : ``}
-                      {"gestationDays" in obsHistoryData &&
-                      obsHistoryData?.gestationDays != null
-                        ? `${obsHistoryData?.gestationDays}D`
+                      {gestationDays
+                        ? `${gestationDays}D`
                         : ""}
                     </Text>
                     {("blood" in obsHistoryData ||
@@ -935,7 +938,7 @@ function ObsHistoryInlineView({
       {options?.includes("history") && (
         <View>
           <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
-            {obsHistoryData?.pregnancyHistory.length > 0 && (
+            {pregnancyHistory.length > 0 && (
               <>
                 <Text
                   style={{
@@ -948,9 +951,9 @@ function ObsHistoryInlineView({
                   Pregnancy history
                 </Text>
 
-                {obsHistoryData?.pregnancyHistory.map((item, i) => (
+                {pregnancyHistory.map((item, i) => (
                   <View key={i}>
-                    {("gravidaNumber" in item ||
+                    {("gravidity" in item ||
                       "outcome" in item ||
                       "termLength" in item ||
                       "deliveryMode" in item ||
@@ -986,7 +989,7 @@ function ObsHistoryInlineView({
                           </>
                         </Text>
 
-                        {"gravidaNumber" in item && (
+                        {"gravidity" in item && (
                           <>
                             <Text
                               style={{
@@ -1012,7 +1015,7 @@ function ObsHistoryInlineView({
                                 fontWeight: 400,
                               }}
                             >
-                              {item?.gravidaNumber?.toString().padStart(2, "0")}
+                              {item?.gravidity?.toString().padStart(2, "0")}
                             </Text>
                             {("outcome" in item ||
                               "termLength" in item ||
@@ -1727,7 +1730,7 @@ function ObsHistoryInlineView({
         </View>
       )}
 
-      {options?.includes("examination") && (
+      {options?.includes("examination") && obsHistoryData?.examinationHistory?.length > 0 && (
         <View>
           <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
             {obsHistoryData?.examinationHistory.length > 0 && (
@@ -1788,22 +1791,7 @@ function ObsHistoryInlineView({
                             fontWeight: 500,
                           }}
                         >
-                          Visit&nbsp;:&nbsp;
-                        </Text>
-                        <Text
-                          style={{
-                            color: "#171725",
-                            fontFamily: printSettings?.page_format?.font_family,
-                            fontSize:
-                              PX_TO_PT * printSettings?.page_format?.font_size,
-                            fontWeight: 400,
-                          }}
-                        >
-                          {item?.visitNumber
-                            ? (item?.visitNumber).toString().padStart(2, "0")
-                            : (obsHistoryData?.examinationHistory.length - i)
-                                .toString()
-                                .padStart(2, "0")}
+                          {item?.date ? moment(item?.date).format("DD MMM YYYY") : ""}
                         </Text>
                         {"pallor" in item ||
                         "oedema" in item ||
@@ -2301,6 +2289,320 @@ function ObsHistoryInlineView({
           </Text>
         </View>
       )}
+
+      {options?.includes("ancHistory") && ancPrintEnabled?.length > 0 && (
+        <View>
+          <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+            {ancPrintEnabled?.length > 0 && (
+              <>
+                <Text
+                  style={{
+                    color: "#171725",
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                  }}
+                >
+                  ANC Scheduler:&nbsp;
+                </Text>
+                {ancPrintEnabled?.map((item, i) => (
+                  <View key={i}>
+                    {item?.enablePrint && (
+                      <>
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {item?.master?.name}
+                        </Text>
+
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                          }}
+                        >
+                          <Text>&nbsp;(</Text>
+                        </Text>
+
+                        {item?.dueDate && (
+                          <>
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 400,
+                              }}
+                            >
+                              Due date on{" "}
+                              {moment(item?.dueDate).format("DD/MM/YYYY")}
+                            </Text>
+                            {(item?.status || item?.notes) && (
+                              <Text
+                                style={{
+                                  color: "#171725",
+                                  fontFamily:
+                                    printSettings?.page_format?.font_family,
+                                  fontSize:
+                                    PX_TO_PT *
+                                    printSettings?.page_format?.font_size,
+                                  fontWeight: 400,
+                                }}
+                              >
+                                ,&nbsp;
+                              </Text>
+                            )}
+                          </>
+                        )}
+
+                        {item?.status && (
+                          <>
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 400,
+                              }}
+                            >
+                              {item?.status}
+                            </Text>
+                            {item?.notes && (
+                              <Text
+                                style={{
+                                  color: "#171725",
+                                  fontFamily:
+                                    printSettings?.page_format?.font_family,
+                                  fontSize:
+                                    PX_TO_PT *
+                                    printSettings?.page_format?.font_size,
+                                  fontWeight: 400,
+                                }}
+                              >
+                                ,&nbsp;
+                              </Text>
+                            )}
+                          </>
+                        )}
+
+                        {item?.notes && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                            }}
+                          >
+                            {item?.notes}
+                          </Text>
+                        )}
+
+                        {(item?.master ||
+                          item?.dueDate ||
+                          item?.status ||
+                          item?.notes) && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            <Text>{`)`}</Text>
+                          </Text>
+                        )}
+
+                        {i !== ancPrintEnabled?.length - 1 && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            ,&nbsp;
+                          </Text>
+                        )}
+                      </>
+                    )}
+                  </View>
+                ))}
+              </>
+            )}
+          </Text>
+        </View>
+      )}
+
+      {options?.includes("immunisationHistory") &&
+        immunisationPrintEnabled?.length > 0 && (
+          <View>
+            <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+              {immunisationPrintEnabled?.length > 0 && (
+                <>
+                  <Text
+                    style={{
+                      color: "#171725",
+                      fontFamily: printSettings?.page_format?.font_family,
+                      fontSize:
+                        PX_TO_PT * printSettings?.page_format?.font_size,
+                      fontWeight: 500,
+                    }}
+                  >
+                    Immunisation Vaccine:&nbsp;
+                  </Text>
+                  {immunisationPrintEnabled?.map((item, i) => (
+                    <View key={i}>
+                      {item?.enablePrint && (
+                        <>
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                            }}
+                          >
+                            {item?.master?.name}
+                          </Text>
+
+                          {(item?.givenDate || item?.notes || item?.status) && (
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 500,
+                              }}
+                            >
+                              <Text>&nbsp;(</Text>
+                            </Text>
+                          )}
+                          {(item?.givenDate || item?.status) && (
+                            <>
+                              <Text
+                                style={{
+                                  color: "#171725",
+                                  fontFamily:
+                                    printSettings?.page_format?.font_family,
+                                  fontSize:
+                                    PX_TO_PT *
+                                    printSettings?.page_format?.font_size,
+                                  fontWeight: 400,
+                                }}
+                              >
+                                {item?.status === "Given" && item?.givenDate
+                                  ? `Given on ${moment(item?.givenDate).format(
+                                      "DD/MM/YYYY"
+                                    )}`
+                                  : item?.status}
+                              </Text>
+                              {item?.notes && (
+                                <Text
+                                  style={{
+                                    color: "#171725",
+                                    fontFamily:
+                                      printSettings?.page_format?.font_family,
+                                    fontSize:
+                                      PX_TO_PT *
+                                      printSettings?.page_format?.font_size,
+                                    fontWeight: 400,
+                                  }}
+                                >
+                                  ,&nbsp;
+                                </Text>
+                              )}
+                            </>
+                          )}
+
+                          {item?.notes && (
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 400,
+                              }}
+                            >
+                              {item?.notes}
+                            </Text>
+                          )}
+
+                          {(item?.givenDate || item?.notes || item?.status) && (
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 500,
+                              }}
+                            >
+                              <Text>{`)`}</Text>
+                            </Text>
+                          )}
+
+                          {i !== immunisationPrintEnabled?.length - 1 && (
+                            <Text
+                              style={{
+                                color: "#171725",
+                                fontFamily:
+                                  printSettings?.page_format?.font_family,
+                                fontSize:
+                                  PX_TO_PT *
+                                  printSettings?.page_format?.font_size,
+                                fontWeight: 500,
+                              }}
+                            >
+                              ,&nbsp;
+                            </Text>
+                          )}
+                        </>
+                      )}
+                    </View>
+                  ))}
+                </>
+              )}
+            </Text>
+          </View>
+        )}
     </View>
   );
 }

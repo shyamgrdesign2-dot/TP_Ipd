@@ -736,6 +736,7 @@ function AppointmentData({ locationPath }) {
                     tcm_id: tcm_id,
                     print_url: record.print_rx_url,
                     digitisedData: ocrData.data,
+                    page:"pending-digitization"
                 },
             })
         } catch (error) {

@@ -25,9 +25,11 @@ function VaccineHeader({
   tablePrintHandler,
   handleObstetricBackBtn,
   clearObstetricData,
+  startNewPregnancyHandler,
   loader,
   isObstetric,
-  isGrowthChart
+  isGrowthChart,
+  isPregnancyCompleted
 }) {
   const vaccinationVideo = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
@@ -234,20 +236,20 @@ function VaccineHeader({
           </Col>
           <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
             <div className="align-items-center d-flex h-100 gap-2">
-                <Popover
-                  open={popOverVideo}
-                  onOpenChange={showHideVideoListPopover}
-                  content={VIDEO_CONTENT}
-                  trigger="click"
-                  overlayClassName="pop-430 pp-0 videoTutorial"
-                  placement="bottom"
-                >
-                  <button className="btn d-flex align-items-center btn-text p-0 me-20">
-                    <span>
-                      <img src={tutorial2} />
-                    </span>
-                  </button>
-                </Popover>
+              <Popover
+                open={popOverVideo}
+                onOpenChange={showHideVideoListPopover}
+                content={VIDEO_CONTENT}
+                trigger="click"
+                overlayClassName="pop-430 pp-0 videoTutorial"
+                placement="bottom"
+              >
+                <button className="btn d-flex align-items-center btn-text p-0 me-20">
+                  <span>
+                    <img src={tutorial2} />
+                  </span>
+                </button>
+              </Popover>
               {isVaccination && (
                 <Button
                   type="button"
@@ -284,16 +286,28 @@ function VaccineHeader({
                   </div>
                 </Dropdown>
               )}
-              <Button
-                type="button"
+              {isPregnancyCompleted ? (
+                <Button
+                  type="primary"
+                  className="btn-41 btn px-4 me-4 ant-btn-text align-items-center d-flex"
+                  onClick={startNewPregnancyHandler}
+                  loading={isObstetric && loader}
+                  disabled={isObstetric && loader}
+                >
+                  Start New Pregnancy
+                </Button>
+              ) : (
+                <Button
+                  type="button"
                 className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-                onClick={handleDrawerVaccination}
-                icon={<i className="icon-save" />}
-                loading={isObstetric && loader}
-                disabled={isObstetric && loader}
-              >
-                Save
-              </Button>
+                  onClick={handleDrawerVaccination}
+                  icon={<i className="icon-save" />}
+                  loading={isObstetric && loader}
+                  disabled={isObstetric && loader}
+                >
+                 Save
+                </Button>
+              )}
             </div>
           </Col>
         </Row>

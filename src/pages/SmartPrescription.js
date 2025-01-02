@@ -70,7 +70,7 @@ import { useAccess } from "./vaccination/useAccess";
 import { getGynecDetails } from "../api/services/ApiGynec";
 import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
-import { fetchAllObstetricDetails } from "./obstetric/service";
+import { fetchObstetricDetails } from "./obstetric/service";
 import {
   addObstetricDetails,
   navigateToObstetric,
@@ -110,11 +110,28 @@ function SmartPrescription() {
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
-  const { obstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
+  const { obstetricDetails: allObstetricDetails, isObstetricDetailsFetched, isNavigateToObstetric } =
     useSelector((state) => state.obstetric);
-  const { examinationHistory = [] } = obstetricDetails;
+  const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
+  const examinationHistory = obstetricDetails?.examinationHistory || [];
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
+  );
+  const shouldShowAncHistory = obstetricDetails?.ancHistory?.find(
+  (item) =>
+    !item?.deleted &&
+    (item?.dueDate ||
+      item?.status === "Completed" ||
+      item?.notes ||
+      item?.enablePrint)
+  );
+  const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
+  (item) =>
+    !item?.deleted &&
+    (item?.givenDate ||
+      item?.status === "Given" ||
+      item?.notes ||
+      item?.enablePrint)
   );
   const dispatch = useDispatch();
 
@@ -242,7 +259,7 @@ function SmartPrescription() {
   const baseUrlLabParams = env.lab_params_api_url;
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchAllObstetricDetails(
+    const obstetricResponse = await fetchObstetricDetails(
       patient_data.patient_unique_id,
       userId
     );
@@ -895,10 +912,10 @@ function SmartPrescription() {
             >
               <i
                 className={`${
-                  examinationHistory.length > 0 ? "icon-Edit" : "icon-Add"
+                  examinationHistory?.length > 0 ? "icon-Edit" : "icon-Add"
                 } me-1 fs-5`}
               ></i>
-              <span>{`${examinationHistory.length > 0 ? "Edit" : "Add"}`}</span>
+              <span>{`${examinationHistory?.length > 0 ? "Edit" : "Add"}`}</span>
             </button>
           </div>
           {(obstetricDetails?.lmp ||
@@ -908,7 +925,9 @@ function SmartPrescription() {
             obstetricDetails?.livingChildren ||
             obstetricDetails?.abortion ||
             obstetricDetails?.ectopicPregnancies ||
-            examinationHistory?.length > 0) && <ObstetricList />}
+            examinationHistory?.length > 0 ||
+            shouldShowAncHistory ||
+            shouldShowImmunisation) && <ObstetricList obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} />}
         </div>
       ) : e.tmdpm_id === 18 && e.tmdpm_status === 0 ? (
         <>
@@ -1680,7 +1699,7 @@ function SmartPrescription() {
             width="100%"
             push={false}
           >
-            <Obstetric handleDrawerObstetric={handleDrawerObstetric} />
+            <Obstetric obstetricDetails={obstetricDetails} obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} handleDrawerMedicalReport={handleDrawerMedicalReport} />
           </Drawer>
         )}
         {uploadDocDrawer && (

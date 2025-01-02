@@ -99,7 +99,7 @@ function Welcome(props) {
                     className="px-3 btn-41 ms-3 d-flex align-items-center"
                     onClick={() => navigate('/create-campaign')}>
                     <i className="icon-Add me-2"></i>
-                    {"Create New Campaign"}
+                    {"Choose new Template"}
                   </Button>
                 </div>
               }

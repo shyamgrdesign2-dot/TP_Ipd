@@ -2,6 +2,13 @@ import api from "./axiosService";
 import config from "../../config";
 
 const baseUrl = { customBaseUrl: config.bulk_messages };
+const baseUserManagementUrl = {
+    customBaseUrl: config.user_management_api_url,
+    headers: {
+        api_key: config.api_key,
+        api_secret_key: config.api_secret_key,
+    }
+};
 
 const ApiBulkMessages = {};
 
@@ -63,6 +70,10 @@ ApiBulkMessages.verifyPayment = function (data) {
 
 ApiBulkMessages.paymentHistory = function (data) {
     return api.post(`/api/v1/payment/paymentHistory`, data, baseUrl);
+};
+
+ApiBulkMessages.states = function (data) {
+    return api.post(`/user/pm/info/states`, data, baseUserManagementUrl);
 };
 
 export default ApiBulkMessages;
