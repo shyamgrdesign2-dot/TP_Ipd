@@ -75,6 +75,8 @@ instance.interceptors.response.use(
         if (error.response.status === 401) {
             notificationParam.message = 'Authentication Fail'
             notificationParam.description = 'Please login again'
+            // Clear localStorage before redirecting
+            localStorage.removeItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
             window.location.href = '/login';
         }
         
