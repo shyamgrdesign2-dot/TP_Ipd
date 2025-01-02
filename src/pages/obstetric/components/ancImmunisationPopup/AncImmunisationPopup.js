@@ -92,7 +92,7 @@ const AncImmunisationPopup = ({
       (ancDetails?.masterId && editIndex >= 0) ||
       (ancDetails?.id && name !== ancDetails?.name) ||
       shouldSelectForAllPatients ||
-      ancDetails?.default
+      ancDetails?.global
     ) {
       if (isAncSheduler) {
         const customSchedulerPayload = {
