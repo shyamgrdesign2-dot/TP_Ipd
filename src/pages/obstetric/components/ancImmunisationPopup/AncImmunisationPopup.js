@@ -91,11 +91,15 @@ const AncImmunisationPopup = ({
       ancDetails?.isCustom ||
       (ancDetails?.masterId && editIndex >= 0) ||
       (ancDetails?.id && name !== ancDetails?.name) ||
-      shouldSelectForAllPatients
+      shouldSelectForAllPatients ||
+      ancDetails?.default
     ) {
       if (isAncSheduler) {
         const customSchedulerPayload = {
-          id: ancDetails?.masterId || ancDetails?.id,
+          id:
+            ancDetails?.masterId && editIndex >= 0
+              ? ancDetails?.masterId || ancDetails?.id
+              : undefined,
           name: name,
           weekRange: range,
           patient_unique_id: shouldSelectForAllPatients
@@ -108,7 +112,10 @@ const AncImmunisationPopup = ({
         ancDetails.id = customSchedulerRes?.id;
       } else {
         const customSchedulerPayload = {
-          id: ancDetails?.masterId || ancDetails?.id,
+          id:
+            ancDetails?.masterId && editIndex >= 0
+              ? ancDetails?.masterId || ancDetails?.id
+              : undefined,
           name: name,
           patient_unique_id: shouldSelectForAllPatients
             ? 0
@@ -148,7 +155,7 @@ const AncImmunisationPopup = ({
             dueDate: null,
             status: "Due",
             notes: null,
-            enablePrint: false,
+            enablePrint: true,
             master: {
               name: name,
             },
@@ -182,7 +189,7 @@ const AncImmunisationPopup = ({
             givenDate: null,
             status: "Due",
             notes: null,
-            enablePrint: false,
+            enablePrint: true,
             default: false,
             master: {
               name: name,
@@ -206,6 +213,7 @@ const AncImmunisationPopup = ({
     };
     dispatch(addObstetricDetails(payload));
     dispatch(obstetricDetailsUpdated());
+    dispatch(patientDiagnosisUpdated());
 
     if (shouldSelectForAllPatients) {
       if (isAncSheduler) {
@@ -251,8 +259,6 @@ const AncImmunisationPopup = ({
         },
       };
       dispatch(addObstetricDetails(payload));
-      dispatch(patientDiagnosisUpdated());
-      dispatch(obstetricDetailsUpdated());
     } else {
       ancSchedulerData[editIndex] = {
         ...ancSchedulerData[editIndex],
@@ -270,9 +276,9 @@ const AncImmunisationPopup = ({
         },
       };
       dispatch(addObstetricDetails(payload));
-      dispatch(patientDiagnosisUpdated());
-      dispatch(obstetricDetailsUpdated());
     }
+    dispatch(patientDiagnosisUpdated());
+    dispatch(obstetricDetailsUpdated());
     onCancel();
   };
 
