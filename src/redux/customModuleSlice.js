@@ -69,6 +69,11 @@ const customModuleSlice = createSlice({
     loading: false,
     error: null,
   },
+  reducers: {
+    clearSearchResults(state) {
+      state.searchModuleResults = [];
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(addModule.pending, (state) => {
@@ -187,5 +192,7 @@ const customModuleSlice = createSlice({
       });
   },
 });
+
+export const { clearSearchResults } = customModuleSlice.actions;
 
 export default customModuleSlice.reducer;

@@ -37,7 +37,7 @@ import CashManagerContext from "../context/CashManagerContext";
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 import ModuleIcon from "../assets/images/custom-module.svg";
 import { MenuOutlined } from "@ant-design/icons";
-import { addModule, searchModule } from "../redux/customModuleSlice";
+import { addModule, clearSearchResults, searchModule } from "../redux/customModuleSlice";
 
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import editIcon from "../assets/images/edit-icon-blue.svg";
@@ -103,6 +103,7 @@ function CustomModule({ module }) {
 
   //Parent AutoComplete
   useEffect(() => {
+    dispatch(clearSearchResults());
     const timeOutId = setTimeout(() => {
       dispatch(
         searchModule({
