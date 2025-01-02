@@ -121,14 +121,14 @@ function App() {
           />
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
-              {/* {!isLoginPage && (
+              {!isLoginPage && (
                 <>
                   <DemoExpirationBanner />
                   <PlanExpirationBanner />
                   <ExpiredPlanCard />
                   <DoctorModal />
                 </>
-              )} */}
+              )}
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route path="create-campaign" element={<MessageCreateCampaign />} />
