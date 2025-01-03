@@ -51,7 +51,7 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
             <div className="my-2">
               {typeof visitItem.pallor === "boolean" ? (
                 <>
-                  <span>Polar : </span>
+                  <span>Pallor : </span>
                   <label>{`${visitItem.pallor ? " Yes " : " No "}`}</label>
                   {typeof visitItem.oedema === "boolean" || visitItem.mothersBMI
                     ? " | "

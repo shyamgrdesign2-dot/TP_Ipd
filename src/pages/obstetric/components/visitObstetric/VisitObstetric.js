@@ -38,6 +38,24 @@ export default function VisitObstetric() {
   const visitedMonth =
     visitDate && getOrdinalSuffix(currentDate.diff(visitDate, "months") + 1);
 
+  const shouldShowAncHistory = obstetricDetails?.ancHistory?.find(
+    (item) =>
+      !item?.deleted &&
+      (item?.dueDate ||
+        item?.status === "Completed" ||
+        item?.notes ||
+        item?.enablePrint)
+  );
+
+  const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
+    (item) =>
+      !item?.deleted &&
+      (item?.givenDate ||
+        item?.status === "Given" ||
+        item?.notes ||
+        item?.enablePrint)
+  );
+
   useEffect(() => {
     if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
       getAllObstetricDetails();
@@ -130,7 +148,9 @@ export default function VisitObstetric() {
       obstetricDetails?.parity ||
       obstetricDetails?.livingChildren ||
       obstetricDetails?.abortion ||
-      obstetricDetails?.ectopicPregnancies ? (
+      obstetricDetails?.ectopicPregnancies ||
+      shouldShowAncHistory ||
+      shouldShowImmunisation ? (
         <div className="appointment-wrap PatientDetailswrap m-0">
           <Card
             style={{
