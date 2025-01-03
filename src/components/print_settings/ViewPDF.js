@@ -372,6 +372,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         : PX_TO_PT * 30,
                 paddingLeft: PX_TO_PT * 30,
                 paddingRight: PX_TO_PT * 30,
+                display: 'flex',
+                flexDirection: 'column',
             };
         }
 
