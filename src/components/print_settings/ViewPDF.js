@@ -374,6 +374,15 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             paddingTop: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
                 : PX_TO_PT * 30,
+            paddingBottom: letterhead_format === 2
+                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5)
+                : letterhead_format === 1
+                    ? fileFooter
+                        ? 110
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5)
+                    : footer?.title
+                        ? 35 + parseInt(footer?.font_size)
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5),
             paddingLeft: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
                 : PX_TO_PT * 30,
@@ -4702,14 +4711,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     )}
                 </View>
 
-                {/* </View> */}
 
                 <View style={{
                     position: 'absolute',
-                    bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
+                    bottom: PX_TO_PT * 30,
                     left: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
                     right: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
-                }} fixed>
+                    }} fixed>
                     {mode == NORMAL ? (
                         printSettings?.letterhead_format === 0 ? (
                             <View>
