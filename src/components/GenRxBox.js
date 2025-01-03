@@ -1,29 +1,21 @@
 import { Button, Collapse, Divider } from "antd";
 import arrow from "../assets/images/shaded-arrow.svg";
 import selectedTick from "../assets/images/tick.svg";
-import ddxIcon from "../assets/images/ddxIcon.svg";
+import tryGenRxIcon from "../assets/images/try-gen-rx.svg";
 import loading from "../assets/images/loading.gif";
 import genRxMic from "../assets/images/gen-rx-mic.svg";
 
 import { useContext, useState } from "react";
-// import CashManagerContext from "../../context/CashManagerContext";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { getClinicName } from "../utils/utils";
 
 const GenRxBox = ({
   handleDDxDrawer,
-  handleDDxKnowMore,
-  getGenerateDDx,
+  handleGenRxKnowMore,
+  genRxKnowMoreDrawer,
   handleDrawerVital,
 }) => {
-  //   const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
-  const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
-  const { profile } = useSelector((state) => state.doctors);
-
-  const { state } = useLocation();
-  const { patient_data } = state;
-
   const [isCollapseActive, setIsCollapseActive] = useState(true);
 
   const handlePanelChange = () => {
@@ -83,9 +75,9 @@ const GenRxBox = ({
             <Button
               className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center justify-content-center"
               style={{ gap: 10 }}
-              onClick={() => getGenerateDDx("apexDDx")}
+              onClick={() => genRxKnowMoreDrawer("apexDDx")}
             >
-              <img src={ddxIcon} alt="ddx-icon" />
+              <img src={tryGenRxIcon} alt="genrx-icon" />
               <span>Try Gen Rx</span>
             </Button>
           </div>
@@ -99,7 +91,7 @@ const GenRxBox = ({
                 cursor: "pointer",
                 width: "fit-content",
               }}
-              onClick={handleDDxKnowMore}
+              onClick={handleGenRxKnowMore}
             >
               <div className="text-primary" style={{ fontWeight: 600 }}>
                 Know More About Gen Rx
