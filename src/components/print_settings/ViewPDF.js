@@ -379,12 +379,23 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             paddingTop: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
                 : PX_TO_PT * 30,
+            paddingBottom: letterhead_format === 2
+                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5)
+                : letterhead_format === 1
+                    ? fileFooter
+                        ? 110
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5)
+                    : footer?.title
+                        ? 35 + parseInt(footer?.font_size)
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5),
             paddingLeft: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
                 : PX_TO_PT * 30,
             paddingRight: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "right", 0.5)
                 : PX_TO_PT * 30,
+                display: 'flex',
+                flexDirection: 'column',
         };
     };
 
@@ -595,7 +606,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                 <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} />
 
-                <View>
+                <View style={{ flexGrow: 1 }}>
                     {printSettings?.prescription?.case_option?.map((option, index) => {
                         let customModule = caseManagerData?.moduleContents?.find(e => e.module_id === option?.id);
                         if(customModule) {
@@ -4707,14 +4718,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     )}
                 </View>
 
-                {/* </View> */}
 
-                <View style={{
-                    position: 'absolute',
-                    bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
-                    left: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
-                    right: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
-                }} fixed>
+                <View style={{marginTop: 10}} fixed>
                     {mode == NORMAL ? (
                         printSettings?.letterhead_format === 0 ? (
                             <View>
