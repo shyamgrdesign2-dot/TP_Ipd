@@ -73,6 +73,7 @@ const LmpPopup = ({
       dispatch(obstetricDetailsUpdated());
     }
     if (laterBtn) {
+      setLmpDate("");
       setPatientDiagnosisData((prevState) => ({
         ...prevState,
         lmp: null,
