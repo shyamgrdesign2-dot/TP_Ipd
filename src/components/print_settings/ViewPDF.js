@@ -391,8 +391,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             paddingRight: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "right", 0.5)
                 : PX_TO_PT * 30,
-                display: 'flex',
-                flexDirection: 'column',
         };
     };
 
@@ -603,7 +601,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                 <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} />
 
-                <View style={{ flexGrow: 1 }}>
+                <View>
                     {printSettings?.prescription?.case_option?.map((option, index) => {
                         let customModule = caseManagerData?.moduleContents?.find(e => e.module_id === option?.id);
                         if(customModule) {
@@ -4716,7 +4714,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 </View>
 
 
-                <View style={{marginTop: 10}} fixed>
+                <View style={{
+                    position: 'absolute',
+                    bottom: PX_TO_PT * 30,
+                    left: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
+                    right: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
+                    }} fixed>
                     {mode == NORMAL ? (
                         printSettings?.letterhead_format === 0 ? (
                             <View>
