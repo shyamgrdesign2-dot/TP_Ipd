@@ -1,8 +1,8 @@
 import { Button } from "antd";
-import genRx from "../assets/images/gen-rx.svg";
+import tatvaAi from "../assets/images/apexAI.svg";
 import newTag from "../assets/images/new-gif.gif";
 
-const GenRxBanner = ({ setShowApexPopup, handleGenRxKnowMore }) => {
+const TatvaAiBanner = ({ setShowApexPopup, handleGenRxKnowMore }) => {
   return (
     <div
       className="d-flex justify-content-between align-items-center"
@@ -15,10 +15,10 @@ const GenRxBanner = ({ setShowApexPopup, handleGenRxKnowMore }) => {
       }}
     >
       <div className="d-flex w-100">
-        <img className="me-3" src={genRx} alt="apex-AI" />
+        <img className="me-3" src={tatvaAi} alt="apex-AI" />
         <div style={{ fontSize: 16, fontWeight: 500 }}>
           <div className="d-flex align-items-center">
-            AI-Powered Gen Rx{" "}
+            Redefine Rx & Diagnosis with <b>Tatva AI</b>
             <img
               style={{ marginLeft: 10 }}
               src={newTag}
@@ -44,4 +44,4 @@ const GenRxBanner = ({ setShowApexPopup, handleGenRxKnowMore }) => {
   );
 };
 
-export default GenRxBanner;
+export default TatvaAiBanner;
