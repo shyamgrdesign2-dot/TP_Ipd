@@ -171,16 +171,16 @@ export const frequencyCombination = (text) => {
   return makeArray;
 }
 
-export const medicine_freq_format = (freq) => {
+export const medicine_freq_dosage_format = (freqDosage) => {
   var value = ''
-  if (freq == '0.5') {
+  if (freqDosage == '0.5') {
     value = `1/2`
-  } else if (freq == '0.25') {
+  } else if (freqDosage == '0.25') {
     value = `1/4`
-  } else if (freq == '0.75') {
+  } else if (freqDosage == '0.75') {
     value = `3/4`
   } else {
-    value = freq
+    value = freqDosage
   }
   return value
 }

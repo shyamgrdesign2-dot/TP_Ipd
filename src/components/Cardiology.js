@@ -26,7 +26,7 @@ import customModuleIcon from "../assets/images/custom-module.svg";
 
 import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
-import { capitalize, isNumeric, medicine_freq_format } from "../utils/utils";
+import { capitalize, isNumeric, medicine_freq_dosage_format } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import CvtKnowMore from "../pages/smartSync/components/CvtKnowMore";
@@ -272,7 +272,7 @@ function Cardiology(props) {
       width: "110px",
       render: (text, record, index) => (
         <>
-          <div>{`${record.tmm_dosage && record.tmm_unit ? `${record.tmm_dosage} ${record?.medicineUnit && record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit) !== undefined ? record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit).tmu_title : ""}` : `${record?.medicineUnit && record?.medicineUnit.find((x) => x.tmu_id == record.default_tmm_unit) !== undefined ? record?.medicineUnit.find((x) => x.tmu_id == record.default_tmm_unit).tmu_title : ""}`}`}</div>
+          <div>{`${record.tmm_dosage && record.tmm_unit ? `${medicine_freq_dosage_format(record.tmm_dosage)} ${record?.medicineUnit && record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit) !== undefined ? record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit).tmu_title : ""}` : `${record?.medicineUnit && record?.medicineUnit.find((x) => x.tmu_id == record.default_tmm_unit) !== undefined ? record?.medicineUnit.find((x) => x.tmu_id == record.default_tmm_unit).tmu_title : ""}`}`}</div>
 
           {record?.tmm_id == medicationData[index - 1]?.tmm_id && (
             <div className="badge-then">Then</div>
@@ -292,16 +292,16 @@ function Cardiology(props) {
               record.tcm_tmm_freq_evening ||
               record.tcm_tmm_freq_night
               ? `${record.tcm_tmm_freq_morning
-                ? medicine_freq_format(record.tcm_tmm_freq_morning)
+                ? medicine_freq_dosage_format(record.tcm_tmm_freq_morning)
                 : 0
               }-${record.tcm_tmm_freq_afternoon
-                ? medicine_freq_format(record.tcm_tmm_freq_afternoon)
+                ? medicine_freq_dosage_format(record.tcm_tmm_freq_afternoon)
                 : 0
               }${record.tcm_tmm_freq_evening
-                ? "-" + medicine_freq_format(record.tcm_tmm_freq_evening)
+                ? "-" + medicine_freq_dosage_format(record.tcm_tmm_freq_evening)
                 : ""
               }-${record.tcm_tmm_freq_night ?
-                medicine_freq_format(record.tcm_tmm_freq_night)
+                medicine_freq_dosage_format(record.tcm_tmm_freq_night)
                 : 0
               }`
               : `-`
