@@ -147,61 +147,63 @@ function SidebarDoctor() {
     return (
         <>
             <div className="SidebarDoctor">
-                <NavLink to="/" replace={true} className={({ isActive, isPending }) =>
-                    isPending ? "pending" : isActive ? "active" : ""
-                }>
-                    <i className='icon-calendarfill'></i>
-                    <div className='mt-1 px-2'>{isMobile ? 'Appt' : <div className='text-truncate'>Appointment</div>}</div>
-                </NavLink>
+                <div className='sidebarScroll'>
+                    <NavLink to="/" replace={true} className={({ isActive, isPending }) =>
+                        isPending ? "pending" : isActive ? "active" : ""
+                    }>
+                        <i className='icon-calendarfill'></i>
+                        <div className='mt-1 px-2'>{isMobile ? 'Appt' : <div className='text-truncate'>Appointment</div>}</div>
+                    </NavLink>
 
-                {/* <NavLink to="/" className={({ isActive, isPending }) =>
+                    {/* <NavLink to="/" className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "active" : ""
-                }>
-                    <i className='icon-patients'></i>
-                    <div className='mt-1 px-2'>{isMobile ? 'Patients' : 'All Patients'}</div>
-                </NavLink>
-                <NavLink to="/" className={({ isActive, isPending }) =>
-                    isPending ? "pending" : isActive ? "active" : ""
-                }>
-                    <i className='icon-analytics'></i>
-                    <div className='mt-1 px-2'>Analytics</div>
-                </NavLink>
-                <NavLink to="/" className={({ isActive, isPending }) =>
-                    isPending ? "pending" : isActive ? "active" : ""
-                }>
-                    <i className='icon-billings'></i>
-                    <div className='mt-1 px-2'>Billings</div>
-                </NavLink> */}
+                    }>
+                        <i className='icon-patients'></i>
+                        <div className='mt-1 px-2'>{isMobile ? 'Patients' : 'All Patients'}</div>
+                    </NavLink>
+                    <NavLink to="/" className={({ isActive, isPending }) =>
+                        isPending ? "pending" : isActive ? "active" : ""
+                    }>
+                        <i className='icon-analytics'></i>
+                        <div className='mt-1 px-2'>Analytics</div>
+                    </NavLink>
+                    <NavLink to="/" className={({ isActive, isPending }) =>
+                        isPending ? "pending" : isActive ? "active" : ""
+                    }>
+                        <i className='icon-billings'></i>
+                        <div className='mt-1 px-2'>Billings</div>
+                    </NavLink> */}
 
-                {profile && profile?.module_data?.map((item, i) => {
-                    const isHovered = hoveredItem === i;
-                    return (
-                        <NavLink key={i} onClick={() => clickOldModule(item.type)} replace={true} className={({ isActive, isPending }) =>
-                            isHovered ? "" : isPending ? "pending" : isActive ? "" : "active"
+                    {profile && profile?.module_data?.map((item, i) => {
+                        const isHovered = hoveredItem === i;
+                        return (
+                            <NavLink key={i} onClick={() => clickOldModule(item.type)} replace={true} className={({ isActive, isPending }) =>
+                                isHovered ? "" : isPending ? "pending" : isActive ? "" : "active"
+                            }
+                                onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
+                                onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
+                            >
+                                <img src={getIcon(item.type, isHovered)} alt={`${item.type}`} />
+                                <div className='mt-1 px-2'>{item.title}</div>
+                            </NavLink>
+                        )
+                    })}
+
+                    {isApolloConsultationsEnabled &&
+                        <NavLink to="/apollo-consultations" replace={true} className={({ isActive, isPending }) =>
+                            isPending ? "pending" : isActive ? "active" : ""
                         }
-                            onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
+                            onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
                             onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
                         >
-                            <img src={getIcon(item.type, isHovered)} alt={`${item.type}`} />
-                            <div className='mt-1 px-2'>{item.title}</div>
+                            <img src={getIcon("data_analytics", hoveredItem || location.pathname === '/apollo-consultations')} alt="apollo" />
+                            <div className='mt-1 px-2'>
+                                <div>Apollo analytics</div>
+                            </div>
                         </NavLink>
-                    )
-                })}
-
-                {isApolloConsultationsEnabled &&
-                    <NavLink to="/apollo-consultations" replace={true} className={({ isActive, isPending }) =>
-                        isPending ? "pending" : isActive ? "active" : ""
                     }
-                        onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
-                        onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
-                    >
-                        <img src={getIcon("data_analytics", hoveredItem || location.pathname === '/apollo-consultations')} alt="apollo" />
-                        <div className='mt-1 px-2'>
-                            <div>Apollo analytics</div>
-                        </div>
-                    </NavLink>
-                }
-
+                </div>
+                
                 {profile?.ownerDoctor === 1 && (
                     <NavLink to="/bulk_messages" replace={true} className={({ isActive, isPending }) =>
                         isPending ? "pending" : isActive ? "active" : ""
