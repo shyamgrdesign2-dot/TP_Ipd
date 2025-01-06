@@ -86,7 +86,7 @@ function Subscription() {
               <Divider style={{ margin: "0 30px", width: "630px" }} />
               <div className="px-20 py-1">
                 <p className="mt-4 renew-btn">
-                  Your plan expires in <b>{expiresIn} days</b>. Renew now to
+                  Your plan {expiresIn > 0 ? `expires in ${expiresIn} days` : "has expired"}. Renew now to
                   ensure hassle-free access!
                 </p>
                 <button
