@@ -48,8 +48,10 @@ const ConsultationDetailsPage = () => {
   const MAX_REMARKS_LENGTH = 50;
 
   useEffect(() => {
-    fetchConsultations(true);
-  }, [filters]);
+    if (doctors?.length > 0) {
+      fetchConsultations(true);
+    }
+  }, [filters, doctors]);
 
   useEffect(() => {
     fetchDoctors();
@@ -64,7 +66,10 @@ const ConsultationDetailsPage = () => {
         page: resetData ? 1 : page,
         startDate: filters.startDate?.format("YYYY-MM-DD"),
         endDate: filters.endDate?.format("YYYY-MM-DD"),
-        umIds: filters.selectedDoctors?.join(",") || "",
+        umIds:
+          filters?.selectedDoctors?.length > 0
+            ? filters.selectedDoctors?.join(",")
+            : doctors?.map((doc) => doc.value)?.join(","),
         search: filters.search || "",
       };
       const { consultationsList, totalCount } = await fetchApolloConsultations(
@@ -241,6 +246,54 @@ const ConsultationDetailsPage = () => {
           ""
         ),
     },
+    {
+      title: "Cross Consult",
+      dataIndex: "dynamicModules",
+      key: "crossConsult",
+      render: (dynamicModules) =>
+        dynamicModules?.[0]?.content?.length > 0 ? (
+          <Button
+            type="link"
+            style={{ color: "#4B4AD5" }}
+            onClick={() => {
+              setModalContent({
+                title: dynamicModules?.[0]?.name,
+                list: dynamicModules?.[0]?.content?.map((item) => item.title),
+              });
+              setVisibleModal(true);
+            }}
+            className="show-more-link"
+          >
+            View
+          </Button>
+        ) : (
+          ""
+        ),
+    },
+    // {
+    //   title: "Vaccination Packages",
+    //   dataIndex: "dynamicModules",
+    //   key: "vaccinePackages",
+    //   render: (dynamicModules) =>
+    //     dynamicModules?.[1]?.content?.length > 0 ? (
+    //       <Button
+    //         type="link"
+    //         style={{ color: "#4B4AD5" }}
+    //         onClick={() => {
+    //           setModalContent({
+    //             title: dynamicModules?.[1]?.name,
+    //             list: dynamicModules?.[1]?.content?.map((item) => item.title),
+    //           });
+    //           setVisibleModal(true);
+    //         }}
+    //         className="show-more-link"
+    //       >
+    //         View
+    //       </Button>
+    //     ) : (
+    //       ""
+    //     ),
+    // },
     {
       title: "Remarks",
       key: "remarks",
