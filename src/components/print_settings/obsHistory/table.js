@@ -48,7 +48,8 @@ function ObsHistoryTableView({
       </Text>
 
       {options?.includes("gplae") && (("gravidity" in obsHistoryData &&
-        obsHistoryData?.gravidity != null) ||
+        obsHistoryData?.gravidity != null) || ("gravidaNumber" in obsHistoryData &&
+                obsHistoryData?.gravidaNumber != null) ||
         ("parity" in obsHistoryData && obsHistoryData?.parity != null) ||
         ("livingChildren" in obsHistoryData &&
           obsHistoryData?.livingChildren != null) ||
@@ -979,6 +980,8 @@ function ObsHistoryTableView({
                       >
                         {"gravidity" in item
                           ? item?.gravidity?.toString()?.padStart(2, "0")
+                          : "gravidaNumber" in item
+                          ? item?.gravidaNumber?.toString()?.padStart(2, "0")
                           : `-`}
                       </Text>
                       <Text

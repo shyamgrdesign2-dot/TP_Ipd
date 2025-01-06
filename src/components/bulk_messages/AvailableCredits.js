@@ -21,6 +21,7 @@ function AvailableCredits({ handleAvailableCredit }) {
     const { profile } = useSelector((state) => state.doctors);
     const { userCreditObj, statesList, userState } = useSelector((state) => state.bulkMessages);
     const [selectedState, setSelectedState] = useState(null);
+    const [stateOpen, setStateOpen] = useState(false);
     const [creditRadio, setCreditRadio] = useState(null);
     const [creditInput, setCreditInput] = useState(null);
     const [couponCode, setCouponCode] = useState(null);
@@ -106,6 +107,7 @@ function AvailableCredits({ handleAvailableCredit }) {
                     errorMessage(action.payload.message)
                 }
             } else {
+                setStateOpen(true)
                 errorMessage('Please select state')
             }
         } else {
@@ -196,6 +198,12 @@ function AvailableCredits({ handleAvailableCredit }) {
                                 value={selectedState && selectedState?.state}
                                 className='appointmentselect'
                                 onSelect={onSelect}
+                                onDropdownVisibleChange={(open) => setStateOpen(open)}
+                                open={stateOpen}
+                                style={{
+                                    border: stateOpen? "1px solid #4B4AD5": "none",
+                                    borderRadius: stateOpen? "10px": "none",
+                                  }}
                                 options={statesList?.map((item) => {
                                     return {
                                         key: JSON.stringify(item),
