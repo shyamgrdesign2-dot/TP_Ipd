@@ -757,7 +757,7 @@ function MessageCreateCampaign() {
                                 maxWidth: 300
                             }}
                             value={year_no}
-                            onChange={(e) => setyear_no(e.target.value)}
+                            onChange={(e) => setyear_no(onlyNumberFormat(e.target.value))}
                             placeholder="Enter Year"
                             className="me-1 my-1 fw-medium"
                         />
@@ -1260,9 +1260,11 @@ function MessageCreateCampaign() {
                                         </div>
 
                                         <div className="px-4 py-3 fs-14 border rounded-4 position-relative">{renderTemplate}
-                                            <div className="fs-12-1 text-greycolor position-absolute" style={{ right: 7, bottom: 3 }}>{
-                                                `${TEMPLATE_TEXT?.length}/160`
-                                            }</div>
+                                            {send_on === 1 && (
+                                                <div className="fs-12-1 text-greycolor position-absolute" style={{ right: 7, bottom: 3 }}>{
+                                                    `${TEMPLATE_TEXT?.length}/160`
+                                                }</div>
+                                            )}
                                         </div>
 
                                         {send_on === 1 && (
