@@ -1246,13 +1246,10 @@ function MessageCreateCampaign() {
                                     <div className="configure-template">
                                         <h5 className="fs-16 mb-0 fw-semibold">Send on</h5>
                                         <div className="mt-3">
-                                            <Radio.Group className="d-flex pe-4" onChange={handleSendOn} value={send_on}>
-                                                <Radio className="w-50" value={1}>SMS</Radio>
-                                            </Radio.Group>
-                                            {/* <Radio.Group className="d-flex" onChange={handleSendOn} value={send_on}>
+                                            <Radio.Group className="d-flex" onChange={handleSendOn} value={send_on}>
                                                 <Radio className="col me-30" value={1}>SMS</Radio>
                                                 <Radio className="col me-0" value={2}>WhatsApp</Radio>
-                                            </Radio.Group> */}
+                                            </Radio.Group>
                                         </div>
                                         <hr className="mb-28 mt-4" />
                                         <div className="my-2 d-flex align-items-center justify-content-between">
@@ -1429,7 +1426,7 @@ function MessageCreateCampaign() {
                                                         }}
                                                         disabledDate={disabledDate}
                                                         disabledTime={disabledTime}
-                                                        renderExtraFooter={() => <div className="fs-12-1 text-greycolor">Note: Scheduling message allowed only between 9AM-9PM</div>}
+                                                        renderExtraFooter={() => <div className="fs-12-1 text-greycolor">Note: Scheduling message allowed only between 8AM-8PM</div>}
                                                         value={scheduleDateTime ? dayjs(moment(scheduleDateTime).format(showDateTimeFormat), showDateTimeFormat) : ''}
                                                         onChange={(date, dateString) => setScheduleDateTime(dateString ? moment(dateString).format(dateTimeFormat) : '')}
                                                     />
