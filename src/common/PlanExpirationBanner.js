@@ -7,7 +7,6 @@ const PlanExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
   const {
     currentPlanStatus,
-    is_owner,
     expiry_reminder_days,
     expiresIn,
     is_pm_renew_requested,
@@ -21,7 +20,6 @@ const PlanExpirationBanner = () => {
   return (
     !is_pm_renew_requested &&
     currentPlanStatus === "PAID" &&
-    is_owner &&
     expiresIn <= expiry_reminder_days && (
       <header className="plan-expiry-banner">
         <div className="demoModeWrapper">
@@ -29,9 +27,8 @@ const PlanExpirationBanner = () => {
           <strong className="text-white">PLAN EXPIRING SOON</strong>
         </div>
         <p className="expirationMessage text-white">
-          Your Pro plan{" "}
-          {expiresIn > 0 ? `expires in ${expiresIn} days` : "has expired"}.
-          Renew now to ensure hassle-free access!
+          Your Pro plan expires in {expiresIn} days. Renew now to ensure
+          hassle-free access!
         </p>
         <button className="buyPlanButton" onClick={handleClick}>
           <img loading="lazy" src={crownIcon} className="buttonIcon" alt="" />
