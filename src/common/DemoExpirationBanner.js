@@ -11,7 +11,6 @@ const DemoExpirationBanner = () => {
     currentPlanStatus,
     expiry_reminder_days,
     expiresIn,
-    is_owner,
     is_pm_renew_requested,
   } = planDetails || {};
   const dispatch = useDispatch();
@@ -25,8 +24,7 @@ const DemoExpirationBanner = () => {
   };
 
   return (
-    ["TRIAL", "EXPIRED"].includes(currentPlanStatus) &&
-    is_owner && (
+    ["TRIAL", "EXPIRED"].includes(currentPlanStatus) && (
       <header className="banner">
         <div className="demoModeWrapper">
           <div className="demoModeIndicator" />

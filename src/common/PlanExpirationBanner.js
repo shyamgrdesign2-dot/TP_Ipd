@@ -7,7 +7,6 @@ const PlanExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
   const {
     currentPlanStatus,
-    is_owner,
     expiry_reminder_days,
     expiresIn,
     is_pm_renew_requested,
@@ -21,7 +20,6 @@ const PlanExpirationBanner = () => {
   return (
     !is_pm_renew_requested &&
     currentPlanStatus === "PAID" &&
-    is_owner &&
     expiresIn <= expiry_reminder_days && (
       <header className="plan-expiry-banner">
         <div className="demoModeWrapper">

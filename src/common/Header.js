@@ -555,7 +555,7 @@ function Header({ locationPath }) {
         label: (
           <>
             <div className="me-3">
-              {profile?.um_image ? (
+              {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
                 <img
                   src={profile?.um_image ?? defaultprofile}
                   alt="Profile"
@@ -950,7 +950,7 @@ function Header({ locationPath }) {
             overlayClassName="prfile-dropdown"
           >
             <a onClick={(e) => e.preventDefault()}>
-              {profile?.um_image ? (
+              {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
                 <img
                   src={profile?.um_image ?? defaultprofile}
                   alt="Profile"
