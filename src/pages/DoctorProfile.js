@@ -246,7 +246,7 @@ function DoctorProfile() {
             <div className="p-20 rounded-20px rounded-bottom-0" style={{ backgroundColor: 'rgba(237, 223, 247, 0.30)' }}>
               <div className="d-flex align-items-center">
                 <div className="me-3">
-                  {profile?.um_image ? (
+                  {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
                     <img
                       src={profile?.um_image ?? defaultprofile}
                       alt="Profile"

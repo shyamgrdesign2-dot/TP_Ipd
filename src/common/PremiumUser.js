@@ -2,13 +2,14 @@ import profileBg from "../assets/images/profile-bg.svg";
 import goldCrown from "../assets/images/gold-crown.svg";
 import { makeDefaultLogo } from "../utils/utils";
 import { useSelector } from "react-redux";
+import defaultprofile from "../assets/images/default-profile.svg";
 
 export default function PremiumUser() {
   const { profile } = useSelector((state) => state.doctors);
 
   return (
     <div
-      className="d-flex align-items-center justify-content-center"
+      className="d-flex align-items-center justify-content-center rounded-circle"
       style={{
         backgroundImage: `url(${profileBg})`,
         backgroundSize: "contain",
@@ -31,7 +32,16 @@ export default function PremiumUser() {
           display: "inline-block",
         }}
       >
-        {makeDefaultLogo(profile?.um_name)}
+        {profile?.um_image ? (
+          <img
+            src={profile?.um_image ?? defaultprofile}
+            alt="Profile"
+            className="rounded-circle"
+            style={{ width: "30px" }}
+          />
+        ) : (
+          makeDefaultLogo(profile?.um_name)
+        )}
       </div>
       <img
         loading="lazy"
