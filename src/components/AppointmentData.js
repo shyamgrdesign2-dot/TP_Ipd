@@ -67,6 +67,7 @@ import LabParams from "./LabParams";
 import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup";
 import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
 import { resetDDxState } from "../redux/ddxSlice";
+import CreateBill from "../pages/opdBilling/components/createBill/CreateBill";
 
 const { TextArea } = Input;
 
@@ -380,6 +381,7 @@ function AppointmentData({ locationPath }) {
     const [endVisitReason, setEndVisitReason] = useState('');
     const [noDetailsModal, setNoDetailsModal] = useState(false);
     const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
+    const [createBillDrawer, setCreateBillDrawer] = useState(false);
 
     const showHideBackModal = () => {
         setIsBackModalOpen(!isBackModalOpen);
@@ -621,6 +623,14 @@ function AppointmentData({ locationPath }) {
                 key: "patientdetails",
             },
             {
+                label: <span
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
+                        handleCreateBillDrawer()
+                    }}>Create Bill</span>,
+                key: "createbill",
+          },
+          {
                 label: <span
                     onClick={() => {
                         setAppointmentSelectedFromMenu(record);
@@ -1158,6 +1168,13 @@ function AppointmentData({ locationPath }) {
             setAddlabparamsDrawer(!addlabparamsDrawer)
         },
         [addlabparamsDrawer]
+    );
+
+    const handleCreateBillDrawer = useCallback(
+        () => {
+            setCreateBillDrawer(!createBillDrawer)
+        },
+        [createBillDrawer]
     );
 
     const handleLabParamsUpdate = (() => {
@@ -1741,6 +1758,16 @@ function AppointmentData({ locationPath }) {
                     }
                 />
             ) : null}
+            {createBillDrawer &&(<Drawer
+                closeIcon={false}
+                placement="right"
+                open={createBillDrawer}
+                onClose={showHideBackModal}
+                width="100%"
+                push={false}
+                >
+                    <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} patient_unique_id={appointmentSelectedFromMenu?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} onSave={handleLabParamsUpdate}/>
+                </Drawer>)}
         </>
     );
 }

@@ -13,6 +13,7 @@ const DiagnosisNotes = ({
   handleDrawerDiagnosisNotes,
   diagnosisNotes,
   setDiagnosisNotes,
+  isDiagnosis = true,
 }) => {
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState("");
@@ -55,7 +56,7 @@ const DiagnosisNotes = ({
             </Button>
             <div className="modal-title">
               {diagnosisNotes ? "Edit " : "Add "}
-              diagnosis notes
+              {isDiagnosis ? "diagnosis notes" : "Add Notes"}
             </div>
           </div>
           <Button
@@ -67,7 +68,11 @@ const DiagnosisNotes = ({
         </div>
         <div className="px-20 py-3">
           <Input.TextArea
-            placeholder="Enter additional details related to patient information"
+            placeholder={
+              isDiagnosis
+                ? "Enter additional details related to patient information"
+                : "Write remarks"
+            }
             value={diagnosisNotes}
             onChange={onChange}
             className="textareaPlaceholder"
