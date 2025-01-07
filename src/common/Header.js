@@ -555,7 +555,7 @@ function Header({ locationPath }) {
         label: (
           <>
             <div className="me-3">
-              {profile?.um_image ? (
+              {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
                 <img
                   src={profile?.um_image ?? defaultprofile}
                   alt="Profile"
@@ -625,22 +625,6 @@ function Header({ locationPath }) {
           </a>
         ),
         key: "5",
-      },
-      {
-        label:
-          <a onClick={() => ["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : setUpWebsiteUrl(1)}>
-            <div className="title-common me-5 d-flex align-items-center">
-              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
-              {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{filter: 'brightness(0%)'}} alt="" />}
-              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
-              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) && <div className="gradientBackground d-flex">
-                <div className="demoModeIndicatorSmall bg-danger" />
-                <span className='demoModeLabel'>Demo mode</span>
-              </div>}
-            </div>
-            <i className="icon-right iconrotate180"></i>
-          </a>,
-        key: '7',
       },
       // {
       //   label:
@@ -950,7 +934,7 @@ function Header({ locationPath }) {
             overlayClassName="prfile-dropdown"
           >
             <a onClick={(e) => e.preventDefault()}>
-              {profile?.um_image ? (
+              {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
                 <img
                   src={profile?.um_image ?? defaultprofile}
                   alt="Profile"
