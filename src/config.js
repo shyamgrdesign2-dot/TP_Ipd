@@ -46,5 +46,6 @@ export default {
   searchengine_url: env.searchengine_url,
   razorPay_key: env.razorPay_key,
   lite_api_key: env.lite_api_key,
-  lite_secret_key: env.lite_secret_key
+  lite_secret_key: env.lite_secret_key,
+  gen_rx_api_url: env.gen_rx_api_url,
 };
