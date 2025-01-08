@@ -75,16 +75,22 @@ function SidebarDoctor() {
 
     const clickOldModule = (moduleName) => {
         SSO_TO_PM().then(async (data) => {
-            if (data.success == 200) {
-                if (!isChrome && !isSafari) {
-                    navigate(`/?url=${data.url}&module=${moduleName}&key=phpRedirect`, { replace: true })
-                    navigate(0, { replace: true });
-                } else {
-                    await window.open(`${data.url}&module=${moduleName}`)
+
+            if (moduleName === "opd_billing"){
+              navigate("/billing-dashboard");;
+            } else{
+                if (data.success == 200) {
+                    if (!isChrome && !isSafari) {
+                        navigate(`/?url=${data.url}&module=${moduleName}&key=phpRedirect`, { replace: true })
+                        navigate(0, { replace: true });
+                    } else {
+                        await window.open(`${data.url}&module=${moduleName}`)
+                    }
                 }
             }
         });
     }
+
     async function SSO_TO_PM() {
         try {
             const sendData = {
@@ -243,7 +249,7 @@ function SidebarDoctor() {
                     </NavLink>
                     
                     {profile && profile?.module_data?.map((item, i) => {
-                    const isHovered = hoveredItem === i;
+                        const isHovered = hoveredItem === i;
                         return (
                             <NavLink key={i} onClick={() => clickOldModule(item.type)} replace={true} className={({ isActive, isPending }) =>
                             isHovered ? "" : isPending ? "pending" : isActive ? "" : "active"
