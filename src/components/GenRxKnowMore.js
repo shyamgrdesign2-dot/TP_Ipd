@@ -12,6 +12,7 @@ import VideoModal from "../common/VideoModal";
 import Slider from "react-slick"; // Using react-slick for the carousel
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import GenRxTips from "./GenRxTips";
 
 const { TabPane } = Tabs;
 
@@ -247,7 +248,7 @@ const GenRxKnowMore = ({ handleDDxKnowMore }) => {
           <div className="know-more-section-tilte">
             Tips to dictate/write an Rx for better Rx Digitisation
           </div>
-          <Carousel />
+          <GenRxTips />
           <div
             style={{ padding: "40px 0 80px 0", textAlign: "center" }}
             className="disclaimer-txt"
