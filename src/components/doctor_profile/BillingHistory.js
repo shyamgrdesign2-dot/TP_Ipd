@@ -8,6 +8,7 @@ import billingsIcon from "../../assets/images/billings.svg";
 import { fetchSubscriptionDetails } from "../../redux/subscriptionSlice";
 import saveAs from "file-saver";
 import axios from "axios";
+import { getClinicName } from "../../utils/utils";
 
 const styles = {
   table: {
@@ -18,6 +19,7 @@ const styles = {
 
 const SubscriptionTable = () => {
   const { planDetails } = useSelector((state) => state.subscription);
+  const { profile } = useSelector((state) => state.doctors);
   const { billingHistory = [], totalPages } = planDetails || {};
   const [pagination, setPagination] = useState({
     current: 0,
@@ -128,14 +130,20 @@ const SubscriptionTable = () => {
         record?.status === "APPROVED" &&
         (record?.invoice || record?.paymentReceipt) ? (
           <div
-            onClick={() =>
+            onClick={() => {
+              const clinic_name = getClinicName(profile?.hospital_data);
+              window.Moengage.track_event("DownloadInvoice_Click", {
+                doctor_id: profile?.doctor_unique_id,
+                clinic_name,
+                txId: record?.txId,
+              });
               handleDownload(
                 record?.paymentType === "PARTIAL"
                   ? record?.paymentReceipt
                   : record?.invoice,
                 record?.paymentType === "PARTIAL" ? "Receipt" : "Invoice"
-              )
-            }
+              );
+            }}
             style={{ cursor: "pointer" }}
           >
             <DownloadOutlined className="custom-icon" />

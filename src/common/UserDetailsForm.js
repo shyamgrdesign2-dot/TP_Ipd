@@ -5,6 +5,7 @@ import config from "../config";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSubscriptionDetails } from "../redux/subscriptionSlice";
 import { closeModal } from "../redux/doctorModalSlice";
+import { getClinicName } from "../utils/utils";
 
 const UserDetailsForm = () => {
   const [form] = Form.useForm();
@@ -29,6 +30,11 @@ const UserDetailsForm = () => {
   const [loader, setLoader] = useState(false);
 
   const onFinish = async () => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    window.Moengage.track_event("InterestSubmitted_Click", {
+      doctor_id: profile?.doctor_unique_id,
+      clinic_name,
+    });
     setLoader(true);
     const res = await api.post("/user/pm/info/interest", formData, {
       customBaseUrl: config.user_management_api_url,
