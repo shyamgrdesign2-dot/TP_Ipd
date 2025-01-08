@@ -4,9 +4,12 @@ import { useDispatch, useSelector } from "react-redux";
 import crownIcon from "../assets/images/crown.svg";
 import { openModal } from "../redux/doctorModalSlice";
 import { fetchSubscriptionDetails } from "../redux/subscriptionSlice";
+import { getClinicName } from "../utils/utils";
 
 const DemoExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
+  const { profile } = useSelector((state) => state.doctors);
+
   const {
     currentPlanStatus,
     expiry_reminder_days,
@@ -20,6 +23,11 @@ const DemoExpirationBanner = () => {
   }, [dispatch]);
 
   const handleClick = () => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    window.Moengage.track_event("BuyPlanNow_Click", {
+      doctor_id: profile?.doctor_unique_id,
+      clinic_name,
+    });
     dispatch(openModal());
   };
 

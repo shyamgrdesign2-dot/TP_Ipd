@@ -15,6 +15,7 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         mbl_no: token?.result?.mobile_no,
         page: data?.current || 0,
         size: data?.pageSize || 5,
+        clinic_id: token?.result?.clinic_id,
       },
       {
         customBaseUrl: config.user_management_api_url,
@@ -29,6 +30,8 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         plan_active_date,
         plan_expiry_date,
         planStatus: { code: currentPlanStatus = "" },
+      } = response?.body?.clinic;
+      const {
         lastPlanStatus: { code: lastPlanStatus = "" } = {
           code: "",
         },
@@ -41,10 +44,13 @@ export const fetchSubscriptionDetails = createAsyncThunk(
       } = response?.body?.profile;
 
       return {
-        plan_active_date,
-        plan_expiry_date,
+        plan_active_date:
+          plan_active_date || response?.body?.profile?.plan_active_date,
+        plan_expiry_date:
+          plan_expiry_date || response?.body?.profile?.plan_expiry_date,
         lastPlanStatus,
-        currentPlanStatus,
+        currentPlanStatus:
+          currentPlanStatus || response?.body?.profile?.planStatus?.code,
         last_plan_active_date,
         last_plan_expiry_date,
         productType,
