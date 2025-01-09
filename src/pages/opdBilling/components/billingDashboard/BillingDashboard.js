@@ -11,6 +11,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { setUserId } from "../../../../redux/doctorsSlice";
 import { getClinicName } from "../../../../utils/utils";
+import WelcomeBillingDashboard from "./WelcomeBillingDashboard";
 
 
 function BillingDashboard() {
@@ -43,12 +44,9 @@ function BillingDashboard() {
     <>
       <Header locationPath={locationPath} />
       <div className="d-flex">
-        <SidebarDoctor />
+        <SidebarDoctor activeItem={"opd-billing"}/>
         <div className="w-100 bg-body wrapper">
-            <Welcome
-              locationPath={locationPath}
-              backVisible={true}
-            />
+            <WelcomeBillingDashboard />
         </div>
       </div>
     </>
