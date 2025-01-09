@@ -71,7 +71,7 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
             });
         });
         if (searchChildQuery.length > 0) {
-            searchChildQuery &&
+            searchChildQuery && childOptionsList.findIndex(e => e.tds_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 &&
                 data.push({
                     key: JSON.stringify({
                         unique_id: uuidv4(),
