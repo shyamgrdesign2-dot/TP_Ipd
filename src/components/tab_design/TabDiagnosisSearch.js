@@ -75,6 +75,7 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
                 data.push({
                     key: JSON.stringify({
                         unique_id: uuidv4(),
+                        change: 1,
                         tds_id: 0,
                         tds_name: searchChildQuery,
                         pms_default: 0
@@ -555,7 +556,8 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
                                             childSearchOptions.length > 0 &&
                                             childSearchOptions.filter(e => ![...diagnosisData.map(e1 => e1.tds_name)].includes(e.value)).map((item, i) => {
                                                 return (
-                                                    i === childSearchOptions.length - 1 ? (
+                                                    // i === childSearchOptions.length - 1 ? (
+                                                    JSON.parse(item.key).change === 1 ? (
                                                         <Button
                                                             key={i}
                                                             type="text"

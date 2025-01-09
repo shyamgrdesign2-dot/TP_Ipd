@@ -375,7 +375,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                 symptoms: symptomsData.map(({ symptom_name, change }) => ({ symptom_name, ...(change !== undefined && { change }) })),
                 examination: examinationData.map(({ examination_name, change }) => ({ examination_name, ...(change !== undefined && { change }) })),
                 surgeries: surgeriesData.map(({ name, change, masterId, notes }) => ({ name, masterId, notes, ...(change !== undefined && { change }) })),
-                diagnosis: diagnosisData.map(({ tds_id, tds_name, status, pms_default }) => ({ tds_id, tds_name, status, pms_default })),
+                diagnosis: diagnosisData.map(({ tds_id, tds_name, status, pms_default, change }) => ({ tds_id, tds_name, status, pms_default, ...(change !== undefined && { change }) })),
                 medicine: updatedMedication,
                 advice: adviceData.map(({ advice_name, change }) => ({ advice_name, ...(change !== undefined && { change }) })),
                 investigation: investigationData.map(({ investigation_name, change }) => ({ investigation_name, ...(change !== undefined && { change }) })),
@@ -415,7 +415,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
             if (diagnosisData.length > 0) {
                 const fetchDiagnosisList = action.payload.diagnosis
                 const updatedData = diagnosisData.map((e, i) => {
-                    return { ...e, ...fetchDiagnosisList[i] }
+                    return { ...e, ...fetchDiagnosisList[i], change: 0 }
                 })
                 setDiagnosisData(updatedData)
             }
