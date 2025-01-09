@@ -217,7 +217,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         }, 1000);
     
         return () => clearTimeout(timeOutId);
-    }, [labParamsResults, existingResults, searchQuery]);
+    }, [labParamsResults, existingResults, searchQuery, dates]);
 
     const combineData = (currentFilledData, filledData) => {
         const combinedResults = [...filledData];
@@ -369,106 +369,132 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     
         // Case 1: No existing results
         if (existingResults.length === 0) {
-            if (labParamsResults.length === 0) {
-                // No labParamsResults: return default data
-                const newEntry = {
-                    date: new Date().toISOString().split('T')[0],
-                    inputs: [...defaultTestData]
-                };
+          if (labParamsResults.length === 0) {
 
-                // Call function to add 'Remarks'
-                addRemarksToUniqueReportNames(newEntry.inputs);
-                tempResults.push(newEntry);
-            } else {
-                // LabParamsResults exist: create new entry with current date
-                const newEntry = {
-                    date: new Date().toISOString().split('T')[0],
-                    inputs: labParamsResults.map(lab => ({
-                        reportName: lab.reportName || "",
-                        testName: lab.testName || "",
-                        value: "",
-                        units: lab.units || "",
-                        arrowDirection: "",
-                        refRange: lab.refRange || "",
-                    }))
-                };
+              // No labParamsResults: create entries for all dates using default data
+              const allDates = dates.length > 0 ? dates : [new Date().toISOString().split('T')[0]];
+              
+              allDates.forEach((date) => {
+                  const newEntry = {
+                      date,
+                      inputs: [...defaultTestData],
+                  };
 
-                // Call function to add 'Remarks'
-                addRemarksToUniqueReportNames(newEntry.inputs);
-                tempResults.push(newEntry);
-            }
-            return tempResults;
+                  // Add 'Remarks' to each entry
+                  addRemarksToUniqueReportNames(newEntry.inputs);
+                  tempResults.push(newEntry);
+              });
+
+              // const newEntry = {
+              //   date: new Date().toISOString().split('T')[0],
+              //   inputs: [...defaultTestData]
+              // };
+
+              //   // Call function to add 'Remarks'
+              //   addRemarksToUniqueReportNames(newEntry.inputs);
+              //   tempResults.push(newEntry);
+          } else {
+              // LabParamsResults exist: create entries for all dates
+              const allDates = dates.length > 0 ? dates : [new Date().toISOString().split('T')[0]];
+              
+              allDates.forEach((date) => {
+                  const newEntry = {
+                      date,
+                      inputs: labParamsResults.map((lab) => ({
+                          reportName: lab.reportName || "",
+                          testName: lab.testName || "",
+                          value: "",
+                          units: lab.units || "",
+                          arrowDirection: "",
+                          refRange: lab.refRange || "",
+                      })),
+                  };
+
+                  // Add 'Remarks' to each entry
+                  addRemarksToUniqueReportNames(newEntry.inputs);
+                  tempResults.push(newEntry);
+              });
+          }
+          return tempResults;
         }
+
     
         // Case 2: Existing results present
         if (existingResults.length > 0) {
-            if (labParamsResults.length > 0) {
-                existingResults.forEach(entry => {
-                    const newEntry = {
-                        date: entry.date,  // Keep existing date
-                        inputs: labParamsResults.map(lab => {
-                            const existingInput = entry.inputs.find(input =>
-                                input.testName === lab.testName && input.reportName === lab.reportName
-                            );
 
-                            const labInput = {
-                            reportName: lab.reportName || "",
-                            testName: lab.testName || "",
-                            value: existingInput ? existingInput.value : "",  // Retain value if exists
-                            units: lab.units || "",
-                            arrowDirection: existingInput ? existingInput.arrowDirection : "",
-                            refRange: lab.refRange || "",
-                            };
+          // Iterate over all existing results
+          if (labParamsResults.length > 0) {
+              dates.forEach((currentDate) => {
+                  const existingEntry = existingResults.find((entry) => entry.date === currentDate);
 
-                            return labInput;
-                        })
-                    };
+                  const newEntry = {
+                      date: currentDate, // Use the current date from the loop
+                      inputs: labParamsResults.map((lab) => {
+                          const existingInput = existingEntry?.inputs.find(
+                              (input) =>
+                                  input.testName === lab.testName &&
+                                  input.reportName === lab.reportName
+                          );
 
-                    // Call function to add 'Remarks'
-                    addRemarksToUniqueReportNames(newEntry.inputs);
+                          return {
+                              reportName: lab.reportName || "",
+                              testName: lab.testName || "",
+                              value: existingInput ? existingInput.value : "", // Retain value if exists
+                              units: lab.units || "",
+                              arrowDirection: existingInput ? existingInput.arrowDirection : "",
+                              refRange: lab.refRange || "",
+                          };
+                      }),
+                  };
 
-                    tempResults.push(newEntry);
-                });
+                  // Call function to add 'Remarks'
+                  addRemarksToUniqueReportNames(newEntry.inputs);
 
-                return tempResults;
-            }
+                  tempResults.push(newEntry);
+              });
+              return tempResults;
+          }
 
-            // Append predefined lab parameters if not already present
-            if (defaultTestData?.length > 0) {
-                existingResults.forEach((entry) => {
-                    const newEntry = {
-                        date: entry.date,
-                        inputs: [...entry.inputs]
-                    };
+          // Append predefined lab parameters if not already present
+          if (defaultTestData?.length > 0) {
+              dates.forEach((currentDate) => {
+                  const existingEntry = existingResults.find((entry) => entry.date === currentDate);
 
-                    defaultTestData.forEach((lab) => {
-                        const existingInput = newEntry.inputs.find(
-                            input => input.testName === lab.testName && input.reportName === lab.reportName
-                        );
+                  const newEntry = {
+                      date: currentDate,
+                      inputs: existingEntry ? [...existingEntry.inputs] : [],
+                  };
 
-                        if (!existingInput) {
-                            newEntry.inputs.push({
-                                reportName: lab.reportName || "",
-                                testName: lab.testName || "",
-                                value: "",
-                                units: lab.units || "",
-                                arrowDirection: "",
-                                refRange: lab.refRange || "",
-                                recentlyUpdated: true // Mark predefined data as newly added
-                            });
-                        }
-                    });
+                  defaultTestData.forEach((lab) => {
+                      const existingInput = newEntry.inputs.find(
+                          (input) =>
+                              input.testName === lab.testName &&
+                              input.reportName === lab.reportName
+                      );
 
-                    // Call function to add 'Remarks'
-                    addRemarksToUniqueReportNames(newEntry.inputs);
+                      if (!existingInput) {
+                          newEntry.inputs.push({
+                              reportName: lab.reportName || "",
+                              testName: lab.testName || "",
+                              value: "",
+                              units: lab.units || "",
+                              arrowDirection: "",
+                              refRange: lab.refRange || "",
+                              recentlyUpdated: true, // Mark predefined data as newly added
+                          });
+                      }
+                  });
 
-                    tempResults.push(newEntry);
-                });
+                  // Call function to add 'Remarks'
+                  addRemarksToUniqueReportNames(newEntry.inputs);
 
-                return tempResults;
-            }
+                  tempResults.push(newEntry);
+              });
+
+              return tempResults;
+          }
         }
-    
+
         return existingResults; // Fallback: return existing results if nothing changes
     };
 
@@ -1234,7 +1260,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                             }}
                                           ></i>
                                         </Tooltip>
-                                    )}
+                                      )}
                                     </td>
 
                                     <td
@@ -1274,12 +1300,12 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                   }}
                                                   type="text"
                                                   className={`lab-params-input
-                                              ${
-                                                inputValues[reportName][testName][date]
-                                                  ?.arrowDirection !== "" && inputValues[reportName][testName][date]?.value
-                                                  ? "lab-params-intput-warning"
-                                                  : ""
-                                              }`}
+                                                  ${
+                                                    inputValues[reportName][testName][date]
+                                                      ?.arrowDirection !== "" && inputValues[reportName][testName][date]?.value
+                                                      ? "lab-params-intput-warning"
+                                                      : ""
+                                                  }`}
                                                   value={inputValues[reportName][testName][date]?.value || ""}
                                                   suffix={
                                                     inputValues[reportName][testName][date]?.arrowDirection === "up" ? (
@@ -1319,18 +1345,20 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                       </span>
                                                     </div>
                                                   }
-                                                  onChange={(e) =>
+                                                  onChange={(e) => {
+                                                    const refRange = inputValues[reportName][testName][date]?.refRange;
+                                                    const shouldTrim = refRange?.min || refRange?.max;
                                                     handleInputChange(
                                                       reportName,
                                                       testName,
                                                       date,
-                                                      e.target.value.trim()
-                                                    )
-                                                  }
+                                                      shouldTrim ? e.target.value.trim() : e.target.value
+                                                    );
+                                                  }}
                                                 />
-                                              </div>
-                                            )}
-                                          </div>
+                                                </div>
+                                              )}
+                                            </div>
                                         ))}
                                       </div>
                                     </td>
