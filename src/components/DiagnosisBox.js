@@ -35,6 +35,7 @@ import {
   getFrequentlySearchedDiagnosis,
   searchDiagnosis,
   getLoadPreviousDiagnosis,
+  singleTemplateDetails,
 } from "../redux/diagnosisSlice";
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -162,10 +163,11 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
         ),
       });
     } else {
-      searchParentQuery &&
+      searchParentQuery && parentOptionsList.findIndex(e => e.tds_name?.toLowerCase()?.trim() == searchParentQuery?.toLowerCase()?.trim()) === -1 &&
         data.push({
           key: JSON.stringify({
             unique_id: uuidv4(),
+            change: 1,
             tds_id: 0,
             tds_name: searchParentQuery,
             pms_default: 0,
@@ -239,11 +241,12 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
         label: <div>{e.tds_name}</div>,
       });
     });
-    if (searchChildQuery?.query) {
+    if (searchChildQuery?.query && childOptionsList.findIndex(e => e.tds_name?.toLowerCase()?.trim() == searchChildQuery?.query?.toLowerCase()?.trim()) === -1) {
       data.push({
         key: JSON.stringify({
           ...diagnosisData[searchChildQuery.index],
           unique_id: uuidv4(),
+          change: 1,
           tds_id: 0,
           tds_name: searchChildQuery.query,
           pms_default: 0,
@@ -271,9 +274,9 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
       const updateQuery = removeBeforeWhiteSpace(query)
       diagnosisData[i] = {
         ...diagnosisData[i],
+        change: 1,
         tds_id: 0,
-        tds_name: updateQuery,
-        pms_default: 0,
+        tds_name: updateQuery
       };
       setDiagnosisData((prev) => [...prev]);
       setSearchChildQuery({ query: updateQuery, index: i });
@@ -386,12 +389,15 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
     }
   };
 
-  const onTemplateSelected = (template) => {
-    const updatedData = template.diagnosis.map(e => {
-      return { ...e, unique_id: uuidv4(), since: "", status: "", note: e.note ? e.note : "" }
-    })
-    setDiagnosisData([...diagnosisData, ...updatedData]);
-    showHideTemplatesListPopover();
+  const onTemplateSelected = async (template) => {
+    const action = await dispatch(singleTemplateDetails(template.tdt_id));
+    if (action.meta.requestStatus === "fulfilled") {
+      const updatedData = action?.payload;
+      setDiagnosisData([...diagnosisData, ...updatedData]);
+      showHideTemplatesListPopover();
+    } else {
+      errorMessage(action.error)
+    }
   };
 
   const onDeleteTemplateClicked = async (tdt_id) => {
@@ -644,6 +650,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
                               placeholder="Diagnosis Name"
                               bordered={false}
                               defaultOpen={false}
+                              disabled={item?.pms_default ? true : false}
                               onSearch={(query) => onSearchChild(query, index)}
                               onFocus={() => onFocusChid(index)}
                               options={childSearchOptions}
@@ -753,12 +760,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
                   >
                     <div className="title text-main2">{template.tdt_template_name}</div>
                     <div className="text-truncate">
-                      {template.diagnosis.map((item, ii) => {
-                        return (
-                          <span key={ii}>{`${item.tds_name}${template.diagnosis.length - 1 != ii ? ", " : ""
-                            }`}</span>
-                        );
-                      })}
+                      <span>{template.diagnosis}</span>
                     </div>
                   </div>
                   <Button
@@ -849,12 +851,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
                   <div className="text-truncate w-100">
                     <div className="title text-main2">{option.data.value}</div>
                     <div className="text-truncate">
-                      {JSON.parse(option.data.key).diagnosis.map((item, ii) => {
-                        return (
-                          <span key={ii}>{`${item.tds_name}${JSON.parse(option.data.key).diagnosis.length - 1 != ii ? ", " : ""
-                            }`}</span>
-                        );
-                      })}
+                      <span>{JSON.parse(option.data.key).diagnosis}</span>
                     </div>
                   </div>
                 </div>

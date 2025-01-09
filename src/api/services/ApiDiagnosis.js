@@ -2,6 +2,7 @@ import api from "./axiosService";
 import config from '../../config';
 
 const baseUrl = { customBaseUrl: config.diagnosis_api_url }
+const baseSearchEngineUrl = { customBaseUrl: config.searchengine_url };
 
 const ApiDiagnosis = {};
 
@@ -22,7 +23,7 @@ ApiDiagnosis.getDiagnosisTemplates = function (query) {
 };
 
 ApiDiagnosis.getFrequentlySearchedDiagnosis = function () {
-    return api.get(`/api/v1/diagnosis/frequentlyDiagnosis`, baseUrl);
+    return api.get(`/api/v1/diagnosis/frequentlyDiagnosis`, baseSearchEngineUrl);
 };
 
 // ApiDiagnosis.getFrequentlySearchedDiagnosis = function () {
@@ -32,9 +33,13 @@ ApiDiagnosis.getFrequentlySearchedDiagnosis = function () {
 // };
 
 ApiDiagnosis.searchDiagnosis = function (query) {
-    return api.post(`/api/v1/diagnosis/searchDiagnosis`, {
+    return api.post(`/api/v1/diagnosis/search`, {
         search: query
-    }, baseUrl);
+    }, baseSearchEngineUrl);
+};
+
+ApiDiagnosis.singleTemplateDetails = function (templateId) {
+    return api.get(`/api/v1/diagnosis/singleTemplateDetails/${templateId}`, baseUrl);
 };
 
 ApiDiagnosis.getLoadPreviousDiagnosis = function (data) {
