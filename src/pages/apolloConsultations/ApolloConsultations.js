@@ -251,6 +251,30 @@ const ConsultationDetailsPage = () => {
       dataIndex: "dynamicModules",
       key: "crossConsult",
       render: (dynamicModules) =>
+        dynamicModules?.[1]?.content?.length > 0 ? (
+          <Button
+            type="link"
+            style={{ color: "#4B4AD5" }}
+            onClick={() => {
+              setModalContent({
+                title: dynamicModules?.[1]?.name,
+                list: dynamicModules?.[1]?.content?.map((item) => item.title),
+              });
+              setVisibleModal(true);
+            }}
+            className="show-more-link"
+          >
+            View
+          </Button>
+        ) : (
+          ""
+        ),
+    },
+    {
+      title: "Vaccination Packages",
+      dataIndex: "dynamicModules",
+      key: "vaccinePackages",
+      render: (dynamicModules) =>
         dynamicModules?.[0]?.content?.length > 0 ? (
           <Button
             type="link"
@@ -270,30 +294,6 @@ const ConsultationDetailsPage = () => {
           ""
         ),
     },
-    // {
-    //   title: "Vaccination Packages",
-    //   dataIndex: "dynamicModules",
-    //   key: "vaccinePackages",
-    //   render: (dynamicModules) =>
-    //     dynamicModules?.[1]?.content?.length > 0 ? (
-    //       <Button
-    //         type="link"
-    //         style={{ color: "#4B4AD5" }}
-    //         onClick={() => {
-    //           setModalContent({
-    //             title: dynamicModules?.[1]?.name,
-    //             list: dynamicModules?.[1]?.content?.map((item) => item.title),
-    //           });
-    //           setVisibleModal(true);
-    //         }}
-    //         className="show-more-link"
-    //       >
-    //         View
-    //       </Button>
-    //     ) : (
-    //       ""
-    //     ),
-    // },
     {
       title: "Remarks",
       key: "remarks",
