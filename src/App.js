@@ -43,6 +43,7 @@ import ApolloConsultations from "./pages/apolloConsultations/ApolloConsultations
 import AuthContainer from "./pages/auth/auth";
 import GenRxPrescriptionPrintView from "./pages/GenRxPrescriptionPrintView";
 import BillingDashboard from "./pages/opdBilling/components/billingDashboard/BillingDashboard";
+import PreviewBill from "./pages/opdBilling/PreviewBill";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -166,6 +167,7 @@ function App() {
                 <Route path="apollo-consultations" element={<ApolloConsultations />} />
                 <Route path="gen-rx-print" element={<GenRxPrescriptionPrintView />} />
                 <Route path="billing-dashboard" element={<BillingDashboard />} />
+                <Route path="preview-bill" element={<PreviewBill />} />
 
                 {/* Auth Route */}
                 <Route path="/login" element={<AuthContainer />} />

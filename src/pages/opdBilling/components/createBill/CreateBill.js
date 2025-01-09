@@ -16,6 +16,10 @@ import { useCallback, useEffect, useState } from "react";
 import DiagnosisNotes from "../../../obstetric/components/diagnosisNotes/DiagnosisNotes";
 import { removeBeforeWhiteSpace } from "../../../../utils/utils";
 import ServiceItemPopup from "../serviceItemPopup/ServiceItemPopup";
+import "./CreateBill.scss";
+import RefIdPopup from "../refIdPopup/RefIdPopup";
+import ReadMore from "../../../../common/ReadMore";
+import { useNavigate } from "react-router-dom";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -24,10 +28,11 @@ const CreateBill = ({
   showHideBackModal,
   onSave,
 }) => {
-  const { Option } = Select;
+  const navigate = useNavigate();
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
   const [patientDiagnosisNotes, setPatientDiagnosisNotes] = useState("");
   const [searchCustomSelected, setSearchCustomSelected] = useState(null);
+  const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
   const [dataSource, setDataSource] = useState([
     {
       key: "1",
@@ -169,8 +174,7 @@ const CreateBill = ({
           defaultActiveFirstOption={true}
         >
           <Input
-            placeholder="Search & add new vaccine"
-            prefix={<i className="icon-search" />}
+            placeholder="Search & add new item"
             onBlur={() => handleAddNewItem(record.item, record.key)}
             onChange={(e) =>
               handleInputChange(e.target.value, record.key, "item")
@@ -261,12 +265,12 @@ const CreateBill = ({
   ];
 
   const [paymentModes, setPaymentModes] = useState([
-    { mode: "Cash", amount: 850 },
+    { mode: "Cash", amount: 850, refId: "" },
   ]);
 
-  const handleModeChange = (value, index) => {
+  const handleModeChange = (value, index, type) => {
     const updatedModes = [...paymentModes];
-    updatedModes[index].mode = value;
+    updatedModes[index][type] = value;
     setPaymentModes(updatedModes);
   };
 
@@ -367,7 +371,7 @@ const CreateBill = ({
                 <Button
                   type="button"
                   className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-                  onClick={handleCreateBillDrawer}
+                  onClick={() => navigate("/preview-bill")}
                 >
                   Save & Preview
                 </Button>
@@ -457,8 +461,8 @@ const CreateBill = ({
               height: "100%",
             }}
           >
-            <div className="d-flex h-100 gap-2">
-              <div className="p-4">
+            <div className="d-flex gap-2">
+              <div style={{ padding: "16px 16px 0px 0px" }}>
                 <div className="text-lg font-medium mb-2">
                   Paid Amount <span className="text-red-500">*</span>
                 </div>
@@ -472,41 +476,74 @@ const CreateBill = ({
                         <div className="absolute left-0 top-1/2 w-full h-0.5 bg-gray-300 -z-10"></div>
                       </div>
                     )}
-                    <div className="flex items-center gap-4 mb-3">
-                      <Select
-                        placeholder="Select"
-                        value={payment.mode}
-                        onChange={(value) => handleModeChange(value, index)}
-                        className="w-40"
-                      >
-                        <Option value="Cash">Cash</Option>
-                        <Option value="Card">Credit Card</Option>
-                        <Option value="Card">Debit Card</Option>
-                        <Option value="UPI">UPI</Option>
-                        <Option value="UPI">Cheque</Option>
-                        <Option value="Net Banking">Advance Deposit</Option>
-                        <Option value="Net Banking">Others</Option>
-                      </Select>
-                      <Input
-                        type="number"
-                        prefix="₹"
-                        value={payment.amount}
-                        onChange={(e) =>
-                          handleAmountChange(e.target.value, index)
-                        }
-                        className="w-40"
-                      />
-                      {paymentModes.length > 1 && (
-                        <Button
-                          className="btn btn-delete-prescription p-0"
-                          onClick={() => removePaymentMode(index)}
+                    <div className="flex align-items-center gap-4 mb-3">
+                      <div className="d-flex align-items-center">
+                        <div
+                          className="d-flex flex-column"
+                          style={{
+                            background: "rgba(75, 74, 213, 0.06)",
+                            borderRadius: 10,
+                          }}
                         >
-                          <i
-                            className="icon-delete"
-                            style={{ color: "#454551" }}
-                          />
-                        </Button>
-                      )}
+                          <div className="d-flex">
+                            <Select
+                              placeholder="Select"
+                              value={payment.lable}
+                              onChange={(value) =>
+                                handleModeChange(value, index, "mode")
+                              }
+                              className="payment-mode"
+                              dropdownStyle={{ width: 180 }}
+                              options={[
+                                { value: "Cash", label: "Cash" },
+                                { value: "Credit Card", label: "Credit Card" },
+                                { value: "Debit Card", label: "Debit Card" },
+                                { value: "UPI", label: "UPI" },
+                                { value: "Check", label: "Check" },
+                                {
+                                  value: "Advance Deposit",
+                                  label: "Advance Deposit",
+                                },
+                                { value: "Others", label: "Others" },
+                              ]}
+                            />
+                            <Input
+                              type="number"
+                              prefix="₹"
+                              value={payment.amount}
+                              onChange={(e) =>
+                                handleAmountChange(e.target.value, index)
+                              }
+                              className="w-40 payment-input"
+                            />
+                          </div>
+                          {payment.lable !== "Cash" && (
+                            <span
+                              className="show-more-link"
+                              style={{
+                                textAlign: "center",
+                                borderRadius: "0 0 10px 10px",
+                                height: 25,
+                                cursor: "pointer",
+                              }}
+                              onClick={() => setShowRefIdPopup(index)}
+                            >
+                              {payment?.refId ?? `Add ${payment.mode} Ref ID`}
+                            </span>
+                          )}
+                        </div>
+                        {paymentModes.length > 1 && (
+                          <Button
+                            className="btn btn-delete-prescription p-0"
+                            onClick={() => removePaymentMode(index)}
+                          >
+                            <i
+                              className="icon-delete"
+                              style={{ color: "#454551", marginLeft: 10 }}
+                            />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -560,17 +597,29 @@ const CreateBill = ({
               </div>
             </div>
 
-            <button
-              className="btn d-flex align-items-center btn-text"
-              style={{
-                color: "#4B4AD5",
-                fontWeight: "500",
-                paddingTop: "30px",
-              }}
-              onClick={handleDrawerDiagnosisNotes}
-            >
-              <i className={`icon-Add me-1 fs-5`} /> Add Notes
-            </button>
+            {patientDiagnosisNotes?.length === 0 ? (
+              <button
+                className="btn d-flex align-items-center btn-text"
+                style={{
+                  color: "#4B4AD5",
+                  fontWeight: "500",
+                  padding: "30px 0px",
+                }}
+                onClick={handleDrawerDiagnosisNotes}
+              >
+                <i className={`icon-Add me-1 fs-5`} /> Add Notes
+              </button>
+            ) : (
+              <div
+                className="d-flex justify-conetent-between"
+                style={{ paddingLeft: 14 }}
+              >
+                <ReadMore text={patientDiagnosisNotes} textLimit={60} />
+                <div onClick={handleDrawerDiagnosisNotes}>
+                  <i className="icon-Edit text-primary fs-16 cursor-pointer" />
+                </div>
+              </div>
+            )}
           </Col>
         </Row>
       </div>
@@ -578,6 +627,14 @@ const CreateBill = ({
         <ServiceItemPopup
           onCancel={() => setSearchCustomSelected(null)}
           title={"Add New Item"}
+        />
+      )}
+      {shouldShowRefIdPopup !== null && shouldShowRefIdPopup >= 0 && (
+        <RefIdPopup
+          index={shouldShowRefIdPopup}
+          refId={paymentModes[shouldShowRefIdPopup]?.refId}
+          showHideModal={() => setShowRefIdPopup(-1)}
+          handleModeChange={handleModeChange}
         />
       )}
       {diagnosisNotesDrawer && (
