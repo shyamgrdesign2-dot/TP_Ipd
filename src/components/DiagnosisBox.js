@@ -112,7 +112,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
   useEffect(() => {
     if (selectedDiagnosisList.length > 0) {
       const updatedData = diagnosisData.map((e, i) => {
-        return { ...e, ...selectedDiagnosisList[i] };
+        return { ...e, ...selectedDiagnosisList[i], change: 0 };
       });
       setDiagnosisData(updatedData);
     }

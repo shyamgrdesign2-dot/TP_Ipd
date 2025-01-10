@@ -92,7 +92,7 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
     useEffect(() => {
         if (selectedDiagnosisList.length > 0) {
             const updatedData = diagnosisData.map((e, i) => {
-                return { ...e, ...selectedDiagnosisList[i] };
+                return { ...e, ...selectedDiagnosisList[i], change: 0 };
             });
             setDiagnosisData(updatedData);
         }
