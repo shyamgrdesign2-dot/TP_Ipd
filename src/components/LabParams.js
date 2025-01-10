@@ -1347,12 +1347,17 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                   }
                                                   onChange={(e) => {
                                                     const refRange = inputValues[reportName][testName][date]?.refRange;
-                                                    const shouldTrim = refRange?.min || refRange?.max;
+                                                  
+                                                    // Check if any range in the ranges array has a non-empty min or max
+                                                    const hasMinOrMax = refRange?.ranges?.some(
+                                                      (range) => range.min?.trim() || range.max?.trim()
+                                                    );
+                                                  
                                                     handleInputChange(
                                                       reportName,
                                                       testName,
                                                       date,
-                                                      shouldTrim ? e.target.value.trim() : e.target.value
+                                                      hasMinOrMax ? e.target.value.trim() : e.target.value
                                                     );
                                                   }}
                                                 />
