@@ -17,9 +17,10 @@ import {
 import { Tabs, Select, Input } from "antd";
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import BillingTable from "./BillingTable/BillingTable";
-import AdvanceDeposit from "./AdvanceDeposit";
+import AdvanceDeposit from "./AdvanceDepositTable/AdvanceDeposit";
+import AdvanceDepositTable from "./AdvanceDepositTable/AdvanceDeposit";
 
-function TableBillingDashboard({ locationPath }) {
+function TableBillingDashboard({ onTabChange }) {
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,8 +65,10 @@ function TableBillingDashboard({ locationPath }) {
       setSelectedTab(key);
 
       if (key === 1) {
+        onTabChange("billingtable")
         setIsBillingTab(true);
       } else {
+        onTabChange("advancetable")
         setIsAdvanceDepositTab(false);
       }
     },
@@ -85,7 +88,7 @@ function TableBillingDashboard({ locationPath }) {
             {
                 selectedTab === 1 ?
                 <BillingTable/> :
-                <AdvanceDeposit/>
+                <AdvanceDepositTable/>
             }
         </div>
       </div>

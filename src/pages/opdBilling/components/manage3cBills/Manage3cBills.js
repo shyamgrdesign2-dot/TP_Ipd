@@ -1,94 +1,95 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
+  Button,
+  Drawer,
+  Popover,
+  Steps,
+  Radio,
+  DatePicker,
+  TimePicker,
   Select,
   Checkbox,
-  Row,
-  Col,
   Input,
-  DatePicker,
-  Button,
+  Spin,
+  message,
   Table,
-  Dropdown,
 } from "antd";
+import { Col, Container, Row } from "react-bootstrap";
+import { v4 as uuidv4 } from "uuid";
+import "./Manage3cBills.scss";
+
+import locale from "antd/es/date-picker/locale/en_US";
+
+import { useNavigate, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
 import dayjs from "dayjs";
-import "./BillingTable.scss";
+
+// import { errorMessage, onlyNumberFormat } from "../../../../utils/utils";
+// import { MESSAGE_KEY } from "../../../../utils/constants";
+
+// import VideoModal from "../../../../common/VideoModal";
+// import messageCorner from "../../../../assets/images/message-corner.svg";
+// import CreditImg from "../../../../assets/images/credit_icon.svg";
+// import tutorial from "../../../../assets/images/tutorial-icon.svg";
+// import messageCornerGrey from "../../../../assets/images/message-corner-grey.svg";
+// import alertIcon from "../../../../assets/images/alertIcon.svg";
+// import imgCloseVisit from "../../../../assets/images/close-visit.svg";
+// import visitEnd from "../../../../assets/images/end-visit.svg";
+
+// import AvailableCredits from "../../../../components/bulk_messages/AvailableCredits";
+// import CommonModal from "../../../../common/CommonModal";
+
 const { RangePicker } = DatePicker;
-
-const { Option } = Select;
-
-const doctorsList = [
-  { id: 1, name: "Doctor 1" },
-  { id: 2, name: "Doctor 2" },
-  { id: 3, name: "Doctor 3" },
-  { id: 4, name: "Doctor 4" },
-];
-
-const cards = [
-  {
-    id: 1,
-    title: "Total Paid Bill Amount (8)",
-    amount: "₹3,892/₹6,330",
-    color: "#5A6774",
-    fontColor: "#5A6774",
-  },
-  {
-    id: 2,
-    title: "Paid fully (4)",
-    amount: "₹1,500",
-    color: "#A5D6A7",
-    fontColor: "#3D8C40",
-  },
-  {
-    id: 3,
-    title: "Due (3)",
-    amount: "₹500",
-    color: "#FFCC80",
-    fontColor: "#ED8A00",
-  },
-  {
-    id: 4,
-    title: "Refunded (1)",
-    amount: "₹800",
-    color: "#EF9A9A",
-    fontColor: "#B73A3A",
-  },
-];
-
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-export default function BillingTable() {
-  const [selectedDoctors, setSelectedDoctors] = useState([]);
-  const [selectAll, setSelectAll] = useState(true);
-  const [pageNo, setPageNo] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [pickerModal, setPickerModal] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(1);
+const dateTimeFormat = "YYYY-MM-DD HH:mm:ss";
+const dateFormat1 = "YYYY-MM-DD";
+const timeFormat1 = "HH:mm:ss";
+
+const showDateTimeFormat = "DD MMM YYYY hh:mm A";
+const showDateFormat1 = "DD MMM YYYY";
+const showTimeFormat1 = "hh:mm A";
+
+const SELECT_AFTER = [
+  {
+    value: "Year",
+    label: "Year",
+  },
+  {
+    value: "Month",
+    label: "Month",
+  },
+];
+
+const GENDER = ["Male", "Female", "Other"];
+
+function Manage3cBill({ handleForm3cBill }) {
+  const {
+    loading,
+    userCreditObj,
+    categoryList,
+    allTemplateList,
+    templateLoading,
+    doctorList,
+    patientCount,
+  } = useSelector((state) => state.bulkMessages);
+  const { profile } = useSelector((state) => state.doctors);
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
   const [dateRange, setDateRange] = useState({
     startDate: moment().format(dateFormat),
     endDate: moment().format(dateFormat),
   });
   const [dateStatus, setDateStatus] = useState(1);
-
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      setSelectedDoctors(doctorsList.map((doctor) => doctor.id));
-    } else {
-      setSelectedDoctors([]);
-    }
-    setSelectAll(checked);
-  };
-
-  const handleDoctorSelection = (doctorId, checked) => {
-    if (checked) {
-      setSelectedDoctors([...selectedDoctors, doctorId]);
-    } else {
-      setSelectedDoctors(selectedDoctors.filter((id) => id !== doctorId));
-    }
-    setSelectAll(false); // Uncheck "All Doctors" if any specific doctor is selected
-  };
+  const [pageNo, setPageNo] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [pickerModal, setPickerModal] = useState(false);
 
   const onSearch = useCallback(
     (query) => {
@@ -102,13 +103,11 @@ export default function BillingTable() {
     setPickerModal(!pickerModal);
   }, [pickerModal]);
 
-  const disabledDate = (current) => {
-    return current && current > dayjs().endOf("day");
-  };
-
   const rangePresets = [
     {
-      label: <div className={`${dateStatus === 1 ? "active" : ""}`}>Today</div>,
+      label: (
+        <div className={`${dateStatus === 1 ? "active" : ""}`}>Till date</div>
+      ),
       value: [dayjs(), dayjs().endOf("day")],
     },
     {
@@ -122,6 +121,28 @@ export default function BillingTable() {
         <div className={`${dateStatus === 3 ? "active" : ""}`}>Last month</div>
       ),
       value: [dayjs().add(-1, "M"), dayjs()],
+    },
+    {
+      label: (
+        <div className={`${dateStatus === 4 ? "active" : ""}`}>
+          Last 3 month
+        </div>
+      ),
+      value: [dayjs().add(-3, "M"), dayjs()],
+    },
+    {
+      label: (
+        <div className={`${dateStatus === 5 ? "active" : ""}`}>
+          Last 6 month
+        </div>
+      ),
+      value: [dayjs().add(-6, "M"), dayjs()],
+    },
+    {
+      label: (
+        <div className={`${dateStatus === 6 ? "active" : ""}`}>Last 1 year</div>
+      ),
+      value: [dayjs().add(-1, "y"), dayjs()],
     },
     {
       label: (
@@ -162,6 +183,27 @@ export default function BillingTable() {
           moment(dateStrings[1], showDateFormat).format(dateFormat)
       ) {
         setDateStatus(3);
+      } else if (
+        dayjs().add(-3, "M").format(dateFormat) ==
+          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
+        dayjs().format(dateFormat) ==
+          moment(dateStrings[1], showDateFormat).format(dateFormat)
+      ) {
+        setDateStatus(4);
+      } else if (
+        dayjs().add(-6, "M").format(dateFormat) ==
+          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
+        dayjs().format(dateFormat) ==
+          moment(dateStrings[1], showDateFormat).format(dateFormat)
+      ) {
+        setDateStatus(5);
+      } else if (
+        dayjs().add(-1, "y").format(dateFormat) ==
+          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
+        dayjs().format(dateFormat) ==
+          moment(dateStrings[1], showDateFormat).format(dateFormat)
+      ) {
+        setDateStatus(6);
       } else {
         setDateStatus(null);
       }
@@ -178,15 +220,47 @@ export default function BillingTable() {
     }
   };
 
-  const onBillingDetailsClick = async (status, record) => {
-    if (status === 3) {
+  const disabledDate = (current) => {
+    // Disable dates before today and after 3 months from today
+    const today = moment().startOf("day");
+    const threeMonthsFromToday = today.clone().add(3, "months").endOf("day");
+    return (
+      current &&
+      (current.isBefore(today) || current.isAfter(threeMonthsFromToday))
+    );
+  };
 
-    } else {
-        
+  const disabledTime = (current) => {
+    if (!current) return {};
+    const now = moment();
+
+    // If the selected date is today, disable past hours and minutes
+    if (current.isSame(now, "day")) {
+      return {
+        disabledHours: () => [...Array(now.hour()).keys()], // Disable past hours
+        disabledMinutes: (selectedHour) =>
+          selectedHour === now.hour() ? [...Array(now.minute()).keys()] : [], // Disable past minutes for the current hour
+      };
     }
-}
+    return {};
+  };
+
+  // Back Model
+  const showHideBackModal = useCallback(() => {
+    setIsBackModalOpen(!isBackModalOpen);
+  }, [isBackModalOpen]);
 
   const columns = [
+    {
+      title: "Action",
+      key: "action",
+      width: 80,
+      render: (text, record) => (
+        <>
+          <Checkbox />
+        </>
+      ),
+    },
     {
       title: "#",
       dataIndex: "srno",
@@ -237,7 +311,8 @@ export default function BillingTable() {
             {record.mobile_number}
           </div>
         </div>
-      ),    },
+      ),
+    },
     {
       title: "TOTAL AMOUNT",
       dataIndex: "total_amount",
@@ -292,48 +367,7 @@ export default function BillingTable() {
       ellipsis: true,
       render: (text, record) => <div> {record.status} </div>,
     },
-    {
-      title: "Action",
-      key: "action",
-      width: 80,
-      render: (text, record) => (
-        <Dropdown
-          className="cursor-pointer"
-          menu={{
-            items: getMenuItems(record),
-          }}
-          trigger={["click"]}
-        >
-          <i className="icon-More"></i>
-        </Dropdown>
-      ),
-    },
   ];
-
-  const getMenuItems = (record) => {
-    const items = [
-        {
-            label: <div onClick={() => onBillingDetailsClick(1, record)}>View bill</div>,
-            key: "view_bill",
-        },
-        {
-            label: <div onClick={() => onBillingDetailsClick(2, record)}>Refund bill</div>,
-            key: 'refund_bill',
-        },
-        {
-            label: <div onClick={() => onBillingDetailsClick(3, record)}>Add to Form 3c</div>,
-            key: 'add_to_3c',
-        },
-    ];
-
-    if (record?.campaign_sent) {
-        return items.filter((item) => item.key !== "edit_campaign" && item.key !== "delete_campaign");
-    } else if (record?.edit_status) {
-        return items.filter((item) => item.key !== "edit_campaign");
-    } else {
-        return items;
-    }
-};
 
   const data = [
     {
@@ -346,7 +380,7 @@ export default function BillingTable() {
       total_amount: "₹5,000",
       paid_Amount: "₹3,000",
       status: "Pending",
-      mobile_number: "9930875752"
+      mobile_number: "9930875752",
     },
     {
       key: "2",
@@ -358,7 +392,7 @@ export default function BillingTable() {
       total_amount: "₹7,500",
       paid_Amount: "₹7,500",
       status: "Paid",
-      mobile_number: "9930875752"
+      mobile_number: "9930875752",
     },
     {
       key: "3",
@@ -370,7 +404,7 @@ export default function BillingTable() {
       total_amount: "₹6,000",
       paid_Amount: "₹0",
       status: "Unpaid",
-      mobile_number: "9930875752"
+      mobile_number: "9930875752",
     },
     {
       key: "4",
@@ -382,15 +416,40 @@ export default function BillingTable() {
       total_amount: "₹4,200",
       paid_Amount: "₹4,200",
       status: "Paid",
-      mobile_number: "9930875752"
+      mobile_number: "9930875752",
     },
   ];
 
   return (
-    <div>
-      <div className="appointment-data billing-table-wrapper">
+    <>
+      <div className="modalCard-header align-items-center d-flex justify-content-between manage-3c-bills-wrapper">
+        <div className="align-items-center d-flex">
+          <div className="border-end h-100 text-center">
+            <Button
+              className="btn btn-delete-prescription px-3 h-100"
+              onClick={handleForm3cBill}
+            >
+              <i className="icon-right lh-lg"></i>
+            </Button>
+          </div>
+          <div className="w-100 px-20 fs-16 fw-semibold">Form 3c Bill</div>
+        </div>
+        <div className="align-items-center d-flex gap-4 me-4">
+          <Button className="btn-manage-bill">
+            <span>{"+"}</span>
+            <span>{"Add New Bills to 3C"}</span>
+          </Button>
+          <Button className="btn-create-bill" disabled={true}>
+            <span>{"Print Form 3C"}</span>
+          </Button>
+        </div>
+      </div>
+      <div
+        className="bg-body overflow-y-auto pt-5 pb-4"
+        style={{ height: "calc(100vh - 60px)" }}
+      >
         <Row className="justify-content-between align-items-center my-2 px-4">
-          <Col xl={7} sm={5}>
+          <Col xl={4} sm={3}>
             <Input
               value={searchQuery}
               placeholder="Search by patient name / phone no / bill no"
@@ -404,67 +463,8 @@ export default function BillingTable() {
               onChange={(e) => onSearch(e.target.value)}
             />
           </Col>
-          <Col xl={7} sm={5}>
+          <Col xl={2} sm={1}>
             <div className="d-flex flex-row gap-2">
-              <div className="d-flex align-items-center">
-                <Select
-                  className=""
-                  dropdownRender={(menu) => (
-                    <div>
-                      {/* All Doctors Option */}
-                      <div style={{ padding: "10px" }}>
-                        <Checkbox
-                          checked={selectAll}
-                          onChange={(e) => handleSelectAll(e.target.checked)}
-                        >
-                          All Doctors
-                        </Checkbox>
-                      </div>
-                      <div
-                        style={{
-                          borderBottom: "1px solid #e8e8e8",
-                          margin: "8px 0",
-                        }}
-                      />
-                      {/* Custom Doctors */}
-                      <div
-                        style={{
-                          maxHeight: "200px",
-                          overflowY: "auto",
-                          padding: "8px",
-                        }}
-                      >
-                        {doctorsList.map((doctor) => (
-                          <div key={doctor.id} style={{ padding: "4px 0" }}>
-                            <Checkbox
-                              checked={selectedDoctors.includes(doctor.id)}
-                              onChange={(e) =>
-                                handleDoctorSelection(
-                                  doctor.id,
-                                  e.target.checked
-                                )
-                              }
-                            >
-                              {doctor.name}
-                            </Checkbox>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  value={
-                    selectAll
-                      ? "All Doctors"
-                      : `Selected (${selectedDoctors.length})`
-                  }
-                  style={{ width: "100%" }}
-                >
-                  {/* Empty Option for Placeholder */}
-                  <Option value="placeholder" disabled>
-                    Select Doctors
-                  </Option>
-                </Select>
-              </div>
               <div className="massage-date-wrapper">
                 <div
                   className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between"
@@ -547,30 +547,7 @@ export default function BillingTable() {
             </div>
           </Col>
         </Row>
-        <Row className="justify-content-between align-items-center px-4">
-          <div className="card-container">
-            {cards.map((card) => (
-              <div
-                key={card.id}
-                className={`card ${selectedCard === card.id ? "selected" : ""}`}
-                onClick={() => setSelectedCard(card.id)}
-                style={{
-                  borderColor: "transprent",
-                  // backgroundImage: `linear-gradient(to bottom, ${card.color} 5%, #FFFFFF 95%)`
-                  boxShadow: `inset 0 10px 20px ${card.color}40` /* Colored inner shadow */,
-                }}
-              >
-                <div
-                  className="card-title"
-                  style={{ "--dynamic-color": card.fontColor }}
-                >
-                  {card.title}
-                </div>
-                <div className="card-amount">{card.amount}</div>
-              </div>
-            ))}
-          </div>
-
+        <Row className="justify-content-between align-items-center px-4 m-2">
           <Table
             className="billing-table px-0"
             columns={columns}
@@ -580,6 +557,8 @@ export default function BillingTable() {
           />
         </Row>
       </div>
-    </div>
+    </>
   );
 }
+
+export default Manage3cBill;

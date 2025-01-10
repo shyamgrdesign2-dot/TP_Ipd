@@ -12,7 +12,7 @@ import {
 } from "antd";
 import moment from "moment";
 import dayjs from "dayjs";
-import "./BillingTable.scss";
+import "../AdvanceDepositTable/AdvanceDeposit.scss";
 const { RangePicker } = DatePicker;
 
 const { Option } = Select;
@@ -27,28 +27,14 @@ const doctorsList = [
 const cards = [
   {
     id: 1,
-    title: "Total Paid Bill Amount (8)",
-    amount: "₹3,892/₹6,330",
-    color: "#5A6774",
-    fontColor: "#5A6774",
+    title: "Total Advance Received (3)",
+    amount: "₹2000",
+    color: "#A461D8",
+    fontColor: "#A461D8",
   },
   {
     id: 2,
-    title: "Paid fully (4)",
-    amount: "₹1,500",
-    color: "#A5D6A7",
-    fontColor: "#3D8C40",
-  },
-  {
-    id: 3,
-    title: "Due (3)",
-    amount: "₹500",
-    color: "#FFCC80",
-    fontColor: "#ED8A00",
-  },
-  {
-    id: 4,
-    title: "Refunded (1)",
+    title: "Total Advance Refunded (1)",
     amount: "₹800",
     color: "#EF9A9A",
     fontColor: "#B73A3A",
@@ -58,9 +44,7 @@ const cards = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-export default function BillingTable() {
-  const [selectedDoctors, setSelectedDoctors] = useState([]);
-  const [selectAll, setSelectAll] = useState(true);
+export default function AdvanceDepositTable() {
   const [pageNo, setPageNo] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [pickerModal, setPickerModal] = useState(false);
@@ -71,24 +55,6 @@ export default function BillingTable() {
     endDate: moment().format(dateFormat),
   });
   const [dateStatus, setDateStatus] = useState(1);
-
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      setSelectedDoctors(doctorsList.map((doctor) => doctor.id));
-    } else {
-      setSelectedDoctors([]);
-    }
-    setSelectAll(checked);
-  };
-
-  const handleDoctorSelection = (doctorId, checked) => {
-    if (checked) {
-      setSelectedDoctors([...selectedDoctors, doctorId]);
-    } else {
-      setSelectedDoctors(selectedDoctors.filter((id) => id !== doctorId));
-    }
-    setSelectAll(false); // Uncheck "All Doctors" if any specific doctor is selected
-  };
 
   const onSearch = useCallback(
     (query) => {
@@ -180,11 +146,9 @@ export default function BillingTable() {
 
   const onBillingDetailsClick = async (status, record) => {
     if (status === 3) {
-
     } else {
-        
     }
-}
+  };
 
   const columns = [
     {
@@ -196,9 +160,9 @@ export default function BillingTable() {
       render: (text, record, index) => <div className="fs-14">{index + 1}</div>,
     },
     {
-      title: "BILL NO & DATE",
-      dataIndex: "bill_num_date",
-      key: "bill_num_date",
+      title: "RECEIPT NO & DATE",
+      dataIndex: "receipt_no_date",
+      key: "receipt_no_date",
       width: 200,
       sorter: (a, b) => {
         const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
@@ -233,11 +197,20 @@ export default function BillingTable() {
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
           <div className="fs-14">{record.patient_details}</div>
-          <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.mobile_number}
-          </div>
         </div>
-      ),    },
+      ),
+    },
+    {
+      title: "MOBILE NUMBER",
+      dataIndex: "mobile_number",
+      key: "mobile_number",
+      ellipsis: true,
+      render: (text, record) => (
+        <div className="cursor-pointer" onClick={async () => {}}>
+          <div className="fs-14">{record.mobile_number}</div>
+        </div>
+      ),
+    },
     {
       title: "TOTAL AMOUNT",
       dataIndex: "total_amount",
@@ -261,29 +234,6 @@ export default function BillingTable() {
       },
       onFilter: (value, record) => record.send_on.startsWith(value),
       render: (text, record) => <div> {record.total_amount} </div>,
-    },
-    {
-      title: "PAID AMOUNT",
-      dataIndex: "paid_Amount",
-      key: "paid_Amount",
-      ellipsis: true,
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
-      render: (text, record) => <div> {record.paid_Amount} </div>,
     },
     {
       title: "STATUS",
@@ -312,28 +262,40 @@ export default function BillingTable() {
 
   const getMenuItems = (record) => {
     const items = [
-        {
-            label: <div onClick={() => onBillingDetailsClick(1, record)}>View bill</div>,
-            key: "view_bill",
-        },
-        {
-            label: <div onClick={() => onBillingDetailsClick(2, record)}>Refund bill</div>,
-            key: 'refund_bill',
-        },
-        {
-            label: <div onClick={() => onBillingDetailsClick(3, record)}>Add to Form 3c</div>,
-            key: 'add_to_3c',
-        },
+      {
+        label: (
+          <div onClick={() => onBillingDetailsClick(1, record)}>View Receipt</div>
+        ),
+        key: "view_receipt",
+      },
+      {
+        label: (
+          <div onClick={() => onBillingDetailsClick(2, record)}>
+            Refund Receipt
+          </div>
+        ),
+        key: "refund_receipt",
+      },
+      {
+        label: (
+          <div onClick={() => onBillingDetailsClick(3, record)}>
+            Refund Advance
+          </div>
+        ),
+        key: "add_to_3c",
+      },
     ];
 
     if (record?.campaign_sent) {
-        return items.filter((item) => item.key !== "edit_campaign" && item.key !== "delete_campaign");
+      return items.filter(
+        (item) => item.key !== "edit_campaign" && item.key !== "delete_campaign"
+      );
     } else if (record?.edit_status) {
-        return items.filter((item) => item.key !== "edit_campaign");
+      return items.filter((item) => item.key !== "edit_campaign");
     } else {
-        return items;
+      return items;
     }
-};
+  };
 
   const data = [
     {
@@ -343,10 +305,10 @@ export default function BillingTable() {
       patient_details: "John Doe",
       bill_date: "15 Oct 2023",
       bill_time: "10:30 AM",
-      total_amount: "₹5,000",
-      paid_Amount: "₹3,000",
-      status: "Pending",
-      mobile_number: "9930875752"
+      total_amount: "₹5,00",
+      paid_Amount: "₹3,00",
+      status: "Advance",
+      mobile_number: "9930875752",
     },
     {
       key: "2",
@@ -355,10 +317,10 @@ export default function BillingTable() {
       patient_details: "Jane Smith",
       bill_date: "14 Oct 2023",
       bill_time: "02:45 PM",
-      total_amount: "₹7,500",
+      total_amount: "₹500",
       paid_Amount: "₹7,500",
-      status: "Paid",
-      mobile_number: "9930875752"
+      status: "Advance",
+      mobile_number: "9930875752",
     },
     {
       key: "3",
@@ -367,10 +329,10 @@ export default function BillingTable() {
       patient_details: "Michael Johnson",
       bill_date: "16 Oct 2023",
       bill_time: "11:15 AM",
-      total_amount: "₹6,000",
+      total_amount: "₹500",
       paid_Amount: "₹0",
-      status: "Unpaid",
-      mobile_number: "9930875752"
+      status: "Advance",
+      mobile_number: "9930875752",
     },
     {
       key: "4",
@@ -379,16 +341,16 @@ export default function BillingTable() {
       patient_details: "Emily Davis",
       bill_date: "13 Oct 2023",
       bill_time: "09:00 AM",
-      total_amount: "₹4,200",
+      total_amount: "₹500",
       paid_Amount: "₹4,200",
-      status: "Paid",
-      mobile_number: "9930875752"
+      status: "Advance",
+      mobile_number: "9930875752",
     },
   ];
 
   return (
     <div>
-      <div className="appointment-data billing-table-wrapper">
+      <div className="appointment-data advance-table-wrapper">
         <Row className="justify-content-between align-items-center my-2 px-4">
           <Col xl={7} sm={5}>
             <Input
@@ -404,67 +366,8 @@ export default function BillingTable() {
               onChange={(e) => onSearch(e.target.value)}
             />
           </Col>
-          <Col xl={7} sm={5}>
+          <Col xl={3} sm={5}>
             <div className="d-flex flex-row gap-2">
-              <div className="d-flex align-items-center">
-                <Select
-                  className=""
-                  dropdownRender={(menu) => (
-                    <div>
-                      {/* All Doctors Option */}
-                      <div style={{ padding: "10px" }}>
-                        <Checkbox
-                          checked={selectAll}
-                          onChange={(e) => handleSelectAll(e.target.checked)}
-                        >
-                          All Doctors
-                        </Checkbox>
-                      </div>
-                      <div
-                        style={{
-                          borderBottom: "1px solid #e8e8e8",
-                          margin: "8px 0",
-                        }}
-                      />
-                      {/* Custom Doctors */}
-                      <div
-                        style={{
-                          maxHeight: "200px",
-                          overflowY: "auto",
-                          padding: "8px",
-                        }}
-                      >
-                        {doctorsList.map((doctor) => (
-                          <div key={doctor.id} style={{ padding: "4px 0" }}>
-                            <Checkbox
-                              checked={selectedDoctors.includes(doctor.id)}
-                              onChange={(e) =>
-                                handleDoctorSelection(
-                                  doctor.id,
-                                  e.target.checked
-                                )
-                              }
-                            >
-                              {doctor.name}
-                            </Checkbox>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  value={
-                    selectAll
-                      ? "All Doctors"
-                      : `Selected (${selectedDoctors.length})`
-                  }
-                  style={{ width: "100%" }}
-                >
-                  {/* Empty Option for Placeholder */}
-                  <Option value="placeholder" disabled>
-                    Select Doctors
-                  </Option>
-                </Select>
-              </div>
               <div className="massage-date-wrapper">
                 <div
                   className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between"
@@ -555,14 +458,15 @@ export default function BillingTable() {
                 className={`card ${selectedCard === card.id ? "selected" : ""}`}
                 onClick={() => setSelectedCard(card.id)}
                 style={{
-                  borderColor: "transprent",
+                  // borderColor: "transprent",
                   // backgroundImage: `linear-gradient(to bottom, ${card.color} 5%, #FFFFFF 95%)`
                   boxShadow: `inset 0 10px 20px ${card.color}40` /* Colored inner shadow */,
+                  // background: `linear-gradient(180deg, ${#A461D81A} 0%, ${#A461D800} 100%)`
                 }}
               >
                 <div
                   className="card-title"
-                  style={{ "--dynamic-color": card.fontColor }}
+                  style={{ "--dynamic-color": card.fontColor}}
                 >
                   {card.title}
                 </div>

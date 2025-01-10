@@ -1,12 +1,7 @@
-.billing-table-wrapper {
-  :where(.css-dev-only-do-not-override-1okl62o).ant-select-single {
-    height: 36px !important;
-    width: 200px !important;
-  }
-
+.advance-table-wrapper {
   .card-container {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: flex-start;
     padding: 20px 0;
     gap: 1.5rem;
     width: 100%;
@@ -57,13 +52,5 @@
   .card.selected .card-amount {
     color: #4a50e0;
     /* Customize the amount color when selected */
-  }
-
-  .billing-table {
-
-    .ant-table thead.ant-table-thead th,
-    body .ant-table thead.ant-table-thead td {
-      padding: 8px 16px !important;
-    }
   }
 }
