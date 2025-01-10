@@ -12,6 +12,7 @@ import { jwtDecode } from "jwt-decode";
 import { setUserId } from "../../../../redux/doctorsSlice";
 import { getClinicName } from "../../../../utils/utils";
 import WelcomeBillingDashboard from "./WelcomeBillingDashboard";
+import TableBillingDashboard from "./TableBillingDashboard";
 
 
 function BillingDashboard() {
@@ -46,7 +47,8 @@ function BillingDashboard() {
       <div className="d-flex">
         <SidebarDoctor activeItem={"opd-billing"}/>
         <div className="w-100 bg-body wrapper">
-            <WelcomeBillingDashboard />
+          <WelcomeBillingDashboard />
+          <TableBillingDashboard/>
         </div>
       </div>
     </>

@@ -1,0 +1,66 @@
+.billing-table-wrapper{
+    :where(.css-dev-only-do-not-override-1okl62o).ant-select-single {
+        height: 36px !important;
+        width: 200px !important;
+    }
+}
+
+.card-container {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 20px 0;
+    gap: 1.5rem;
+    width: 100%;
+  }
+  
+  .card {
+    width: 25%;
+    padding: 20px;
+    border: 0.2px solid var(--T-Text-10, #E2E2EA) !important;
+    border-radius: 16px !important;
+    text-align: center;
+    transition: 0.3s ease;
+    background-color: #fff;
+    box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+  }
+  
+  .card.selected {
+    border-radius: 16px;
+    border: 2.5px solid var(--P-CTA-100, #4B4AD5) !important;
+    background: var(--T-White-100, #FFF);
+    box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.06), 0px 2px 12px 0px rgba(0, 0, 0, 0.04);
+  }
+  
+  .card-title {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--dynamic-color) !important; 
+  }
+  
+  .card-amount {
+    color: var(--T-Text-80, #454551);
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: Roboto;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.1px;
+  }
+  
+  .card.selected .card-title {
+    color: #4a50e0; /* Customize the title color when selected */
+  }
+  
+  .card.selected .card-amount {
+    color: #4a50e0; /* Customize the amount color when selected */
+  }
+
+.billing-table {
+  .ant-table thead.ant-table-thead th, body .ant-table thead.ant-table-thead td{
+    padding: 8px 16px !important;
+  }
+}
+  
