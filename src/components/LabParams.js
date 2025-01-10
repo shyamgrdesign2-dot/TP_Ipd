@@ -385,14 +385,6 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                   tempResults.push(newEntry);
               });
 
-              // const newEntry = {
-              //   date: new Date().toISOString().split('T')[0],
-              //   inputs: [...defaultTestData]
-              // };
-
-              //   // Call function to add 'Remarks'
-              //   addRemarksToUniqueReportNames(newEntry.inputs);
-              //   tempResults.push(newEntry);
           } else {
               // LabParamsResults exist: create entries for all dates
               const allDates = dates.length > 0 ? dates : [new Date().toISOString().split('T')[0]];
