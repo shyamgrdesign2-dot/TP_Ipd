@@ -22,6 +22,7 @@ import messageCornerGrey from '../assets/images/message-corner-grey.svg'
 import alertIcon from '../assets/images/alertIcon.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
 import visitEnd from '../assets/images/end-visit.svg';
+import playIcons from "../assets/images/tube-icon.svg";
 
 import AvailableCredits from "../components/bulk_messages/AvailableCredits";
 import CommonModal from "../common/CommonModal";
@@ -56,7 +57,7 @@ const GENDER = ['Male', 'Female', 'Other']
 function MessageCreateCampaign() {
 
     const { loading, userCreditObj, categoryList, allTemplateList, templateLoading, doctorList, patientCount } = useSelector((state) => state.bulkMessages);
-    const { profile } = useSelector((state) => state.doctors);
+    const { videoList } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
@@ -370,7 +371,44 @@ function MessageCreateCampaign() {
                 <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
                     <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
                         <div className="title-common lh-base">Video Tutorial</div>
+                        <Button
+                            className="btn btn-videoClose p-0"
+                            onClick={showHideVideoListPopover}
+                        >
+                            <i className="icon-Cross" />
+                        </Button>
                     </div>
+                    {videoList
+                        ?.filter((e) => e.category_id === 13)[0]
+                        ?.video?.map((item1, i1) => {
+                            return (
+                                <div
+                                    key={i1}
+                                    className={`d-flex ${i1 !==
+                                        videoList?.filter((e) => e.category_id === 13)[0]?.video
+                                            ?.length -
+                                        1 && "pb-3 mb-15 border-bottom"
+                                        }`}
+                                >
+                                    <div className="tutorial-play me-14">
+                                        <button type="button" onClick={() => setVideoLink(item1)}>
+                                            <img src={playIcons} />
+                                        </button>
+                                        <span className="tutorial-thumb">
+                                            <img src={item1.thumbnail} />
+                                        </span>
+                                    </div>
+                                    <div className="text-truncate-twolines">
+                                        <h3 className="title-common text-welcome text-truncate">
+                                            {item1?.tmv_title}
+                                        </h3>
+                                        <div className="fs-12 fontroboto fw-normal text-main text-truncate-two-lines">
+                                            {item1?.tmv_description}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
                 </div>
             </>
         );
