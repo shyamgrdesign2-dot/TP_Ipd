@@ -39,7 +39,7 @@ const Signup = ({reason, handleView, number}) => {
     }, []);
 
     const getSpecialityData = async () => {
-        let data = await getSpecialityList();
+        const data = await getSpecialityList();
         setSpecialities(data?.data?.speciality);
     }
 
@@ -254,7 +254,7 @@ const Signup = ({reason, handleView, number}) => {
             setError("Please enter First Name");
             return;
         }
-        let fnameRegex = /^[^\s]+$/;
+        const fnameRegex = /^[^\s]+$/;
         if (fnameRegex.test(fname.trim()) === false) {
             setError("Please enter a valid First Name");
             return;
@@ -275,7 +275,7 @@ const Signup = ({reason, handleView, number}) => {
         });
         setLoading(true);
         localStorage.setItem('mo_mobile', "91" + mobileNumber);
-        let userOnboard = await onboardUser({
+        const userOnboard = await onboardUser({
             first_name: fname,
             last_name: lname,
             password: 'PMLITE@123',

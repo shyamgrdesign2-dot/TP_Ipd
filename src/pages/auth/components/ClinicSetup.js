@@ -7,10 +7,8 @@ import {Header} from "antd/es/layout/layout";
 
 const ClinicSetup = ({ reason, handleView, number }) => {
 
-    const navigate = useNavigate();
     const [clinicName, setClinicName] = useState("");
     const [submitDisabled, setSubmitDisabled] = useState(false);
-    const [isValidUser, setIsValidUser] = useState(false);
     const [error, setError] = useState(null);
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false); // Loader state
@@ -47,7 +45,7 @@ const ClinicSetup = ({ reason, handleView, number }) => {
             setSubmitDisabled(true);
 
             setError(null);
-            let mbl_no = localStorage.getItem('mo_mobile');
+            const mbl_no = localStorage.getItem('mo_mobile');
             if (mbl_no != null && mbl_no !== "") {
                 const response = await setupClinic({mblNo: mbl_no, clinicName: clinicName});
                 if (response?.data?.ssoUrl !== "") {
