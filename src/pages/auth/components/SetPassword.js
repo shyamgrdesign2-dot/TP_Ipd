@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { setPassword, loginWithPassword } from "../authService"; // Import the new loginWithPassword API
 import { useLocation } from "react-router-dom";
@@ -19,6 +19,22 @@ const SetPassword = ({ number, data }) => {
   const [loading, setLoading] = useState(false); // Loader state
   const navigate = useNavigate();
   const { state } = useLocation();
+  const [utm_campaign, setUtm_campaign] = useState("NA");
+  const [utm_source, setUtm_source] = useState("NA");
+  const [utm_content, setUtm_content] = useState("NA");
+  const [utm_medium, setUtm_medium] = useState("NA");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setUtm_campaign(params.get("utm_campaign") ?? 'NA');
+    setUtm_source(params.get("utm_source") ?? 'NA');
+    setUtm_medium(params.get("utm_medium") ?? 'NA');
+    setUtm_content(params.get("utm_content") ?? 'NA');
+
+    window.Moengage.track_event('TP_SetNewPassword_landing_page', {
+      utm_campaign, utm_source, utm_medium, utm_content
+    });
+  }, []);
 
   const passwordCriteria = [
     {
@@ -73,6 +89,9 @@ const SetPassword = ({ number, data }) => {
       // Call the setPassword API to set the password
       await setPassword(data?.doctor_unique_id, newPassword);
       setMessage("Password set successfully, logging in...");
+      window.Moengage.track_event('TP_ResetPassword_Success', {
+        mobile: "91"+ data?.mobileNumber,  utm_campaign, utm_source, utm_medium, utm_content
+      });
 
       // Call loginWithPassword API after password is successfully set
       const loginResponse = await loginWithPassword(

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { validateUser, verifyAccessToken } from "../authService";
+import { checkPediaExists, validateUser, verifyAccessToken } from "../authService";
 import "../auth.scss"; // Assuming the provided styles are in this CSS file
 import { isMobile } from "react-device-detect";
 import { Spin } from "antd";
@@ -16,6 +16,13 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
   const [message, setMessage] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false); // Loader state
+  const [clinicSetup, setClinicSetup] = useState(false);
+  const [pediaExists, setPediaExists] = useState(false);
+  const [utm_campaign, setUtm_campaign] = useState("NA");
+  const [utm_source, setUtm_source] = useState("NA");
+  const [utm_content, setUtm_content] = useState("NA");
+  const [utm_medium, setUtm_medium] = useState("NA");
+  const [otpRequested, setOtpRequested] = useState(false);
 
   useEffect(() => {
     if (number !== "null" || number !== "") {
@@ -67,7 +74,25 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       if (existingScript) {
         document.body.removeChild(existingScript);
       }
+
+      const params = new URLSearchParams(window.location.search);
+      setUtm_campaign(params.get("utm_campaign") ?? 'NA');
+      setUtm_source(params.get("utm_source") ?? 'NA');
+      setUtm_medium(params.get("utm_medium") ?? 'NA');
+      setUtm_content(params.get("utm_content") ?? 'NA');
+
+
+      if(reason == 'forgotPassword'){
+        window.Moengage.track_event('TP_ResetPassword_landing_page', {
+          utm_campaign, utm_source, utm_medium, utm_content
+        });
+      }else {
+        window.Moengage.track_event('TP_Login_OTP_landing_page', {
+          utm_campaign, utm_source, utm_medium, utm_content
+        });
+      }
     };
+
   }, []);
 
   let timer; // Global timer reference
@@ -89,6 +114,8 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       return;
     }
 
+    setOtpRequested(true);
+
     try {
       setIsButtonDisabled(true); // Disable the button immediately
       setMessage("");
@@ -96,6 +123,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       setLoading(true); // Show loader
 
       if (isValidUser) {
+
         // Use `retryOtp` if OTP was already sent
         if (isOtpSent) {
           retryOtp();
@@ -112,9 +140,22 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       // Step 2: Handle validation responses
       switch (message) {
         case "Doctor does not exists!":
-          setError("Phone number not registered");
-          setIsButtonDisabled(false);
-          break;
+          const pediaCheck = await checkPediaExists({ mbl_no: "91" + mobileNumber });
+
+          if (pediaCheck?.data?.status === 204) {
+            setError("Phone number not registered");
+            setIsButtonDisabled(false);
+            break;
+
+          } else {
+            setPediaExists(true);
+            if (pediaCheck?.data?.body?.pm_id != null) {
+              setClinicSetup(true);
+            }
+            setIsValidUser(true);
+            sendOtp();
+            break;
+          }
 
         case "Doctor is inactive":
           setError(
@@ -148,6 +189,9 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       setError("OTP service is currently unavailable. Please try again later.");
       setIsButtonDisabled(false);
       setLoading(false); // Hide loader
+      window.Moengage.track_event('TP_OTP_error', {
+        mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+      });
       return;
     }
 
@@ -164,12 +208,18 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
         // Start the countdown timer
         startTimer();
         setLoading(false); // Hide loader
+        window.Moengage.track_event('TP_OTP_Requested', {
+          mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+        });
       },
       (error) => {
         console.error("Error sending OTP:", error);
         setError("Failed to send OTP. Please try again.");
         setIsButtonDisabled(false);
         setLoading(false); // Hide loader
+        window.Moengage.track_event('TP_OTP_error', {
+          mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+        });
       }
     );
   };
@@ -207,12 +257,18 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
         setError(null); // Clear error message
         startTimer(); // Restart the countdown timer
         setLoading(false); // Hide loader
+        window.Moengage.track_event('TP_OTP_Resend', {
+          mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+        });
       },
       (error) => {
         console.error("Error retrying OTP:", error);
         setError("Failed to resend OTP. Please try again.");
         setIsButtonDisabled(false);
         setLoading(false); // Hide loader
+        window.Moengage.track_event('TP_OTP_error', {
+          mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+        });
       }
     );
   };
@@ -237,12 +293,21 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
           if (message === "Invalid OTP") {
             setError("Invalid OTP. Please try again.");
             setLoading(false); // Hide loader
+            window.Moengage.track_event('TP_OTP_Incorrect', {
+              mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+            });
             return;
           }
 
+          window.Moengage.track_event('TP_OTP_Verified', {
+            mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+          });
           try {
             const response = await verifyAccessToken(mobileNumber, message);
-
+            window.Moengage.add_mobile("+91" + mobileNumber);
+            window.Moengage.track_event('TP_Login_Success', {
+              mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+            });
             const {
               message: responseMessage,
               doctor_unique_id,
@@ -260,7 +325,12 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
                 break;
 
               case "Doctor does not exists!":
-                setError("User is not registered with us");
+                if (pediaExists && clinicSetup === false) {
+                  localStorage.setItem('mo_mobile', "91" + mobileNumber);
+                  handleSwitch({ view: 'clinic-setup' });
+                } else {
+                  setError("User is not registered with us");
+                }
                 break;
 
               case "Doctor is inactive":
@@ -299,6 +369,9 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
           console.error("Error verifying OTP:", error);
           setError("Failed to verify OTP. Please try again.");
           setLoading(false); // Hide loader
+          window.Moengage.track_event('TP_OTP_Incorrect', {
+            mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+          });
         }
       );
     } else {
@@ -352,8 +425,8 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
         </h1>
 
         {/* Display success and error messages */}
-        {message && <div className= "color-blue" style={{fontSize: "14px" }}>{message}</div>}
-        {error && <div className="color-red" style={{fontSize: "14px" }}>{error}</div>}
+        {message && <div className="color-blue" style={{ fontSize: "14px" }}>{message}</div>}
+        {error && <div className="color-red" style={{ fontSize: "14px" }}>{error}</div>}
 
         <form>
           <label htmlFor="mobileNumber">Mobile Number *</label>
@@ -365,12 +438,12 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
             onChange={(e) => setMobileNumber(e.target.value)}
             className="common-width"
           />
-          <div id="captch-id"></div>
+          {!otpRequested && <>
+          <div id="captch-id"></div> </>}
           <button
             type="button"
-            className={`otp-button ${
-              isButtonDisabled ? "disable" : ""
-            } common-width`}
+            className={`otp-button ${isButtonDisabled ? "disable" : ""
+              } common-width`}
             onClick={handleSendOtp}
             disabled={isButtonDisabled}
           >
@@ -420,6 +493,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
             </button>
 
             <br />
+            <p>Don't have an account? <a href="/login?view=signup">Sign up</a> </p>
           </>
         )}
       </div>

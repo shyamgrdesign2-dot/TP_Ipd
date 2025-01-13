@@ -49,7 +49,9 @@ const dev = {
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
   razorPay_key: "rzp_test_PoLtBba5t8qJIm",
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
-  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in"
+  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
+  lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
 };
 
 const qa_tp = {
@@ -106,7 +108,9 @@ const qa_tp = {
   searchengine_url: "https://pm-searchengine-qa.tatvacare.in",
   razorPay_key: "rzp_test_PoLtBba5t8qJIm",
   tatvaAi_api_url: "https://pm-doctor-tatva-qa.tatvacare.in",
-  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in"
+  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
+  lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
 };
 
 const qa = {
@@ -160,7 +164,9 @@ const qa = {
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
   razorPay_key: "rzp_test_PoLtBba5t8qJIm",
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
-  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in"
+  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
+  lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
 };
 
 const uat = {
@@ -217,7 +223,9 @@ const uat = {
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
   razorPay_key: "rzp_test_PoLtBba5t8qJIm",
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
-  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in"
+  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
+  lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
 };
 
 const prod = {
@@ -269,7 +277,9 @@ const prod = {
   searchengine_url: "https://pm-searchengine-prod.tatvacare.in",
   razorPay_key: "rzp_live_GvLkPHHNSMs2G3",
   tatvaAi_api_url: "https://pm-doctor-tatva-prod.tatvacare.in",
-  tatvaAi_url: "https://tatva-ai-prod.tatvacare.in"
+  tatvaAi_url: "https://tatva-ai-prod.tatvacare.in",
+  lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
 };
 
 const getEnv = () => {
