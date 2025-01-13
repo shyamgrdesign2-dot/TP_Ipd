@@ -2,6 +2,7 @@ import axios from 'axios';
 import config from '../../config';
 
 const baseUrl = config.central_auth_api_url;
+const userMgmtUrl = config.user_management_api_url;
 
 export const loginWithPassword = async (phoneNumber, password) => {
   try {
@@ -49,3 +50,62 @@ export const setPassword = async (uniqueId, password) => {
     throw error.response ? error.response.data : error;
   }
 };
+
+export const checkPediaExists = async (body) => {
+  try {
+    const response = await axios.post(`${userMgmtUrl}/user/tatva/check`, JSON.stringify(body), {
+      headers: {
+        'Content-Type': 'application/json',
+        'api_key': config.lite_api_key,
+        'api_secret_key': config.lite_secret_key,
+      }
+    });
+    return response;
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const getSpecialityList = async () => {
+  try {
+    const response = await axios.post(`${userMgmtUrl}/master/pm-specialities`, {});
+    return response;
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
+}
+
+export const onboardUser = async (body) => {
+  try {
+
+    const response = await axios.post(`${userMgmtUrl}/user/tatva/register`, JSON.stringify(body), {
+      headers: {
+        'Content-Type': 'application/json',
+        'api_key': config.lite_api_key,
+        'api_secret_key': config.lite_secret_key,
+      }
+    });
+    return response;
+
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
+}
+
+export const setupClinic = async (body) => {
+  try {
+    const response = await axios.post(`${userMgmtUrl}/user/tatva/clinic-setup`, JSON.stringify(body), {
+      headers: {
+        'Content-Type': 'application/json',
+        'api_key': config.lite_api_key,
+        'api_secret_key': config.lite_secret_key,
+      }
+    });
+    return response;
+
+
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
+}
+
