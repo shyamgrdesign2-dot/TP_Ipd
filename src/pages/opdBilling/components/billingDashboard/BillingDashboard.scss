@@ -1,6 +1,6 @@
 .billing-dashboard-wraper {
     .btn-manage-bill {
-        cursor: pointer;
+        cursor: pointer !important;
         display: flex;
         height: 41px;
         padding: 10px 24px;
@@ -23,7 +23,7 @@
     }
 
     .btn-create-bill {
-        cursor: pointer;
+        cursor: pointer !important;
         display: flex;
         height: 41px;
         padding: 10px 24px;

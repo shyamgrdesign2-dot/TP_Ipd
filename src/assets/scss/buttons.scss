@@ -4,26 +4,31 @@ body {
         font-size: 14px;
         font-style: normal;
         font-weight: 600;
+
         &.btn-fw-bold.btn-primary2 {
             span {
                 font-weight: 600 !important;
             }
         }
+
         &.antdesable-custom {
             i {
                 font-size: 19px;
             }
         }
+
         &.btn-icon {
             border-radius: 10px;
             width: 24px;
             height: 24px;
         }
+
         &.focus-none {
-            &:focus{
+            &:focus {
                 background-color: transparent !important;
             }
         }
+
         &.btn-primary {
             border-radius: 10px;
             background-color: $theme;
@@ -69,6 +74,7 @@ body {
                 font-size: 19px;
             }
         }
+
         &.btn-print-rx {
             border-radius: 10px 10px 10px 10px;
             background-color: transparent;
@@ -79,9 +85,10 @@ body {
                 font-size: 19px;
             }
         }
-        &.btn-down-arrow{
+
+        &.btn-down-arrow {
             border-radius: 0 10px 10px 0;
-            border-left:none;
+            border-left: none;
             background-color: transparent;
             padding: 4px 5px;
 
@@ -89,7 +96,8 @@ body {
                 font-size: 15px;
             }
         }
-        &.btn-device-connect{
+
+        &.btn-device-connect {
             border-radius: 66px;
             padding: 5px;
             background-color: $drawerHeaderColor;
@@ -102,9 +110,11 @@ body {
                 color: $maincolor !important;
                 padding: 0 10px;
             }
+
             i {
                 font-size: 19px;
             }
+
             img {
                 width: 24px;
                 height: 24px;
@@ -122,10 +132,12 @@ body {
                 font-size: 19px;
             }
         }
+
         &.clear-text {
             border: none !important;
             background-color: transparent !important;
         }
+
         &.btn-primary1 {
             border-radius: 10px;
             border: 1px solid $theme !important;
@@ -155,6 +167,7 @@ body {
             height: 33px;
             background-color: $white;
             font-weight: 500 !important;
+
             i {
                 font-size: 19px;
             }
@@ -181,6 +194,7 @@ body {
                 background-color: $theme !important;
                 border-color: $theme !important;
                 color: $white !important;
+
                 span {
                     color: $white !important;
                 }
@@ -197,6 +211,7 @@ body {
             height: 33px;
             background-color: $white;
             font-weight: 500 !important;
+
             i {
                 font-size: 19px;
             }
@@ -225,6 +240,7 @@ body {
             background-color: $theme;
             height: 33px;
             font-weight: 500 !important;
+
             i {
                 font-size: 19px;
             }
@@ -265,6 +281,7 @@ body {
             background-color: $theme;
             height: 33px;
             font-weight: 500 !important;
+
             i {
                 font-size: 19px;
             }
@@ -291,6 +308,7 @@ body {
                 background-color: $theme !important;
                 border-color: $theme !important;
                 color: $white !important;
+
                 span {
                     color: $white !important;
                 }
@@ -311,9 +329,11 @@ body {
             letter-spacing: 0.1px;
             color: $themesecondary !important;
             font-size: 14px;
+
             i {
                 font-size: 19px;
             }
+
             &:hover,
             &:focus,
             &:active {
@@ -321,7 +341,7 @@ body {
             }
         }
 
-        &.btn-smart-rx-walkin{
+        &.btn-smart-rx-walkin {
             border-radius: 10px;
             border: 1px solid #4B4AD5 !important;
             background-color: #4B4AD5;
@@ -332,7 +352,7 @@ body {
             align-items: center;
         }
 
-        &.btn-smartRx-text{
+        &.btn-smartRx-text {
             padding: 6px 5px 5px 5px;
             color: white;
             font-weight: 400;
@@ -344,6 +364,7 @@ body {
             background-color: $white;
             height: 33px;
             font-weight: 500 !important;
+
             i {
                 font-size: 19px;
             }
@@ -394,7 +415,8 @@ body {
             }
 
         }
-        &.btn-send-to-wtsap{
+
+        &.btn-send-to-wtsap {
             margin-top: 6px;
             display: flex;
             width: 288px;
@@ -402,19 +424,21 @@ body {
             justify-content: center;
             align-items: center;
             gap: 6px;
-            border-radius: 10px;    
+            border-radius: 10px;
             background: linear-gradient(90deg, #58D264 0%, #24B43B 100%);
-            color:  #FAFAFB;
+            color: #FAFAFB;
         }
-        
+
         &.btn-save {
             border-radius: 10px;
             background-color: transparent;
             height: 33px;
             font-weight: 500 !important;
+
             i {
                 font-size: 19px;
             }
+
             span {
                 font-family: 'Poppins';
                 font-style: normal;
@@ -431,6 +455,7 @@ body {
                 border: 0;
                 box-shadow: none !important;
             }
+
             &:focus-visible {
                 outline: none;
             }
@@ -441,6 +466,7 @@ body {
             border: 1px solid $theme !important;
             position: relative;
             overflow: hidden;
+
             input {
                 position: absolute;
                 opacity: 0;
@@ -455,10 +481,11 @@ body {
                 color: $theme !important;
             }
 
-            span, a {
+            span,
+            a {
                 color: $theme !important;
                 font-size: 14px;
-                
+
             }
 
             &:hover {
@@ -470,6 +497,7 @@ body {
                 }
             }
         }
+
         &.btnicon20 {
             i {
                 font-size: 20px;
@@ -497,6 +525,7 @@ body {
         &.btn-41 {
             height: 41px;
             font-weight: 600 !important;
+
             span {
                 font-weight: 600 !important;
             }
@@ -505,6 +534,7 @@ body {
         &.btn-54 {
             height: 54px;
             font-weight: 600 !important;
+
             span {
                 font-weight: 600 !important;
             }
@@ -521,41 +551,56 @@ body {
                 }
             }
         }
+
         &.chips-custom {
             height: 36px !important;
             padding: 5px 10px !important;
+
             &.btn-primary2 {
-                &:focus, &:hover, &:active {
+
+                &:focus,
+                &:hover,
+                &:active {
                     background-color: $white !important;
                     border-color: $bordercolor !important;
+
                     span {
                         color: $theme !important;
                     }
                 }
             }
+
             &.chips-addCustom {
                 white-space: normal;
                 text-align: left;
+
                 span {
                     display: contents;
                 }
+
                 a {
                     color: $theme !important;
                     font-weight: normal;
                 }
+
                 &:hover,
                 &:focus,
                 &:active {
                     background-color: transparent !important;
                     border-color: $bordercolor !important;
-                    a, span, i {
+
+                    a,
+                    span,
+                    i {
                         color: $theme !important;
                     }
                 }
+
                 &.chips-height {
-                 height: auto !important;   
+                    height: auto !important;
                 }
             }
+
             span {
                 font-family: 'roboto' !important;
                 font-weight: 400 !important;
@@ -564,6 +609,7 @@ body {
 
             &.chips-custom-break {
                 max-width: 160px;
+
                 span {
                     font-size: 12px !important;
                     line-height: 13px !important;
@@ -578,7 +624,7 @@ body {
         }
     }
 
-    .btn-consult{   
+    .btn-consult {
         border: 1px solid rgb(255, 255, 255);
         position: absolute;
         top: 91%;
@@ -590,6 +636,7 @@ body {
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         z-index: 1;
     }
+
     .btn-consult-walkIn {
         border: 1px solid rgb(255, 255, 255);
         position: absolute;
@@ -604,7 +651,8 @@ body {
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         z-index: 2;
     }
-    .btn-consult-patient-details{
+
+    .btn-consult-patient-details {
         border: 1px solid rgb(255, 255, 255);
         position: absolute;
         top: 108%;
@@ -617,7 +665,8 @@ body {
         padding: 7px 79px 7px 9px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
-    .btn-span-smartRx{
+
+    .btn-span-smartRx {
         color: white !important;
     }
 
@@ -628,30 +677,35 @@ body {
                 border-radius: 0;
                 height: 38px;
                 box-shadow: none;
+
                 &:hover {
                     border-color: $bordercolor;
                 }
+
                 &.dateoutline {
                     &:first-child {
                         border-top-left-radius: 10px;
                         border-bottom-left-radius: 10px;
                         border-right: 0;
                     }
-    
+
                     &:last-child {
                         border-top-right-radius: 10px;
                         border-bottom-right-radius: 10px;
                         border-left: 0;
                     }
                 }
+
                 &.antround-0 {
                     .ant-picker {
                         border-radius: 0;
+
                         &.ant-picker-disabled {
                             &:hover {
                                 border-color: $bordercolor !important;
                             }
                         }
+
                         &:hover {
                             border-color: $theme;
                         }
@@ -663,28 +717,35 @@ body {
 
     .ant-btn {
         padding: 5px 15px;
+
         &.px-5-16 {
             padding: 5px 13px;
         }
+
         &.px-3-15 {
             padding: 3px 15px;
         }
+
         &.ant-btn-sm {
             padding: 1px 15px;
         }
+
         &.btn-message {
             border-radius: 10px;
             border: 1px solid $descpadcolor !important;
             background-color: $descpadcolor !important;
             height: 41px;
+
             i {
                 font-size: 19px;
             }
+
             &:hover,
             &:focus,
             &:active {
                 background-color: $descpadcolor !important;
             }
+
             span {
                 font-weight: 500 !important;
                 font-family: 'Poppins';
@@ -764,45 +825,69 @@ body {
             background-color: $themehover !important;
         }
     }
+
     .privatebtn {
         border: none;
         box-shadow: none;
         background: transparent;
+
         &:focus {
             border: none;
         }
+
         &:focus-visible {
             outline: 0 !important;
         }
+
         i {
             color: $maincolor;
         }
     }
+
     .btn-delete-prescription {
         box-shadow: none;
+
         i {
             color: $grayColor;
             font-size: 21px;
         }
+
         &:hover {
             border-color: transparent !important;
+
             i {
                 color: $theme;
             }
         }
     }
-    .btn{
+
+    .btn {
         &.btn-videoClose {
             background-color: transparent !important;
+
             i {
                 color: $grayColor;
             }
-            &:hover, &:focus{
+
+            &:hover,
+            &:focus {
                 background-color: transparent !important;
+
                 i {
                     color: $grayColor;
                 }
             }
         }
+    }
+
+    .refund-info {
+        border-radius: 16px;
+        background: #FAF8F6;
+        display: flex;
+        height: 60px;
+        padding: 11px 15px;
+        justify-content: center;
+        align-items: center;
+        align-self: stretch;
     }
 }

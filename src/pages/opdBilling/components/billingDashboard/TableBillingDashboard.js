@@ -17,8 +17,8 @@ import {
 import { Tabs, Select, Input } from "antd";
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import BillingTable from "./BillingTable/BillingTable";
-import AdvanceDeposit from "./AdvanceDepositTable/AdvanceDeposit";
-import AdvanceDepositTable from "./AdvanceDepositTable/AdvanceDeposit";
+import AdvanceDeposit from "./AdvanceDepositTable/AdvanceDepositTable";
+import AdvanceDepositTable from "./AdvanceDepositTable/AdvanceDepositTable";
 
 function TableBillingDashboard({ onTabChange }) {
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ function TableBillingDashboard({ onTabChange }) {
       key: 1,
       label: (
         <div className="d-flex align-items-center">
-          <i className="icon-Queue"></i>
+          <i className="icon-billings"></i>
           Billing ({10})
         </div>
       ),

@@ -17,6 +17,7 @@ import {
 import { Col, Container, Row } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import "./Manage3cBills.scss";
+import AddForm3cBills from "../manage3cBills/AddForm3cBills.js";
 
 import locale from "antd/es/date-picker/locale/en_US";
 
@@ -24,6 +25,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
 import dayjs from "dayjs";
+import MenuDivider from "antd/es/menu/MenuDivider";
 
 // import { errorMessage, onlyNumberFormat } from "../../../../utils/utils";
 // import { MESSAGE_KEY } from "../../../../utils/constants";
@@ -65,7 +67,7 @@ const SELECT_AFTER = [
 
 const GENDER = ["Male", "Female", "Other"];
 
-function Manage3cBill({ handleForm3cBill }) {
+function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
   const {
     loading,
     userCreditObj,
@@ -421,8 +423,8 @@ function Manage3cBill({ handleForm3cBill }) {
   ];
 
   return (
-    <>
-      <div className="modalCard-header align-items-center d-flex justify-content-between manage-3c-bills-wrapper">
+    <div className="manage-3c-bills-wrapper">
+      <div className="modalCard-header align-items-center d-flex justify-content-between">
         <div className="align-items-center d-flex">
           <div className="border-end h-100 text-center">
             <Button
@@ -435,7 +437,7 @@ function Manage3cBill({ handleForm3cBill }) {
           <div className="w-100 px-20 fs-16 fw-semibold">Form 3c Bill</div>
         </div>
         <div className="align-items-center d-flex gap-4 me-4">
-          <Button className="btn-manage-bill">
+          <Button className="btn-manage-bill" onClick={handleAddForm3cBill}>
             <span>{"+"}</span>
             <span>{"Add New Bills to 3C"}</span>
           </Button>
@@ -445,15 +447,15 @@ function Manage3cBill({ handleForm3cBill }) {
         </div>
       </div>
       <div
-        className="bg-body overflow-y-auto pt-5 pb-4"
+        className="bg-body overflow-y-auto pt-1 pb-4"
         style={{ height: "calc(100vh - 60px)" }}
       >
-        <Row className="justify-content-between align-items-center my-2 px-4">
-          <Col xl={4} sm={3}>
+        <div className="d-flex justify-content-between align-items-center my-4 px-4">
+          <div>
             <Input
               value={searchQuery}
               placeholder="Search by patient name / phone no / bill no"
-              className="inputheight38"
+              className="inputheight38 search-bar"
               prefix={<i className="icon-search" />}
               suffix={
                 searchQuery.length > 0 && (
@@ -462,8 +464,8 @@ function Manage3cBill({ handleForm3cBill }) {
               }
               onChange={(e) => onSearch(e.target.value)}
             />
-          </Col>
-          <Col xl={2} sm={1}>
+          </div>
+          <div>
             <div className="d-flex flex-row gap-2">
               <div className="massage-date-wrapper">
                 <div
@@ -545,9 +547,9 @@ function Manage3cBill({ handleForm3cBill }) {
                 />
               </div>
             </div>
-          </Col>
-        </Row>
-        <Row className="justify-content-between align-items-center px-4 m-2">
+          </div>
+        </div>
+        <div className="justify-content-between align-items-center px-4 my-2">
           <Table
             className="billing-table px-0"
             columns={columns}
@@ -555,9 +557,9 @@ function Manage3cBill({ handleForm3cBill }) {
             dataSource={data}
             pagination={false}
           />
-        </Row>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 

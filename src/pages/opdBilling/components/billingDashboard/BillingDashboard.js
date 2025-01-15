@@ -16,6 +16,7 @@ import { Button, Drawer } from "antd";
 import "./BillingDashboard.scss";
 import Vaccination from "../../../vaccination/Vaccination";
 import Manage3cBill from "../manage3cBills/Manage3cBills";
+import AddForm3cBills from "../manage3cBills/AddForm3cBills";
 
 function BillingDashboard() {
   const dispatch = useDispatch();
@@ -24,8 +25,9 @@ function BillingDashboard() {
   const { profile } = useSelector((state) => state.doctors);
   const [selectedTab, setSelectedTab] = useState("billingtable");
 
-  // Drawer states 
+  // Drawer states
   const [form3cDrawer, setForm3cDrawer] = useState(false);
+  const [addForm3cDrawer, setAddform3cDrawer] = useState(false);
 
   useEffect(() => {
     setLocationPath(location.pathname);
@@ -52,11 +54,20 @@ function BillingDashboard() {
     setForm3cDrawer(!form3cDrawer);
   };
   const handleCreateNewBill = () => {
-    setForm3cDrawer(!form3cDrawer);
+    // setForm3cDrawer(!form3cDrawer);
   };
   const handleAddAdvance = () => {
+    // setForm3cDrawer(!form3cDrawer);
+  };
+
+  // Add form 3c drawer
+  const handleAddForm3cDrawer = () => {
+    setAddform3cDrawer(!addForm3cDrawer);
     setForm3cDrawer(!form3cDrawer);
   };
+
+  console.log("addForm3cDrawer",addForm3cDrawer)
+  console.log("form3cDrawer",form3cDrawer)
 
   return (
     <>
@@ -80,17 +91,26 @@ function BillingDashboard() {
                 <div className="d-flex gap-1">
                   {selectedTab === "billingtable" ? (
                     <div className="d-lg-flex d-block gap-2">
-                      <Button className="btn-manage-bill" onClick={handleManage3cBill}>
+                      <Button
+                        className="btn-manage-bill"
+                        onClick={handleManage3cBill}
+                      >
                         <span>{"Manage Form 3c Bills"}</span>
                       </Button>
-                      <Button className="btn-create-bill" onClick={handleCreateNewBill}>
-                        <span>{"+"}</span>
+                      <Button
+                        className="btn-create-bill"
+                        onClick={handleCreateNewBill}
+                      >
+                        <span style={{fontSize:"22px"}}>{"+"}</span>
                         <span>{"Create New Bill"}</span>
                       </Button>
                     </div>
                   ) : (
-                    <Button className="btn-create-bill" onClick={handleAddAdvance}>
-                      <span>{"+"}</span>
+                    <Button
+                      className="btn-create-bill"
+                      onClick={handleAddAdvance}
+                    >
+                      <span style={{fontSize:"22px"}}>{"+"}</span>
                       <span>{"Add Advance Deposit"}</span>
                     </Button>
                   )}
@@ -110,7 +130,19 @@ function BillingDashboard() {
             open={form3cDrawer}
             width="100%"
           >
-            <Manage3cBill handleForm3cBill={handleManage3cBill}/>
+            <Manage3cBill handleForm3cBill={handleManage3cBill} handleAddForm3cBill={handleAddForm3cDrawer}/>
+          </Drawer>
+        )}
+
+        {addForm3cDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleAddForm3cDrawer}
+            open={addForm3cDrawer}
+            width="100%"
+          >
+            <AddForm3cBills handleAddForm3cBill={handleAddForm3cDrawer} />
           </Drawer>
         )}
       </div>

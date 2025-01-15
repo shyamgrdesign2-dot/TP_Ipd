@@ -12,6 +12,10 @@
     width: 100%;
   }
 
+  .inputheight38 {
+    width: 20rem;
+  }
+
   .card {
     width: 25%;
     padding: 20px;
@@ -65,5 +69,42 @@
     body .ant-table thead.ant-table-thead td {
       padding: 8px 16px !important;
     }
+  }
+
+  .billing-download {
+    padding: 6px;
+    border-radius: 10px;
+    background: rgba(75, 74, 213, 0.08);
+  }
+
+  .status-paid-fully {
+    display: inline-flex;
+    /* Makes the container fit the content */
+    padding: 4px 10px;
+    align-items: center;
+    gap: 4px;
+    border-radius: 30px;
+    background: var(--Colour-Green-Green---10, #EDF7ED);
+    color: #3D8C40 !important;
+  }
+
+  .status-due {
+    display: inline-flex;
+    padding: 4px 10px;
+    align-items: center;
+    gap: 4px;
+    border-radius: 30px;
+    background: var(--Colour-Yellow-Yellow---20, #FDF7D7);
+    color: #ED8A00 !important;
+  }
+
+  .status-refunded {
+    display: inline-flex;
+    padding: 4px 10px;
+    align-items: center;
+    gap: 4px;
+    border-radius: 30px;
+    background: var(--Colour-Red-Red---10, #FCEDED);
+    color: #B73A3A !important;
   }
 }

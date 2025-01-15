@@ -44,6 +44,10 @@
     letter-spacing: 0.1px;
   }
 
+  .inputheight38 {
+    width: 20rem;
+  }
+
   .card.selected .card-title {
     color: #4a50e0;
     /* Customize the title color when selected */
@@ -52,5 +56,25 @@
   .card.selected .card-amount {
     color: #4a50e0;
     /* Customize the amount color when selected */
+  }
+
+  .status-advance {
+    display: inline-flex;
+    padding: 4px 10px;
+    align-items: center;
+    gap: 4px;
+    border-radius: 30px;
+    background: rgba(237, 223, 247, 0.50);
+    color: #A461D8 !important;
+  }
+
+  .status-refunded {
+    display: inline-flex;
+    padding: 4px 10px;
+    align-items: center;
+    gap: 4px;
+    border-radius: 30px;
+    background: var(--Colour-Red-Red---10, #FCEDED);
+    color: #B73A3A !important;
   }
 }
