@@ -13,12 +13,11 @@ import { pdf } from "@react-pdf/renderer";
 import BillPageFormatLayout from "./BillPageFormatLayout";
 import BillHeaderFooterLayout from "./BillHeaderFooterLayout";
 import ViewBillPdf from "../viewBillPdf/ViewBillPdf";
+import { fetchPrintSetting } from "../../service";
 const worker = require("pdfjs-dist/build/pdf.worker.min.js");
 pdfjs.GlobalWorkerOptions.workerSrc = worker;
 
-const ConfigureBillSettings = ({
-  handleDrawerConfigureSettings,
-}) => {
+const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
   const TabsPrintSetting = [
     {
       key: TAB_HEADER_FOOTER,
@@ -30,6 +29,7 @@ const ConfigureBillSettings = ({
     },
   ];
 
+  const [printSettings, setPrintSettings] = useState({});
   const [selectedTab, setSelectedTab] = useState(TAB_HEADER_FOOTER);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -43,11 +43,19 @@ const ConfigureBillSettings = ({
   }, [divRef]);
 
   useEffect(() => {
+    getPrintSetting();
     makePDFUrl();
     return () => {
       setLoadSuccesss(false);
     };
   }, []);
+
+  const getPrintSetting = async () => {
+    const printSettingsRes = await fetchPrintSetting();
+    if (printSettingsRes) {
+      setPrintSettings(printSettingsRes);
+    }
+  };
 
   const makePDFUrl = async () => {
     const blob = await pdf(<ViewBillPdf />).toBlob();
@@ -160,9 +168,17 @@ const ConfigureBillSettings = ({
                 className="print-tabs"
               />
               {selectedTab === TAB_HEADER_FOOTER ? (
-                <BillHeaderFooterLayout />
+                <BillHeaderFooterLayout
+                  headerFooter={printSettings?.headerFooter}
+                  setPrintSettings={setPrintSettings}
+                />
               ) : (
-                selectedTab === TAB_PAGE_FORMAT && <BillPageFormatLayout />
+                selectedTab === TAB_PAGE_FORMAT && (
+                  <BillPageFormatLayout
+                    pageFormat={printSettings?.pageFormat}
+                    setPrintSettings={setPrintSettings}
+                  />
+                )
               )}
             </div>
           </Col>

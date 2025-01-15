@@ -1761,6 +1761,7 @@ function AppointmentData({ locationPath }) {
             {createBillDrawer &&(<Drawer
                 closeIcon={false}
                 placement="right"
+                bodyStyle={{ backgroundColor: "white" }}
                 open={createBillDrawer}
                 onClose={showHideBackModal}
                 width="100%"

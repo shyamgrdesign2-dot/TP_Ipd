@@ -45,11 +45,7 @@ const CreateBill = ({
     },
   ]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchOptions, setSearchOptions] = useState([
-    { value: "Item A" },
-    { value: "Item B" },
-    { value: "Item C" },
-  ]);
+  const [searchOptions, setSearchOptions] = useState([]);
 
   useEffect(() => {
     if (searchQuery) {
@@ -70,9 +66,36 @@ const CreateBill = ({
     //   patient_data.patient_unique_id
     // );
     const searchOptionsRes = [
-      { name: "Item A", id: 1 },
-      { name: "Item B", id: 2 },
-      { name: "Item C", id: 3 },
+      {
+        name: "Item A",
+        id: 1,
+        item: "Item A",
+        qty: 2,
+        price: 100,
+        discount: 10,
+        gst: 18,
+        total: 110,
+      },
+      {
+        name: "Item B",
+        id: 2,
+        item: "Item B",
+        qty: "2",
+        price: "100",
+        discount: "10",
+        gst: "18",
+        total: "110",
+      },
+      {
+        name: "Item C",
+        id: 3,
+        item: "Item C",
+        qty: "2",
+        price: "100",
+        discount: "10",
+        gst: "18",
+        total: "110",
+      },
     ];
     const data = [];
     searchOptionsRes?.map((e) => {
@@ -130,10 +153,17 @@ const CreateBill = ({
     setDataSource(updatedData);
   };
 
-  const onSelect = (value, option) => {
-    const key = option.key && JSON.parse(option.key);
+  const onSelect = (value, option, index) => {
+    const selectedData = option?.key && JSON.parse(option.key);
     if (option?.isCustom) {
-      setSearchCustomSelected({ ...key, isCustom: option.isCustom });
+      setSearchCustomSelected({ ...selectedData, isCustom: option.isCustom });
+    } else if (option) {
+      handleInputChange(selectedData.item, index, "item");
+      handleInputChange(typeof selectedData.qty, index, "qty");
+      handleInputChange(selectedData.price, index, "price");
+      handleInputChange(selectedData.discount, index, "discount");
+      handleInputChange(selectedData.gst, index, "gst");
+      handleInputChange(selectedData.total, index, "total");
     } else {
       console.log("directly add the entry to the table");
     }
@@ -153,29 +183,23 @@ const CreateBill = ({
     setDataSource(updatedData);
   };
 
-  const handleAddNewItem = (value, key) => {
-    if (!searchOptions.some((option) => option.value === value)) {
-      setSearchOptions([...searchOptions, { value }]);
-    }
-    handleSelect(value, key);
-  };
-
   const columns = [
     {
-      title: "ITEM",
+      title: "ITEMS",
       dataIndex: "item",
-      render: (_, record) => (
+      width: "27%",
+      render: (_, record, index) => (
         <AutoComplete
           value={record.item}
           onSearch={onSearch}
           options={searchOptions}
-          onSelect={onSelect}
+          onSelect={(value, option) => onSelect(value, option, index + 1)}
           className="autocomplete-custom w-100"
           defaultActiveFirstOption={true}
         >
           <Input
             placeholder="Search & add new item"
-            onBlur={() => handleAddNewItem(record.item, record.key)}
+            style={{ border: "none" }}
             onChange={(e) =>
               handleInputChange(e.target.value, record.key, "item")
             }
@@ -186,6 +210,7 @@ const CreateBill = ({
     {
       title: "QTY",
       dataIndex: "qty",
+      width: "11%",
       render: (_, record) => (
         <Input
           value={record.qty}
@@ -199,12 +224,14 @@ const CreateBill = ({
     {
       title: "PRICE PER UNIT",
       dataIndex: "price",
+      width: "13%",
       render: (_, record) => (
         <Input
           value={record.price}
           onChange={(e) =>
             handleInputChange(e.target.value, record.key, "price")
           }
+          prefix="₹"
           bordered={false}
           style={{ textAlign: "center" }}
         />
@@ -213,12 +240,14 @@ const CreateBill = ({
     {
       title: "DISCOUNT",
       dataIndex: "discount",
+      width: "15%",
       render: (_, record) => (
         <Input
           value={record.discount}
           onChange={(e) =>
             handleInputChange(e.target.value, record.key, "discount")
           }
+          prefix="₹"
           bordered={false}
           style={{ textAlign: "center" }}
         />
@@ -227,10 +256,12 @@ const CreateBill = ({
     {
       title: "GST (%)",
       dataIndex: "gst",
+      width: "11%",
       render: (_, record) => (
         <Input
           value={record.gst}
           onChange={(e) => handleInputChange(e.target.value, record.key, "gst")}
+          suffix="%"
           bordered={false}
           style={{ textAlign: "center" }}
         />
@@ -239,20 +270,29 @@ const CreateBill = ({
     {
       title: "TOTAL AMOUNT",
       dataIndex: "total",
+      width: "13%",
       render: (_, record) => (
         <Input
           value={record.total}
           onChange={(e) =>
             handleInputChange(e.target.value, record.key, "total")
           }
+          prefix="₹"
           bordered={false}
           style={{ textAlign: "center" }}
+          disabled={true}
         />
       ),
+      onCell: () => ({
+        style: {
+          backgroundColor: "#FAFAFB",
+        },
+      }),
     },
     {
       title: "ACTION",
       dataIndex: "action",
+      width: "10%",
       render: (_, record) => (
         <Button
           className="btn btn-delete-prescription p-0"
@@ -281,7 +321,7 @@ const CreateBill = ({
   };
 
   const addPaymentMode = () => {
-    setPaymentModes([...paymentModes, { mode: "", amount: 0 }]);
+    setPaymentModes([...paymentModes, { mode: undefined, amount: 0 }]);
   };
 
   const removePaymentMode = (index) => {
@@ -347,11 +387,11 @@ const CreateBill = ({
                     }
                   />
                 </div>
-                <span>Create Bill</span>
+                <span className="title-digitise-card">Create Bill</span>
               </div>
             </Col>
             <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
-              <div className="align-items-center d-flex h-100 gap-2">
+              <div className="align-items-center d-flex h-100 gap-4">
                 <div>
                   <Checkbox className="me-2" />
                   Add bill for Form 3C
@@ -362,15 +402,15 @@ const CreateBill = ({
                 </div>
                 <Button
                   type="button"
-                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
+                  className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
                   onClick={handleCreateBillDrawer}
                 >
                   Save & Print
                 </Button>
 
                 <Button
-                  type="button"
-                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
+                  type="primary"
+                  className="btn-41 btn px-4 me-2 ant-btn-text align-items-center d-flex"
                   onClick={() => navigate("/preview-bill")}
                 >
                   Save & Preview
@@ -385,10 +425,11 @@ const CreateBill = ({
           <Col
             className="h-100"
             style={{
-              flex: "0 0 75%",
-              maxWidth: "75%",
+              flex: "0 0 72%",
+              maxWidth: "72%",
               overflowY: "auto",
               height: "100%",
+              paddingRight: 0,
             }}
           >
             <div className="d-flex flex-column h-100 gap-2 px-3 py-4">
@@ -396,7 +437,9 @@ const CreateBill = ({
                 <div>
                   <div>Patient Name & ID</div>
                   <Input
-                    value={"12345467676890"}
+                    className="text-main"
+                    style={{ width: 230 }}
+                    value={"Rahul Sharma, PI202305003"}
                     onInput={(e) => {
                       e.target.value = e.target.value.replace(/[^0-6]/g, "");
                     }}
@@ -404,9 +447,11 @@ const CreateBill = ({
                   />
                 </div>
                 <div>
-                  <div>Patient Name & ID</div>
+                  <div>Mobile Number</div>
                   <Input
-                    value={"12345467676890"}
+                    className="text-main"
+                    style={{ width: 130 }}
+                    value={"9344414944"}
                     onInput={(e) => {
                       e.target.value = e.target.value.replace(/[^0-6]/g, "");
                     }}
@@ -414,9 +459,11 @@ const CreateBill = ({
                   />
                 </div>
                 <div>
-                  <div>Patient Name & ID</div>
+                  <div>Bill Date</div>
                   <Input
-                    value={"12345467676890"}
+                    className="text-main"
+                    style={{ width: 125 }}
+                    value={"04-12-2024"}
                     onInput={(e) => {
                       e.target.value = e.target.value.replace(/[^0-6]/g, "");
                     }}
@@ -424,9 +471,10 @@ const CreateBill = ({
                   />
                 </div>
                 <div>
-                  <div>Patient Name & ID</div>
+                  <div>Doctor Name</div>
                   <Input
-                    value={"12345467676890"}
+                    className="text-main"
+                    value={"Dr Ashish Kumar"}
                     onInput={(e) => {
                       e.target.value = e.target.value.replace(/[^0-6]/g, "");
                     }}
@@ -441,30 +489,33 @@ const CreateBill = ({
                 pagination={false}
                 rowKey="key"
                 bordered
+                className="customize-table"
               />
               <Button
-                type="primary"
+                type="button"
+                className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
                 onClick={handleAddRow}
                 icon={<PlusOutlined />}
-                style={{ marginTop: "16px", width: 200 }}
+                style={{ marginTop: 16, width: "fit-content" }}
               >
                 Add Another Service
               </Button>
             </div>
           </Col>
           <Col
-            className="h-100"
+            className="h-100 py-4"
             style={{
-              flex: "0 0 25%",
-              maxWidth: "25%",
+              flex: "0 0 28%",
+              maxWidth: "28%",
               overflowY: "auto",
               height: "100%",
+              backgroundColor: "rgba(241, 241, 245, 0.5)",
             }}
           >
             <div className="d-flex gap-2">
-              <div style={{ padding: "16px 16px 0px 0px" }}>
+              <div>
                 <div className="text-lg font-medium mb-2">
-                  Paid Amount <span className="text-red-500">*</span>
+                  Paid Amount <span>*</span>
                 </div>
                 {paymentModes.map((payment, index) => (
                   <div key={index} className="relative">
@@ -477,7 +528,7 @@ const CreateBill = ({
                       </div>
                     )}
                     <div className="flex align-items-center gap-4 mb-3">
-                      <div className="d-flex align-items-center">
+                      <div className="d-flex align-items-center gap-1">
                         <div
                           className="d-flex flex-column"
                           style={{
@@ -488,7 +539,7 @@ const CreateBill = ({
                           <div className="d-flex">
                             <Select
                               placeholder="Select"
-                              value={payment.lable}
+                              value={payment.mode}
                               onChange={(value) =>
                                 handleModeChange(value, index, "mode")
                               }
@@ -517,7 +568,7 @@ const CreateBill = ({
                               className="w-40 payment-input"
                             />
                           </div>
-                          {payment.lable !== "Cash" && (
+                          {payment?.mode && payment.mode !== "Cash" && (
                             <span
                               className="show-more-link"
                               style={{
@@ -534,12 +585,12 @@ const CreateBill = ({
                         </div>
                         {paymentModes.length > 1 && (
                           <Button
-                            className="btn btn-delete-prescription p-0"
+                            className="btn btn-delete-prescription p-2 d-flex align-items-center justify-content-center"
                             onClick={() => removePaymentMode(index)}
                           >
                             <i
                               className="icon-delete"
-                              style={{ color: "#454551", marginLeft: 10 }}
+                              style={{ color: "#454551" }}
                             />
                           </Button>
                         )}
@@ -547,15 +598,14 @@ const CreateBill = ({
                     </div>
                   </div>
                 ))}
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="link"
-                    icon={<PlusOutlined />}
+                <div className="flex align-items-center gap-2">
+                  <button
+                    className="btn d-flex align-items-center btn-text"
                     onClick={addPaymentMode}
-                    className="text-blue-600"
                   >
-                    Payment mode
-                  </Button>
+                    <i className={`icon-Add me-1 fs-5 text-primary`} />
+                    <span className="text-primary">Payment mode</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -603,7 +653,7 @@ const CreateBill = ({
                 style={{
                   color: "#4B4AD5",
                   fontWeight: "500",
-                  padding: "30px 0px",
+                  padding: "25px 0px 40px",
                 }}
                 onClick={handleDrawerDiagnosisNotes}
               >
@@ -611,10 +661,13 @@ const CreateBill = ({
               </button>
             ) : (
               <div
-                className="d-flex justify-conetent-between"
-                style={{ paddingLeft: 14 }}
+                className="d-flex justify-content-between"
+                style={{ padding: "25px 0px 25px 14px" }}
               >
-                <ReadMore text={patientDiagnosisNotes} textLimit={60} />
+                <div className="d-flex gap-1">
+                  <span style={{ fontWeight: "600" }}>Notes: </span>
+                  <ReadMore text={patientDiagnosisNotes} textLimit={60} />
+                </div>
                 <div onClick={handleDrawerDiagnosisNotes}>
                   <i className="icon-Edit text-primary fs-16 cursor-pointer" />
                 </div>
@@ -623,7 +676,7 @@ const CreateBill = ({
           </Col>
         </Row>
       </div>
-      {searchCustomSelected && (
+      {searchCustomSelected?.isCustom && (
         <ServiceItemPopup
           onCancel={() => setSearchCustomSelected(null)}
           title={"Add New Item"}

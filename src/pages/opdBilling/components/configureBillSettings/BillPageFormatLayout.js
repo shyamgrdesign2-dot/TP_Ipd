@@ -3,16 +3,20 @@ import {
   FONTS_FAMILY_LIST,
   FONTS_SIZE_LIST,
 } from "../../../../utils/constants";
-import { useCallback } from "react";
 
-const BillPageFormatLayout = () => {
-  const onSelectFontFamily = useCallback((data) => {
-    console.log("data", data);
-  }, []);
-
-  const onSelectFontSize = useCallback((data) => {
-    console.log("data", data);
-  }, []);
+const BillPageFormatLayout = ({ pageFormat, setPrintSettings }) => {
+  const { fontFamily, fontSize } = pageFormat || {};
+  const onSelectPageFormat = (data, key) => {
+    setPrintSettings((prev) => {
+      return {
+        ...prev,
+        pageFormat: {
+          ...prev.pageFormat,
+          [key]: data,
+        },
+      };
+    });
+  };
 
   return (
     <div className="px-3 form_addnewpatient">
@@ -23,8 +27,8 @@ const BillPageFormatLayout = () => {
           className="autocomplete-custom"
           placeholder="Select font family"
           options={FONTS_FAMILY_LIST}
-          value={"Times-Roman"}
-          onSelect={onSelectFontFamily}
+          value={fontFamily}
+          onSelect={(data) => onSelectPageFormat(data, "fontFamily")}
           allowClear
         />
       </Form.Item>
@@ -35,8 +39,8 @@ const BillPageFormatLayout = () => {
           className="autocomplete-custom"
           placeholder="Select font size"
           options={FONTS_SIZE_LIST}
-          value={12}
-          onSelect={onSelectFontSize}
+          value={fontSize}
+          onSelect={(data) => onSelectPageFormat(data, "fontSize")}
           allowClear
         />
       </Form.Item>
