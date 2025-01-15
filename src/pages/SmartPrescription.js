@@ -2409,11 +2409,11 @@ function SmartPrescription() {
   };
 
   
-  const handleSubmit = async () => {
-      const type = isCustomSSRX ? 1 : 0;
-      const tokenData = getTokenData();
-      const clinic = getClinic(profile?.hospital_data);
-      window.Moengage.track_event("TP_SmartRx_Submit", {
+  const handleSubmit = async (versionNumber) => {
+    const type = isCustomSSRX ? 1 : 0;
+    const tokenData = getTokenData();
+    const clinic = getClinic(profile?.hospital_data);
+    window.Moengage.track_event("TP_SmartRx_Submit", {
       patient_id: patient_data?.patient_unique_id || "",
       patient_name: patient_data?.pm_fullname,
       doctor_id: profile?.doctor_unique_id,
@@ -2423,13 +2423,13 @@ function SmartPrescription() {
       clinic_name: clinic?.hm_name,
       source: "Submit rx button",
       type: type,
-      device_details: navigator.userAgent
-  });
+      device_details: navigator.userAgent,
+    });
     // Only get canvases that correspond to current pages
     const currentCanvasArray = pages.map(pageId => canvasRefs.current[pageId]).filter(
       (canvas) => canvas !== null
     );
-    
+
     let blobs = [];
     let files = [];
 
@@ -2448,7 +2448,7 @@ function SmartPrescription() {
 
         // Check if the file has meaningful content (not just a blank canvas)
         const hasContent = file.size > 5 * 1000; // 5KB threshold for meaningful content
-        
+
         if (!hasContent && vitalsData.length === 0 && !followUpDate) {
           // Only show error if this is the first page and no other data exists
           if (i === 0) {
@@ -2494,6 +2494,7 @@ function SmartPrescription() {
     });
     formData.append("doctor_unique_id", tokenData?.doctor_unique_id);
     formData.append("patient_unique_id", patient_data?.patient_unique_id);
+    formData.append("buildNumber", versionNumber);
 
     try {
       if (files.length > 0) {
