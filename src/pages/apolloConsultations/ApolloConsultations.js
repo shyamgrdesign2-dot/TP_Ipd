@@ -250,15 +250,18 @@ const ConsultationDetailsPage = () => {
       title: "Cross Consult",
       dataIndex: "dynamicModules",
       key: "crossConsult",
-      render: (dynamicModules) =>
-        dynamicModules?.[1]?.content?.length > 0 ? (
+      render: (dynamicModules) => {
+        const crossConsultData = dynamicModules?.find(
+          (item) => item?.name === "Cross Consult / Referred to"
+        );
+        return crossConsultData?.content?.length > 0 ? (
           <Button
             type="link"
             style={{ color: "#4B4AD5" }}
             onClick={() => {
               setModalContent({
-                title: dynamicModules?.[1]?.name,
-                list: dynamicModules?.[1]?.content?.map((item) => item.title),
+                title: crossConsultData?.name,
+                list: crossConsultData?.content?.map((item) => item.title),
               });
               setVisibleModal(true);
             }}
@@ -268,21 +271,27 @@ const ConsultationDetailsPage = () => {
           </Button>
         ) : (
           ""
-        ),
+        );
+      },
     },
     {
       title: "Vaccination Packages",
       dataIndex: "dynamicModules",
       key: "vaccinePackages",
-      render: (dynamicModules) =>
-        dynamicModules?.[0]?.content?.length > 0 ? (
+      render: (dynamicModules) => {
+        const vaccinationPackageData = dynamicModules?.find(
+          (item) => item?.name === "Vaccination Packages"
+        );
+        return vaccinationPackageData?.content?.length > 0 ? (
           <Button
             type="link"
             style={{ color: "#4B4AD5" }}
             onClick={() => {
               setModalContent({
-                title: dynamicModules?.[0]?.name,
-                list: dynamicModules?.[0]?.content?.map((item) => item.title),
+                title: vaccinationPackageData?.name,
+                list: vaccinationPackageData?.content?.map(
+                  (item) => item.title
+                ),
               });
               setVisibleModal(true);
             }}
@@ -292,7 +301,8 @@ const ConsultationDetailsPage = () => {
           </Button>
         ) : (
           ""
-        ),
+        );
+      },
     },
     {
       title: "Remarks",
