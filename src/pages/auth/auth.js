@@ -4,14 +4,15 @@ import LoginWithOTP from "./components/LoginWithOTP";
 import LoginWithPassword from "./components/LoginWithPassword";
 import SetPassword from "./components/SetPassword";
 import "./auth.scss";
+import Signup from "./components/Signup";
+import ClinicSetup from "./components/ClinicSetup";
 
 const AuthContainer = () => {
   const [currentView, setCurrentView] = useState("loginWithOtp"); // Default to login with OTP
-  const [isResetPassowrd, setIsResetPassowrd] = useState(false);
   const [reason, setReason] = useState("");
   const [mobileNumber, setMobileNumber] = useState(null);
   const [data, setData] = useState(null);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Parse query parameters from the URL
@@ -54,6 +55,10 @@ const AuthContainer = () => {
       setCurrentView("loginWithPassword");
     } else if (data?.view === "setPassword") {
       setCurrentView("setPassword");
+    } else if (data?.view === "signup") {
+      setCurrentView("signup");
+    } else if (data?.view === "clinic-setup") {
+      setCurrentView("clinic-setup")
     }
   };
 
@@ -68,9 +73,21 @@ const AuthContainer = () => {
           />
         );
       case "loginWithPassword":
-        return <LoginWithPassword number={mobileNumber}/>;
+        return <LoginWithPassword number={mobileNumber} />;
       case "setPassword":
         return <SetPassword number={mobileNumber} data={data} />;
+      case "signup":
+        return <Signup handleView={handleView}
+          reason={reason}
+          number={mobileNumber} />;
+      case "clinic-setup":
+        if (localStorage.getItem('mo_mobile') == null) {
+          setCurrentView('signup');
+          return <Signup handleView={handleView}
+            reason={reason}
+            number={mobileNumber} />
+        }
+        return <ClinicSetup handleView={handleView} reason={reason} number={mobileNumber} />
       default:
         return null;
     }

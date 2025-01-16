@@ -9,6 +9,7 @@ import moment from "moment";
 import BillingHistory from "./BillingHistory";
 import { openModal } from "../../redux/doctorModalSlice";
 import { Divider } from "antd";
+import { getClinicName } from "../../utils/utils";
 
 function Subscription() {
   const { planDetails } = useSelector((state) => state.subscription);
@@ -23,9 +24,17 @@ function Subscription() {
     billingHistory,
   } = planDetails || {};
   const [showBillingHistory, setShowBillingHistory] = useState(false);
+  const { profile } = useSelector((state) => state.doctors);
 
   const dispatch = useDispatch();
   const handleClick = () => {
+    if (["TRIAL", "EXPIRED"].includes(currentPlanStatus) && !is_pm_renew_requested) {
+      const clinic_name = getClinicName(profile?.hospital_data);
+      window.Moengage.track_event("BuyPlanNow_Click", {
+        doctor_id: profile?.doctor_unique_id,
+        clinic_name,
+      });
+    }
     dispatch(openModal());
   };
 
@@ -51,7 +60,14 @@ function Subscription() {
         {!!billingHistory?.length && (
           <button
             className="btn d-flex align-items-center btn-text"
-            onClick={() => setShowBillingHistory(true)}
+            onClick={() => {
+              setShowBillingHistory(true);
+              const clinic_name = getClinicName(profile?.hospital_data);
+              window.Moengage.track_event("BillingHistory_Click", {
+                doctor_id: profile?.doctor_unique_id,
+                clinic_name,
+              });
+            }}
           >
             <img
               loading="lazy"
@@ -86,8 +102,11 @@ function Subscription() {
               <Divider style={{ margin: "0 30px", width: "630px" }} />
               <div className="px-20 py-1">
                 <p className="mt-4 renew-btn">
-                  Your plan {expiresIn > 0 ? `expires in ${expiresIn} days` : "has expired"}. Renew now to
-                  ensure hassle-free access!
+                  Your plan{" "}
+                  {expiresIn > 0
+                    ? `expires in ${expiresIn} days`
+                    : "has expired"}
+                  . Renew now to ensure hassle-free access!
                 </p>
                 <button
                   className="buyPlanButton mb-4"

@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber, isAlphabetExit, calculateDose } from "../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber, isAlphabetExit, calculateDose, getClinicName } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
@@ -878,6 +878,15 @@ function MedicationsBox() {
   }
 
   const taperDoseAdd = async (item) => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    window.Moengage.track_event("TP_Medicine_Tappered_Web", {
+      clinic_name,
+      "Doctor_unique_id": profile?.doctor_unique_id,
+      "Doctor_specialty": profile?.dp_name,
+      "Patient_Name": patient_data?.pm_fullname,
+      "Patient_ID": patient_data?.patient_unique_id,
+      "Rx_Id": item?.tmm_id,
+  });
     const array = await innerMedication(item?.index).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) }))
     let updatedData = {
       ...array.at(-1),

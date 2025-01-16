@@ -9,6 +9,7 @@ import { getDecodedToken } from "../utils/localStorage";
 import CreditImg from "../assets/images/credit_icon.svg"
 import config from "../config";
 import AvailableCredits from "../components/bulk_messages/AvailableCredits";
+import { getClinicCity } from "../utils/utils";
 
 function Welcome(props) {
 
@@ -42,6 +43,18 @@ function Welcome(props) {
     },
     [availableCredit]
   );
+
+  const handleNewTemplate = () => {
+    navigate('/create-campaign');
+    const clinic_city = getClinicCity(profile?.hospital_data);
+    window.Moengage.track_event("TP_Choose_New_Template", {
+      "Doctor_specialty": profile?.dp_name,
+      "Doctor_unique_id": profile?.doctor_unique_id,
+      clinic_city,
+      "Doctor_Name": profile?.um_name,
+      "Doctor_mobile_No": profile?.um_contact,
+    });
+  }
 
   return (
     <>
@@ -97,7 +110,7 @@ function Welcome(props) {
                   <Button
                     variant="primary"
                     className="px-3 btn-41 ms-3 d-flex align-items-center"
-                    onClick={() => navigate('/create-campaign')}>
+                    onClick={handleNewTemplate}>
                     <i className="icon-Add me-2"></i>
                     {"Choose new Template"}
                   </Button>

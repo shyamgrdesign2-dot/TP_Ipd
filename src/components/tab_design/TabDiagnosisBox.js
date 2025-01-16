@@ -19,6 +19,7 @@ import {
     getDiagnosisTemplates,
     getFrequentlySearchedDiagnosis,
     getLoadPreviousDiagnosis,
+    singleTemplateDetails,
 } from "../../redux/diagnosisSlice";
 
 import TabDiagnosisSearch from "../../components/tab_design/TabDiagnosisSearch";
@@ -91,7 +92,7 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
     useEffect(() => {
         if (selectedDiagnosisList.length > 0) {
             const updatedData = diagnosisData.map((e, i) => {
-                return { ...e, ...selectedDiagnosisList[i] };
+                return { ...e, ...selectedDiagnosisList[i], change: 0 };
             });
             setDiagnosisData(updatedData);
         }
@@ -193,12 +194,15 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
         }
     };
 
-    const onTemplateSelected = (template) => {
-        const updatedData = template.diagnosis.map(e => {
-            return { ...e, unique_id: uuidv4(), since: "", status: "", note: e.note ? e.note : "" }
-        })
-        setDiagnosisData([...diagnosisData, ...updatedData]);
-        handleDrawerTemplate();
+    const onTemplateSelected = async (template) => {
+        const action = await dispatch(singleTemplateDetails(template.tdt_id));
+        if (action.meta.requestStatus === "fulfilled") {
+            const updatedData = action?.payload;
+            setDiagnosisData([...diagnosisData, ...updatedData]);
+            handleDrawerTemplate();
+        } else {
+            errorMessage(action.error)
+        }
     };
 
     const onDeleteTemplateClicked = async (tdt_id) => {
@@ -409,12 +413,7 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
                                             <div className="text-truncate w-100">
                                                 <div className="title text-main2">{template.tdt_template_name}</div>
                                                 <div className="text-truncate">
-                                                    {template.diagnosis.map((item, ii) => {
-                                                        return (
-                                                            <span key={ii}>{`${item.tds_name}${template.diagnosis.length - 1 != ii ? ", " : ""
-                                                                }`}</span>
-                                                        );
-                                                    })}
+                                                    <span>{template.diagnosis}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -494,12 +493,7 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
                                     <div className="text-truncate w-100">
                                         <div className="title text-main2">{option.data.value}</div>
                                         <div className="text-truncate">
-                                            {JSON.parse(option.data.key).diagnosis.map((item, ii) => {
-                                                return (
-                                                    <span key={ii}>{`${item.tds_name}${JSON.parse(option.data.key).diagnosis.length - 1 != ii ? ", " : ""
-                                                        }`}</span>
-                                                );
-                                            })}
+                                            <span>{JSON.parse(option.data.key).diagnosis}</span>
                                         </div>
                                     </div>
                                 </div>

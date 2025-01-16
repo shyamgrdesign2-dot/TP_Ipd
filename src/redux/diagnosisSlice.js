@@ -63,22 +63,32 @@ export const getDiagnosisTemplates = createAsyncThunk(
 
 export const getFrequentlySearchedDiagnosis = createAsyncThunk(
   "diagnosis/getFrequentlySearchedDiagnosis",
-  async () => {
-    let result = {};
-    result = await ApiDiagnosis.getFrequentlySearchedDiagnosis();
-    if (result.status) {
-      return result.data;
-    } else {
-      throw Error(result.error);
+  async (_, { rejectWithValue }) => {
+    try {
+      const result = await ApiDiagnosis.getFrequentlySearchedDiagnosis();
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
     }
   }
 );
 
 export const searchDiagnosis = createAsyncThunk(
   "diagnosis/searchDiagnosis",
-  async (data) => {
-    let result = {};
-    result = await ApiDiagnosis.searchDiagnosis(data.searchQuery);
+  async (data, { rejectWithValue }) => {
+    try {
+      const result = await ApiDiagnosis.searchDiagnosis(data.searchQuery);
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
+    }
+  }
+);
+
+export const singleTemplateDetails = createAsyncThunk(
+  "diagnosis/singleTemplateDetails",
+  async (templateId) => {
+    const result = await ApiDiagnosis.singleTemplateDetails(templateId);
     if (result.status) {
       return result.data;
     } else {
@@ -110,8 +120,10 @@ const diagnosisSlice = createSlice({
       })
       .addCase(addTemplate.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedDiagnosisList = action.payload.diagnosis;
-        state.templates.unshift(action.payload);
+        state.selectedSymptomsList = action.payload.diagnosis;
+
+        const { tdt_id, tdt_template_name, diagnosis } = action.payload
+        state.templates.unshift({ tdt_id: tdt_id, tdt_template_name: tdt_template_name, diagnosis: diagnosis.map((e) => e.tds_name).join(', ') });
       })
       .addCase(addTemplate.rejected, (state, action) => {
         state.loading = false;
@@ -126,7 +138,8 @@ const diagnosisSlice = createSlice({
           (e) => e.tdt_id == action.payload.tdt_id
         );
         if (index !== -1) {
-          state.templates[index] = action.payload;
+          const { tdt_id, tdt_template_name, diagnosis } = action.payload
+          state.templates[index] = { tdt_id: tdt_id, tdt_template_name: tdt_template_name, diagnosis: diagnosis.map((e) => e.tds_name).join(', ') };
         }
       })
       .addCase(updateTemplate.rejected, (state, action) => {

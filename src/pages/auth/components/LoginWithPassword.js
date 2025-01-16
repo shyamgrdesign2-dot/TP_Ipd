@@ -13,6 +13,22 @@ const LoginWithPassword = ({ handleView, number }) => {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false); // Loader state
+  const [utm_campaign, setUtm_campaign] = useState("NA");
+  const [utm_source, setUtm_source] = useState("NA");
+  const [utm_content, setUtm_content] = useState("NA");
+  const [utm_medium, setUtm_medium] = useState("NA");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setUtm_campaign(params.get("utm_campaign") ?? 'NA');
+    setUtm_source(params.get("utm_source") ?? 'NA');
+    setUtm_medium(params.get("utm_medium") ?? 'NA');
+    setUtm_content(params.get("utm_content") ?? 'NA');
+
+    window.Moengage.track_event('TP_Login_landing_page', {
+      utm_campaign, utm_source, utm_medium, utm_content
+    });
+  },[]);
 
   const navigate = useNavigate();
 
@@ -37,12 +53,17 @@ const LoginWithPassword = ({ handleView, number }) => {
       setLoading(false); // Hide loader
       return;
     }
+    window.Moengage.track_event('TP_Submit_Clicked', {
+      utm_campaign, utm_source, utm_medium, utm_content
+    });
 
     try {
       // Step 2: Call login API
       setMobileNumber(trimmedMobileNumber);
       const response = await loginWithPassword(trimmedMobileNumber, trimmedPassword);
-
+      window.Moengage.track_event('TP_Login_Success', {
+        utm_campaign, utm_source, utm_medium, utm_content
+      });
       // Step 3: Extract response fields
       const { message, ssoUrl } = response;
 
