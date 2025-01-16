@@ -10,7 +10,7 @@ import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
 import logoSm from '../../assets/images/logo-sm.svg';
 
-import { errorMessage, onlyNumberFormat } from "../../utils/utils";
+import { errorMessage, getClinicCity, onlyNumberFormat } from "../../utils/utils";
 import { MESSAGE_KEY } from "../../utils/constants";
 import { paymentOrder, verifyPayment, userRedeemCode, states } from "../../redux/bulkMessagesSlice";
 import config from "../../config";
@@ -40,7 +40,16 @@ function AvailableCredits({ handleAvailableCredit }) {
 
     const onSelect = useCallback(
         (data, e) => {
-            setSelectedState(JSON.parse(e.key))
+            setSelectedState(JSON.parse(e.key));
+            const clinic_city = getClinicCity(profile?.hospital_data);
+            window.Moengage.track_event("TP_State_Select", {
+                "Doctor_specialty": profile?.dp_name,
+                "Doctor_unique_id": profile?.doctor_unique_id,
+                clinic_city,
+                "Doctor_Name": profile?.um_name,
+                "Doctor_mobile_No": profile?.um_contact,
+                "State_name": e.value,
+            });
         },
         [selectedState]
     );
@@ -55,12 +64,30 @@ function AvailableCredits({ handleAvailableCredit }) {
     const onRadioGroupChange = (e) => {
         setCreditRadio(e.target.value);
         setCreditInput(null);
+        const clinic_city = getClinicCity(profile?.hospital_data);
+        window.Moengage.track_event("TP_Package_Select", {
+            "Doctor_specialty": profile?.dp_name,
+            "Doctor_unique_id": profile?.doctor_unique_id,
+            clinic_city,
+            "Doctor_Name": profile?.um_name,
+            "Doctor_mobile_No": profile?.um_contact,
+            "Amount": e.target.value,
+        });
     }
 
     const onInputChange = (e) => {
         const value = onlyNumberFormat(e.target.value);
         setCreditInput(value);
         setCreditRadio(null);
+        const clinic_city = getClinicCity(profile?.hospital_data);
+        window.Moengage.track_event("TP_Package_Select", {
+            "Doctor_specialty": profile?.dp_name,
+            "Doctor_unique_id": profile?.doctor_unique_id,
+            clinic_city,
+            "Doctor_Name": profile?.um_name,
+            "Doctor_mobile_No": profile?.um_contact,
+            "Amount": e.target.value,
+        });
     }
 
     const onCouponCodeInputChange = (e) => {
@@ -116,6 +143,15 @@ function AvailableCredits({ handleAvailableCredit }) {
     }
 
     const initRazorPayPayment = (data) => {
+        const clinic_city = getClinicCity(profile?.hospital_data);
+        window.Moengage.track_event("TP_Buy_credits", {
+            "Doctor_specialty": profile?.dp_name,
+            "Doctor_unique_id": profile?.doctor_unique_id,
+            clinic_city,
+            "Doctor_Name": profile?.um_name,
+            "Doctor_mobile_No": profile?.um_contact,
+            "Amount": data?.amount,
+        });
         const options = {
             key: config.razorPay_key,
             amount: data.amount,
