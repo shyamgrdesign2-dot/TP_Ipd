@@ -275,7 +275,6 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
       diagnosisData[i] = {
         ...diagnosisData[i],
         change: 1,
-        tds_id: 0,
         tds_name: updateQuery
       };
       setDiagnosisData((prev) => [...prev]);
