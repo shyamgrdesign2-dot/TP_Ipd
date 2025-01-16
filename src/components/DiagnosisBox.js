@@ -247,9 +247,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
           ...diagnosisData[searchChildQuery.index],
           unique_id: uuidv4(),
           change: 1,
-          tds_id: 0,
           tds_name: searchChildQuery.query,
-          pms_default: 0,
         }),
         value: searchChildQuery.query,
         label: (
