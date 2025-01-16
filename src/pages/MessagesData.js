@@ -23,7 +23,7 @@ import DetailedView from "../components/bulk_messages/DetailedView";
 import CommonModal from "../common/CommonModal";
 
 import { TAB_CAMPAIGN, TAB_DRAFT, TAB_PURCHASE } from "../utils/constants";
-import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
+import { errorMessage, getClinicCity, removeBeforeWhiteSpace } from "../utils/utils";
 import AvailableCredits from "../components/bulk_messages/AvailableCredits";
 
 const { RangePicker } = DatePicker;
@@ -34,6 +34,7 @@ const showDateFormat = 'DD MMM YYYY'
 function MessagesData() {
 
     const { tabCountObj, userCampaignList, userPurchaseList, campaignDetails, loading, popup, errorObj } = useSelector((state) => state.bulkMessages);
+    const { profile } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,6 +59,14 @@ function MessagesData() {
         if (popup) {
             showHideModal()
         }
+        const clinic_city = getClinicCity(profile?.hospital_data);
+        window.Moengage.track_event("TP_Messages_Button", {
+          "Doctor_specialty": profile?.dp_name,
+          "Doctor_unique_id": profile?.doctor_unique_id,
+          clinic_city,
+          "Doctor_Name": profile?.um_name,
+          "Doctor_mobile_No": profile?.um_contact,
+        });
     }, []);
 
     const showHideModal = useCallback(() => {
@@ -510,6 +519,18 @@ function MessagesData() {
         [availableCredit]
     );
 
+    const handleNewTemplate = () => {
+        navigate('/create-campaign');
+        const clinic_city = getClinicCity(profile?.hospital_data);
+        window.Moengage.track_event("TP_Choose_New_Template", {
+          "Doctor_specialty": profile?.dp_name,
+          "Doctor_unique_id": profile?.doctor_unique_id,
+          clinic_city,
+          "Doctor_Name": profile?.um_name,
+          "Doctor_mobile_No": profile?.um_contact,
+        });
+      }
+
     const emptyText = (
         <div className="d-flex flex-column align-items-center justify-content-center"
             style={{ height: "calc(100vh - 350px)" }}>
@@ -534,7 +555,7 @@ function MessagesData() {
                             <div className="mt-2 lh-normal fs-14 fw-normal">Start creating campaigns to keep your patients </div>
                             <div className="mt-2 lh-normal fs-14 fw-normal">informed and engaged</div>
                             <Button
-                                onClick={() => navigate('/create-campaign')}
+                                onClick={handleNewTemplate}
                                 variant="primary"
                                 className="px-3 mt-4 btn-41 d-flex align-items-center">
                                 <i className="icon-Add me-2"></i>

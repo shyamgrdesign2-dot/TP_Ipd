@@ -11,7 +11,7 @@ import { listAllTemplate, listCategory, listDoctor, searchPatient, updatePatient
 import moment from "moment";
 import dayjs from "dayjs";
 
-import { errorMessage, onlyNumberFormat } from "../utils/utils";
+import { errorMessage, getClinicCity, onlyNumberFormat } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
 
 import VideoModal from "../common/VideoModal";
@@ -57,7 +57,7 @@ const GENDER = ['Male', 'Female', 'Other']
 function MessageCreateCampaign() {
 
     const { loading, userCreditObj, categoryList, allTemplateList, templateLoading, doctorList, patientCount } = useSelector((state) => state.bulkMessages);
-    const { videoList } = useSelector((state) => state.doctors);
+    const { videoList, profile } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
@@ -113,6 +113,32 @@ function MessageCreateCampaign() {
         dispatch(listCategory());
         dispatch(listAllTemplate());
         dispatch(listDoctor());
+    }, []);
+
+    useEffect(() => {
+        const clinic_city = getClinicCity(profile?.hospital_data);
+        window.Moengage.track_event("TP_Select_Target_Audience", {
+            "Doctor_specialty": profile?.dp_name,
+            "Doctor_unique_id": profile?.doctor_unique_id,
+            clinic_city,
+            "Doctor_Name": profile?.um_name,
+            "Doctor_mobile_No": profile?.um_contact,
+            "Selection_Target_Audience": patientCount,
+        });
+    }, [patientCount]);
+
+    useEffect(() => {
+        const clinic_city = getClinicCity(profile?.hospital_data);
+        if (campaign_data === undefined && reuse_campaign_data === undefined) {
+            window.Moengage.track_event("TP_Select_Mode_Of_Messages", {
+                "Doctor_specialty": profile?.dp_name,
+                "Doctor_unique_id": profile?.doctor_unique_id,
+                clinic_city,
+                "Doctor_Name": profile?.um_name,
+                "Doctor_mobile_No": profile?.um_contact,
+                "Selection_Mode": 'SMS',
+            });
+        }
     }, []);
 
     useEffect(() => {
@@ -179,7 +205,15 @@ function MessageCreateCampaign() {
             if (campaign_data?.msg_rowData?.hasOwnProperty('time')) {
                 settime(campaign_data?.msg_rowData?.time)
             }
-
+            const clinic_city = getClinicCity(profile?.hospital_data);
+            window.Moengage.track_event("TP_Select_Mode_Of_Messages", {
+                "Doctor_specialty": profile?.dp_name,
+                "Doctor_unique_id": profile?.doctor_unique_id,
+                clinic_city,
+                "Doctor_Name": profile?.um_name,
+                "Doctor_mobile_No": profile?.um_contact,
+                "Selection_Mode": campaign_data?.send_on === 'SMS' ? 'SMS' : 'WhatsApp',
+            });
             setSendOn(campaign_data?.send_on === 'SMS' ? 1 : 2)
             setSender_type(campaign_data?.sender_type)
 
@@ -276,7 +310,15 @@ function MessageCreateCampaign() {
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('time')) {
                 settime(reuse_campaign_data?.msg_rowData?.time)
             }
-
+            const clinic_city = getClinicCity(profile?.hospital_data);
+            window.Moengage.track_event("TP_Select_Mode_Of_Messages", {
+                "Doctor_specialty": profile?.dp_name,
+                "Doctor_unique_id": profile?.doctor_unique_id,
+                clinic_city,
+                "Doctor_Name": profile?.um_name,
+                "Doctor_mobile_No": profile?.um_contact,
+                "Selection_Mode": reuse_campaign_data?.send_on === 'SMS' ? 'SMS' : 'WhatsApp',
+            });
             setSendOn(reuse_campaign_data?.send_on === 'SMS' ? 1 : 2)
             setSender_type(reuse_campaign_data?.sender_type)
 
@@ -416,7 +458,24 @@ function MessageCreateCampaign() {
 
     // Steps Code
     const next = async () => {
+        const clinic_city = getClinicCity(profile?.hospital_data);
+        window.Moengage.track_event("TP_BulkSMS_Template_to_Broadcast", {
+            "Doctor_specialty": profile?.dp_name,
+            "Doctor_unique_id": profile?.doctor_unique_id,
+            clinic_city,
+            "Doctor_Name": profile?.um_name,
+            "Doctor_mobile_No": profile?.um_contact,
+            "Selection_Decision": 'Next',
+        });
         if (stepCurrent === 1) {
+            window.Moengage.track_event("TP_Messages_Timing", {
+                "Doctor_specialty": profile?.dp_name,
+                "Doctor_unique_id": profile?.doctor_unique_id,
+                clinic_city,
+                "Doctor_Name": profile?.um_name,
+                "Doctor_mobile_No": profile?.um_contact,
+                "Selection_Message_Timing": schedule_type === 1 ? moment().add(30, 'minutes').format(showDateTimeFormat): moment(scheduleDateTime).format(showDateTimeFormat),
+            });
             const data = await sendTemplate()
             // const emptyKey = Object.keys(data).find(key => !data[key]);
             // if (emptyKey) {
@@ -449,6 +508,15 @@ function MessageCreateCampaign() {
 
     const prev = () => {
         setStepCurrent(prev => prev - 1);
+        const clinic_city = getClinicCity(profile?.hospital_data);
+        window.Moengage.track_event("TP_BulkSMS_Template_to_Broadcast", {
+            "Doctor_specialty": profile?.dp_name,
+            "Doctor_unique_id": profile?.doctor_unique_id,
+            clinic_city,
+            "Doctor_Name": profile?.um_name,
+            "Doctor_mobile_No": profile?.um_contact,
+            "Selection_Decision": 'Back',
+        });
     };
 
     const onSelectCategory = useCallback(
@@ -462,6 +530,15 @@ function MessageCreateCampaign() {
     const onTemplateClick = (e) => {
         setTemplate(e)
         next()
+        const clinic_city = getClinicCity(profile?.hospital_data);
+        window.Moengage.track_event("TP_Select_Template", {
+            "Doctor_specialty": profile?.dp_name,
+            "Doctor_unique_id": profile?.doctor_unique_id,
+            clinic_city,
+            "Doctor_Name": profile?.um_name,
+            "Doctor_mobile_No": profile?.um_contact,
+            "Template_name": e.campaign_name,
+        });
     }
 
     // Custom Radio
@@ -1001,6 +1078,14 @@ function MessageCreateCampaign() {
     }
 
     const onAddEditCampaign = async (draft) => {
+        const clinic_city = getClinicCity(profile?.hospital_data);
+        window.Moengage.track_event("TP_Send_Message_Now", {
+            "Doctor_specialty": profile?.dp_name,
+            "Doctor_unique_id": profile?.doctor_unique_id,
+            clinic_city,
+            "Doctor_Name": profile?.um_name,
+            "Doctor_mobile_No": profile?.um_contact,
+        });
         var sendData = {
             campaign_id: template?.id,
             send_on: send_on,
