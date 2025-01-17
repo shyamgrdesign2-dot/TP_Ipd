@@ -6,6 +6,10 @@ import ConfigureBillSettings from "./components/configureBillSettings/ConfigureB
 import { Document, Page } from "react-pdf";
 import ViewBillPdf from "./components/viewBillPdf/ViewBillPdf";
 import { pdf } from "@react-pdf/renderer";
+import { useSelector } from "react-redux";
+import { fetchPrintSetting } from "./service";
+import { setBillPrintSettings } from "../../redux/billingSlice";
+import { useDispatch } from "react-redux";
 
 const patient_data = {
   pm_salutation: "Mr",
@@ -35,6 +39,8 @@ const patient_data = {
 };
 
 const PreviewBill = () => {
+  const dispatch = useDispatch();
+  const { billPrintSettings } = useSelector((state) => state.billing);
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
   const [showConfigureSettings, setShowConfigureSettings] = useState(false);
@@ -47,11 +53,28 @@ const PreviewBill = () => {
   }, [divRef]);
 
   useEffect(() => {
-    makePDFUrl();
+    if (billPrintSettings && Object.keys(billPrintSettings).length > 0) {
+      makePDFUrl();
+    }
+  }, [billPrintSettings]);
+
+  useEffect(() => {
+    if (billPrintSettings && Object.keys(billPrintSettings).length === 0) {
+      getBillPrintSettings();
+    }
   }, []);
 
+  const getBillPrintSettings = async () => {
+    const printSettingsResponse = await fetchPrintSetting();
+    if (printSettingsResponse) {
+      dispatch(setBillPrintSettings(printSettingsResponse));
+    }
+  };
+
   const makePDFUrl = async () => {
-    const blob = await pdf(<ViewBillPdf />).toBlob();
+    const blob = await pdf(
+      <ViewBillPdf printSettings={billPrintSettings} />
+    ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));
   };
 

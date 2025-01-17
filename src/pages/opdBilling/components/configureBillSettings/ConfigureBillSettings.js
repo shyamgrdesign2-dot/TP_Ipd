@@ -1,6 +1,7 @@
-import { Button, Col, Row, Spin, Tabs } from "antd";
+import { Button, Col, Row, Spin, Tabs, message } from "antd";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  MESSAGE_KEY,
   TAB_HEADER_FOOTER,
   TAB_PAGE_FORMAT,
 } from "../../../../utils/constants";
@@ -8,16 +9,24 @@ import { isMobile } from "react-device-detect";
 import { Container, Navbar } from "react-bootstrap";
 import CommonModal from "../../../../common/CommonModal";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
+import visitEnd from "./../../../../assets/images/end-visit.svg";
+import imgCloseVisit from "./../../../../assets/images/close-visit.svg";
 import { Document, Page, pdfjs } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import BillPageFormatLayout from "./BillPageFormatLayout";
 import BillHeaderFooterLayout from "./BillHeaderFooterLayout";
 import ViewBillPdf from "../viewBillPdf/ViewBillPdf";
-import { fetchPrintSetting } from "../../service";
+import {
+  deletePrintSetting,
+  fetchPrintSetting,
+  updatePrintSetting,
+} from "../../service";
+import { useSelector } from "react-redux";
 const worker = require("pdfjs-dist/build/pdf.worker.min.js");
 pdfjs.GlobalWorkerOptions.workerSrc = worker;
 
 const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
+  const { billPrintSettings } = useSelector((state) => state.billing);
   const TabsPrintSetting = [
     {
       key: TAB_HEADER_FOOTER,
@@ -31,7 +40,7 @@ const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
 
   const [printSettings, setPrintSettings] = useState({});
   const [selectedTab, setSelectedTab] = useState(TAB_HEADER_FOOTER);
-  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [numPages, setNumPages] = useState();
   const [loadSuccess, setLoadSuccesss] = useState(false);
@@ -43,22 +52,19 @@ const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
   }, [divRef]);
 
   useEffect(() => {
-    getPrintSetting();
-    makePDFUrl();
-    return () => {
-      setLoadSuccesss(false);
-    };
+    if (billPrintSettings && Object.keys(billPrintSettings)?.length > 0) {
+      setPrintSettings(billPrintSettings);
+    }
   }, []);
 
-  const getPrintSetting = async () => {
-    const printSettingsRes = await fetchPrintSetting();
-    if (printSettingsRes) {
-      setPrintSettings(printSettingsRes);
-    }
-  };
+  useEffect(() => {
+    makePDFUrl();
+  }, [printSettings]);
 
   const makePDFUrl = async () => {
-    const blob = await pdf(<ViewBillPdf />).toBlob();
+    const blob = await pdf(
+      <ViewBillPdf printSettings={printSettings} />
+    ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));
   };
 
@@ -69,13 +75,43 @@ const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
     [selectedTab]
   );
 
-  const showHideBackModal = () => {
-    setIsBackModalOpen(!isBackModalOpen);
+  const showHideBackModal = (type) => {
+    setIsBackModalOpen(type);
   };
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
     setLoadSuccesss(true);
+  };
+
+  const handleDefaultSettings = async () => {
+    await deletePrintSetting();
+    showHideBackModal(null);
+  };
+
+  const handleSaveBtn = async () => {
+    const updatePrintSettingRes = await updatePrintSetting(printSettings);
+    message.open({
+      key: MESSAGE_KEY,
+      type: "",
+      className: "message-appointment",
+      content: (
+        <div className="d-flex align-items-center">
+          <img src={visitEnd} className="me-3" />
+          <div>
+            <div className="title-common text-start fontroboto">
+              {"Updated Bill Print Settings successfully."}
+            </div>
+          </div>
+          <img
+            src={imgCloseVisit}
+            className="ms-3"
+            onClick={() => message.destroy()}
+          />
+        </div>
+      ),
+      duration: 3,
+    });
   };
 
   return (
@@ -87,50 +123,62 @@ const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
               <div className="align-items-center d-flex h-100 gap-2">
                 <div className="border-end h-100 text-center">
                   <div
-                    onClick={showHideBackModal}
+                    onClick={() => showHideBackModal("back")}
                     className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
                   >
                     <i className="icon-right" />
                   </div>
-                  <CommonModal
-                    isModalOpen={isBackModalOpen}
-                    onCancel={showHideBackModal}
-                    modalWidth={500}
-                    title={"You may lose your data"}
-                    modalBody={
-                      <>
-                        <div className="alert-warning rounded-10px p-2 patient-details">
-                          <div className="d-flex align-items-center">
-                            <img
-                              className="me-3"
-                              src={alertIcon}
-                              alt="Warning"
-                            />
-                            <span>
-                              Are you sure you want to leave? <br />
-                              You will permanently lose your data.
-                            </span>
-                          </div>
-                        </div>
-                        <div className="mt-4">
-                          <div className="d-flex align-items-center mt-2 justify-content-end">
-                            <div
-                              onClick={handleDrawerConfigureSettings}
-                              className="me-4 text-decoration-underline btn p-0 text-main"
-                            >
-                              Yes Leave
+                  {isBackModalOpen && (
+                    <CommonModal
+                      isModalOpen={isBackModalOpen}
+                      onCancel={() => showHideBackModal(null)}
+                      modalWidth={500}
+                      title={"You may lose your data"}
+                      modalBody={
+                        <>
+                          <div className="alert-warning rounded-10px p-2 patient-details">
+                            <div className="d-flex align-items-center">
+                              <img
+                                className="me-3"
+                                src={alertIcon}
+                                alt="Warning"
+                              />
+                              <span>
+                                Are you sure you want to leave? <br />
+                                You will permanently lose your data.
+                              </span>
                             </div>
-                            <Button
-                              onClick={showHideBackModal}
-                              className="lh-lg btn btn-primary3 btn-41 px-4"
-                            >
-                              <span>No, Stay</span>
-                            </Button>
                           </div>
-                        </div>
-                      </>
-                    }
-                  />
+                          <div className="mt-4">
+                            <div className="d-flex align-items-center mt-2 justify-content-end">
+                              <div
+                                onClick={
+                                  isBackModalOpen === "default"
+                                    ? handleDefaultSettings
+                                    : handleDrawerConfigureSettings
+                                }
+                                className="me-4 text-decoration-underline btn p-0 text-main"
+                              >
+                                {isBackModalOpen === "default"
+                                  ? "Yes"
+                                  : "Yes Leave"}
+                              </div>
+                              <Button
+                                onClick={() => showHideBackModal(null)}
+                                className="lh-lg btn btn-primary3 btn-41 px-4"
+                              >
+                                <span>
+                                  {isBackModalOpen === "default"
+                                    ? "No"
+                                    : "No, Stay"}
+                                </span>
+                              </Button>
+                            </div>
+                          </div>
+                        </>
+                      }
+                    />
+                  )}
                 </div>
                 <span className="title-digitise-card">
                   Configure Bill Print Setting
@@ -139,12 +187,16 @@ const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
             </Col>
             <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
               <div className="align-items-center d-flex h-100 gap-2">
-                <button className="btn btn-text me-14">
+                <button
+                  className="btn btn-text me-14"
+                  onClick={() => showHideBackModal("default")}
+                >
                   <span>Default Settings</span>
                 </button>
                 <Button
                   type="button"
                   className="btn-41 btn px-4 btn-primary3 me-4"
+                  onClick={handleSaveBtn}
                 >
                   Save
                 </Button>

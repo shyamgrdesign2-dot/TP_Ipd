@@ -5,7 +5,7 @@ import React, { useCallback, useState } from "react";
 import { dataUrlToFileUsingFetch, errorMessage } from "../../../../utils/utils";
 import defaultprofile from "./../../../../assets/images/default-profile.svg";
 
-const LetterheadUpload = () => {
+const LetterheadUpload = ({ setPrintSettings }) => {
   const [fileFooter, setFileFooter] = useState(null);
   const [fileHeader, setFileHeader] = useState(null);
   const [isHeaderModalOpen, setIsHeaderModalOpen] = useState(false);
@@ -35,7 +35,7 @@ const LetterheadUpload = () => {
           setFileHeader({
             imageShow: false,
             crop: true,
-            showFile: reader.result,
+            file: reader.result,
             originalFile: fileUrl,
           });
           showHideHeaderModal();
@@ -62,7 +62,7 @@ const LetterheadUpload = () => {
       setFileHeader({
         ...fileHeader,
         crop: false,
-        showFile: trimData,
+        file: trimData,
         uploadFile: uploadFile,
       });
     }
@@ -76,7 +76,7 @@ const LetterheadUpload = () => {
           ...fileHeader,
           imageShow: false,
           crop: true,
-          showFile: reader.result,
+          file: reader.result,
         });
       };
       reader.readAsDataURL(fileHeader.originalFile);
@@ -85,6 +85,20 @@ const LetterheadUpload = () => {
 
   const onHeaderImageSubmit = () => {
     setFileHeader({ ...fileHeader, imageShow: true });
+    setPrintSettings((prev) => {
+      return {
+        ...prev,
+        headerFooter: {
+          ...prev?.headerFooter,
+          header: {
+            ...prev?.headerFooter?.header,
+            file: fileHeader?.uploadFile
+              ? URL.createObjectURL(fileHeader?.uploadFile)
+              : fileHeader?.file,
+          },
+        },
+      };
+    });
     showHideHeaderModal();
   };
 
@@ -107,7 +121,7 @@ const LetterheadUpload = () => {
           setFileFooter({
             imageShow: false,
             crop: true,
-            showFile: reader.result,
+            file: reader.result,
             originalFile: fileUrl,
           });
           showHideFooterModal();
@@ -134,7 +148,7 @@ const LetterheadUpload = () => {
       setFileFooter({
         ...fileFooter,
         crop: false,
-        showFile: trimData,
+        file: trimData,
         uploadFile: uploadFile,
       });
     }
@@ -148,7 +162,7 @@ const LetterheadUpload = () => {
           ...fileFooter,
           imageShow: false,
           crop: true,
-          showFile: reader.result,
+          file: reader.result,
         });
       };
       reader.readAsDataURL(fileFooter.originalFile);
@@ -157,6 +171,20 @@ const LetterheadUpload = () => {
 
   const onFooterImageSubmit = () => {
     setFileFooter({ ...fileFooter, imageShow: true });
+    setPrintSettings((prev) => {
+      return {
+        ...prev,
+        headerFooter: {
+          ...prev?.headerFooter,
+          footer: {
+            ...prev?.headerFooter?.footer,
+            file: fileFooter?.uploadFile
+              ? URL.createObjectURL(fileFooter?.uploadFile)
+              : fileFooter?.file,
+          },
+        },
+      };
+    });
     showHideFooterModal();
   };
 
@@ -181,7 +209,7 @@ const LetterheadUpload = () => {
                 objectFit: "contain",
                 overflow: "hidden",
               }}
-              src={fileHeader?.showFile}
+              src={fileHeader?.file}
             />
             <Button
               className="btn btn-headfoot"
@@ -244,7 +272,7 @@ const LetterheadUpload = () => {
                       objectFit: "contain",
                     }}
                     preview=".img-preview"
-                    src={fileHeader ? fileHeader?.showFile : defaultprofile}
+                    src={fileHeader ? fileHeader?.file : defaultprofile}
                     viewMode={3}
                     background={false}
                     autoCropArea={0.3}
@@ -257,7 +285,7 @@ const LetterheadUpload = () => {
                       height: "100%",
                       objectFit: "contain",
                     }}
-                    src={fileHeader ? fileHeader?.showFile : defaultprofile}
+                    src={fileHeader ? fileHeader?.file : defaultprofile}
                   />
                 )}
               </div>
@@ -294,7 +322,7 @@ const LetterheadUpload = () => {
                 objectFit: "contain",
                 overflow: "hidden",
               }}
-              src={fileFooter?.showFile}
+              src={fileFooter?.file}
             />
             <Button
               className="btn btn-headfoot"
@@ -357,7 +385,7 @@ const LetterheadUpload = () => {
                       objectFit: "contain",
                     }}
                     preview=".img-preview"
-                    src={fileFooter ? fileFooter?.showFile : defaultprofile}
+                    src={fileFooter ? fileFooter?.file : defaultprofile}
                     viewMode={3}
                     background={false}
                     autoCropArea={0.3}
@@ -370,7 +398,7 @@ const LetterheadUpload = () => {
                       height: "100%",
                       objectFit: "contain",
                     }}
-                    src={fileFooter ? fileFooter?.showFile : defaultprofile}
+                    src={fileFooter ? fileFooter?.file : defaultprofile}
                   />
                 )}
               </div>

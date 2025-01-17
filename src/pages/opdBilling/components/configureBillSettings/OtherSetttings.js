@@ -12,7 +12,7 @@ const OtherSetttings = ({ otherSettings, setPrintSettings }) => {
   const [fileSignature, setFileSignature] = useState(null);
   const [fileWatermark, setFileWatermark] = useState(null);
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
-  const [signatureMode, setSignatureMode] = useState("L");
+  const [signatureMode, setSignatureMode] = useState("left");
   const [settingsShowHide, setSettingsShowHide] = useState(false);
 
   const inputSignatureFile = React.createRef();
@@ -124,7 +124,7 @@ const OtherSetttings = ({ otherSettings, setPrintSettings }) => {
   };
 
   const handleTrim = async () => {
-    if (signatureMode === "L") {
+    if (signatureMode === "left") {
       if (signatureRef.current?.isEmpty()) {
         alert("Please provide signature");
         return;
@@ -284,10 +284,10 @@ const OtherSetttings = ({ otherSettings, setPrintSettings }) => {
                     }
                     value={otherSettings?.signature?.positon}
                   >
-                    <Radio.Button className="w-100 text-center" value="L">
+                    <Radio.Button className="w-100 text-center" value="left">
                       Left
                     </Radio.Button>
-                    <Radio.Button className="w-100 text-center" value="R">
+                    <Radio.Button className="w-100 text-center" value="right">
                       Right
                     </Radio.Button>
                   </Radio.Group>
@@ -369,7 +369,7 @@ const OtherSetttings = ({ otherSettings, setPrintSettings }) => {
                                   >
                                     <Radio.Button
                                       className="w-100 text-center"
-                                      value="L"
+                                      value="left"
                                     >
                                       <div className="d-flex align-items-center">
                                         <i className="fs-18 icon-Edit me-1"></i>
@@ -380,7 +380,7 @@ const OtherSetttings = ({ otherSettings, setPrintSettings }) => {
                                     </Radio.Button>
                                     <Radio.Button
                                       className="w-100 text-center"
-                                      value="R"
+                                      value="right"
                                     >
                                       <div className="d-flex align-items-center">
                                         <i className="fs-16 icon-upload me-1"></i>
@@ -394,7 +394,7 @@ const OtherSetttings = ({ otherSettings, setPrintSettings }) => {
                               </div>
                             </div>
                             <div className="d-flex image-crop border justify-content-center align-items-center">
-                              {signatureMode === "L" ? (
+                              {signatureMode === "left" ? (
                                 <SignatureCanvas
                                   ref={signatureRef}
                                   canvasProps={{ width: 694, height: 189 }}

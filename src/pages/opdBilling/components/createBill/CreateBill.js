@@ -550,7 +550,7 @@ const CreateBill = ({
                                 { value: "Credit Card", label: "Credit Card" },
                                 { value: "Debit Card", label: "Debit Card" },
                                 { value: "UPI", label: "UPI" },
-                                { value: "Check", label: "Check" },
+                                { value: "Cheque", label: "Cheque" },
                                 {
                                   value: "Advance Deposit",
                                   label: "Advance Deposit",

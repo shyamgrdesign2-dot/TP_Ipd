@@ -40,7 +40,7 @@ const LetterheadCustom = ({ headerFooter, setPrintSettings }) => {
               ...prev?.headerFooter?.header,
               [crossInfo]: {
                 ...prev?.headerFooter?.header?.[infoType],
-                [key]: value === "L" ? "R" : "L",
+                [key]: value === "left" ? "right" : "left",
               },
             },
           },
@@ -151,10 +151,10 @@ const LetterheadCustom = ({ headerFooter, setPrintSettings }) => {
               }
               value={doctorInfo?.position}
             >
-              <Radio.Button className="w-100 text-center" value="L">
+              <Radio.Button className="w-100 text-center" value="left">
                 Left
               </Radio.Button>
-              <Radio.Button className="w-100 text-center" value="R">
+              <Radio.Button className="w-100 text-center" value="right">
                 Right
               </Radio.Button>
             </Radio.Group>
@@ -223,10 +223,10 @@ const LetterheadCustom = ({ headerFooter, setPrintSettings }) => {
               }
               value={clinicInfo?.position}
             >
-              <Radio.Button className="w-100 text-center" value="L">
+              <Radio.Button className="w-100 text-center" value="left">
                 Left
               </Radio.Button>
-              <Radio.Button className="w-100 text-center" value="R">
+              <Radio.Button className="w-100 text-center" value="right">
                 Right
               </Radio.Button>
             </Radio.Group>
