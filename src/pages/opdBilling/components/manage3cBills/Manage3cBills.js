@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import {
   Button,
   Drawer,
@@ -18,6 +24,8 @@ import { Col, Container, Row } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import "./Manage3cBills.scss";
 import AddForm3cBills from "../manage3cBills/AddForm3cBills.js";
+import { useReactToPrint } from "react-to-print";
+import { handlePrintClick } from "../../../../utils/utils.js";
 
 import locale from "antd/es/date-picker/locale/en_US";
 
@@ -25,7 +33,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
 import dayjs from "dayjs";
-import MenuDivider from "antd/es/menu/MenuDivider";
+// import MenuDivider from "antd/es/menu/MenuDivider";
+import Form3cPrint from "./Form3cPrint.js";
 
 // import { errorMessage, onlyNumberFormat } from "../../../../utils/utils";
 // import { MESSAGE_KEY } from "../../../../utils/constants";
@@ -92,6 +101,8 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
   const [pageNo, setPageNo] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [pickerModal, setPickerModal] = useState(false);
+  const printableRef = useRef(null);
+  const [tabLoader, setTabLoader] = useState(false);
 
   const onSearch = useCallback(
     (query) => {
@@ -104,6 +115,19 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
   const handlePickerModal = useCallback(() => {
     setPickerModal(!pickerModal);
   }, [pickerModal]);
+
+  const handlePrintWeb = useReactToPrint({
+    content: () => printableRef.current,
+  });
+
+  const handleForm3cPrint = () => {
+    handlePrintClick(
+      printableRef.current,
+      setTabLoader,
+      handlePrintWeb,
+      "DownloadBill"
+    );
+  };
 
   const rangePresets = [
     {
@@ -123,28 +147,6 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
         <div className={`${dateStatus === 3 ? "active" : ""}`}>Last month</div>
       ),
       value: [dayjs().add(-1, "M"), dayjs()],
-    },
-    {
-      label: (
-        <div className={`${dateStatus === 4 ? "active" : ""}`}>
-          Last 3 month
-        </div>
-      ),
-      value: [dayjs().add(-3, "M"), dayjs()],
-    },
-    {
-      label: (
-        <div className={`${dateStatus === 5 ? "active" : ""}`}>
-          Last 6 month
-        </div>
-      ),
-      value: [dayjs().add(-6, "M"), dayjs()],
-    },
-    {
-      label: (
-        <div className={`${dateStatus === 6 ? "active" : ""}`}>Last 1 year</div>
-      ),
-      value: [dayjs().add(-1, "y"), dayjs()],
     },
     {
       label: (
@@ -441,7 +443,11 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
             <span>{"+"}</span>
             <span>{"Add New Bills to 3C"}</span>
           </Button>
-          <Button className="btn-create-bill" disabled={true}>
+          <Button
+            className="btn-create-bill"
+            onClick={handleForm3cPrint}
+            // disabled={true}
+          >
             <span>{"Print Form 3C"}</span>
           </Button>
         </div>
@@ -549,6 +555,14 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
             </div>
           </div>
         </div>
+
+        {
+          <div style={{ display: "none" }}>
+            <div ref={printableRef}>
+              <Form3cPrint />
+            </div>
+          </div>
+        }
         <div className="justify-content-between align-items-center px-4 my-2">
           <Table
             className="billing-table px-0"

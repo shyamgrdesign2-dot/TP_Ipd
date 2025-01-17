@@ -125,28 +125,6 @@ function AddForm3cBills({ handleAddForm3cBill }) {
     },
     {
       label: (
-        <div className={`${dateStatus === 4 ? "active" : ""}`}>
-          Last 3 month
-        </div>
-      ),
-      value: [dayjs().add(-3, "M"), dayjs()],
-    },
-    {
-      label: (
-        <div className={`${dateStatus === 5 ? "active" : ""}`}>
-          Last 6 month
-        </div>
-      ),
-      value: [dayjs().add(-6, "M"), dayjs()],
-    },
-    {
-      label: (
-        <div className={`${dateStatus === 6 ? "active" : ""}`}>Last 1 year</div>
-      ),
-      value: [dayjs().add(-1, "y"), dayjs()],
-    },
-    {
-      label: (
         <div
           className={`${!dateStatus ? "active" : ""}`}
           onClick={() => onRangeChange(null)}

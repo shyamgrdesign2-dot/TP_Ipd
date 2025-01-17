@@ -1,0 +1,28 @@
+.form-3c-print-wrapper {
+    .ant-table thead.ant-table-thead th:first-child, body .ant-table thead.ant-table-thead td:first-child {
+        border-bottom-left-radius: 0 !important;
+    }
+
+    .ant-table thead.ant-table-thead th:last-child, body .ant-table thead.ant-table-thead td:last-child {
+        border-bottom-right-radius: 0; 
+    }
+    .ant-table-thead>tr>th {
+        background-color: #f8cf9c !important;
+        /* Header background color */
+        color: #000;
+        /* Text color for header */
+        text-align: center;
+    }
+
+    .ant-table-tbody>tr>td {
+        background-color:#ffffb6 !important;
+        /* Data row background color */
+        text-align: center;
+    }
+
+    .ant-table-bordered .ant-table-cell {
+        border-color: #d9d9d9;
+        /* Maintain table border consistency */
+    }
+
+}
