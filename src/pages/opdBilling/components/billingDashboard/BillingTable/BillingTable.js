@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   Select,
   Checkbox,
@@ -10,12 +10,15 @@ import {
   Table,
   Dropdown,
   Drawer,
+  Modal,
 } from "antd";
 import moment from "moment";
 import dayjs from "dayjs";
 import "./BillingTable.scss";
-import VitalsBox from "../../../../../components/VitalsBox";
 import RefundBill from "../RefundBill/RefundBill";
+import { useReactToPrint } from "react-to-print";
+import { handlePrintClick } from "../../../../../utils/utils.js";
+import DownloadBill from "../DownloadBill/DownloadBill.js";
 const { RangePicker } = DatePicker;
 
 const { Option } = Select;
@@ -68,10 +71,14 @@ export default function BillingTable() {
   const [searchQuery, setSearchQuery] = useState("");
   const [pickerModal, setPickerModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState(1);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const printableRef = useRef(null);
+  const [tabLoader, setTabLoader] = useState(false);
 
   // Drawer states
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [viewBillDrawer, setViewBillDrawer] = useState(false);
+  const [openDownloadModal, setOpenDownloadModal] = useState(false);
 
   const [dateRange, setDateRange] = useState({
     startDate: moment().format(dateFormat),
@@ -112,6 +119,51 @@ export default function BillingTable() {
   // Drawer form 3c
   const handleRefundBillDrawer = () => {
     setRefundBillDrawer(!refundBillDrawer);
+  };
+
+  // Download Options Modal
+  const handleOpenDownloadModal = () => {
+    setOpenDownloadModal(!openDownloadModal);
+  };
+
+  const handleCheckboxChange = (checkedValues) => {
+    setSelectedOptions(checkedValues);
+  };
+
+  const handlePrintWeb = useReactToPrint({
+    content: () => printableRef.current,
+  });
+
+  const handleDownload = async () => {
+    // if (selectedOptions.length === 0) {
+    //   // message.warning("Please select at least one option or download all sections!");
+    //   return;
+    // }
+
+    try {
+      console.log("this is getting called");
+      // Mock API call
+      // const response = await fetch("https://api.example.com/download-data", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ filters: selectedOptions }),
+      // });
+      // const data = await response.json();
+
+      handlePrintClick(
+        printableRef.current,
+        setTabLoader,
+        handlePrintWeb,
+        "DownloadBill"
+      );
+
+      // // Pass the data to downloadView
+      // downloadView(data);
+      // message.success("Download started!");
+      handleOpenDownloadModal();
+    } catch (error) {
+      // message.error("Failed to download. Please try again.");
+    }
   };
 
   const disabledDate = (current) => {
@@ -192,11 +244,9 @@ export default function BillingTable() {
 
   const onBillingDetailsClick = async (status, record) => {
     if (status === 1) {
-
     } else if (status === 2) {
       handleRefundBillDrawer();
-    } else{
-
+    } else {
     }
   };
 
@@ -444,6 +494,70 @@ export default function BillingTable() {
     },
   ];
 
+  // Dropdown content
+  const menu = (
+    <div
+      className="download-options-container billing-table-wrapper"
+      style={{
+        padding: "10px",
+        background: "#fff",
+        borderRadius: "8px",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      {/* Download All Sections */}
+      <Button
+        type="link"
+        style={{ background: "lightgray" }}
+        onClick={() => {
+          // Direct download all data
+          handleDownload();
+        }}
+      >
+        Download All Status
+      </Button>
+
+      <div style={{ textAlign: "center", margin: "10px 0" }}>
+        ---------- or ----------
+      </div>
+
+      {/* Checkboxes */}
+      <Checkbox.Group
+        className="bil"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          marginBottom: "10px",
+        }}
+        onChange={handleCheckboxChange}
+      >
+        <Checkbox value="fullyPaid">
+          <span className="color-paid">Fully Paid</span>
+        </Checkbox>
+        <Checkbox value="due">
+          <span className="color-due">Due</span>
+        </Checkbox>
+        <Checkbox value="refunded">
+          <span className="color-refunded">Refunded</span>
+        </Checkbox>
+      </Checkbox.Group>
+
+      {/* Download Now Button */}
+      <Button
+        type="primary"
+        // className="justify-content-center align-items-center"
+        style={{
+          width: "100%",
+          display: `${selectedOptions.length > 0 ? "" : "none"}`,
+        }}
+        onClick={handleDownload}
+      >
+        Download
+        <i class="icon-download fs-8" />
+      </Button>
+    </div>
+  );
+
   return (
     <div>
       <div className="appointment-data billing-table-wrapper">
@@ -598,11 +712,19 @@ export default function BillingTable() {
                 ]}
               />
             </div>
-            <div className="d-flex justify-content-between align-items-center billing-download">
-              <i
-                className="icon-download"
-                style={{ cursor: "pointer", color: "#4B4AD5" }}
-              ></i>
+            <div className="download-modal-container">
+              <Dropdown
+                overlay={menu}
+                trigger={["click"]}
+                placement="bottomRight" // Positions the dropdown below the button
+              >
+                <div className="d-flex justify-content-between align-items-center billing-download">
+                  <i
+                    className="icon-download"
+                    style={{ cursor: "pointer", color: "#4B4AD5" }}
+                  ></i>
+                </div>
+              </Dropdown>
             </div>
           </div>
         </Row>
@@ -639,6 +761,14 @@ export default function BillingTable() {
           />
         </Row>
 
+        {
+          <div style={{ display: "none" }}>
+            <div ref={printableRef}>
+              <DownloadBill />
+            </div>
+          </div>
+        }
+
         {refundBillDrawer && (
           <Drawer
             closeIcon={false}
@@ -647,9 +777,7 @@ export default function BillingTable() {
             open={refundBillDrawer}
             width="50%"
           >
-            <RefundBill
-              handleRefundBillDrawer={handleRefundBillDrawer}
-            />
+            <RefundBill handleRefundBillDrawer={handleRefundBillDrawer} />
           </Drawer>
         )}
       </div>

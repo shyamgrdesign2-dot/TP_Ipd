@@ -107,4 +107,29 @@
     background: var(--Colour-Red-Red---10, #FCEDED);
     color: #B73A3A !important;
   }
+
+  :where(.css-dev-only-do-not-override-1okl62o).ant-modal {
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 0;
+    color: rgba(0, 0, 0, 0.88);
+    font-size: 14px;
+    line-height: 1.5714285714285714;
+    list-style: none;
+    pointer-events: none;
+    position: absolute;
+    /* top: 100px; */
+    width: 250px !important;
+    max-width: calc(100vw - 32px);
+  }
+
+  .color-paid{
+    color: #3D8C40 !important;
+  }
+  .color-due{
+    color: #ED8A00 !important;
+  }
+  .color-refunded{
+    color: #B73A3A !important;
+  }
 }

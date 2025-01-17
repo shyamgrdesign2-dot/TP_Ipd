@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   Select,
   Checkbox,
@@ -13,6 +13,9 @@ import {
 import moment from "moment";
 import dayjs from "dayjs";
 import "../AdvanceDepositTable/AdvanceDepositTable.scss";
+import { useReactToPrint } from "react-to-print";
+import { handlePrintClick } from "../../../../../utils/utils.js";
+import DownloadBill from "../DownloadBill/DownloadBill.js";
 const { RangePicker } = DatePicker;
 
 const { Option } = Select;
@@ -49,6 +52,11 @@ export default function AdvanceDepositTable() {
   const [searchQuery, setSearchQuery] = useState("");
   const [pickerModal, setPickerModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState(1);
+  const printableRef = useRef(null);
+  const [tabLoader, setTabLoader] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  const [openDownloadModal, setOpenDownloadModal] = useState(false);
 
   const [dateRange, setDateRange] = useState({
     startDate: moment().format(dateFormat),
@@ -261,12 +269,12 @@ export default function AdvanceDepositTable() {
               };
           }
         };
-      
+
         // Get status details
         const { className, displayText } = getStatusDetails(record.status);
-      
+
         return <div className={className}>{displayText}</div>;
-      }
+      },
     },
     {
       title: "Action",
@@ -290,7 +298,9 @@ export default function AdvanceDepositTable() {
     const items = [
       {
         label: (
-          <div onClick={() => onBillingDetailsClick(1, record)}>View Receipt</div>
+          <div onClick={() => onBillingDetailsClick(1, record)}>
+            View Receipt
+          </div>
         ),
         key: "view_receipt",
       },
@@ -322,6 +332,115 @@ export default function AdvanceDepositTable() {
       return items;
     }
   };
+
+  const handlePrintWeb = useReactToPrint({
+    content: () => printableRef.current,
+  });
+
+  // Download Options Modal
+  const handleOpenDownloadModal = () => {
+    setOpenDownloadModal(!openDownloadModal);
+  };
+
+  const handleCheckboxChange = (checkedValues) => {
+    setSelectedOptions(checkedValues);
+  };
+
+  const handleDownload = async () => {
+    // if (selectedOptions.length === 0) {
+    //   // message.warning("Please select at least one option or download all sections!");
+    //   return;
+    // }
+
+    try {
+      console.log("this is getting called");
+      // Mock API call
+      // const response = await fetch("https://api.example.com/download-data", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ filters: selectedOptions }),
+      // });
+      // const data = await response.json();
+
+      handlePrintClick(
+        printableRef.current,
+        setTabLoader,
+        handlePrintWeb,
+        "DownloadBill"
+      );
+
+      // // Pass the data to downloadView
+      // downloadView(data);
+      // message.success("Download started!");
+      handleOpenDownloadModal();
+    } catch (error) {
+      // message.error("Failed to download. Please try again.");
+    }
+  };
+
+  // Dropdown content
+  const menu = (
+    <div
+      className="download-options-container billing-table-wrapper"
+      style={{
+        padding: "10px",
+        background: "#fff",
+        borderRadius: "8px",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      {/* Download All Sections */}
+      <Button
+        type="link"
+        style={{ background: "lightgray" }}
+        onClick={() => {
+          // Direct download all data
+          handleDownload();
+        }}
+      >
+        Download All Status
+      </Button>
+
+      <div style={{ textAlign: "center", margin: "10px 0" }}>
+        ---------- or ----------
+      </div>
+
+      {/* Checkboxes */}
+      <Checkbox.Group
+        className="bil"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          marginBottom: "10px",
+        }}
+        onChange={handleCheckboxChange}
+      >
+        <Checkbox value="fullyPaid">
+          <span className="color-paid">Fully Paid</span>
+        </Checkbox>
+        <Checkbox value="due">
+          <span className="color-due">Due</span>
+        </Checkbox>
+        <Checkbox value="refunded">
+          <span className="color-refunded">Refunded</span>
+        </Checkbox>
+      </Checkbox.Group>
+
+      {/* Download Now Button */}
+      <Button
+        type="primary"
+        // className="justify-content-center align-items-center"
+        style={{
+          width: "100%",
+          display: `${selectedOptions.length > 0 ? "" : "none"}`,
+        }}
+        onClick={handleDownload}
+      >
+        Download
+        <i class="icon-download fs-8" />
+      </Button>
+    </div>
+  );
 
   const data = [
     {
@@ -392,7 +511,7 @@ export default function AdvanceDepositTable() {
               onChange={(e) => onSearch(e.target.value)}
             />
           </Col>
-          <Col xl={3} sm={5}>
+          <Col xl={4} sm={5}>
             <div className="d-flex flex-row gap-2">
               <div className="massage-date-wrapper">
                 <div
@@ -473,6 +592,20 @@ export default function AdvanceDepositTable() {
                   ]}
                 />
               </div>
+              <div className="download-modal-container">
+                <Dropdown
+                  overlay={menu}
+                  trigger={["click"]}
+                  placement="bottomRight" // Positions the dropdown below the button
+                >
+                  <div className="d-flex justify-content-between align-items-center billing-download">
+                    <i
+                      className="icon-download"
+                      style={{ cursor: "pointer", color: "#4B4AD5" }}
+                    ></i>
+                  </div>
+                </Dropdown>
+              </div>
             </div>
           </Col>
         </Row>
@@ -492,7 +625,7 @@ export default function AdvanceDepositTable() {
               >
                 <div
                   className="card-title"
-                  style={{ "--dynamic-color": card.fontColor}}
+                  style={{ "--dynamic-color": card.fontColor }}
                 >
                   {card.title}
                 </div>
@@ -500,6 +633,14 @@ export default function AdvanceDepositTable() {
               </div>
             ))}
           </div>
+
+          {
+            <div style={{ display: "none" }}>
+              <div ref={printableRef}>
+                <DownloadBill />
+              </div>
+            </div>
+          }
 
           <Table
             className="billing-table px-0"

@@ -41,6 +41,10 @@ function RefundBill({ handleRefundBillDrawer }) {
     setPaymentModes(updatedModes);
   };
 
+  const handleRefundBill = () => {
+    handleRefundBillDrawer();
+  }
+
   const addPaymentMode = () => {
     setPaymentModes([...paymentModes, { mode: "", amount: 0 }]);
   };
@@ -157,12 +161,13 @@ function RefundBill({ handleRefundBillDrawer }) {
             <Button
               type="text"
               className="btn btn-delete-prescription px-3 focus-none h-100"
+              onClick={handleRefundBillDrawer}
             >
               <i className="icon-Cross fs-3"></i>
             </Button>
             <div className="modal-title">Refund Bill</div>
           </div>
-          <Button className="btn btn-primary3 btn-41 px-4 me-20">Refund</Button>
+          <Button className="btn btn-primary3 btn-41 px-4 me-20" onClick={handleRefundBill}>Refund</Button>
         </div>
         <div
           className="refund-bill-wrapper align-items-center d-flex justify-content-between mx-4 mt-4 "
