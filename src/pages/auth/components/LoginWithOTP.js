@@ -82,7 +82,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       setUtm_content(params.get("utm_content") ?? 'NA');
 
 
-      if(reason == 'forgotPassword'){
+      if(reason === 'forgotPassword' || reason === "setPassword"){
         window.Moengage.track_event('TP_ResetPassword_landing_page', {
           utm_campaign, utm_source, utm_medium, utm_content
         });
@@ -329,7 +329,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
                   localStorage.setItem('mo_mobile', "91" + mobileNumber);
                   handleSwitch({ view: 'clinic-setup' });
                 } else {
-                  setError("User is not registered with us");
+                  setError("User is not registered with us.");
                 }
                 break;
 
@@ -421,12 +421,13 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
           style={{ width: "100%", marginBottom: "1rem" }}
         ></img>
         <h1>
-          {reason === "forgotPassword" ? "Reset Password" : "Login with OTP"}
+          {reason === "forgotPassword" || reason === "setPassword" ? "Reset Password" : "Login with OTP"}
         </h1>
 
         {/* Display success and error messages */}
         {message && <div className="color-blue" style={{ fontSize: "14px" }}>{message}</div>}
         {error && <div className="color-red" style={{ fontSize: "14px" }}>{error}</div>}
+        {reason === "setPassword" && <div className="color-red" style={{ fontSize: "14px" }}>{"Please reset your password via OTP once."}</div>}
 
         <form>
           <label htmlFor="mobileNumber">Mobile Number *</label>
@@ -474,7 +475,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
             </>
           )}
         </form>
-        {reason === "forgotPassword" ? (
+        {(reason === "forgotPassword" || reason === "setPassword") ? (
           <br />
         ) : (
           <>
