@@ -83,8 +83,8 @@ const caseManagerData = {
 const BillHeader = ({ printSettings }) => {
   const { headerFooter } = printSettings;
   const { header, logo, otherSettings, patientInfo } = headerFooter || {};
-  const { clinicInfo, doctorInfo } = header;
-  const { waterMark } = otherSettings;
+  const { clinicInfo, doctorInfo } = header || {};
+  const { waterMark } = otherSettings || {};
 
   return (
     <>
@@ -257,8 +257,8 @@ const BillHeader = ({ printSettings }) => {
       <View style={{ flexDirection: "row", marginVertical: PX_TO_PT * 15 }}>
         <View style={{ flex: 0.7, marginRight: PX_TO_PT * 8 }}>
           {patientInfo
-            .filter((e) => e.enabled)
-            .map((item, i) => {
+            ?.filter((e) => e.enabled)
+            ?.map((item, i) => {
               return (
                 i % 2 === 0 && (
                   <View
@@ -281,8 +281,8 @@ const BillHeader = ({ printSettings }) => {
         </View>
         <View style={{ flex: 0.3, marginLeft: PX_TO_PT * 8 }}>
           {patientInfo
-            .filter((e) => e.enabled)
-            .map((item, i) => {
+            ?.filter((e) => e.enabled)
+            ?.map((item, i) => {
               return (
                 i % 2 === 1 && (
                   <View

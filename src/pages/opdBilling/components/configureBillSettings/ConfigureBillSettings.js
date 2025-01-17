@@ -58,7 +58,9 @@ const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
   }, []);
 
   useEffect(() => {
-    makePDFUrl();
+    if (printSettings && Object.keys(printSettings)?.length > 0) {
+      makePDFUrl();
+    }
   }, [printSettings]);
 
   const makePDFUrl = async () => {
