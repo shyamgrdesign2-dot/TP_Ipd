@@ -2,7 +2,7 @@ import { Button } from "antd";
 import genRx from "../assets/images/gen-rx.svg";
 import newTag from "../assets/images/new-gif.gif";
 
-const GenRxBanner = ({ setShowApexPopup, handleGenRxKnowMore }) => {
+const GenRxBanner = ({ setShowGenRxPopup, handleGenRxKnowMore }) => {
   return (
     <div
       className="d-flex justify-content-between align-items-center"
@@ -36,7 +36,7 @@ const GenRxBanner = ({ setShowApexPopup, handleGenRxKnowMore }) => {
         type="text"
         className="btn btn-delete-prescription focus-none h-100"
         style={{ padding: 5 }}
-        onClick={() => setShowApexPopup(false)}
+        onClick={() => setShowGenRxPopup(false)}
       >
         <i className="icon-Cross fs-3" style={{ color: "#A461D8" }} />
       </Button>

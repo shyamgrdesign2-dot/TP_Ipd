@@ -16,82 +16,7 @@ import GenRxTips from "./GenRxTips";
 
 const { TabPane } = Tabs;
 
-const Carousel = () => {
-  const tips = [
-    {
-      heading: "Mention Headings",
-      text: "While dictating Rx include headings like 'Symptoms', 'Medication' etc. to keep information organised.",
-    },
-    {
-      heading: "Stay Focused",
-      text: "Stick to only prescription details. Avoid irrelevant information for clear and precise dictation.",
-    },
-  ];
-
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: false,
-  };
-
-  return (
-    <div style={styles.carouselContainer}>
-      <Slider {...settings}>
-        {tips.map((tip, index) => (
-          <div key={index} style={styles.slide}>
-            <div style={styles.tipCard}>
-              <div style={styles.icon}>💡</div>
-              <div style={styles.heading}>{tip.heading}</div>
-              <div style={styles.text}>{tip.text}</div>
-            </div>
-          </div>
-        ))}
-      </Slider>
-    </div>
-  );
-};
-
-const styles = {
-  carouselContainer: {
-    width: "80%",
-    margin: "0 auto",
-  },
-  slide: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  tipCard: {
-    width: "300px",
-    padding: "20px",
-    borderRadius: "10px",
-    background: "#F4F7FF",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    textAlign: "center",
-    color: "#333",
-  },
-  icon: {
-    fontSize: "24px",
-    color: "#5A67D8",
-    marginBottom: "10px",
-  },
-  heading: {
-    fontSize: "18px",
-    fontWeight: "600",
-    color: "#4A5568",
-    marginBottom: "10px",
-  },
-  text: {
-    fontSize: "14px",
-    lineHeight: "1.6",
-    color: "#718096",
-  },
-};
-
-const GenRxKnowMore = ({ handleDDxKnowMore }) => {
+const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
   const [shouldShowVideo, setShowVideo] = useState(false);
   const [activeKey, setActiveKey] = useState("basicGenRxInfo");
 
@@ -165,7 +90,7 @@ const GenRxKnowMore = ({ handleDDxKnowMore }) => {
           <Button
             type="text"
             className="close-drawer-btn"
-            onClick={handleDDxKnowMore}
+            onClick={handleGenRxKnowMore}
           >
             <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
           </Button>
@@ -221,7 +146,7 @@ const GenRxKnowMore = ({ handleDDxKnowMore }) => {
             <div
               className="d-flex align-items-center justify-content-center"
               style={{
-                background: `url(${videoLink.thumbnail})`,
+                // background: `url(${videoLink.thumbnail})`,
                 width: 447,
                 height: 272,
                 borderRadius: 24,
@@ -245,10 +170,10 @@ const GenRxKnowMore = ({ handleDDxKnowMore }) => {
           >
             Tips for Better Rx
           </span>
-          <div className="know-more-section-tilte">
+          <div className="know-more-section-tilte mb-4">
             Tips to dictate/write an Rx for better Rx Digitisation
           </div>
-          <GenRxTips />
+          <GenRxTips isKnowMore />
           <div
             style={{ padding: "40px 0 80px 0", textAlign: "center" }}
             className="disclaimer-txt"
