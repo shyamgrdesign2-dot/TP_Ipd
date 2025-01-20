@@ -2672,3 +2672,59 @@ body {
         }
     }
 }
+
+.gen-rx-transcript {
+    display: flex;
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    flex: 1 0 0;
+    border-radius: 18px 0px 18px 18px;
+    background: #F1F1F5;
+    color: #5A6774;
+    width: 457px;
+    margin-left: auto;
+    margin-bottom: 25px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+    text-align: left;
+}
+
+.react-multi-carousel-dot-list {
+    position: absolute !important;
+    bottom: 20px !important; /* Adjust as needed */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    justify-content: center !important;
+    z-index: 10 !important; /* Ensures it appears above the slide */
+  }
+  
+  .react-multi-carousel-dot button {
+    background-color: #A461D840 !important;
+    border: none !important;
+    width: 4.8px !important;
+    height: 4.8px !important;
+    border-radius: 50% !important;
+    margin: 0 5px !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .react-multi-carousel-dot--active button {
+    background-color: #520F86 !important;
+    width: 4.8px !important;
+    height: 4.8px !important;
+  }
+  
+.genRxCustomModuleBox {
+    height:  90px;
+    padding: 16px 0px 0px 0px;
+    gap: 10px;
+    border-radius: 10px;
+    border: 1px 0px 0px 0px;
+    opacity: 0.5px;
+    background: #FCFCFC;
+    border: 1px solid #E2E2EA;
+}

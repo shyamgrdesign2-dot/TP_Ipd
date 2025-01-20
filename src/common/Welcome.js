@@ -30,11 +30,9 @@ function Welcome(props) {
       "doctor_id": profile?.doctor_unique_id,
       "timestamp": new Date(),
     });
-    if (businessId == config.zydus_business_id) {
-      navigate("/walk_in_consultation_zydus")
-    } else {
+    
       navigate("/walk_in_consultation")
-    }
+
   }
 
   const handleAvailableCredit = useCallback(

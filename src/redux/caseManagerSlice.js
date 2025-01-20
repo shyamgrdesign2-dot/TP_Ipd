@@ -181,6 +181,11 @@ export const sendSmartRxLinkOnWhatsapp = createAsyncThunk(
 const caseManagerSlice = createSlice({
     name: "caseManager",
     initialState,
+    reducers: {
+        resetViewCaseManagerData: (state) => {
+          state.viewCaseManagerData = null;
+        },
+      },
     extraReducers: (builder) => {
         builder
             .addCase(oneClickAddTemplate.pending, (state) => {
@@ -287,5 +292,7 @@ const caseManagerSlice = createSlice({
             })
     },
 });
+
+export const { resetViewCaseManagerData } = caseManagerSlice.actions;
 
 export default caseManagerSlice.reducer;
