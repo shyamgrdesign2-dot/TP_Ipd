@@ -2521,3 +2521,210 @@ body {
 .color-blue{
     color: rgb(88, 88, 212) !important;
 }
+
+.tatvaAi-accordian {
+    border: none;
+
+    .ant-collapse-item {
+        border-radius: 0px !important;
+
+        .ant-collapse-header {
+            background: linear-gradient(180deg, #F0E5FF -32.03%, #FCF9FF 100%);
+            // padding: 10px;
+            border-radius: 0px !important;
+
+            .ant-collapse-expand-icon {
+                .ant-collapse-arrow {
+                    display: none;
+                }
+
+                position: relative;
+
+                &:after {
+                    font-family: 'icomoon' !important;
+                    content: "\e914";
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    border-radius: 10px;
+                    border: 1px solid $bordercolor;
+                    transform: rotate(-90deg);
+                    padding: 2px 5px;
+                }
+            }
+        }
+
+        &.ant-collapse-item-active {
+            .ant-collapse-header {
+                .ant-collapse-expand-icon {
+                    &:after {
+                        transform: rotate(90deg);
+                    }
+                }
+            }
+
+            border: 0px;
+        }
+
+        .ant-collapse-content-box {
+            padding: 0px;
+        }
+    }
+    &.cdss-collapse {
+        border-radius: 20px;
+        &.ant-collapse {
+            .ant-collapse-item {
+                .ant-collapse-header {
+                    padding: 0 !important;
+
+                    &[aria-expanded="false"] {
+                        background-color: white;
+                        border-radius: 20px !important;
+                    }
+
+                    &[aria-expanded="true"] {
+                        background-color: transparent;
+                        border-radius: 20px !important;
+
+                        &::before {
+                            content: "";
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), 
+                                url("../images/cdss-wallpaper.gif");
+                            background-size: cover;
+                            background-repeat: no-repeat;
+                            background-position: center;
+                            border-radius: 20px;
+                        }
+                    }
+                    .ant-collapse-header-text {
+                        z-index: 1;
+                    }
+                    .ant-collapse-expand-icon{
+                        margin: 30px 25px 30px 0px;
+                        &:after {
+                            background-color: rgba(255, 255, 255, 0.5);
+                        }
+                    }
+                }
+            }
+            .ant-collapse-content {
+                border-radius: 0 0 20px 20px;
+                border-top: none;
+            }
+        }
+    }
+    &.ddx-collapse {
+        &.ant-collapse {
+            .ant-collapse-item {
+                background: url("../images/ddx-vector.svg");
+                background-repeat: no-repeat;
+                background-position: right;
+                background-position-y: top;
+
+                .ant-collapse-header {           
+                    background-color: rgba(119, 66, 254, 0.08);
+                    padding: 17px 20px 5px;
+
+                     &[aria-expanded="false"] {
+                        border-radius: 12px !important;
+                        padding: 17px 20px;
+                    }
+
+                    &[aria-expanded="true"] {
+                        border-radius: 12px 12px 0px 0px !important;
+                    }
+
+                    .ant-collapse-expand-icon{
+                        &:after {
+                            background-color: rgba(255, 255, 255, 0.5);
+                        }
+                    }
+                }
+            }
+            .ant-collapse-content {
+                border-top: none;
+                background-color: rgba(119, 66, 254, 0.08);
+                padding: 0px 20px 17px;
+                border-radius: 0 0 12px 12px;
+            }
+        }
+    }
+    &.ddx-drawer-collapse {
+        &.ant-collapse {
+            .ant-collapse-item {
+                .ant-collapse-header {           
+                    .ant-collapse-expand-icon{
+                        &:after {
+                            font-size: 20px;
+                            border: none;
+                        }
+                    }
+                }
+            }
+            [aria-expanded="false"] {
+                border-bottom: 1px solid $bordercolor;
+            }
+        }
+    }
+}
+
+.gen-rx-transcript {
+    display: flex;
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    flex: 1 0 0;
+    border-radius: 18px 0px 18px 18px;
+    background: #F1F1F5;
+    color: #5A6774;
+    width: 457px;
+    margin-left: auto;
+    margin-bottom: 25px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+    text-align: left;
+}
+
+.react-multi-carousel-dot-list {
+    position: absolute !important;
+    bottom: 20px !important; /* Adjust as needed */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    justify-content: center !important;
+    z-index: 10 !important; /* Ensures it appears above the slide */
+  }
+  
+  .react-multi-carousel-dot button {
+    background-color: #A461D840 !important;
+    border: none !important;
+    width: 4.8px !important;
+    height: 4.8px !important;
+    border-radius: 50% !important;
+    margin: 0 5px !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .react-multi-carousel-dot--active button {
+    background-color: #520F86 !important;
+    width: 4.8px !important;
+    height: 4.8px !important;
+  }
+  
+.genRxCustomModuleBox {
+    height:  90px;
+    padding: 16px 0px 0px 0px;
+    gap: 10px;
+    border-radius: 10px;
+    border: 1px 0px 0px 0px;
+    opacity: 0.5px;
+    background: #FCFCFC;
+    border: 1px solid #E2E2EA;
+}

@@ -32,6 +32,7 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import CvtKnowMore from "../pages/smartSync/components/CvtKnowMore";
 import moment from "moment";
 import { getModules } from "../redux/customModuleSlice";
+import { getGenRx } from "../api/services/ApiGenRx";
 
 function Cardiology(props) {
   const navigate = useNavigate();
@@ -64,6 +65,7 @@ function Cardiology(props) {
   const [smartRxFile, setSmartRxFile] = useState([]);
   const [isSmartRxFile, setIsSmartRxFile] = useState(false);
   const [showDigitalRx, setShowDigitalRx] = useState(null);
+  const [showDigitalGenRx, setShowDigitalGenRx] = useState(true);
   const [rxDigitisedData, setRxDigitisedData] = useState(null);
   const [isRxdigitised, setIsRxdigitised] = useState(null);
   const [cvtDrawer, setCvtDrawer] = useState(false);
@@ -71,6 +73,8 @@ function Cardiology(props) {
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [genRxData, setGenRxData] = useState(null);
+  const [genRxQueries, setGenRxQueries] = useState(null);
 
   const isSmartSyncAccessableFromGB = useFeatureIsOn(
     GB_ISCRIBE
@@ -109,6 +113,9 @@ function Cardiology(props) {
     }
     if(viewCaseManagerData?.moduleContents?.length) {
       dispatch(getModules(userId));
+    }
+    if (viewCaseManagerData?.smart_prescription_filename) {
+      getGenRxDetails();
     }
   }, [viewCaseManagerData]);
 
@@ -155,6 +162,23 @@ function Cardiology(props) {
       }
     } catch (error) {
       console.error("Error:", error);
+    }
+  };
+
+  const getGenRxDetails = async () => {
+    try {
+      const response = await getGenRx(
+        viewCaseManagerData?.smart_prescription_filename
+      );
+
+      if (response.success) {
+        setGenRxData(response.data?.editedData || response.data?.digitizeData);
+        setGenRxQueries(response.data?.history?.map(({ transcription }) => transcription))
+      } else {
+        throw new Error(response.error || "Failed to get Rx");
+      }
+    } catch (error) {
+      console.error("Error getting Rx details:", error);
     }
   };
 
@@ -354,6 +378,9 @@ function Cardiology(props) {
   ];
 
   const printContent = async () => {
+    if(showDigitalGenRx) {
+      await window.open(`${viewCaseManagerData?.print_url}${genRxData ? '&voiceRxDigitize=true' : ''}`);
+    }
     if (showDigitalRx){
       await window.open(printUrl)
     } else{
@@ -363,7 +390,7 @@ function Cardiology(props) {
 
   const printInAppContent = async () => {
     navigate(
-      `/patient_details/?url=${viewCaseManagerData?.print_url}&key=print`,
+      `/patient_details/?url=${viewCaseManagerData?.print_url}${genRxData ? '&voiceRxDigitize=true' : ''}&key=print`,
       { replace: true, state: { patient_data: patient_data } }
     );
     navigate(0, { replace: true });
@@ -495,6 +522,59 @@ function Cardiology(props) {
     </div>
   );
 
+  const renderGenRxItems = (type) => (
+    <div className="digitised-data-section" style={{ marginLeft: 0 }}>
+      <ol>
+        {/* Handle vitals type separately */}
+        {type === "vitals" &&
+          Object.entries(genRxData?.vitals || {})
+            .filter(([key, value]) => value.trim()) // Filter out empty or falsy values
+            .map(([key, value]) => (
+              <li key={key}>
+                <div className="medicine-item">
+                  <span>
+                    {/* Format the key to be human-readable */}
+                    {`${key
+                      .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
+                      .replace(/^./, (str) => str.toUpperCase())}: `}
+                  </span>
+                  <span>{value}</span>
+                </div>
+              </li>
+            ))}
+  
+        {/* Handle other types (assume they are arrays) */}
+        {type !== "vitals" &&
+          Array.isArray(genRxData?.[type]) &&
+          genRxData?.[type].map((item, index) => (
+            <li key={index}>
+              <div className="medicine-item">
+                <span>
+                  {/* Render dynamically based on type */}
+                  {
+                    type === "advice"
+                      ? item
+                      : item?.name
+                  }
+                </span>
+  
+                {/* Optional rendering for lineItem */}
+                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "labInvestigation" || type === "symptoms") && item.lineItem && (
+                  <span>{` (${item.lineItem})`}</span>
+                )}
+  
+                {/* Optional rendering for notes */}
+                {(type === "examination" || type === "diagnosis") &&
+                  item.notes && (
+                    <span>{` (${item.notes})`}</span>
+                  )}
+              </div>
+            </li>
+          ))}
+      </ol>
+    </div>
+  );
+
   return (
     <div className="appointment-wrap PatientDetailswrap m-0">
       <Card className="">
@@ -540,11 +620,11 @@ function Cardiology(props) {
                     ></i>
                   </Button>
                 </div>
-                <div>
+                <div style={{visibility: (showDigitalGenRx && genRxData) ? "visible" : "hidden"}}>
                   <button
                     className="btn p-0 ms-3"
                     style={{
-                      visibility: viewCaseManagerData?.doctor_data?.editCase && !(isSmartRxFile && isMobile) ? "visible" : "hidden",
+                      visibility: viewCaseManagerData?.doctor_data?.editCase && !(isSmartRxFile && isMobile) && (genRxData ? showDigitalGenRx : false ) ? "visible" : "hidden",
                     }}
                     onClick={handleEditRxClick}
                   >
@@ -620,6 +700,23 @@ function Cardiology(props) {
                 )
               )
             )}
+
+            {genRxData && (
+                <div className="p-2 m-2">
+                  <button
+                    className={`digital-btn ${!showDigitalGenRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`}
+                    onClick={() => setShowDigitalGenRx(true)}
+                  >
+                    Digital Rx
+                  </button>
+                  <button
+                    className={`written-btn ${showDigitalGenRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`}
+                    onClick={() => setShowDigitalGenRx(false)}
+                  >
+                    Transcript
+                  </button>
+                </div>
+            )}
             <Drawer
               closeIcon={false}
               // placement="right"
@@ -644,6 +741,100 @@ function Cardiology(props) {
                   </div>
                 </div>
               ) :
+              true ? 
+              <div>
+                    {showDigitalGenRx ? (
+                      <div className="m-4">
+                        {genRxData?.vitals && Object.values(genRxData?.vitals).some((value) => value) && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <div className="title-digitise-section mb-1">Vitals and Body compositions</div>
+                            </div>
+                            {renderGenRxItems('vitals')}
+                          </>
+                        )}
+
+                        {genRxData?.medicalHistory && genRxData?.medicalHistory.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <div className="title-digitise-section mb-1">Medical History</div>
+                            </div>
+                            {renderGenRxItems('medicalHistory')}
+                          </>
+                        )}
+
+                        {genRxData?.symptoms && genRxData?.symptoms.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <div className="title-digitise-section mb-1">Symptoms</div>
+                            </div>
+                            {renderGenRxItems('symptoms')}
+                          </>
+                        )}
+
+                        {genRxData?.examinations && genRxData?.examinations.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <div className="title-digitise-section mb-1">Examinations</div>
+                            </div>
+                            {renderGenRxItems('examinations')}
+                          </>
+                        )}
+
+                        {genRxData?.diagnosis && genRxData?.diagnosis.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <div className="title-digitise-section mb-1">Diagnosis</div>
+                            </div>
+                            {renderGenRxItems('diagnosis')}
+                          </>
+                        )}
+
+                        {genRxData?.medications && genRxData?.medications.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <div className="title-digitise-section mb-1">Medication</div>
+                            </div>
+                            {renderGenRxItems('medications')}
+                          </>
+                        )}
+
+                        {genRxData?.labInvestigation && genRxData?.labInvestigation.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <div className="title-digitise-section mb-1">Lab Investigation</div>
+                            </div>
+                            {renderGenRxItems('labInvestigation')}
+                          </>
+                        )}
+
+                        {genRxData?.advice && genRxData?.advice.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <div className="title-digitise-section mb-1">Advices</div>
+                            </div>
+                            {renderGenRxItems('advice')}
+                          </>
+                        )}
+                        
+                        {genRxData?.vaccinations && genRxData?.vaccinations.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <div className="title-digitise-section mb-1">Vaccinations</div>
+                            </div>
+                            {renderGenRxItems('vaccinations')}
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="m-4">
+                        {genRxQueries?.map((query,index) => <div key={index} className="gen-rx-transcript">
+                          {query}
+                        </div>)}
+                      </div>
+                    )
+                    }
+                  </div > :
                 isSmartRxFile ? (
                   <div>
                     {isRxdigitised && showDigitalRx ? (

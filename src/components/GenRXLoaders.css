@@ -1,0 +1,80 @@
+.loaderContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  background-color: #ffffff;
+  margin: auto;
+}
+
+.gradientSkeleton {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+/* .genRxLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+} */
+
+.genRxLoadingText {
+  font-size: 19.38px !important;
+  font-weight: 400 !important;
+  line-height: 29.07px !important;
+  text-align: left !important;
+  color: #45455199 !important;
+  margin-bottom: "20px" !important;
+}
+
+.progressBarContainer {
+  width: 100%;
+  max-width: 400px;
+  height: 11px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: linear-gradient(to right, #e5e7eb, #f9fafb); /* Light gray gradient */
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.progressIndicator {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    #6366f1 0%,
+    #9333ea 33%,
+    #f43f5e 66%,
+    #fbbf24 100%
+  ); /* Vibrant gradient */
+  transition: width 5s linear;
+}
+
+.skeletonScreen {
+  width: 100%;
+  max-width: 400px;
+  height: 150px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  margin-top: 24px;
+}
+
+@keyframes skeleton-loading {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
