@@ -56,6 +56,7 @@ const ConsultationDrawer = ({ visible, onClose }) => {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [prescriptionData, setPrescriptionData] = useState(null);
+  const [localModules, setLocalModules] = useState([]);
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
   const [updatedModuleName, setUpdatedModuleName] = useState("");
@@ -218,6 +219,26 @@ const ConsultationDrawer = ({ visible, onClose }) => {
     }
   };
 
+  const preparePayloadForApi = () => {
+    const { dynamicFields = {} } = prescriptionData;
+
+    // Exclude local modules based on localModules state
+    const filteredDynamicFields = Object.keys(dynamicFields).reduce(
+      (acc, key) => {
+        if (!localModules.includes(key)) {
+          acc[key] = dynamicFields[key]; // Include only non-local modules
+        }
+        return acc;
+      },
+      {}
+    );
+
+    return {
+      ...prescriptionData,
+      dynamicFields: filteredDynamicFields,
+    };
+  };
+
   const handleVoiceDigitize = async (audioBlob, transcribedText) => {
     try {
       const formData = new FormData();
@@ -233,11 +254,13 @@ const ConsultationDrawer = ({ visible, onClose }) => {
       } else {
         formData.append("voice_prescription_text", transcribedText);
       }
-      if (genRxDetails?._id)
+      if (genRxDetails?._id) {
+        const data = preparePayloadForApi();
         formData.append(
           "voice_prescription_previous_context",
-          JSON.stringify(prescriptionData)
+          JSON.stringify(data)
         );
+      }
       formData.append("doctorId", doctorId); // Replace with actual doctor ID
       formData.append("patientId", patient_data?.patient_unique_id); // Replace with actual patient ID
 
@@ -246,6 +269,24 @@ const ConsultationDrawer = ({ visible, onClose }) => {
         : await generateRx(formData);
       if (response.success) {
         setPrescriptionData(response.data.digitize);
+        setPrescriptionData(() => {
+          // Merge localModules into dynamicFields
+          const mergedDynamicFields = {
+            ...response.data.digitize?.dynamicFields, // Retain API-provided dynamicFields
+            ...localModules.reduce((acc, moduleName) => {
+              acc[moduleName] = []; // Add local modules with default values
+              return acc;
+            }, {}),
+          };
+
+          return {
+            ...response.data.digitize,
+            dynamicFields: mergedDynamicFields, // Updated dynamicFields with localModules
+          };
+        });
+
+        // Clear localModules after merging (optional)
+        // setLocalModules([]);
         setGenRxDetails({
           source: response.data.source,
           source_duration: response.data.source_duration,
@@ -349,7 +390,7 @@ const ConsultationDrawer = ({ visible, onClose }) => {
   };
 
   const handleInputBlur = (type, index, isCustom) => {
-    if (activeIndex !== null && activeType !== null) {
+    if ((activeIndex !== null && activeType !== null) || isCustom) {
       setPrescriptionData((prevData) => {
         const updatedData = { ...prevData };
 
@@ -365,8 +406,8 @@ const ConsultationDrawer = ({ visible, onClose }) => {
           updatedData[type][index].name = editableText.trim();
         } else if (type === "advice") {
           updatedData[type][index] = editableText.trim();
-        } else if (type === "vitals") {
-          updatedData.vitals[index] = editableText.trim();
+        } else if (type === "vitalsAndBodyComposition") {
+          updatedData.vitalsAndBodyComposition[index] = editableText.trim();
         } else if (isCustom) {
           updatedData.dynamicFields[type][index] = editableText.trim();
         }
@@ -397,8 +438,8 @@ const ConsultationDrawer = ({ visible, onClose }) => {
       setEditableText(prescriptionData[type][index].name);
     } else if (type === "advice") {
       setEditableText(prescriptionData[type][index]);
-    } else if (type === "vitals") {
-      setEditableText(prescriptionData.vitals[index]);
+    } else if (type === "vitalsAndBodyComposition") {
+      setEditableText(prescriptionData.vitalsAndBodyComposition[index]);
     } else if (isCustom) {
       setEditableText(prescriptionData.dynamicFields[type][index]);
     }
@@ -425,7 +466,7 @@ const ConsultationDrawer = ({ visible, onClose }) => {
   };
 
   async function onEndVisitClick() {
-    if (isRxEdited) handleUpdateGenRX();
+    if (isRxEdited || localModules?.length) handleUpdateGenRX();
     const sendData = {
       action: tcmId === 0 ? "add" : "edit",
       tcm_id: tcmId,
@@ -475,7 +516,10 @@ const ConsultationDrawer = ({ visible, onClose }) => {
                 .map(([key, value]) => {
                   // Dynamically calculate input width
                   let textWidth = 0;
-                  if (activeIndex === key && activeType === "vitals") {
+                  if (
+                    activeIndex === key &&
+                    activeType === "vitalsAndBodyComposition"
+                  ) {
                     const tempSpan = document.createElement("span");
                     tempSpan.style.visibility = "hidden";
                     tempSpan.style.position = "absolute";
@@ -495,7 +539,8 @@ const ConsultationDrawer = ({ visible, onClose }) => {
                             .replace(/([A-Z])/g, " $1")
                             .replace(/^./, (str) => str.toUpperCase())}: `}
                         </span>
-                        {activeIndex === key && activeType === "vitals" ? (
+                        {activeIndex === key &&
+                        activeType === "vitalsAndBodyComposition" ? (
                           <input
                             type="text"
                             value={editableText} // Pre-fill the input with the current value
@@ -589,7 +634,9 @@ const ConsultationDrawer = ({ visible, onClose }) => {
                       type === "symptoms" ||
                       type === "vaccinations" ||
                       type === "medicalHistory" ||
-                      type === "labInvestigation") &&
+                      type === "labInvestigation" ||
+                      type === "examinations" ||
+                      type === "diagnosis") &&
                       item?.lineItem &&
                       (activeIndex === index &&
                       activeType === `${type}-lineItem` ? (
@@ -608,29 +655,6 @@ const ConsultationDrawer = ({ visible, onClose }) => {
                           className="digitised-item"
                         >
                           {`(${item.lineItem})`}
-                        </span>
-                      ))}
-
-                    {/* Editable input for notes (lineItem) */}
-                    {(type === "examinations" || type === "diagnosis") &&
-                      item?.notes &&
-                      (activeIndex === index &&
-                      activeType === `${type}-lineItem` ? (
-                        <input
-                          type="text"
-                          value={editableLineItem}
-                          className="editable-digitised-item"
-                          onChange={handleLineItemChange}
-                          onBlur={() => handleLineItemBlur(type, index)}
-                          autoFocus
-                          style={{ width: `${lineItemWidth + 10}px` }} // Add padding for better UX
-                        />
-                      ) : (
-                        <span
-                          onClick={() => handleLineItemClick(type, index)}
-                          className="digitised-item"
-                        >
-                          {`(${item.notes})`}
                         </span>
                       ))}
                   </div>
@@ -836,11 +860,10 @@ const ConsultationDrawer = ({ visible, onClose }) => {
               ) : (
                 <textarea
                   type="text"
-                  value={activeType ? "" : editableText}
+                  // value={activeType ? "" : editableText}
                   className="editable-digitised-item w-100"
                   onChange={handleInputChange}
                   onBlur={() => handleInputBlur(module, 0, true)}
-                  // autoFocus
                   style={{ border: "none" }}
                   rows={3}
                   placeholder={`Enter ${module} details here or simply speak or type in Gen Rx`}
@@ -856,9 +879,17 @@ const ConsultationDrawer = ({ visible, onClose }) => {
   const handleAddModule = () => {
     setPrescriptionData((prevData) => {
       const updatedData = { ...prevData };
+      if (!updatedData["dynamicFields"]) {
+        updatedData["dynamicFields"] = {};
+      }
+      // Add the new module to dynamicFields
       updatedData["dynamicFields"][newModuleName] = [];
+
       return updatedData;
     });
+
+    // Track the new module name
+    setLocalModules((prevModules) => [...prevModules, newModuleName]);
     handleCancel();
   };
 
@@ -891,6 +922,7 @@ const ConsultationDrawer = ({ visible, onClose }) => {
 
       return updatedData;
     });
+    setIsRxEdited(true);
   };
 
   const handleCancelEdit = () => {
@@ -1069,10 +1101,14 @@ const ConsultationDrawer = ({ visible, onClose }) => {
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onClick={() => setIsTyping(true)}
-                    onBlur={() => setTimeout(() => setIsTyping(false), 100)} // Small delay
+                    onBlur={() => setIsTyping(false)}
+                    autoFocus
                     suffix={
                       isTyping && (
-                        <div className={styles.controlButtons}>
+                        <div
+                          className={styles.controlButtons}
+                          onMouseDown={(e) => e.preventDefault()}
+                        >
                           <div role="button" onClick={handleStartRecording}>
                             <img src={genRxRecordIcon} alt="MIC" />
                           </div>
@@ -1255,10 +1291,10 @@ const ConsultationDrawer = ({ visible, onClose }) => {
                       background: isProcessing ? `url(${genRxBg})` : "",
                     }}
                   >
-                    {prescriptionData?.vitals &&
-                      Object.values(prescriptionData.vitals).some(
-                        (value) => value
-                      ) && (
+                    {prescriptionData?.vitalsAndBodyComposition &&
+                      Object.values(
+                        prescriptionData.vitalsAndBodyComposition
+                      ).some((value) => value) && (
                         <>
                           <div className="title-digitise-section mb-2">
                             Vitals
