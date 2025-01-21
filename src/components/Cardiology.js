@@ -94,7 +94,8 @@ function Cardiology(props) {
     }
     if (
       isSmartSyncAccessableFromGB &&
-      viewCaseManagerData?.smart_prescription_filename !== null
+      viewCaseManagerData?.smart_prescription_filename !== null &&
+      viewCaseManagerData?.smart_prescription_filename?.includes(".jpeg")
       // viewCaseManagerData.medicine?.length === 0 &&
       // viewCaseManagerData.symptoms?.length === 0 &&
       // viewCaseManagerData.examination?.length === 0 &&
