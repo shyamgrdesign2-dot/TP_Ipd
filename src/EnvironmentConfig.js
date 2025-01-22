@@ -51,8 +51,7 @@ const dev = {
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
-  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
-  gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
 };
 
 const qa_tp = {
@@ -111,8 +110,7 @@ const qa_tp = {
   tatvaAi_api_url: "https://pm-doctor-tatva-qa.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
-  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
-  gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
 };
 
 const qa = {
@@ -168,8 +166,7 @@ const qa = {
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
-  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
-  gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
 };
 
 const uat = {
@@ -225,7 +222,10 @@ const uat = {
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
   razorPay_key: "rzp_test_PoLtBba5t8qJIm",
-  gen_rx_api_url: "https://pm-rxdigitization-uat.tatvacare.in",
+  tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
+  tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
+  lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
 };
 
 const prod = {
@@ -276,7 +276,10 @@ const prod = {
   bulk_messages: "https://pm-communication-prod.tatvacare.in",
   searchengine_url: "https://pm-searchengine-prod.tatvacare.in",
   razorPay_key: "rzp_live_GvLkPHHNSMs2G3",
-  gen_rx_api_url: "https://pm-rxdigitization-prod.tatvacare.in",
+  tatvaAi_api_url: "https://pm-doctor-tatva-prod.tatvacare.in",
+  tatvaAi_url: "https://tatva-ai-prod.tatvacare.in",
+  lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
 };
 
 const getEnv = () => {

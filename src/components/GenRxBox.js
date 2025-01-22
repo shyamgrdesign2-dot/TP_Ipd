@@ -124,7 +124,7 @@ const GenRxBox = ({
           items={accordionItems}
           defaultActiveKey={["1"]}
           onChange={handlePanelChange}
-          className="tatvaAi-accordian cdss-collapse"
+          className="prescriptiontab-accordian cdss-collapse"
           expandIconPosition={"end"}
         />
       </div>

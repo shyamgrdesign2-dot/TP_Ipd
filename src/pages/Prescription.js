@@ -89,7 +89,6 @@ import CustomModule from "../components/CustomModule";
 import GenRxBox from "../components/GenRxBox";
 import GenRxKnowMore from "../components/GenRxKnowMore";
 import TatvaAiBanner from "../components/TatvaAiBanner";
-import ConsultationDrawer from "../components/ConsultationDrawer";
 
 function Prescription() {
   const {
@@ -162,7 +161,6 @@ const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
   const [labParamsData, setLabParamsData] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
   const [customModuleContents, setCustomModuleContents] = useState([]);
-  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
 
   const contextApi = {
     patient_data,
@@ -1036,7 +1034,7 @@ const handleGenRxKnowMore = () => {
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} handleGenRx={() => setIsDrawerVisible(true)} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
@@ -1086,9 +1084,6 @@ const handleGenRxKnowMore = () => {
                     key="apexAI"
                   >
                     <div className="prescription-box-sm">
-                      <GenRxBox genRxKnowMoreDrawer={genRxKnowMoreDrawer} handleGenRxKnowMore={handleGenRxKnowMore} />
-                    </div>
-                    <div className="prescription-box-sm">
                       <DDxList
                         generatedDDx={generatedDDx?.results}
                         handleDDxDrawer={handleDDxDrawer}
@@ -1098,6 +1093,9 @@ const handleGenRxKnowMore = () => {
                         handleDrawerVital={handleDrawerVital}
                         isDDxGenerated={isDDxGenerated}
                       />
+                    </div>
+                    <div className="prescription-box-sm">
+                      <GenRxBox genRxKnowMoreDrawer={genRxKnowMoreDrawer} handleGenRxKnowMore={handleGenRxKnowMore} />
                     </div>
                   </TabPane>
                 </Tabs>
@@ -1114,7 +1112,7 @@ const handleGenRxKnowMore = () => {
             </div>
             <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
               <Content>
-                <Carousel autoplay>
+                <Carousel>
                 {/* {shouldShowApexPopup && isApexAIAccessable && ( */}
                   <ApexAIPopup
                     setShowApexPopup={setShowApexPopup}
@@ -1362,11 +1360,6 @@ const handleGenRxKnowMore = () => {
             <GenRxKnowMore handleGenRxKnowMore={handleGenRxKnowMore} />
           </Drawer>
         )}
-
-      <ConsultationDrawer 
-        visible={isDrawerVisible} 
-        onClose={() => setIsDrawerVisible(false)} 
-      />
       </>
     </CashManagerContext.Provider>
   );
