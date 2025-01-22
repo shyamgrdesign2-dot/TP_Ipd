@@ -2,7 +2,7 @@ import { Button } from "antd";
 import genRx from "../assets/images/gen-rx.svg";
 import newTag from "../assets/images/new-gif.gif";
 
-const GenRxBanner = ({ setShowApexPopup, handleGenRxKnowMore }) => {
+const GenRxBanner = ({ setShowApexPopup, handleDDxKnowMore }) => {
   return (
     <div
       className="d-flex justify-content-between align-items-center"
@@ -27,7 +27,7 @@ const GenRxBanner = ({ setShowApexPopup, handleGenRxKnowMore }) => {
               height={16}
             />
           </div>
-          <div className="know-more-txt" onClick={handleGenRxKnowMore}>
+          <div className="know-more-txt" onClick={handleDDxKnowMore}>
             Know More
           </div>
         </div>

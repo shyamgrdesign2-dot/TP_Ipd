@@ -9,95 +9,45 @@ import validateHealthcareIcon from "../assets/images/validate-heathcare.svg";
 import playIcons from "../assets/images/tube-icon.svg";
 import { Col, Row } from "react-bootstrap";
 import VideoModal from "../common/VideoModal";
-import Slider from "react-slick"; // Using react-slick for the carousel
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 
 const { TabPane } = Tabs;
 
-const Carousel = () => {
-  const tips = [
-    {
-      heading: "Mention Headings",
-      text: "While dictating Rx include headings like 'Symptoms', 'Medication' etc. to keep information organised.",
-    },
-    {
-      heading: "Stay Focused",
-      text: "Stick to only prescription details. Avoid irrelevant information for clear and precise dictation.",
-    },
-  ];
-
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: false,
-  };
-
-  return (
-    <div style={styles.carouselContainer}>
-      <Slider {...settings}>
-        {tips.map((tip, index) => (
-          <div key={index} style={styles.slide}>
-            <div style={styles.tipCard}>
-              <div style={styles.icon}>💡</div>
-              <div style={styles.heading}>{tip.heading}</div>
-              <div style={styles.text}>{tip.text}</div>
-            </div>
-          </div>
-        ))}
-      </Slider>
-    </div>
-  );
-};
-
-const styles = {
-  carouselContainer: {
-    width: "80%",
-    margin: "0 auto",
+const trustDetails = [
+  {
+    title: "Evidence-Based Algorithms",
+    description:
+      "Built on leading clinical guidelines such as ICD-10 and SNOMED CT to ensure reliable and accurate results",
+    icon: codeIcon,
   },
-  slide: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+  {
+    title: "Validated by Healthcare Experts",
+    description:
+      "Developed and reviewed in collaboration with top physicians to ensure clinical relevance and safety.",
+    icon: validateHealthcareIcon,
   },
-  tipCard: {
-    width: "300px",
-    padding: "20px",
-    borderRadius: "10px",
-    background: "#F4F7FF",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    textAlign: "center",
-    color: "#333",
+  {
+    title: "HIPAA & GDPR Compliant",
+    description:
+      "Fully adheres to global healthcare data privacy standards, ensuring the safety and confidentiality of patient.",
+    icon: compliantIcon,
   },
-  icon: {
-    fontSize: "24px",
-    color: "#5A67D8",
-    marginBottom: "10px",
+  {
+    title: "Backed by Clinical Studies",
+    description:
+      "Supported by peer-reviewed research to improve diagnostic accuracy and reduce time to treatment.",
+    icon: clinicalStudyIcon,
   },
-  heading: {
-    fontSize: "18px",
-    fontWeight: "600",
-    color: "#4A5568",
-    marginBottom: "10px",
-  },
-  text: {
-    fontSize: "14px",
-    lineHeight: "1.6",
-    color: "#718096",
-  },
-};
+];
 
 const GenRxKnowMore = ({ handleDDxKnowMore }) => {
   const [shouldShowVideo, setShowVideo] = useState(false);
-  const [activeKey, setActiveKey] = useState("basicGenRxInfo");
+  const [activeKey, setActiveKey] = useState("basicInfo");
 
   const sectionsRef = useRef({
-    basicGenRxInfo: null,
-    howGenRxWorks: null,
-    genRxTips: null,
+    basicInfo: null,
+    trust: null,
+    digitisationProcess: null,
+    tips: null,
   });
 
   const videoLink = {
@@ -136,7 +86,7 @@ const GenRxKnowMore = ({ handleDDxKnowMore }) => {
         root: null, // Default is the viewport
         threshold: 0, // Trigger as soon as the section starts intersecting
         rootMargin: `0px 0px ${
-          activeKey === "basicGenRxInfo" || activeKey === "howGenRxWorks"
+          activeKey === "basicInfo" || activeKey === "digitisationProcess"
             ? "20%"
             : "-20%"
         } 0px`, // Focus on sections near the top of the viewport
@@ -174,9 +124,9 @@ const GenRxKnowMore = ({ handleDDxKnowMore }) => {
         {/* Tabs */}
         <div className="drawer-tabs">
           <Tabs activeKey={activeKey} onChange={scrollToSection}>
-            <TabPane tab="Basic Info" key="basicGenRxInfo" />
-            <TabPane tab="How it works" key="howGenRxWorks" />
-            <TabPane tab="Tips for better Rx" key="genRxTips" />
+            <TabPane tab="Basic Info" key="basicInfo" />
+            <TabPane tab="How it works" key="trust" />
+            <TabPane tab="Tips for better Rx" key="tips" />
           </Tabs>
         </div>
       </div>
@@ -185,8 +135,8 @@ const GenRxKnowMore = ({ handleDDxKnowMore }) => {
       <div className="drawer-scrollable-content">
         <div className="section">
           <span
-            id="basicGenRxInfo"
-            ref={(el) => (sectionsRef.current.basicGenRxInfo = el)}
+            id="basicInfo"
+            ref={(el) => (sectionsRef.current.basicInfo = el)}
             className="section-side-header"
           >
             Basic Info
@@ -205,8 +155,8 @@ const GenRxKnowMore = ({ handleDDxKnowMore }) => {
 
         <div className="video-section">
           <span
-            id="howGenRxWorks"
-            ref={(el) => (sectionsRef.current.howGenRxWorks = el)}
+            id="digitisationProcess"
+            ref={(el) => (sectionsRef.current.digitisationProcess = el)}
             className="section-side-header"
           >
             How it works
@@ -238,8 +188,8 @@ const GenRxKnowMore = ({ handleDDxKnowMore }) => {
 
         <div className="section">
           <span
-            id="genRxTips"
-            ref={(el) => (sectionsRef.current.genRxTips = el)}
+            id="tips"
+            ref={(el) => (sectionsRef.current.tips = el)}
             className="section-side-header"
           >
             Tips for Better Rx
@@ -247,7 +197,12 @@ const GenRxKnowMore = ({ handleDDxKnowMore }) => {
           <div className="know-more-section-tilte">
             Tips to dictate/write an Rx for better Rx Digitisation
           </div>
-          <Carousel />
+          <div className="know-more-section-content cvt-tips-content">
+            <span style={{ fontWeight: "600" }}>Enter detailed Analysis: </span>
+            The more detailed and structured the patient information you provide
+            (such as symptoms, examinations, history, and medications), the
+            better the accuracy of the differential diagnosis results.
+          </div>
           <div
             style={{ padding: "40px 0 80px 0", textAlign: "center" }}
             className="disclaimer-txt"

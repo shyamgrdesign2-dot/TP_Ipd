@@ -87,8 +87,6 @@ import SurgicalBox from "../components/SurgicalBox";
 import AddCustomModule from "../components/AddCustomModule";
 import CustomModule from "../components/CustomModule";
 import GenRxBox from "../components/GenRxBox";
-import GenRxKnowMore from "../components/GenRxKnowMore";
-import TatvaAiBanner from "../components/TatvaAiBanner";
 
 function Prescription() {
   const {
@@ -1095,7 +1093,7 @@ const handleGenRxKnowMore = () => {
                       />
                     </div>
                     <div className="prescription-box-sm">
-                      <GenRxBox genRxKnowMoreDrawer={genRxKnowMoreDrawer} handleGenRxKnowMore={handleGenRxKnowMore} />
+                      <GenRxBox genRxKnowMoreDrawer={genRxKnowMoreDrawer} handleDDxKnowMore={handleGenRxKnowMore} />
                     </div>
                   </TabPane>
                 </Tabs>
@@ -1119,8 +1117,7 @@ const handleGenRxKnowMore = () => {
                     handleDDxKnowMore={handleDDxKnowMore}
                   />
                 {/* )} */}
-                <GenRxBanner handleGenRxKnowMore={handleGenRxKnowMore} />
-                <TatvaAiBanner handleDDxDrawer={handleDDxDrawer} />
+                <GenRxBanner handleDDxKnowMore={handleGenRxKnowMore} />
                 </Carousel>
                 {customizedPadRightList?.map((e, i) => {
                   const customModule = customModules?.find(
@@ -1346,18 +1343,6 @@ const handleGenRxKnowMore = () => {
             zIndex={999}
           >
               <DifferentialDiagnosisDrawer handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} includeExcludeInput={generatedDDx?.input} likeDislike={likeDislike} setLikeDislike={setLikeDislike} />
-          </Drawer>
-        )}
-        {genRxKnowMoreDrawer && (
-          <Drawer
-            closeIcon={false}
-            placement="right"
-            open={genRxKnowMoreDrawer}
-            onClose={handleGenRxKnowMore}
-            className=".modalWidth-800"
-            width={825}
-          >
-            <GenRxKnowMore handleGenRxKnowMore={handleGenRxKnowMore} />
           </Drawer>
         )}
       </>
