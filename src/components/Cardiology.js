@@ -527,6 +527,13 @@ function Cardiology(props) {
   const renderGenRxItems = (type) => (
     <div className="digitised-data-section" style={{ marginLeft: 0 }}>
       <ol>
+        {type === "followUp" && genRxData?.followUp &&
+          <div className="medicine-item">
+            <span>
+              {genRxData?.followUp}
+            </span>
+          </div>
+        }
         {/* Handle vitals type separately */}
         {type === "vitalsAndBodyComposition" &&
           Object.entries(genRxData?.vitalsAndBodyComposition || {})
@@ -819,6 +826,14 @@ function Cardiology(props) {
                               <div className="title-digitise-section mb-1">Vaccinations</div>
                             </div>
                             {renderGenRxItems('vaccinations')}
+                          </>
+                        )}
+                        {genRxData?.followUp && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <div className="title-digitise-section mb-1">Follow Up</div>
+                            </div>
+                            {renderGenRxItems('followUp')}
                           </>
                         )}
                       </div>

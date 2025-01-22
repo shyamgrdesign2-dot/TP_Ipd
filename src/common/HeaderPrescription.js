@@ -1022,7 +1022,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
     return (
         <Navbar className="justify-content-between headerprescription p-0">
             <Container fluid className='h-100 gx-0 w-100'>
-                <Row className={`h-100 align-items-center ${isDesktop ? 'w-100' : ''} justify-content-between`}>
+                <Row className='h-100 align-items-center w-100 justify-content-between'>
                     <Col sm="auto" className='h-100'>
                         <div className='align-items-center d-flex h-100'>
                             <div className='border-end h-100 text-center'>
