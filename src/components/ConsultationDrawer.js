@@ -155,7 +155,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioStreamRef.current = stream;
       mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: "audio/webm",
+        mimeType: "audio/mp4",
       });
       audioChunksRef.current = [];
 
