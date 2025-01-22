@@ -39,12 +39,13 @@ import {
 } from "../redux/caseManagerSlice";
 import { listVideo } from "../redux/doctorsSlice";
 import GenRxButton from '../components/GenRxButton';
+import { placeIctOrder } from '../redux/appointmentsSlice';
 
 var oneClickCosultationTemplateId = 0
 
 function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecHistory, labParamsData, handleGenRx }) {
 
-    const { profile } = useSelector((state) => state.doctors);
+    const { profile, siteId } = useSelector((state) => state.doctors);
 
     const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
     const vaccines = useSelector((state) => state.vaccines);
@@ -953,6 +954,23 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     ),
                     duration: 5,
                 });
+
+                let zydusSendData = {
+                    "action": tcmId == 0 ? 'add' : 'edit',
+                    "tcmId": action?.payload?.tcm_id,
+                    "siteId": siteId,
+                    "departmentId": patient_data?.departmentId,
+                    "visitId": patient_data?.visitId,
+                    "encounterId": patient_data?.encounterId,
+                    "mrno": patient_data?.mrno,
+                    "doctorCode": patient_data?.employeeId,
+                    "storeCode": "PHOS", // hardcoded value
+                    "duplicateCheck": 1, // hardcoded value
+                    "investigationList": [],
+                    "medicineList": medicationData.map(({ tmm_id, tmm_remarks }) => ({ objectId: tmm_id, instruction: tmm_remarks }))
+                }
+                dispatch(placeIctOrder(zydusSendData))
+
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
                 errorMessage(action.error)

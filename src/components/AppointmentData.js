@@ -746,11 +746,21 @@ function AppointmentData({ locationPath }) {
             }
 
             const action1 = await dispatch(copyGetAllAppointment(sendData))
-            console.log(action1)
             if (action1.meta.requestStatus === "fulfilled") {
                 const find_record = action1.payload?.app_data?.find(e => e?.pam_id == action.payload)
                 if (find_record !== undefined) {
-                    navigate("/prescription", { state: { patient_data: { ...find_record, mrno: record.mrno } } })
+                    navigate("/prescription", {
+                        state: {
+                            patient_data: {
+                                ...find_record,
+                                mrno: record.mrno,
+                                departmentId: record.departmentId,
+                                visitId: record.visitId,
+                                encounterId: record.encounterId,
+                                employeeId: record.employeeId,
+                            }
+                        }
+                    })
                 }
             } else {
                 errorMessage('Something went wrong! Please try again later')
@@ -984,7 +994,7 @@ function AppointmentData({ locationPath }) {
             render: (_, record, index) => (
                 selectedTab != TAB_ZYDUS_APPOINTMENT ?
                     <div size="middle" style={{ display: "flex" }}>
-                        {isSmartSyncAccessableFromGB && !isMobile ? (
+                        {isSmartSyncAccessableFromGB && !isMobile && selectedTab != TAB_ZYDUS_ENCOUNTER ? (
                             isDigitisationTab ?
                                 <>
                                     <button className="btn btn-outline-primary" style={{ fontSize: "13px !important" }} onClick={() => handleDigitiseRx(record, index)}>

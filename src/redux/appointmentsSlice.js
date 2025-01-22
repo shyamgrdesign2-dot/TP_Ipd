@@ -274,6 +274,18 @@ export const copyGetAllAppointment = createAsyncThunk(
     }
 );
 
+export const placeIctOrder = createAsyncThunk(
+    "records/placeIctOrder",
+    async (data) => {
+        try {
+            const result = await ApiAppointments.placeIctOrder(data);
+            return result;
+        } catch (error) {
+            throw Error(error);
+        }
+    }
+);
+
 const appointmentsSlice = createSlice({
     name: "records",
     initialState,
