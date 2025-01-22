@@ -63,6 +63,7 @@ import {
   setAllUploadedDocs,
   setPatientUploadedDocs,
   setUploadDocCategories,
+  zydusDocsList,
 } from "../redux/uploadDocSlice";
 import UploadDocumentList from "./medicalRecords/components/uploadDocumentList/UploadDocumentList";
 import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "./medicalRecords/utils/helper";
@@ -277,6 +278,7 @@ const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
         mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
       )
     );
+    dispatch(zydusDocsList({ mrno: patient_data.mrno }))
   };
 
   const getAllDocumentCategories = async () => {

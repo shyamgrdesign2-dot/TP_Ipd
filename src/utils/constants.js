@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export const PERSISTANT_STORAGE_KEY_AUTH_TOKEN = 'persistant.storage.key.auth-token';
+export const PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN = 'persistant.storage.key.zydus-token';
 export const MESSAGE_KEY = 'message_key';
 export const IS_DEV = true;
 export const PAGE_SIZE = 10;
@@ -8,6 +9,8 @@ export const PAGE_SIZE = 10;
 export const TAB_QUEUE = 0;
 export const TAB_FINISHED = 3;
 export const TAB_CANCELLED = 4;
+export const TAB_ZYDUS_ENCOUNTER = 11;
+export const TAB_ZYDUS_APPOINTMENT = 12;
 
 export const TAB_CAMPAIGN = 0;
 export const TAB_DRAFT = 1;

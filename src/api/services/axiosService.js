@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { notification } from 'antd';
-import config from '../../config';
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from '../../utils/constants';
+import main_config from '../../config';
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from '../../utils/constants';
 
 const instance = axios.create({
     // baseURL: config.appointment_api_url, // Replace with your API base URL
@@ -20,7 +20,9 @@ instance.interceptors.request.use(
         if (config.customBaseUrl) {
             config.baseURL = config.customBaseUrl;
         }
-        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN));
+        const token = config.customBaseUrl.startsWith(main_config.zydus_proxy_url) ?
+            localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN))
+            : localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN));
         if (token && !config.headers['api_key']) {
             config.headers['Authorization'] = `Bearer ${token}`;
         } else {
@@ -39,7 +41,7 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
     (response) => {
         // You can modify the response data here
-        if(response.data)
+        if (response.data)
             return response.data;
         return response
     },
@@ -79,7 +81,7 @@ instance.interceptors.response.use(
             localStorage.removeItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
             window.location.href = '/login';
         }
-        
+
         notificationParam.key = "notification_key"
         if (error.response.status !== 404 && error.response.status !== 400) {
         notification.error(notificationParam)
