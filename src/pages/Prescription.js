@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { Carousel, Drawer, Tabs } from "antd";
+import { Drawer, Tabs } from "antd";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 
@@ -72,7 +72,6 @@ import { env } from "../EnvironmentConfig";
 import LabParams from "../components/LabParams";
 import ViewLabParam from "../components/ViewLabParams";
 import ApexAIPopup from "../components/ApexAIPopup";
-import GenRxBanner from "../components/GenRxBanner";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import DDxKnowMore from "../components/DDxKnowMore";
 import TabPane from "antd/es/tabs/TabPane";
@@ -86,7 +85,6 @@ import DDxList from "../components/medical_certificate/DDxList";
 import SurgicalBox from "../components/SurgicalBox";
 import AddCustomModule from "../components/AddCustomModule";
 import CustomModule from "../components/CustomModule";
-import GenRxBox from "../components/GenRxBox";
 
 function Prescription() {
   const {
@@ -217,7 +215,6 @@ const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
   const [ddxDrawer, setDDxDrawer] = useState(false);
   const [likeDislike, setLikeDislike] = useState([]);
   const [isDDxGenerated, setIsDDxGenerated] = useState(false);
-  const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const {
     isVaccinationAccessable,
@@ -775,10 +772,6 @@ const getGenerateDDx = async (field) => {
   setIsDDxLoading(false);
 }
 
-const handleGenRxKnowMore = () => {
-  setGenRxKnowMoreDrawer((prev) => !prev);
-};
-
   const CUSTOMIZED_PAD_LEFT_LIST = () => {
   return  customizedPadLeftList?.map((e, i) => {
       return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
@@ -1037,7 +1030,7 @@ const handleGenRxKnowMore = () => {
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
             <div className="col-lg-4 col-md-12 col-12">
-              {true ? (
+              {isApexAIAccessable ? (
                 <Tabs
                   className="obstetricTab"
                   activeKey={activeTab}
@@ -1092,9 +1085,6 @@ const handleGenRxKnowMore = () => {
                         isDDxGenerated={isDDxGenerated}
                       />
                     </div>
-                    <div className="prescription-box-sm">
-                      <GenRxBox genRxKnowMoreDrawer={genRxKnowMoreDrawer} handleDDxKnowMore={handleGenRxKnowMore} />
-                    </div>
                   </TabPane>
                 </Tabs>
               ) : (
@@ -1110,15 +1100,12 @@ const handleGenRxKnowMore = () => {
             </div>
             <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
               <Content>
-                <Carousel>
-                {/* {shouldShowApexPopup && isApexAIAccessable && ( */}
+                {shouldShowApexPopup && isApexAIAccessable && (
                   <ApexAIPopup
                     setShowApexPopup={setShowApexPopup}
                     handleDDxKnowMore={handleDDxKnowMore}
                   />
-                {/* )} */}
-                <GenRxBanner handleDDxKnowMore={handleGenRxKnowMore} />
-                </Carousel>
+                )}
                 {customizedPadRightList?.map((e, i) => {
                   const customModule = customModules?.find(
                     (m) => m.module_id === e.tmdpm_id
