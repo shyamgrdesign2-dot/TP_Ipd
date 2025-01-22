@@ -139,14 +139,14 @@ const TatvaAiKnowMore = ({
           </span>
           <div className="mt-2">
             <span className="know-more-section-tilte">
-              1. Gen Rx - AI-Powered Prescription Writing
+              1. Voice Rx - AI-Powered Prescription Writing
             </span>
             <div className="know-more-section-content cvt-tips-content">
               <div className="d-flex">
                 <img src={genRxIcon} alt="apex-AI" width={72} height={72} />
                 <div className="ms-3">
                   <div>
-                    Gen Rx is an AI-powered tool designed to streamline the
+                    Voice Rx is an AI-powered tool designed to streamline the
                     prescription-writing process by combining voice and typing
                     inputs. It helps doctors generate structured prescriptions
                     faster and more efficiently, reducing the time spent on
@@ -163,7 +163,7 @@ const TatvaAiKnowMore = ({
                     onClick={handleGenRxKnowMore}
                   >
                     <div className="text-primary" style={{ fontWeight: 600 }}>
-                      Know More About Gen Rx
+                      Know More About Voice Rx
                     </div>
                     <img src={arrow} alt="arrow" />
                   </div>

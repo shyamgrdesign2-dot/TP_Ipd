@@ -40,7 +40,7 @@ const GenRxBox = ({ handleGenRxKnowMore, setIsGenRxDrawerVisible }) => {
                 className="title-common d-flex flex-column"
                 style={{ gap: 4 }}
               >
-                <span>Gen Rx</span>
+                <span>Voice Rx</span>
               </div>
             </div>
             {isCollapseActive && (
@@ -69,7 +69,7 @@ const GenRxBox = ({ handleGenRxKnowMore, setIsGenRxDrawerVisible }) => {
               onClick={() => setIsGenRxDrawerVisible(true)}
             >
               <img src={tryGenRxIcon} alt="genrx-icon" />
-              <span>Try Gen Rx</span>
+              <span>Try Voice Rx</span>
             </Button>
           </div>
           <Divider />
@@ -85,7 +85,7 @@ const GenRxBox = ({ handleGenRxKnowMore, setIsGenRxDrawerVisible }) => {
               onClick={handleGenRxKnowMore}
             >
               <div className="text-primary" style={{ fontWeight: 600 }}>
-                Know More About Gen Rx
+                Know More About Voice Rx
               </div>
               <img src={arrow} alt="arrow" />
             </div>

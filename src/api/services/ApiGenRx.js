@@ -1,7 +1,7 @@
 import api from "../../api/services/axiosService";
 import config from "../../config";
 
-const baseUrl = { customBaseUrl: config.gen_rx_api_url };
+const baseUrl = { customBaseUrl: config.gen_rx_api_url, timeout: 120000 };
 
 export const generateRx = async function (payload) {
   let res = {};

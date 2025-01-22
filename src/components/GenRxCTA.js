@@ -7,8 +7,8 @@ import genRxIcon from "../assets/images/gen-rx-btn.svg";
 const GenRxCTA = ({ onClick }) => {
   return (
     <Button className={styles.genRxButton} onClick={onClick}>
-      <img src={genRxIcon} alt="Gen Rx" loading="lazy" />
-      <span className={styles.buttonText}>Gen Rx</span>
+      <img src={genRxIcon} alt="Voice Rx" loading="lazy" />
+      <span className={styles.buttonText}>Voice Rx</span>
     </Button>
   );
 };

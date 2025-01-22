@@ -3,7 +3,7 @@ import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { Button, Dropdown, Tooltip, Popover, Input, Spin, Tabs, Select, Drawer, message } from 'antd';
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from 'react-router-dom';
-import { isMobile } from 'react-device-detect';
+import { isMobile, isDesktop } from 'react-device-detect';
 import { v4 as uuidv4 } from 'uuid';
 
 import CustomizeSetting from './CustomizeSetting';
@@ -1022,7 +1022,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
     return (
         <Navbar className="justify-content-between headerprescription p-0">
             <Container fluid className='h-100 gx-0 w-100'>
-                <Row className='h-100 align-items-center w-100 justify-content-between'>
+                <Row className={`h-100 align-items-center ${isDesktop ? 'w-100' : ''} justify-content-between`}>
                     <Col sm="auto" className='h-100'>
                         <div className='align-items-center d-flex h-100'>
                             <div className='border-end h-100 text-center'>

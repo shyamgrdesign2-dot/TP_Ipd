@@ -47,7 +47,7 @@ import Lottie from "lottie-react";
 import VoiceWaveVisualizer from "./WaveVisualizer";
 import GenRXLoaders from "./GenRxLoaders";
 
-const ConsultationDrawer = ({ visible, onClose }) => {
+const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
   const [isRecording, setIsRecording] = useState(false);
@@ -193,6 +193,8 @@ const ConsultationDrawer = ({ visible, onClose }) => {
   };
 
   const handleSend = async () => {
+    if (!isRecording && !(inputText || editableQuery)) return;
+
     setShowPrescription(true);
     setRecordingTime(0);
     setIsProcessing(true);
@@ -322,7 +324,7 @@ const ConsultationDrawer = ({ visible, onClose }) => {
         { editedData: prescriptionData },
         genRxDetails?._id
       );
-      if (response.success) {
+      if (response.status === 204) {
         setGenRxDetails({
           source: response.data.source,
           source_duration: response.data.source_duration,
@@ -410,6 +412,8 @@ const ConsultationDrawer = ({ visible, onClose }) => {
           updatedData.vitalsAndBodyComposition[index] = editableText.trim();
         } else if (isCustom) {
           updatedData.dynamicFields[type][index] = editableText.trim();
+        } else if (type === "followUp") {
+          updatedData.followUp = editableText.trim();
         }
         return updatedData; // Persist changes
       });
@@ -442,6 +446,8 @@ const ConsultationDrawer = ({ visible, onClose }) => {
       setEditableText(prescriptionData.vitalsAndBodyComposition[index]);
     } else if (isCustom) {
       setEditableText(prescriptionData.dynamicFields[type][index]);
+    } else if (type === "followUp") {
+      setEditableText(prescriptionData?.followUp);
     }
 
     setActiveIndex(index);
@@ -502,6 +508,46 @@ const ConsultationDrawer = ({ visible, onClose }) => {
   }
 
   const renderItems = (type) => {
+    if (type === "followUp") {
+      // Dynamically calculate input width
+      let textWidth = 0;
+      if (activeType === "followUp") {
+        const tempSpan = document.createElement("span");
+        tempSpan.style.visibility = "hidden";
+        tempSpan.style.position = "absolute";
+        tempSpan.style.whiteSpace = "nowrap";
+        tempSpan.innerText = editableText || "";
+        document.body.appendChild(tempSpan);
+        textWidth = tempSpan.offsetWidth;
+        document.body.removeChild(tempSpan);
+      }
+      return (
+        <div className="digitised-section">
+          {isProcessing ? (
+            <div className="shimmer-container">
+              <div className="shimmer"></div>
+            </div>
+          ) : activeType === "followUp" ? (
+            <input
+              type="text"
+              value={editableText}
+              className="editable-digitised-item"
+              onChange={handleInputChange}
+              onBlur={() => handleInputBlur("followUp")}
+              autoFocus
+              // style={{ width: `${textWidth + 10}px` }}
+            />
+          ) : (
+            <span
+              onClick={() => handleItemClick("followUp")}
+              className="digitised-item"
+            >
+              {prescriptionData?.followUp}
+            </span>
+          )}
+        </div>
+      );
+    }
     if (type === "vitalsAndBodyComposition") {
       return (
         <div className="digitised-section">
@@ -575,95 +621,98 @@ const ConsultationDrawer = ({ visible, onClose }) => {
           <div className="shimmer-container">
             <div className="shimmer"></div>
           </div>
-        ) : Array.isArray(prescriptionData[type]) &&
-          prescriptionData[type].length > 0 ? (
-          <ul>
-            {prescriptionData[type].map((item, index) => {
-              // Measure the width of the editable text
-              let textWidth = 0;
-              let lineItemWidth = 0;
+        ) : (
+          Array.isArray(prescriptionData[type]) &&
+          prescriptionData[type].length > 0 && (
+            <ul>
+              {prescriptionData[type].map((item, index) => {
+                // Measure the width of the editable text
+                let textWidth = 0;
+                let lineItemWidth = 0;
 
-              // For name or other primary data (editableText)
-              if (activeIndex === index && activeType === type) {
-                const tempSpan = document.createElement("span");
-                tempSpan.style.visibility = "hidden";
-                tempSpan.style.position = "absolute";
-                tempSpan.style.whiteSpace = "nowrap";
-                tempSpan.innerText = editableText || "";
-                document.body.appendChild(tempSpan);
-                textWidth = tempSpan.offsetWidth;
-                document.body.removeChild(tempSpan);
-              }
+                // For name or other primary data (editableText)
+                if (activeIndex === index && activeType === type) {
+                  const tempSpan = document.createElement("span");
+                  tempSpan.style.visibility = "hidden";
+                  tempSpan.style.position = "absolute";
+                  tempSpan.style.whiteSpace = "nowrap";
+                  tempSpan.innerText = editableText || "";
+                  document.body.appendChild(tempSpan);
+                  textWidth = tempSpan.offsetWidth;
+                  document.body.removeChild(tempSpan);
+                }
 
-              // For lineItem (editableLineItem)
-              if (activeIndex === index && activeType === `${type}-lineItem`) {
-                const tempSpanLineItem = document.createElement("span");
-                tempSpanLineItem.style.visibility = "hidden";
-                tempSpanLineItem.style.position = "absolute";
-                tempSpanLineItem.style.whiteSpace = "nowrap";
-                tempSpanLineItem.innerText = editableLineItem || "";
-                document.body.appendChild(tempSpanLineItem);
-                lineItemWidth = tempSpanLineItem.offsetWidth;
-                document.body.removeChild(tempSpanLineItem);
-              }
+                // For lineItem (editableLineItem)
+                if (
+                  activeIndex === index &&
+                  activeType === `${type}-lineItem`
+                ) {
+                  const tempSpanLineItem = document.createElement("span");
+                  tempSpanLineItem.style.visibility = "hidden";
+                  tempSpanLineItem.style.position = "absolute";
+                  tempSpanLineItem.style.whiteSpace = "nowrap";
+                  tempSpanLineItem.innerText = editableLineItem || "";
+                  document.body.appendChild(tempSpanLineItem);
+                  lineItemWidth = tempSpanLineItem.offsetWidth;
+                  document.body.removeChild(tempSpanLineItem);
+                }
 
-              return (
-                <li key={index}>
-                  <div className="medicine-item">
-                    {activeIndex === index && activeType === type ? (
-                      <input
-                        type="text"
-                        value={editableText}
-                        className="editable-digitised-item"
-                        onChange={handleInputChange}
-                        onBlur={() => handleInputBlur(type, index)}
-                        autoFocus
-                        style={{ width: `${textWidth + 10}px` }}
-                      />
-                    ) : (
-                      <span
-                        onClick={() => handleItemClick(type, index)}
-                        className="digitised-item"
-                      >
-                        {type === "advice" ? item : item?.name}
-                      </span>
-                    )}
-
-                    {/* Editable input for lineItem */}
-                    {(type === "medications" ||
-                      type === "symptoms" ||
-                      type === "vaccinations" ||
-                      type === "medicalHistory" ||
-                      type === "labInvestigation" ||
-                      type === "examinations" ||
-                      type === "diagnosis") &&
-                      item?.lineItem &&
-                      (activeIndex === index &&
-                      activeType === `${type}-lineItem` ? (
+                return (
+                  <li key={index}>
+                    <div className="medicine-item">
+                      {activeIndex === index && activeType === type ? (
                         <input
                           type="text"
-                          value={editableLineItem}
+                          value={editableText}
                           className="editable-digitised-item"
-                          onChange={handleLineItemChange}
-                          onBlur={() => handleLineItemBlur(type, index)}
+                          onChange={handleInputChange}
+                          onBlur={() => handleInputBlur(type, index)}
                           autoFocus
-                          style={{ width: `${lineItemWidth + 10}px` }} // Add padding for better UX
+                          style={{ width: `${textWidth + 10}px` }}
                         />
                       ) : (
                         <span
-                          onClick={() => handleLineItemClick(type, index)}
+                          onClick={() => handleItemClick(type, index)}
                           className="digitised-item"
                         >
-                          {`(${item.lineItem})`}
+                          {type === "advice" ? item : item?.name}
                         </span>
-                      ))}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          prescriptionData[type]
+                      )}
+
+                      {/* Editable input for lineItem */}
+                      {(type === "medications" ||
+                        type === "symptoms" ||
+                        type === "vaccinations" ||
+                        type === "medicalHistory" ||
+                        type === "labInvestigation" ||
+                        type === "examinations" ||
+                        type === "diagnosis") &&
+                        item?.lineItem &&
+                        (activeIndex === index &&
+                        activeType === `${type}-lineItem` ? (
+                          <input
+                            type="text"
+                            value={editableLineItem}
+                            className="editable-digitised-item"
+                            onChange={handleLineItemChange}
+                            onBlur={() => handleLineItemBlur(type, index)}
+                            autoFocus
+                            style={{ width: `${lineItemWidth + 10}px` }} // Add padding for better UX
+                          />
+                        ) : (
+                          <span
+                            onClick={() => handleLineItemClick(type, index)}
+                            className="digitised-item"
+                          >
+                            {`(${item.lineItem})`}
+                          </span>
+                        ))}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )
         )}
       </div>
     );
@@ -678,7 +727,7 @@ const ConsultationDrawer = ({ visible, onClose }) => {
       <CommonModal
         isModalOpen={isDeleteModuleModalOpen}
         onCancel={toggleDeleteModuleModal}
-        modalWidth={500}
+        modalWidth={550}
         title={"Are you sure you want to delete this module?"}
         modalBody={
           <>
@@ -866,7 +915,7 @@ const ConsultationDrawer = ({ visible, onClose }) => {
                   onBlur={() => handleInputBlur(module, 0, true)}
                   style={{ border: "none" }}
                   rows={3}
-                  placeholder={`Enter ${module} details here or simply speak or type in Gen Rx`}
+                  placeholder={`Enter ${module} details here or simply speak or type in Voice Rx`}
                 />
               )}
             </div>
@@ -877,6 +926,7 @@ const ConsultationDrawer = ({ visible, onClose }) => {
   };
 
   const handleAddModule = () => {
+    if (!newModuleName?.trim()) return;
     setPrescriptionData((prevData) => {
       const updatedData = { ...prevData };
       if (!updatedData["dynamicFields"]) {
@@ -986,10 +1036,13 @@ const ConsultationDrawer = ({ visible, onClose }) => {
               <i className="icon-right"></i>
             </div>
           </div>
-          <div className="title-common">Gen Rx</div>
+          <div className="title-common">Voice Rx</div>
         </div>
         <div className="d-flex align-items-center gap-2">
-          <button className="btn d-flex align-items-center btn-text me-10 tutorial">
+          <button
+            className="btn d-flex align-items-center btn-text me-10 tutorial"
+            onClick={handleGenRxKnowMore}
+          >
             <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
               <img height={42} src={tutorialIcon} />
               Tutorial
@@ -1097,7 +1150,6 @@ const ConsultationDrawer = ({ visible, onClose }) => {
                   <Input
                     placeholder={isTyping ? "" : "Or type here instead"}
                     className={styles.textInput}
-                    autoSize={{ minRows: 1, maxRows: 6 }}
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onClick={() => setIsTyping(true)}

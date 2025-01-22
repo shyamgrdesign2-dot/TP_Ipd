@@ -94,7 +94,7 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
           >
             <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
           </Button>
-          <div className="drawer-title">AI-Powered Gen Rx</div>
+          <div className="drawer-title">AI-Powered Voice Rx</div>
         </div>
 
         {/* Tabs */}
@@ -117,11 +117,11 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
           >
             Basic Info
           </span>
-          <div className="know-more-section-tilte">What is Gen Rx</div>
+          <div className="know-more-section-tilte">What is Voice Rx</div>
           <div className="know-more-section-content basic-info-section ">
             <img src={genRxIcon} alt="apex-AI" width={72} height={72} />
             <div>
-              Gen Rx is an AI-powered tool designed to streamline the
+              Voice Rx is an AI-powered tool designed to streamline the
               prescription-writing process by combining voice and typing inputs.
               It helps doctors generate structured prescriptions faster and more
               efficiently, reducing the time spent on administrative tasks.
@@ -137,10 +137,10 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
           >
             How it works
           </span>
-          <div className="know-more-section-tilte">How Does Gen Rx Work?</div>
+          <div className="know-more-section-tilte">How Does Voice Rx Work?</div>
           <div className="know-more-section-content">
             <div className="instruction-cvt-tutorial">
-              Please watch this video to know how Gen Rx Works👇
+              Please watch this video to know how Voice Rx Works👇
             </div>
 
             <div
