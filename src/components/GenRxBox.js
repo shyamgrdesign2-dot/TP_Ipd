@@ -10,7 +10,12 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { getClinicName } from "../utils/utils";
 
-const GenRxBox = ({ handleGenRxKnowMore, setIsGenRxDrawerVisible }) => {
+const GenRxBox = ({
+  handleDDxDrawer,
+  handleGenRxKnowMore,
+  genRxKnowMoreDrawer,
+  handleDrawerVital,
+}) => {
   const [isCollapseActive, setIsCollapseActive] = useState(true);
 
   const handlePanelChange = () => {
@@ -43,6 +48,10 @@ const GenRxBox = ({ handleGenRxKnowMore, setIsGenRxDrawerVisible }) => {
                 <span>Gen Rx</span>
               </div>
             </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerVital}
+            />
             {isCollapseActive && (
               <div
                 style={{
@@ -66,7 +75,7 @@ const GenRxBox = ({ handleGenRxKnowMore, setIsGenRxDrawerVisible }) => {
             <Button
               className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center justify-content-center"
               style={{ gap: 10 }}
-              onClick={() => setIsGenRxDrawerVisible(true)}
+              onClick={() => genRxKnowMoreDrawer("apexDDx")}
             >
               <img src={tryGenRxIcon} alt="genrx-icon" />
               <span>Try Gen Rx</span>

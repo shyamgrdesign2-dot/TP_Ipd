@@ -71,6 +71,10 @@ const DDxList = ({
                 <span>Differential Diagnosis</span>
               </div>
             </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerVital}
+            />
           </>
           {isCollapseActive && generatedDDx?.length === 0 ? (
             <div

@@ -41,7 +41,6 @@ import DoctorModal from "./common/DoctorModal";
 import ExpiredPlanCard from "./common/ExpiredPlanCard";
 import ApolloConsultations from "./pages/apolloConsultations/ApolloConsultations";
 import AuthContainer from "./pages/auth/auth";
-import GenRxPrescriptionPrintView from "./pages/GenRxPrescriptionPrintView";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -163,7 +162,7 @@ function App() {
                 />
                 <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
                 <Route path="apollo-consultations" element={<ApolloConsultations />} />
-                <Route path="gen-rx-print" element={<GenRxPrescriptionPrintView />} />
+
                 {/* Auth Route */}
                 <Route path="/login" element={<AuthContainer />} />
               </Routes>

@@ -2,7 +2,7 @@ import { Button } from "antd";
 import tatvaAi from "../assets/images/apexAI.svg";
 import newTag from "../assets/images/new-gif.gif";
 
-const TatvaAiBanner = ({ setShowTatvaAiPopup, handleTatvaAiKnowMore }) => {
+const TatvaAiBanner = ({ setShowApexPopup, handleGenRxKnowMore }) => {
   return (
     <div
       className="d-flex justify-content-between align-items-center"
@@ -18,8 +18,7 @@ const TatvaAiBanner = ({ setShowTatvaAiPopup, handleTatvaAiKnowMore }) => {
         <img className="me-3" src={tatvaAi} alt="apex-AI" />
         <div style={{ fontSize: 16, fontWeight: 500 }}>
           <div className="d-flex align-items-center">
-            Redefine Rx & Diagnosis with{" "}
-            <b style={{ marginLeft: 5 }}>Tatva AI</b>
+            Redefine Rx & Diagnosis with <b>Tatva AI</b>
             <img
               style={{ marginLeft: 10 }}
               src={newTag}
@@ -28,7 +27,7 @@ const TatvaAiBanner = ({ setShowTatvaAiPopup, handleTatvaAiKnowMore }) => {
               height={16}
             />
           </div>
-          <div className="know-more-txt" onClick={handleTatvaAiKnowMore}>
+          <div className="know-more-txt" onClick={handleGenRxKnowMore}>
             Know More
           </div>
         </div>
@@ -37,7 +36,7 @@ const TatvaAiBanner = ({ setShowTatvaAiPopup, handleTatvaAiKnowMore }) => {
         type="text"
         className="btn btn-delete-prescription focus-none h-100"
         style={{ padding: 5 }}
-        onClick={() => setShowTatvaAiPopup(false)}
+        onClick={() => setShowApexPopup(false)}
       >
         <i className="icon-Cross fs-3" style={{ color: "#A461D8" }} />
       </Button>

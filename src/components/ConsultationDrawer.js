@@ -1,106 +1,33 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  useContext,
-  useCallback,
-  useMemo,
-} from "react";
-import { Drawer, Button, Input, message, Menu, Dropdown } from "antd";
+import React, { useState, useRef, useEffect } from "react";
+import { Drawer, Button, Input, message } from "antd";
 import styles from "./ConsultationDrawer.module.css";
+import { Popover } from "react-bootstrap";
 import GenRxTips from "./GenRxTips";
-import tatvaAiChakraLottie from "../assets/lotties/tatvaAiChakra.json";
-import genRxSendCtaLottie from "../assets/lotties/genRxSendCta.json";
+import genRxIcon from "../assets/images/gen-rx-icon.svg";
 import deleteIcon from "../assets/images/delete-gen-rx.svg";
 import sendIcon from "../assets/images/send-gen-rx.svg";
 import micIcon from "../assets/images/mic-gen-rx.svg";
 import pauseIcon from "../assets/images/pause.svg";
-import {
-  editGenRxDetails,
-  generateRx,
-  getGenRx,
-  updateGenRx,
-} from "../api/services/ApiGenRx";
+import { generateRx } from "../api/services/ApiGenRx";
 import tutorialIcon from "../assets/images/tutorial-icon.svg";
-import documentIcon from "../assets/images/document-text.svg";
-import { isMobile } from "react-device-detect";
-import genRxBg from "../assets/images/gen-rx-bg.gif";
-import genRxRecordIcon from "../assets/images/gen-rx-record.svg";
-import tatvaAiStrip from "../assets/images/tatva-ai-strip.svg";
-import { useLocation, useNavigate } from "react-router-dom";
-import { getDecodedToken } from "../utils/localStorage";
-import { v4 as uuidv4 } from "uuid";
-import CashManagerContext from "../context/CashManagerContext";
-import {
-  addCaseManager,
-  editCaseManager,
-  resetViewCaseManagerData,
-} from "../redux/caseManagerSlice";
-import { useDispatch } from "react-redux";
-import { errorMessage } from "../utils/utils";
-import { CheckOutlined, CloseOutlined, PlusOutlined } from "@ant-design/icons";
-import deleteModuleIcon from "../assets/images/delete-icon-blue.svg";
-import alertIcon from "../assets/images/alertIcon.svg";
-import CommonModal from "../common/CommonModal";
-import BubbleSkeleton from "./BubbleSkeleton";
-import Lottie from "lottie-react";
-import VoiceWaveVisualizer from "./WaveVisualizer";
-import GenRXLoaders from "./GenRxLoaders";
 
 const ConsultationDrawer = ({ visible, onClose }) => {
-  const { state } = useLocation();
-  const { patient_data, caseManagerData } = state;
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [currentTip, setCurrentTip] = useState(0);
   const [recordingTime, setRecordingTime] = useState(0);
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [prescriptionData, setPrescriptionData] = useState(null);
-  const [showInput, setShowInput] = useState(false);
-  const [newModuleName, setNewModuleName] = useState("");
-  const [updatedModuleName, setUpdatedModuleName] = useState("");
-  const [genRxDetails, setGenRxDetails] = useState(null);
-  const [showPrescription, setShowPrescription] = useState(
-    caseManagerData?.smart_prescription_filename || false
-  );
+  const [showPrescription, setShowPrescription] = useState(false);
   const [inputText, setInputText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
   const [editableText, setEditableText] = useState("");
-  const [editableQuery, setEditableQuery] = useState("");
-  const [activeIndex, setActiveIndex] = useState(null);
-  const [activeType, setActiveType] = useState(null);
-  const [editableLineItem, setEditableLineItem] = useState("");
-  const [isHovering, setIsHovering] = useState(false);
-  const [queries, setQueries] = useState([]);
-  const [isPrescriptionReady, setIsPrescriptionReady] = useState(false);
-  const [isRxEdited, setIsRxEdited] = useState(false);
-  const [editingModule, setEditingModule] = useState("");
-  const [isDeleteModuleModalOpen, setIsDeleteModuleModalOpen] = useState(false);
-  const [moduleToDelete, setModuleToDelete] = useState(null);
-  const decodedToken = getDecodedToken();
-  const doctorId = decodedToken?.result?.user_id;
-  const [audioBlob, setAudioBlob] = useState(null);
-  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
-
-  const showHideBackModal = useCallback(() => {
-    setIsBackModalOpen(!isBackModalOpen);
-  }, [isBackModalOpen]);
 
   // Add these refs
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const audioStreamRef = useRef(null);
-
-  const navigate = useNavigate();
-
-  const { tcmId, consultationDate } = useContext(CashManagerContext);
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (caseManagerData?.smart_prescription_filename) getGenRxDetails();
-  }, [caseManagerData?.smart_prescription_filename]);
 
   // Timer logic
   useEffect(() => {
@@ -112,34 +39,6 @@ const ConsultationDrawer = ({ visible, onClose }) => {
     }
     return () => clearInterval(interval);
   }, [isRecording, isPaused]);
-
-  const getGenRxDetails = async () => {
-    try {
-      const response = await getGenRx(
-        caseManagerData?.smart_prescription_filename
-      );
-
-      if (response.success) {
-        setPrescriptionData(
-          response.data.editedData || response.data.digitizeData
-        );
-        setGenRxDetails({
-          source: response.data.source,
-          source_duration: response.data.source_duration,
-          timeRequiredInMs: response.data.timeRequiredInMs,
-          type: response.data.type,
-          _id: response.data._id,
-        });
-        setQueries(
-          response.data?.history?.map(({ transcription }) => transcription)
-        );
-      } else {
-        throw new Error(response.error || "Failed to get Rx");
-      }
-    } catch (error) {
-      console.error("Error getting Rx details:", error);
-    }
-  };
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -165,8 +64,10 @@ const ConsultationDrawer = ({ visible, onClose }) => {
       };
 
       mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(audioChunksRef.current, { type: "audio/wav" });
-        setAudioBlob(blob);
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/wav",
+        });
+        // Here you can send the audioBlob to your backend
       };
 
       mediaRecorderRef.current.start();
@@ -192,8 +93,6 @@ const ConsultationDrawer = ({ visible, onClose }) => {
   };
 
   const handleSend = async () => {
-    setShowPrescription(true);
-    setRecordingTime(0);
     setIsProcessing(true);
 
     try {
@@ -204,12 +103,12 @@ const ConsultationDrawer = ({ visible, onClose }) => {
         const audioBlob = new Blob(audioChunksRef.current, {
           type: "audio/webm",
         });
-
+        // Since your API handles both transcription and prescription generation
         await handleVoiceDigitize(audioBlob, "");
-        setIsPrescriptionReady(true);
       } else {
-        await handleVoiceDigitize(null, inputText || editableQuery);
-        setIsPrescriptionReady(true);
+        // For text input, create a simple blob with the text
+        const textBlob = new Blob([inputText], { type: "text/plain" });
+        await handleVoiceDigitize(textBlob, inputText);
       }
     } catch (error) {
       console.error("Error processing prescription:", error);
@@ -221,48 +120,41 @@ const ConsultationDrawer = ({ visible, onClose }) => {
   const handleVoiceDigitize = async (audioBlob, transcribedText) => {
     try {
       const formData = new FormData();
-      if (audioBlob) {
-        const audioContext = new (window.AudioContext ||
-          window.webkitAudioContext)();
-        const arrayBuffer = await audioBlob.arrayBuffer();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        const duration = audioBuffer.duration;
-        formData.append("file", audioBlob);
-        formData.append("voice_prescription_filename", `${uuidv4()}.webm`);
-        formData.append("source_duration", duration);
-      } else {
-        formData.append("voice_prescription_text", transcribedText);
-      }
-      if (genRxDetails?._id)
-        formData.append(
-          "voice_prescription_previous_context",
-          JSON.stringify(prescriptionData)
-        );
-      formData.append("doctorId", doctorId); // Replace with actual doctor ID
-      formData.append("patientId", patient_data?.patient_unique_id); // Replace with actual patient ID
 
-      const response = genRxDetails?._id
-        ? await updateGenRx(formData, genRxDetails?._id)
-        : await generateRx(formData);
+      // Add the required fields to formData
+      formData.append("file", audioBlob);
+      formData.append("voice_prescription_filename", "prescription.webm");
+      formData.append("voice_prescription_text", transcribedText);
+      formData.append("doctorId", "your-doctor-id"); // Replace with actual doctor ID
+      formData.append("patientId", "your-patient-id"); // Replace with actual patient ID
+      formData.append("caseId", "your-case-id"); // Replace with actual case ID
+      formData.append("appointmentId", "your-appointment-id"); // Replace with actual appointment ID
+
+      const response = await generateRx(formData);
       if (response.success) {
-        setPrescriptionData(response.data.digitize);
-        setGenRxDetails({
-          source: response.data.source,
-          source_duration: response.data.source_duration,
-          timeRequiredInMs: response.data.timeRequiredInMs,
-          type: response.data.type,
-          _id: response.data._id,
-        });
-        setQueries(
-          isEditing
-            ? [
-                ...queries.slice(0, queries.length - 1),
-                response.data.transcription,
-              ]
-            : [...queries, response.data.transcription]
-        );
-        setInputText("");
-        setIsEditing(false);
+        // Transform the API response to match your UI structure
+        const prescriptionData = {
+          medications: response.data.digitize.medications.map((med) => ({
+            name: med.name,
+            dosage: `${med.dosage}, ${med.frequency}${
+              med.schedule ? `, ${med.schedule}` : ""
+            }${med.duration ? `, ${med.duration}` : ""}`,
+          })),
+          labTests: response.data.digitize.labInvestigation.map(
+            (test) => test.name
+          ),
+          symptoms: response.data.digitize.symptoms.map(
+            (symptom) =>
+              `${symptom.name} (${symptom.duration}, ${symptom.severity}${
+                symptom.notes ? `, ${symptom.notes}` : ""
+              })`
+          ),
+          advice: response.data.digitize.advice,
+        };
+
+        setPrescriptionData(prescriptionData);
+        setInputText(response.data.transcription);
+        setShowPrescription(true);
       } else {
         throw new Error(response.error || "Failed to process prescription");
       }
@@ -271,45 +163,22 @@ const ConsultationDrawer = ({ visible, onClose }) => {
       message.error(error.message || "Failed to process prescription");
     } finally {
       setIsProcessing(false);
-      setIsRecording(false);
-    }
-  };
-
-  const handleUpdateGenRX = async () => {
-    try {
-      const response = await editGenRxDetails(
-        { editedData: prescriptionData },
-        genRxDetails?._id
-      );
-      if (response.success) {
-        setGenRxDetails({
-          source: response.data.source,
-          source_duration: response.data.source_duration,
-          timeRequiredInMs: response.data.timeRequiredInMs,
-          type: response.data.type,
-          _id: response.data._id,
-        });
-      } else {
-        throw new Error(response.error || "Failed to update Rx");
-      }
-    } catch (error) {
-      console.error("Error in voice digitization:", error);
-      message.error(error.message || "Failed to process prescription");
     }
   };
 
   const handleEdit = () => {
     setIsEditing(true);
-    setEditableQuery(queries[queries.length - 1]);
+    setEditableText(inputText);
   };
 
   const handleEditCancel = () => {
     setIsEditing(false);
-    setEditableQuery("");
+    setEditableText("");
   };
 
   const handleEditSave = () => {
-    setInputText(editableQuery);
+    setInputText(editableText);
+    setIsEditing(false);
     handleSend();
   };
 
@@ -322,617 +191,32 @@ const ConsultationDrawer = ({ visible, onClose }) => {
     setIsPaused(!isPaused);
   };
 
-  const handleInputChange = (e) => {
-    setEditableText(e.target.value);
-    setIsRxEdited(true);
-  };
+  const renderPrescriptionData = () => {
+    if (!prescriptionData) return null;
 
-  // Handle lineItem input change for editing
-  const handleLineItemChange = (e) => {
-    setEditableLineItem(e.target.value);
-    setIsRxEdited(true);
-  };
-
-  const handleLineItemBlur = (type, index) => {
-    setPrescriptionData((prevData) => {
-      const updatedData = { ...prevData };
-      if (type === "vitalsAndBodyComposition") {
-        updatedData[type].notes = editableLineItem;
-      } else {
-        updatedData[type][index].lineItem = editableLineItem; // Update lineItem with the new value
-      }
-      return updatedData;
-    });
-    setActiveIndex(null);
-    setActiveType(null);
-    setIsRxEdited(true);
-  };
-
-  const handleInputBlur = (type, index, isCustom) => {
-    if (activeIndex !== null && activeType !== null) {
-      setPrescriptionData((prevData) => {
-        const updatedData = { ...prevData };
-
-        if (
-          type === "medications" ||
-          type === "labInvestigation" ||
-          type === "symptoms" ||
-          type === "examinations" ||
-          type === "diagnosis" ||
-          type === "medicalHistory" ||
-          type === "vaccinations"
-        ) {
-          updatedData[type][index].name = editableText.trim();
-        } else if (type === "advice") {
-          updatedData[type][index] = editableText.trim();
-        } else if (type === "vitals") {
-          updatedData.vitals[index] = editableText.trim();
-        } else if (isCustom) {
-          updatedData.dynamicFields[type][index] = editableText.trim();
-        }
-        return updatedData; // Persist changes
-      });
-      setIsRxEdited(true);
-    }
-    setActiveIndex(null);
-    setActiveType(null);
-    setEditableText(""); // Clear editable text after blur
-  };
-
-  // Handle click on an item (to edit)
-  const handleItemClick = (type, index, isCustom) => {
-    if (activeIndex !== null && activeType !== null) {
-      handleInputBlur(activeType, activeIndex);
-    }
-
-    if (
-      type === "symptoms" ||
-      type === "medications" ||
-      type === "labInvestigation" ||
-      type === "examinations" ||
-      type === "diagnosis" ||
-      type === "medicalHistory" ||
-      type === "vaccinations"
-    ) {
-      setEditableText(prescriptionData[type][index].name);
-    } else if (type === "advice") {
-      setEditableText(prescriptionData[type][index]);
-    } else if (type === "vitals") {
-      setEditableText(prescriptionData.vitals[index]);
-    } else if (isCustom) {
-      setEditableText(prescriptionData.dynamicFields[type][index]);
-    }
-
-    setActiveIndex(index);
-    setActiveType(type);
-  };
-
-  // Handle click on a lineItem (to edit)
-  const handleLineItemClick = (type, index) => {
-    if (
-      type === "medications" ||
-      type === "labInvestigation" ||
-      type === "vaccinations" ||
-      type === "medicalHistory" ||
-      type === "symptoms"
-    ) {
-      setEditableLineItem(prescriptionData[type][index]?.lineItem);
-    } else {
-      setEditableLineItem(prescriptionData[type][index]?.notes);
-    }
-    setActiveIndex(index);
-    setActiveType(`${type}-lineItem`);
-  };
-
-  async function onEndVisitClick() {
-    if (isRxEdited) handleUpdateGenRX();
-    const sendData = {
-      action: tcmId === 0 ? "add" : "edit",
-      tcm_id: tcmId,
-      patient_unique_id:
-        patient_data !== undefined ? patient_data.patient_unique_id : 0,
-      pam_id:
-        patient_data !== undefined
-          ? patient_data.hasOwnProperty("pam_id")
-            ? patient_data.pam_id
-            : 0
-          : 0,
-      consultation_date: consultationDate,
-      smart_prescription_filename: genRxDetails?._id,
-    };
-
-    const action =
-      tcmId == 0
-        ? await dispatch(addCaseManager(sendData))
-        : await dispatch(editCaseManager(sendData));
-
-    if (action.meta.requestStatus === "fulfilled") {
-      navigate("/gen-rx-print", {
-        replace: true,
-        state: {
-          ...action.payload,
-          patient_data: patient_data,
-          page: "prescription",
-        },
-      });
-    } else {
-      errorMessage(action.error);
-    }
-  }
-
-  const renderItems = (type) => {
-    if (type === "vitalsAndBodyComposition") {
-      return (
-        <div className="digitised-section">
-          {isProcessing ? (
-            <div className="shimmer-container">
-              <div className="shimmer"></div>
-            </div>
-          ) : (
-            <ul>
-              {Object.entries(prescriptionData.vitalsAndBodyComposition || {})
-                .filter(([key, value]) => value)
-                .map(([key, value]) => {
-                  // Dynamically calculate input width
-                  let textWidth = 0;
-                  if (activeIndex === key && activeType === "vitals") {
-                    const tempSpan = document.createElement("span");
-                    tempSpan.style.visibility = "hidden";
-                    tempSpan.style.position = "absolute";
-                    tempSpan.style.whiteSpace = "nowrap";
-                    tempSpan.innerText = editableText || "";
-                    document.body.appendChild(tempSpan);
-                    textWidth = tempSpan.offsetWidth;
-                    document.body.removeChild(tempSpan);
-                  }
-
-                  return (
-                    <li key={key}>
-                      <div className="medicine-item">
-                        <span className="digitised-item">
-                          {/* Format the key to be human-readable */}
-                          {`${key
-                            .replace(/([A-Z])/g, " $1")
-                            .replace(/^./, (str) => str.toUpperCase())}: `}
-                        </span>
-                        {activeIndex === key && activeType === "vitals" ? (
-                          <input
-                            type="text"
-                            value={editableText} // Pre-fill the input with the current value
-                            className="editable-digitised-item"
-                            onChange={(e) => setEditableText(e.target.value)}
-                            onBlur={() => handleInputBlur(type, key)}
-                            autoFocus
-                            style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
-                          />
-                        ) : (
-                          <span
-                            onClick={() => handleItemClick(type, key)}
-                            className="digitised-item"
-                          >
-                            {value}
-                          </span>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
-            </ul>
-          )}
-        </div>
-      );
-    }
-
-    // Handle other types dynamically (like medications, symptoms, etc.)
-    return (
-      <div className="digitised-section">
-        {isProcessing ? (
-          <div className="shimmer-container">
-            <div className="shimmer"></div>
-          </div>
-        ) : Array.isArray(prescriptionData[type]) &&
-          prescriptionData[type].length > 0 ? (
-          <ul>
-            {prescriptionData[type].map((item, index) => {
-              // Measure the width of the editable text
-              let textWidth = 0;
-              let lineItemWidth = 0;
-
-              // For name or other primary data (editableText)
-              if (activeIndex === index && activeType === type) {
-                const tempSpan = document.createElement("span");
-                tempSpan.style.visibility = "hidden";
-                tempSpan.style.position = "absolute";
-                tempSpan.style.whiteSpace = "nowrap";
-                tempSpan.innerText = editableText || "";
-                document.body.appendChild(tempSpan);
-                textWidth = tempSpan.offsetWidth;
-                document.body.removeChild(tempSpan);
-              }
-
-              // For lineItem (editableLineItem)
-              if (activeIndex === index && activeType === `${type}-lineItem`) {
-                const tempSpanLineItem = document.createElement("span");
-                tempSpanLineItem.style.visibility = "hidden";
-                tempSpanLineItem.style.position = "absolute";
-                tempSpanLineItem.style.whiteSpace = "nowrap";
-                tempSpanLineItem.innerText = editableLineItem || "";
-                document.body.appendChild(tempSpanLineItem);
-                lineItemWidth = tempSpanLineItem.offsetWidth;
-                document.body.removeChild(tempSpanLineItem);
-              }
-
-              return (
-                <li key={index}>
-                  <div className="medicine-item">
-                    {activeIndex === index && activeType === type ? (
-                      <input
-                        type="text"
-                        value={editableText}
-                        className="editable-digitised-item"
-                        onChange={handleInputChange}
-                        onBlur={() => handleInputBlur(type, index)}
-                        autoFocus
-                        style={{ width: `${textWidth + 10}px` }}
-                      />
-                    ) : (
-                      <span
-                        onClick={() => handleItemClick(type, index)}
-                        className="digitised-item"
-                      >
-                        {type === "advice" ? item : item?.name}
-                      </span>
-                    )}
-
-                    {/* Editable input for lineItem */}
-                    {(type === "medications" ||
-                      type === "symptoms" ||
-                      type === "vaccinations" ||
-                      type === "medicalHistory" ||
-                      type === "labInvestigation") &&
-                      item?.lineItem &&
-                      (activeIndex === index &&
-                      activeType === `${type}-lineItem` ? (
-                        <input
-                          type="text"
-                          value={editableLineItem}
-                          className="editable-digitised-item"
-                          onChange={handleLineItemChange}
-                          onBlur={() => handleLineItemBlur(type, index)}
-                          autoFocus
-                          style={{ width: `${lineItemWidth + 10}px` }} // Add padding for better UX
-                        />
-                      ) : (
-                        <span
-                          onClick={() => handleLineItemClick(type, index)}
-                          className="digitised-item"
-                        >
-                          {`(${item.lineItem})`}
-                        </span>
-                      ))}
-
-                    {/* Editable input for notes (lineItem) */}
-                    {(type === "examinations" || type === "diagnosis") &&
-                      item?.notes &&
-                      (activeIndex === index &&
-                      activeType === `${type}-lineItem` ? (
-                        <input
-                          type="text"
-                          value={editableLineItem}
-                          className="editable-digitised-item"
-                          onChange={handleLineItemChange}
-                          onBlur={() => handleLineItemBlur(type, index)}
-                          autoFocus
-                          style={{ width: `${lineItemWidth + 10}px` }} // Add padding for better UX
-                        />
-                      ) : (
-                        <span
-                          onClick={() => handleLineItemClick(type, index)}
-                          className="digitised-item"
-                        >
-                          {`(${item.notes})`}
-                        </span>
-                      ))}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          prescriptionData[type]
-        )}
-      </div>
-    );
-  };
-
-  const toggleDeleteModuleModal = useCallback(() => {
-    setIsDeleteModuleModalOpen(!isDeleteModuleModalOpen);
-  }, [isDeleteModuleModalOpen]);
-
-  const DELETE_MODULE_MODAL = useMemo(() => {
-    return (
-      <CommonModal
-        isModalOpen={isDeleteModuleModalOpen}
-        onCancel={toggleDeleteModuleModal}
-        modalWidth={500}
-        title={"Are you sure you want to delete this module?"}
-        modalBody={
-          <>
-            <div className="d-flex align-items-start alert-warning rounded-10px p-3 patient-details">
-              <img className="me-3" src={alertIcon} alt="Warning" />
-              <span>
-                This action will permanently delete the {moduleToDelete} and
-                cannot be undone. Please confirm to proceed
-              </span>
-            </div>
-            <div className="mt-4">
-              <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div
-                  onClick={() => {
-                    handleDeleteModule();
-                    toggleDeleteModuleModal();
-                  }}
-                  className="me-4 text-decoration-underline btn p-0 text-main"
-                >
-                  Yes, Delete
-                </div>
-                <Button
-                  onClick={toggleDeleteModuleModal}
-                  className="lh-lg btn btn-primary3 btn-41 px-4"
-                >
-                  <span>No</span>
-                </Button>
-              </div>
-            </div>
-          </>
-        }
-      />
-    );
-  }, [isDeleteModuleModalOpen]);
-
-  const renderCustomModules = () => {
-    return Object.entries(prescriptionData?.dynamicFields || {}).map(
-      ([module, data]) => {
-        return (
-          <>
-            {editingModule === module ? (
-              <div className="d-flex justify-content-between mb-4">
-                <Input
-                  placeholder="Enter custom module name"
-                  value={updatedModuleName}
-                  onChange={(e) => setUpdatedModuleName(e.target.value)}
-                  className="custom-module-input"
-                />
-                <>
-                  <CheckOutlined
-                    className="input-action-icon tick-icon"
-                    onClick={() => handleEditModule(module)}
-                  />
-                  <CloseOutlined
-                    className="input-action-icon cross-icon"
-                    onClick={handleCancelEdit}
-                  />
-                </>
-              </div>
-            ) : (
-              <div className="d-flex justify-content-between align-items-center">
-                <div className="d-flex align-items-center title-digitise-section mb-2">
-                  {module}
-                  <i
-                    className={`icon-Edit fs-21 ms-2 cursor-pointer`}
-                    onClick={() => {
-                      setEditingModule(module);
-                      setUpdatedModuleName(module);
-                    }}
-                  ></i>
-                </div>
-                <Dropdown
-                  overlay={
-                    <Menu>
-                      <Menu.Item
-                        key="delete"
-                        onClick={() => {
-                          setModuleToDelete(module);
-                          toggleDeleteModuleModal();
-                        }}
-                        style={{
-                          fontFamily: "Poppins, sans-serif",
-                          fontSize: "14px",
-                          fontWeight: "500",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          color: "#ff4d4f",
-                          padding: "8px 12px",
-                        }}
-                      >
-                        <img
-                          src={deleteModuleIcon}
-                          width={16}
-                          height={16}
-                          alt="edit"
-                          style={{ margin: "0 8px 3px 0" }}
-                        />
-                        Delete {module} Module
-                      </Menu.Item>
-                    </Menu>
-                  }
-                  trigger={["click"]}
-                  placement="bottomRight"
-                >
-                  <i className={`icon-More fs-21 cursor-pointer`}></i>
-                </Dropdown>
-              </div>
-            )}
-            <div className="digitised-section">
-              {isProcessing ? (
-                <div className="shimmer-container">
-                  <div className="shimmer"></div>
-                </div>
-              ) : data.length > 0 ? (
-                <ul>
-                  {data.map((item, index) => {
-                    // Measure the width of the editable text
-                    let textWidth = 0;
-                    let lineItemWidth = 0;
-
-                    // For name or other primary data (editableText)
-                    if (activeIndex === index && activeType === module) {
-                      const tempSpan = document.createElement("span");
-                      tempSpan.style.visibility = "hidden";
-                      tempSpan.style.position = "absolute";
-                      tempSpan.style.whiteSpace = "nowrap";
-                      tempSpan.innerText = editableText || "";
-                      document.body.appendChild(tempSpan);
-                      textWidth = tempSpan.offsetWidth;
-                      document.body.removeChild(tempSpan);
-                    }
-
-                    // For lineItem (editableLineItem)
-                    if (
-                      activeIndex === index &&
-                      activeType === `${module}-lineItem`
-                    ) {
-                      const tempSpanLineItem = document.createElement("span");
-                      tempSpanLineItem.style.visibility = "hidden";
-                      tempSpanLineItem.style.position = "absolute";
-                      tempSpanLineItem.style.whiteSpace = "nowrap";
-                      tempSpanLineItem.innerText = editableLineItem || "";
-                      document.body.appendChild(tempSpanLineItem);
-                      lineItemWidth = tempSpanLineItem.offsetWidth;
-                      document.body.removeChild(tempSpanLineItem);
-                    }
-
-                    return (
-                      <li key={index}>
-                        <div className="medicine-item">
-                          {activeIndex === index && activeType === module ? (
-                            <input
-                              type="text"
-                              value={editableText}
-                              className="editable-digitised-item"
-                              onChange={handleInputChange}
-                              onBlur={() =>
-                                handleInputBlur(module, index, true)
-                              }
-                              autoFocus
-                              style={{ width: `${textWidth + 10}px` }}
-                            />
-                          ) : (
-                            <span
-                              onClick={() =>
-                                handleItemClick(module, index, true)
-                              }
-                              className="digitised-item"
-                            >
-                              {item}
-                            </span>
-                          )}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
+    return Object.entries(prescriptionData).map(([section, items]) => (
+      <div key={section} className={styles.prescriptionSection}>
+        <h3 className={styles.sectionTitle}>
+          {section.charAt(0).toUpperCase() + section.slice(1)}
+        </h3>
+        <ul className={styles.itemsList}>
+          {items.map((item, index) => (
+            <li key={index} className={styles.prescriptionItem}>
+              {typeof item === "string" ? (
+                item
               ) : (
-                <textarea
-                  type="text"
-                  value={activeType ? "" : editableText}
-                  className="editable-digitised-item w-100"
-                  onChange={handleInputChange}
-                  onBlur={() => handleInputBlur(module, 0, true)}
-                  // autoFocus
-                  style={{ border: "none" }}
-                  rows={3}
-                  placeholder={`Enter ${module} details here or simply speak or type in Gen Rx`}
-                />
+                <>
+                  <span>{item.name}</span>
+                  {item.dosage && (
+                    <span className={styles.dosage}>({item.dosage})</span>
+                  )}
+                </>
               )}
-            </div>
-          </>
-        );
-      }
-    );
-  };
-
-  const handleAddModule = () => {
-    setPrescriptionData((prevData) => {
-      const updatedData = { ...prevData };
-      updatedData["dynamicFields"][newModuleName] = [];
-      return updatedData;
-    });
-    handleCancel();
-  };
-
-  const handleEditModule = (module) => {
-    setPrescriptionData((prevData) => {
-      const updatedData = {
-        ...prevData,
-        dynamicFields: { ...prevData.dynamicFields },
-      };
-
-      updatedData.dynamicFields[updatedModuleName] =
-        updatedData.dynamicFields[module];
-
-      delete updatedData.dynamicFields[module];
-
-      return updatedData;
-    });
-
-    handleCancel();
-  };
-
-  const handleDeleteModule = () => {
-    setPrescriptionData((prevData) => {
-      const updatedData = {
-        ...prevData,
-        dynamicFields: { ...prevData.dynamicFields },
-      };
-
-      delete updatedData.dynamicFields[moduleToDelete];
-
-      return updatedData;
-    });
-  };
-
-  const handleCancelEdit = () => {
-    setEditingModule("");
-    setUpdatedModuleName("");
-  };
-
-  const handleCancel = () => {
-    setShowInput(false);
-    setNewModuleName("");
-  };
-
-  const handleEditCustomModule = (module, value) => {
-    setPrescriptionData((prevData) => {
-      const updatedData = { ...prevData };
-      updatedData["dynamicFields"][module] = [
-        ...(updatedData["dynamicFields"][module] || []),
-        value,
-      ];
-      return updatedData;
-    });
-  };
-
-  const checkDataFillOrNot = () => {
-    if (prescriptionData) {
-      showHideBackModal();
-    } else {
-      onClose();
-    }
-  };
-
-  const handleBack = () => {
-    // resetViewCaseManagerData();
-    onClose();
-    // setPrescriptionData(null);
-    navigate(".", {
-      replace: true, // Prevents adding a new entry to history
-      state: {
-        ...state,
-        caseManagerData: undefined, // Remove caseManagerData
-      },
-    });
+            </li>
+          ))}
+        </ul>
+      </div>
+    ));
   };
 
   return (
@@ -940,7 +224,7 @@ const ConsultationDrawer = ({ visible, onClose }) => {
       placement="right"
       onClose={onClose}
       open={visible}
-      className={`${styles.consultationDrawer} bg-body`}
+      className={styles.consultationDrawer}
       closeIcon={false}
       width={showPrescription ? "100%" : "600px"}
     >
@@ -948,7 +232,7 @@ const ConsultationDrawer = ({ visible, onClose }) => {
         <div className="align-items-center d-flex h-100">
           <div className="border-end h-100 text-center me-3">
             <div
-              onClick={checkDataFillOrNot}
+              onClick={onClose}
               className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
             >
               <i className="icon-right"></i>
@@ -968,7 +252,7 @@ const ConsultationDrawer = ({ visible, onClose }) => {
             <Button
               type="button"
               className="btn align-items-center d-flex btn-41 btn-primary3 me-20"
-              onClick={onEndVisitClick}
+              onClick={() => null}
               disabled={!prescriptionData}
             >
               <i className="icon-exit me-2"></i>
@@ -977,476 +261,138 @@ const ConsultationDrawer = ({ visible, onClose }) => {
           )}
         </div>
       </div>
-      <div
-        className={!showPrescription ? styles.gradientBorder : ""}
-        style={{ background: !showPrescription ? `url(${genRxBg})` : "" }}
-      >
-        <div className={styles.container}>
-          {!showPrescription ? (
-            <>
-              <div>
-                <h1 className={styles.title}>
-                  Start your consultation with the patient
-                </h1>
-                <p className={styles.subtitle}>
-                  Dictate the complete prescription effortlessly
-                </p>
-              </div>
-              {!isTyping && <GenRxTips />}
+      <div className={styles.container}>
+        {!showPrescription ? (
+          <>
+            <h1 className={styles.title}>
+              Start your consultation with the patient
+            </h1>
+            <p className={styles.subtitle}>
+              Dictate the complete prescription effortlessly
+            </p>
 
-              {isRecording ? (
-                <div className={styles.recordingContainer}>
-                  <div className="d-flex align-items-center justify-content-between">
-                    <span>{formatTime(recordingTime)}</span>
-                    <VoiceWaveVisualizer
-                      isRecording={isRecording}
-                      isPaused={isPaused}
-                    />
-                    <div className={styles.controlButtons}>
-                      {isPaused ? (
-                        <button
-                          className={styles.micBtn}
-                          onClick={handlePauseResume}
-                        >
-                          <img src={micIcon} alt="resume" />
-                        </button>
-                      ) : (
-                        <div onClick={handlePauseResume} role="button">
-                          <img src={pauseIcon} alt="pause" />
-                        </div>
-                      )}
-                      <div role="button" onClick={handleSend}>
-                        <img src={sendIcon} alt="send" />
-                        {/* <Lottie
-                          animationData={genRxSendCtaLottie}
-                          loop={true}
-                        /> */}
+            <GenRxTips currentTip={currentTip} setCurrentTip={setCurrentTip} />
+
+            {isProcessing ? (
+              <div className={styles.processingContainer}>
+                <div className={styles.processingContent}>
+                  <img src="/api/placeholder/64/64" alt="Processing" />
+                  <p>Your input is being processed in the backend...</p>
+                  <div className={styles.processingBar} />
+                </div>
+              </div>
+            ) : isRecording ? (
+              <div className={styles.recordingContainer}>
+                <div className="d-flex align-items-center justify-content-between">
+                  <span>{formatTime(recordingTime)}</span>
+                  <div
+                    className={
+                      isPaused ? styles.waveform : styles.waveformActive
+                    }
+                  />
+                  <div className={styles.controlButtons}>
+                    {isPaused ? (
+                      <button
+                        className={styles.micBtn}
+                        onClick={handlePauseResume}
+                      >
+                        <img src={micIcon} alt="resume" />
+                      </button>
+                    ) : (
+                      <div onClick={handlePauseResume} role="button">
+                        <img src={pauseIcon} alt="pause" />
                       </div>
+                    )}
+                    <div role="button" onClick={handleSend}>
+                      <img src={sendIcon} alt="send" />
                     </div>
                   </div>
-                  <div className={styles.controls}>
-                    <div
-                      role="button"
-                      onClick={handleStopRecording}
-                      className={styles.deleteButton}
-                    >
-                      <img src={deleteIcon} alt="delete" />
-                    </div>
-                    <span className={styles.recordingStatus}>
-                      {isPaused
-                        ? "Tap on the mic to continue recording!"
-                        : "Listening..."}
-                    </span>
+                </div>
+                <div className={styles.controls}>
+                  <div
+                    role="button"
+                    onClick={handleStopRecording}
+                    className={styles.deleteButton}
+                  >
+                    <img src={deleteIcon} alt="delete" />
+                  </div>
+                  <span className={styles.recordingStatus}>
+                    {isPaused
+                      ? "Tap on the mic to continue recording!"
+                      : "Listening..."}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className={styles.tapToSpeak}>
+                  <div role="button" onClick={handleStartRecording}>
+                    <img src={genRxIcon} alt="MIC" />
+                  </div>
+                  <p className={styles.tapText}>Tap to Speak</p>
+                </div>
+                <Input.TextArea
+                  placeholder="Or type here instead"
+                  className={styles.textInput}
+                  autoSize={{ minRows: 1, maxRows: 6 }}
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                />
+              </>
+            )}
+          </>
+        ) : (
+          <div className={styles.splitView}>
+            <div className={styles.inputSection}>
+              {isEditing ? (
+                <div className={styles.editContainer}>
+                  <Input.TextArea
+                    value={editableText}
+                    onChange={(e) => setEditableText(e.target.value)}
+                    className={styles.editInput}
+                    autoSize={{ minRows: 4 }}
+                  />
+                  <div className={styles.editActions}>
+                    <Button onClick={handleEditCancel}>Cancel</Button>
+                    <Button type="primary" onClick={handleEditSave}>
+                      Send
+                    </Button>
                   </div>
                 </div>
               ) : (
                 <>
-                  {!isTyping && (
-                    <div className={styles.tapToSpeak}>
-                      <div
-                        role="button"
-                        style={{
-                          background: `url(${genRxBg})`,
-                          borderRadius: "60px",
-                          width: "120px",
-                          height: "120px",
-                          marginTop: "100px",
-                        }}
+                  <div className={styles.inputContent}>
+                    {inputText}
+                    <button className={styles.editButton} onClick={handleEdit}>
+                      Edit
+                    </button>
+                  </div>
+                  <div className={styles.inputControls}>
+                    <Input.TextArea
+                      placeholder="Start speaking or typing..."
+                      className={styles.textInput}
+                      autoSize={{ minRows: 1, maxRows: 6 }}
+                    />
+                    <div className={styles.controlButtons}>
+                      <button
+                        className={styles.micBtn}
                         onClick={handleStartRecording}
                       >
-                        <Lottie
-                          animationData={tatvaAiChakraLottie}
-                          loop={true}
-                        />
+                        <img src={micIcon} alt="mic" />
+                      </button>
+                      <div role="button" onClick={handleSend}>
+                        <img src={sendIcon} alt="send" />
                       </div>
-                      <p className={styles.tapText}>Tap to Speak</p>
                     </div>
-                  )}
-                  <Input
-                    placeholder={isTyping ? "" : "Or type here instead"}
-                    className={styles.textInput}
-                    autoSize={{ minRows: 1, maxRows: 6 }}
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onClick={() => setIsTyping(true)}
-                    onBlur={() => setTimeout(() => setIsTyping(false), 100)} // Small delay
-                    suffix={
-                      isTyping && (
-                        <div className={styles.controlButtons}>
-                          <div role="button" onClick={handleStartRecording}>
-                            <img src={genRxRecordIcon} alt="MIC" />
-                          </div>
-                          <div role="button" onClick={handleSend}>
-                            <img src={sendIcon} alt="send" />
-                          </div>
-                        </div>
-                      )
-                    }
-                  />
+                  </div>
                 </>
               )}
-            </>
-          ) : (
-            <div
-              className={`${styles.splitView} ${isMobile ? "p-0" : ""} w-100`}
-            >
-              <div className={styles.inputSection}>
-                <div>
-                  <img src={documentIcon} alt="Document" />
-                  <span className={styles.heading}>Your input</span>
-                </div>
-                <div className={styles.chatSection}>
-                  {isProcessing ? (
-                    <BubbleSkeleton />
-                  ) : isEditing ? (
-                    <div className={styles.editContainer}>
-                      <Input.TextArea
-                        value={editableQuery}
-                        onChange={(e) => setEditableQuery(e.target.value)}
-                        className={styles.editInput}
-                        autoSize={{ minRows: 4 }}
-                      />
-                      <div className={styles.editActions}>
-                        <Button
-                          className="customUnderline"
-                          type="link"
-                          onClick={handleEditCancel}
-                        >
-                          Cancel
-                        </Button>
-                        <Button type="primary" onClick={handleEditSave}>
-                          Send
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className={styles.inputContainer}>
-                        <div className={styles.inputQueries}>
-                          {queries.map((query, index) => (
-                            <div key={index}>
-                              <div
-                                onMouseEnter={() =>
-                                  index === queries.length - 1 &&
-                                  setIsHovering(true)
-                                }
-                                onMouseLeave={() =>
-                                  index === queries.length - 1 &&
-                                  setIsHovering(false)
-                                }
-                                onClick={() =>
-                                  index === queries.length - 1 && handleEdit()
-                                }
-                                className="position-relative ms-auto"
-                                style={{ width: "457px" }}
-                              >
-                                <div>
-                                  {isHovering &&
-                                    index === queries.length - 1 && (
-                                      <i
-                                        className={`${styles.editIcon} icon-Edit fs-21`}
-                                      ></i>
-                                    )}
-                                </div>
-                                <div
-                                  key={index}
-                                  className={styles.textContainer}
-                                >
-                                  <span className={styles.inputText}>
-                                    {query}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="d-flex gap-3 me-auto mb-5">
-                                <img src={tatvaAiStrip} alt="Tatva AI" />
-                                <div
-                                  className={styles.prescriptionReadyMessage}
-                                >
-                                  Your prescription is ready! You can also add
-                                  details like diagnosis, Examinations and more
-                                  simply by speaking or typing below.
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      {isRecording ? (
-                        <div className={styles.recordingContainer}>
-                          <div className="d-flex align-items-center justify-content-between">
-                            <span>{formatTime(recordingTime)}</span>
-                            <VoiceWaveVisualizer
-                              isRecording={isRecording}
-                              isPaused={isPaused}
-                            />
-                            <div className={styles.controlButtons}>
-                              {isPaused ? (
-                                <button
-                                  className={styles.micBtn}
-                                  onClick={handlePauseResume}
-                                >
-                                  <img src={micIcon} alt="resume" />
-                                </button>
-                              ) : (
-                                <div onClick={handlePauseResume} role="button">
-                                  <img src={pauseIcon} alt="pause" />
-                                </div>
-                              )}
-                              <div role="button" onClick={handleSend}>
-                                <img src={sendIcon} alt="send" />
-                              </div>
-                            </div>
-                          </div>
-                          <div className={styles.controls}>
-                            <div
-                              role="button"
-                              onClick={handleStopRecording}
-                              className={styles.deleteButton}
-                            >
-                              <img src={deleteIcon} alt="delete" />
-                            </div>
-                            <span className={styles.recordingStatus}>
-                              {isPaused
-                                ? "Tap on the mic to continue recording!"
-                                : "Listening..."}
-                            </span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div style={{ marginTop: "auto" }}>
-                          <Input
-                            placeholder="Start speaking or typing..."
-                            className={styles.textInput}
-                            onChange={(e) => setInputText(e.target.value)}
-                            value={inputText}
-                            suffix={
-                              <div className={styles.controlButtons}>
-                                <div
-                                  role="button"
-                                  onClick={handleStartRecording}
-                                >
-                                  <img src={genRxRecordIcon} alt="MIC" />
-                                </div>
-                                <div role="button" onClick={handleSend}>
-                                  <img src={sendIcon} alt="send" />
-                                </div>
-                              </div>
-                            }
-                          />
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-              <div className={styles.prescriptionSection}>
-                <div>
-                  <img src={documentIcon} alt="Document" />
-                  <span className={styles.heading}>Generated Digitised Rx</span>
-                </div>
-                {isProcessing ? (
-                  <GenRXLoaders isProcessing={isProcessing} />
-                ) : (
-                  <div
-                    className={`${styles.rightSection} ${
-                      isProcessing ? styles.gradientBorder : ""
-                    }`}
-                    style={{
-                      background: isProcessing ? `url(${genRxBg})` : "",
-                    }}
-                  >
-                    {prescriptionData?.vitals &&
-                      Object.values(prescriptionData.vitals).some(
-                        (value) => value
-                      ) && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Vitals
-                          </div>
-                          {renderItems("vitalsAndBodyComposition")}
-                        </>
-                      )}
-
-                    {prescriptionData?.medicalHistory &&
-                      prescriptionData.medicalHistory.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Medical History
-                          </div>
-                          {renderItems("medicalHistory")}
-                        </>
-                      )}
-
-                    {prescriptionData?.symptoms &&
-                      prescriptionData.symptoms.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Symptoms
-                          </div>
-                          {renderItems("symptoms")}
-                        </>
-                      )}
-
-                    {prescriptionData?.examinations &&
-                      prescriptionData.examinations.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Examinations
-                          </div>
-                          {renderItems("examinations")}
-                        </>
-                      )}
-
-                    {prescriptionData?.diagnosis &&
-                      prescriptionData.diagnosis.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Diagnosis
-                          </div>
-                          {renderItems("diagnosis")}
-                        </>
-                      )}
-
-                    {prescriptionData?.medications &&
-                      prescriptionData.medications.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Medicine
-                          </div>
-                          {renderItems("medications")}
-                        </>
-                      )}
-
-                    {prescriptionData?.labInvestigation &&
-                      prescriptionData.labInvestigation.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Lab Investigation
-                          </div>
-                          {renderItems("labInvestigation")}
-                        </>
-                      )}
-
-                    {prescriptionData?.advice &&
-                      prescriptionData.advice.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Advices
-                          </div>
-                          {renderItems("advice")}
-                        </>
-                      )}
-
-                    {prescriptionData?.vaccinations &&
-                      prescriptionData.vaccinations.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Vaccination
-                          </div>
-                          {renderItems("vaccinations")}
-                        </>
-                      )}
-                    {prescriptionData?.others &&
-                      prescriptionData.others.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Vaccination
-                          </div>
-                          {renderItems("others")}
-                        </>
-                      )}
-                    {renderCustomModules()}
-                    {prescriptionData?.followUp && (
-                      <>
-                        <div className="title-digitise-section mb-2">
-                          Follow Up
-                        </div>
-                        {renderItems("followUp")}
-                      </>
-                    )}
-                    {showInput && (
-                      <>
-                        <div className="d-flex justify-content-between align-items-center mb-4">
-                          <Input
-                            placeholder="Enter custom module name"
-                            value={newModuleName}
-                            onChange={(e) => setNewModuleName(e.target.value)}
-                            className="custom-module-input"
-                          />
-                          <>
-                            <CheckOutlined
-                              className="input-action-icon tick-icon"
-                              onClick={handleAddModule}
-                            />
-                            <CloseOutlined
-                              className="input-action-icon cross-icon"
-                              onClick={handleCancel}
-                            />
-                          </>
-                        </div>
-                        <div className="genRxCustomModuleBox"></div>
-                      </>
-                    )}
-                    <div
-                      className="cta-container mt-4 mb-4"
-                      onClick={() => setShowInput(true)}
-                    >
-                      <Button
-                        type="link"
-                        icon={<PlusOutlined />}
-                        className="add-custom-module-link"
-                      >
-                        Add Custom Module
-                      </Button>
-                    </div>
-                    <div className={styles.disclaimer}>
-                      <span style={{ fontWeight: 500 }}>Disclaimer:</span> Our
-                      AI model aims to be accurate, but sometimes it might make
-                      mistakes. Please double-check all details to ensure they
-                      are correct and complete.
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
-          )}
-          {DELETE_MODULE_MODAL}
-          <CommonModal
-            isModalOpen={isBackModalOpen}
-            onCancel={showHideBackModal}
-            modalWidth={500}
-            title={"You may lose your data"}
-            modalBody={
-              <>
-                <div className="alert-warning rounded-10px p-2 patient-details">
-                  <div className="d-flex align-items-center">
-                    <img className="me-3" src={alertIcon} alt="Warning" />
-                    <span>
-                      Are you sure you want to leave? <br />
-                      You will permanently lose your data.
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <div className="d-flex align-items-center mt-2 justify-content-end">
-                    <div
-                      onClick={handleBack}
-                      className="me-4 text-decoration-underline btn p-0 text-main"
-                    >
-                      Yes Leave
-                    </div>
-                    <Button
-                      onClick={showHideBackModal}
-                      className="lh-lg btn btn-primary3 btn-41 px-4"
-                    >
-                      <span>No, Stay</span>
-                    </Button>
-                  </div>
-                </div>
-              </>
-            }
-          />
-        </div>
+            <div className={styles.prescriptionSection}>
+              {renderPrescriptionData()}
+            </div>
+          </div>
+        )}
       </div>
     </Drawer>
   );
