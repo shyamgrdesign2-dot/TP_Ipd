@@ -7,6 +7,7 @@ import mentionHeadingsLottie from "../assets/lotties/genRxMentionHeadingsTip.jso
 import stayFocusedLottie from "../assets/lotties/genRxStayFocusedTip.json";
 import beConciseLottie from "../assets/lotties/genRxBeConciseTip.json";
 import youCanTypeTooLottie from "../assets/lotties/genRxYouCanTypeTooTip.json";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 
 const carouselItemStyle = {
   display: "flex",
@@ -22,6 +23,7 @@ const carouselItemStyle = {
   lineHeight: "1.6",
   height: "168px",
   width: "460px",
+  marginX: "auto",
 };
 
 const columnStyle = {
@@ -170,6 +172,46 @@ const GenRxTips = ({ isKnowMore }) => {
     );
   };
 
+  const CustomLeftArrow = ({ onClick }) => {
+    return (
+      <button
+        style={{
+          position: "absolute",
+          left: "0",
+          top: "50%",
+          transform: "translateY(-50%)",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          zIndex: 10,
+        }}
+        onClick={onClick}
+      >
+        <LeftOutlined />
+      </button>
+    );
+  };
+  
+  const CustomRightArrow = ({ onClick }) => {
+    return (
+      <button
+        style={{
+          position: "absolute",
+          right: "0",
+          top: "50%",
+          transform: "translateY(-50%)",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          zIndex: 10,
+        }}
+        onClick={onClick}
+      >
+        <RightOutlined />
+      </button>
+    );
+  };
+
   return (
     <div>
       <Carousel
@@ -182,6 +224,8 @@ const GenRxTips = ({ isKnowMore }) => {
         removeArrowOnDeviceType={["tablet", "mobile"]}
         beforeChange={(nextIndex) => handleSlideChange(nextIndex)}
         partialVisible
+        customLeftArrow={<CustomLeftArrow />}
+        customRightArrow={<CustomRightArrow />}
       >
         {tips.map((tip, index) => (
           <div key={index} style={carouselItemStyle}>

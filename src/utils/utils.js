@@ -686,3 +686,7 @@ export const fetchDocumentAsFile = async (url, fileName) => {
     return null;
   }
 };
+
+export const isValidMongoId = (id) => {
+  return typeof id === 'string' && id.length === 24 && /^[a-f\d]{24}$/i.test(id);
+}
