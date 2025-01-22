@@ -4,6 +4,7 @@ import { calculatePadding } from "./helper";
 import BillHeader from "./BillHeader";
 import BillFooter from "./BillFooter";
 import BillOtherSettings from "./BillOtherSettings";
+import BillDetails from "./BillDetails";
 
 // Roboto
 Font.register({
@@ -120,14 +121,14 @@ const ViewBillPdf = ({ printSettings }) => {
 
   return (
     <Document>
-      <Page size="A4" style={paddingStyles} wrap={true}>
+      <Page size="A5" style={paddingStyles} wrap={true}>
         <BillHeader
           fileWatermark={fileWatermark}
           setFileWatermark={setFileWatermark}
           printSettings={printSettings}
         />
         <BillOtherSettings printSettings={printSettings} />
-
+        <BillDetails pageFormat={printSettings?.pageFormat} />
         <BillFooter printSettings={printSettings} />
       </Page>
     </Document>

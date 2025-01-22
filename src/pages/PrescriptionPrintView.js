@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 // import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
-import { Col, Row, Select, Button, message, Spin } from "antd";
+import { Col, Row, Select, Button, message, Spin, Drawer } from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
@@ -24,12 +24,16 @@ import { getGynecDetails } from "../api/services/ApiGynec";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { env } from "../EnvironmentConfig";
 import { setCurrentSessionRx } from "../redux/obstetricSlice";
+import CreateBill from "./opdBilling/components/createBill/CreateBill";
+import RecentBills from "./opdBilling/components/recentBills/RecentBills";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 //     "pdfjs-dist/build/pdf.worker.min.js",
 //     import.meta.url
 // ).toString();
+
+const isBillCreated = true;
 
 const LANGUAGE_LIST = [
     {
@@ -113,6 +117,9 @@ function PrescriptionPrintView() {
 
     const [gynecHistoryData, setGynecHistoryData] = useState(null);
     const [labParamsData, setLabParamsData] = useState([]);
+    const [createBillDrawer, setCreateBillDrawer] = useState(false);
+    const [recentBillDrawer, setRecentBillDrawer] = useState(false);
+    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const {isGynaecHistoryAccessable} = useAccess();
 
     const baseUrl = env.lab_params_api_url;
@@ -154,6 +161,18 @@ function PrescriptionPrintView() {
     useEffect(() => {
         getLabParams();
     },[])
+
+    const handleCreateBillDrawer = useCallback(() => {
+        setCreateBillDrawer(!createBillDrawer);
+    }, [createBillDrawer]);
+
+    const handleRecentBillDrawer = useCallback(() => {
+      setRecentBillDrawer(!recentBillDrawer);
+    }, [recentBillDrawer]);
+
+    const showHideBackModal = () => {
+      setIsBackModalOpen(!isBackModalOpen);
+    };
 
     // const printContent = useReactToPrint({
     //     content: () => printRef.current,
@@ -284,6 +303,16 @@ function PrescriptionPrintView() {
                                     <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                                 </div>
                                 }
+                                 <Button
+
+                                    type="text"
+                                    className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
+                                    icon={<i className="icon-billings"></i>}
+                                    onClick={isBillCreated ? handleRecentBillDrawer : handleCreateBillDrawer}
+                                >
+                                    <span className="fw-semibold">{isBillCreated ? "Create/ View Bill" : "Create Bill"}</span>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
+                                </Button>
                                 <Button
                                     type="text"
                                     onClick={() => {
@@ -295,25 +324,16 @@ function PrescriptionPrintView() {
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-Print"></i>}
                                 >
-                                    <span className="fw-semibold">Print</span>
+                                    <span className="fw-semibold">Print Prescription</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
-                                {/* <Button
-
-                                    type="text"
-                                    className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
-                                    icon={<i className="icon-billings"></i>}
-                                >
-                                    <span className="fw-semibold">Create Bill</span>
-                                    <i className="icon-right iconrotate180 ms-auto"></i>
-                                </Button> */}
                                 <Button
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-download"></i>}
                                     onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
                                 >
-                                    <span className="fw-semibold">Download</span>
+                                    <span className="fw-semibold">Download Prescription</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                                 <Button
@@ -388,6 +408,29 @@ function PrescriptionPrintView() {
                         </div>
                     </Col>
                 </Row>
+                {createBillDrawer &&(<Drawer
+                    closeIcon={false}
+                    placement="right"
+                    bodyStyle={{ backgroundColor: "white" }}
+                    open={createBillDrawer}
+                    onClose={showHideBackModal}
+                    width="100%"
+                    push={false}
+                >
+                    <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} isRxPage={true} />
+                </Drawer>)}
+                {recentBillDrawer &&
+                <Drawer
+                    closeIcon={false}
+                    placement="right"
+                    open={recentBillDrawer}
+                    onClose={handleRecentBillDrawer}
+                    width="77%"
+                    push={false}
+                    >
+                    <RecentBills handleRecentBillDrawer={handleRecentBillDrawer} handleCreateBillDrawer={handleCreateBillDrawer} />
+                </Drawer>
+            }
             </div>
         </>
     );

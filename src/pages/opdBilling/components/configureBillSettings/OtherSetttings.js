@@ -282,7 +282,7 @@ const OtherSetttings = ({ otherSettings, setPrintSettings }) => {
                     onChange={(e) =>
                       onSwitchChange(e.target.value, "signature", "position")
                     }
-                    value={otherSettings?.signature?.positon}
+                    value={otherSettings?.signature?.position}
                   >
                     <Radio.Button className="w-100 text-center" value="left">
                       Left

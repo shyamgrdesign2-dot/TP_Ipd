@@ -12,7 +12,9 @@ const LetterheadCustom = ({ headerFooter, setPrintSettings }) => {
 
   const onInfoChange = (value, key, infoType) => {
     const crossInfo =
-      infoType === "logo" ?? infoType === "doctorInfo"
+      infoType === "logo"
+        ? infoType
+        : infoType === "doctorInfo"
         ? "clinicInfo"
         : "doctorInfo";
     setPrintSettings((prev) => {
@@ -39,7 +41,7 @@ const LetterheadCustom = ({ headerFooter, setPrintSettings }) => {
             header: {
               ...prev?.headerFooter?.header,
               [crossInfo]: {
-                ...prev?.headerFooter?.header?.[infoType],
+                ...prev?.headerFooter?.header?.[crossInfo],
                 [key]: value === "left" ? "right" : "left",
               },
             },

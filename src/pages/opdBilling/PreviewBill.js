@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { fetchPrintSetting } from "./service";
 import { setBillPrintSettings } from "../../redux/billingSlice";
 import { useDispatch } from "react-redux";
+import { Container, Navbar } from "react-bootstrap";
 
 const patient_data = {
   pm_salutation: "Mr",
@@ -38,7 +39,7 @@ const patient_data = {
   ageDays: 27,
 };
 
-const PreviewBill = () => {
+const PreviewBill = ({ handleCreateBillDrawer, isPreviewFromTable }) => {
   const dispatch = useDispatch();
   const { billPrintSettings } = useSelector((state) => state.billing);
   const divRef = useRef(null);
@@ -91,7 +92,34 @@ const PreviewBill = () => {
 
   return (
     <div>
-      <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={6222} />
+      {isPreviewFromTable ? (
+        <Navbar className="headerprescription p-0">
+          <Container fluid className="h-100 gx-0 w-100">
+            <Row className="h-100 align-items-center w-100 justify-content-between">
+              <Col sm="auto" md="auto" lg="auto" className="h-100 w-auto">
+                <div className="align-items-center d-flex h-100 gap-2">
+                  <div className="border-end h-100 text-center">
+                    <div
+                      onClick={handleCreateBillDrawer}
+                      className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
+                    >
+                      <i className="icon-right" />
+                    </div>
+                  </div>
+                  <span className="title-digitise-card">View Bill</span>
+                </div>
+              </Col>
+            </Row>
+          </Container>
+        </Navbar>
+      ) : (
+        <HeaderPrescriptionPrint
+          patient_data={patient_data}
+          tcm_id={6222}
+          handleGoToAppointment={handleCreateBillDrawer}
+        />
+      )}
+
       <div
         className={`${
           isMobile ? "p-0" : ""

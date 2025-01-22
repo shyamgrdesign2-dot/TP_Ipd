@@ -1,7 +1,7 @@
 import { Col, Input, Row } from "antd";
 import rxDisplayArea from "./../../../../assets/images/rx-display-area.svg";
 
-const LetterheadOwn = ({ headerFooter, setPrintSettings }) => {
+const LetterheadOwn = ({ headerFooter, setPrintSettings, marginType }) => {
   //Own Letterhead
   const onMarginChange = (value, key) => {
     if (
@@ -13,8 +13,8 @@ const LetterheadOwn = ({ headerFooter, setPrintSettings }) => {
           ...prev,
           headerFooter: {
             ...prev?.headerFooter,
-            margin: {
-              ...prev?.headerFooter?.margin,
+            [marginType]: {
+              ...prev?.headerFooter?.[marginType],
               [key]: value,
             },
           },
@@ -40,7 +40,7 @@ const LetterheadOwn = ({ headerFooter, setPrintSettings }) => {
           <label className="mb-1">Top (cm)</label> <br />
           <Input
             className="inputheight41-group"
-            value={headerFooter?.margin?.top}
+            value={headerFooter?.[marginType]?.top}
             onChange={(e) => onMarginChange(e.target.value, "top")}
             style={{ width: 70 }}
           />
@@ -51,7 +51,7 @@ const LetterheadOwn = ({ headerFooter, setPrintSettings }) => {
               <label className="mb-1">Left (cm)</label> <br />
               <Input
                 className="inputheight41-group"
-                value={headerFooter?.margin?.left}
+                value={headerFooter?.[marginType]?.left}
                 onChange={(e) => onMarginChange(e.target.value, "left")}
                 style={{ width: 70 }}
               />
@@ -65,7 +65,7 @@ const LetterheadOwn = ({ headerFooter, setPrintSettings }) => {
               <label className="mb-1">Right (cm)</label> <br />
               <Input
                 className="inputheight41-group"
-                value={headerFooter?.margin?.right}
+                value={headerFooter?.[marginType]?.right}
                 onChange={(e) => onMarginChange(e.target.value, "right")}
                 style={{ width: 70 }}
               />
@@ -75,7 +75,7 @@ const LetterheadOwn = ({ headerFooter, setPrintSettings }) => {
         <div className="my-3 text-center">
           <Input
             className="inputheight41-group"
-            value={headerFooter?.margin?.bottom}
+            value={headerFooter?.[marginType]?.bottom}
             onChange={(e) => onMarginChange(e.target.value, "bottom")}
             style={{ width: 70 }}
           />

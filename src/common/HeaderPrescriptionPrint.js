@@ -15,7 +15,7 @@ import { updateVisitStatus } from '../api/services/VisitService';
 import { resetUploadDocState } from '../redux/uploadDocSlice';
 import { resetDDxState } from '../redux/ddxSlice';
 
-function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl }) {
+function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToAppointment }) {
     const navigate = useNavigate();
     const { profile } = useSelector((state) => state.doctors);
     const {
@@ -25,31 +25,33 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl }) {
     const dispatch = useDispatch();
 
     const onEndVisitClick = async () => {
-        var sendData = {
-            patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
-            pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0,
-            tcm_id: tcm_id
-        }
-        const action = await dispatch(sendCashsheetWhatsapp(sendData));
-        if (
-          appointmentsData?.[0]?.pam_id
-        ) {
-          await updateVisitStatus(appointmentsData[0].pam_id, {
-            status: 3,
-            prescriptionUrl: printUrl,
-          });
-        }
-        if (action.meta.requestStatus === "fulfilled") {
-            dispatch(resetVaccineState());
-            dispatch(resetGrowthChartState());
-            dispatch(resetObstetricState());
-            dispatch(resetUploadDocState());
-            dispatch(resetDDxState());
-            navigate('/', { replace: true });
+        if (handleGoToAppointment) {
+            handleGoToAppointment();
         } else {
-            errorMessage(action.error)
+            var sendData = {
+              patient_unique_id:
+                patient_data !== undefined ? patient_data.patient_unique_id : 0,
+              pm_pid: patient_data !== undefined ? patient_data.pm_pid : 0,
+              tcm_id: tcm_id,
+            };
+            const action = await dispatch(sendCashsheetWhatsapp(sendData));
+            if (appointmentsData?.[0]?.pam_id) {
+              await updateVisitStatus(appointmentsData[0].pam_id, {
+                status: 3,
+                prescriptionUrl: printUrl,
+              });
+            }
+            if (action.meta.requestStatus === "fulfilled") {
+              dispatch(resetVaccineState());
+              dispatch(resetGrowthChartState());
+              dispatch(resetObstetricState());
+              dispatch(resetUploadDocState());
+              dispatch(resetDDxState());
+              navigate("/", { replace: true });
+            } else {
+              errorMessage(action.error);
+            }
         }
-
     };
 
     const genderAge = (patient_data) => {

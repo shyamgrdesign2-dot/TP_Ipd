@@ -20,16 +20,22 @@ import "./CreateBill.scss";
 import RefIdPopup from "../refIdPopup/RefIdPopup";
 import ReadMore from "../../../../common/ReadMore";
 import { useNavigate } from "react-router-dom";
+import ViewBillPdf from "../viewBillPdf/ViewBillPdf";
+import { useSelector } from "react-redux";
+import { pdf } from "@react-pdf/renderer";
+import PreviewBill from "../../PreviewBill";
 
 const CreateBill = ({
   handleCreateBillDrawer,
   patient_unique_id,
   isBackModalOpen,
   showHideBackModal,
-  onSave,
+  isRxPage,
 }) => {
   const navigate = useNavigate();
+  const { billPrintSettings } = useSelector((state) => state.billing);
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
+  const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [patientDiagnosisNotes, setPatientDiagnosisNotes] = useState("");
   const [searchCustomSelected, setSearchCustomSelected] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
@@ -46,6 +52,8 @@ const CreateBill = ({
   ]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOptions, setSearchOptions] = useState([]);
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [isSaveEnabled, setSaveEnabled] = useState(true);
 
   useEffect(() => {
     if (searchQuery) {
@@ -59,6 +67,19 @@ const CreateBill = ({
       setSearchOptions([]);
     }
   }, [searchQuery]);
+
+  const makePDFUrl = async () => {
+    const blob = await pdf(
+      <ViewBillPdf printSettings={billPrintSettings} />
+    ).toBlob();
+    setPdfUrl(URL.createObjectURL(blob));
+  };
+
+  useEffect(() => {
+    if (isSaveEnabled) {
+      makePDFUrl();
+    }
+  }, [isSaveEnabled]);
 
   const getSearchOptions = async () => {
     // const searchOptionsRes = await fetchSearchImmunisation(
@@ -175,13 +196,6 @@ const CreateBill = ({
     },
     [searchQuery]
   );
-
-  const handleSelect = (value, key) => {
-    const updatedData = dataSource.map((row) =>
-      row.key === key ? { ...row, item: value } : row
-    );
-    setDataSource(updatedData);
-  };
 
   const columns = [
     {
@@ -333,6 +347,30 @@ const CreateBill = ({
     setDiagnosisNotesDrawer(!diagnosisNotesDrawer);
   };
 
+  const handleDrawerPreviewBill = () => {
+    setPreviewBillDrawer(!previewBillDrawer);
+  };
+
+  const printContent = async () => {
+    // Remove all existing iframes
+    document.querySelectorAll("iframe").forEach(function (iframe) {
+      iframe.parentNode.removeChild(iframe);
+    });
+    var iframe = document.createElement("iframe"); //load content in an iframe to print later
+    document.body.appendChild(iframe);
+    iframe.style.display = "none";
+    iframe.src = pdfUrl;
+    iframe.onload = function () {
+      setTimeout(function () {
+        iframe.focus();
+        iframe.contentWindow.print();
+        // Revoke the Blob URL to avoid memory leaks
+        URL.revokeObjectURL(pdfUrl);
+      }, 1);
+    };
+    handleCreateBillDrawer();
+  };
+
   return (
     <div>
       <Navbar className="headerprescription p-0">
@@ -400,21 +438,44 @@ const CreateBill = ({
                   <Checkbox className="me-2" />
                   Include in RX
                 </div>
-                <Button
-                  type="button"
-                  className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
-                  onClick={handleCreateBillDrawer}
-                >
-                  Save & Print
-                </Button>
 
-                <Button
-                  type="primary"
-                  className="btn-41 btn px-4 me-2 ant-btn-text align-items-center d-flex"
-                  onClick={() => navigate("/preview-bill")}
-                >
-                  Save & Preview
-                </Button>
+                {isRxPage ? (
+                  <>
+                    <Button
+                      type="button"
+                      className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
+                      onClick={handleCreateBillDrawer}
+                    >
+                      Save & Exit
+                    </Button>
+
+                    <Button
+                      type="primary"
+                      className="btn-41 btn px-4 me-2 ant-btn-text align-items-center d-flex"
+                      onClick={printContent}
+                    >
+                      Save & Print
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
+                      onClick={printContent}
+                    >
+                      Save & Print
+                    </Button>
+
+                    <Button
+                      type="primary"
+                      className="btn-41 btn px-4 me-2 ant-btn-text align-items-center d-flex"
+                      onClick={handleDrawerPreviewBill}
+                    >
+                      Save & Preview
+                    </Button>
+                  </>
+                )}
               </div>
             </Col>
           </Row>
@@ -705,6 +766,21 @@ const CreateBill = ({
             diagnosisNotes={patientDiagnosisNotes}
             setDiagnosisNotes={setPatientDiagnosisNotes}
             isDiagnosis={false}
+          />
+        </Drawer>
+      )}
+      {previewBillDrawer && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerPreviewBill}
+          open={previewBillDrawer}
+          width="100%"
+          push={false}
+        >
+          <PreviewBill
+            handleDrawerPreviewBill={handleDrawerPreviewBill}
+            handleCreateBillDrawer={handleCreateBillDrawer}
           />
         </Drawer>
       )}

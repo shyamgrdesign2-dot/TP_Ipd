@@ -74,14 +74,17 @@ const PatientInfo = ({ patientInfo, setPrintSettings }) => {
   };
 
   const onChangePatientInfo = (checked, record) => {
-    const index = patientInfo.findIndex(
-      (e) => e.id == record.id
-    );
+    const index = patientInfo.findIndex((e) => e.id == record.id);
     if (index !== -1) {
-      patientInfo[index].enable = checked ? "Y" : "N";
       setPrintSettings((prev) => {
         return {
           ...prev,
+          headerFooter: {
+            ...prev?.headerFooter,
+            patientInfo: prev?.headerFooter?.patientInfo?.map((info, idx) =>
+              idx === index ? { ...info, enabled: checked } : info
+            ),
+          },
         };
       });
     }
@@ -99,15 +102,12 @@ const PatientInfo = ({ patientInfo, setPrintSettings }) => {
         return {
           ...prev,
           headerFooter: {
-            header: { ...prev.headerFooter.header },
-            footer: { ...prev.headerFooter.footer },
+            ...prev?.headerFooter,
             patientInfo: arrayMove(
               prev.headerFooter.patientInfo,
               activeIndex,
               overIndex
             ),
-            margin: { ...prev.headerFooter.margin },
-            other_settings: { ...prev.headerFooter.otherSettings },
           },
         };
       });
@@ -131,13 +131,13 @@ const PatientInfo = ({ patientInfo, setPrintSettings }) => {
       render: (text, record) => <div>{record.title}</div>,
     },
     {
-      dataIndex: "enable",
-      key: "enable",
+      dataIndex: "enabled",
+      key: "enabled",
       render: (text, record) => (
         <Switch
           defaultChecked
           onChange={(checked) => onChangePatientInfo(checked, record)}
-          checked={text != "Y" ? false : true}
+          checked={text}
         />
       ),
     },
@@ -181,9 +181,7 @@ const PatientInfo = ({ patientInfo, setPrintSettings }) => {
                 >
                   <SortableContext
                     // rowKey array
-                    items={patientInfo?.map(
-                      (i) => i.id
-                    )}
+                    items={patientInfo?.map((i) => i.id)}
                     strategy={verticalListSortingStrategy}
                   >
                     <Table

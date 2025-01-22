@@ -1,8 +1,8 @@
 import { Image, Text, View } from "@react-pdf/renderer";
 import { PX_TO_PT, styles } from "./constants";
-import { QRCode } from "antd";
 import { useEffect, useState } from "react";
 import config from "../../../../config";
+import QRCode from "qrcode";
 
 const caseManagerData = {
   tcm_id: 6222,
@@ -127,7 +127,6 @@ const BillOtherSettings = ({ printSettings }) => {
         signature?.position === "right" ? (
           <View style={styles.directionCasemanager}>
             <View style={[styles.directionCasemanager, { flex: 1 }]}>
-              {/* need to do */}
               {qrCodeUrl && (
                 <>
                   <Image

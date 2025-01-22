@@ -87,6 +87,7 @@ const HeaderFooter = ({ headerFooter, setPrintSettings }) => {
               <LetterheadOwn
                 headerFooter={headerFooter}
                 setPrintSettings={setPrintSettings}
+                marginType={"customLetterHeadMargin"}
               />
             </>
           ) : headerFooter?.letterHeadFormat === 1 ? (
@@ -99,6 +100,7 @@ const HeaderFooter = ({ headerFooter, setPrintSettings }) => {
               <LetterheadOwn
                 headerFooter={headerFooter}
                 setPrintSettings={setPrintSettings}
+                marginType={"uploadedLetterHeadMargin"}
               />
             </>
           ) : (
@@ -107,6 +109,7 @@ const HeaderFooter = ({ headerFooter, setPrintSettings }) => {
               <LetterheadOwn
                 headerFooter={headerFooter}
                 setPrintSettings={setPrintSettings}
+                marginType={"margin"}
               />
             )
           )}

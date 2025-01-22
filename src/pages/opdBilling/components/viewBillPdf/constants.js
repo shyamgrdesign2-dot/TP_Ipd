@@ -35,18 +35,17 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   table: {
-    marginTop: PX_TO_PT * 4,
-    borderTop: "1px solid #171725",
-    borderLeft: "1px solid #171725",
+    marginTop: PX_TO_PT * 4, // Remove the borderTop and borderLeft styles
+    borderRadius: 10,
+    overflow: "hidden",
+    backgroundColor: "#FCFCFC",
   },
   row: {
-    flexDirection: "row",
-    borderBottom: "1px solid #171725",
+    flexDirection: "row", // Remove the borderBottom style
   },
   cell: {
     flex: 1,
-    padding: 6,
-    borderRight: "1px solid #171725",
+    padding: 6, // Remove the borderRight style
   },
   minHeight50: {
     minHeight: 50,
