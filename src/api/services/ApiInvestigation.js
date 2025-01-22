@@ -2,6 +2,7 @@ import api from "./axiosService";
 import config from '../../config';
 
 const baseUrl = { customBaseUrl: config.investigation_api_url }
+const baseSearchEngineUrl = { customBaseUrl: config.searchengine_url };
 
 const ApiInvestigation = {};
 
@@ -22,7 +23,7 @@ ApiInvestigation.getInvestigationTemplates = function (query) {
 };
 
 ApiInvestigation.getFrequentlySearchedInvestigation = function () {
-  return api.get(`/api/v1/investigation/frequentlyAlgoliaInvestigation`, baseUrl);
+  return api.get(`/api/v1/investigation/frequentlyInvestigations`, baseSearchEngineUrl);
 };
 
 // ApiInvestigation.getFrequentlySearchedInvestigation = function () {
@@ -32,9 +33,9 @@ ApiInvestigation.getFrequentlySearchedInvestigation = function () {
 // };
 
 ApiInvestigation.searchInvestigation = function (query) {
-  return api.post(`/api/v1/investigation/searchAlgoliaInvestigation`, {
+  return api.post(`/api/v1/investigation/search`, {
     search: query
-  }, baseUrl);
+  }, baseSearchEngineUrl);
 };
 
 export default ApiInvestigation;

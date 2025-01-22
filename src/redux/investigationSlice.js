@@ -9,6 +9,7 @@ const initialState = {
   templates: [],
   loading: false,
   error: null,
+  errorObj: { visible: false, message: '' },
 };
 
 export const addTemplate = createAsyncThunk(
@@ -63,26 +64,24 @@ export const getInvestigationTemplates = createAsyncThunk(
 
 export const getFrequentlySearchedInvestigation = createAsyncThunk(
   "investigation/getFrequentlySearchedInvestigation",
-  async () => {
-    let result = {};
-    result = await ApiInvestigation.getFrequentlySearchedInvestigation();
-    if (result.status) {
-      return result.data;
-    } else {
-      throw Error(result.error);
+  async (_, { rejectWithValue }) => {
+    try {
+      const result = await ApiInvestigation.getFrequentlySearchedInvestigation();
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
     }
   }
 );
 
 export const searchInvestigation = createAsyncThunk(
   "investigation/searchInvestigation",
-  async (data) => {
-    let result = {};
-    result = await ApiInvestigation.searchInvestigation(data.searchQuery);
-    if (result.status) {
-      return result.data;
-    } else {
-      throw Error(result.error);
+  async (data, { rejectWithValue }) => {
+    try {
+      const result = await ApiInvestigation.searchInvestigation(data.searchQuery);
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
     }
   }
 );
