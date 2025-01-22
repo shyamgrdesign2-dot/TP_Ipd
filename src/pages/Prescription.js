@@ -1071,7 +1071,7 @@ const handleTatvaAiKnowMore = () => {
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
             <div className="col-lg-4 col-md-12 col-12">
-              {true ? (
+              {isApexAIAccessable ? (
                 <Tabs
                   className="obstetricTab"
                   activeKey={activeTab}
@@ -1412,6 +1412,7 @@ const handleTatvaAiKnowMore = () => {
       {isGenRxDrawerVisible &&<ConsultationDrawer 
         visible={isGenRxDrawerVisible} 
         onClose={() => setIsGenRxDrawerVisible(false)} 
+        handleGenRxKnowMore={handleGenRxKnowMore}
       />}
       {
         tatvaAiKnowMoreDrawer && 

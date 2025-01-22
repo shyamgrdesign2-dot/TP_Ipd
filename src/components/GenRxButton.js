@@ -1,19 +1,14 @@
-import React from 'react';
+import React from "react";
 import genRxIcon from "../assets/images/gen-rx-btn.svg";
-import styles from './GenRxButton.module.scss';
-import genRxBg from "../assets/images/gen-rx-bg.gif";
+import styles from "./GenRxButton.module.scss";
 
-const GenRxButton = ({ onClick, className = '' }) => {
+const GenRxButton = ({ onClick, className = "" }) => {
   return (
-    <button
-      onClick={onClick}
-      className={`${styles.button} ${className} me-20`}
-      // style={{ background: `url(${genRxBg})` }}
-    >
+    <button onClick={onClick} className={`${styles.button} ${className} me-20`}>
       <div className={styles.iconContainer}>
-        <img src={genRxIcon} alt="Gen Rx" loading='lazy' />
+        <img src={genRxIcon} alt="Voice Rx" loading="lazy" />
       </div>
-      <span className={styles.text}>Gen Rx</span>
+      <span className={styles.text}>Voice Rx</span>
     </button>
   );
 };

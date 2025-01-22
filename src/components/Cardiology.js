@@ -528,8 +528,8 @@ function Cardiology(props) {
     <div className="digitised-data-section" style={{ marginLeft: 0 }}>
       <ol>
         {/* Handle vitals type separately */}
-        {type === "vitals" &&
-          Object.entries(genRxData?.vitals || {})
+        {type === "vitalsAndBodyComposition" &&
+          Object.entries(genRxData?.vitalsAndBodyComposition || {})
             .filter(([key, value]) => value.trim()) // Filter out empty or falsy values
             .map(([key, value]) => (
               <li key={key}>
@@ -546,7 +546,7 @@ function Cardiology(props) {
             ))}
   
         {/* Handle other types (assume they are arrays) */}
-        {type !== "vitals" &&
+        {type !== "vitalsAndBodyComposition" &&
           Array.isArray(genRxData?.[type]) &&
           genRxData?.[type].map((item, index) => (
             <li key={index}>
@@ -561,15 +561,9 @@ function Cardiology(props) {
                 </span>
   
                 {/* Optional rendering for lineItem */}
-                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "labInvestigation" || type === "symptoms") && item.lineItem && (
+                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "labInvestigation" || type === "symptoms" || type === "examination" || type === "diagnosis") && item.lineItem && (
                   <span>{` (${item.lineItem})`}</span>
                 )}
-  
-                {/* Optional rendering for notes */}
-                {(type === "examination" || type === "diagnosis") &&
-                  item.notes && (
-                    <span>{` (${item.notes})`}</span>
-                  )}
               </div>
             </li>
           ))}
@@ -703,7 +697,7 @@ function Cardiology(props) {
               )
             )}
 
-            {genRxData && (
+            {genRxData && viewCaseManagerData?.smart_prescription_filename && !isSmartRxFile && !loading && (
                 <div className="p-2 m-2">
                   <button
                     className={`digital-btn ${!showDigitalGenRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`}
@@ -743,16 +737,16 @@ function Cardiology(props) {
                   </div>
                 </div>
               ) :
-              true ? 
+              genRxData && viewCaseManagerData?.smart_prescription_filename && !isSmartRxFile ? 
               <div>
                     {showDigitalGenRx ? (
                       <div className="m-4">
-                        {genRxData?.vitals && Object.values(genRxData?.vitals).some((value) => value) && (
+                        {genRxData?.vitalsAndBodyComposition && Object.values(genRxData?.vitalsAndBodyComposition).some((value) => value) && (
                           <>
                             <div className="d-flex align-items-start">
                               <div className="title-digitise-section mb-1">Vitals and Body compositions</div>
                             </div>
-                            {renderGenRxItems('vitals')}
+                            {renderGenRxItems('vitalsAndBodyComposition')}
                           </>
                         )}
 

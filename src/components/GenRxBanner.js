@@ -18,7 +18,7 @@ const GenRxBanner = ({ setShowGenRxPopup, handleGenRxKnowMore }) => {
         <img className="me-3" src={genRx} alt="apex-AI" />
         <div style={{ fontSize: 16, fontWeight: 500 }}>
           <div className="d-flex align-items-center">
-            AI-Powered Gen Rx{" "}
+            AI-Powered Voice Rx{" "}
             <img
               style={{ marginLeft: 10 }}
               src={newTag}
