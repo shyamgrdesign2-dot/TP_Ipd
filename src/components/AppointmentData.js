@@ -406,16 +406,24 @@ function AppointmentData({ locationPath }) {
                 // console.log(sendData)
                 dispatch(getAllAppointment(sendData));
             } else {
-                for (let i = 0; i < empNo?.length; i++) {
-                    var sendZydusData = {
-                        siteId: siteId,
-                        empNo: empNo[i],
-                        date: moment(date.startDate).format(showDateFormat),
-                        selectedTab: selectedTab,
-                        page: i,
-                    }
-                    dispatch(zydusConsultAppoint(sendZydusData));
+                // for (let i = 0; i < empNo?.length; i++) {
+                //     var sendZydusData = {
+                //         siteId: siteId,
+                //         empNo: empNo[i],
+                //         date: moment(date.startDate).format(showDateFormat),
+                //         selectedTab: selectedTab,
+                //         page: i,
+                //     }
+                //     dispatch(zydusConsultAppoint(sendZydusData));
+                // }
+                var sendZydusData = {
+                    siteId: siteId,
+                    empNo: empNo.toString(),
+                    date: moment(date.startDate).format(showDateFormat),
+                    selectedTab: selectedTab,
+                    page: 0
                 }
+                dispatch(zydusConsultAppoint(sendZydusData));
             }
 
             // if (searchQuery) {
@@ -740,7 +748,7 @@ function AppointmentData({ locationPath }) {
             if (action1.meta.requestStatus === "fulfilled") {
                 const find_record = action1.payload?.app_data?.find(e => e?.pam_id == action.payload)
                 if (find_record !== undefined) {
-                    navigate("/prescription", { state: { patient_data: find_record } })
+                    navigate("/prescription", { state: { patient_data: { ...find_record, mrno: record.mrno } } })
                 }
             } else {
                 errorMessage('Something went wrong! Please try again later')

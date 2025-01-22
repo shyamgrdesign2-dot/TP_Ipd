@@ -446,7 +446,7 @@ const appointmentsSlice = createSlice({
                             ageMonths: 0,
                             ageDays: 0,
                             pm_gender: e.gender,
-                            pm_contact_no: '',
+                            pm_contact_no: e.mobileNo,
                             patient_address: e.location,
                         }
                     });

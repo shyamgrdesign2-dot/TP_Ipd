@@ -121,7 +121,7 @@ function WalkInConsultationZydus() {
                 "patient_type": 'Existing',
                 "patient_id": result?.patient_unique_id
             });
-            navigate("/prescription", { state: { patient_data: result } })
+            navigate("/prescription", { state: { patient_data: { ...result, mrno: record.mrno } } })
         } else {
             errorMessage(action.error)
         }
@@ -420,7 +420,7 @@ function WalkInConsultationZydus() {
             //     doctor_id: profile?.doctor_unique_id,
             //     patient_id: result?.patient_unique_id,
             // });
-            navigate("/smart-prescription", { state: { patient_data: result } })
+            navigate("/smart-prescription", { state: { patient_data: { ...result, mrno: record.mrno } } })
         } else {
             errorMessage(action.error)
         }

@@ -63,6 +63,7 @@ import {
   setAllUploadedDocs,
   setPatientUploadedDocs,
   setUploadDocCategories,
+  zydusDocsList,
 } from "../redux/uploadDocSlice";
 import UploadDocumentList from "./medicalRecords/components/uploadDocumentList/UploadDocumentList";
 import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "./medicalRecords/utils/helper";
@@ -197,6 +198,7 @@ function Prescription() {
         mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
       )
     );
+    dispatch(zydusDocsList({ mrno: patient_data.mrno }))
   };
 
   const getAllDocumentCategories = async () => {
