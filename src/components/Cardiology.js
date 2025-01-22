@@ -26,7 +26,7 @@ import customModuleIcon from "../assets/images/custom-module.svg";
 
 import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
-import { capitalize, isNumeric, medicine_freq_dosage_format } from "../utils/utils";
+import { capitalize, isNumeric, medicine_freq_format, isValidMongoId } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import CvtKnowMore from "../pages/smartSync/components/CvtKnowMore";
@@ -115,7 +115,7 @@ function Cardiology(props) {
     if(viewCaseManagerData?.moduleContents?.length) {
       dispatch(getModules(userId));
     }
-    if (viewCaseManagerData?.smart_prescription_filename) {
+    if (isValidMongoId(viewCaseManagerData?.smart_prescription_filename)) {
       getGenRxDetails();
     }
   }, [viewCaseManagerData]);
@@ -208,7 +208,10 @@ function Cardiology(props) {
       navigate(0, { replace: true });
   }
   async function printRxContent() {
-      await window.open(viewCaseManagerData?.print_rx_url);
+    if(showDigitalGenRx) {
+      await window.open(`${viewCaseManagerData?.print_rx_url}${genRxData ? '&voiceRxDigitize=true' : ''}`);
+    }
+    await window.open(viewCaseManagerData?.print_rx_url);
   };
 
   const handleChange = (pagination, filters, sorter) => {
@@ -385,14 +388,14 @@ function Cardiology(props) {
     else if(showDigitalGenRx) {
       await window.open(`${viewCaseManagerData?.print_url}${genRxData && isValidMongoId(viewCaseManagerData?.smart_prescription_filename) ? '&voiceRxDigitize=true' : ''}`);
     }
-     else{
-      await window.open(viewCaseManagerData?.print_url);
+    else{
+      await window.open(viewCaseManagerData?.print_rx_url);
     }
   };
 
   const printInAppContent = async () => {
     navigate(
-      `/patient_details/?url=${viewCaseManagerData?.print_url}${genRxData ? '&voiceRxDigitize=true' : ''}&key=print`,
+      `/patient_details/?url=${viewCaseManagerData?.print_url}${genRxData && isValidMongoId(viewCaseManagerData?.smart_prescription_filename) ? '&voiceRxDigitize=true' : ''}&key=print`,
       { replace: true, state: { patient_data: patient_data } }
     );
     navigate(0, { replace: true });
@@ -704,7 +707,7 @@ function Cardiology(props) {
               )
             )}
 
-            {genRxData && viewCaseManagerData?.smart_prescription_filename && !isSmartRxFile && !loading && (
+            {genRxData && isValidMongoId(viewCaseManagerData?.smart_prescription_filename) && !isSmartRxFile && !loading && (
                 <div className="p-2 m-2">
                   <button
                     className={`digital-btn ${!showDigitalGenRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`}
@@ -744,7 +747,7 @@ function Cardiology(props) {
                   </div>
                 </div>
               ) :
-              genRxData && viewCaseManagerData?.smart_prescription_filename && !isSmartRxFile ? 
+              genRxData && isValidMongoId(viewCaseManagerData?.smart_prescription_filename) && !isSmartRxFile ? 
               <div>
                     {showDigitalGenRx ? (
                       <div className="m-4">

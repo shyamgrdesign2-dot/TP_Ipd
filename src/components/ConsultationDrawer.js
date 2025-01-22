@@ -790,14 +790,20 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
             ) : (
               <div className="d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center title-digitise-section mb-2">
-                  {module}
-                  <i
-                    className={`icon-Edit fs-21 ms-2 cursor-pointer`}
-                    onClick={() => {
-                      setEditingModule(module);
-                      setUpdatedModuleName(module);
-                    }}
-                  ></i>
+                  {localModules?.includes(module)
+                    ? module
+                    : module
+                        .replace(/([A-Z])/g, " $1")
+                        .replace(/^./, (str) => str.toUpperCase())}
+                  {localModules?.includes(module) && (
+                    <i
+                      className={`icon-Edit fs-21 ms-2 cursor-pointer`}
+                      onClick={() => {
+                        setEditingModule(module);
+                        setUpdatedModuleName(module);
+                      }}
+                    ></i>
+                  )}
                 </div>
                 <Dropdown
                   overlay={
@@ -826,7 +832,13 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                           alt="edit"
                           style={{ margin: "0 8px 3px 0" }}
                         />
-                        Delete {module} Module
+                        Delete{" "}
+                        {localModules?.includes(module)
+                          ? module
+                          : module
+                              .replace(/([A-Z])/g, " $1")
+                              .replace(/^./, (str) => str.toUpperCase())}{" "}
+                        Module
                       </Menu.Item>
                     </Menu>
                   }
@@ -944,21 +956,26 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   const handleEditModule = (module) => {
-    setPrescriptionData((prevData) => {
-      const updatedData = {
-        ...prevData,
-        dynamicFields: { ...prevData.dynamicFields },
-      };
+    if (updatedModuleName?.trim() && updatedModuleName !== module) {
+      setPrescriptionData((prevData) => {
+        const updatedData = {
+          ...prevData,
+          dynamicFields: { ...prevData.dynamicFields },
+        };
 
-      updatedData.dynamicFields[updatedModuleName] =
-        updatedData.dynamicFields[module];
+        updatedData.dynamicFields[updatedModuleName] =
+          updatedData.dynamicFields[module];
 
-      delete updatedData.dynamicFields[module];
+        delete updatedData.dynamicFields[module];
 
-      return updatedData;
-    });
+        return updatedData;
+      });
 
-    handleCancel();
+      setLocalModules((prevModules) =>
+        prevModules.map((mod) => (mod === module ? updatedModuleName : mod))
+      );
+    }
+    handleCancelEdit();
   };
 
   const handleDeleteModule = () => {
@@ -983,17 +1000,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const handleCancel = () => {
     setShowInput(false);
     setNewModuleName("");
-  };
-
-  const handleEditCustomModule = (module, value) => {
-    setPrescriptionData((prevData) => {
-      const updatedData = { ...prevData };
-      updatedData["dynamicFields"][module] = [
-        ...(updatedData["dynamicFields"][module] || []),
-        value,
-      ];
-      return updatedData;
-    });
   };
 
   const checkDataFillOrNot = () => {
@@ -1073,11 +1079,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                 <h1 className={styles.title}>
                   Start your consultation with the patient
                 </h1>
-                <p className={styles.subtitle}>
+                <div className={styles.subtitle}>
                   Dictate the complete prescription effortlessly
-                </p>
+                </div>
               </div>
               {!isTyping && <GenRxTips />}
+
 
               {isRecording ? (
                 <div className={styles.recordingContainer}>
@@ -1135,7 +1142,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                           borderRadius: "60px",
                           width: "120px",
                           height: "120px",
-                          marginTop: "100px",
                         }}
                         onClick={handleStartRecording}
                       >
