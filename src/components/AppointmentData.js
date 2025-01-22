@@ -65,6 +65,8 @@ import axios from "axios";
 import LabParams from "./LabParams";
 import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup";
 import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
+import { resetDDxState } from "../redux/ddxSlice";
+import config from "../config";
 
 const { TextArea } = Input;
 
@@ -920,7 +922,13 @@ function AppointmentData({ locationPath }) {
             ellipsis: true,
             render: (text, record) => (
                 <div>
-                    <span className="text-primary"><Link to="/patient_details" state={{ patient_data: record }}>{record.pm_fullname}</Link></span>
+                    <span className="text-primary">
+                        {selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT ?
+                            <Link to="/patient_details" state={{ patient_data: record }}>{record.pm_salutation ? `${record.pm_salutation} ${record.pm_fullname}` : record.pm_fullname}</Link>
+                            :
+                            record.pm_fullname
+                        }
+                    </span>
                     <br />
                     <small>
                         {genderAge(record)}
