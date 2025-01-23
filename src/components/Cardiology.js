@@ -564,7 +564,7 @@ function Cardiology(props) {
                 <span>
                   {/* Render dynamically based on type */}
                   {
-                    type === "advice"
+                    type === "advice" || type === "others"
                       ? item
                       : item?.name
                   }
@@ -580,6 +580,33 @@ function Cardiology(props) {
       </ol>
     </div>
   );
+
+  const renderGenRxCustomModules = () => (
+     Object.entries(genRxData?.dynamicFields || {}).map(
+      ([module, data]) => {
+        return (
+    <>
+      <div className="d-flex align-items-start">
+          <div className="title-digitise-section mb-1">{module
+                        .replace(/([A-Z])/g, " $1")
+                        .replace(/^./, (str) => str.toUpperCase())}</div>
+      </div>
+      <div className="digitised-data-section" style={{ marginLeft: 0 }}>
+        <ol>
+          {
+            data.map((value,index) => (
+                <li key={index}>
+                  <div className="medicine-item">
+                    <span>
+                      {value}
+                    </span>
+                  </div>
+                </li>
+              ))}
+        </ol>
+      </div>
+    </>)
+}));
 
   return (
     <div className="appointment-wrap PatientDetailswrap m-0">
@@ -831,6 +858,15 @@ function Cardiology(props) {
                             {renderGenRxItems('vaccinations')}
                           </>
                         )}
+                        {genRxData?.others && genRxData.others.length > 0 && (
+                          <>
+                            <div className="d-flex align-items-start">
+                                <div className="title-digitise-section mb-1">Others</div>
+                            </div>
+                            {renderGenRxItems("others")}
+                          </>
+                        )}
+                        {genRxData.dynamicFields && renderGenRxCustomModules()}
                         {genRxData?.followUp && (
                           <>
                             <div className="d-flex align-items-start">

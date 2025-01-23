@@ -395,7 +395,25 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     if ((activeIndex !== null && activeType !== null) || isCustom) {
       setPrescriptionData((prevData) => {
         const updatedData = { ...prevData };
+        const trimmedText = editableText.trim();
 
+        if (!trimmedText) {
+          if (type === "vitalsAndBodyComposition") {
+            updatedData.vitalsAndBodyComposition[index] = "";
+          } else if (isCustom) {
+            updatedData.dynamicFields[type] = updatedData.dynamicFields[
+              type
+            ].filter((_, i) => i !== index);
+            if (updatedData.dynamicFields[type].length === 0) {
+              delete updatedData.dynamicFields[type];
+            }
+          } else if (type === "followUp") {
+            updatedData.followUp = "";
+          } else {
+            updatedData[type] = updatedData[type].filter((_, i) => i !== index);
+          }
+          return updatedData;
+        }
         if (
           type === "medications" ||
           type === "labInvestigation" ||
@@ -405,15 +423,15 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           type === "medicalHistory" ||
           type === "vaccinations"
         ) {
-          updatedData[type][index].name = editableText.trim();
-        } else if (type === "advice") {
-          updatedData[type][index] = editableText.trim();
+          updatedData[type][index].name = trimmedText;
+        } else if (type === "advice" || type === "others") {
+          updatedData[type][index] = trimmedText;
         } else if (type === "vitalsAndBodyComposition") {
-          updatedData.vitalsAndBodyComposition[index] = editableText.trim();
+          updatedData.vitalsAndBodyComposition[index] = trimmedText;
         } else if (isCustom) {
-          updatedData.dynamicFields[type][index] = editableText.trim();
+          updatedData.dynamicFields[type][index] = trimmedText;
         } else if (type === "followUp") {
-          updatedData.followUp = editableText.trim();
+          updatedData.followUp = trimmedText;
         }
         return updatedData; // Persist changes
       });
@@ -440,7 +458,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       type === "vaccinations"
     ) {
       setEditableText(prescriptionData[type][index].name);
-    } else if (type === "advice") {
+    } else if (type === "advice" || type === "others") {
       setEditableText(prescriptionData[type][index]);
     } else if (type === "vitalsAndBodyComposition") {
       setEditableText(prescriptionData.vitalsAndBodyComposition[index]);
@@ -675,7 +693,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                           onClick={() => handleItemClick(type, index)}
                           className="digitised-item"
                         >
-                          {type === "advice" ? item : item?.name}
+                          {type === "advice" || type === "others"
+                            ? item
+                            : item?.name}
                         </span>
                       )}
 
@@ -1075,7 +1095,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         <div className={styles.container}>
           {!showPrescription ? (
             <>
-              <div>
+              <div style={{ padding: 24 }}>
                 <h1 className={styles.title}>
                   Start your consultation with the patient
                 </h1>
@@ -1084,7 +1104,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                 </div>
               </div>
               {!isTyping && <GenRxTips />}
-
 
               {isRecording ? (
                 <div className={styles.recordingContainer}>
@@ -1153,36 +1172,39 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                       <p className={styles.tapText}>Tap to Speak</p>
                     </div>
                   )}
-                  <Input
-                    placeholder={isTyping ? "" : "Or type here instead"}
-                    className={styles.textInput}
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onClick={() => setIsTyping(true)}
-                    onBlur={() => setIsTyping(false)}
-                    autoFocus
-                    suffix={
-                      isTyping && (
-                        <div
-                          className={styles.controlButtons}
-                          onMouseDown={(e) => e.preventDefault()}
-                        >
-                          <div role="button" onClick={handleStartRecording}>
-                            <img src={genRxRecordIcon} alt="MIC" />
+                  <div style={{ padding: 24 }}>
+                    <Input
+                      placeholder={isTyping ? "" : "Or type here instead"}
+                      className={styles.textInput}
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      onClick={() => setIsTyping(true)}
+                      onBlur={() => setIsTyping(false)}
+                      autoFocus
+                      suffix={
+                        isTyping && (
+                          <div
+                            className={styles.controlButtons}
+                            onMouseDown={(e) => e.preventDefault()}
+                          >
+                            <div role="button" onClick={handleStartRecording}>
+                              <img src={genRxRecordIcon} alt="MIC" />
+                            </div>
+                            <div role="button" onClick={handleSend}>
+                              <img src={sendIcon} alt="send" />
+                            </div>
                           </div>
-                          <div role="button" onClick={handleSend}>
-                            <img src={sendIcon} alt="send" />
-                          </div>
-                        </div>
-                      )
-                    }
-                  />
+                        )
+                      }
+                    />
+                  </div>
                 </>
               )}
             </>
           ) : (
             <div
               className={`${styles.splitView} ${isMobile ? "p-0" : ""} w-100`}
+              style={{ padding: 24 }}
             >
               <div className={styles.inputSection}>
                 <div>
@@ -1444,7 +1466,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                       prescriptionData.others.length > 0 && (
                         <>
                           <div className="title-digitise-section mb-2">
-                            Vaccination
+                            Others
                           </div>
                           {renderItems("others")}
                         </>
