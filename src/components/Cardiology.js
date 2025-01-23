@@ -149,7 +149,7 @@ function Cardiology(props) {
       tcm_id: viewCaseManagerData?.tcm_id,
     };
     try {
-      if (viewCaseManagerData?.smart_prescription_filename?.length) {
+      if (viewCaseManagerData?.smart_prescription_filename?.includes(".jpeg")) {
         const response = await api.post(
           FETCH_SMART_RX,
           payload,
@@ -511,7 +511,7 @@ function Cardiology(props) {
                 </span>
   
                 {/* Optional rendering for lineItem */}
-                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "tests" || type === "symptoms") && item.lineItem && (
+                {(type === "medications" || type === "vaccination" || type === "medicalHistory" || type === "tests" || type === "symptoms") && item.lineItem && (
                   <span>{` (${item.lineItem})`}</span>
                 )}
   
@@ -571,7 +571,7 @@ function Cardiology(props) {
                 </span>
   
                 {/* Optional rendering for lineItem */}
-                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "labInvestigation" || type === "symptoms" || type === "examination" || type === "diagnosis") && item.lineItem && (
+                {(type === "medications" || type === "vaccination" || type === "medicalHistory" || type === "labInvestigation" || type === "symptoms" || type === "examination" || type === "diagnosis") && item.lineItem && (
                   <span>{` (${item.lineItem})`}</span>
                 )}
               </div>
@@ -673,7 +673,7 @@ function Cardiology(props) {
                   >
                     <i className="icon-Print"></i>
                   </button>
-                  {!isSmartRxFile &&
+                  {!isSmartRxFile && !isValidMongoId(viewCaseManagerData?.smart_prescription_filename) &&
                     <Dropdown
                       className="btn btn-outline btn-more ms-1"
                       menu={{ items }}
@@ -850,12 +850,12 @@ function Cardiology(props) {
                           </>
                         )}
                         
-                        {genRxData?.vaccinations && genRxData?.vaccinations.length > 0 && (
+                        {genRxData?.vaccination && genRxData?.vaccination.length > 0 && (
                           <>
                             <div className="d-flex align-items-start">
-                              <div className="title-digitise-section mb-1">Vaccinations</div>
+                              <div className="title-digitise-section mb-1">vaccination</div>
                             </div>
-                            {renderGenRxItems('vaccinations')}
+                            {renderGenRxItems('vaccination')}
                           </>
                         )}
                         {genRxData?.others && genRxData.others.length > 0 && (
@@ -1001,17 +1001,17 @@ function Cardiology(props) {
                           </>
                         )}
                         
-                        {rxDigitisedData?.editedData?.vaccinations && rxDigitisedData?.editedData?.vaccinations.length > 0 && (
+                        {rxDigitisedData?.editedData?.vaccination && rxDigitisedData?.editedData?.vaccination.length > 0 && (
                           <>
                             <div className="d-flex align-items-start">
                               <img
                                 className="me-2"
                                 src={vaccinationIcon}
-                                alt="Vaccinations"
+                                alt="vaccination"
                               />
-                              <div className="title-digitise-section mb-1">Vaccinations</div>
+                              <div className="title-digitise-section mb-1">vaccination</div>
                             </div>
-                            {renderItems('vaccinations')}
+                            {renderItems('vaccination')}
                           </>
                         )}
                       </div>

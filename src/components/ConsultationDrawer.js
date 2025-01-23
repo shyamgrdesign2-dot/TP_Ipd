@@ -370,6 +370,59 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     setIsRxEdited(true);
   };
 
+  const handlePaste = (e, type) => {
+    const pastedData =
+      e.clipboardData.getData("text/plain") ||
+      e.clipboardData.getData("Text") ||
+      e.clipboardData.getData("text");
+    const points = pastedData
+      .split("\n")
+      .map((point) => point.trim())
+      .filter(Boolean);
+
+    if (points.length > 0) {
+      setPrescriptionData((prevData) => {
+        const updatedData = { ...prevData };
+
+        points.forEach((point) => {
+          if (!updatedData.dynamicFields[type]) {
+            updatedData.dynamicFields[type] = [];
+          }
+          updatedData.dynamicFields[type].push(point);
+        });
+
+        return updatedData;
+      });
+      setIsRxEdited(true);
+    }
+
+    // Clear the editable text
+    e.preventDefault();
+    setEditableText("");
+  };
+
+  const handleKeyDown = (e, type) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent newline in the input field
+
+      const trimmedText = editableText.trim();
+      if (trimmedText) {
+        setPrescriptionData((prevData) => {
+          const updatedData = { ...prevData };
+
+          if (!updatedData.dynamicFields[type]) {
+            updatedData.dynamicFields[type] = [];
+          }
+          updatedData.dynamicFields[type].push(trimmedText);
+
+          return updatedData;
+        });
+        setIsRxEdited(true);
+        setEditableText(""); // Clear input after adding
+      }
+    }
+  };
+
   // Handle lineItem input change for editing
   const handleLineItemChange = (e) => {
     setEditableLineItem(e.target.value);
@@ -404,9 +457,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
             updatedData.dynamicFields[type] = updatedData.dynamicFields[
               type
             ].filter((_, i) => i !== index);
-            if (updatedData.dynamicFields[type].length === 0) {
-              delete updatedData.dynamicFields[type];
-            }
+            // if (updatedData.dynamicFields[type].length === 0) {
+            //   delete updatedData.dynamicFields[type];
+            // }
           } else if (type === "followUp") {
             updatedData.followUp = "";
           } else {
@@ -421,7 +474,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           type === "examinations" ||
           type === "diagnosis" ||
           type === "medicalHistory" ||
-          type === "vaccinations"
+          type === "vaccination"
         ) {
           updatedData[type][index].name = trimmedText;
         } else if (type === "advice" || type === "others") {
@@ -455,7 +508,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       type === "examinations" ||
       type === "diagnosis" ||
       type === "medicalHistory" ||
-      type === "vaccinations"
+      type === "vaccination"
     ) {
       setEditableText(prescriptionData[type][index].name);
     } else if (type === "advice" || type === "others") {
@@ -477,7 +530,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     if (
       type === "medications" ||
       type === "labInvestigation" ||
-      type === "vaccinations" ||
+      type === "vaccination" ||
       type === "medicalHistory" ||
       type === "symptoms"
     ) {
@@ -702,10 +755,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                       {/* Editable input for lineItem */}
                       {(type === "medications" ||
                         type === "symptoms" ||
-                        type === "vaccinations" ||
+                        type === "vaccination" ||
                         type === "medicalHistory" ||
                         type === "labInvestigation" ||
                         type === "examinations" ||
+                        type === "medicalHistory" ||
                         type === "diagnosis") &&
                         item?.lineItem &&
                         (activeIndex === index &&
@@ -889,7 +943,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                       tempSpan.style.whiteSpace = "nowrap";
                       tempSpan.innerText = editableText || "";
                       document.body.appendChild(tempSpan);
-                      textWidth = tempSpan.offsetWidth;
+                      textWidth = tempSpan.offsetWidth || 200;
                       document.body.removeChild(tempSpan);
                     }
 
@@ -922,6 +976,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                               }
                               autoFocus
                               style={{ width: `${textWidth + 10}px` }}
+                              onPaste={(e) => handlePaste(e, module)}
+                              onKeyDown={(e) => handleKeyDown(e, module)}
                             />
                           ) : (
                             <span
@@ -941,13 +997,14 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
               ) : (
                 <textarea
                   type="text"
-                  // value={activeType ? "" : editableText}
                   className="editable-digitised-item w-100"
                   onChange={handleInputChange}
                   onBlur={() => handleInputBlur(module, 0, true)}
                   style={{ border: "none" }}
                   rows={3}
                   placeholder={`Enter ${module} details here or simply speak or type in Voice Rx`}
+                  onPaste={(e) => handlePaste(e, module)}
+                  onKeyDown={(e) => handleKeyDown(e, module)}
                 />
               )}
             </div>
@@ -1196,6 +1253,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                           </div>
                         )
                       }
+                      onPressEnter={handleSend}
                     />
                   </div>
                 </>
@@ -1203,7 +1261,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
             </>
           ) : (
             <div
-              className={`${styles.splitView} ${isMobile ? "p-0" : ""} w-100`}
+              className={`${styles.splitView} w-100`}
               style={{ padding: 24 }}
             >
               <div className={styles.inputSection}>
@@ -1273,7 +1331,10 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                   </span>
                                 </div>
                               </div>
-                              <div className="d-flex gap-3 me-auto mb-5">
+                              <div
+                                className="d-flex gap-3 me-auto mb-5"
+                                style={{ width: "87%" }}
+                              >
                                 <img src={tatvaAiStrip} alt="Tatva AI" />
                                 <div
                                   className={styles.prescriptionReadyMessage}
@@ -1348,6 +1409,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                 </div>
                               </div>
                             }
+                            onPressEnter={handleSend}
                           />
                         </div>
                       )}
@@ -1453,13 +1515,13 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                         </>
                       )}
 
-                    {prescriptionData?.vaccinations &&
-                      prescriptionData.vaccinations.length > 0 && (
+                    {prescriptionData?.vaccination &&
+                      prescriptionData.vaccination.length > 0 && (
                         <>
                           <div className="title-digitise-section mb-2">
                             Vaccination
                           </div>
-                          {renderItems("vaccinations")}
+                          {renderItems("vaccination")}
                         </>
                       )}
                     {prescriptionData?.others &&
