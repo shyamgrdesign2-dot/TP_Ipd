@@ -278,7 +278,10 @@ const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
         mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
       )
     );
-    dispatch(zydusDocsList({ mrno: patient_data.mrno }))
+    const tokenData = decodedToken?.result;
+    if (tokenData?.hospital_business_id == env.zydus_business_id) {
+      dispatch(zydusDocsList({ mrno: patient_data.mrno }))
+    }
   };
 
   const getAllDocumentCategories = async () => {

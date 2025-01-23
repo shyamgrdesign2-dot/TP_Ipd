@@ -66,7 +66,6 @@ import LabParams from "./LabParams";
 import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup";
 import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
 import { resetDDxState } from "../redux/ddxSlice";
-import config from "../config";
 
 const { TextArea } = Input;
 
@@ -314,7 +313,7 @@ function AppointmentData({ locationPath }) {
 
         const decodedToken = getDecodedToken();
         const tokenData = decodedToken?.result;
-        if (tokenData?.hospital_business_id == config.zydus_business_id) {
+        if (tokenData?.hospital_business_id == env.zydus_business_id) {
             const zydusItems = [
                 {
                     key: TAB_ZYDUS_ENCOUNTER,
