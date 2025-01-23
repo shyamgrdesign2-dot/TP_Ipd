@@ -208,8 +208,8 @@ export const ictAuthToken = createAsyncThunk(
     "records/ictAuthToken",
     async () => {
         const result = await ApiAppointments.ictAuthToken();
-        if (result.status) {
-            return result.data;
+        if (result.status == 'success') {
+            return result;
         } else {
             throw Error(result.error);
         }
@@ -235,7 +235,7 @@ export const zydusConsultAppoint = createAsyncThunk(
             if (error.response.status === 401) {
                 const action = await dispatch(ictAuthToken())
                 if (action.meta.requestStatus === "fulfilled") {
-                    await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.token))
+                    await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.tokenNo))
                     dispatch(zydusConsultAppoint({ siteId, empNo, date }))
                 }
             }

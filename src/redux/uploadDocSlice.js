@@ -26,7 +26,7 @@ export const zydusDocsList = createAsyncThunk(
       if (error.response.status === 401) {
         const action = await dispatch(ictAuthToken())
         if (action.meta.requestStatus === "fulfilled") {
-          await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.token))
+          await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.tokenNo))
           dispatch(zydusDocsList({ mrno }))
         }
       }
