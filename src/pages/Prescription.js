@@ -297,7 +297,7 @@ const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
     if (patient_data.patient_unique_id && allUploadedDocs.length === 0) {
       getAllPatientDocs();
     }
-  }, []);
+  }, [isZydusUserAccessableFromGB]);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {

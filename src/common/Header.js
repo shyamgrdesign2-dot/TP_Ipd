@@ -108,7 +108,7 @@ function Header({ locationPath }) {
     if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
       dispatch(zydusRefIds())
     }
-  }, []);
+  }, [isZydusUserAccessableFromGB]);
 
   useEffect(() => {
     if (profile) {
