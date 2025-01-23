@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, GB_GYNEC_HISTORY, GYNAECOLOGY, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, GB_GYNEC_HISTORY, GB_ZYDUS_USER, GYNAECOLOGY, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { getPatientBirthWeight, getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../redux/medicalhistorySlice";
@@ -217,6 +217,7 @@ const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
   const [likeDislike, setLikeDislike] = useState([]);
   const [isDDxGenerated, setIsDDxGenerated] = useState(false);
   const isApexAIAccessable = useFeatureIsOn("cdss");
+  const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const {
     isVaccinationAccessable,
     isGrowthChartAccessable,
@@ -252,7 +253,7 @@ const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
       )
     );
     const tokenData = decodedToken?.result;
-    if (tokenData?.hospital_business_id == env.zydus_business_id) {
+    if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
       dispatch(zydusDocsList({ mrno: patient_data.mrno }))
     }
   };

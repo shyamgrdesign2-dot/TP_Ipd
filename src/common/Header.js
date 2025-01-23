@@ -33,7 +33,7 @@ import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage, getDecodedToken } from "../utils/localStorage";
-import { OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { errorMessage, getClinicName, makeDefaultLogo } from "../utils/utils";
 import { Modal, Card } from "antd";
 import alertIcon from '../assets/images/alertIcon.svg';
@@ -56,6 +56,7 @@ function Header({ locationPath }) {
   const isOpdPlansAccessableFromGB = useFeatureIsOn(
     "opd-plans"
   );
+  const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
 
   const decodedToken = getDecodedToken();
   const apiUrl = env.opd_encryption_url;
@@ -104,7 +105,7 @@ function Header({ locationPath }) {
     dispatch(getDefaultPrintsettings({ default: false }));
     dispatch(listVideo());
     const tokenData = decodedToken?.result;
-    if (tokenData?.hospital_business_id == env.zydus_business_id) {
+    if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
       dispatch(zydusRefIds())
     }
   }, []);

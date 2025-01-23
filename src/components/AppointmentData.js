@@ -23,7 +23,7 @@ import dayjs from "dayjs";
 import { errorMessage } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
 
-import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FETCH_SMART_RX, UNFINISHED_RX_CASE, GB_SMARTSYNC_CVT, TAB_ZYDUS_ENCOUNTER, TAB_ZYDUS_APPOINTMENT } from "../utils/constants";
+import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FETCH_SMART_RX, UNFINISHED_RX_CASE, GB_SMARTSYNC_CVT, TAB_ZYDUS_ENCOUNTER, TAB_ZYDUS_APPOINTMENT, GB_ZYDUS_USER } from "../utils/constants";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import noData from "../assets/images/nodata-found.svg";
@@ -102,6 +102,8 @@ function AppointmentData({ locationPath }) {
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
     );
+    const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+    
     const [filesData, setFilesData] = useState([]);
     const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
     const [isFileSizeError, setIsFileSizeError] = useState(false);
@@ -313,7 +315,7 @@ function AppointmentData({ locationPath }) {
 
         const decodedToken = getDecodedToken();
         const tokenData = decodedToken?.result;
-        if (tokenData?.hospital_business_id == env.zydus_business_id) {
+        if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
             const zydusItems = [
                 {
                     key: TAB_ZYDUS_ENCOUNTER,

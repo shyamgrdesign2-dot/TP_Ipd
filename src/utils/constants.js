@@ -49,6 +49,7 @@ export const GB_SMARTSYNC_CONNECT = "smartsync-connect"
 export const GB_SMARTSYNC_CVT = "smartsync-cvt"
 export const GB_TALKATIVE = "Talkative"
 export const GB_GYNEC_HISTORY = "obs-gynec-history"
+export const GB_ZYDUS_USER = "zydus-hospital-user"
 
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
