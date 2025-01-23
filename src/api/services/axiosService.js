@@ -75,16 +75,18 @@ instance.interceptors.response.use(
         }
 
         if (error.response.status === 401) {
-            notificationParam.message = 'Authentication Fail'
-            notificationParam.description = 'Please login again'
-            // Clear localStorage before redirecting
-            localStorage.removeItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-            window.location.href = '/login';
+            if (!error?.request?.responseURL.startsWith(main_config.zydus_proxy_url)) {
+                notificationParam.message = 'Authentication Fail'
+                notificationParam.description = 'Please login again'
+                // Clear localStorage before redirecting
+                localStorage.removeItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+                window.location.href = '/login';
+            }
         }
 
         notificationParam.key = "notification_key"
         if (error.response.status !== 404 && error.response.status !== 400) {
-        notification.error(notificationParam)
+            notification.error(notificationParam)
         }
         return Promise.reject(error);
     }

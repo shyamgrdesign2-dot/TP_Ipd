@@ -39,11 +39,15 @@ import {
 } from "../redux/caseManagerSlice";
 import { listVideo } from "../redux/doctorsSlice";
 
+import { placeIctOrder } from '../redux/appointmentsSlice';
+import { getDecodedToken } from '../utils/localStorage';
+import { env } from '../EnvironmentConfig';
+
 var oneClickCosultationTemplateId = 0
 
 function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecHistory, labParamsData }) {
 
-    const { profile } = useSelector((state) => state.doctors);
+    const { profile, siteId } = useSelector((state) => state.doctors);
 
     const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
     const vaccines = useSelector((state) => state.vaccines);
@@ -952,6 +956,27 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     ),
                     duration: 5,
                 });
+
+                const decodedToken = getDecodedToken();
+                const tokenData = decodedToken?.result;
+                if (tokenData?.hospital_business_id == env.zydus_business_id && patient_data?.mrno !== undefined) {
+                    let zydusSendData = {
+                        "action": tcmId == 0 ? 'add' : 'edit',
+                        "tcmId": action?.payload?.tcm_id,
+                        "siteId": siteId,
+                        "departmentId": patient_data?.departmentId,
+                        "visitId": patient_data?.visitId,
+                        "encounterId": patient_data?.encounterId,
+                        "mrno": patient_data?.mrno,
+                        "doctorCode": patient_data?.employeeId,
+                        "storeCode": "PHOS", // hardcoded value
+                        "duplicateCheck": 1, // hardcoded value
+                        "investigationList": investigationData.filter(item => item.hasOwnProperty('objectID')).map(item => item.objectID),
+                        "medicineList": medicationData.map(({ tmm_id, tmm_remarks }) => ({ objectId: tmm_id, instruction: tmm_remarks }))
+                    }
+                    dispatch(placeIctOrder(zydusSendData))
+                }
+
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
             } else {
                 errorMessage(action.error)

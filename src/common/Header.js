@@ -103,7 +103,10 @@ function Header({ locationPath }) {
     dispatch(getMedicineType());
     dispatch(getDefaultPrintsettings({ default: false }));
     dispatch(listVideo());
-    dispatch(zydusRefIds())
+    const tokenData = decodedToken?.result;
+    if (tokenData?.hospital_business_id == env.zydus_business_id) {
+      dispatch(zydusRefIds())
+    }
   }, []);
 
   useEffect(() => {
