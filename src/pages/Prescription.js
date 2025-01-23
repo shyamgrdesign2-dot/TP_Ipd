@@ -243,6 +243,7 @@ const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
   const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
   const [tatvaAiKnowMoreDrawer, setTatvaAiKnowMoreDrawer] = useState(false);
   const isApexAIAccessable = useFeatureIsOn("cdss");
+  const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
   const {
     isVaccinationAccessable,
     isGrowthChartAccessable,
@@ -1065,7 +1066,7 @@ const handleTatvaAiKnowMore = () => {
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
             <div className="col-lg-4 col-md-12 col-12">
-              {isApexAIAccessable ? (
+              {(isApexAIAccessable || isVoiceRxAccessable) ? (
                 <Tabs
                   className="obstetricTab"
                   activeKey={activeTab}
@@ -1109,10 +1110,10 @@ const handleTatvaAiKnowMore = () => {
                     }
                     key="apexAI"
                   >
-                    <div className="prescription-box-sm">
+                    {isVoiceRxAccessable && <div className="prescription-box-sm">
                       <GenRxBox setIsGenRxDrawerVisible={setIsGenRxDrawerVisible} handleGenRxKnowMore={handleGenRxKnowMore} />
-                    </div>
-                    <div className="prescription-box-sm">
+                    </div>}
+                    {isApexAIAccessable && <div className="prescription-box-sm">
                       <DDxList
                         generatedDDx={generatedDDx?.results}
                         handleDDxDrawer={handleDDxDrawer}
@@ -1122,7 +1123,7 @@ const handleTatvaAiKnowMore = () => {
                         handleDrawerVital={handleDrawerVital}
                         isDDxGenerated={isDDxGenerated}
                       />
-                    </div>
+                    </div>}
                   </TabPane>
                 </Tabs>
               ) : (

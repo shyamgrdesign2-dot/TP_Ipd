@@ -109,6 +109,7 @@ function TabPrescription() {
     userId,
   } = useSelector((state) => state.doctors);
   const isApexAIAccessable = useFeatureIsOn("cdss");
+  const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -823,7 +824,7 @@ function TabPrescription() {
 
   const handleApexAI = () => {
     dispatch(setIsApexAISelected(true));
-    openCollapsed(10);
+    openCollapsed(isVoiceRxAccessable ? 10 : 9);
     window.Moengage.track_event("TP_Apex_AI_Ack", {
       clinic_name: getClinicName(profile?.hospital_data),
       doctor_id: profile?.doctor_unique_id,
@@ -903,7 +904,7 @@ function TabPrescription() {
                 </>
               ) : (
                 <>
-                  {isApexAIAccessable && (
+                  {(isApexAIAccessable || isVoiceRxAccessable) && (
                     <button
                       type="button"
                       className="mb-3 text-center btn btn-action"
@@ -1268,7 +1269,7 @@ function TabPrescription() {
                   handleViewLabParamsDrawer={handleViewLabParamsDrawer}
                 />
               ) : 
-                collapsedFlag === 9 ? (
+                collapsedFlag === 9 && isApexAIAccessable ? (
                   <TabDDxList
                     generatedDDx={generatedDDx?.results}
                     handleDDxDrawer={handleDDxDrawer}
@@ -1278,7 +1279,7 @@ function TabPrescription() {
                     isDDxGenerated={isDDxGenerated}
                   />
                 ) :
-                collapsedFlag === 10 && (
+                collapsedFlag === 10 && isVoiceRxAccessable && (
                   <TabVoiceRx
                     handleGenRxKnowMore={handleGenRxKnowMore}
                     setIsGenRxDrawerVisible={setIsGenRxDrawerVisible}
