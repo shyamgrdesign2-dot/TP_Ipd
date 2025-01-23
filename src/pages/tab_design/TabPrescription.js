@@ -867,7 +867,7 @@ function TabPrescription() {
                       <i className="icon-Cross" style={{ color: "#7742FE" }} />
                     </div>
                   </button>
-                  <button
+                  {isVoiceRxAccessable && <button
                     type="button"
                     className="mb-3 text-center btn btn-action"
                     onClick={() => openCollapsed(10)}
@@ -883,8 +883,8 @@ function TabPrescription() {
                       />
                     </div>
                     <label className="text-white mt-1">Voice Rx</label>
-                  </button>
-                  <button
+                  </button>}
+                  {isApexAIAccessable && <button
                     type="button"
                     className="mb-3 text-center btn btn-action"
                     onClick={() => openCollapsed(9)}
@@ -900,7 +900,7 @@ function TabPrescription() {
                       />
                     </div>
                     <label className="text-white mt-1">DDx</label>
-                  </button>
+                  </button>}
                 </>
               ) : (
                 <>
