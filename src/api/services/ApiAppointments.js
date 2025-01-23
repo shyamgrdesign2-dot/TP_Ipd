@@ -107,7 +107,7 @@ ApiAppointments.zydusRefIds = function () {
 };
 
 ApiAppointments.ictAuthToken = function () {
-  return api.get(`/appointment/ictAuthToken`, baseZydusUrl);
+  return api.post(`/ictAuthProxy`,{},baseZydusProxyUrl);
 };
 
 ApiAppointments.consultations = function (siteId, empNo, date) {

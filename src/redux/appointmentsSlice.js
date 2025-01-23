@@ -208,8 +208,8 @@ export const ictAuthToken = createAsyncThunk(
     "records/ictAuthToken",
     async () => {
         const result = await ApiAppointments.ictAuthToken();
-        if (result.status) {
-            return result.data;
+        if (result.status == 'success') {
+            return result;
         } else {
             throw Error(result.error);
         }
