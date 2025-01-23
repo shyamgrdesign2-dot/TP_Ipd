@@ -342,7 +342,7 @@ function AppointmentData({ locationPath }) {
         // Update the items state with new data
         setItems(updatedItems);
 
-    }, [pendingDigitisation, queueCount, finishedCount, cancelledCount]);
+    }, [pendingDigitisation, queueCount, finishedCount, cancelledCount, isZydusUserAccessableFromGB]);
 
     const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
     const [isDigitisationTab, setIsDigitisationTab] = useState(false);
