@@ -948,10 +948,15 @@ function AppointmentData({ locationPath }) {
             ),
         },
         {
-            title: "Contact",
+            title: selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT?"Contact":"Contact & Mrn",
             dataIndex: "pm_contact_no",
             key: "pm_contact_no",
             ellipsis: true,
+            render: (text, record) => (
+                <div>
+                    <span>{record.pm_contact_no} </span> <br /> <small> {record.mrno}</small>
+                </div>
+            )
         },
         {
             title: "Visit Type",
