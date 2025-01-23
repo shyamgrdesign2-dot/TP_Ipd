@@ -1,4 +1,9 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import ApiAppointments from "../api/services/ApiAppointments";
+import { ictAuthToken } from "./appointmentsSlice";
+import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../utils/constants";
+import moment from "moment";
+import config from "../config";
 
 const initialState = {
   uploadDocCategories: [],
@@ -6,6 +11,30 @@ const initialState = {
   patientUploadedDocs: [],
   isLoading: false,
 };
+
+export const zydusDocsList = createAsyncThunk(
+  "records/zydusDocsList",
+  async ({ mrno }, { dispatch }) => {
+    try {
+      const result = await ApiAppointments.zydusDocsList(10002024392215);
+      if (result.status == 'success') {
+        return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        const action = await dispatch(ictAuthToken())
+        if (action.meta.requestStatus === "fulfilled") {
+          await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.token))
+          dispatch(zydusDocsList({ mrno }))
+        }
+      }
+      // console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
 
 const uploadDocSlice = createSlice({
   name: "uploadDoc",
@@ -37,6 +66,26 @@ const uploadDocSlice = createSlice({
     setAllUploadedDocs: (state, action) => {
       state.allUploadedDocs = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(zydusDocsList.fulfilled, (state, action) => {
+        const updatedData = action.payload.map(e => {
+          return {
+            id: e?.labResultId,
+            category_id: -2,
+            name: e?.serviceName,
+            display_name: e?.serviceName,
+            url: `${config.zydus_proxy_url}/ictApiProxy/emr/lab/report/print?sampleId=${e?.sampleId}`,
+            um_id: 493,
+            thumbnail_url: '',
+            created_date: moment(e?.certifiedDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+            investigation_date: moment(e?.certifiedDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+            notes: ''
+          }
+        })
+        state.allUploadedDocs.unshift(...updatedData)
+      });
   },
 });
 

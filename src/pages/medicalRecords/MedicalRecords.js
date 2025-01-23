@@ -24,7 +24,11 @@ const MedicalRecords = ({
     category_id: -1,
     category_name: "All",
   };
-  const updatedCategory = [newCategory, ...uploadDocCategories];
+  const newCategory1 = {
+    category_id: -2,
+    category_name: "Zydus",
+  };
+  const updatedCategory = [newCategory, newCategory1, ...uploadDocCategories];
 
   const [activeCategory, setActiveCategory] = useState(-1);
   const [activeCategoryDocs, setActiveCategoryDocs] = useState(allUploadedDocs);

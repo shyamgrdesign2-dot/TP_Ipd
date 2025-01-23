@@ -33,6 +33,7 @@ const dev = {
     "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: "754811713438773",
+  zydus_proxy_url: 'https://pm-ict-proxy-uat.tatvacare.in',
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   user_management_api_url: "https://user-management77913uat.azurewebsites.net",
@@ -51,7 +52,8 @@ const dev = {
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
-  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
+  gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
 };
 
 const qa_tp = {
@@ -110,7 +112,8 @@ const qa_tp = {
   tatvaAi_api_url: "https://pm-doctor-tatva-qa.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
-  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
+  gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
 };
 
 const qa = {
@@ -148,6 +151,7 @@ const qa = {
     "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: "754811713438773",
+  zydus_proxy_url: 'https://pm-ict-proxy-uat.tatvacare.in',
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   user_management_api_url: "https://user-management77913uat.azurewebsites.net",
@@ -166,7 +170,8 @@ const qa = {
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
-  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
+  gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
 };
 
 const uat = {
@@ -207,6 +212,7 @@ const uat = {
   obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: "754811713438773",
+  zydus_proxy_url: 'https://pm-ict-proxy-uat.tatvacare.in',
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   user_management_api_url: "https://user-management77913uat.azurewebsites.net",
@@ -225,7 +231,8 @@ const uat = {
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
-  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
+  gen_rx_api_url: "https://pm-rxdigitization-uat.tatvacare.in",
 };
 
 const prod = {
@@ -261,6 +268,7 @@ const prod = {
   obstetric_api_url: "https://pm-medicalhistory-prod.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-prod.tatvacare.in`,
   zydus_business_id: "368451724046474",
+  zydus_proxy_url: 'https://pm-ict-proxy.tatvacare.in',
   rx_digitization: "https://pm-rxdigitization-prod.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-prod.tatvacare.in",
   lab_params_api_url: "https://pm-patient-docs-prod.tatvacare.in",
@@ -279,7 +287,8 @@ const prod = {
   tatvaAi_api_url: "https://pm-doctor-tatva-prod.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-prod.tatvacare.in",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
-  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245"
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
+  gen_rx_api_url: "https://pm-rxdigitization-prod.tatvacare.in",
 };
 
 const getEnv = () => {
