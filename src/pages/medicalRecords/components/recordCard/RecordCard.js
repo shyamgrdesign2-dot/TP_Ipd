@@ -21,6 +21,8 @@ import dayjs from "dayjs";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../firebase";
 import { loadPdf, mergeDocuments, shortenText } from "../../utils/helper";
+import config from "../../../../config";
+import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../../../../utils/constants";
 
 const RecordCard = ({
   cardData,
@@ -66,7 +68,7 @@ const RecordCard = ({
   }, []);
 
   const updatedFileName = shortenText(display_name);
-  const categoryName = uploadDocCategories.find(
+  const categoryName = category_id === -2 ? 'Zydus' : uploadDocCategories.find(
     (item) => item?.category_id === category_id
   )?.category_name;
 
@@ -171,6 +173,9 @@ const RecordCard = ({
         url: url,
         method: "GET",
         responseType: "blob",
+        headers: url?.startsWith(config.zydus_proxy_url) && {
+          Authorization: `Bearer ${localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN))}`,
+        }
       });
 
       const blob = new Blob([response.data], {
@@ -197,7 +202,7 @@ const RecordCard = ({
         ),
         key: "download",
       },
-      {
+      !url?.startsWith(config.zydus_proxy_url) && {
         label: (
           <div onClick={handleEdit}>
             <img src={edit} alt="edit" className="me-2" />
@@ -206,7 +211,7 @@ const RecordCard = ({
         ),
         key: "edit",
       },
-      {
+      !url?.startsWith(config.zydus_proxy_url) && {
         label: (
           <div onClick={toggleDeletePopup}>
             <img src={trash} alt="delete" className="me-2" />

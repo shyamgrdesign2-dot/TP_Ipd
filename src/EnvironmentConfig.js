@@ -278,7 +278,7 @@ const prod = {
     "https://pm-medicalhistory-prod.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-prod.tatvacare.in`,
   zydus_business_id: "368451724046474",
-  zydus_proxy_url: "https://pm-ict-proxy.tatvacare.in",
+  zydus_proxy_url: 'https://pm-ict-proxy.tatvacare.in',
   rx_digitization: "https://pm-rxdigitization-prod.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-prod.tatvacare.in",
   lab_params_api_url: "https://pm-patient-docs-prod.tatvacare.in",

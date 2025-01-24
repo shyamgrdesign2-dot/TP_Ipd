@@ -23,7 +23,7 @@ import dayjs from "dayjs";
 import { errorMessage } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
 
-import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FETCH_SMART_RX, UNFINISHED_RX_CASE, GB_SMARTSYNC_CVT } from "../utils/constants";
+import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FETCH_SMART_RX, UNFINISHED_RX_CASE, GB_SMARTSYNC_CVT, TAB_ZYDUS_ENCOUNTER, TAB_ZYDUS_APPOINTMENT, GB_ZYDUS_USER } from "../utils/constants";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import noData from "../assets/images/nodata-found.svg";
@@ -45,7 +45,10 @@ import {
     getCaseTypes,
     getAllAppointment,
     cancelAppointments,
-    endVisit
+    endVisit,
+    zydusConsultAppoint,
+    syncZydusPatientAndAppointment,
+    copyGetAllAppointment
 } from "../redux/appointmentsSlice";
 
 import {
@@ -73,9 +76,9 @@ function AppointmentData({ locationPath }) {
 
     const navigate = useNavigate();
 
-    const { sort_order, profile } = useSelector((state) => state.doctors);
+    const { sort_order, profile, siteId, empNo } = useSelector((state) => state.doctors);
     const { uploadDocCategories } = useSelector(
-    (state) => state.uploadDoc
+        (state) => state.uploadDoc
     );
     const { isLoading } = useSelector((state) => state.uploadDoc);
 
@@ -99,6 +102,8 @@ function AppointmentData({ locationPath }) {
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
     );
+    const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+    
     const [filesData, setFilesData] = useState([]);
     const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
     const [isFileSizeError, setIsFileSizeError] = useState(false);
@@ -125,60 +130,60 @@ function AppointmentData({ locationPath }) {
     };
 
     const getAllDocumentCategories = async () => {
-      const response = await fetchAllDocumentCategories();
-      dispatch(setUploadDocCategories(response));
+        const response = await fetchAllDocumentCategories();
+        dispatch(setUploadDocCategories(response));
     };
 
     const handleFileUpload = (event, record) => {
         const files = event.target.files;
         if (files) {
-        const filesData = Array.from(files);
-        if (filesData.length > 0) {
-            const updatedFiles = [];
-            filesData.forEach((file) => {
-            const cleanFileName = getCorrectedFileName(file?.name || "");
-            // Check if the file is an image and if its name follows typical camera-captured file patterns
-            const isCapturedFromCamera =
-                (file.type === "image/jpeg" ||
-                file.type === "image/png" ||
-                file.type === "image/jpg") &&
-                (cleanFileName === "image.jpg" ||
-                cleanFileName === "image.png" ||
-                cleanFileName === "image.jpeg");
+            const filesData = Array.from(files);
+            if (filesData.length > 0) {
+                const updatedFiles = [];
+                filesData.forEach((file) => {
+                    const cleanFileName = getCorrectedFileName(file?.name || "");
+                    // Check if the file is an image and if its name follows typical camera-captured file patterns
+                    const isCapturedFromCamera =
+                        (file.type === "image/jpeg" ||
+                            file.type === "image/png" ||
+                            file.type === "image/jpg") &&
+                        (cleanFileName === "image.jpg" ||
+                            cleanFileName === "image.png" ||
+                            cleanFileName === "image.jpeg");
 
-            let newFile = file;
+                    let newFile = file;
 
-            if (isCapturedFromCamera) {
-                // Generate a unique file name for camera-captured images
-                const uniqueFileName = generateUniqueFileName(file);
-                newFile = new File([file], uniqueFileName, { type: file.type });
-            } else {
-                // If the file name had spaces, create a new file with spaces removed
-                newFile = new File([file], cleanFileName, { type: file.type });
+                    if (isCapturedFromCamera) {
+                        // Generate a unique file name for camera-captured images
+                        const uniqueFileName = generateUniqueFileName(file);
+                        newFile = new File([file], uniqueFileName, { type: file.type });
+                    } else {
+                        // If the file name had spaces, create a new file with spaces removed
+                        newFile = new File([file], cleanFileName, { type: file.type });
+                    }
+
+                    updatedFiles.push(newFile);
+                });
+                setFilesData(updatedFiles);
+                handleDrawerUploadDoc();
+                setPatientData(record);
             }
-
-            updatedFiles.push(newFile);
-            });
-            setFilesData(updatedFiles);
-            handleDrawerUploadDoc();
-            setPatientData(record);
-        }
         }
         event.target.value = null;
     };
 
     const handleAddClick = () => {
         if (fileInputRef.current) {
-        fileInputRef.current.click();
+            fileInputRef.current.click();
         }
     };
     const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
         GB_SMARTSYNC_CVT
     );
 
-    const baseUrl = env.casemanager_api_url ;
+    const baseUrl = env.casemanager_api_url;
     const customBaseUrl = { customBaseUrl: env.casemanager_api_url };
-    const baseUrlRxDigitise = env.rx_digitization ;
+    const baseUrlRxDigitise = env.rx_digitization;
 
     const handleClickOutside = (event) => {
         if (!consultButtonRef?.current?.contains(event.target)) {
@@ -202,93 +207,93 @@ function AppointmentData({ locationPath }) {
     const fetchPendingDigitisationRx = async () => {
 
         try {
-        const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-        const cleanedToken = token.replace(/['"]+/g, '');
-        const decodedToken = getDecodedToken();
-        const doctorId = decodedToken?.result?.user_id;
+            const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+            const cleanedToken = token.replace(/['"]+/g, '');
+            const decodedToken = getDecodedToken();
+            const doctorId = decodedToken?.result?.user_id;
 
-        // API call for Rx Digitisation
-        const response = await axios.get(
-            `${baseUrl}/api/v1/casemanager/unfinished-digitize-rx/${doctorId}`, 
-            {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${cleanedToken}`,
-            },
+            // API call for Rx Digitisation
+            const response = await axios.get(
+                `${baseUrl}/api/v1/casemanager/unfinished-digitize-rx/${doctorId}`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${cleanedToken}`,
+                    },
+                }
+            );
+
+            const pendingDigitisationRx = response?.data;
+
+            if (pendingDigitisationRx) {
+                setPendingDigitisation(pendingDigitisationRx);
             }
-        );
-  
-        const pendingDigitisationRx = response?.data;
-    
-        if (pendingDigitisationRx) {
-            setPendingDigitisation(pendingDigitisationRx);
-        }
         } catch (error) {
-        console.error('Error fetching the pending Digitisation prescriptions:', error);
+            console.error('Error fetching the pending Digitisation prescriptions:', error);
         }
     }
 
     // Initialize items in state
     const [items, setItems] = useState([
         {
-        key: TAB_QUEUE,
-        label: (
-            <div className="d-flex align-items-center">
-            <i className="icon-Queue"></i>
-            Queue ({queueCount})
-            </div>
-        ),
+            key: TAB_QUEUE,
+            label: (
+                <div className="d-flex align-items-center">
+                    <i className="icon-Queue"></i>
+                    Queue ({queueCount})
+                </div>
+            ),
         },
         {
-        key: TAB_FINISHED,
-        label: (
-            <div className="d-flex align-items-center">
-            <i className="icon-Finished"></i>
-            Finished ({finishedCount})
-            </div>
-        ),
+            key: TAB_FINISHED,
+            label: (
+                <div className="d-flex align-items-center">
+                    <i className="icon-Finished"></i>
+                    Finished ({finishedCount})
+                </div>
+            ),
         },
         {
-        key: TAB_CANCELLED,
-        label: (
-            <div className="d-flex align-items-center">
-            <i className="icon-Cancelled"></i>
-            Cancelled ({cancelledCount})
-            </div>
-        ),
+            key: TAB_CANCELLED,
+            label: (
+                <div className="d-flex align-items-center">
+                    <i className="icon-Cancelled"></i>
+                    Cancelled ({cancelledCount})
+                </div>
+            ),
         },
     ]);
 
     // UseEffect to update items when pendingDigitisation changes
     useEffect(() => {
         const updatedItems = [
-        {
-            key: TAB_QUEUE,
-            label: (
-            <div className="d-flex align-items-center">
-                <i className="icon-Queue"></i>
-                Queue ({isDigitisationTab? 0 : queueCount})
-            </div>
-            ),
-        },
-        {
-            key: TAB_FINISHED,
-            label: (
-            <div className="d-flex align-items-center">
-                <i className="icon-Finished"></i>
-                Finished ({isDigitisationTab? 0 : finishedCount})
-            </div>
-            ),
-        },
-        {
-            key: TAB_CANCELLED,
-            label: (
-            <div className="d-flex align-items-center">
-                <i className="icon-Cancelled"></i>
-                Cancelled ({isDigitisationTab? 0 : cancelledCount})
-            </div>
-            ),
-        },
+            {
+                key: TAB_QUEUE,
+                label: (
+                    <div className="d-flex align-items-center">
+                        <i className="icon-Queue"></i>
+                        Queue ({isDigitisationTab ? 0 : queueCount})
+                    </div>
+                ),
+            },
+            {
+                key: TAB_FINISHED,
+                label: (
+                    <div className="d-flex align-items-center">
+                        <i className="icon-Finished"></i>
+                        Finished ({isDigitisationTab ? 0 : finishedCount})
+                    </div>
+                ),
+            },
+            {
+                key: TAB_CANCELLED,
+                label: (
+                    <div className="d-flex align-items-center">
+                        <i className="icon-Cancelled"></i>
+                        Cancelled ({isDigitisationTab ? 0 : cancelledCount})
+                    </div>
+                ),
+            },
         ];
 
         // Split the string by commas and get the length
@@ -300,18 +305,44 @@ function AppointmentData({ locationPath }) {
             updatedItems.push({
                 key: 2,
                 label: (
-                <div className="d-flex align-items-center">
-                    <i className="icon-Report"></i>
-                    Pending Digitisation ({pendingDigitisationLength})
-                </div>
+                    <div className="d-flex align-items-center">
+                        <i className="icon-Report"></i>
+                        Pending Digitisation ({pendingDigitisationLength})
+                    </div>
                 ),
             });
+        }
+
+        const decodedToken = getDecodedToken();
+        const tokenData = decodedToken?.result;
+        if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
+            const zydusItems = [
+                {
+                    key: TAB_ZYDUS_ENCOUNTER,
+                    label: (
+                        <div className="d-flex align-items-center">
+                            <i className="icon-Queue"></i>
+                            Encounter
+                        </div>
+                    ),
+                },
+                {
+                    key: TAB_ZYDUS_APPOINTMENT,
+                    label: (
+                        <div className="d-flex align-items-center">
+                            <i className="icon-Queue"></i>
+                            Appointment
+                        </div>
+                    ),
+                }
+            ];
+            updatedItems.push(...zydusItems);
         }
 
         // Update the items state with new data
         setItems(updatedItems);
 
-    }, [pendingDigitisation, queueCount, finishedCount, cancelledCount]);
+    }, [pendingDigitisation, queueCount, finishedCount, cancelledCount, isZydusUserAccessableFromGB]);
 
     const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
     const [isDigitisationTab, setIsDigitisationTab] = useState(false);
@@ -362,21 +393,41 @@ function AppointmentData({ locationPath }) {
 
     useEffect(() => {
         const timeOutId = setTimeout(() => {
-            var sendData = {
-                startDate: date.startDate,
-                endDate: date.endDate,
-                apStatue: (isDigitisationTab && pendingDigitisation?.data) ? 3 : selectedTab,
-                filterVisitType: visitTypeFilters,
-                page: pageNo,
-                search: searchQuery,
-                sortOrder: sort_order,
-                ...(isDigitisationTab && pendingDigitisation?.data
-                    ? { cvtAppointmentIdsStr: pendingDigitisation.data }
-                    : {})
+            if (selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT) {
+                var sendData = {
+                    startDate: date.startDate,
+                    endDate: date.endDate,
+                    apStatue: (isDigitisationTab && pendingDigitisation?.data) ? 3 : selectedTab,
+                    filterVisitType: visitTypeFilters,
+                    page: pageNo,
+                    search: searchQuery,
+                    sortOrder: sort_order,
+                    ...(isDigitisationTab && pendingDigitisation?.data
+                        ? { cvtAppointmentIdsStr: pendingDigitisation.data }
+                        : {})
+                }
+                // console.log(sendData)
+                dispatch(getAllAppointment(sendData));
+            } else {
+                // for (let i = 0; i < empNo?.length; i++) {
+                //     var sendZydusData = {
+                //         siteId: siteId,
+                //         empNo: empNo[i],
+                //         date: moment(date.startDate).format(showDateFormat),
+                //         selectedTab: selectedTab,
+                //         page: i,
+                //     }
+                //     dispatch(zydusConsultAppoint(sendZydusData));
+                // }
+                var sendZydusData = {
+                    siteId: siteId,
+                    empNo: empNo.toString(),
+                    date: moment(date.startDate).format(showDateFormat),
+                    selectedTab: selectedTab,
+                    page: 0
+                }
+                dispatch(zydusConsultAppoint(sendZydusData));
             }
-            // console.log(sendData)
-            dispatch(getAllAppointment(sendData));
-
 
             // if (searchQuery) {
             //     const searchTimeOutId = setTimeout(() => {
@@ -395,7 +446,7 @@ function AppointmentData({ locationPath }) {
     }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order, isDigitisationTab]);
 
     useEffect(() => {
-        if(isSmartSyncAccessableFromGB && isSmartSyncCVTAccessableFromGB){
+        if (isSmartSyncAccessableFromGB && isSmartSyncCVTAccessableFromGB) {
             fetchPendingDigitisationRx();
         }
     }, [isSmartSyncAccessableFromGB]);
@@ -411,8 +462,8 @@ function AppointmentData({ locationPath }) {
     }, [date]);
 
     const handleUploadDocPopup = (record) => {
-      setShowUploadDocPopup((prev) => !prev);
-      setPatientData(record);
+        setShowUploadDocPopup((prev) => !prev);
+        setPatientData(record);
     };
 
     const onChange = useCallback(
@@ -422,14 +473,14 @@ function AppointmentData({ locationPath }) {
             setSelectedCalanderOptions(1)
             setSelectedTab(key);
 
-            if (key === 2){
+            if (key === 2) {
                 setIsDigitisationTab(true)
                 setDate({
                     startDate: moment(0).format(dateFormat),
                     endDate: moment().format(dateFormat),
                 })
             }
-            else{
+            else {
                 setIsDigitisationTab(false);
                 setDate({
                     startDate: moment().format(dateFormat),
@@ -554,11 +605,11 @@ function AppointmentData({ locationPath }) {
 
     const getMenuItems = (record) => {
         const items = [
-          {
+            {
                 label: <Link to="/patient_details" state={{ patient_data: record }}>Patient Details</Link>,
-            key: "patientdetails",
-          },
-          {
+                key: "patientdetails",
+            },
+            {
                 label: <span
                     onClick={() => {
                         setAppointmentSelectedFromMenu(record);
@@ -572,56 +623,56 @@ function AppointmentData({ locationPath }) {
                         setAppointmentSelectedFromMenu(record);
                         handleConfirmationModal()
                     }}>Cancel Appt.</span>,
-            key: "cancelappt",
-          },
-          {
+                key: "cancelappt",
+            },
+            {
                 label: <span
-                onClick={() => {
-                  setAppointmentSelectedFromMenu(record);
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
                         handleCreateCertificateDrawer()
                     }}>Create Certificate</span>,
-            key: "certificate",
-          },
-          {
+                key: "certificate",
+            },
+            {
                 label: <span
-                onClick={() => {
-                  setAppointmentSelectedFromMenu(record);
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
                         handleEndVisitReasonDrawer()
                     }}>End Visit</span>,
-            key: "endvisit",
-          },
-          {
+                key: "endvisit",
+            },
+            {
                 label: <span
-                onClick={() => {
-                  setAppointmentSelectedFromMenu(record);
-                  handleEndVisitReasonModal();
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
+                        handleEndVisitReasonModal();
                     }}>End Visit Reason</span>,
-            key: "endvisitreason",
-          },
-          {
-            label: (
-              <div onClick={handleAddClick}>
-                Upload Medical Records
-                {isAndroid && !isBrowser ? (
-                  <div
-                    ref={fileInputRef}
-                    onClick={() => handleUploadDocPopup(record)}
-                    style={{ display: "none" }}
-                  />
-                ) : (
-                  <input
-                    type="file"
-                    multiple
-                    ref={fileInputRef}
-                    onChange={(event) => handleFileUpload(event, record)}
-                    accept="image/png, image/jpeg, image/jpg, application/pdf"
-                    style={{ display: "none" }}
-                  />
-                )}
-              </div>
-            ),
-            key: "uploadDoc",
-          },
+                key: "endvisitreason",
+            },
+            {
+                label: (
+                    <div onClick={handleAddClick}>
+                        Upload Medical Records
+                        {isAndroid && !isBrowser ? (
+                            <div
+                                ref={fileInputRef}
+                                onClick={() => handleUploadDocPopup(record)}
+                                style={{ display: "none" }}
+                            />
+                        ) : (
+                            <input
+                                type="file"
+                                multiple
+                                ref={fileInputRef}
+                                onChange={(event) => handleFileUpload(event, record)}
+                                accept="image/png, image/jpeg, image/jpg, application/pdf"
+                                style={{ display: "none" }}
+                            />
+                        )}
+                    </div>
+                ),
+                key: "uploadDoc",
+            },
         ];
 
         if (selectedTab === TAB_QUEUE) {
@@ -643,6 +694,85 @@ function AppointmentData({ locationPath }) {
         navigate("/prescription", { state: { patient_data: record } })
     }
 
+    const onZydusConsultClick = async (record) => {
+        const decodedToken = getDecodedToken();
+        const tokenData = decodedToken?.result;
+
+        const listSalutation = [
+            "B/O",
+            "Baby",
+            "D/O",
+            "Dr",
+            "Master",
+            "Miss",
+            "Mr",
+            "Mrs",
+            "Ms.",
+            "S/O"
+        ];
+        const [title, ...rest] = record.patientName.split(" "); //patientName
+
+        let sendData = {
+            "source": "TP-React-FE", //Static
+            "business_id": tokenData?.hospital_business_id, //From Token
+            "hospital_id": siteId, // site_id
+            "doctor_ref_id": record.employeeId, // employeeId
+            "patient_ref_id": record.mrno, //mrno
+            "encounter_ref_id": record.encounterId, //encounterId
+            "visit_type": record.visitTypeCode, //visitTypeCode
+            "scheduled_date": moment(record.encounterDateTime, 'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'), //encounterDateTime
+            "scheduled_time": moment(record.encounterDateTime, 'DD-MM-YYYY HH:mm').format('HH:mm:ss'), //encounterDateTime
+            "scheduled_duration": "", //Static
+            "billing_status": "PAID", //Static
+            "patient_details": {
+                "salutation": listSalutation.some(e => e.toLowerCase() === title.toLowerCase()) ? title : "",
+                "first_name": listSalutation.some(e => e.toLowerCase() === title.toLowerCase()) ? rest.join(" ") : record.patientName,
+                "middle_name": "",
+                "last_name": "",
+                "date_of_birth": record.dob,
+                "gender": record.gender,
+                "contact_number": record.mobileNo,
+                "email_id": "noreply@zydushospitals.com"
+            }
+        }
+
+        const action = await dispatch(syncZydusPatientAndAppointment(sendData))
+        if (action.meta.requestStatus === "fulfilled") {
+
+            let sendData = {
+                startDate: date.startDate,
+                endDate: date.endDate,
+                apStatue: TAB_QUEUE,
+                page: 0
+            }
+
+            const action1 = await dispatch(copyGetAllAppointment(sendData))
+            if (action1.meta.requestStatus === "fulfilled") {
+                const find_record = action1.payload?.app_data?.find(e => e?.pam_id == action.payload)
+                if (find_record !== undefined) {
+                    navigate("/prescription", {
+                        state: {
+                            patient_data: {
+                                ...find_record,
+                                mrno: record.mrno,
+                                departmentId: record.departmentId,
+                                visitId: record.visitId,
+                                encounterId: record.encounterId,
+                                employeeId: record.employeeId,
+                            }
+                        }
+                    })
+                }
+            } else {
+                errorMessage('Something went wrong! Please try again later')
+            }
+
+        } else {
+            errorMessage('Something went wrong! Please try again later')
+        }
+
+    }
+
     const onSmartRxClick = async (record) => {
         window.Moengage.track_event("patient_search_consult", {
             "doctor_id": profile?.doctor_unique_id,
@@ -653,20 +783,20 @@ function AppointmentData({ locationPath }) {
 
     const fetchData = async (tcm_id) => {
         const payload = {
-          tcm_id: tcm_id,
+            tcm_id: tcm_id,
         };
         try {
-          const response = await api.post(
-            FETCH_SMART_RX,
-            payload,
-            customBaseUrl
-          );
-          if(response?.data?.length){
-            return response.data;
-          }
+            const response = await api.post(
+                FETCH_SMART_RX,
+                payload,
+                customBaseUrl
+            );
+            if (response?.data?.length) {
+                return response.data;
+            }
         } catch (error) {
-          console.error("Error:", error);
-          return null;
+            console.error("Error:", error);
+            return null;
         }
     };
 
@@ -674,7 +804,7 @@ function AppointmentData({ locationPath }) {
         try {
             const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
             const cleanedToken = token.replace(/['"]+/g, '');
-    
+
             // API call for Rx Digitisation
             const response = await axios.get(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${tcm_id}`, {
                 headers: {
@@ -682,7 +812,7 @@ function AppointmentData({ locationPath }) {
                 },
             });
             return response.data; // return the data after it's fetched
-        }catch (error) {
+        } catch (error) {
             console.error('Error digitizing the prescription:', error);
             return null;
         }
@@ -692,16 +822,16 @@ function AppointmentData({ locationPath }) {
     function formatDate(dateString) {
         // Remove 'th', 'rd', 'st' or any such suffix from the day part
         const cleanedDateString = dateString.replace(/(\d+)(st|nd|rd|th)/, '$1');
-        
+
         // Try parsing the cleaned date
         const date = new Date(cleanedDateString);
-        
+
         // Ensure the date is valid
         if (isNaN(date)) {
             console.error("Invalid date format");
             return null;  // Return null if the date is invalid
         }
-        
+
         // Format the date to YYYY-MM-DD
         const year = date.getFullYear();
         const month = (`0${date.getMonth() + 1}`).slice(-2); // Add leading zero if necessary
@@ -709,7 +839,7 @@ function AppointmentData({ locationPath }) {
         return `${year}-${month}-${day}`;
     }
 
-    const handleDigitiseRx = async(record) => {
+    const handleDigitiseRx = async (record) => {
         const formattedDate = formatDate(record.apDate);
 
         const payload = {
@@ -726,7 +856,7 @@ function AppointmentData({ locationPath }) {
                 },
             });
             const tcm_id = response.data[0]?.tcm_id
-            const smartRxData= await fetchData(tcm_id);
+            const smartRxData = await fetchData(tcm_id);
             const ocrData = await fetchRxDigitisedData(tcm_id);
 
             navigate("/smart-rx-digitise", {
@@ -803,7 +933,13 @@ function AppointmentData({ locationPath }) {
             ellipsis: true,
             render: (text, record) => (
                 <div>
-                    <span className="text-primary"><Link to="/patient_details" state={{ patient_data: record }}>{record.pm_salutation ? `${record.pm_salutation} ${record.pm_fullname}` : record.pm_fullname}</Link></span>
+                    <span className="text-primary">
+                        {selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT ?
+                            <Link to="/patient_details" state={{ patient_data: record }}>{record.pm_salutation ? `${record.pm_salutation} ${record.pm_fullname}` : record.pm_fullname}</Link>
+                            :
+                            record.pm_fullname
+                        }
+                    </span>
                     <br />
                     <small>
                         {genderAge(record)}
@@ -812,10 +948,15 @@ function AppointmentData({ locationPath }) {
             ),
         },
         {
-            title: "Contact",
+            title: selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT?"Contact":"Contact & Mrn",
             dataIndex: "pm_contact_no",
             key: "pm_contact_no",
             ellipsis: true,
+            render: (text, record) => (
+                <div>
+                    <span>{record.pm_contact_no} </span> <br /> <small> {record.mrno}</small>
+                </div>
+            )
         },
         {
             title: "Visit Type",
@@ -853,74 +994,76 @@ function AppointmentData({ locationPath }) {
             ),
         },
         {
-            title: "Action",
+            title: selectedTab != TAB_ZYDUS_APPOINTMENT ? "Action" : "",
             key: "action",
             width: 170,
             render: (_, record, index) => (
-                <div size="middle" style={{ display: "flex" }}>
-                    {isSmartSyncAccessableFromGB && !isMobile ? (
-                        isDigitisationTab ?
-                        <>
-                            <button className="btn btn-outline-primary" style={{fontSize:"13px !important"}} onClick={() => handleDigitiseRx(record,index)}>
-                                {"Digitise Rx"}
-                            </button>
-                        </> :
-                        <>
-                            {selectedTab !== TAB_CANCELLED && (
-                                <button
-                                    // className="btn btn-outline-primary btn-smart-rx" 
-                                    className={`btn btn-outline-primary ${selectedTab === TAB_FINISHED ? 'btn-print-rx' : 'btn-smart-rx'}`}
-                                    onClick={() => selectedTab === TAB_QUEUE ? onSmartRxClick(record) : onPrintRxUrlClick(record)}
-                                >
-                                    {selectedTab === TAB_FINISHED ? "PrintRx" : "SmartRx"}
-                                </button>
-                            )}
-                            {selectedTab === TAB_QUEUE && (
-                                <button
-                                    className="btn btn-outline-primary btn-down-arrow"
-                                    onClick={() => setOpenRowIndex(openRowIndex === index ? null : index)}
-                                >
-                                    <span role="img" aria-label="down" class="anticon anticon-down ant-select-suffix">
-                                        <i
-                                            className="icon-right"
-                                            style={{ display: "block", transform: `rotate(270deg)` }}
-                                        />
-                                    </span>
-                                </button>
-                            )}
-                            {openRowIndex === index &&
-                                <button ref={consultButtonRef} className="btn-consult" onClick={() => onConsultClick(record)}>
-                                    Consult
-                                </button>
-                            }
-                        </>
-                    ) : (
-                        <>
-                            {selectedTab !== TAB_CANCELLED && (
-                                <button className="btn btn-outline-primary" onClick={() => selectedTab === TAB_QUEUE ? onConsultClick(record) : onPrintRxUrlClick(record)}>
-                                    {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
-                                </button>
-                            )}
-                        </>
-                    )}
-                    { !isDigitisationTab &&
-                        <Dropdown
-                            className="btn btn-outline btn-more ms-3"
-                            menu={{
-                                items: getMenuItems(record),
-                            }}
-                            trigger={["click"]}
-                        >
-                            <a
-                                onClick={(e) => {
-                                    e.preventDefault();
+                selectedTab != TAB_ZYDUS_APPOINTMENT ?
+                    <div size="middle" style={{ display: "flex" }}>
+                        {isSmartSyncAccessableFromGB && !isMobile && selectedTab != TAB_ZYDUS_ENCOUNTER ? (
+                            isDigitisationTab ?
+                                <>
+                                    <button className="btn btn-outline-primary" style={{ fontSize: "13px !important" }} onClick={() => handleDigitiseRx(record, index)}>
+                                        {"Digitise Rx"}
+                                    </button>
+                                </> :
+                                <>
+                                    {selectedTab !== TAB_CANCELLED && (
+                                        <button
+                                            // className="btn btn-outline-primary btn-smart-rx" 
+                                            className={`btn btn-outline-primary ${selectedTab === TAB_FINISHED ? 'btn-print-rx' : 'btn-smart-rx'}`}
+                                            onClick={() => selectedTab === TAB_QUEUE ? onSmartRxClick(record) : onPrintRxUrlClick(record)}
+                                        >
+                                            {selectedTab === TAB_FINISHED ? "PrintRx" : "SmartRx"}
+                                        </button>
+                                    )}
+                                    {selectedTab === TAB_QUEUE && (
+                                        <button
+                                            className="btn btn-outline-primary btn-down-arrow"
+                                            onClick={() => setOpenRowIndex(openRowIndex === index ? null : index)}
+                                        >
+                                            <span role="img" aria-label="down" class="anticon anticon-down ant-select-suffix">
+                                                <i
+                                                    className="icon-right"
+                                                    style={{ display: "block", transform: `rotate(270deg)` }}
+                                                />
+                                            </span>
+                                        </button>
+                                    )}
+                                    {openRowIndex === index &&
+                                        <button ref={consultButtonRef} className="btn-consult" onClick={() => onConsultClick(record)}>
+                                            Consult
+                                        </button>
+                                    }
+                                </>
+                        ) : (
+                            <>
+                                {selectedTab !== TAB_CANCELLED && selectedTab != TAB_ZYDUS_APPOINTMENT && (
+                                    <button className="btn btn-outline-primary" onClick={() => selectedTab === TAB_QUEUE ? onConsultClick(record) : selectedTab === TAB_ZYDUS_ENCOUNTER ? onZydusConsultClick(record) : onPrintRxUrlClick(record)}>
+                                        {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
+                                    </button>
+                                )}
+                            </>
+                        )}
+                        {!isDigitisationTab && selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT &&
+                            <Dropdown
+                                className="btn btn-outline btn-more ms-3"
+                                menu={{
+                                    items: getMenuItems(record),
                                 }}
+                                trigger={["click"]}
                             >
-                                <i className="icon-More" />
-                            </a>
-                        </Dropdown>
-                    }
-                </div>
+                                <a
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                    }}
+                                >
+                                    <i className="icon-More" />
+                                </a>
+                            </Dropdown>
+                        }
+                    </div>
+                    : null
             ),
 
         },
@@ -1240,14 +1383,16 @@ function AppointmentData({ locationPath }) {
                 <div className="appointment-data">
                     <Row className="justify-content-between align-items-center my-3 px-4">
                         <Col xl={4} sm={4}>
-                            <Input
-                                value={searchQuery}
-                                placeholder="Search patient by name and mobile number"
-                                className="inputheight38"
-                                prefix={<i className="icon-search" />}
-                                suffix={searchQuery.length > 0 && <i className="icon-Cross" onClick={() => onSearch('')}></i>}
-                                onChange={(e) => onSearch(e.target.value)}
-                            />
+                            {(selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT) && (
+                                <Input
+                                    value={searchQuery}
+                                    placeholder="Search patient by name and mobile number"
+                                    className="inputheight38"
+                                    prefix={<i className="icon-search" />}
+                                    suffix={searchQuery.length > 0 && <i className="icon-Cross" onClick={() => onSearch('')}></i>}
+                                    onChange={(e) => onSearch(e.target.value)}
+                                />
+                            )}
                         </Col>
                         <Col md="auto">
                             <div className="d-flex align-items-center">
@@ -1284,19 +1429,21 @@ function AppointmentData({ locationPath }) {
                                         <i className="icon-right text-main d-block iconrotate180"></i>
                                     </Button>
                                 </ButtonGroup>
-                                <Select
-                                    placeholder="Select Period"
-                                    className="ms-3 appointmentselect"
-                                    value={isDigitisationTab ? 6 : selectedCalanderOptions}
-                                    options={
-                                        selectedTab === TAB_QUEUE
-                                            ? calanderOptions.filter(e => [1, 2, 3].includes(e.value))
-                                            : isDigitisationTab
-                                            ? calanderOptions.filter(e => e.value === 6)
-                                            : calanderOptions.filter(e => [1, 4, 5].includes(e.value))
-                                    }
-                                    onChange={handleDateChange}
-                                />
+                                {(selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT) && (
+                                    <Select
+                                        placeholder="Select Period"
+                                        className="ms-3 appointmentselect"
+                                        value={isDigitisationTab ? 6 : selectedCalanderOptions}
+                                        options={
+                                            selectedTab === TAB_QUEUE
+                                                ? calanderOptions.filter(e => [1, 2, 3].includes(e.value))
+                                                : isDigitisationTab
+                                                    ? calanderOptions.filter(e => e.value === 6)
+                                                    : calanderOptions.filter(e => [1, 4, 5].includes(e.value))
+                                        }
+                                        onChange={handleDateChange}
+                                    />
+                                )}
                                 {/* <Segmented
                                 className="ms-3 appointment-segment"
                                 defaultValue={1}
@@ -1383,7 +1530,7 @@ function AppointmentData({ locationPath }) {
                 >
                     <CreateCertificate handleCreateCertificateDrawer={handleCreateCertificateDrawer} patient_data={appointmentSelectedFromMenu} replace={false} />
                 </Drawer>
-                {addlabparamsDrawer &&(<Drawer
+                {addlabparamsDrawer && (<Drawer
                     closeIcon={false}
                     className="modalWidth-700"
                     // title="Add Lab Results"
@@ -1393,7 +1540,7 @@ function AppointmentData({ locationPath }) {
                     width="auto"
                 // key="left"
                 >
-                    <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={appointmentSelectedFromMenu?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} onSave={handleLabParamsUpdate}/>
+                    <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={appointmentSelectedFromMenu?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} onSave={handleLabParamsUpdate} />
                 </Drawer>)}
             </div>
 
@@ -1457,17 +1604,17 @@ function AppointmentData({ locationPath }) {
                     </div>
                 </Modal>
             )}
-             {uploadDocDrawer && (
+            {uploadDocDrawer && (
                 <Drawer
                     closeIcon={false}
                     placement="right"
-                    bodyStyle={{backgroundColor: "white"}}
+                    bodyStyle={{ backgroundColor: "white" }}
                     onClose={handleDeletePopup}
                     open={uploadDocDrawer}
                     className="modalWidth-700"
                     width="auto"
                     push={false}
-                    >
+                >
                     <UploadDocument
                         onClose={handleDeletePopup}
                         handleDrawerUploadDoc={handleDrawerUploadDoc}
@@ -1498,10 +1645,10 @@ function AppointmentData({ locationPath }) {
                 <div>
                     <Spin
                         style={{
-                        position: "absolute",
-                        left: "50%",
-                        top: "50%",
-                        zIndex: "9999",
+                            position: "absolute",
+                            left: "50%",
+                            top: "50%",
+                            zIndex: "9999",
                         }}
                         size="large"
                     />
@@ -1509,61 +1656,61 @@ function AppointmentData({ locationPath }) {
             ) : null}
             {isFileSizeError || isFileLimitError || isFileTypeError ? (
                 <CommonModal
-                isModalOpen={isFileSizeError || isFileLimitError || isFileTypeError}
-                onCancel={handleRetryBtn}
-                modalWidth={500}
-                title={
-                    isFileSizeError
-                    ? "Exceeded File Size"
-                    : isFileLimitError
-                    ? "Exceeded File Upload Limit"
-                    : isFileTypeError
-                    ? "File format not supported"
-                    : "You may lose your data"
-                }
-                modalBody={
-                    <>
-                    <div className="alert-warning rounded-10px p-2 patient-details">
-                        <div className="d-flex align-items-center">
-                        <img className="me-3" src={alertIcon} alt="Warning" />
-                        <span>
-                            {isFileSizeError ? (
-                            <>
-                                The file size exceeded{" "}
-                                <span style={{ fontWeight: 700 }}>8MB.</span> Please
-                                upload a file smaller than 8MB
-                            </>
-                            ) : isFileLimitError ? (
-                            <>
-                                You can only upload up to
-                                <span style={{ fontWeight: 700 }}> 5 files.</span>{" "}
-                                Please reduce the number of files and try again.
-                            </>
-                            ) : isFileTypeError ? (
-                            <>
-                                You can't upload
-                                <span style={{ fontWeight: 700 }}>
-                                {" "}
-                                {isFileTypeError}
-                                </span>{" "}
-                                file. Only PDF, JPG, JPEG, and PNG formats are accepted.
-                            </>
-                            ) : (
-                            "Are you sure you want to leave ?"
-                            )}
-                        </span>
-                        </div>
-                    </div>
-                    <div className="mt-4">
-                        <Button
-                        onClick={handleRetryBtn}
-                        className="w-100 btn btn-primary3 btn-41 px-4"
-                        >
-                        Retry
-                        </Button>
-                    </div>
-                    </>
-                }
+                    isModalOpen={isFileSizeError || isFileLimitError || isFileTypeError}
+                    onCancel={handleRetryBtn}
+                    modalWidth={500}
+                    title={
+                        isFileSizeError
+                            ? "Exceeded File Size"
+                            : isFileLimitError
+                                ? "Exceeded File Upload Limit"
+                                : isFileTypeError
+                                    ? "File format not supported"
+                                    : "You may lose your data"
+                    }
+                    modalBody={
+                        <>
+                            <div className="alert-warning rounded-10px p-2 patient-details">
+                                <div className="d-flex align-items-center">
+                                    <img className="me-3" src={alertIcon} alt="Warning" />
+                                    <span>
+                                        {isFileSizeError ? (
+                                            <>
+                                                The file size exceeded{" "}
+                                                <span style={{ fontWeight: 700 }}>8MB.</span> Please
+                                                upload a file smaller than 8MB
+                                            </>
+                                        ) : isFileLimitError ? (
+                                            <>
+                                                You can only upload up to
+                                                <span style={{ fontWeight: 700 }}> 5 files.</span>{" "}
+                                                Please reduce the number of files and try again.
+                                            </>
+                                        ) : isFileTypeError ? (
+                                            <>
+                                                You can't upload
+                                                <span style={{ fontWeight: 700 }}>
+                                                    {" "}
+                                                    {isFileTypeError}
+                                                </span>{" "}
+                                                file. Only PDF, JPG, JPEG, and PNG formats are accepted.
+                                            </>
+                                        ) : (
+                                            "Are you sure you want to leave ?"
+                                        )}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="mt-4">
+                                <Button
+                                    onClick={handleRetryBtn}
+                                    className="w-100 btn btn-primary3 btn-41 px-4"
+                                >
+                                    Retry
+                                </Button>
+                            </div>
+                        </>
+                    }
                 />
             ) : null}
         </>

@@ -28,12 +28,12 @@ import goldCrown from "../assets/images/gold-crown.svg";
 import crownIcon from "../assets/images/crown.svg";
 
 import config from "../config";
-import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo } from "../redux/doctorsSlice";
+import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds } from "../redux/doctorsSlice";
 import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage, getDecodedToken } from "../utils/localStorage";
-import { OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { errorMessage, getClinicName, makeDefaultLogo } from "../utils/utils";
 import { Modal, Card } from "antd";
 import alertIcon from '../assets/images/alertIcon.svg';
@@ -56,6 +56,7 @@ function Header({ locationPath }) {
   const isOpdPlansAccessableFromGB = useFeatureIsOn(
     "opd-plans"
   );
+  const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
 
   const decodedToken = getDecodedToken();
   const apiUrl = env.opd_encryption_url;
@@ -86,7 +87,7 @@ function Header({ locationPath }) {
 
   const navigate = useNavigate();
 
-  const { profile, loading, videoList } = useSelector((state) => state.doctors);
+  const { profile, loading, videoList, siteId, empNo } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
   const dispatch = useDispatch();
 
@@ -103,7 +104,11 @@ function Header({ locationPath }) {
     dispatch(getMedicineType());
     dispatch(getDefaultPrintsettings({ default: false }));
     dispatch(listVideo());
-  }, []);
+    const tokenData = decodedToken?.result;
+    if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
+      dispatch(zydusRefIds())
+    }
+  }, [isZydusUserAccessableFromGB]);
 
   useEffect(() => {
     if (profile) {
@@ -635,10 +640,10 @@ function Header({ locationPath }) {
         label:
           <a onClick={() => ["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : setUpWebsiteUrl(1)}>
             <div className="title-common me-5 d-flex align-items-center">
-              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
-              {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{filter: 'brightness(0%)'}} alt="" />}
-              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
-              {["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) && <div className="gradientBackground d-flex">
+              {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
+              {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{ filter: 'brightness(0%)' }} alt="" />}
+              {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
+              {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <div className="gradientBackground d-flex">
                 <div className="demoModeIndicatorSmall bg-danger" />
                 <span className='demoModeLabel'>Demo mode</span>
               </div>}
@@ -674,7 +679,7 @@ function Header({ locationPath }) {
       //   key: '8',
       // },
     ];
-  
+
     const extraItems = [
       {
         label: (
@@ -739,18 +744,18 @@ function Header({ locationPath }) {
       'Content-Type': 'application/json'
     };
     try {
-        const response = await axios.post(apiUrl, data, { headers });
-        return response.data
+      const response = await axios.post(apiUrl, data, { headers });
+      return response.data
     } catch (error) {
-        console.error('Error:', error);
+      console.error('Error:', error);
     }
   };
 
   const clickOpdPlans = async () => {
     const clinic_Id = decodedToken?.result?.clinic_id;
     const doc_Id = decodedToken?.result?.doctor_unique_id;
-    
-    const decryptData = { d_id: doc_Id ,clinic_Id: clinic_Id};
+
+    const decryptData = { d_id: doc_Id, clinic_Id: clinic_Id };
 
     // Encrypt clinic and doctor ID
     const encryptedCata = await opdEncryptionApiCall(decryptData);
@@ -758,7 +763,7 @@ function Header({ locationPath }) {
     const url = `${opdVisitUrl}/tatva-care?p_id=${encryptedCata}`;
     setOpdPlansUrl(url);
   };
-  
+
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
     pageStyle: `
@@ -839,44 +844,44 @@ function Header({ locationPath }) {
             destroyOnClose
             className="opd-plan-qr"
           >
-              <div className="opd-qr">
-                <button className="qr-close-btn" onClick={showHideBackModal}>
-                  <i style={{fontSize:"2rem"}} className="icon-Cross"></i>
-                </button>
-                <div ref={printRef} className="opd-plans-inner-contianer">
-                  <div className="opd-title" style={{ fontWeight: "700", fontSize: "2rem", color: "#1F2933 !important" }}>
-                    OPD Plans
-                  </div>
-                  <div className="opd-byline" style={{ marginBottom: "2rem", marginTop: "0.4rem" }}>
-                    by <strong>{profile?.um_name}</strong>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-center">
-                    <div className="opd-logo log-holder">
-                      <img src={logoIcom} style={{ height: "1.8rem" }} className="logo-text-icon" alt="Logo" />
-                    </div>
-                    <QRCodeSVG className="opd-qr-image" value={opdPlansUrl} size={180} />
-                  </div>
-                  <div className="opd-scan-text" style={{ marginTop: "2rem", fontSize: "1.2rem", color: "#454551 !important" }}>
-                    Scan the QR to view & buy OPD plans
-                  </div>
+            <div className="opd-qr">
+              <button className="qr-close-btn" onClick={showHideBackModal}>
+                <i style={{ fontSize: "2rem" }} className="icon-Cross"></i>
+              </button>
+              <div ref={printRef} className="opd-plans-inner-contianer">
+                <div className="opd-title" style={{ fontWeight: "700", fontSize: "2rem", color: "#1F2933 !important" }}>
+                  OPD Plans
                 </div>
-                  <div className="d-flex align-items-center justify-content-between gap-4 mt-4">
-                    <ButtonOPD
-                      onClick={handlePrint}
-                      className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
-                      style={{width: "13rem",height: "3rem"}}
-                    >
-                      <span className="fs-18 align-items-center d-flex "><i className="icon-Print me-2"></i>Print</span>
-                    </ButtonOPD>
-                    <ButtonOPD
-                      onClick={handleDownload}
-                      className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
-                      style={{width: "13rem",height: "3rem"}}
-                    >
-                      <span className="fs-18 align-items-center d-flex"><i className="icon-download me-2"></i>Download</span>
-                    </ButtonOPD>
+                <div className="opd-byline" style={{ marginBottom: "2rem", marginTop: "0.4rem" }}>
+                  by <strong>{profile?.um_name}</strong>
+                </div>
+                <div className="d-flex align-items-center justify-content-center">
+                  <div className="opd-logo log-holder">
+                    <img src={logoIcom} style={{ height: "1.8rem" }} className="logo-text-icon" alt="Logo" />
                   </div>
+                  <QRCodeSVG className="opd-qr-image" value={opdPlansUrl} size={180} />
+                </div>
+                <div className="opd-scan-text" style={{ marginTop: "2rem", fontSize: "1.2rem", color: "#454551 !important" }}>
+                  Scan the QR to view & buy OPD plans
+                </div>
               </div>
+              <div className="d-flex align-items-center justify-content-between gap-4 mt-4">
+                <ButtonOPD
+                  onClick={handlePrint}
+                  className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
+                  style={{ width: "13rem", height: "3rem" }}
+                >
+                  <span className="fs-18 align-items-center d-flex "><i className="icon-Print me-2"></i>Print</span>
+                </ButtonOPD>
+                <ButtonOPD
+                  onClick={handleDownload}
+                  className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
+                  style={{ width: "13rem", height: "3rem" }}
+                >
+                  <span className="fs-18 align-items-center d-flex"><i className="icon-download me-2"></i>Download</span>
+                </ButtonOPD>
+              </div>
+            </div>
           </Modal>
 
           {locationPath == "/" || locationPath == "/bulk_messages" ? (
@@ -962,7 +967,7 @@ function Header({ locationPath }) {
                   className="rounded-circle"
                   style={{ width: "35px", height: "35px" }}
                 />
-              ) :  planDetails?.currentPlanStatus === "PAID" ? (
+              ) : planDetails?.currentPlanStatus === "PAID" ? (
                 <PremiumUser />
               ) :
                 <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>

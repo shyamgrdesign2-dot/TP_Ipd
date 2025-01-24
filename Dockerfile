@@ -23,6 +23,8 @@ RUN npm install --legacy-peer-deps
 # Copy the entire application code to the container
 COPY . .
 
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 # Build the React app for production
 RUN npm run build
 

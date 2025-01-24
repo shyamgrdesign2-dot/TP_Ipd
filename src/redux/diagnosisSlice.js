@@ -9,6 +9,7 @@ const initialState = {
   templates: [],
   loading: false,
   error: null,
+  errorObj: { visible: false, message: '' },
 };
 
 export const addTemplate = createAsyncThunk(
