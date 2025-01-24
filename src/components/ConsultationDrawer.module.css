@@ -60,16 +60,19 @@
   }
   
   .title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
     color: #111827;
     text-align: center;
     margin-bottom: 8px;
+    line-height: 28px;
   }
   
   .subtitle {
-    font-size: 16px;
     color: #6B7280;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
     text-align: center;
   }
   
@@ -157,6 +160,7 @@
     border-radius: 16px;
     padding: 16px;
     margin-top: auto;
+    margin-right: 20px;
   }
   
   .waveform {
@@ -298,7 +302,7 @@
 .chatSection {
   box-shadow: 0px 5px 10px 0px #AAAAAA26;
   background: #FFFFFF;
-  padding: 20px;
+  padding: 20px 0 20px 20px;
   border-radius: 20px;
   width: 100%;
   height: 85vh;
@@ -329,6 +333,9 @@
   background: #F9FAFB;
   border-radius: 12px;
   padding: 16px;
+  border: 1px solid rgba(75, 74, 213, 1);
+  text-align: left;
+  margin-right: 20px;
 }
 
 .editActions {
@@ -356,6 +363,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
+  /* max-width: 86%; */
 }
 
 .inputText {
@@ -470,10 +478,9 @@
   position: relative;
   border-radius: 20px; /* Adjust to match your design */
   padding: 4px; /* Adjust for inner content spacing */
-  /* background: linear-gradient(90deg, #ff7e5f, #feb47b, #86a8e7, #d16ba5); */
   background-size: 300% 300%;
   animation: gradient-border-animation 6s infinite linear;
-  height: 90vh;
+  height: calc(100vh - 90px);
 }
 
 .gradientBorder::before {
@@ -604,6 +611,33 @@
       background-position: 0% 50%;
     }
   }
+
+  @keyframes animateBackground {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 100% 50%;
+    }
+  }
+  
+  .animatedButton {
+    background: url('../assets/images/gen-rx-bg.gif') no-repeat;
+    background-size: 100%; /* Adjust for smoother animation */
+    border-radius: 60px;
+    width: 120px;
+    height: 120px;
+    animation: animateBackground 400ms linear infinite; /* Infinite linear animation */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border: none;
+    overflow: hidden; /* Ensure child elements stay inside */
+    position: relative;
+    opacity: 0.8;
+  }
+  
 
   
   

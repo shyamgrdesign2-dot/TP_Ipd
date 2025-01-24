@@ -20,7 +20,7 @@ const carouselItemStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
-  background: "#f5f5fc",
+  background: "rgba(75, 74, 213, 0.08)",
   borderRadius: "24px",
   padding: "20px",
   height: "168px",

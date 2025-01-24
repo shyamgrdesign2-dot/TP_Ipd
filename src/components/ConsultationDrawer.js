@@ -12,7 +12,6 @@ import GenRxTips from "./GenRxTips";
 import tatvaAiChakraLottie from "../assets/lotties/tatvaAiChakra.json";
 import genRxSendCtaLottie from "../assets/lotties/genRxSendCta.json";
 import deleteIcon from "../assets/images/delete-gen-rx.svg";
-import sendIcon from "../assets/images/send-gen-rx.svg";
 import micIcon from "../assets/images/mic-gen-rx.svg";
 import pauseIcon from "../assets/images/pause.svg";
 import {
@@ -151,6 +150,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   const handleStartRecording = async () => {
+    setRecordingTime(0);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioStreamRef.current = stream;
@@ -862,66 +862,69 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                 </>
               </div>
             ) : (
-              <div className="d-flex justify-content-between align-items-center">
-                <div className="d-flex align-items-center title-digitise-section mb-2">
-                  {localModules?.includes(module)
-                    ? module
-                    : module
-                        .replace(/([A-Z])/g, " $1")
-                        .replace(/^./, (str) => str.toUpperCase())}
-                  {localModules?.includes(module) && (
-                    <i
-                      className={`icon-Edit fs-21 ms-2 cursor-pointer`}
-                      onClick={() => {
-                        setEditingModule(module);
-                        setUpdatedModuleName(module);
-                      }}
-                    ></i>
-                  )}
-                </div>
-                <Dropdown
-                  overlay={
-                    <Menu>
-                      <Menu.Item
-                        key="delete"
+              Array.isArray(data) &&
+              data?.every((item) => typeof item === "string") && (
+                <div className="d-flex justify-content-between align-items-center">
+                  <div className="d-flex align-items-center title-digitise-section mb-2">
+                    {localModules?.includes(module)
+                      ? module
+                      : module
+                          .replace(/([A-Z])/g, " $1")
+                          .replace(/^./, (str) => str.toUpperCase())}
+                    {localModules?.includes(module) && (
+                      <i
+                        className={`icon-Edit fs-21 ms-2 cursor-pointer`}
                         onClick={() => {
-                          setModuleToDelete(module);
-                          toggleDeleteModuleModal();
+                          setEditingModule(module);
+                          setUpdatedModuleName(module);
                         }}
-                        style={{
-                          fontFamily: "Poppins, sans-serif",
-                          fontSize: "14px",
-                          fontWeight: "500",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          color: "#ff4d4f",
-                          padding: "8px 12px",
-                        }}
-                      >
-                        <img
-                          src={deleteModuleIcon}
-                          width={16}
-                          height={16}
-                          alt="edit"
-                          style={{ margin: "0 8px 3px 0" }}
-                        />
-                        Delete{" "}
-                        {localModules?.includes(module)
-                          ? module
-                          : module
-                              .replace(/([A-Z])/g, " $1")
-                              .replace(/^./, (str) => str.toUpperCase())}{" "}
-                        Module
-                      </Menu.Item>
-                    </Menu>
-                  }
-                  trigger={["click"]}
-                  placement="bottomRight"
-                >
-                  <i className={`icon-More fs-21 cursor-pointer`}></i>
-                </Dropdown>
-              </div>
+                      ></i>
+                    )}
+                  </div>
+                  <Dropdown
+                    overlay={
+                      <Menu>
+                        <Menu.Item
+                          key="delete"
+                          onClick={() => {
+                            setModuleToDelete(module);
+                            toggleDeleteModuleModal();
+                          }}
+                          style={{
+                            fontFamily: "Poppins, sans-serif",
+                            fontSize: "14px",
+                            fontWeight: "500",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            color: "#ff4d4f",
+                            padding: "8px 12px",
+                          }}
+                        >
+                          <img
+                            src={deleteModuleIcon}
+                            width={16}
+                            height={16}
+                            alt="edit"
+                            style={{ margin: "0 8px 3px 0" }}
+                          />
+                          Delete{" "}
+                          {localModules?.includes(module)
+                            ? module
+                            : module
+                                .replace(/([A-Z])/g, " $1")
+                                .replace(/^./, (str) => str.toUpperCase())}{" "}
+                          Module
+                        </Menu.Item>
+                      </Menu>
+                    }
+                    trigger={["click"]}
+                    placement="bottomRight"
+                  >
+                    <i className={`icon-More fs-21 cursor-pointer`}></i>
+                  </Dropdown>
+                </div>
+              )
             )}
             <div className="digitised-section">
               {isProcessing ? (
@@ -1109,7 +1112,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       closeIcon={false}
       width={showPrescription ? "100%" : "600px"}
     >
-      <div className="modalCard-header h-60 align-items-center justify-content-between d-flex">
+      <div className="modalCard-header h-60 align-items-center justify-content-between d-flex position-sticky top-0 z-2">
         <div className="align-items-center d-flex h-100">
           <div className="border-end h-100 text-center me-3">
             <div
@@ -1163,7 +1166,10 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
               {!isTyping && <GenRxTips />}
 
               {isRecording ? (
-                <div className={styles.recordingContainer}>
+                <div
+                  className={styles.recordingContainer}
+                  style={{ marginLeft: 20, marginBottom: 20 }}
+                >
                   <div className="d-flex align-items-center justify-content-between">
                     <span>{formatTime(recordingTime)}</span>
                     <VoiceWaveVisualizer
@@ -1183,12 +1189,15 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                           <img src={pauseIcon} alt="pause" />
                         </div>
                       )}
-                      <div role="button" onClick={handleSend}>
-                        <img src={sendIcon} alt="send" />
-                        {/* <Lottie
+                      <div
+                        role="button"
+                        onClick={handleSend}
+                        style={{ width: 32 }}
+                      >
+                        <Lottie
                           animationData={genRxSendCtaLottie}
                           loop={true}
-                        /> */}
+                        />
                       </div>
                     </div>
                   </div>
@@ -1213,18 +1222,15 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                     <div className={styles.tapToSpeak}>
                       <div
                         role="button"
-                        style={{
-                          background: `url(${genRxBg})`,
-                          borderRadius: "60px",
-                          width: "120px",
-                          height: "120px",
-                        }}
+                        className={styles.animatedButton}
                         onClick={handleStartRecording}
                       >
-                        <Lottie
-                          animationData={tatvaAiChakraLottie}
-                          loop={true}
-                        />
+                        <div style={{ width: "105px" }}>
+                          <Lottie
+                            animationData={tatvaAiChakraLottie}
+                            loop={true}
+                          />
+                        </div>
                       </div>
                       <p className={styles.tapText}>Tap to Speak</p>
                     </div>
@@ -1244,11 +1250,22 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                             className={styles.controlButtons}
                             onMouseDown={(e) => e.preventDefault()}
                           >
-                            <div role="button" onClick={handleStartRecording}>
+                            <div
+                              role="button"
+                              className="mt-1"
+                              onClick={handleStartRecording}
+                            >
                               <img src={genRxRecordIcon} alt="MIC" />
                             </div>
-                            <div role="button" onClick={handleSend}>
-                              <img src={sendIcon} alt="send" />
+                            <div
+                              role="button"
+                              onClick={handleSend}
+                              style={{ width: 32 }}
+                            >
+                              <Lottie
+                                animationData={genRxSendCtaLottie}
+                                loop={true}
+                              />
                             </div>
                           </div>
                         )
@@ -1279,6 +1296,13 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                         onChange={(e) => setEditableQuery(e.target.value)}
                         className={styles.editInput}
                         autoSize={{ minRows: 4 }}
+                        bordered={false}
+                        style={{
+                          color: "rgba(69, 69, 81, 1)",
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          lineHeight: "18px",
+                        }}
                       />
                       <div className={styles.editActions}>
                         <Button
@@ -1312,7 +1336,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                   index === queries.length - 1 && handleEdit()
                                 }
                                 className="position-relative ms-auto"
-                                style={{ width: "457px" }}
+                                style={{ maxWidth: "457px" }}
                               >
                                 <div>
                                   {isHovering &&
@@ -1369,8 +1393,16 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                   <img src={pauseIcon} alt="pause" />
                                 </div>
                               )}
-                              <div role="button" onClick={handleSend}>
-                                <img src={sendIcon} alt="send" />
+
+                              <div
+                                role="button"
+                                onClick={handleSend}
+                                style={{ width: 32 }}
+                              >
+                                <Lottie
+                                  animationData={genRxSendCtaLottie}
+                                  loop={true}
+                                />
                               </div>
                             </div>
                           </div>
@@ -1390,7 +1422,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                           </div>
                         </div>
                       ) : (
-                        <div style={{ marginTop: "auto" }}>
+                        <div style={{ marginTop: "auto", paddingRight: 20 }}>
                           <Input
                             placeholder="Start speaking or typing..."
                             className={styles.textInput}
@@ -1401,11 +1433,19 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                 <div
                                   role="button"
                                   onClick={handleStartRecording}
+                                  className="mt-1"
                                 >
                                   <img src={genRxRecordIcon} alt="MIC" />
                                 </div>
-                                <div role="button" onClick={handleSend}>
-                                  <img src={sendIcon} alt="send" />
+                                <div
+                                  role="button"
+                                  onClick={handleSend}
+                                  style={{ width: 32 }}
+                                >
+                                  <Lottie
+                                    animationData={genRxSendCtaLottie}
+                                    loop={true}
+                                  />
                                 </div>
                               </div>
                             }
