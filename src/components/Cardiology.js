@@ -511,7 +511,7 @@ function Cardiology(props) {
                 </span>
   
                 {/* Optional rendering for lineItem */}
-                {(type === "medications" || type === "vaccination" || type === "medicalHistory" || type === "tests" || type === "symptoms") && item.lineItem && (
+                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "tests" || type === "symptoms") && item.lineItem && (
                   <span>{` (${item.lineItem})`}</span>
                 )}
   
@@ -571,7 +571,7 @@ function Cardiology(props) {
                 </span>
   
                 {/* Optional rendering for lineItem */}
-                {(type === "medications" || type === "vaccination" || type === "medicalHistory" || type === "labInvestigation" || type === "symptoms" || type === "examination" || type === "diagnosis") && item.lineItem && (
+                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "labInvestigation" || type === "symptoms" || type === "examination" || type === "diagnosis") && item.lineItem && (
                   <span>{` (${item.lineItem})`}</span>
                 )}
               </div>
@@ -850,12 +850,12 @@ function Cardiology(props) {
                           </>
                         )}
                         
-                        {genRxData?.vaccination && genRxData?.vaccination.length > 0 && (
+                        {genRxData?.vaccinations && genRxData?.vaccinations.length > 0 && (
                           <>
                             <div className="d-flex align-items-start">
-                              <div className="title-digitise-section mb-1">vaccination</div>
+                              <div className="title-digitise-section mb-1">Vaccination</div>
                             </div>
-                            {renderGenRxItems('vaccination')}
+                            {renderGenRxItems('vaccinations')}
                           </>
                         )}
                         {genRxData?.others && genRxData.others.length > 0 && (
@@ -1001,17 +1001,17 @@ function Cardiology(props) {
                           </>
                         )}
                         
-                        {rxDigitisedData?.editedData?.vaccination && rxDigitisedData?.editedData?.vaccination.length > 0 && (
+                        {rxDigitisedData?.editedData?.vaccinations && rxDigitisedData?.editedData?.vaccinations.length > 0 && (
                           <>
                             <div className="d-flex align-items-start">
                               <img
                                 className="me-2"
                                 src={vaccinationIcon}
-                                alt="vaccination"
+                                alt="vaccinations"
                               />
-                              <div className="title-digitise-section mb-1">vaccination</div>
+                              <div className="title-digitise-section mb-1">Vaccinations</div>
                             </div>
-                            {renderItems('vaccination')}
+                            {renderItems('vaccinations')}
                           </>
                         )}
                       </div>
