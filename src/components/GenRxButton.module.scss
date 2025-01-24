@@ -1,0 +1,65 @@
+.button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 15px;
+  background: white; /* Button's inner background */
+  border-radius: 10px; /* Button's rounded corners */
+  position: relative;
+  z-index: 1; /* Ensure button content is above the pseudo-element */
+  cursor: pointer;
+  height: 41px;
+  overflow: hidden; /* Prevent pseudo-element overflow */
+  border: none; /* Remove default border */
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1; /* Behind the button content */
+  border-radius: inherit; /* Match the button's border radius */
+  background: url('../assets/images/gen-rx-bg.gif') no-repeat center center; /* Your animated gradient */
+  background-size: cover; /* Scale the background */
+  padding: 2px; /* Thickness of the border */
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0); /* Inner mask */
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  // box-shadow: 0 4px 25px rgba(147, 51, 234, 0.2) !important;
+}
+
+
+  
+  .button:hover {
+    box-shadow: 0 4px 25px rgba(147, 51, 234, 0.2);
+  }
+  
+  .iconContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+  }
+  
+  .icon {
+    color: white;
+    width: 16px;
+    height: 16px;
+  }
+  
+  .text {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 21px;
+    background: linear-gradient(to right, #9333EA, #6366F1);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
