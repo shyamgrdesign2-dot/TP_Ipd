@@ -1351,14 +1351,14 @@ function TabPrescription() {
                     </div>
                   ) : e.tmdpm_id === 11 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
-                      {/* <TabDiagnosisBox
+                      <TabDiagnosisBox
                         handleDDxDrawer={handleDDxDrawer}
                         generatedDDx={generatedDDx?.results}
                         getGenerateDDx={getGenerateDDx}
                         isDDxLoading={isDDxLoading}
                         handleDDxKnowMore={handleDDxKnowMore}
                         isDDxGenerated={isDDxGenerated}
-                      /> */}
+                      />
                     </div>
                   ) : e.tmdpm_id === 12 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
