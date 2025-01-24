@@ -5,7 +5,7 @@ import styles from "./VoiceRxLoaders.module.css";
 import genRxInputProcessingLottie from "../assets/lotties/genRxInputProcessing.json";
 import genRxConvertingDataLottie from "../assets/lotties/genRxConvertingData.json";
 import genRxFinalizingRx from "../assets/lotties/genRxFinalizingRx.json";
-import genRxBg from "../assets/images/gen-rx-bg.gif";
+import genRxStructuringData from "../assets/lotties/genRxStructuringData.json";
 import GradientProgressBar from "./GradientProgressbar";
 
 const GenRXLoaders = ({ isProcessing }) => {
@@ -19,7 +19,7 @@ const GenRXLoaders = ({ isProcessing }) => {
       const stepDuration = 2000; // 2 seconds for each step
       const timer = setInterval(() => {
         setCurrentStep((prev) => {
-          if (prev < 2) {
+          if (prev < 3) {
             return prev + 1;
           } else {
             clearInterval(timer);
@@ -78,6 +78,20 @@ const GenRXLoaders = ({ isProcessing }) => {
         {currentStep === 2 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
             <Lottie
+              animationData={genRxStructuringData}
+              loop={true}
+              style={{
+                width: "167.97px",
+              }}
+            />
+            <div className={styles.genRxLoadingText}>
+              Structuring your input data...
+            </div>
+          </div>
+        )}
+        {currentStep === 3 && (
+          <div className="d-flex justify-content-center align-items-center flex-column">
+            <Lottie
               animationData={genRxFinalizingRx}
               loop={true}
               style={{
@@ -89,10 +103,10 @@ const GenRXLoaders = ({ isProcessing }) => {
             </div>
           </div>
         )}
-        {currentStep >= 0 && currentStep < 3 && (
+        {currentStep >= 0 && currentStep < 4 && (
           <GradientProgressBar
             height="11px"
-            duration={2000 * (3 - currentStep)} // Adjust duration dynamically
+            duration={2000 * (4 - currentStep)} // Adjust duration dynamically
             onProgressComplete={() => null} // Handled via interval
           />
         )}
