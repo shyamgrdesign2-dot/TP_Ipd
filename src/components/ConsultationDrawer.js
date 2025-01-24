@@ -474,7 +474,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           type === "examinations" ||
           type === "diagnosis" ||
           type === "medicalHistory" ||
-          type === "vaccination"
+          type === "vaccinations"
         ) {
           updatedData[type][index].name = trimmedText;
         } else if (type === "advice" || type === "others") {
@@ -508,7 +508,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       type === "examinations" ||
       type === "diagnosis" ||
       type === "medicalHistory" ||
-      type === "vaccination"
+      type === "vaccinations"
     ) {
       setEditableText(prescriptionData[type][index].name);
     } else if (type === "advice" || type === "others") {
@@ -530,7 +530,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     if (
       type === "medications" ||
       type === "labInvestigation" ||
-      type === "vaccination" ||
+      type === "vaccinations" ||
       type === "medicalHistory" ||
       type === "symptoms"
     ) {
@@ -755,7 +755,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                       {/* Editable input for lineItem */}
                       {(type === "medications" ||
                         type === "symptoms" ||
-                        type === "vaccination" ||
+                        type === "vaccinations" ||
                         type === "medicalHistory" ||
                         type === "labInvestigation" ||
                         type === "examinations" ||
@@ -1555,13 +1555,13 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                         </>
                       )}
 
-                    {prescriptionData?.vaccination &&
-                      prescriptionData.vaccination.length > 0 && (
+                    {prescriptionData?.vaccinations &&
+                      prescriptionData.vaccinations.length > 0 && (
                         <>
                           <div className="title-digitise-section mb-2">
                             Vaccination
                           </div>
-                          {renderItems("vaccination")}
+                          {renderItems("vaccinations")}
                         </>
                       )}
                     {prescriptionData?.others &&
