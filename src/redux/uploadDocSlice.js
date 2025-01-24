@@ -16,7 +16,7 @@ export const zydusDocsList = createAsyncThunk(
   "records/zydusDocsList",
   async ({ mrno }, { dispatch }) => {
     try {
-      const result = await ApiAppointments.zydusDocsList(10002024392215);
+      const result = await ApiAppointments.zydusDocsList(mrno);
       if (result.status == 'success') {
         return result.data;
       } else {
