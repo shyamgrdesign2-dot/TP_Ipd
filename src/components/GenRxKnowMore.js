@@ -1,17 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Tabs } from "antd";
 import genRxIcon from "../assets/images/gen-rx-icon.svg";
-
-import codeIcon from "../assets/images/code.svg";
-import clinicalStudyIcon from "../assets/images/clinical-study.svg";
-import compliantIcon from "../assets/images/compliant.svg";
-import validateHealthcareIcon from "../assets/images/validate-heathcare.svg";
 import playIcons from "../assets/images/tube-icon.svg";
-import { Col, Row } from "react-bootstrap";
 import VideoModal from "../common/VideoModal";
-import Slider from "react-slick"; // Using react-slick for the carousel
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import GenRxTips from "./GenRxTips";
 
 const { TabPane } = Tabs;
