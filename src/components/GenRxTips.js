@@ -249,7 +249,7 @@ const GenRxTips = ({ isKnowMore }) => {
         removeArrowOnDeviceType={["tablet", "mobile"]}
         beforeChange={handleSlideChange}
         partialVisible={isKnowMore}
-        arrows={true}
+        arrows={!isKnowMore}
         customLeftArrow={
           <button
             style={leftArrowStyle}
