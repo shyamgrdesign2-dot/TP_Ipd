@@ -10,34 +10,55 @@
 
 .backgroundContainer {
   position: relative;
-  box-shadow: 0px 5px 10px 0px #AAAAAA26;
-  background: #FFFFFF;
+  background: white; /* Fallback background */
   padding: 20px;
-  border-radius: 20px;
+  border-radius: 20px; /* Rounded corners */
   width: 100%;
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden; /* Prevent pseudo-element overflow */
+  z-index: 1;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1); /* Optional shadow */
 }
 
 .backgroundContainer::before {
   content: "";
   position: absolute;
-  border-radius: 20px;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('../assets/images/gen-rx-bg.gif');
-  background-size: cover;
-  opacity: 0.1; /* Apply opacity only to the background */
-  z-index: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit; /* Match the container's border radius */
+  background: url('../assets/images/gen-rx-bg.gif') no-repeat center center;
+  background-size: cover; /* Ensure the GIF scales properly */
+  padding: 4px; /* Thickness of the border */
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0); /* Mask inner area */
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: -1; /* Place the border behind the content */
+}
+
+.backgroundContainer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit; /* Match the container's border radius */
+  background: url('../assets/images/gen-rx-bg.gif') no-repeat center center;
+  background-size: cover; /* Ensure the GIF scales properly */
+  opacity: 0.1; /* Reduce the opacity for the background */
+  z-index: -2; /* Place the background behind the border */
 }
 
 .backgroundContainer > * {
   position: relative;
-  z-index: 1; /* Keeps the content above the background */
+  z-index: 1; /* Keep the content above all pseudo-elements */
 }
 
 
