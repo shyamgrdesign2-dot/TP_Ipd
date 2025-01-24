@@ -22,7 +22,6 @@ import {
 } from "../api/services/ApiGenRx";
 import tutorialIcon from "../assets/images/tutorial-icon.svg";
 import documentIcon from "../assets/images/document-text.svg";
-import { isMobile } from "react-device-detect";
 import genRxBg from "../assets/images/gen-rx-bg.gif";
 import genRxRecordIcon from "../assets/images/gen-rx-record.svg";
 import tatvaAiStrip from "../assets/images/tatva-ai-strip.svg";
@@ -30,11 +29,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getDecodedToken } from "../utils/localStorage";
 import { v4 as uuidv4 } from "uuid";
 import CashManagerContext from "../context/CashManagerContext";
-import {
-  addCaseManager,
-  editCaseManager,
-  resetViewCaseManagerData,
-} from "../redux/caseManagerSlice";
+import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
 import { useDispatch } from "react-redux";
 import { errorMessage } from "../utils/utils";
 import { CheckOutlined, CloseOutlined, PlusOutlined } from "@ant-design/icons";
@@ -401,7 +396,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     setEditableText("");
   };
 
-  const handleKeyDown = (e, type) => {
+  const inputRefs = useRef({});
+
+  const handleKeyDown = (e, type, index) => {
     if (e.key === "Enter") {
       e.preventDefault(); // Prevent newline in the input field
 
@@ -413,12 +410,26 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           if (!updatedData.dynamicFields[type]) {
             updatedData.dynamicFields[type] = [];
           }
-          updatedData.dynamicFields[type].push(trimmedText);
+
+          // Update the current index with trimmed text
+          updatedData.dynamicFields[type][index] = trimmedText;
+
+          // Insert an empty string after the current index
+          updatedData.dynamicFields[type].splice(index + 1, 0, "");
 
           return updatedData;
         });
+
+        // Update active index and clear input
+        setActiveIndex(index + 1);
         setIsRxEdited(true);
-        setEditableText(""); // Clear input after adding
+        setEditableText("");
+
+        // Focus on the newly added input
+        setTimeout(() => {
+          const nextIndex = index + 1;
+          inputRefs.current[nextIndex]?.focus();
+        }, 0);
       }
     }
   };
@@ -975,7 +986,10 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                   width: `${textWidth + 10}px`,
                                 }}
                                 onPaste={(e) => handlePaste(e, module)}
-                                onKeyDown={(e) => handleKeyDown(e, module)}
+                                onKeyDown={(e) =>
+                                  handleKeyDown(e, module, index)
+                                }
+                                ref={(el) => (inputRefs.current[index] = el)}
                               />
                             ) : (
                               <span
@@ -1087,9 +1101,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   const handleBack = () => {
-    // resetViewCaseManagerData();
     onClose();
-    // setPrescriptionData(null);
     navigate(".", {
       replace: true, // Prevents adding a new entry to history
       state: {

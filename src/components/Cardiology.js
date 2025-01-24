@@ -571,7 +571,7 @@ function Cardiology(props) {
                 </span>
   
                 {/* Optional rendering for lineItem */}
-                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "labInvestigation" || type === "symptoms" || type === "examination" || type === "diagnosis") && item.lineItem && (
+                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "labInvestigation" || type === "symptoms" || type === "examinations" || type === "diagnosis") && item.lineItem && (
                   <span>{` (${item.lineItem})`}</span>
                 )}
               </div>
@@ -584,28 +584,29 @@ function Cardiology(props) {
   const renderGenRxCustomModules = () => (
      Object.entries(genRxData?.dynamicFields || {}).map(
       ([module, data]) => {
-        return (
-    <>
-      <div className="d-flex align-items-start">
-          <div className="title-digitise-section mb-1">{module
-                        .replace(/([A-Z])/g, " $1")
-                        .replace(/^./, (str) => str.toUpperCase())}</div>
-      </div>
-      <div className="digitised-data-section" style={{ marginLeft: 0 }}>
-        <ol>
-          {
-            data.map((value,index) => (
-                <li key={index}>
-                  <div className="medicine-item">
-                    <span>
-                      {value}
-                    </span>
-                  </div>
-                </li>
-              ))}
-        </ol>
-      </div>
-    </>)
+        return Array.isArray(data) && data?.every((item) => typeof item === "string") && (
+            <>
+              <div className="d-flex align-items-start">
+                  <div className="title-digitise-section mb-1">{module
+                                .replace(/([A-Z])/g, " $1")
+                                .replace(/^./, (str) => str.toUpperCase())}</div>
+              </div>
+              <div className="digitised-data-section" style={{ marginLeft: 0 }}>
+                <ol>
+                  {
+                    data.map((value,index) => (
+                        <li key={index}>
+                          <div className="medicine-item">
+                            <span>
+                              {value}
+                            </span>
+                          </div>
+                        </li>
+                      ))}
+                </ol>
+              </div>
+            </>
+        )
 }));
 
   return (
@@ -653,11 +654,11 @@ function Cardiology(props) {
                     ></i>
                   </Button>
                 </div>
-                <div style={{visibility: (showDigitalGenRx && genRxData) ? "visible" : "hidden"}}>
+                <div>
                   <button
                     className="btn p-0 ms-3"
                     style={{
-                      visibility: viewCaseManagerData?.doctor_data?.editCase && !(isSmartRxFile && isMobile) && (genRxData ? showDigitalGenRx : false ) ? "visible" : "hidden",
+                      visibility: viewCaseManagerData?.doctor_data?.editCase && !(isSmartRxFile && isMobile) ? "visible" : "hidden",
                     }}
                     onClick={handleEditRxClick}
                   >
