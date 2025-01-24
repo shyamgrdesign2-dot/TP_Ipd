@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Lottie from "lottie-react";
 import SkeletonScreen from "./SkeletonScreen";
-import styles from "./GenRXLoaders.css";
+import styles from "./VoiceRxLoaders.module.css";
 import genRxInputProcessingLottie from "../assets/lotties/genRxInputProcessing.json";
 import genRxConvertingDataLottie from "../assets/lotties/genRxConvertingData.json";
 import genRxFinalizingRx from "../assets/lotties/genRxFinalizingRx.json";
@@ -19,7 +19,7 @@ const GenRXLoaders = ({ isProcessing }) => {
       const stepDuration = 2000; // 2 seconds for each step
       const timer = setInterval(() => {
         setCurrentStep((prev) => {
-          if (prev < 3) {
+          if (prev < 2) {
             return prev + 1;
           } else {
             clearInterval(timer);
@@ -45,95 +45,59 @@ const GenRXLoaders = ({ isProcessing }) => {
   }
 
   return (
-    <>
-      {currentStep === 0 && (
-        <div
-          className={styles.gradientSkeleton}
-          style={{ background: `url(${genRxBg})`, opacity: "10%" }}
-        ></div>
-      )}
-      <div style={{ margin: "auto" }}>
-        {currentStep === 1 && (
-          <div>
+    <div className={styles.backgroundContainer}>
+      <div className="d-flex justify-content-center align-items-center flex-column z-3">
+        {currentStep === 0 && (
+          <div className="d-flex justify-content-center align-items-center flex-column">
             <Lottie
               animationData={genRxInputProcessingLottie}
               loop={true}
               style={{
                 width: "167.97px",
-                height: "174.44px",
               }}
             />
-            <div
-              style={{
-                fontSize: "19.38px",
-                fontWeight: 400,
-                lineHeight: "29.07px",
-                textAlign: "left",
-                color: "#45455199",
-                marginBottom: "20px",
-              }}
-            >
+            <div className={styles.genRxLoadingText}>
               Your input is being processed in the backend...
             </div>
           </div>
         )}
-        {currentStep === 2 && (
-          <div>
+        {currentStep === 1 && (
+          <div className="d-flex justify-content-center align-items-center flex-column">
             <Lottie
               animationData={genRxConvertingDataLottie}
               loop={true}
               style={{
                 width: "167.97px",
-                height: "174.44px",
               }}
             />
-            <div
-              style={{
-                fontSize: "19.38px",
-                fontWeight: 400,
-                lineHeight: "29.07px",
-                textAlign: "left",
-                color: "#45455199",
-                marginBottom: "20px",
-              }}
-            >
+            <div className={styles.genRxLoadingText}>
               Converting your input data...
             </div>
           </div>
         )}
-        {currentStep === 3 && (
-          <div>
+        {currentStep === 2 && (
+          <div className="d-flex justify-content-center align-items-center flex-column">
             <Lottie
               animationData={genRxFinalizingRx}
               loop={true}
               style={{
                 width: "167.97px",
-                height: "174.44px",
               }}
             />
-            <div
-              style={{
-                fontSize: "19.38px",
-                fontWeight: 400,
-                lineHeight: "29.07px",
-                textAlign: "left",
-                color: "#45455199",
-                marginBottom: "20px",
-              }}
-            >
+            <div className={styles.genRxLoadingText}>
               Finalizing your structured prescription...
             </div>
           </div>
         )}
-        {currentStep > 0 && currentStep < 4 && (
+        {currentStep >= 0 && currentStep < 3 && (
           <GradientProgressBar
             height="11px"
-            duration={2000 * (4 - currentStep)} // Adjust duration dynamically
+            duration={2000 * (3 - currentStep)} // Adjust duration dynamically
             onProgressComplete={() => null} // Handled via interval
           />
         )}
       </div>
-    </>
+    </div>
   );
 };
 

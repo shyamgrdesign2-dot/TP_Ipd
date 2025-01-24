@@ -6,8 +6,40 @@
   height: 100%;
   width: 100%;
   background-color: #ffffff;
-  margin: auto;
 }
+
+.backgroundContainer {
+  position: relative;
+  box-shadow: 0px 5px 10px 0px #AAAAAA26;
+  background: #FFFFFF;
+  padding: 20px;
+  border-radius: 20px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.backgroundContainer::before {
+  content: "";
+  position: absolute;
+  border-radius: 20px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('../assets/images/gen-rx-bg.gif');
+  background-size: cover;
+  opacity: 0.1; /* Apply opacity only to the background */
+  z-index: 0;
+}
+
+.backgroundContainer > * {
+  position: relative;
+  z-index: 1; /* Keeps the content above the background */
+}
+
 
 .gradientSkeleton {
   width: 100%;
@@ -18,21 +50,13 @@
   margin-bottom: 24px;
 }
 
-/* .genRxLoading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 24px;
-} */
-
 .genRxLoadingText {
-  font-size: 19.38px !important;
-  font-weight: 400 !important;
-  line-height: 29.07px !important;
-  text-align: left !important;
+  font-size: 19.38px;
+  font-weight: 400;
+  line-height: 29.07px;
+  text-align: left;
   color: #45455199 !important;
-  margin-bottom: "20px" !important;
+  margin: 30px 0px;
 }
 
 .progressBarContainer {
