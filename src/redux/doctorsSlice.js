@@ -21,7 +21,9 @@ const initialState = {
   certificateList: [],
   patientCertificateList: [],
   userId: null,
-  dragDrop: {}
+  dragDrop: {},
+  siteId: null,
+  empNo: []
 };
 
 export const getProfile = createAsyncThunk(
@@ -295,6 +297,18 @@ export const viewPatientCertificate = createAsyncThunk(
   }
 );
 
+export const zydusRefIds = createAsyncThunk(
+  "records/zydusRefIds",
+  async () => {
+    const result = await ApiAppointments.zydusRefIds();
+    if (result.status) {
+      return result.data;
+    } else {
+      throw Error(result.error);
+    }
+  }
+);
+
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
@@ -526,6 +540,16 @@ const doctorsSlice = createSlice({
         if (action.meta.arg.configurePrintSetting === undefined) {
           state.loading = false;
         }
+      })
+      .addCase(zydusRefIds.fulfilled, (state, action) => {
+        if (action.payload.siteId !== undefined) {
+          state.siteId = action.payload.siteId;
+          state.empNo = action.payload.empNo;
+        }
+      })
+      .addCase(zydusRefIds.rejected, (state) => {
+        state.siteId = null;
+        state.empNo = [];
       });
   },
 });

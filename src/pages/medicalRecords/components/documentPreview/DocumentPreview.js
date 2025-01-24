@@ -1,5 +1,5 @@
-import { Button, Card } from "antd";
-import { Worker, Viewer, RotateDirection } from "@react-pdf-viewer/core";
+import { Button, Card, Spin } from "antd";
+import { Worker, Viewer, RotateDirection, ProgressBar } from "@react-pdf-viewer/core";
 import { zoomPlugin } from "@react-pdf-viewer/zoom";
 import "./DocumentPreview.scss";
 import { useEffect, useRef, useState } from "react";
@@ -15,6 +15,8 @@ import {
 import { useSelector } from "react-redux";
 import { isChrome, isSafari } from "react-device-detect";
 import dayjs from "dayjs";
+import config from "../../../../config";
+import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../../../../utils/constants";
 
 const DocumentPreview = ({
   onClose,
@@ -25,7 +27,7 @@ const DocumentPreview = ({
   handleDownload,
 }) => {
   const { uploadDocCategories } = useSelector((state) => state.uploadDoc);
-  const categoryName = uploadDocCategories.find(
+  const categoryName = cardData?.category_id === -2 ? 'Zydus' : uploadDocCategories.find(
     (item) => item.category_id === cardData?.category_id
   )?.category_name;
   const [scale, setScale] = useState(1.0);
@@ -42,7 +44,7 @@ const DocumentPreview = ({
   const [angle, setAngle] = useState(0);
 
   useEffect(() => {
-    if (cardData?.url?.includes(".pdf")) {
+    if (cardData?.url?.startsWith(config.zydus_proxy_url) || cardData?.url?.includes(".pdf")) {
       setIsPdf(true);
     } else {
       setIsPdf(false);
@@ -236,16 +238,21 @@ const DocumentPreview = ({
                 }
               />
 
-              <i
-                className="icon-delete"
-                style={{ cursor: "pointer", color: "white" }}
-                onClick={toggleDeletePopup}
-              />
-              <i
-                className="icon-Edit"
-                style={{ cursor: "pointer", color: "white" }}
-                onClick={handleEdit}
-              />
+              {!cardData?.url?.startsWith(config.zydus_proxy_url) && (
+                <>
+                  <i
+                    className="icon-delete"
+                    style={{ cursor: "pointer", color: "white" }}
+                    onClick={toggleDeletePopup}
+                  />
+                  <i
+                    className="icon-Edit"
+                    style={{ cursor: "pointer", color: "white" }}
+                    onClick={handleEdit}
+                  />
+                </>
+              )}
+
               <Button
                 className="btn btn-primary3 btn-text-white px-4 btn-41"
                 onClick={onClose}
@@ -284,11 +291,12 @@ const DocumentPreview = ({
             borderRadius: "10px",
           }}
         >
-          {cardData?.url?.includes(".pdf") ? (
+          {isPdf ? (
             <Worker
               workerUrl={`https://unpkg.com/pdfjs-dist@2.6.347/build/pdf.worker.min.js`}
             >
               <Viewer
+                renderLoader={(percentages) => <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
                 fileUrl={cardData?.url}
                 plugins={[
                   zoomPluginInstance,
@@ -301,6 +309,9 @@ const DocumentPreview = ({
                 onPageChange={onPageChange}
                 onZoom={handleOnZoom}
                 defaultScale={scale}
+                httpHeaders={cardData?.url?.startsWith(config.zydus_proxy_url) && {
+                  Authorization: `Bearer ${localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN))}`,
+                }}
               />
             </Worker>
           ) : (
