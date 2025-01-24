@@ -432,11 +432,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const handleLineItemBlur = (type, index) => {
     setPrescriptionData((prevData) => {
       const updatedData = { ...prevData };
-      if (type === "vitalsAndBodyComposition") {
-        updatedData[type].notes = editableLineItem;
-      } else {
-        updatedData[type][index].lineItem = editableLineItem; // Update lineItem with the new value
-      }
+
+      updatedData[type][index].lineItem = editableLineItem; // Update lineItem with the new value
+
       return updatedData;
     });
     setActiveIndex(null);
@@ -457,9 +455,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
             updatedData.dynamicFields[type] = updatedData.dynamicFields[
               type
             ].filter((_, i) => i !== index);
-            // if (updatedData.dynamicFields[type].length === 0) {
-            //   delete updatedData.dynamicFields[type];
-            // }
           } else if (type === "followUp") {
             updatedData.followUp = "";
           } else {
@@ -532,11 +527,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       type === "labInvestigation" ||
       type === "vaccinations" ||
       type === "medicalHistory" ||
-      type === "symptoms"
+      type === "symptoms" ||
+      type === "examinations" ||
+      type === "diagnosis"
     ) {
       setEditableLineItem(prescriptionData[type][index]?.lineItem);
-    } else {
-      setEditableLineItem(prescriptionData[type][index]?.notes);
     }
     setActiveIndex(index);
     setActiveType(`${type}-lineItem`);
@@ -759,7 +754,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                         type === "medicalHistory" ||
                         type === "labInvestigation" ||
                         type === "examinations" ||
-                        type === "medicalHistory" ||
                         type === "diagnosis") &&
                         item?.lineItem &&
                         (activeIndex === index &&
@@ -841,29 +835,29 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     return Object.entries(prescriptionData?.dynamicFields || {}).map(
       ([module, data]) => {
         return (
-          <>
-            {editingModule === module ? (
-              <div className="d-flex justify-content-between mb-4">
-                <Input
-                  placeholder="Enter custom module name"
-                  value={updatedModuleName}
-                  onChange={(e) => setUpdatedModuleName(e.target.value)}
-                  className="custom-module-input"
-                />
-                <>
-                  <CheckOutlined
-                    className="input-action-icon tick-icon"
-                    onClick={() => handleEditModule(module)}
+          Array.isArray(data) &&
+          data?.every((item) => typeof item === "string") && (
+            <>
+              {editingModule === module ? (
+                <div className="d-flex justify-content-between mb-4">
+                  <Input
+                    placeholder="Enter custom module name"
+                    value={updatedModuleName}
+                    onChange={(e) => setUpdatedModuleName(e.target.value)}
+                    className="custom-module-input"
                   />
-                  <CloseOutlined
-                    className="input-action-icon cross-icon"
-                    onClick={handleCancelEdit}
-                  />
-                </>
-              </div>
-            ) : (
-              Array.isArray(data) &&
-              data?.every((item) => typeof item === "string") && (
+                  <>
+                    <CheckOutlined
+                      className="input-action-icon tick-icon"
+                      onClick={() => handleEditModule(module)}
+                    />
+                    <CloseOutlined
+                      className="input-action-icon cross-icon"
+                      onClick={handleCancelEdit}
+                    />
+                  </>
+                </div>
+              ) : (
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="d-flex align-items-center title-digitise-section mb-2">
                     {localModules?.includes(module)
@@ -924,94 +918,96 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                     <i className={`icon-More fs-21 cursor-pointer`}></i>
                   </Dropdown>
                 </div>
-              )
-            )}
-            <div className="digitised-section">
-              {isProcessing ? (
-                <div className="shimmer-container">
-                  <div className="shimmer"></div>
-                </div>
-              ) : data.length > 0 ? (
-                <ul>
-                  {data.map((item, index) => {
-                    // Measure the width of the editable text
-                    let textWidth = 0;
-                    let lineItemWidth = 0;
-
-                    // For name or other primary data (editableText)
-                    if (activeIndex === index && activeType === module) {
-                      const tempSpan = document.createElement("span");
-                      tempSpan.style.visibility = "hidden";
-                      tempSpan.style.position = "absolute";
-                      tempSpan.style.whiteSpace = "nowrap";
-                      tempSpan.innerText = editableText || "";
-                      document.body.appendChild(tempSpan);
-                      textWidth = tempSpan.offsetWidth || 200;
-                      document.body.removeChild(tempSpan);
-                    }
-
-                    // For lineItem (editableLineItem)
-                    if (
-                      activeIndex === index &&
-                      activeType === `${module}-lineItem`
-                    ) {
-                      const tempSpanLineItem = document.createElement("span");
-                      tempSpanLineItem.style.visibility = "hidden";
-                      tempSpanLineItem.style.position = "absolute";
-                      tempSpanLineItem.style.whiteSpace = "nowrap";
-                      tempSpanLineItem.innerText = editableLineItem || "";
-                      document.body.appendChild(tempSpanLineItem);
-                      lineItemWidth = tempSpanLineItem.offsetWidth;
-                      document.body.removeChild(tempSpanLineItem);
-                    }
-
-                    return (
-                      <li key={index}>
-                        <div className="medicine-item">
-                          {activeIndex === index && activeType === module ? (
-                            <input
-                              type="text"
-                              value={editableText}
-                              className="editable-digitised-item"
-                              onChange={handleInputChange}
-                              onBlur={() =>
-                                handleInputBlur(module, index, true)
-                              }
-                              autoFocus
-                              style={{ width: `${textWidth + 10}px` }}
-                              onPaste={(e) => handlePaste(e, module)}
-                              onKeyDown={(e) => handleKeyDown(e, module)}
-                            />
-                          ) : (
-                            <span
-                              onClick={() =>
-                                handleItemClick(module, index, true)
-                              }
-                              className="digitised-item"
-                            >
-                              {item}
-                            </span>
-                          )}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <textarea
-                  type="text"
-                  className="editable-digitised-item w-100"
-                  onChange={handleInputChange}
-                  onBlur={() => handleInputBlur(module, 0, true)}
-                  style={{ border: "none" }}
-                  rows={3}
-                  placeholder={`Enter ${module} details here or simply speak or type in Voice Rx`}
-                  onPaste={(e) => handlePaste(e, module)}
-                  onKeyDown={(e) => handleKeyDown(e, module)}
-                />
               )}
-            </div>
-          </>
+              <div className="digitised-section">
+                {isProcessing ? (
+                  <div className="shimmer-container">
+                    <div className="shimmer"></div>
+                  </div>
+                ) : data.length > 0 ? (
+                  <ul>
+                    {data.map((item, index) => {
+                      // Measure the width of the editable text
+                      let textWidth = 0;
+                      let lineItemWidth = 0;
+
+                      // For name or other primary data (editableText)
+                      if (activeIndex === index && activeType === module) {
+                        const tempSpan = document.createElement("span");
+                        tempSpan.style.visibility = "hidden";
+                        tempSpan.style.position = "absolute";
+                        tempSpan.style.whiteSpace = "nowrap";
+                        tempSpan.innerText = editableText || "";
+                        document.body.appendChild(tempSpan);
+                        textWidth = tempSpan.offsetWidth || 200;
+                        document.body.removeChild(tempSpan);
+                      }
+
+                      // For lineItem (editableLineItem)
+                      if (
+                        activeIndex === index &&
+                        activeType === `${module}-lineItem`
+                      ) {
+                        const tempSpanLineItem = document.createElement("span");
+                        tempSpanLineItem.style.visibility = "hidden";
+                        tempSpanLineItem.style.position = "absolute";
+                        tempSpanLineItem.style.whiteSpace = "nowrap";
+                        tempSpanLineItem.innerText = editableLineItem || "";
+                        document.body.appendChild(tempSpanLineItem);
+                        lineItemWidth = tempSpanLineItem.offsetWidth;
+                        document.body.removeChild(tempSpanLineItem);
+                      }
+
+                      return (
+                        <li key={index}>
+                          <div className="medicine-item">
+                            {activeIndex === index && activeType === module ? (
+                              <input
+                                type="text"
+                                value={editableText}
+                                className="editable-digitised-item"
+                                onChange={handleInputChange}
+                                onBlur={() =>
+                                  handleInputBlur(module, index, true)
+                                }
+                                autoFocus
+                                style={{
+                                  width: `${textWidth + 10}px`,
+                                }}
+                                onPaste={(e) => handlePaste(e, module)}
+                                onKeyDown={(e) => handleKeyDown(e, module)}
+                              />
+                            ) : (
+                              <span
+                                onClick={() =>
+                                  handleItemClick(module, index, true)
+                                }
+                                className="digitised-item"
+                              >
+                                {item}
+                              </span>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <textarea
+                    type="text"
+                    className="editable-digitised-item w-100"
+                    onChange={handleInputChange}
+                    onBlur={() => handleInputBlur(module, 0, true)}
+                    style={{ border: "none" }}
+                    rows={3}
+                    placeholder={`Enter ${module} details here or simply speak or type in Voice Rx`}
+                    onPaste={(e) => handlePaste(e, module)}
+                    onKeyDown={(e) => handleKeyDown(e, module)}
+                  />
+                )}
+              </div>
+            </>
+          )
         );
       }
     );
