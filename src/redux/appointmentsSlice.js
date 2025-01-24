@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import ApiAppointments from "../api/services/ApiAppointments";
 import { v4 as uuidv4 } from 'uuid';
-import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, TAB_ZYDUS_ENCOUNTER } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, TAB_FINISHED, TAB_ZYDUS_ENCOUNTER } from "../utils/constants";
 import moment from "moment";
 import { calculateAge } from "../utils/utils";
 
@@ -12,8 +12,11 @@ const initialState = {
     queueCount: 0,
     finishedCount: 0,
     cancelledCount: 0,
+    zydusEncounterCount: 0,
+    zydusAappointmentCount: 0,
     setOnLoad: true,
     appointmentsData: [],
+    finishedData: [],
     caseTypes: [],
     salutationData: [],
     pincodeInfo: {},
@@ -218,10 +221,10 @@ export const ictAuthToken = createAsyncThunk(
 
 export const zydusConsultAppoint = createAsyncThunk(
     "records/zydusConsultAppoint",
-    async ({ siteId, empNo, date, selectedTab }, { dispatch }) => {
+    async ({ siteId, empNo, date, apStatue }, { dispatch }) => {
         try {
             let result = {};
-            if (selectedTab === TAB_ZYDUS_ENCOUNTER) {
+            if (apStatue === TAB_ZYDUS_ENCOUNTER) {
                 result = await ApiAppointments.consultations(siteId, empNo, date);
             } else {
                 result = await ApiAppointments.appointments(siteId, empNo, date);
@@ -236,7 +239,7 @@ export const zydusConsultAppoint = createAsyncThunk(
                 const action = await dispatch(ictAuthToken())
                 if (action.meta.requestStatus === "fulfilled") {
                     await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.tokenNo))
-                    dispatch(zydusConsultAppoint({ siteId, empNo, date }))
+                    dispatch(zydusConsultAppoint({ siteId, empNo, date, apStatue }))
                 }
             }
             // console.log("error: ", error);
@@ -314,6 +317,8 @@ const appointmentsSlice = createSlice({
                     return { ...e, key: uuidv4() }
                 });
                 if (action.meta.arg.page == 0) {
+                    state.zydusEncounterCount = 0
+                    state.zydusAappointmentCount = 0
                     state.queueCount = action.payload.queue_count;
                     state.finishedCount = action.payload.finished_count;
                     state.cancelledCount = action.payload.cancelled_count;
@@ -326,6 +331,8 @@ const appointmentsSlice = createSlice({
                 state.loading = false;
                 state.setOnLoad = false;
                 if (action.meta.arg.page == 0) {
+                    state.zydusEncounterCount = 0
+                    state.zydusAappointmentCount = 0
                     state.queueCount = 0;
                     state.finishedCount = 0;
                     state.cancelledCount = 0;
@@ -423,13 +430,15 @@ const appointmentsSlice = createSlice({
             })
             .addCase(zydusConsultAppoint.pending, (state) => {
                 state.loading = true;
+                state.setOnLoad = true;
             })
             .addCase(zydusConsultAppoint.fulfilled, (state, action) => {
                 state.loading = false;
+                state.setOnLoad = false;
 
-                let updatedData = []
-                if (action.meta.arg.selectedTab === TAB_ZYDUS_ENCOUNTER) {
-                    updatedData = action.payload.map((e) => {
+                let modifiedData = []
+                if (action.meta.arg.apStatue === TAB_ZYDUS_ENCOUNTER) {
+                    modifiedData = action.payload.map((e) => {
                         const age = calculateAge(moment(e.dob, 'DD-MM-YYYY').format('YYYY-MM-DD'));
                         return {
                             ...e, key: uuidv4(),
@@ -443,10 +452,11 @@ const appointmentsSlice = createSlice({
                             pm_gender: e.gender,
                             pm_contact_no: e.mobileNo,
                             patient_address: e.patientAddress,
+                            toct_type: e.consultationType
                         }
                     });
                 } else {
-                    updatedData = action.payload.map((e) => {
+                    modifiedData = action.payload.map((e) => {
                         // const age = calculateAge(moment(e.dob, 'DD-MM-YYYY').format('YYYY-MM-DD'));
                         return {
                             ...e, key: uuidv4(),
@@ -464,10 +474,18 @@ const appointmentsSlice = createSlice({
                     });
                 }
 
+                const updatedData = action.meta.arg.filterVisitType ?
+                    modifiedData?.filter(x => action.meta.arg.filterVisitType.split(',').includes(x.toct_type))
+                    : modifiedData;
+
+                if (action.meta.arg.apStatue === TAB_ZYDUS_ENCOUNTER) {
+                    state.zydusEncounterCount = modifiedData?.length
+                    state.zydusAappointmentCount = 0
+                } else {
+                    state.zydusEncounterCount = 0
+                    state.zydusAappointmentCount = modifiedData?.length
+                }
                 if (action.meta.arg.page == 0) {
-                    state.queueCount = 0;
-                    state.finishedCount = 0;
-                    state.cancelledCount = 0;
                     state.appointmentsData = updatedData;
                 } else {
                     state.appointmentsData = [...state.appointmentsData, ...updatedData];
@@ -475,11 +493,20 @@ const appointmentsSlice = createSlice({
             })
             .addCase(zydusConsultAppoint.rejected, (state, action) => {
                 state.loading = false;
+                state.setOnLoad = false;
                 if (action.meta.arg.page == 0) {
-                    state.queueCount = 0;
-                    state.finishedCount = 0;
-                    state.cancelledCount = 0;
                     state.appointmentsData = [];
+                }
+            })
+            .addCase(copyGetAllAppointment.fulfilled, (state, action) => {
+                if (action.meta.arg.apStatue == TAB_FINISHED) {
+                    const updatedData = action.payload.app_data.map((e) => {
+                        return { ...e, key: uuidv4() }
+                    });
+                    state.queueCount = action.payload.queue_count;
+                    state.finishedCount = action.payload.finished_count;
+                    state.cancelledCount = action.payload.cancelled_count;
+                    state.finishedData = updatedData;
                 }
             })
     },
