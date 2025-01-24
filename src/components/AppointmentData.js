@@ -86,7 +86,7 @@ function AppointmentData({ locationPath }) {
     const from = searchParams.get("from");
     const [modalOpen, setModalOpen] = useState(false);
 
-    const { queueCount, finishedCount, cancelledCount, appointmentsData, caseTypes, loading, setOnLoad } = useSelector((state) => state.records);
+    const { queueCount, finishedCount, cancelledCount, zydusEncounterCount, zydusAappointmentCount, appointmentsData, caseTypes, loading, setOnLoad } = useSelector((state) => state.records);
     const dispatch = useDispatch();
 
     const [date, setDate] = useState({
@@ -103,7 +103,7 @@ function AppointmentData({ locationPath }) {
         GB_ISCRIBE
     );
     const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
-    
+
     const [filesData, setFilesData] = useState([]);
     const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
     const [isFileSizeError, setIsFileSizeError] = useState(false);
@@ -322,7 +322,7 @@ function AppointmentData({ locationPath }) {
                     label: (
                         <div className="d-flex align-items-center">
                             <i className="icon-Queue"></i>
-                            Encounter
+                            Encounter {zydusEncounterCount ? `(${zydusEncounterCount})` : ''}
                         </div>
                     ),
                 },
@@ -331,7 +331,7 @@ function AppointmentData({ locationPath }) {
                     label: (
                         <div className="d-flex align-items-center">
                             <i className="icon-Queue"></i>
-                            Appointment
+                            Appointment {zydusAappointmentCount ? `(${zydusAappointmentCount})` : ''}
                         </div>
                     ),
                 }
@@ -342,7 +342,7 @@ function AppointmentData({ locationPath }) {
         // Update the items state with new data
         setItems(updatedItems);
 
-    }, [pendingDigitisation, queueCount, finishedCount, cancelledCount, isZydusUserAccessableFromGB]);
+    }, [pendingDigitisation, queueCount, finishedCount, cancelledCount, appointmentsData, isZydusUserAccessableFromGB]);
 
     const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
     const [isDigitisationTab, setIsDigitisationTab] = useState(false);
@@ -392,7 +392,7 @@ function AppointmentData({ locationPath }) {
     }, []);
 
     useEffect(() => {
-        const timeOutId = setTimeout(() => {
+        const timeOutId = setTimeout(async () => {
             if (selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT) {
                 var sendData = {
                     startDate: date.startDate,
@@ -409,22 +409,22 @@ function AppointmentData({ locationPath }) {
                 // console.log(sendData)
                 dispatch(getAllAppointment(sendData));
             } else {
-                // for (let i = 0; i < empNo?.length; i++) {
-                //     var sendZydusData = {
-                //         siteId: siteId,
-                //         empNo: empNo[i],
-                //         date: moment(date.startDate).format(showDateFormat),
-                //         selectedTab: selectedTab,
-                //         page: i,
-                //     }
-                //     dispatch(zydusConsultAppoint(sendZydusData));
-                // }
+                let sendData = {
+                    startDate: date.startDate,
+                    endDate: date.endDate,
+                    apStatue: TAB_FINISHED,
+                    page: 0
+                }
+
+                await dispatch(copyGetAllAppointment(sendData))
+
                 var sendZydusData = {
                     siteId: siteId,
                     empNo: empNo.toString(),
                     date: moment(date.startDate).format(showDateFormat),
-                    selectedTab: selectedTab,
-                    page: 0
+                    apStatue: selectedTab,
+                    page: 0,
+                    filterVisitType: visitTypeFilters,
                 }
                 dispatch(zydusConsultAppoint(sendZydusData));
             }
@@ -598,7 +598,7 @@ function AppointmentData({ locationPath }) {
         return caseTypes.map((e) => {
             return {
                 text: e.toct_type,
-                value: e.toct_id,
+                value: selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT ? e.toct_id : e.toct_type,
             };
         });
     };
@@ -866,7 +866,7 @@ function AppointmentData({ locationPath }) {
                     tcm_id: tcm_id,
                     print_url: record.print_rx_url,
                     digitisedData: ocrData.data,
-                    page:"pending-digitization"
+                    page: "pending-digitization"
                 },
             })
         } catch (error) {
@@ -948,7 +948,7 @@ function AppointmentData({ locationPath }) {
             ),
         },
         {
-            title: selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT?"Contact":"Contact & Mrn",
+            title: selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT ? "Contact" : "Contact & Mrn",
             dataIndex: "pm_contact_no",
             key: "pm_contact_no",
             ellipsis: true,
@@ -1458,7 +1458,7 @@ function AppointmentData({ locationPath }) {
                             <>
                                 <Table
                                     className="px-xl-4 px-0"
-                                    columns={columns}
+                                    columns={selectedTab !== TAB_ZYDUS_APPOINTMENT ? columns : columns.filter(e => e?.key != "toct_type")}
                                     dataSource={appointmentsData}
                                     onChange={handleChange}
                                     pagination={false}
