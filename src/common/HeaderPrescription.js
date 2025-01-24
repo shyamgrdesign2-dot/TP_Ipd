@@ -40,7 +40,6 @@ import {
 } from "../redux/caseManagerSlice";
 import { listVideo } from "../redux/doctorsSlice";
 import GenRxButton from '../components/GenRxButton';
-import { useFeatureIsOn } from '@growthbook/growthbook-react';
 
 import { placeIctOrder } from '../redux/appointmentsSlice';
 import { getDecodedToken } from '../utils/localStorage';
