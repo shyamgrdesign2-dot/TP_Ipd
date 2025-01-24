@@ -344,7 +344,8 @@ const Signup = ({reason, handleView, number}) => {
             utm_term: params.get("utm_term") ?? 'NA',
         });
 
-        if (userOnboard?.data?.body?.pm_id != null && userOnboard?.data?.body?.sso_url !== "") {
+        // onboard on moengage if b2c_id is not null
+        if(userOnboard?.data?.body?.b2c_id) {
             window.Moengage.add_first_name(fname);
             window.Moengage.add_last_name(lname);
             window.Moengage.add_mobile("+91" + mobileNumber);
@@ -365,6 +366,10 @@ const Signup = ({reason, handleView, number}) => {
                 speciality: specialty,
                 signup_at: new Date()
             });
+        }
+
+        if (userOnboard?.data?.body?.pm_id != null && userOnboard?.data?.body?.sso_url !== "") {
+
             // already exists on practice as an assistant doctor
             window.location.href = userOnboard?.data?.body?.sso_url + "&device_type=desktop";
         } else {
