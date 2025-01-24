@@ -86,7 +86,7 @@ const VoiceWaveVisualizer = ({ isRecording, isPaused }) => {
               const average =
                 dataArray.reduce((a, b) => a + b) / dataArray.length;
               const amplitude = Math.max(0.1, Math.min(1.5, average / 128));
-              waveRef.current.setAmplitude(amplitude);
+              waveRef.current.setAmplitude(amplitude * 15);
               animationFrameRef.current = requestAnimationFrame(updateWave);
             }
           };
