@@ -416,12 +416,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
           // Insert an empty string after the current index
           updatedData.dynamicFields[type].splice(index + 1, 0, "");
-
           return updatedData;
         });
 
         // Update active index and clear input
         setActiveIndex(index + 1);
+        setActiveType(type);
         setIsRxEdited(true);
         setEditableText("");
 
@@ -1016,7 +1016,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                     rows={3}
                     placeholder={`Enter ${module} details here or simply speak or type in Voice Rx`}
                     onPaste={(e) => handlePaste(e, module)}
-                    onKeyDown={(e) => handleKeyDown(e, module)}
+                    onKeyDown={(e) => handleKeyDown(e, module, 0)}
                   />
                 )}
               </div>
