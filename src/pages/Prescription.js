@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, lazy } from "react";
 import { useLocation } from "react-router-dom";
 import { Drawer, Tabs } from "antd";
 import moment from "moment";
@@ -87,12 +87,17 @@ import DDxList from "../components/medical_certificate/DDxList";
 import SurgicalBox from "../components/SurgicalBox";
 import AddCustomModule from "../components/AddCustomModule";
 import CustomModule from "../components/CustomModule";
-import GenRxBox from "../components/GenRxBox";
-import GenRxKnowMore from "../components/GenRxKnowMore";
+
+// import GenRxKnowMore from "../components/GenRxKnowMore";
 import TatvaAiBanner from "../components/TatvaAiBanner";
-import ConsultationDrawer from "../components/ConsultationDrawer";
+// import ConsultationDrawer from "../components/ConsultationDrawer";
 import Carousel from "react-multi-carousel";
 import TatvaAiKnowMore from "../components/TatvaAiKnowMore";
+
+const GenRxBox = lazy(() => import("../components/GenRxBox"));
+const ConsultationDrawer = lazy(() => import("../components/ConsultationDrawer"));
+const GenRxKnowMore=lazy(() => import("../components/GenRxKnowMore"));
+
 
 function Prescription() {
   const {
