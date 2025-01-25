@@ -61,16 +61,20 @@ const DDxList = ({
                 className="title-common d-flex flex-column"
                 style={{ gap: 4 }}
               >
-                {/* <img
+                <img
                   src={ddxTag}
                   alt="ddx-img"
                   width={36}
                   height={16}
                   className="me-3"
-                /> */}
+                />
                 <span>Differential Diagnosis</span>
               </div>
             </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleDrawerVital}
+            />
           </>
           {isCollapseActive && generatedDDx?.length === 0 ? (
             <div
@@ -299,7 +303,7 @@ const DDxList = ({
             items={accordionItems}
             defaultActiveKey={["1"]}
             onChange={handlePanelChange}
-            className="tatvaAi-accordian cdss-collapse"
+            className="prescriptiontab-accordian cdss-collapse"
             expandIconPosition={"end"}
           />
         </div>
