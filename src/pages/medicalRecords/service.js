@@ -66,7 +66,9 @@ export const deleteDocById = async function (id) {
   return res;
 };
 
-export const deleteDocsUploadedFromAndroid = async function (patient_unique_id) {
+export const deleteDocsUploadedFromAndroid = async function (
+  patient_unique_id
+) {
   let res = [];
   try {
     res = await api.delete(
@@ -88,6 +90,16 @@ export const fetchDocsUploadedByPatient = async function (patientUniqueId) {
     );
   } catch (e) {
     console.error("Error while fetching documents uploaded by patient: ", e);
+  }
+  return res;
+};
+
+export const uploadDocsToAzure = async (payload) => {
+  let res = [];
+  try {
+    res = await api.post(`/api/v1/docs/upload-temp`, payload, baseUrl);
+  } catch (e) {
+    console.error("Error while uploading document to azure: ", e);
   }
   return res;
 };

@@ -32,3 +32,13 @@ export const deletePrintSetting = async function () {
   }
   return res;
 };
+
+export const createBill = async function (payload) {
+  let res = {};
+  try {
+    res = await api.post(`/api/v1/billing/bill`, payload, baseUrl);
+  } catch (e) {
+    console.error("Error while Creating Bill: ", e);
+  }
+  return res;
+};

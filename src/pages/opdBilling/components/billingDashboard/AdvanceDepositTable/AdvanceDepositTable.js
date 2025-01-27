@@ -20,15 +20,6 @@ import DownloadBill from "../DownloadBill/DownloadBill.js";
 import PreviewBill from "../../../PreviewBill.js";
 const { RangePicker } = DatePicker;
 
-const { Option } = Select;
-
-const doctorsList = [
-  { id: 1, name: "Doctor 1" },
-  { id: 2, name: "Doctor 2" },
-  { id: 3, name: "Doctor 3" },
-  { id: 4, name: "Doctor 4" },
-];
-
 const cards = [
   {
     id: 1,
@@ -60,6 +51,7 @@ export default function AdvanceDepositTable() {
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
 
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
+  const [patientData, setPatientData] = useState({});
 
   const [dateRange, setDateRange] = useState({
     startDate: moment().format(dateFormat),
@@ -160,6 +152,7 @@ export default function AdvanceDepositTable() {
   };
 
   const onBillingDetailsClick = async (status, record) => {
+    setPatientData(record);
     if (status === 1) {
       handleDrawerPreviewBill();
     } else if (status === 3) {
@@ -673,6 +666,7 @@ export default function AdvanceDepositTable() {
             handleCreateBillDrawer={handleDrawerPreviewBill}
             isPreviewFromTable={true}
             isDepositReceipt={true}
+            patientData={patientData}
           />
         </Drawer>
       )}

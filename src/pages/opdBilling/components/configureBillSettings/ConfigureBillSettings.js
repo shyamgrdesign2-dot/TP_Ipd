@@ -149,9 +149,28 @@ const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
   };
 
   const handleAutofillFromRx = () => {
-    const { page_format, header_footer, letterhead_format } =
-      defaultPrintSettings;
-    const { custom_margin, footer, margin, letterhead_margin } = header_footer;
+    const {
+      page_format,
+      header_footer,
+      letterhead_format,
+      qrcode_enable,
+      signature_enable,
+      signature_image,
+      water_mark_enable,
+      water_mark_image,
+      logo_enable,
+      logo_image,
+      header_image,
+    } = defaultPrintSettings;
+    const {
+      custom_margin,
+      header,
+      footer,
+      margin,
+      letterhead_margin,
+      other_settings,
+    } = header_footer || {};
+    const { clinic_info, doctor_info } = header || {};
     setPrintSettings((prev) => {
       return {
         ...prev,
@@ -159,19 +178,54 @@ const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
           ...prev.headerFooter,
           customLetterHeadMargin: { ...custom_margin },
           footer: { ...footer, fontSize: footer?.font_size },
-          header: {},
+          header: {
+            clinicInfo: {
+              enabled: clinic_info.enable === "Y",
+              header: clinic_info.header,
+              position: clinic_info.place === "R" ? "right" : "left",
+              subheader: clinic_info.subheader,
+            },
+            doctorInfo: {
+              enabled: doctor_info.enable === "Y",
+              header: doctor_info.header,
+              position: doctor_info.place === "R" ? "right" : "left",
+              subheader: doctor_info.subheader,
+            },
+
+            file: header_image,
+            logo: {
+              enabled: logo_enable === "Y",
+              file: logo_image,
+            },
+          },
           letterHeadFormat: letterhead_format,
           margin: { ...margin },
           otherSettings: {
-            qrCode: {},
-            signature: {},
-            waterMark: {},
+            qrCode: {
+              enabled: qrcode_enable === "Y",
+            },
+            signature: {
+              enabled: signature_enable === "Y",
+              doctorNameEnabled: other_settings?.name_of_doctor_enable === "Y",
+              file: signature_image,
+              position:
+                other_settings?.signature_place === "R" ? "right" : "left",
+              qualification: other_settings?.qualification,
+              qualificationEnabled:
+                other_settings?.qualification_enable === "Y",
+              registrationEnabled: other_settings?.registration_no_enable,
+            },
+            waterMark: {
+              enabled: water_mark_enable === "Y",
+              file: water_mark_image,
+            },
           },
           uploadedLetterHeadMargin: { ...letterhead_margin },
         },
         pageFormat: {
           fontFamily: page_format?.font_family,
           fontSize: page_format?.font_size,
+          pageType: prev?.pageFormat?.pageType,
         },
       };
     });

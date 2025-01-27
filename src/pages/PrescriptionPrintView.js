@@ -417,7 +417,7 @@ function PrescriptionPrintView() {
                     width="100%"
                     push={false}
                 >
-                    <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} isRxPage={true} />
+                    <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} isRxPage={true} patientData={patient_data} />
                 </Drawer>)}
                 {recentBillDrawer &&
                 <Drawer

@@ -128,7 +128,7 @@ const ViewBillPdf = ({ printSettings, isDepositReceipt }) => {
   return (
     <Document>
       <Page
-        size={printSettings?.pageFormat?.pageSize || "A5"}
+        size={printSettings?.pageFormat?.pageType || "A5"}
         style={paddingStyles}
         wrap={true}
       >

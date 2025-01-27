@@ -19,11 +19,18 @@ import ServiceItemPopup from "../serviceItemPopup/ServiceItemPopup";
 import "./CreateBill.scss";
 import RefIdPopup from "../refIdPopup/RefIdPopup";
 import ReadMore from "../../../../common/ReadMore";
-import { useNavigate } from "react-router-dom";
 import ViewBillPdf from "../viewBillPdf/ViewBillPdf";
 import { useSelector } from "react-redux";
 import { pdf } from "@react-pdf/renderer";
 import PreviewBill from "../../PreviewBill";
+import { printContent } from "../../utils/helper";
+import moment from "moment";
+import { createBill } from "../../service";
+import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
+import { useDispatch } from "react-redux";
+import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { db } from "../../../../firebase";
+import { deleteDocsUploadedFromAndroid } from "../../../medicalRecords/service";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -31,8 +38,11 @@ const CreateBill = ({
   isBackModalOpen,
   showHideBackModal,
   isRxPage,
+  patientData = {},
 }) => {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const deviceUid = localStorage.getItem("app_device_unique_id");
+  const { profile, userId } = useSelector((state) => state.doctors);
   const { billPrintSettings } = useSelector((state) => state.billing);
   const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
@@ -53,7 +63,9 @@ const CreateBill = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOptions, setSearchOptions] = useState([]);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [printBlob, setPrintBlob] = useState(null);
   const [isSaveEnabled, setSaveEnabled] = useState(true);
+  const [mobileNumber, setMobileNumber] = useState(patientData?.pm_contact_no);
 
   useEffect(() => {
     if (searchQuery) {
@@ -72,6 +84,7 @@ const CreateBill = ({
     const blob = await pdf(
       <ViewBillPdf printSettings={billPrintSettings} />
     ).toBlob();
+    setPrintBlob(blob);
     setPdfUrl(URL.createObjectURL(blob));
   };
 
@@ -319,7 +332,7 @@ const CreateBill = ({
   ];
 
   const [paymentModes, setPaymentModes] = useState([
-    { mode: "Cash", amount: 850, refId: "" },
+    { paymentMode: "Cash", amount: 850, refId: "" },
   ]);
 
   const handleModeChange = (value, index, type) => {
@@ -335,7 +348,7 @@ const CreateBill = ({
   };
 
   const addPaymentMode = () => {
-    setPaymentModes([...paymentModes, { mode: undefined, amount: 0 }]);
+    setPaymentModes([...paymentModes, { paymentMode: undefined, amount: 0 }]);
   };
 
   const removePaymentMode = (index) => {
@@ -351,25 +364,83 @@ const CreateBill = ({
     setPreviewBillDrawer(!previewBillDrawer);
   };
 
-  const printContent = async () => {
-    // Remove all existing iframes
-    document.querySelectorAll("iframe").forEach(function (iframe) {
-      iframe.parentNode.removeChild(iframe);
-    });
-    var iframe = document.createElement("iframe"); //load content in an iframe to print later
-    document.body.appendChild(iframe);
-    iframe.style.display = "none";
-    iframe.src = pdfUrl;
-    iframe.onload = function () {
-      setTimeout(function () {
-        iframe.focus();
-        iframe.contentWindow.print();
-        // Revoke the Blob URL to avoid memory leaks
-        URL.revokeObjectURL(pdfUrl);
-      }, 1);
-    };
+  const handlePrint = async () => {
+    printContent(printBlob, patient_unique_id, setStartLoader);
     handleCreateBillDrawer();
   };
+
+  const handleCreateBill = async () => {
+    const payload = {
+      patientId: patientData?.patient_unique_id,
+      doctorId: userId,
+      billItems: [
+        {
+          masterId: "3a91cb7c-bdb2-41db-a11f-936b141bb42e",
+          quantity: 1,
+          amount: 100,
+          discount: 5,
+          discountType: "percentage",
+          gst: 18,
+          totalAmount: 105,
+        },
+      ],
+      paymentModes: [
+        {
+          paymentMode: "Cash",
+          amount: 1000,
+          refId: "remark",
+        },
+      ],
+      subTotal: 0,
+      lineItemDiscount: 0,
+      extraDiscount: 0,
+      extraDiscountType: "flat",
+      applicableGst: "18",
+      payableAmount: 2000,
+      paidAmount: 2000,
+      includeInRx: true,
+      isForm3C: true,
+      date: "2025-01-07",
+      notes: "test notes",
+      dueFromPreviousBill: 0,
+      previousBillId: "1d251db7-c799-4b18-9d40-d145f1157779",
+    };
+    const createRes = await createBill(payload);
+  };
+
+  const setStartLoader = () => {
+    dispatch(setLoadingStatus(true));
+  };
+
+  useEffect(() => {
+    const checkInFireBase = async () => {
+      if (deviceUid) {
+        const docCapturedImage = doc(db, "billing", deviceUid);
+        try {
+          const docCapturedImageSnap = await getDoc(docCapturedImage);
+          if (docCapturedImageSnap.exists()) {
+            onSnapshot(
+              doc(db, "billing", deviceUid),
+              async (docSnapshotOfCapturedImage) => {
+                const res = docSnapshotOfCapturedImage?.data();
+                if (res?.clicked === "no") {
+                  dispatch(setLoadingStatus(false));
+                  deleteDoc(doc(db, "billing", deviceUid));
+                  deleteDocsUploadedFromAndroid(patientData?.patient_unique_id);
+                }
+              }
+            );
+          }
+        } catch (error) {
+          console.error("Error updating document:", error);
+        }
+      } else {
+        console.error("Device UID not found");
+      }
+    };
+
+    return () => checkInFireBase();
+  }, [db, deviceUid]);
 
   return (
     <div>
@@ -452,7 +523,7 @@ const CreateBill = ({
                     <Button
                       type="primary"
                       className="btn-41 btn px-4 me-2 ant-btn-text align-items-center d-flex"
-                      onClick={printContent}
+                      onClick={handlePrint}
                     >
                       Save & Print
                     </Button>
@@ -462,7 +533,7 @@ const CreateBill = ({
                     <Button
                       type="button"
                       className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
-                      onClick={printContent}
+                      onClick={handlePrint}
                     >
                       Save & Print
                     </Button>
@@ -500,7 +571,7 @@ const CreateBill = ({
                   <Input
                     className="text-main"
                     style={{ width: 230 }}
-                    value={"Rahul Sharma, PI202305003"}
+                    value={`${patientData?.pm_fullname}, ${patientData.pm_pid}`}
                     onInput={(e) => {
                       e.target.value = e.target.value.replace(/[^0-6]/g, "");
                     }}
@@ -512,9 +583,9 @@ const CreateBill = ({
                   <Input
                     className="text-main"
                     style={{ width: 130 }}
-                    value={"9344414944"}
+                    value={mobileNumber}
                     onInput={(e) => {
-                      e.target.value = e.target.value.replace(/[^0-6]/g, "");
+                      setMobileNumber(e.target.value.replace(/[^0-6]/g, ""));
                     }}
                     disabled={true}
                   />
@@ -524,7 +595,7 @@ const CreateBill = ({
                   <Input
                     className="text-main"
                     style={{ width: 125 }}
-                    value={"04-12-2024"}
+                    value={moment().format("DD-MM-YYYY")}
                     onInput={(e) => {
                       e.target.value = e.target.value.replace(/[^0-6]/g, "");
                     }}
@@ -535,7 +606,7 @@ const CreateBill = ({
                   <div>Doctor Name</div>
                   <Input
                     className="text-main"
-                    value={"Dr Ashish Kumar"}
+                    value={profile?.um_name}
                     onInput={(e) => {
                       e.target.value = e.target.value.replace(/[^0-6]/g, "");
                     }}
@@ -600,9 +671,9 @@ const CreateBill = ({
                           <div className="d-flex">
                             <Select
                               placeholder="Select"
-                              value={payment.mode}
+                              value={payment.paymentMode}
                               onChange={(value) =>
-                                handleModeChange(value, index, "mode")
+                                handleModeChange(value, index, "paymentMode")
                               }
                               className="payment-mode"
                               dropdownStyle={{ width: 180 }}
@@ -629,20 +700,22 @@ const CreateBill = ({
                               className="w-40 payment-input"
                             />
                           </div>
-                          {payment?.mode && payment.mode !== "Cash" && (
-                            <span
-                              className="show-more-link"
-                              style={{
-                                textAlign: "center",
-                                borderRadius: "0 0 10px 10px",
-                                height: 25,
-                                cursor: "pointer",
-                              }}
-                              onClick={() => setShowRefIdPopup(index)}
-                            >
-                              {payment?.refId ?? `Add ${payment.mode} Ref ID`}
-                            </span>
-                          )}
+                          {payment?.paymentMode &&
+                            payment.paymentMode !== "Cash" && (
+                              <span
+                                className="show-more-link"
+                                style={{
+                                  textAlign: "center",
+                                  borderRadius: "0 0 10px 10px",
+                                  height: 25,
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => setShowRefIdPopup(index)}
+                              >
+                                {payment?.refId ??
+                                  `Add ${payment.paymentMode} Ref ID`}
+                              </span>
+                            )}
                         </div>
                         {paymentModes.length > 1 && (
                           <Button
@@ -781,6 +854,7 @@ const CreateBill = ({
           <PreviewBill
             handleDrawerPreviewBill={handleDrawerPreviewBill}
             handleCreateBillDrawer={handleCreateBillDrawer}
+            patientData={patientData}
           />
         </Drawer>
       )}

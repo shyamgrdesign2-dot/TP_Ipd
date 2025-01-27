@@ -12,40 +12,24 @@ import { setBillPrintSettings } from "../../redux/billingSlice";
 import { useDispatch } from "react-redux";
 import { Container, Navbar } from "react-bootstrap";
 import { handleDownload, printContent } from "./utils/helper";
-
-const patient_data = {
-  pm_salutation: "Mr",
-  pm_fullname: "A A RATHVA",
-  pm_first_name: "A A RATHVA",
-  pm_contact_no: "7567784027",
-  pm_gender: "Male",
-  pm_dob: "1982-06-12",
-  pm_pincode: "",
-  pm_city: "",
-  pm_image: "",
-  pm_image_path: "",
-  pm_state: "",
-  pm_address: "",
-  pm_reference_id: "10012020049092",
-  doctor_unique_id: "2cAKe9FUbvGRJtN",
-  mobile_no: "9742639958",
-  clinic_id: "368",
-  hospital_business_id: "754811713438773",
-  user_id: 493,
-  patient_unique_id: 833190707254,
-  pm_pid: "PAT0450",
-  pm_id: 6942,
-  ageYears: 42,
-  ageMonths: 6,
-  ageDays: 27,
-};
+import { setLoadingStatus } from "../../redux/uploadDocSlice";
+import { db } from "../../firebase";
+import {
+  deleteDoc,
+  doc,
+  getDoc,
+  onSnapshot,
+} from "firebase/firestore";
+import { deleteDocsUploadedFromAndroid } from "../medicalRecords/service";
 
 const PreviewBill = ({
   handleCreateBillDrawer,
   isPreviewFromTable,
   isDepositReceipt,
+  patientData,
 }) => {
   const dispatch = useDispatch();
+  const deviceUid = localStorage.getItem("app_device_unique_id");
   const { billPrintSettings } = useSelector((state) => state.billing);
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
@@ -98,6 +82,40 @@ const PreviewBill = ({
     setPrintBlob(blob);
   }
 
+  const setStartLoader = () => {
+    dispatch(setLoadingStatus(true));
+  };
+
+  useEffect(() => {
+    const checkInFireBase = async () => {
+      if (deviceUid) {
+        const docCapturedImage = doc(db, "billing", deviceUid);
+        try {
+          const docCapturedImageSnap = await getDoc(docCapturedImage);
+          if (docCapturedImageSnap.exists()) {
+            onSnapshot(
+              doc(db, "billing", deviceUid),
+              async (docSnapshotOfCapturedImage) => {
+                const res = docSnapshotOfCapturedImage?.data();
+                if (res?.clicked === "no") {
+                  dispatch(setLoadingStatus(false));
+                  deleteDoc(doc(db, "billing", deviceUid));
+                  deleteDocsUploadedFromAndroid(patientData?.patient_unique_id);
+                }
+              }
+            );
+          }
+        } catch (error) {
+          console.error("Error updating document:", error);
+        }
+      } else {
+        console.error("Device UID not found");
+      }
+    };
+
+    return () => checkInFireBase();
+  }, [db, deviceUid]);
+
   return (
     <div>
       {isPreviewFromTable ? (
@@ -122,7 +140,7 @@ const PreviewBill = ({
         </Navbar>
       ) : (
         <HeaderPrescriptionPrint
-          patient_data={patient_data}
+          patient_data={patientData}
           tcm_id={6222}
           handleGoToAppointment={handleCreateBillDrawer}
         />
@@ -178,7 +196,13 @@ const PreviewBill = ({
                   type="text"
                   className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                   icon={<i className="icon-Print" />}
-                  onClick={() => printContent(printBlob)}
+                  onClick={() =>
+                    printContent(
+                      printBlob,
+                      patientData?.patient_unique_id,
+                      setStartLoader
+                    )
+                  }
                 >
                   <span className="fw-semibold">
                     {isDepositReceipt ? "Print Deposit Receipt" : "Print Bill"}
@@ -189,7 +213,14 @@ const PreviewBill = ({
                   type="text"
                   className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                   icon={<i className="icon-download" />}
-                  onClick={() => handleDownload(pdfUrl)}
+                  onClick={() =>
+                    handleDownload(
+                      pdfUrl,
+                      printBlob,
+                      patientData?.patient_unique_id,
+                      setStartLoader
+                    )
+                  }
                 >
                   <span className="fw-semibold">
                     {isDepositReceipt

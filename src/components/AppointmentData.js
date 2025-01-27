@@ -1767,7 +1767,7 @@ function AppointmentData({ locationPath }) {
                 width="100%"
                 push={false}
                 >
-                    <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} patient_unique_id={appointmentSelectedFromMenu?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} />
+                    <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} patient_unique_id={appointmentSelectedFromMenu?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientData={appointmentSelectedFromMenu} />
                 </Drawer>)}
         </>
     );

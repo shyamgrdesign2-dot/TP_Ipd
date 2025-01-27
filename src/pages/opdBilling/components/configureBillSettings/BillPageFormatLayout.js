@@ -6,7 +6,7 @@ import {
 import { isMobile } from "react-device-detect";
 
 const BillPageFormatLayout = ({ pageFormat, setPrintSettings }) => {
-  const { fontFamily, fontSize, pageSize = "A5" } = pageFormat || {};
+  const { fontFamily, fontSize, pageType = "A5" } = pageFormat || {};
   const onSelectPageFormat = (data, key) => {
     setPrintSettings((prev) => {
       return {
@@ -28,8 +28,8 @@ const BillPageFormatLayout = ({ pageFormat, setPrintSettings }) => {
           className={`d-flex gender-radio ${
             isMobile ? "segmented-radio-mobile" : ""
           }`}
-          onChange={(e) => onSelectPageFormat(e.target.value, "pageSize")}
-          value={pageSize}
+          onChange={(e) => onSelectPageFormat(e.target.value, "pageType")}
+          value={pageType}
         >
           <Radio.Button className="w-100 text-center" value="A4">
             A4
