@@ -5,7 +5,6 @@ import "../auth.scss"; // Assuming the provided styles are in this CSS file
 import {Spin} from "antd";
 
 const Signup = ({reason, handleView, number}) => {
-    const navigate = useNavigate();
     const [mobileNumber, setMobileNumber] = useState(number === "null" ? "" : number);
     const [fname, setFname] = useState("");
     const [lname, setLname] = useState("");
@@ -18,20 +17,12 @@ const Signup = ({reason, handleView, number}) => {
     const [otp, setOtp] = useState("");
     const [loading, setLoading] = useState(false); // Loader state
     const [specialities, setSpecialities] = useState([]);
-    const [utm_campaign, setUtm_campaign] = useState("NA");
-    const [utm_source, setUtm_source] = useState("NA");
-    const [utm_content, setUtm_content] = useState("NA");
-    const [utm_medium, setUtm_medium] = useState("NA");
     const [otpVerified, setOtpVerified] = useState(false);
     const [otpRequested, setOtpRequested] = useState(false);
     useEffect(() => {
 
         getSpecialityData();
         const params = new URLSearchParams(window.location.search);
-        setUtm_campaign(params.get("utm_campaign") ?? 'NA');
-        setUtm_source(params.get("utm_source") ?? 'NA');
-        setUtm_medium(params.get("utm_medium") ?? 'NA');
-        setUtm_content(params.get("utm_content") ?? 'NA');
 
         window.Moengage.track_event('TP_Signup_landing_page', {
             utm_campaign, utm_source, utm_medium, utm_content
