@@ -14,12 +14,7 @@ import { Container, Navbar } from "react-bootstrap";
 import { handleDownload, printContent } from "./utils/helper";
 import { setLoadingStatus } from "../../redux/uploadDocSlice";
 import { db } from "../../firebase";
-import {
-  deleteDoc,
-  doc,
-  getDoc,
-  onSnapshot,
-} from "firebase/firestore";
+import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { deleteDocsUploadedFromAndroid } from "../medicalRecords/service";
 
 const PreviewBill = ({
@@ -31,6 +26,7 @@ const PreviewBill = ({
   const dispatch = useDispatch();
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const { billPrintSettings } = useSelector((state) => state.billing);
+  const { profile } = useSelector((state) => state.doctors);
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
   const [showConfigureSettings, setShowConfigureSettings] = useState(false);
@@ -66,6 +62,8 @@ const PreviewBill = ({
       <ViewBillPdf
         printSettings={billPrintSettings}
         isDepositReceipt={isDepositReceipt}
+        patientData={patientData}
+        profile={profile}
       />
     ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));
@@ -327,6 +325,7 @@ const PreviewBill = ({
           <ConfigureBillSettings
             showConfigureSettings={showConfigureSettings}
             handleDrawerConfigureSettings={handleDrawerConfigureSettings}
+            patientData={patientData}
           />
         </Drawer>
       )}

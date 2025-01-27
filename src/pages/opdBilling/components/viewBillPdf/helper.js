@@ -36,57 +36,60 @@ export const calculatePadding = (headerFooter) => {
   };
 };
 
-export const patientDataShow = (id, caseManagerData) => {
+export const patientDataShow = (id, patient_data, billData, profile) => {
   var value = "";
   if (id == 1) {
     value = `${
-      caseManagerData?.patient_data?.patient_salutation
-        ? `${caseManagerData?.patient_data?.patient_salutation} ${caseManagerData?.patient_data?.patient_name}, ${caseManagerData?.patient_data?.patient_id}`
-        : `${caseManagerData?.patient_data?.patient_name}, ${caseManagerData?.patient_data?.patient_id}`
+      patient_data?.pm_salutation
+        ? `${patient_data?.pm_salutation} ${patient_data?.pm_fullname}, ${patient_data?.pm_pid}`
+        : `${patient_data?.pm_fullname}, ${patient_data?.pm_pid}`
     }`;
   } else if (id == 2) {
     value = `${
-      caseManagerData?.patient_data?.patient_consultaion_date
-        ? moment(
-            caseManagerData?.patient_data?.patient_consultaion_date
-          ).format("DD/MM/YYYY HH:mm")
-        : "-"
+      billData?.date ? moment(billData.date).format("DD/MM/YYYY HH:mm") : "-"
     }`;
   } else if (id == 3) {
-    value = `${genderAge(
-      caseManagerData?.patient_data,
-      caseManagerData?.doctor_data
-    )}, ${caseManagerData?.patient_data?.patient_gender}`;
+    value = `${genderAge(patient_data, profile)}, ${patient_data?.pm_gender}`;
   } else if (id == 4) {
     value = `${
-      caseManagerData?.patient_data?.patient_contact_no
-        ? caseManagerData?.patient_data?.patient_contact_no
-        : "-"
+      patient_data?.pm_contact_no ? patient_data?.pm_contact_no : "-"
     }`;
   } else if (id == 5) {
     value = `${
-      caseManagerData?.patient_data?.patient_consultation_type
-        ? caseManagerData?.patient_data?.patient_consultation_type
+      patient_data?.patient_consultation_type
+        ? patient_data?.patient_consultation_type
         : "-"
     }`;
   } else if (id == 6) {
     value = `${
-      caseManagerData?.patient_data?.patient_reference_id
-        ? caseManagerData?.patient_data?.patient_reference_id
+      patient_data?.patient_reference_id
+        ? patient_data?.patient_reference_id
         : "-"
     }`;
   } else if (id == 7) {
     value = `${
-      caseManagerData?.patient_data?.patient_salutation
-        ? `${caseManagerData?.patient_data?.patient_salutation} ${caseManagerData?.patient_data?.patient_name}`
-        : `${caseManagerData?.patient_data?.patient_name}`
+      patient_data?.pm_salutation
+        ? `${patient_data?.pm_salutation} ${patient_data?.pm_fullname}`
+        : `${patient_data?.pm_fullname}`
     }`;
   } else if (id == 8) {
-    value = `${
-      caseManagerData?.patient_data?.patient_id
-        ? caseManagerData?.patient_data?.patient_id
-        : "-"
-    }`;
+    value = `${patient_data?.pm_pid ? patient_data?.pm_pid : "-"}`;
+  }
+  return value;
+};
+
+export const billDataShow = (id, billData) => {
+  var value = "";
+  if (id == 1) {
+    value = `${billData?.billNo ?? "-"}`;
+  } else if (id == 2) {
+    value = billData?.receiptNo ?? "-";
+  } else if (id == 3) {
+    value = billData?.date ?? "-";
+  } else if (id == 4) {
+    value = billData?.status;
+  } else if (id == 5) {
+    value = billData?.gstIn ?? "-";
   }
   return value;
 };

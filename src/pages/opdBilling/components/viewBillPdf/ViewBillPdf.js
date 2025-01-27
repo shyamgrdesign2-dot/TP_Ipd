@@ -116,13 +116,28 @@ Font.register({
   ],
 });
 
-const ViewBillPdf = ({ printSettings, isDepositReceipt }) => {
+const ViewBillPdf = ({
+  printSettings,
+  isDepositReceipt,
+  patientData,
+  profile,
+}) => {
   const [fileWatermark, setFileWatermark] = useState(null);
   const paddingStyles = calculatePadding(printSettings?.headerFooter);
 
   const depositData = {
     billNumber: "INV-2900569",
     total: 5000,
+  };
+
+  const billData = {
+    date: "30th Apr 2024",
+    gstIn: "1234",
+    billNo: 123,
+    receiptNo: 124,
+    status: "done",
+    createdBy: "Harish",
+    createdAt: "24/12/2024",
   };
 
   return (
@@ -137,6 +152,9 @@ const ViewBillPdf = ({ printSettings, isDepositReceipt }) => {
           setFileWatermark={setFileWatermark}
           printSettings={printSettings}
           isDepositReceipt={isDepositReceipt}
+          patientData={patientData}
+          billData={billData}
+          profile={profile}
         />
         {isDepositReceipt ? (
           <DepositDetails
@@ -146,8 +164,8 @@ const ViewBillPdf = ({ printSettings, isDepositReceipt }) => {
         ) : (
           <BillDetails pageFormat={printSettings?.pageFormat} />
         )}
-        <BillOtherSettings printSettings={printSettings} />
-        <BillFooter printSettings={printSettings} />
+        <BillOtherSettings printSettings={printSettings} profile={profile} />
+        <BillFooter printSettings={printSettings} billData={billData} />
       </Page>
     </Document>
   );

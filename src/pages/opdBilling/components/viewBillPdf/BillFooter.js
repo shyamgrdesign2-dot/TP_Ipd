@@ -2,14 +2,10 @@ import { Image, Text, View } from "@react-pdf/renderer";
 import { getMarginByFormat } from "./helper";
 import { PX_TO_PT } from "./constants";
 
-const BillFooter = ({ printSettings }) => {
+const BillFooter = ({ printSettings, billData }) => {
   const { headerFooter } = printSettings;
   const { footer } = headerFooter || {};
 
-  const billData = {
-    createdBy: "Harish",
-    createdAt: "24/12/2024",
-  };
   return (
     <View
       style={{

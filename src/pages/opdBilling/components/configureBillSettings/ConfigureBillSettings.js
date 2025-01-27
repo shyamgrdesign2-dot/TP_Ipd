@@ -24,9 +24,14 @@ import { useDispatch } from "react-redux";
 const worker = require("pdfjs-dist/build/pdf.worker.min.js");
 pdfjs.GlobalWorkerOptions.workerSrc = worker;
 
-const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
+const ConfigureBillSettings = ({
+  handleDrawerConfigureSettings,
+  patientData,
+}) => {
   const dispatch = useDispatch();
-  const { defaultPrintSettings } = useSelector((state) => state.doctors);
+  const { defaultPrintSettings, profile } = useSelector(
+    (state) => state.doctors
+  );
   const { billPrintSettings } = useSelector((state) => state.billing);
   const TabsPrintSetting = [
     {
@@ -66,7 +71,11 @@ const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
 
   const makePDFUrl = async () => {
     const blob = await pdf(
-      <ViewBillPdf printSettings={printSettings} />
+      <ViewBillPdf
+        printSettings={printSettings}
+        patientData={patientData}
+        profile={profile}
+      />
     ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));
   };

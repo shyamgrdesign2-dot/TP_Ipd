@@ -25,12 +25,13 @@ import { pdf } from "@react-pdf/renderer";
 import PreviewBill from "../../PreviewBill";
 import { printContent } from "../../utils/helper";
 import moment from "moment";
-import { createBill } from "../../service";
+import { createBill, fetchAdvanceSetting } from "../../service";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
 import { useDispatch } from "react-redux";
 import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../../firebase";
 import { deleteDocsUploadedFromAndroid } from "../../../medicalRecords/service";
+import { setAdvancedSettings } from "../../../../redux/billingSlice";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -43,21 +44,24 @@ const CreateBill = ({
   const dispatch = useDispatch();
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const { profile, userId } = useSelector((state) => state.doctors);
-  const { billPrintSettings } = useSelector((state) => state.billing);
-  const [diagnosisNotesDrawer, setDiagnosisNotesDrawer] = useState(false);
+  const { billPrintSettings, advancedSettings } = useSelector(
+    (state) => state.billing
+  );
+  const [billNotesDrawer, setBillNotesDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
-  const [patientDiagnosisNotes, setPatientDiagnosisNotes] = useState("");
+  const [patientBillNotes, setPatientBillNotes] = useState("");
   const [searchCustomSelected, setSearchCustomSelected] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
   const [dataSource, setDataSource] = useState([
     {
       key: "1",
       item: "",
-      qty: "",
-      price: "",
+      quantity: "",
+      amount: "",
       discount: "",
+      discountType: "",
       gst: "",
-      total: "",
+      totalAmount: "",
     },
   ]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,6 +70,21 @@ const CreateBill = ({
   const [printBlob, setPrintBlob] = useState(null);
   const [isSaveEnabled, setSaveEnabled] = useState(true);
   const [mobileNumber, setMobileNumber] = useState(patientData?.pm_contact_no);
+  const [includeInRx, setIncludeInRx] = useState(false);
+  const [shouldAddBillTo3C, setAddBillTo3C] = useState(false);
+
+  useEffect(() => {
+    if (advancedSettings && Object.keys(advancedSettings).length === 0) {
+      getAdvanceSettings();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (advancedSettings && Object.keys(advancedSettings)?.length) {
+      setIncludeInRx(advancedSettings?.enableCreatedByInRx);
+      setAddBillTo3C(advancedSettings?.defaultForm3cFlag);
+    }
+  }, [advancedSettings]);
 
   useEffect(() => {
     if (searchQuery) {
@@ -82,7 +101,11 @@ const CreateBill = ({
 
   const makePDFUrl = async () => {
     const blob = await pdf(
-      <ViewBillPdf printSettings={billPrintSettings} />
+      <ViewBillPdf
+        printSettings={billPrintSettings}
+        patientData={patientData}
+        profile={profile}
+      />
     ).toBlob();
     setPrintBlob(blob);
     setPdfUrl(URL.createObjectURL(blob));
@@ -94,6 +117,13 @@ const CreateBill = ({
     }
   }, [isSaveEnabled]);
 
+  const getAdvanceSettings = async () => {
+    const advanceSettingsResponse = await fetchAdvanceSetting();
+    if (advanceSettingsResponse) {
+      dispatch(setAdvancedSettings(advanceSettingsResponse));
+    }
+  };
+
   const getSearchOptions = async () => {
     // const searchOptionsRes = await fetchSearchImmunisation(
     //   searchQuery,
@@ -104,31 +134,34 @@ const CreateBill = ({
         name: "Item A",
         id: 1,
         item: "Item A",
-        qty: 2,
-        price: 100,
+        quantity: 2,
+        discountType: "",
+        amount: 100,
         discount: 10,
         gst: 18,
-        total: 110,
+        totalAmount: 110,
       },
       {
         name: "Item B",
         id: 2,
         item: "Item B",
-        qty: "2",
-        price: "100",
+        quantity: "2",
+        discountType: "",
+        amount: "100",
         discount: "10",
         gst: "18",
-        total: "110",
+        totalAmount: "110",
       },
       {
         name: "Item C",
         id: 3,
         item: "Item C",
-        qty: "2",
-        price: "100",
+        quantity: "2",
+        discountType: "",
+        amount: "100",
         discount: "10",
         gst: "18",
-        total: "110",
+        totalAmount: "110",
       },
     ];
     const data = [];
@@ -173,11 +206,12 @@ const CreateBill = ({
     const newRow = {
       key: (dataSource.length + 1).toString(),
       item: "",
-      qty: "",
-      price: "",
+      quantity: "",
+      amount: "",
       discount: "",
+      discountType: "",
       gst: "",
-      total: "",
+      totalAmount: "",
     };
     setDataSource([...dataSource, newRow]);
   };
@@ -193,11 +227,12 @@ const CreateBill = ({
       setSearchCustomSelected({ ...selectedData, isCustom: option.isCustom });
     } else if (option) {
       handleInputChange(selectedData.item, index, "item");
-      handleInputChange(typeof selectedData.qty, index, "qty");
-      handleInputChange(selectedData.price, index, "price");
+      handleInputChange(typeof selectedData.quantity, index, "quantity");
+      handleInputChange(selectedData.amount, index, "amount");
       handleInputChange(selectedData.discount, index, "discount");
+      handleInputChange(selectedData.discountType, index, "discountType");
       handleInputChange(selectedData.gst, index, "gst");
-      handleInputChange(selectedData.total, index, "total");
+      handleInputChange(selectedData.totalAmount, index, "totalAmount");
     } else {
       console.log("directly add the entry to the table");
     }
@@ -236,12 +271,14 @@ const CreateBill = ({
     },
     {
       title: "QTY",
-      dataIndex: "qty",
+      dataIndex: "quantity",
       width: "11%",
       render: (_, record) => (
         <Input
           value={record.qty}
-          onChange={(e) => handleInputChange(e.target.value, record.key, "qty")}
+          onChange={(e) =>
+            handleInputChange(e.target.value, record.key, "quantity")
+          }
           bordered={false}
           style={{ textAlign: "center" }}
           type="number"
@@ -250,13 +287,13 @@ const CreateBill = ({
     },
     {
       title: "PRICE PER UNIT",
-      dataIndex: "price",
+      dataIndex: "amount",
       width: "13%",
       render: (_, record) => (
         <Input
-          value={record.price}
+          value={record.amount}
           onChange={(e) =>
-            handleInputChange(e.target.value, record.key, "price")
+            handleInputChange(e.target.value, record.key, "amount")
           }
           prefix="₹"
           bordered={false}
@@ -296,13 +333,13 @@ const CreateBill = ({
     },
     {
       title: "TOTAL AMOUNT",
-      dataIndex: "total",
+      dataIndex: "totalAmount",
       width: "13%",
       render: (_, record) => (
         <Input
-          value={record.total}
+          value={record.totalAmount}
           onChange={(e) =>
-            handleInputChange(e.target.value, record.key, "total")
+            handleInputChange(e.target.value, record.key, "totalAmount")
           }
           prefix="₹"
           bordered={false}
@@ -357,7 +394,7 @@ const CreateBill = ({
   };
 
   const handleDrawerDiagnosisNotes = () => {
-    setDiagnosisNotesDrawer(!diagnosisNotesDrawer);
+    setBillNotesDrawer(!billNotesDrawer);
   };
 
   const handleDrawerPreviewBill = () => {
@@ -384,13 +421,7 @@ const CreateBill = ({
           totalAmount: 105,
         },
       ],
-      paymentModes: [
-        {
-          paymentMode: "Cash",
-          amount: 1000,
-          refId: "remark",
-        },
-      ],
+      paymentModes: paymentModes,
       subTotal: 0,
       lineItemDiscount: 0,
       extraDiscount: 0,
@@ -398,10 +429,10 @@ const CreateBill = ({
       applicableGst: "18",
       payableAmount: 2000,
       paidAmount: 2000,
-      includeInRx: true,
-      isForm3C: true,
-      date: "2025-01-07",
-      notes: "test notes",
+      includeInRx: includeInRx,
+      isForm3C: shouldAddBillTo3C,
+      date: moment().format("DD-MM-YYYY"),
+      notes: patientBillNotes,
       dueFromPreviousBill: 0,
       previousBillId: "1d251db7-c799-4b18-9d40-d145f1157779",
     };
@@ -781,7 +812,7 @@ const CreateBill = ({
               </div>
             </div>
 
-            {patientDiagnosisNotes?.length === 0 ? (
+            {patientBillNotes?.length === 0 ? (
               <button
                 className="btn d-flex align-items-center btn-text"
                 style={{
@@ -800,7 +831,7 @@ const CreateBill = ({
               >
                 <div className="d-flex gap-1">
                   <span style={{ fontWeight: "600" }}>Notes: </span>
-                  <ReadMore text={patientDiagnosisNotes} textLimit={60} />
+                  <ReadMore text={patientBillNotes} textLimit={60} />
                 </div>
                 <div onClick={handleDrawerDiagnosisNotes}>
                   <i className="icon-Edit text-primary fs-16 cursor-pointer" />
@@ -824,20 +855,20 @@ const CreateBill = ({
           handleModeChange={handleModeChange}
         />
       )}
-      {diagnosisNotesDrawer && (
+      {billNotesDrawer && (
         <Drawer
           closeIcon={false}
           placement="right"
           onClose={handleDrawerDiagnosisNotes}
-          open={diagnosisNotesDrawer}
+          open={billNotesDrawer}
           className="modalWidth-563"
           width="auto"
           push={false}
         >
           <DiagnosisNotes
             handleDrawerDiagnosisNotes={handleDrawerDiagnosisNotes}
-            diagnosisNotes={patientDiagnosisNotes}
-            setDiagnosisNotes={setPatientDiagnosisNotes}
+            diagnosisNotes={patientBillNotes}
+            setDiagnosisNotes={setPatientBillNotes}
             isDiagnosis={false}
           />
         </Drawer>

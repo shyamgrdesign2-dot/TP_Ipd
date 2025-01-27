@@ -42,3 +42,13 @@ export const createBill = async function (payload) {
   }
   return res;
 };
+
+export const fetchAdvanceSetting = async function () {
+  let res = {};
+  try {
+    res = await api.get(`/api/v1/billing/advancedSetting`, baseUrl);
+  } catch (e) {
+    console.error("Error while fetching Advance settings details: ", e);
+  }
+  return res;
+};
