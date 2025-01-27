@@ -20,10 +20,10 @@ import {
   updateGenRx,
 } from "../api/services/ApiGenRx";
 import tutorialIcon from "../assets/images/tutorial-icon.svg";
-import documentIcon from "../assets/images/document-text.svg";
+import documentIcon from "../assets/images/digitise-rx.svg";
 import genRxBg from "../assets/images/gen-rx-bg.gif";
 import genRxRecordIcon from "../assets/images/gen-rx-record.svg";
-import tatvaAiStrip from "../assets/images/tatva-ai-strip.svg";
+import tatvaAiStrip from "../assets/images/apexAI.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getDecodedToken } from "../utils/localStorage";
 import { v4 as uuidv4 } from "uuid";
@@ -1384,7 +1384,16 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                     className="d-flex gap-3 me-auto mb-5"
                                     style={{ width: "87%" }}
                                   >
-                                    <img src={tatvaAiStrip} alt="Tatva AI" />
+                                    <img
+                                      src={tatvaAiStrip}
+                                      alt="Tatva AI"
+                                      style={{
+                                        backgroundColor: "#22003C",
+                                        borderRadius: "10px 10px 0px",
+                                      }}
+                                      width={32}
+                                      height={32}
+                                    />
                                     <div
                                       className={
                                         styles.prescriptionReadyMessage

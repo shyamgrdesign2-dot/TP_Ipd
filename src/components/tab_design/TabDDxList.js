@@ -252,6 +252,7 @@ const TabDDxList = ({
               );
             })}
           </div>
+        <div style={{position:"absolute", bottom: 0}}>
           <Divider />
           <div style={{ padding: "0px 12px" }}>
             <div
@@ -278,6 +279,7 @@ const TabDDxList = ({
               source for patient treatment decisions.
             </div>
           </div>
+        </div>
         </>
       )}
     </div>

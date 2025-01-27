@@ -47,7 +47,8 @@ import apexAIImg from "../../assets/images/apexAI.svg";
 import blinkingDot from "../../assets/images/blinkingDot.gif";
 import ddxVector from "../../assets/images/ddx-tab-vector.svg";
 import ddxImg from "../../assets/images/ddx.svg";
-import genRxImg from "../../assets/images/voice-rx.svg";
+import ddxInactiveImg from "../../assets/images/tab-ddx-inactive.svg";
+import genRxImg from "../../assets/images/gen-rx-mic.svg";
 import obstetricWhite from "../../assets/images/obstetric-white.svg";
 import obstetricDark from "../../assets/images/obstetric-dark.svg";
 import medicalRecordsWhite from "../../assets/images/upload-doc-white.svg";
@@ -875,29 +876,29 @@ function TabPrescription() {
                     onClick={() => openCollapsed(10)}
                   >
                     <div
-                      className={`prescription-tab-button rounded-10px ${
-                        collapsedFlag == 10 && "active"
-                      }`}
+                      className={`prescription-tab-button rounded-10px`}
+                      style={{backgroundColor: "inherit"}}
                     >
                       <img
-                        src={genRxImg}
+                        src={collapsedFlag == 10 ? genRxImg : genRxImg}
                         alt="VoiceRx"
+                        width={42}
+                        height={42}
                       />
                     </div>
                     <label className="text-white mt-1">Voice Rx</label>
                   </button>}
-                  {isApexAIAccessable && <button
+                  {true && <button
                     type="button"
                     className="mb-3 text-center btn btn-action"
                     onClick={() => openCollapsed(9)}
                   >
                     <div
-                      className={`prescription-tab-button rounded-10px ${
-                        collapsedFlag == 1 && "active"
-                      }`}
+                      className={`prescription-tab-button rounded-10px`}
+                      style={{backgroundColor: "inherit"}}
                     >
                       <img
-                        src={ddxImg}
+                        src={collapsedFlag == 9 ? ddxImg : ddxInactiveImg}
                         alt="Vitals"
                       />
                     </div>
