@@ -39,6 +39,7 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: "hidden",
     backgroundColor: "#FCFCFC",
+    zIndex: 1,
   },
   row: {
     flexDirection: "row", // Remove the borderBottom style

@@ -80,10 +80,10 @@ const caseManagerData = {
   labParamsData: [],
 };
 
-const BillHeader = ({ printSettings }) => {
+const BillHeader = ({ printSettings, isDepositReceipt }) => {
   const { headerFooter } = printSettings;
-  const { header, logo, otherSettings, patientInfo } = headerFooter || {};
-  const { clinicInfo, doctorInfo } = header || {};
+  const { header, otherSettings, patientInfo, billInfo } = headerFooter || {};
+  const { clinicInfo, doctorInfo, logo } = header || {};
   const { waterMark } = otherSettings || {};
 
   return (
@@ -127,7 +127,11 @@ const BillHeader = ({ printSettings }) => {
                           height: "100%",
                           objectFit: "contain",
                         }}
-                        src={logo?.file}
+                        src={
+                          logo?.file instanceof File
+                            ? URL.createObjectURL(logo?.file)
+                            : logo?.file
+                        }
                       />
                     )}
                   </View>
@@ -163,7 +167,11 @@ const BillHeader = ({ printSettings }) => {
                           height: "100%",
                           objectFit: "contain",
                         }}
-                        src={logo?.file}
+                        src={
+                          logo?.file instanceof File
+                            ? URL.createObjectURL(logo?.file)
+                            : logo?.file
+                        }
                       />
                     )}
                   </View>
@@ -223,7 +231,11 @@ const BillHeader = ({ printSettings }) => {
           headerFooter?.header?.file && (
             <Image
               style={{ width: "100%", objectFit: "contain" }}
-              src={headerFooter?.header?.file}
+              src={
+                headerFooter?.header?.file instanceof File
+                  ? URL.createObjectURL(headerFooter?.header?.file)
+                  : headerFooter?.header?.file
+              }
             />
           )
         )}
@@ -241,7 +253,11 @@ const BillHeader = ({ printSettings }) => {
             top: "50%",
             left: "40%",
           }}
-          src={waterMark?.file}
+          src={
+            waterMark?.file instanceof File
+              ? URL.createObjectURL(waterMark?.file)
+              : waterMark?.file
+          }
           fixed
         />
       )}
@@ -254,52 +270,62 @@ const BillHeader = ({ printSettings }) => {
         }}
       />
 
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "100%",
+          marginTop: 6,
+        }}
+      >
+        <Text style={[styles.subTitle, { fontWeight: 700 }]}>
+          {isDepositReceipt ? "Deposit Receipt" : "Bill Cum Receipt"}
+        </Text>
+      </View>
+
       <View style={{ flexDirection: "row", marginVertical: PX_TO_PT * 15 }}>
         <View style={{ flex: 0.7, marginRight: PX_TO_PT * 8 }}>
           {patientInfo
             ?.filter((e) => e.enabled)
             ?.map((item, i) => {
               return (
-                i % 2 === 0 && (
-                  <View
-                    key={i}
-                    style={{
-                      flexDirection: "row",
-                      paddingVertical: PX_TO_PT * 3,
-                    }}
-                  >
-                    <Text
-                      style={[styles.displayPatient, { fontWeight: 500 }]}
-                    >{`${item.title}: `}</Text>
-                    <Text style={[styles.displayPatient, { fontWeight: 400 }]}>
-                      {patientDataShow(item.id, caseManagerData)}
-                    </Text>
-                  </View>
-                )
+                <View
+                  key={i}
+                  style={{
+                    flexDirection: "row",
+                    paddingVertical: PX_TO_PT * 3,
+                  }}
+                >
+                  <Text
+                    style={[styles.displayPatient, { fontWeight: 500 }]}
+                  >{`${item.title}: `}</Text>
+                  <Text style={[styles.displayPatient, { fontWeight: 400 }]}>
+                    {patientDataShow(item.id, caseManagerData)}
+                  </Text>
+                </View>
               );
             })}
         </View>
         <View style={{ flex: 0.3, marginLeft: PX_TO_PT * 8 }}>
-          {patientInfo
+          {billInfo
             ?.filter((e) => e.enabled)
             ?.map((item, i) => {
               return (
-                i % 2 === 1 && (
-                  <View
-                    key={i}
-                    style={{
-                      flexDirection: "row",
-                      paddingVertical: PX_TO_PT * 3,
-                    }}
-                  >
-                    <Text
-                      style={[styles.displayPatient, { fontWeight: 500 }]}
-                    >{`${item.title}: `}</Text>
-                    <Text style={[styles.displayPatient, { fontWeight: 400 }]}>
-                      {patientDataShow(item.id, caseManagerData)}
-                    </Text>
-                  </View>
-                )
+                <View
+                  key={i}
+                  style={{
+                    flexDirection: "row",
+                    paddingVertical: PX_TO_PT * 3,
+                  }}
+                >
+                  <Text
+                    style={[styles.displayPatient, { fontWeight: 500 }]}
+                  >{`${item.title}: `}</Text>
+                  <Text style={[styles.displayPatient, { fontWeight: 400 }]}>
+                    {patientDataShow(item.id, caseManagerData)}
+                  </Text>
+                </View>
               );
             })}
         </View>

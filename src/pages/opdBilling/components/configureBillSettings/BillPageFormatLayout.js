@@ -1,11 +1,12 @@
-import { Form, Select } from "antd";
+import { Form, Radio, Select } from "antd";
 import {
   FONTS_FAMILY_LIST,
   FONTS_SIZE_LIST,
 } from "../../../../utils/constants";
+import { isMobile } from "react-device-detect";
 
 const BillPageFormatLayout = ({ pageFormat, setPrintSettings }) => {
-  const { fontFamily, fontSize } = pageFormat || {};
+  const { fontFamily, fontSize, pageSize = "A5" } = pageFormat || {};
   const onSelectPageFormat = (data, key) => {
     setPrintSettings((prev) => {
       return {
@@ -21,6 +22,23 @@ const BillPageFormatLayout = ({ pageFormat, setPrintSettings }) => {
   return (
     <div className="px-3 form_addnewpatient">
       <div className="titleprint mb-3">Page Layout</div>
+      <label className="mb-1">Page Size</label>
+      <Form.Item>
+        <Radio.Group
+          className={`d-flex gender-radio ${
+            isMobile ? "segmented-radio-mobile" : ""
+          }`}
+          onChange={(e) => onSelectPageFormat(e.target.value, "pageSize")}
+          value={pageSize}
+        >
+          <Radio.Button className="w-100 text-center" value="A4">
+            A4
+          </Radio.Button>
+          <Radio.Button className="w-100 text-center" value="A5">
+            A5
+          </Radio.Button>
+        </Radio.Group>
+      </Form.Item>
       <Form.Item>
         <label className="mb-1">Font Family</label>
         <Select

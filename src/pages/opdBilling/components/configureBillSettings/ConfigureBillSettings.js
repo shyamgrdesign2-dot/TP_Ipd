@@ -10,22 +10,23 @@ import { Container, Navbar } from "react-bootstrap";
 import CommonModal from "../../../../common/CommonModal";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
 import visitEnd from "./../../../../assets/images/end-visit.svg";
+import autofill from "./../../../../assets/images/autofill.svg";
 import imgCloseVisit from "./../../../../assets/images/close-visit.svg";
 import { Document, Page, pdfjs } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import BillPageFormatLayout from "./BillPageFormatLayout";
 import BillHeaderFooterLayout from "./BillHeaderFooterLayout";
 import ViewBillPdf from "../viewBillPdf/ViewBillPdf";
-import {
-  deletePrintSetting,
-  fetchPrintSetting,
-  updatePrintSetting,
-} from "../../service";
+import { deletePrintSetting, updatePrintSetting } from "../../service";
 import { useSelector } from "react-redux";
+import { setBillPrintSettings } from "../../../../redux/billingSlice";
+import { useDispatch } from "react-redux";
 const worker = require("pdfjs-dist/build/pdf.worker.min.js");
 pdfjs.GlobalWorkerOptions.workerSrc = worker;
 
 const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
+  const dispatch = useDispatch();
+  const { defaultPrintSettings } = useSelector((state) => state.doctors);
   const { billPrintSettings } = useSelector((state) => state.billing);
   const TabsPrintSetting = [
     {
@@ -92,27 +93,87 @@ const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
   };
 
   const handleSaveBtn = async () => {
-    const updatePrintSettingRes = await updatePrintSetting(printSettings);
-    message.open({
-      key: MESSAGE_KEY,
-      type: "",
-      className: "message-appointment",
-      content: (
-        <div className="d-flex align-items-center">
-          <img src={visitEnd} className="me-3" />
-          <div>
-            <div className="title-common text-start fontroboto">
-              {"Updated Bill Print Settings successfully."}
+    const formData = new FormData();
+    formData.append(
+      "headerFooter",
+      JSON.stringify(printSettings?.headerFooter)
+    );
+    formData.append("pageFormat", JSON.stringify(printSettings?.pageFormat));
+
+    formData.append(
+      "logoFile",
+      printSettings?.headerFooter?.header?.logo?.file
+    );
+    formData.append("headerFile", printSettings?.headerFooter?.header?.file);
+    formData.append("footerFile", printSettings?.headerFooter?.footer?.file);
+
+    formData.append(
+      "waterMarkFile",
+      printSettings?.headerFooter?.otherSettings?.waterMark?.file
+    );
+    if (printSettings?.headerFooter?.otherSettings?.signature?.file) {
+      formData.append(
+        "signatureFile",
+        printSettings?.headerFooter?.otherSettings?.signature?.file
+      );
+    } else {
+      formData.append("deleteSignature", true);
+    }
+
+    const updatePrintSettingRes = await updatePrintSetting(formData);
+    if (updatePrintSettingRes?.status === 200) {
+      dispatch(setBillPrintSettings(printSettings));
+      message.open({
+        key: MESSAGE_KEY,
+        type: "",
+        className: "message-appointment",
+        content: (
+          <div className="d-flex align-items-center">
+            <img src={visitEnd} className="me-3" />
+            <div>
+              <div className="title-common text-start fontroboto">
+                {"Updated Bill Print Settings successfully."}
+              </div>
             </div>
+            <img
+              src={imgCloseVisit}
+              className="ms-3"
+              onClick={() => message.destroy()}
+            />
           </div>
-          <img
-            src={imgCloseVisit}
-            className="ms-3"
-            onClick={() => message.destroy()}
-          />
-        </div>
-      ),
-      duration: 3,
+        ),
+        duration: 3,
+      });
+    }
+    handleDrawerConfigureSettings();
+  };
+
+  const handleAutofillFromRx = () => {
+    const { page_format, header_footer, letterhead_format } =
+      defaultPrintSettings;
+    const { custom_margin, footer, margin, letterhead_margin } = header_footer;
+    setPrintSettings((prev) => {
+      return {
+        ...prev,
+        headerFooter: {
+          ...prev.headerFooter,
+          customLetterHeadMargin: { ...custom_margin },
+          footer: { ...footer, fontSize: footer?.font_size },
+          header: {},
+          letterHeadFormat: letterhead_format,
+          margin: { ...margin },
+          otherSettings: {
+            qrCode: {},
+            signature: {},
+            waterMark: {},
+          },
+          uploadedLetterHeadMargin: { ...letterhead_margin },
+        },
+        pageFormat: {
+          fontFamily: page_format?.font_family,
+          fontSize: page_format?.font_size,
+        },
+      };
     });
   };
 
@@ -210,32 +271,44 @@ const ConfigureBillSettings = ({ handleDrawerConfigureSettings }) => {
 
       <div className={"w-100 bg-body wrapper2"}>
         <Row justify="space-between">
-          <Col xl={8} sm={10} className="pe-3">
-            <div
-              className="bg-white overflow-y-auto"
-              style={{ height: "calc(100vh - 60px)" }}
-            >
-              <Tabs
-                defaultActiveKey="1"
-                items={TabsPrintSetting}
-                onChange={onTabChange}
-                className="print-tabs"
-              />
-              {selectedTab === TAB_HEADER_FOOTER ? (
-                <BillHeaderFooterLayout
-                  headerFooter={printSettings?.headerFooter}
-                  setPrintSettings={setPrintSettings}
+          {printSettings && Object.keys(printSettings)?.length > 0 && (
+            <Col xl={8} sm={10} className="pe-3">
+              <div
+                className="bg-white overflow-y-auto"
+                style={{ height: "calc(100vh - 60px)" }}
+              >
+                <Tabs
+                  defaultActiveKey="1"
+                  items={TabsPrintSetting}
+                  onChange={onTabChange}
+                  className="print-tabs"
                 />
-              ) : (
-                selectedTab === TAB_PAGE_FORMAT && (
-                  <BillPageFormatLayout
-                    pageFormat={printSettings?.pageFormat}
+                <Button
+                  type="button"
+                  className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex m-3"
+                  onClick={handleAutofillFromRx}
+                  icon={<img src={autofill} alt="autofill" />}
+                >
+                  Autofill Details from Rx Print Settings
+                </Button>
+                {selectedTab === TAB_HEADER_FOOTER &&
+                printSettings &&
+                Object.keys(printSettings).length ? (
+                  <BillHeaderFooterLayout
+                    headerFooter={printSettings?.headerFooter}
                     setPrintSettings={setPrintSettings}
                   />
-                )
-              )}
-            </div>
-          </Col>
+                ) : (
+                  selectedTab === TAB_PAGE_FORMAT && (
+                    <BillPageFormatLayout
+                      pageFormat={printSettings?.pageFormat}
+                      setPrintSettings={setPrintSettings}
+                    />
+                  )
+                )}
+              </div>
+            </Col>
+          )}
           <Col xl={16} sm={14}>
             <div
               className="mx-auto overflow-y-auto "

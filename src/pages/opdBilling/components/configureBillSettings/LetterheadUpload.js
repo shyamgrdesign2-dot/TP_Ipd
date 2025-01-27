@@ -1,11 +1,11 @@
 import { Button, Col, Row } from "antd";
 import CommonModal from "../../../../common/CommonModal";
 import { Cropper } from "react-cropper";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { dataUrlToFileUsingFetch, errorMessage } from "../../../../utils/utils";
 import defaultprofile from "./../../../../assets/images/default-profile.svg";
 
-const LetterheadUpload = ({ setPrintSettings }) => {
+const LetterheadUpload = ({ setPrintSettings, headerFooter }) => {
   const [fileFooter, setFileFooter] = useState(null);
   const [fileHeader, setFileHeader] = useState(null);
   const [isHeaderModalOpen, setIsHeaderModalOpen] = useState(false);
@@ -15,6 +15,25 @@ const LetterheadUpload = ({ setPrintSettings }) => {
   const inputHeaderFile = React.createRef();
   const inputFooterFile = React.createRef();
   const cropperFooterRef = React.createRef();
+
+  useEffect(() => {
+    const headerFile = headerFooter?.header?.file;
+    if (headerFile) {
+      setFileHeader({
+        imageShow: true,
+        file: headerFile,
+        originalFile: headerFile,
+      });
+    }
+    const footerFile = headerFooter?.footer?.file;
+    if (footerFile) {
+      setFileFooter({
+        imageShow: true,
+        file: footerFile,
+        originalFile: footerFile,
+      });
+    }
+  }, [headerFooter]);
 
   //Upload Letterhead
   const showHideHeaderModal = useCallback(() => {
@@ -92,9 +111,7 @@ const LetterheadUpload = ({ setPrintSettings }) => {
           ...prev?.headerFooter,
           header: {
             ...prev?.headerFooter?.header,
-            file: fileHeader?.uploadFile
-              ? URL.createObjectURL(fileHeader?.uploadFile)
-              : fileHeader?.file,
+            file: fileHeader?.uploadFile,
           },
         },
       };
@@ -178,9 +195,7 @@ const LetterheadUpload = ({ setPrintSettings }) => {
           ...prev?.headerFooter,
           footer: {
             ...prev?.headerFooter?.footer,
-            file: fileFooter?.uploadFile
-              ? URL.createObjectURL(fileFooter?.uploadFile)
-              : fileFooter?.file,
+            file: fileFooter?.uploadFile,
           },
         },
       };
@@ -209,7 +224,11 @@ const LetterheadUpload = ({ setPrintSettings }) => {
                 objectFit: "contain",
                 overflow: "hidden",
               }}
-              src={fileHeader?.file}
+              src={
+                fileHeader?.file instanceof File
+                  ? URL.createObjectURL(fileHeader?.file)
+                  : fileHeader?.file
+              }
             />
             <Button
               className="btn btn-headfoot"
@@ -322,7 +341,11 @@ const LetterheadUpload = ({ setPrintSettings }) => {
                 objectFit: "contain",
                 overflow: "hidden",
               }}
-              src={fileFooter?.file}
+              src={
+                fileFooter?.file instanceof File
+                  ? URL.createObjectURL(fileFooter?.file)
+                  : fileFooter?.file
+              }
             />
             <Button
               className="btn btn-headfoot"

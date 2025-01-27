@@ -1,5 +1,5 @@
 import { Button, Checkbox, Col, Form, Input, Radio, Row, Switch } from "antd";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Cropper } from "react-cropper";
 import SignatureCanvas from "react-signature-canvas";
 import { dataUrlToFileUsingFetch, errorMessage } from "../../../../utils/utils";
@@ -19,6 +19,32 @@ const OtherSetttings = ({ otherSettings, setPrintSettings }) => {
   const signatureRef = React.createRef();
   const cropperSignatureRef = React.createRef();
   const inputWatermarkFile = React.createRef();
+
+  useEffect(() => {
+    const signatureFile = otherSettings?.signature?.file;
+    if (signatureFile) {
+      setFileSignature({
+        imageShow: true,
+        showFile:
+          signatureFile instanceof File
+            ? URL.createObjectURL(signatureFile)
+            : signatureFile,
+        uploadFile: signatureFile,
+      });
+    }
+
+    const watermarkFile = otherSettings?.waterMark?.file;
+    if (watermarkFile) {
+      setFileWatermark({
+        imageShow: true,
+        showFile:
+          watermarkFile instanceof File
+            ? URL.createObjectURL(watermarkFile)
+            : watermarkFile,
+        uploadFile: watermarkFile,
+      });
+    }
+  }, [otherSettings]);
 
   //Other Settings
   const onSwitchChange = (value, type, key) => {
@@ -54,6 +80,7 @@ const OtherSetttings = ({ otherSettings, setPrintSettings }) => {
           showFile: URL.createObjectURL(fileUrl),
           uploadFile: fileUrl,
         });
+        onSwitchChange(fileUrl, "waterMark", "file");
       } else {
         errorMessage(
           "Please upload only jpg, jpeg or png files with the max size 2mb."
@@ -91,6 +118,7 @@ const OtherSetttings = ({ otherSettings, setPrintSettings }) => {
             crop: true,
             readFile: reader.result,
             originalFile: fileUrl,
+            uploadFile: fileUrl,
           });
         };
         reader.readAsDataURL(fileUrl);
@@ -104,7 +132,7 @@ const OtherSetttings = ({ otherSettings, setPrintSettings }) => {
 
   const onSignatureImageSubmit = () => {
     setFileSignature({ ...fileSignature, imageShow: true });
-    onSwitchChange(fileSignature?.showFile, "signature", "file");
+    onSwitchChange(fileSignature?.uploadFile, "signature", "file");
     onSwitchChange(true, "signature", "enabled");
     showHideSignatureModal();
   };
@@ -114,6 +142,7 @@ const OtherSetttings = ({ otherSettings, setPrintSettings }) => {
       signatureRef.current?.clear();
     }
     setFileSignature(null);
+    onSwitchChange("", "signature", "file");
   };
 
   const onResetSignature = () => {

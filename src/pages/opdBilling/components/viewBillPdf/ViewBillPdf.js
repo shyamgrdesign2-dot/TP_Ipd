@@ -5,6 +5,7 @@ import BillHeader from "./BillHeader";
 import BillFooter from "./BillFooter";
 import BillOtherSettings from "./BillOtherSettings";
 import BillDetails from "./BillDetails";
+import DepositDetails from "./DepositDetails";
 
 // Roboto
 Font.register({
@@ -115,20 +116,37 @@ Font.register({
   ],
 });
 
-const ViewBillPdf = ({ printSettings }) => {
+const ViewBillPdf = ({ printSettings, isDepositReceipt }) => {
   const [fileWatermark, setFileWatermark] = useState(null);
   const paddingStyles = calculatePadding(printSettings?.headerFooter);
 
+  const depositData = {
+    billNumber: "INV-2900569",
+    total: 5000,
+  };
+
   return (
     <Document>
-      <Page size="A5" style={paddingStyles} wrap={true}>
+      <Page
+        size={printSettings?.pageFormat?.pageSize || "A5"}
+        style={paddingStyles}
+        wrap={true}
+      >
         <BillHeader
           fileWatermark={fileWatermark}
           setFileWatermark={setFileWatermark}
           printSettings={printSettings}
+          isDepositReceipt={isDepositReceipt}
         />
+        {isDepositReceipt ? (
+          <DepositDetails
+            pageFormat={printSettings?.pageFormat}
+            depositData={depositData}
+          />
+        ) : (
+          <BillDetails pageFormat={printSettings?.pageFormat} />
+        )}
         <BillOtherSettings printSettings={printSettings} />
-        <BillDetails pageFormat={printSettings?.pageFormat} />
         <BillFooter printSettings={printSettings} />
       </Page>
     </Document>

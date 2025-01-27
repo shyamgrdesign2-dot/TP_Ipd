@@ -65,53 +65,23 @@ export const patientDataShow = (id, caseManagerData) => {
     }`;
   } else if (id == 5) {
     value = `${
-      caseManagerData?.patient_data?.patient_ht_wt
-        ? caseManagerData?.patient_data?.patient_ht_wt
-        : "-"
-    }`;
-  } else if (id == 6) {
-    value = `${
-      caseManagerData?.patient_data?.patient_blood_group
-        ? caseManagerData?.patient_data?.patient_blood_group
-        : "-"
-    }`;
-  } else if (id == 7) {
-    value = `${
-      caseManagerData?.patient_data?.patient_address
-        ? caseManagerData?.patient_data?.patient_address
-        : "-"
-    }`;
-  } else if (id == 8) {
-    value = `${
       caseManagerData?.patient_data?.patient_consultation_type
         ? caseManagerData?.patient_data?.patient_consultation_type
         : "-"
     }`;
-  } else if (id == 9) {
-    value = `${
-      caseManagerData?.patient_data?.patient_edd_date
-        ? caseManagerData?.patient_data?.patient_edd_date
-        : "-"
-    }`;
-  } else if (id == 10) {
-    value = `${
-      caseManagerData?.patient_data?.patient_email
-        ? caseManagerData?.patient_data?.patient_email
-        : "-"
-    }`;
-  } else if (id == 11) {
+  } else if (id == 6) {
     value = `${
       caseManagerData?.patient_data?.patient_reference_id
         ? caseManagerData?.patient_data?.patient_reference_id
         : "-"
     }`;
-  } else if (id == 12) {
+  } else if (id == 7) {
     value = `${
       caseManagerData?.patient_data?.patient_salutation
         ? `${caseManagerData?.patient_data?.patient_salutation} ${caseManagerData?.patient_data?.patient_name}`
         : `${caseManagerData?.patient_data?.patient_name}`
     }`;
-  } else if (id == 13) {
+  } else if (id == 8) {
     value = `${
       caseManagerData?.patient_data?.patient_id
         ? caseManagerData?.patient_data?.patient_id

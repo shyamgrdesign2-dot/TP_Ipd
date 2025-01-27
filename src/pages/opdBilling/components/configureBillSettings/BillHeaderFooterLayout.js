@@ -2,6 +2,7 @@ import React from "react";
 import OtherSetttings from "./OtherSetttings";
 import PatientInfo from "./PatientInfo";
 import HeaderFooter from "./HeaderFooter";
+import BillingInfo from "./BillingInfo";
 
 const BillHeaderFooterLayout = ({ headerFooter, setPrintSettings }) => {
   return (
@@ -12,6 +13,10 @@ const BillHeaderFooterLayout = ({ headerFooter, setPrintSettings }) => {
       />
       <PatientInfo
         patientInfo={headerFooter?.patientInfo}
+        setPrintSettings={setPrintSettings}
+      />
+      <BillingInfo
+        billInfo={headerFooter?.billInfo}
         setPrintSettings={setPrintSettings}
       />
       <OtherSetttings

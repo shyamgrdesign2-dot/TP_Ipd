@@ -6,6 +6,10 @@ const BillFooter = ({ printSettings }) => {
   const { headerFooter } = printSettings;
   const { footer } = headerFooter || {};
 
+  const billData = {
+    createdBy: "Harish",
+    createdAt: "24/12/2024",
+  };
   return (
     <View
       style={{
@@ -31,6 +35,21 @@ const BillFooter = ({ printSettings }) => {
       }}
       fixed
     >
+      <Text
+        style={{
+          marginTop: PX_TO_PT * 8,
+          marginBottom: PX_TO_PT * 8,
+          color: "#A2A2A8",
+          fontFamily: "Roboto",
+          fontSize: PX_TO_PT * footer?.fontSize,
+          fontWeight: 400,
+          maxLines: 1,
+        }}
+      >
+        Bill Created By : {billData?.createdBy} | Created on :{" "}
+        {billData?.createdAt}
+      </Text>
+
       {headerFooter?.letterHeadFormat === 0 ? (
         <View>
           <View
@@ -58,7 +77,11 @@ const BillFooter = ({ printSettings }) => {
         footer?.file && (
           <Image
             style={{ width: "100%", objectFit: "cover" }}
-            src={footer?.file}
+            src={
+              footer?.file instanceof File
+                ? URL.createObjectURL(footer?.file)
+                : footer?.file
+            }
           />
         )
       )}

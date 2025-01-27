@@ -89,7 +89,7 @@ const LetterheadCustom = ({ headerFooter, setPrintSettings }) => {
                 ...prev?.headerFooter?.header,
                 logo: {
                   ...prev?.headerFooter?.header?.logo,
-                  file: URL.createObjectURL(fileUrl),
+                  file: fileUrl,
                 },
               },
             },
@@ -293,7 +293,11 @@ const LetterheadCustom = ({ headerFooter, setPrintSettings }) => {
                   objectFit: "contain",
                   overflow: "hidden",
                 }}
-                src={logo?.file}
+                src={
+                  logo?.file instanceof File
+                    ? URL.createObjectURL(logo?.file)
+                    : logo?.file
+                }
                 alt="logo-file"
               />
             ) : (

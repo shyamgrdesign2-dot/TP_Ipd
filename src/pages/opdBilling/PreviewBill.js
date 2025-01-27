@@ -11,6 +11,7 @@ import { fetchPrintSetting } from "./service";
 import { setBillPrintSettings } from "../../redux/billingSlice";
 import { useDispatch } from "react-redux";
 import { Container, Navbar } from "react-bootstrap";
+import { handleDownload, printContent } from "./utils/helper";
 
 const patient_data = {
   pm_salutation: "Mr",
@@ -39,7 +40,11 @@ const patient_data = {
   ageDays: 27,
 };
 
-const PreviewBill = ({ handleCreateBillDrawer, isPreviewFromTable }) => {
+const PreviewBill = ({
+  handleCreateBillDrawer,
+  isPreviewFromTable,
+  isDepositReceipt,
+}) => {
   const dispatch = useDispatch();
   const { billPrintSettings } = useSelector((state) => state.billing);
   const divRef = useRef(null);
@@ -74,7 +79,10 @@ const PreviewBill = ({ handleCreateBillDrawer, isPreviewFromTable }) => {
 
   const makePDFUrl = async () => {
     const blob = await pdf(
-      <ViewBillPdf printSettings={billPrintSettings} />
+      <ViewBillPdf
+        printSettings={billPrintSettings}
+        isDepositReceipt={isDepositReceipt}
+      />
     ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));
   };
@@ -126,7 +134,7 @@ const PreviewBill = ({ handleCreateBillDrawer, isPreviewFromTable }) => {
         } w-100 bg-body wrapper2 prescription-wrapper`}
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
-          <Col md={7} sm={7} xl={5}>
+          <Col md={7} sm={7} xl={isDepositReceipt ? 6 : 5}>
             {isMobile ? (
               ""
             ) : (
@@ -169,34 +177,46 @@ const PreviewBill = ({ handleCreateBillDrawer, isPreviewFromTable }) => {
                 <Button
                   type="text"
                   className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
-                  icon={<i className="icon-Print"></i>}
+                  icon={<i className="icon-Print" />}
+                  onClick={() => printContent(printBlob)}
                 >
-                  <span className="fw-semibold">Print Bill</span>
+                  <span className="fw-semibold">
+                    {isDepositReceipt ? "Print Deposit Receipt" : "Print Bill"}
+                  </span>
                   <i className="icon-right iconrotate180 ms-auto"></i>
                 </Button>
                 <Button
                   type="text"
                   className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
-                  icon={<i className="icon-download"></i>}
+                  icon={<i className="icon-download" />}
+                  onClick={() => handleDownload(pdfUrl)}
                 >
-                  <span className="fw-semibold">Download Bill</span>
+                  <span className="fw-semibold">
+                    {isDepositReceipt
+                      ? "Download Deposit Receipt"
+                      : "Download Bill"}
+                  </span>
                   <i className="icon-right iconrotate180 ms-auto"></i>
                 </Button>
-                <Button
-                  type="text"
-                  className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
-                  icon={<i className="icon-Edit"></i>}
-                >
-                  <span className="fw-semibold">Refund</span>
-                  <i className="icon-right iconrotate180 ms-auto"></i>
-                </Button>
+                {!isDepositReceipt && (
+                  <Button
+                    type="text"
+                    className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
+                    icon={<i className="icon-Edit" />}
+                  >
+                    <span className="fw-semibold">Refund</span>
+                    <i className="icon-right iconrotate180 ms-auto"></i>
+                  </Button>
+                )}
               </div>
             </div>
           </Col>
           <Col md={17} sm={17} xl={12}>
             <div className={isMobile ? "p-20" : ""}>
               <div className="d-flex align-itms-center justify-content-between">
-                <div className="titleprint">Preview</div>
+                <div className="titleprint">
+                  {isDepositReceipt ? "Deposit Receipt Preview" : "Preview"}
+                </div>
               </div>
               <div className="rounded-20px bg-white mt-20 overflow-hidden">
                 <div ref={divRef} className="printheight">

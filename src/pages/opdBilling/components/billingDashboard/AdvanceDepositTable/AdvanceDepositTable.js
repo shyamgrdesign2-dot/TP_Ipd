@@ -9,6 +9,7 @@ import {
   Button,
   Table,
   Dropdown,
+  Drawer,
 } from "antd";
 import moment from "moment";
 import dayjs from "dayjs";
@@ -16,6 +17,7 @@ import "../AdvanceDepositTable/AdvanceDepositTable.scss";
 import { useReactToPrint } from "react-to-print";
 import { handlePrintClick } from "../../../../../utils/utils.js";
 import DownloadBill from "../DownloadBill/DownloadBill.js";
+import PreviewBill from "../../../PreviewBill.js";
 const { RangePicker } = DatePicker;
 
 const { Option } = Select;
@@ -55,6 +57,7 @@ export default function AdvanceDepositTable() {
   const printableRef = useRef(null);
   const [tabLoader, setTabLoader] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
 
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
 
@@ -152,8 +155,14 @@ export default function AdvanceDepositTable() {
     }
   };
 
+  const handleDrawerPreviewBill = () => {
+    setPreviewBillDrawer(!previewBillDrawer);
+  };
+
   const onBillingDetailsClick = async (status, record) => {
-    if (status === 3) {
+    if (status === 1) {
+      handleDrawerPreviewBill();
+    } else if (status === 3) {
     } else {
     }
   };
@@ -651,6 +660,22 @@ export default function AdvanceDepositTable() {
           />
         </Row>
       </div>
+      {previewBillDrawer && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerPreviewBill}
+          open={previewBillDrawer}
+          width="100%"
+          push={false}
+        >
+          <PreviewBill
+            handleCreateBillDrawer={handleDrawerPreviewBill}
+            isPreviewFromTable={true}
+            isDepositReceipt={true}
+          />
+        </Drawer>
+      )}
     </div>
   );
 }
