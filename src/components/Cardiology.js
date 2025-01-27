@@ -208,9 +208,6 @@ function Cardiology(props) {
       navigate(0, { replace: true });
   }
   async function printRxContent() {
-    if(showDigitalGenRx) {
-      await window.open(`${viewCaseManagerData?.print_rx_url}${genRxData ? '&voiceRxDigitize=true' : ''}`);
-    }
     await window.open(viewCaseManagerData?.print_rx_url);
   };
 
@@ -386,7 +383,10 @@ function Cardiology(props) {
       await window.open(printUrl)
     }
     else if(showDigitalGenRx) {
-      await window.open(`${viewCaseManagerData?.print_url}${genRxData && isValidMongoId(viewCaseManagerData?.smart_prescription_filename) ? '&voiceRxDigitize=true' : ''}`);
+      const urlObj = new URL(viewCaseManagerData?.print_url);
+      urlObj.searchParams.set("voiceRxDigitize", "true");
+      const updatedUrl = urlObj.toString();
+      await window.open(updatedUrl);
     }
     else{
       await window.open(viewCaseManagerData?.print_rx_url);
@@ -394,8 +394,14 @@ function Cardiology(props) {
   };
 
   const printInAppContent = async () => {
+    let voiceRxUrl;
+    if(showDigitalGenRx) {
+      const urlObj = new URL(viewCaseManagerData?.print_url);
+      urlObj.searchParams.set("voiceRxDigitize", "true");
+      voiceRxUrl = urlObj.toString();
+    }
     navigate(
-      `/patient_details/?url=${viewCaseManagerData?.print_url}${genRxData && isValidMongoId(viewCaseManagerData?.smart_prescription_filename) ? '&voiceRxDigitize=true' : ''}&key=print`,
+      `/patient_details/?url=${showDigitalGenRx && voiceRxUrl ? voiceRxUrl : viewCaseManagerData?.print_url}&key=print`,
       { replace: true, state: { patient_data: patient_data } }
     );
     navigate(0, { replace: true });
@@ -671,6 +677,9 @@ function Cardiology(props) {
                         ? printInAppContent()
                         : printContent()
                     }
+                    style={{
+                      visibility: !showDigitalGenRx && isValidMongoId(viewCaseManagerData?.smart_prescription_filename) ? "hidden" : "visible",
+                    }}
                   >
                     <i className="icon-Print"></i>
                   </button>
