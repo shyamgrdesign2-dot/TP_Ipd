@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, lazy } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Drawer, Tabs } from "antd";
 import moment from "moment";
@@ -93,10 +93,10 @@ import TatvaAiBanner from "../components/TatvaAiBanner";
 // import ConsultationDrawer from "../components/ConsultationDrawer";
 import Carousel from "react-multi-carousel";
 import TatvaAiKnowMore from "../components/TatvaAiKnowMore";
-
-const GenRxBox = lazy(() => import("../components/GenRxBox"));
-const ConsultationDrawer = lazy(() => import("../components/ConsultationDrawer"));
-const GenRxKnowMore=lazy(() => import("../components/GenRxKnowMore"));
+import { AnimationProvider } from "../context/AnimationProvider";
+import GenRxBox from "../components/GenRxBox";
+import GenRxKnowMore from "../components/GenRxKnowMore";
+import ConsultationDrawer from "../components/ConsultationDrawer";
 
 
 function Prescription() {
@@ -1071,6 +1071,7 @@ const handleTatvaAiKnowMore = () => {
 
   return (
     <CashManagerContext.Provider value={contextApi}>
+      <AnimationProvider>
       <>
         <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} handleGenRx={() => setIsGenRxDrawerVisible(true)} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
@@ -1414,26 +1415,27 @@ const handleTatvaAiKnowMore = () => {
             <GenRxKnowMore handleGenRxKnowMore={handleGenRxKnowMore} />
           </Drawer>
         )}
-
-      {isGenRxDrawerVisible &&<ConsultationDrawer 
-        visible={isGenRxDrawerVisible} 
-        onClose={() => setIsGenRxDrawerVisible(false)} 
-        handleGenRxKnowMore={handleGenRxKnowMore}
-      />}
-      {
-        tatvaAiKnowMoreDrawer && 
-        <Drawer
-            closeIcon={false}
-            placement="right"
-            open={tatvaAiKnowMoreDrawer}
-            onClose={handleTatvaAiKnowMore}
-            className=".modalWidth-800"
-            width={825}
-          >
-          <TatvaAiKnowMore handleTatvaAiKnowMore={handleTatvaAiKnowMore} handleDDxKnowMore={handleDDxKnowMore} handleGenRxKnowMore={handleGenRxKnowMore} />
-        </Drawer>
-      }
+        {isGenRxDrawerVisible && (
+          <ConsultationDrawer
+            visible={isGenRxDrawerVisible} 
+            onClose={() => setIsGenRxDrawerVisible(false)} 
+            handleGenRxKnowMore={handleGenRxKnowMore}
+          />
+        )}
+        {tatvaAiKnowMoreDrawer && (
+          <Drawer
+              closeIcon={false}
+              placement="right"
+              open={tatvaAiKnowMoreDrawer}
+              onClose={handleTatvaAiKnowMore}
+              className=".modalWidth-800"
+              width={825}
+            >
+            <TatvaAiKnowMore handleTatvaAiKnowMore={handleTatvaAiKnowMore} handleDDxKnowMore={handleDDxKnowMore} handleGenRxKnowMore={handleGenRxKnowMore} />
+          </Drawer>
+        )}
       </>
+      </AnimationProvider>
     </CashManagerContext.Provider>
   );
 }

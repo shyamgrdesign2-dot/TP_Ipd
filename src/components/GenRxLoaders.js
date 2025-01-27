@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, useContext } from "react";
 import Lottie from "lottie-react";
 import SkeletonScreen from "./SkeletonScreen";
 import styles from "./VoiceRxLoaders.module.css";
-import genRxInputProcessingLottie from "../assets/lotties/genRxInputProcessing.json";
-import genRxConvertingDataLottie from "../assets/lotties/genRxConvertingData.json";
-import genRxFinalizingRx from "../assets/lotties/genRxFinalizingRx.json";
-import genRxStructuringData from "../assets/lotties/genRxStructuringData.json";
 import GradientProgressBar from "./GradientProgressbar";
+import { AnimationContext } from "../context/AnimationContext";
 
 const GenRXLoaders = ({ isProcessing }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [showSkeleton, setShowSkeleton] = useState(false);
+  const animations = useContext(AnimationContext);
 
   useEffect(() => {
     if (isProcessing) {
@@ -50,7 +48,7 @@ const GenRXLoaders = ({ isProcessing }) => {
         {currentStep === 0 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
             <Lottie
-              animationData={genRxInputProcessingLottie}
+              animationData={animations.genRxInputProcessing}
               loop={true}
               style={{
                 width: "167.97px",
@@ -64,7 +62,7 @@ const GenRXLoaders = ({ isProcessing }) => {
         {currentStep === 1 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
             <Lottie
-              animationData={genRxConvertingDataLottie}
+              animationData={animations.genRxConvertingData}
               loop={true}
               style={{
                 width: "167.97px",
@@ -78,7 +76,7 @@ const GenRXLoaders = ({ isProcessing }) => {
         {currentStep === 2 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
             <Lottie
-              animationData={genRxStructuringData}
+              animationData={animations.genRxStructuringData}
               loop={true}
               style={{
                 width: "167.97px",
@@ -92,7 +90,7 @@ const GenRXLoaders = ({ isProcessing }) => {
         {currentStep === 3 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
             <Lottie
-              animationData={genRxFinalizingRx}
+              animationData={animations.genRxFinalizingRx}
               loop={true}
               style={{
                 width: "167.97px",

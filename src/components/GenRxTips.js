@@ -4,16 +4,15 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  lazy,
+  useContext,
 } from "react";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import tipIcon from "../assets/images/tip.svg";
 import Lottie from "lottie-react";
-import mentionHeadingsLottie from "../assets/lotties/genRxMentionHeadingsTip.json";
-import stayFocusedLottie from "../assets/lotties/genRxStayFocusedTip.json";
-import beConciseLottie from "../assets/lotties/genRxBeConciseTip.json";
-import youCanTypeTooLottie from "../assets/lotties/genRxYouCanTypeTooTip.json";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import { AnimationContext } from "../context/AnimationContext";
 
 const carouselItemStyle = {
   display: "flex",
@@ -121,6 +120,7 @@ const GenRxTips = ({ isKnowMore }) => {
   const [progress, setProgress] = useState(0);
   const progressInterval = useRef(null);
   const carouselRef = useRef(null);
+  const animations = useContext(AnimationContext);
 
   const tips = useMemo(
     () => [
@@ -128,28 +128,28 @@ const GenRxTips = ({ isKnowMore }) => {
         title: "Mention Headings",
         description:
           "While dictating Rx include headings like 'Symptoms', 'Medication' etc. to keep information organised.",
-        animationData: mentionHeadingsLottie,
+        animationData: animations.headings,
       },
       {
         title: "Stay Focused",
         description:
           "Stick to only prescription details. Avoid irrelevant information for clear and precise dictation.",
-        animationData: stayFocusedLottie,
+        animationData: animations.focused,
       },
       {
         title: "Dictate Rx in One Go",
         description:
           "Dictate prescription details clearly and completely in one go for better and faster results.",
-        animationData: beConciseLottie,
+        animationData: animations.concise,
       },
       {
         title: "You Can Type Too",
         description:
           "Listen to a sample voice dictation for guidance on how to dictate clear and concise prescriptions.",
-        animationData: youCanTypeTooLottie,
+        animationData: animations.type,
       },
     ],
-    []
+    [animations]
   );
 
   const startProgress = useCallback(() => {
@@ -249,7 +249,7 @@ const GenRxTips = ({ isKnowMore }) => {
         removeArrowOnDeviceType={["tablet", "mobile"]}
         beforeChange={handleSlideChange}
         partialVisible={isKnowMore}
-        arrows={!isKnowMore}
+        arrows={true}
         customLeftArrow={
           <button
             style={leftArrowStyle}
@@ -276,11 +276,13 @@ const GenRxTips = ({ isKnowMore }) => {
               </div>
               <p style={textStyle}>{tip.description}</p>
             </div>
-            <Lottie
-              animationData={tip.animationData}
-              loop={true}
-              style={{ minWidth: "120px" }}
-            />
+            {tip.animationData && (
+              <Lottie
+                animationData={tip.animationData}
+                loop={true}
+                style={{ minWidth: "120px" }}
+              />
+            )}
           </div>
         ))}
       </Carousel>

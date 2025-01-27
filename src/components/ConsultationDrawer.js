@@ -5,12 +5,11 @@ import React, {
   useContext,
   useCallback,
   useMemo,
+  Suspense,
+  lazy,
 } from "react";
-import { Drawer, Button, Input, message, Menu, Dropdown } from "antd";
+import { Drawer, Button, Input, message, Menu, Dropdown, Spin } from "antd";
 import styles from "./ConsultationDrawer.module.css";
-import GenRxTips from "./GenRxTips";
-import tatvaAiChakraLottie from "../assets/lotties/tatvaAiChakra.json";
-import genRxSendCtaLottie from "../assets/lotties/genRxSendCta.json";
 import deleteIcon from "../assets/images/delete-gen-rx.svg";
 import micIcon from "../assets/images/mic-gen-rx.svg";
 import pauseIcon from "../assets/images/pause.svg";
@@ -40,6 +39,9 @@ import BubbleSkeleton from "./BubbleSkeleton";
 import Lottie from "lottie-react";
 import VoiceWaveVisualizer from "./WaveVisualizer";
 import GenRXLoaders from "./GenRxLoaders";
+import { AnimationContext } from "../context/AnimationContext";
+
+const GenRxTips = lazy(() => import("./GenRxTips"));
 
 const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const { state } = useLocation();
@@ -92,6 +94,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const { tcmId, consultationDate } = useContext(CashManagerContext);
 
   const dispatch = useDispatch();
+
+  const animations = useContext(AnimationContext);
 
   useEffect(() => {
     if (caseManagerData?.smart_prescription_filename) getGenRxDetails();
@@ -1120,328 +1124,158 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       closeIcon={false}
       width={showPrescription ? "100%" : "600px"}
     >
-      <div className="modalCard-header h-60 align-items-center justify-content-between d-flex position-sticky top-0 z-2">
-        <div className="align-items-center d-flex h-100">
-          <div className="border-end h-100 text-center me-3">
-            <div
-              onClick={checkDataFillOrNot}
-              className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
-            >
-              <i className="icon-right"></i>
-            </div>
-          </div>
-          <div className="title-common">Voice Rx</div>
-        </div>
-        <div className="d-flex align-items-center gap-2">
-          <button
-            className="btn d-flex align-items-center btn-text me-10 tutorial"
-            onClick={handleGenRxKnowMore}
-          >
-            <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
-              <img height={42} src={tutorialIcon} />
-              Tutorial
-            </span>
-          </button>
-
-          {showPrescription && (
-            <Button
-              type="button"
-              className="btn align-items-center d-flex btn-41 btn-primary3 me-20"
-              onClick={onEndVisitClick}
-              disabled={!prescriptionData}
-            >
-              <i className="icon-exit me-2"></i>
-              End Visit
-            </Button>
-          )}
-        </div>
-      </div>
-      <div
-        className={!showPrescription ? styles.gradientBorder : ""}
-        style={{ background: !showPrescription ? `url(${genRxBg})` : "" }}
+      <Suspense
+        fallback={
+          <Spin className="d-flex justify-content-center align-items-center mt-5" />
+        }
       >
-        <div className={styles.container}>
-          {!showPrescription ? (
-            <>
-              <div style={{ padding: 24 }}>
-                <h1 className={styles.title}>
-                  Start your consultation with the patient
-                </h1>
-                <div className={styles.subtitle}>
-                  Dictate the complete prescription effortlessly
+        <>
+          <div className="modalCard-header h-60 align-items-center justify-content-between d-flex position-sticky top-0 z-2">
+            <div className="align-items-center d-flex h-100">
+              <div className="border-end h-100 text-center me-3">
+                <div
+                  onClick={checkDataFillOrNot}
+                  className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
+                >
+                  <i className="icon-right"></i>
                 </div>
               </div>
-              {!isTyping && <GenRxTips />}
+              <div className="title-common">Voice Rx</div>
+            </div>
+            <div className="d-flex align-items-center gap-2">
+              <button
+                className="btn d-flex align-items-center btn-text me-10 tutorial"
+                onClick={handleGenRxKnowMore}
+              >
+                <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
+                  <img height={42} src={tutorialIcon} />
+                  Tutorial
+                </span>
+              </button>
 
-              {isRecording ? (
-                <div
-                  className={styles.recordingContainer}
-                  style={{ marginLeft: 20, marginBottom: 20 }}
+              {showPrescription && (
+                <Button
+                  type="button"
+                  className="btn align-items-center d-flex btn-41 btn-primary3 me-20"
+                  onClick={onEndVisitClick}
+                  disabled={!prescriptionData}
                 >
-                  <div className="d-flex align-items-center justify-content-between">
-                    <span>{formatTime(recordingTime)}</span>
-                    <VoiceWaveVisualizer
-                      isRecording={isRecording}
-                      isPaused={isPaused}
-                    />
-                    <div className={styles.controlButtons}>
-                      {isPaused ? (
-                        <button
-                          className={styles.micBtn}
-                          onClick={handlePauseResume}
-                        >
-                          <img src={micIcon} alt="resume" />
-                        </button>
-                      ) : (
-                        <div onClick={handlePauseResume} role="button">
-                          <img src={pauseIcon} alt="pause" />
-                        </div>
-                      )}
-                      <div
-                        role="button"
-                        onClick={handleSend}
-                        style={{ width: 32 }}
-                      >
-                        <Lottie
-                          animationData={genRxSendCtaLottie}
-                          loop={true}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className={styles.controls}>
-                    <div
-                      role="button"
-                      onClick={handleStopRecording}
-                      className={styles.deleteButton}
-                    >
-                      <img src={deleteIcon} alt="delete" />
-                    </div>
-                    <span className={styles.recordingStatus}>
-                      {isPaused
-                        ? "Tap on the mic to continue recording!"
-                        : "Listening..."}
-                    </span>
-                  </div>
-                </div>
-              ) : (
+                  <i className="icon-exit me-2"></i>
+                  End Visit
+                </Button>
+              )}
+            </div>
+          </div>
+          <div
+            className={!showPrescription ? styles.gradientBorder : ""}
+            style={{ background: !showPrescription ? `url(${genRxBg})` : "" }}
+          >
+            <div className={styles.container}>
+              {!showPrescription ? (
                 <>
-                  {!isTyping && (
-                    <div className={styles.tapToSpeak}>
-                      <div
-                        role="button"
-                        className={styles.animatedButton}
-                        onClick={handleStartRecording}
-                      >
-                        <div style={{ width: "105px" }}>
-                          <Lottie
-                            animationData={tatvaAiChakraLottie}
-                            loop={true}
-                          />
-                        </div>
-                      </div>
-                      <p className={styles.tapText}>Tap to Speak</p>
-                    </div>
-                  )}
                   <div style={{ padding: 24 }}>
-                    <Input
-                      placeholder={isTyping ? "" : "Or type here instead"}
-                      className={styles.textInput}
-                      value={inputText}
-                      onChange={(e) => setInputText(e.target.value)}
-                      onClick={() => setIsTyping(true)}
-                      onBlur={() => setIsTyping(false)}
-                      autoFocus
-                      suffix={
-                        isTyping && (
-                          <div
-                            className={styles.controlButtons}
-                            onMouseDown={(e) => e.preventDefault()}
-                          >
-                            <div
-                              role="button"
-                              className="mt-1"
-                              onClick={handleStartRecording}
+                    <h1 className={styles.title}>
+                      Start your consultation with the patient
+                    </h1>
+                    <div className={styles.subtitle}>
+                      Dictate the complete prescription effortlessly
+                    </div>
+                  </div>
+                  {!isTyping && <GenRxTips />}
+
+                  {isRecording ? (
+                    <div
+                      className={styles.recordingContainer}
+                      style={{ marginLeft: 20, marginBottom: 20 }}
+                    >
+                      <div className="d-flex align-items-center justify-content-between">
+                        <span>{formatTime(recordingTime)}</span>
+                        <VoiceWaveVisualizer
+                          isRecording={isRecording}
+                          isPaused={isPaused}
+                        />
+                        <div className={styles.controlButtons}>
+                          {isPaused ? (
+                            <button
+                              className={styles.micBtn}
+                              onClick={handlePauseResume}
                             >
-                              <img src={genRxRecordIcon} alt="MIC" />
+                              <img src={micIcon} alt="resume" />
+                            </button>
+                          ) : (
+                            <div onClick={handlePauseResume} role="button">
+                              <img src={pauseIcon} alt="pause" />
                             </div>
-                            <div
-                              role="button"
-                              onClick={handleSend}
-                              style={{ width: 32 }}
-                            >
+                          )}
+                          <div
+                            role="button"
+                            onClick={handleSend}
+                            style={{ width: 32 }}
+                          >
+                            {animations.genRxSendCta && (
                               <Lottie
-                                animationData={genRxSendCtaLottie}
+                                animationData={animations.genRxSendCta}
                                 loop={true}
                               />
-                            </div>
+                            )}
                           </div>
-                        )
-                      }
-                      onPressEnter={handleSend}
-                    />
-                  </div>
-                </>
-              )}
-            </>
-          ) : (
-            <div
-              className={`${styles.splitView} w-100`}
-              style={{ padding: 24 }}
-            >
-              <div className={styles.inputSection}>
-                <div>
-                  <img src={documentIcon} alt="Document" />
-                  <span className={styles.heading}>Your input</span>
-                </div>
-                <div className={styles.chatSection}>
-                  {isProcessing ? (
-                    <BubbleSkeleton />
-                  ) : isEditing ? (
-                    <div className={styles.editContainer}>
-                      <Input.TextArea
-                        value={editableQuery}
-                        onChange={(e) => setEditableQuery(e.target.value)}
-                        className={styles.editInput}
-                        autoSize={{ minRows: 4 }}
-                        bordered={false}
-                        style={{
-                          color: "rgba(69, 69, 81, 1)",
-                          fontSize: "12px",
-                          fontWeight: 400,
-                          lineHeight: "18px",
-                        }}
-                      />
-                      <div className={styles.editActions}>
-                        <Button
-                          className="customUnderline"
-                          type="link"
-                          onClick={handleEditCancel}
+                        </div>
+                      </div>
+                      <div className={styles.controls}>
+                        <div
+                          role="button"
+                          onClick={handleStopRecording}
+                          className={styles.deleteButton}
                         >
-                          Cancel
-                        </Button>
-                        <Button type="primary" onClick={handleEditSave}>
-                          Send
-                        </Button>
+                          <img src={deleteIcon} alt="delete" />
+                        </div>
+                        <span className={styles.recordingStatus}>
+                          {isPaused
+                            ? "Tap on the mic to continue recording!"
+                            : "Listening..."}
+                        </span>
                       </div>
                     </div>
                   ) : (
                     <>
-                      <div className={styles.inputContainer}>
-                        <div className={styles.inputQueries}>
-                          {queries.map((query, index) => (
-                            <div key={index}>
-                              <div
-                                onMouseEnter={() =>
-                                  index === queries.length - 1 &&
-                                  setIsHovering(true)
-                                }
-                                onMouseLeave={() =>
-                                  index === queries.length - 1 &&
-                                  setIsHovering(false)
-                                }
-                                onClick={() =>
-                                  index === queries.length - 1 && handleEdit()
-                                }
-                                className="position-relative ms-auto"
-                                style={{ maxWidth: "457px" }}
-                              >
-                                <div>
-                                  {isHovering &&
-                                    index === queries.length - 1 && (
-                                      <i
-                                        className={`${styles.editIcon} icon-Edit fs-21`}
-                                      ></i>
-                                    )}
-                                </div>
-                                <div
-                                  key={index}
-                                  className={styles.textContainer}
-                                >
-                                  <span className={styles.inputText}>
-                                    {query}
-                                  </span>
-                                </div>
-                              </div>
-                              <div
-                                className="d-flex gap-3 me-auto mb-5"
-                                style={{ width: "87%" }}
-                              >
-                                <img src={tatvaAiStrip} alt="Tatva AI" />
-                                <div
-                                  className={styles.prescriptionReadyMessage}
-                                >
-                                  Your prescription is ready! You can also add
-                                  details like diagnosis, Examinations and more
-                                  simply by speaking or typing below.
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      {isRecording ? (
-                        <div className={styles.recordingContainer}>
-                          <div className="d-flex align-items-center justify-content-between">
-                            <span>{formatTime(recordingTime)}</span>
-                            <VoiceWaveVisualizer
-                              isRecording={isRecording}
-                              isPaused={isPaused}
-                            />
-                            <div className={styles.controlButtons}>
-                              {isPaused ? (
-                                <button
-                                  className={styles.micBtn}
-                                  onClick={handlePauseResume}
-                                >
-                                  <img src={micIcon} alt="resume" />
-                                </button>
-                              ) : (
-                                <div onClick={handlePauseResume} role="button">
-                                  <img src={pauseIcon} alt="pause" />
-                                </div>
-                              )}
-
-                              <div
-                                role="button"
-                                onClick={handleSend}
-                                style={{ width: 32 }}
-                              >
+                      {!isTyping && (
+                        <div className={styles.tapToSpeak}>
+                          <div
+                            role="button"
+                            className={styles.animatedButton}
+                            onClick={handleStartRecording}
+                          >
+                            {animations.tatvaAiChakra && (
+                              <div style={{ width: "105px" }}>
                                 <Lottie
-                                  animationData={genRxSendCtaLottie}
+                                  animationData={animations.tatvaAiChakra}
                                   loop={true}
                                 />
                               </div>
-                            </div>
+                            )}
                           </div>
-                          <div className={styles.controls}>
-                            <div
-                              role="button"
-                              onClick={handleStopRecording}
-                              className={styles.deleteButton}
-                            >
-                              <img src={deleteIcon} alt="delete" />
-                            </div>
-                            <span className={styles.recordingStatus}>
-                              {isPaused
-                                ? "Tap on the mic to continue recording!"
-                                : "Listening..."}
-                            </span>
-                          </div>
+                          <p className={styles.tapText}>Tap to Speak</p>
                         </div>
-                      ) : (
-                        <div style={{ marginTop: "auto", paddingRight: 20 }}>
-                          <Input
-                            placeholder="Start speaking or typing..."
-                            className={styles.textInput}
-                            onChange={(e) => setInputText(e.target.value)}
-                            value={inputText}
-                            suffix={
-                              <div className={styles.controlButtons}>
+                      )}
+                      <div style={{ padding: 24 }}>
+                        <Input
+                          placeholder={isTyping ? "" : "Or type here instead"}
+                          className={styles.textInput}
+                          value={inputText}
+                          onChange={(e) => setInputText(e.target.value)}
+                          onClick={() => setIsTyping(true)}
+                          onBlur={() => setIsTyping(false)}
+                          autoFocus
+                          suffix={
+                            isTyping && (
+                              <div
+                                className={styles.controlButtons}
+                                onMouseDown={(e) => e.preventDefault()}
+                              >
                                 <div
                                   role="button"
-                                  onClick={handleStartRecording}
                                   className="mt-1"
+                                  onClick={handleStartRecording}
                                 >
                                   <img src={genRxRecordIcon} alt="MIC" />
                                 </div>
@@ -1450,230 +1284,433 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                   onClick={handleSend}
                                   style={{ width: 32 }}
                                 >
-                                  <Lottie
-                                    animationData={genRxSendCtaLottie}
-                                    loop={true}
-                                  />
+                                  {animations.genRxSendCta && (
+                                    <Lottie
+                                      animationData={animations.genRxSendCta}
+                                      loop={true}
+                                    />
+                                  )}
                                 </div>
                               </div>
-                            }
-                            onPressEnter={handleSend}
-                          />
-                        </div>
-                      )}
+                            )
+                          }
+                          onPressEnter={handleSend}
+                        />
+                      </div>
                     </>
                   )}
-                </div>
-              </div>
-              <div className={styles.prescriptionSection}>
-                <div>
-                  <img src={documentIcon} alt="Document" />
-                  <span className={styles.heading}>Generated Digitised Rx</span>
-                </div>
-                {isProcessing ? (
-                  <GenRXLoaders isProcessing={isProcessing} />
-                ) : (
-                  <div
-                    className={`${styles.rightSection} ${
-                      isProcessing ? styles.gradientBorder : ""
-                    }`}
-                    style={{
-                      background: isProcessing ? `url(${genRxBg})` : "",
-                    }}
-                  >
-                    {prescriptionData?.vitalsAndBodyComposition &&
-                      Object.values(
-                        prescriptionData.vitalsAndBodyComposition
-                      ).some((value) => value) && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Vitals
-                          </div>
-                          {renderItems("vitalsAndBodyComposition")}
-                        </>
-                      )}
-
-                    {prescriptionData?.medicalHistory &&
-                      prescriptionData.medicalHistory.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Medical History
-                          </div>
-                          {renderItems("medicalHistory")}
-                        </>
-                      )}
-
-                    {prescriptionData?.symptoms &&
-                      prescriptionData.symptoms.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Symptoms
-                          </div>
-                          {renderItems("symptoms")}
-                        </>
-                      )}
-
-                    {prescriptionData?.examinations &&
-                      prescriptionData.examinations.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Examinations
-                          </div>
-                          {renderItems("examinations")}
-                        </>
-                      )}
-
-                    {prescriptionData?.diagnosis &&
-                      prescriptionData.diagnosis.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Diagnosis
-                          </div>
-                          {renderItems("diagnosis")}
-                        </>
-                      )}
-
-                    {prescriptionData?.medications &&
-                      prescriptionData.medications.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Medicine
-                          </div>
-                          {renderItems("medications")}
-                        </>
-                      )}
-
-                    {prescriptionData?.labInvestigation &&
-                      prescriptionData.labInvestigation.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Lab Investigation
-                          </div>
-                          {renderItems("labInvestigation")}
-                        </>
-                      )}
-
-                    {prescriptionData?.advice &&
-                      prescriptionData.advice.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Advices
-                          </div>
-                          {renderItems("advice")}
-                        </>
-                      )}
-
-                    {prescriptionData?.vaccinations &&
-                      prescriptionData.vaccinations.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Vaccination
-                          </div>
-                          {renderItems("vaccinations")}
-                        </>
-                      )}
-                    {prescriptionData?.others &&
-                      prescriptionData.others.length > 0 && (
-                        <>
-                          <div className="title-digitise-section mb-2">
-                            Others
-                          </div>
-                          {renderItems("others")}
-                        </>
-                      )}
-                    {renderCustomModules()}
-                    {prescriptionData?.followUp && (
-                      <>
-                        <div className="title-digitise-section mb-2">
-                          Follow Up
-                        </div>
-                        {renderItems("followUp")}
-                      </>
-                    )}
-                    {showInput && (
-                      <>
-                        <div className="d-flex justify-content-between align-items-center mb-4">
-                          <Input
-                            placeholder="Enter custom module name"
-                            value={newModuleName}
-                            onChange={(e) => setNewModuleName(e.target.value)}
-                            className="custom-module-input"
+                </>
+              ) : (
+                <div
+                  className={`${styles.splitView} w-100`}
+                  style={{ padding: 24 }}
+                >
+                  <div className={styles.inputSection}>
+                    <div>
+                      <img src={documentIcon} alt="Document" />
+                      <span className={styles.heading}>Your input</span>
+                    </div>
+                    <div className={styles.chatSection}>
+                      {isProcessing ? (
+                        <BubbleSkeleton />
+                      ) : isEditing ? (
+                        <div className={styles.editContainer}>
+                          <Input.TextArea
+                            value={editableQuery}
+                            onChange={(e) => setEditableQuery(e.target.value)}
+                            className={styles.editInput}
+                            autoSize={{ minRows: 4 }}
+                            bordered={false}
+                            style={{
+                              color: "rgba(69, 69, 81, 1)",
+                              fontSize: "12px",
+                              fontWeight: 400,
+                              lineHeight: "18px",
+                            }}
                           />
-                          <>
-                            <CheckOutlined
-                              className="input-action-icon tick-icon"
-                              onClick={handleAddModule}
-                            />
-                            <CloseOutlined
-                              className="input-action-icon cross-icon"
-                              onClick={handleCancel}
-                            />
-                          </>
+                          <div className={styles.editActions}>
+                            <Button
+                              className="customUnderline"
+                              type="link"
+                              onClick={handleEditCancel}
+                            >
+                              Cancel
+                            </Button>
+                            <Button type="primary" onClick={handleEditSave}>
+                              Send
+                            </Button>
+                          </div>
                         </div>
-                        <div className="genRxCustomModuleBox"></div>
-                      </>
-                    )}
-                    <div
-                      className="cta-container mt-4 mb-4"
-                      onClick={() => setShowInput(true)}
-                    >
-                      <Button
-                        type="link"
-                        icon={<PlusOutlined />}
-                        className="add-custom-module-link"
+                      ) : (
+                        <>
+                          <div className={styles.inputContainer}>
+                            <div className={styles.inputQueries}>
+                              {queries.map((query, index) => (
+                                <div key={index}>
+                                  <div
+                                    onMouseEnter={() =>
+                                      index === queries.length - 1 &&
+                                      setIsHovering(true)
+                                    }
+                                    onMouseLeave={() =>
+                                      index === queries.length - 1 &&
+                                      setIsHovering(false)
+                                    }
+                                    onClick={() =>
+                                      index === queries.length - 1 &&
+                                      handleEdit()
+                                    }
+                                    className="position-relative ms-auto"
+                                    style={{ maxWidth: "457px" }}
+                                  >
+                                    <div>
+                                      {isHovering &&
+                                        index === queries.length - 1 && (
+                                          <i
+                                            className={`${styles.editIcon} icon-Edit fs-21`}
+                                          ></i>
+                                        )}
+                                    </div>
+                                    <div
+                                      key={index}
+                                      className={styles.textContainer}
+                                    >
+                                      <span className={styles.inputText}>
+                                        {query}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div
+                                    className="d-flex gap-3 me-auto mb-5"
+                                    style={{ width: "87%" }}
+                                  >
+                                    <img src={tatvaAiStrip} alt="Tatva AI" />
+                                    <div
+                                      className={
+                                        styles.prescriptionReadyMessage
+                                      }
+                                    >
+                                      Your prescription is ready! You can also
+                                      add details like diagnosis, Examinations
+                                      and more simply by speaking or typing
+                                      below.
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          {isRecording ? (
+                            <div className={styles.recordingContainer}>
+                              <div className="d-flex align-items-center justify-content-between">
+                                <span>{formatTime(recordingTime)}</span>
+                                <VoiceWaveVisualizer
+                                  isRecording={isRecording}
+                                  isPaused={isPaused}
+                                />
+                                <div className={styles.controlButtons}>
+                                  {isPaused ? (
+                                    <button
+                                      className={styles.micBtn}
+                                      onClick={handlePauseResume}
+                                    >
+                                      <img src={micIcon} alt="resume" />
+                                    </button>
+                                  ) : (
+                                    <div
+                                      onClick={handlePauseResume}
+                                      role="button"
+                                    >
+                                      <img src={pauseIcon} alt="pause" />
+                                    </div>
+                                  )}
+
+                                  <div
+                                    role="button"
+                                    onClick={handleSend}
+                                    style={{ width: 32 }}
+                                  >
+                                    {animations.genRxSendCta && (
+                                      <Lottie
+                                        animationData={animations.genRxSendCta}
+                                        loop={true}
+                                      />
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className={styles.controls}>
+                                <div
+                                  role="button"
+                                  onClick={handleStopRecording}
+                                  className={styles.deleteButton}
+                                >
+                                  <img src={deleteIcon} alt="delete" />
+                                </div>
+                                <span className={styles.recordingStatus}>
+                                  {isPaused
+                                    ? "Tap on the mic to continue recording!"
+                                    : "Listening..."}
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div
+                              style={{ marginTop: "auto", paddingRight: 20 }}
+                            >
+                              <Input
+                                placeholder="Start speaking or typing..."
+                                className={styles.textInput}
+                                onChange={(e) => setInputText(e.target.value)}
+                                value={inputText}
+                                suffix={
+                                  <div className={styles.controlButtons}>
+                                    <div
+                                      role="button"
+                                      onClick={handleStartRecording}
+                                      className="mt-1"
+                                    >
+                                      <img src={genRxRecordIcon} alt="MIC" />
+                                    </div>
+                                    <div
+                                      role="button"
+                                      onClick={handleSend}
+                                      style={{ width: 32 }}
+                                    >
+                                      {animations.genRxSendCta && (
+                                        <Lottie
+                                          animationData={
+                                            animations.genRxSendCta
+                                          }
+                                          loop={true}
+                                        />
+                                      )}
+                                    </div>
+                                  </div>
+                                }
+                                onPressEnter={handleSend}
+                              />
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className={styles.prescriptionSection}>
+                    <div>
+                      <img src={documentIcon} alt="Document" />
+                      <span className={styles.heading}>
+                        Generated Digitised Rx
+                      </span>
+                    </div>
+                    {isProcessing ? (
+                      <GenRXLoaders isProcessing={isProcessing} />
+                    ) : (
+                      <div
+                        className={`${styles.rightSection} ${
+                          isProcessing ? styles.gradientBorder : ""
+                        }`}
+                        style={{
+                          background: isProcessing ? `url(${genRxBg})` : "",
+                        }}
                       >
-                        Add Custom Module
-                      </Button>
-                    </div>
-                    <div className={styles.disclaimer}>
-                      <span style={{ fontWeight: 500 }}>Disclaimer:</span> Our
-                      AI model aims to be accurate, but sometimes it might make
-                      mistakes. Please double-check all details to ensure they
-                      are correct and complete.
-                    </div>
+                        {prescriptionData?.vitalsAndBodyComposition &&
+                          Object.values(
+                            prescriptionData.vitalsAndBodyComposition
+                          ).some((value) => value) && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Vitals
+                              </div>
+                              {renderItems("vitalsAndBodyComposition")}
+                            </>
+                          )}
+
+                        {prescriptionData?.medicalHistory &&
+                          prescriptionData.medicalHistory.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Medical History
+                              </div>
+                              {renderItems("medicalHistory")}
+                            </>
+                          )}
+
+                        {prescriptionData?.symptoms &&
+                          prescriptionData.symptoms.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Symptoms
+                              </div>
+                              {renderItems("symptoms")}
+                            </>
+                          )}
+
+                        {prescriptionData?.examinations &&
+                          prescriptionData.examinations.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Examinations
+                              </div>
+                              {renderItems("examinations")}
+                            </>
+                          )}
+
+                        {prescriptionData?.diagnosis &&
+                          prescriptionData.diagnosis.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Diagnosis
+                              </div>
+                              {renderItems("diagnosis")}
+                            </>
+                          )}
+
+                        {prescriptionData?.medications &&
+                          prescriptionData.medications.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Medicine
+                              </div>
+                              {renderItems("medications")}
+                            </>
+                          )}
+
+                        {prescriptionData?.labInvestigation &&
+                          prescriptionData.labInvestigation.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Lab Investigation
+                              </div>
+                              {renderItems("labInvestigation")}
+                            </>
+                          )}
+
+                        {prescriptionData?.advice &&
+                          prescriptionData.advice.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Advices
+                              </div>
+                              {renderItems("advice")}
+                            </>
+                          )}
+
+                        {prescriptionData?.vaccinations &&
+                          prescriptionData.vaccinations.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Vaccination
+                              </div>
+                              {renderItems("vaccinations")}
+                            </>
+                          )}
+                        {prescriptionData?.others &&
+                          prescriptionData.others.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Others
+                              </div>
+                              {renderItems("others")}
+                            </>
+                          )}
+                        {renderCustomModules()}
+                        {prescriptionData?.followUp && (
+                          <>
+                            <div className="title-digitise-section mb-2">
+                              Follow Up
+                            </div>
+                            {renderItems("followUp")}
+                          </>
+                        )}
+                        {showInput && (
+                          <>
+                            <div className="d-flex justify-content-between align-items-center mb-4">
+                              <Input
+                                placeholder="Enter custom module name"
+                                value={newModuleName}
+                                onChange={(e) =>
+                                  setNewModuleName(e.target.value)
+                                }
+                                className="custom-module-input"
+                              />
+                              <>
+                                <CheckOutlined
+                                  className="input-action-icon tick-icon"
+                                  onClick={handleAddModule}
+                                />
+                                <CloseOutlined
+                                  className="input-action-icon cross-icon"
+                                  onClick={handleCancel}
+                                />
+                              </>
+                            </div>
+                            <div className="genRxCustomModuleBox"></div>
+                          </>
+                        )}
+                        <div
+                          className="cta-container mt-4 mb-4"
+                          onClick={() => setShowInput(true)}
+                        >
+                          <Button
+                            type="link"
+                            icon={<PlusOutlined />}
+                            className="add-custom-module-link"
+                          >
+                            Add Custom Module
+                          </Button>
+                        </div>
+                        <div className={styles.disclaimer}>
+                          <span style={{ fontWeight: 500 }}>Disclaimer:</span>{" "}
+                          Our AI model aims to be accurate, but sometimes it
+                          might make mistakes. Please double-check all details
+                          to ensure they are correct and complete.
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+              {DELETE_MODULE_MODAL}
+              <CommonModal
+                isModalOpen={isBackModalOpen}
+                onCancel={showHideBackModal}
+                modalWidth={500}
+                title={"You may lose your data"}
+                modalBody={
+                  <>
+                    <div className="alert-warning rounded-10px p-2 patient-details">
+                      <div className="d-flex align-items-center">
+                        <img className="me-3" src={alertIcon} alt="Warning" />
+                        <span>
+                          Are you sure you want to leave? <br />
+                          You will permanently lose your data.
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <div className="d-flex align-items-center mt-2 justify-content-end">
+                        <div
+                          onClick={handleBack}
+                          className="me-4 text-decoration-underline btn p-0 text-main"
+                        >
+                          Yes Leave
+                        </div>
+                        <Button
+                          onClick={showHideBackModal}
+                          className="lh-lg btn btn-primary3 btn-41 px-4"
+                        >
+                          <span>No, Stay</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                }
+              />
             </div>
-          )}
-          {DELETE_MODULE_MODAL}
-          <CommonModal
-            isModalOpen={isBackModalOpen}
-            onCancel={showHideBackModal}
-            modalWidth={500}
-            title={"You may lose your data"}
-            modalBody={
-              <>
-                <div className="alert-warning rounded-10px p-2 patient-details">
-                  <div className="d-flex align-items-center">
-                    <img className="me-3" src={alertIcon} alt="Warning" />
-                    <span>
-                      Are you sure you want to leave? <br />
-                      You will permanently lose your data.
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <div className="d-flex align-items-center mt-2 justify-content-end">
-                    <div
-                      onClick={handleBack}
-                      className="me-4 text-decoration-underline btn p-0 text-main"
-                    >
-                      Yes Leave
-                    </div>
-                    <Button
-                      onClick={showHideBackModal}
-                      className="lh-lg btn btn-primary3 btn-41 px-4"
-                    >
-                      <span>No, Stay</span>
-                    </Button>
-                  </div>
-                </div>
-              </>
-            }
-          />
-        </div>
-      </div>
+          </div>
+        </>
+      </Suspense>
     </Drawer>
   );
 };

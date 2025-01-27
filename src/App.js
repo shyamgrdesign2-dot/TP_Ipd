@@ -16,6 +16,7 @@ import DemoExpirationBanner from "./common/DemoExpirationBanner";
 import PlanExpirationBanner from "./common/PlanExpirationBanner";
 import DoctorModal from "./common/DoctorModal";
 import ExpiredPlanCard from "./common/ExpiredPlanCard";
+import { Spin } from "antd";
 
 // Lazy loaded components
 const AppointmentList = lazy(() => import("./pages/AppointmentList"));
@@ -108,7 +109,7 @@ function App() {
               <DoctorModal />
             </>
           )}
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<Spin className="d-flex justify-content-center align-items-center mt-5" />}>
             <Routes>
               <Route path="/*" element={<AppointmentList />} />
               <Route path="create-campaign" element={<MessageCreateCampaign />} />
