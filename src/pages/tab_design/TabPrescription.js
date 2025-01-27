@@ -47,6 +47,9 @@ import apexAIImg from "../../assets/images/apexAI.svg";
 import blinkingDot from "../../assets/images/blinkingDot.gif";
 import ddxVector from "../../assets/images/ddx-tab-vector.svg";
 import ddxImg from "../../assets/images/ddx.svg";
+import ddxInactiveImg from "../../assets/images/tab-ddx-inactive.svg";
+import genRxImg from "../../assets/images/gen-rx-mic.svg";
+import voiceRxDefault from "../../assets/images/voice-rx-default.svg";
 import obstetricWhite from "../../assets/images/obstetric-white.svg";
 import obstetricDark from "../../assets/images/obstetric-dark.svg";
 import medicalRecordsWhite from "../../assets/images/upload-doc-white.svg";
@@ -91,6 +94,14 @@ import { getClinicName } from "../../utils/utils";
 import TabSurgicalBox from "../../components/tab_design/TabSurgicalBox";
 import TabAddCustomModule from "../../components/tab_design/TabAddCustomModule";
 import TabCustomModule from "../../components/tab_design/TabCustomModule";
+import TabVoiceRx from "../../components/tab_design/TabVoiceRx";
+import GenRxKnowMore from "../../components/GenRxKnowMore";
+import ConsultationDrawer from "../../components/ConsultationDrawer";
+import Carousel from "react-multi-carousel";
+import GenRxBanner from "../../components/GenRxBanner";
+import TatvaAiBanner from "../../components/TatvaAiBanner";
+import TatvaAiKnowMore from "../../components/TatvaAiKnowMore";
+import { AnimationProvider } from "../../context/AnimationProvider";
 
 function TabPrescription() {
   const {
@@ -101,6 +112,7 @@ function TabPrescription() {
     userId,
   } = useSelector((state) => state.doctors);
   const isApexAIAccessable = useFeatureIsOn("cdss");
+  const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -164,6 +176,8 @@ function TabPrescription() {
   const [obstetricDrawer, setObstetricDrawer] = useState(false);
   const [isGrowthChart, setIsGrowthChart] = useState(false);
   const [shouldShowApexPopup, setShowApexPopup] = useState(true);
+  const [shouldShowGenRxPopup, setShowGenRxPopup] = useState(true);
+  const [shouldShowTatvaAiPopup, setShowTatvaAiPopup] = useState(true);
   const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
@@ -231,6 +245,9 @@ function TabPrescription() {
   const [isFileSizeError, setIsFileSizeError] = useState(false);
   const [isFileLimitError, setIsFileLimitError] = useState(false);
   const [isFileTypeError, setIsFileTypeError] = useState(null);
+  const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
+  const [isGenRxDrawerVisible, setIsGenRxDrawerVisible] = useState(caseManagerData?.smart_prescription_filename || false);
+  const [tatvaAiKnowMoreDrawer, setTatvaAiKnowMoreDrawer] = useState(false);
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchObstetricDetails(
@@ -737,6 +754,14 @@ function TabPrescription() {
     }
   };
 
+  const handleGenRxKnowMore = () => {
+    setGenRxKnowMoreDrawer((prev) => !prev);
+  };
+
+  const handleTatvaAiKnowMore = () => {
+    setTatvaAiKnowMoreDrawer((prev) => !prev);
+  };
+
   const handleDDxKnowMore = () => {
     setDDxKnowMoreDrawer((prev) => !prev);
   }
@@ -802,7 +827,7 @@ function TabPrescription() {
 
   const handleApexAI = () => {
     dispatch(setIsApexAISelected(true));
-    openCollapsed(9);
+    openCollapsed(isVoiceRxAccessable ? 10 : 9);
     window.Moengage.track_event("TP_Apex_AI_Ack", {
       clinic_name: getClinicName(profile?.hospital_data),
       doctor_id: profile?.doctor_unique_id,
@@ -813,8 +838,9 @@ function TabPrescription() {
 
   return (
     <CashManagerContext.Provider value={contextApi}>
+      <AnimationProvider>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData}/>
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} handleGenRx={() => setIsGenRxDrawerVisible(true)}/>
         <div className="w-100 bg-body wrapper2 prescription-wrapper p-0">
           <Layout>
             <div
@@ -845,27 +871,44 @@ function TabPrescription() {
                       <i className="icon-Cross" style={{ color: "#7742FE" }} />
                     </div>
                   </button>
-                  <button
+                  {isVoiceRxAccessable && <button
+                    type="button"
+                    className="mb-3 text-center btn btn-action"
+                    onClick={() => openCollapsed(10)}
+                  >
+                    <div
+                      className={`prescription-tab-button rounded-10px`}
+                      style={{backgroundColor: "inherit"}}
+                    >
+                      <img
+                        src={collapsedFlag == 10 ? genRxImg : voiceRxDefault}
+                        alt="VoiceRx"
+                        width={42}
+                        height={42}
+                      />
+                    </div>
+                    <label className="text-white mt-1">Voice Rx</label>
+                  </button>}
+                  {isApexAIAccessable && <button
                     type="button"
                     className="mb-3 text-center btn btn-action"
                     onClick={() => openCollapsed(9)}
                   >
                     <div
-                      className={`prescription-tab-button rounded-10px ${
-                        collapsedFlag == 1 && "active"
-                      }`}
+                      className={`prescription-tab-button rounded-10px`}
+                      style={{backgroundColor: "inherit"}}
                     >
                       <img
-                        src={ddxImg}
+                        src={collapsedFlag == 9 ? ddxImg : ddxInactiveImg}
                         alt="Vitals"
                       />
                     </div>
                     <label className="text-white mt-1">DDx</label>
-                  </button>
+                  </button>}
                 </>
               ) : (
                 <>
-                  {isApexAIAccessable && (
+                  {(isApexAIAccessable || isVoiceRxAccessable) && (
                     <button
                       type="button"
                       className="mb-3 text-center btn btn-action"
@@ -1229,8 +1272,8 @@ function TabPrescription() {
                   handleAddLabParamsDrawer={handleAddLabParamsDrawer}
                   handleViewLabParamsDrawer={handleViewLabParamsDrawer}
                 />
-              ) : (
-                collapsedFlag === 9 && (
+              ) : 
+                collapsedFlag === 9 && isApexAIAccessable ? (
                   <TabDDxList
                     generatedDDx={generatedDDx?.results}
                     handleDDxDrawer={handleDDxDrawer}
@@ -1239,20 +1282,58 @@ function TabPrescription() {
                     getGenerateDDx={getGenerateDDx}
                     isDDxGenerated={isDDxGenerated}
                   />
+                ) :
+                collapsedFlag === 10 && isVoiceRxAccessable && (
+                  <TabVoiceRx
+                    handleGenRxKnowMore={handleGenRxKnowMore}
+                    setIsGenRxDrawerVisible={setIsGenRxDrawerVisible}
+                  />
                 )
-              )}
+              }
             </Sider>
             <div
               className="p-20 w-100 overflow-y-auto"
               style={{ height: "calc(100vh - 60px)" }}
             >
               <Content>
-                {shouldShowApexPopup && isApexAIAccessable && (
-                  <ApexAIPopup
-                    setShowApexPopup={setShowApexPopup}
-                    handleDDxKnowMore={handleDDxKnowMore}
-                  />
-                )}
+              {(shouldShowGenRxPopup || shouldShowApexPopup || shouldShowTatvaAiPopup) && 
+                  <Carousel
+                  responsive={{
+                    desktop: {
+                      breakpoint: { max: 3000, min: 1024 },
+                      items: 1,
+                    },
+                    tablet: {
+                      breakpoint: { max: 1024, min: 464 },
+                      items: 1,
+                    },
+                    mobile: {
+                      breakpoint: { max: 464, min: 0 },
+                      items: 1,
+                    },
+                  }}
+                  infinite={true}
+                  autoPlay={true}
+                  showDots={true}
+                  autoPlaySpeed={2000}
+                  removeArrowOnDeviceType={["tablet", "mobile"]}
+                  arrows={false}
+                  >
+                    {shouldShowGenRxPopup && (
+                      <GenRxBanner key="genrx-banner" setShowGenRxPopup={setShowGenRxPopup} handleGenRxKnowMore={handleGenRxKnowMore} />
+                    )}
+                    {shouldShowTatvaAiPopup && (
+                      <TatvaAiBanner key="tatva-ai-banner" setShowTatvaAiPopup={setShowTatvaAiPopup} handleTatvaAiKnowMore={handleTatvaAiKnowMore} />
+                    )}
+                    {shouldShowApexPopup && (
+                      <ApexAIPopup
+                      key="apex-popup"
+                        setShowApexPopup={setShowApexPopup}
+                        handleDDxKnowMore={handleDDxKnowMore}
+                      />
+                    )}
+                  </Carousel>
+                }
                 {customizedPadRightList?.map((e, i) => {
                   const customModule = customModules?.find(
                     (m) => m.module_id === e.tmdpm_id
@@ -1532,6 +1613,40 @@ function TabPrescription() {
           </Drawer>
         )}
 
+        {isGenRxDrawerVisible && (
+            <ConsultationDrawer
+              visible={isGenRxDrawerVisible} 
+              onClose={() => setIsGenRxDrawerVisible(false)} 
+              handleGenRxKnowMore={handleGenRxKnowMore}
+            />
+        )}
+
+        {genRxKnowMoreDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            open={genRxKnowMoreDrawer}
+            onClose={handleGenRxKnowMore}
+            className=".modalWidth-800"
+            width={825}
+          >
+            <GenRxKnowMore handleGenRxKnowMore={handleGenRxKnowMore} />
+          </Drawer>
+        )}
+
+        {tatvaAiKnowMoreDrawer && 
+          <Drawer
+              closeIcon={false}
+              placement="right"
+              open={tatvaAiKnowMoreDrawer}
+              onClose={handleTatvaAiKnowMore}
+              className=".modalWidth-800"
+              width={825}
+            >
+            <TatvaAiKnowMore handleTatvaAiKnowMore={handleTatvaAiKnowMore} handleDDxKnowMore={handleDDxKnowMore} handleGenRxKnowMore={handleGenRxKnowMore} />
+          </Drawer>
+        }
+
         {isLoading ? (
           <div>
             <Spin
@@ -1605,6 +1720,7 @@ function TabPrescription() {
           }
         />
       ) : null}
+      </AnimationProvider>
     </CashManagerContext.Provider>
   );
 }

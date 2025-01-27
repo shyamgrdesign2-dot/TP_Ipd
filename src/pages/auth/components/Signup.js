@@ -3,9 +3,9 @@ import {useNavigate} from "react-router-dom";
 import {checkPediaExists, getSpecialityList, onboardUser} from "../authService";
 import "../auth.scss"; // Assuming the provided styles are in this CSS file
 import {Spin} from "antd";
+import params from "lodash";
 
 const Signup = ({reason, handleView, number}) => {
-    const navigate = useNavigate();
     const [mobileNumber, setMobileNumber] = useState(number === "null" ? "" : number);
     const [fname, setFname] = useState("");
     const [lname, setLname] = useState("");
@@ -18,23 +18,19 @@ const Signup = ({reason, handleView, number}) => {
     const [otp, setOtp] = useState("");
     const [loading, setLoading] = useState(false); // Loader state
     const [specialities, setSpecialities] = useState([]);
-    const [utm_campaign, setUtm_campaign] = useState("NA");
-    const [utm_source, setUtm_source] = useState("NA");
-    const [utm_content, setUtm_content] = useState("NA");
-    const [utm_medium, setUtm_medium] = useState("NA");
     const [otpVerified, setOtpVerified] = useState(false);
     const [otpRequested, setOtpRequested] = useState(false);
     useEffect(() => {
 
         getSpecialityData();
         const params = new URLSearchParams(window.location.search);
-        setUtm_campaign(params.get("utm_campaign") ?? 'NA');
-        setUtm_source(params.get("utm_source") ?? 'NA');
-        setUtm_medium(params.get("utm_medium") ?? 'NA');
-        setUtm_content(params.get("utm_content") ?? 'NA');
 
         window.Moengage.track_event('TP_Signup_landing_page', {
-            utm_campaign, utm_source, utm_medium, utm_content
+            utm_campaign: params.get("utm_campaign") ?? 'NA',
+            utm_source: params.get("utm_source") ?? 'NA',
+            utm_medium: params.get("utm_medium") ?? 'NA',
+            utm_content: params.get("utm_content") ?? 'NA',
+            utm_term: params.get("utm_term") ?? 'NA',
         });
     }, []);
 
@@ -116,8 +112,14 @@ const Signup = ({reason, handleView, number}) => {
             setError("OTP service is currently unavailable. Please try again later.");
             setIsButtonDisabled(false);
             setLoading(false); // Hide loader
+            const params = new URLSearchParams(window.location.search);
             window.Moengage.track_event('TP_OTP_error', {
-                mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+                mobile: "91" + mobileNumber,
+                utm_campaign: params.get("utm_campaign") ?? 'NA',
+                utm_source: params.get("utm_source") ?? 'NA',
+                utm_medium: params.get("utm_medium") ?? 'NA',
+                utm_content: params.get("utm_content") ?? 'NA',
+                utm_term: params.get("utm_term") ?? 'NA',
             });
             return;
         }
@@ -133,16 +135,28 @@ const Signup = ({reason, handleView, number}) => {
             // Start the countdown timer
             startTimer();
             setLoading(false); // Hide loader
+            const params = new URLSearchParams(window.location.search);
             window.Moengage.track_event('TP_OTP_Requested', {
-                mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+                mobile: "91" + mobileNumber,
+                utm_campaign: params.get("utm_campaign") ?? 'NA',
+                utm_source: params.get("utm_source") ?? 'NA',
+                utm_medium:params.get("utm_medium") ?? 'NA',
+                utm_content: params.get("utm_content") ?? 'NA',
+                utm_term: params.get("utm_term") ?? 'NA',
             });
         }, (error) => {
             console.error("Error sending OTP:", error);
             setError("Failed to send OTP. Please try again.");
             setIsButtonDisabled(false);
             setLoading(false); // Hide loader
+            const params = new URLSearchParams(window.location.search);
             window.Moengage.track_event('TP_OTP_error', {
-                mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+                mobile: "91" + mobileNumber,
+                utm_campaign: params.get("utm_campaign") ?? 'NA',
+                utm_source: params.get("utm_source") ?? 'NA',
+                utm_medium:params.get("utm_medium") ?? 'NA',
+                utm_content: params.get("utm_content") ?? 'NA',
+                utm_term: params.get("utm_term") ?? 'NA',
             });
         });
     };
@@ -168,8 +182,14 @@ const Signup = ({reason, handleView, number}) => {
             setError("Retry service is unavailable. Please try again later.");
             setIsButtonDisabled(false);
             setLoading(false); // Hide loader
+            const params = new URLSearchParams(window.location.search);
             window.Moengage.track_event('TP_OTP_error', {
-                mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+                mobile: "91" + mobileNumber,
+                utm_campaign: params.get("utm_campaign") ?? 'NA',
+                utm_source: params.get("utm_source") ?? 'NA',
+                utm_medium:params.get("utm_medium") ?? 'NA',
+                utm_content: params.get("utm_content") ?? 'NA',
+                utm_term: params.get("utm_term") ?? 'NA',
             });
             return;
         }
@@ -181,16 +201,28 @@ const Signup = ({reason, handleView, number}) => {
             setError(null); // Clear error message
             startTimer(); // Restart the countdown timer
             setLoading(false); // Hide loader
+            const params = new URLSearchParams(window.location.search);
             window.Moengage.track_event('TP_OTP_Resend', {
-                mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+                mobile: "91" + mobileNumber,
+                utm_campaign: params.get("utm_campaign") ?? 'NA',
+                utm_source: params.get("utm_source") ?? 'NA',
+                utm_medium:params.get("utm_medium") ?? 'NA',
+                utm_content: params.get("utm_content") ?? 'NA',
+                utm_term: params.get("utm_term") ?? 'NA',
             });
         }, (error) => {
             console.error("Error retrying OTP:", error);
             setError("Failed to resend OTP. Please try again.");
             setIsButtonDisabled(false);
             setLoading(false); // Hide loader
+            const params = new URLSearchParams(window.location.search);
             window.Moengage.track_event('TP_OTP_error', {
-                mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+                mobile: "91" + mobileNumber,
+                utm_campaign: params.get("utm_campaign") ?? 'NA',
+                utm_source: params.get("utm_source") ?? 'NA',
+                utm_medium:params.get("utm_medium") ?? 'NA',
+                utm_content: params.get("utm_content") ?? 'NA',
+                utm_term: params.get("utm_term") ?? 'NA',
             });
         });
     };
@@ -208,19 +240,30 @@ const Signup = ({reason, handleView, number}) => {
         if (window.verifyOtp) {
             window.verifyOtp(otp, async (data) => {
                 const {token, message} = data;
-
+                const params = new URLSearchParams(window.location.search);
                 // Check if the message is "Invalid OTP"
                 if (message === "Invalid OTP") {
                     setError("Invalid OTP. Please try again.");
                     setLoading(false); // Hide loader
+
                     window.Moengage.track_event('TP_OTP_Incorrect', {
-                        mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+                        mobile: "91" + mobileNumber,
+                        utm_campaign: params.get("utm_campaign") ?? 'NA',
+                        utm_source: params.get("utm_source") ?? 'NA',
+                        utm_medium:params.get("utm_medium") ?? 'NA',
+                        utm_content: params.get("utm_content") ?? 'NA',
+                        utm_term: params.get("utm_term") ?? 'NA',
                     });
                     return;
                 }
 
                 window.Moengage.track_event('TP_OTP_Verified', {
-                    mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+                    mobile: "91" + mobileNumber,
+                    utm_campaign: params.get("utm_campaign") ?? 'NA',
+                    utm_source: params.get("utm_source") ?? 'NA',
+                    utm_medium:params.get("utm_medium") ?? 'NA',
+                    utm_content: params.get("utm_content") ?? 'NA',
+                    utm_term: params.get("utm_term") ?? 'NA',
                 });
                 setOtpVerified(true);
                 setLoading(false); // Hide loader
@@ -233,8 +276,14 @@ const Signup = ({reason, handleView, number}) => {
                 console.error("Error verifying OTP:", error);
                 setError("Failed to verify OTP. Please try again.");
                 setLoading(false); // Hide loader
+                const params = new URLSearchParams(window.location.search);
                 window.Moengage.track_event('TP_OTP_Incorrect', {
-                    mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+                    mobile: "91" + mobileNumber,
+                    utm_campaign: params.get("utm_campaign") ?? 'NA',
+                    utm_source: params.get("utm_source") ?? 'NA',
+                    utm_medium:params.get("utm_medium") ?? 'NA',
+                    utm_content: params.get("utm_content") ?? 'NA',
+                    utm_term: params.get("utm_term") ?? 'NA',
                 });
             });
         } else {
@@ -270,8 +319,14 @@ const Signup = ({reason, handleView, number}) => {
 
         // proceed with registration now.
         setSubmitDisabled(true);
+        const params = new URLSearchParams(window.location.search);
         window.Moengage.track_event('TP_Submit_Clicked', {
-            mobile: "91" + mobileNumber, utm_campaign, utm_source, utm_medium, utm_content
+            mobile: "91" + mobileNumber,
+            utm_campaign: params.get("utm_campaign") ?? 'NA',
+            utm_source: params.get("utm_source") ?? 'NA',
+            utm_medium:params.get("utm_medium") ?? 'NA',
+            utm_content: params.get("utm_content") ?? 'NA',
+            utm_term: params.get("utm_term") ?? 'NA',
         });
         setLoading(true);
         localStorage.setItem('mo_mobile', "91" + mobileNumber);
@@ -281,28 +336,40 @@ const Signup = ({reason, handleView, number}) => {
             password: 'PMLITE@123',
             mbl_no: "91" + mobileNumber,
             speciality: specialty,
-            plan_type: 'TC+PM+EN+TRIAL'
+            plan_type: 'TC+PM+EN+TRIAL',
+            utm_campaign: params.get("utm_campaign") ?? 'NA',
+            utm_source: params.get("utm_source") ?? 'NA',
+            utm_medium:params.get("utm_medium") ?? 'NA',
+            utm_content: params.get("utm_content") ?? 'NA',
+            utm_term: params.get("utm_term") ?? 'NA',
         });
 
-        if (userOnboard?.data?.body?.pm_id != null && userOnboard?.data?.body?.sso_url !== "") {
+        // onboard on moengage if b2c_id is not null
+        if(userOnboard?.data?.body?.b2c_id) {
             window.Moengage.add_first_name(fname);
             window.Moengage.add_last_name(lname);
             window.Moengage.add_mobile("+91" + mobileNumber);
             window.Moengage.add_user_name("Dr. " + fname + " " + lname); // Full name for user
             window.Moengage.add_unique_user_id(userOnboard?.data?.body?.b2c_id);
+            const params = new URLSearchParams(window.location.search);
             window.Moengage.track_event('TP_Signup_Success', {
                 first_name: fname,
                 last_name: lname,
                 mobile: "91" + mobileNumber,
                 country_code: "+91",
                 country: "India",
-                utm_campaign,
-                utm_source,
-                utm_medium,
-                utm_content,
+                utm_campaign: params.get("utm_campaign") ?? 'NA',
+                utm_source: params.get("utm_source") ?? 'NA',
+                utm_medium: params.get("utm_medium") ?? 'NA',
+                utm_content: params.get("utm_content") ?? 'NA',
+                utm_term: params.get("utm_term") ?? 'NA',
                 speciality: specialty,
                 signup_at: new Date()
             });
+        }
+
+        if (userOnboard?.data?.body?.pm_id != null && userOnboard?.data?.body?.sso_url !== "") {
+
             // already exists on practice as an assistant doctor
             window.location.href = userOnboard?.data?.body?.sso_url + "&device_type=desktop";
         } else {

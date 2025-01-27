@@ -33,7 +33,7 @@ const dev = {
     "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: "754811713438773",
-  zydus_proxy_url: 'https://pm-ict-proxy-uat.tatvacare.in',
+  zydus_proxy_url: "https://pm-ict-proxy-uat.tatvacare.in",
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   user_management_api_url: "https://user-management77913uat.azurewebsites.net",
@@ -41,7 +41,8 @@ const dev = {
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
-  opd_encryption_url: "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
+  opd_encryption_url:
+    "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
@@ -90,8 +91,10 @@ const qa_tp = {
   obstetric_api_url:
     "https://pm-medicalhistory-qa.tatvacare.in/api/v1/obstetric-history",
   tatvaRedirect: "https://doctor-uat.tatvacare.in#bypass_pedia=false",
-  gynec_api_url: "https://pm-medicalhistory-qa.tatvacare.in/api/v1/gynec-history",
-  obstetric_api_url: "https://pm-medicalhistory-qa.tatvacare.in/api/v1/obstetric-history",
+  gynec_api_url:
+    "https://pm-medicalhistory-qa.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url:
+    "https://pm-medicalhistory-qa.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-qa.tatvacare.in`,
   zydus_business_id: "754811713438773",
   rx_digitization: "https://pm-rxdigitization-qa.tatvacare.in",
@@ -101,7 +104,8 @@ const qa_tp = {
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
   lab_params_api_url: "https://pm-patient-docs-qa.tatvacare.in",
-  opd_encryption_url: "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
+  opd_encryption_url:
+    "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
   upload_doc_api_url: "https://pm-patient-docs-qa.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-qa.tatvacare.in",
@@ -151,7 +155,7 @@ const qa = {
     "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: "754811713438773",
-  zydus_proxy_url: 'https://pm-ict-proxy-uat.tatvacare.in',
+  zydus_proxy_url: "https://pm-ict-proxy-uat.tatvacare.in",
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   user_management_api_url: "https://user-management77913uat.azurewebsites.net",
@@ -159,7 +163,8 @@ const qa = {
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
-  opd_encryption_url: "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
+  opd_encryption_url:
+    "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
@@ -208,11 +213,13 @@ const uat = {
   obstetric_api_url:
     "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   tatvaRedirect: "https://doctor-uat.tatvacare.in#bypass_pedia=false",
-  gynec_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
-  obstetric_api_url: "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
+  gynec_api_url:
+    "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url:
+    "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: "754811713438773",
-  zydus_proxy_url: 'https://pm-ict-proxy-uat.tatvacare.in',
+  zydus_proxy_url: "https://pm-ict-proxy-uat.tatvacare.in",
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   user_management_api_url: "https://user-management77913uat.azurewebsites.net",
@@ -220,7 +227,8 @@ const uat = {
   api_secret_key: "194627f7-u6hu-4378-q0e2-a34t5lt77f31",
   api_key: "TC_12o89l11327dfrt55",
   lab_params_api_url: "https://pm-patient-docs-uat.tatvacare.in",
-  opd_encryption_url: "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
+  opd_encryption_url:
+    "https://api-uat.mytatva.in/api/v8/helper/encrypt_visit_data",
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.net",
   upload_doc_api_url: "https://pm-patient-docs-uat.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-uat.tatvacare.in",
@@ -264,15 +272,18 @@ const prod = {
   firebaseAppId: "1:601922359186:web:a3b9df05589faed1f5fb4b",
   growth_chart_api_url: `https://pm-prod-growth-chart.tatvacare.in`,
   tatvaRedirect: "https://tatvapedia.tatvacare.in#bypass_pedia=false",
-  gynec_api_url: "https://pm-medicalhistory-prod.tatvacare.in/api/v1/gynec-history",
-  obstetric_api_url: "https://pm-medicalhistory-prod.tatvacare.in/api/v1/obstetric-history",
+  gynec_api_url:
+    "https://pm-medicalhistory-prod.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url:
+    "https://pm-medicalhistory-prod.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-prod.tatvacare.in`,
   zydus_business_id: "368451724046474",
   zydus_proxy_url: 'https://pm-ict-proxy.tatvacare.in',
   rx_digitization: "https://pm-rxdigitization-prod.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-prod.tatvacare.in",
   lab_params_api_url: "https://pm-patient-docs-prod.tatvacare.in",
-  user_management_api_url: "https://user-management57548prod.azurewebsites.net/",
+  user_management_api_url:
+    "https://user-management57548prod.azurewebsites.net/",
   razorpay_integration_url: "https://pm-razorpay-uat-integration.tatvacare.in",
   api_secret_key: "184028f7-a9dh-4518-k1f2-q07t5mn11g72",
   api_key: "TC_01o89208247drot41",
