@@ -776,7 +776,7 @@ function Cardiology(props) {
                       </div>
                     ) : (
                       <>
-                        {smartRxFile.length > 0 &&
+                        {smartRxFile?.length > 0 &&
                           smartRxFile?.map(({ smart_prescription_file }) => (
                             <div style={{ padding: "5px" }}>
                               {smart_prescription_file && (
