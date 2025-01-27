@@ -68,9 +68,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const [activeIndex, setActiveIndex] = useState(null);
   const [activeType, setActiveType] = useState(null);
   const [editableLineItem, setEditableLineItem] = useState("");
-  const [isHovering, setIsHovering] = useState(false);
   const [queries, setQueries] = useState([]);
-  const [isPrescriptionReady, setIsPrescriptionReady] = useState(false);
   const [isRxEdited, setIsRxEdited] = useState(false);
   const [editingModule, setEditingModule] = useState("");
   const [isDeleteModuleModalOpen, setIsDeleteModuleModalOpen] = useState(false);
@@ -208,10 +206,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         });
 
         await handleVoiceDigitize(audioBlob, "");
-        setIsPrescriptionReady(true);
       } else {
         await handleVoiceDigitize(null, inputText || editableQuery);
-        setIsPrescriptionReady(true);
       }
     } catch (error) {
       console.error("Error processing prescription:", error);
@@ -1018,7 +1014,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                     onBlur={() => handleInputBlur(module, 0, true)}
                     style={{ border: "none" }}
                     rows={3}
-                    placeholder={`Enter ${module} details here or simply speak or type in Voice Rx`}
+                    placeholder={`Enter ${module} details here`}
                     onPaste={(e) => handlePaste(e, module)}
                     onKeyDown={(e) => handleKeyDown(e, module, 0)}
                   />
@@ -1313,34 +1309,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                     <div className={styles.chatSection}>
                       {isProcessing ? (
                         <BubbleSkeleton />
-                      ) : isEditing ? (
-                        <div className={styles.editContainer}>
-                          <Input.TextArea
-                            value={editableQuery}
-                            onChange={(e) => setEditableQuery(e.target.value)}
-                            className={styles.editInput}
-                            autoSize={{ minRows: 4 }}
-                            bordered={false}
-                            style={{
-                              color: "rgba(69, 69, 81, 1)",
-                              fontSize: "12px",
-                              fontWeight: 400,
-                              lineHeight: "18px",
-                            }}
-                          />
-                          <div className={styles.editActions}>
-                            <Button
-                              className="customUnderline"
-                              type="link"
-                              onClick={handleEditCancel}
-                            >
-                              Cancel
-                            </Button>
-                            <Button type="primary" onClick={handleEditSave}>
-                              Send
-                            </Button>
-                          </div>
-                        </div>
                       ) : (
                         <>
                           <div className={styles.inputContainer}>
@@ -1348,29 +1316,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                               {queries.map((query, index) => (
                                 <div key={index}>
                                   <div
-                                    onMouseEnter={() =>
-                                      index === queries.length - 1 &&
-                                      setIsHovering(true)
-                                    }
-                                    onMouseLeave={() =>
-                                      index === queries.length - 1 &&
-                                      setIsHovering(false)
-                                    }
-                                    onClick={() =>
-                                      index === queries.length - 1 &&
-                                      handleEdit()
-                                    }
                                     className="position-relative ms-auto"
                                     style={{ maxWidth: "457px" }}
                                   >
-                                    <div>
-                                      {isHovering &&
-                                        index === queries.length - 1 && (
-                                          <i
-                                            className={`${styles.editIcon} icon-Edit fs-21`}
-                                          ></i>
-                                        )}
-                                    </div>
                                     <div
                                       key={index}
                                       className={styles.textContainer}

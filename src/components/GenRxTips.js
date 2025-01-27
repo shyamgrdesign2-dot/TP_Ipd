@@ -4,7 +4,6 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
-  lazy,
   useContext,
 } from "react";
 import Carousel from "react-multi-carousel";
@@ -13,6 +12,7 @@ import tipIcon from "../assets/images/tip.svg";
 import Lottie from "lottie-react";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { AnimationContext } from "../context/AnimationContext";
+import { isMobile } from "react-device-detect";
 
 const carouselItemStyle = {
   display: "flex",
@@ -249,7 +249,7 @@ const GenRxTips = ({ isKnowMore }) => {
         removeArrowOnDeviceType={["tablet", "mobile"]}
         beforeChange={handleSlideChange}
         partialVisible={isKnowMore}
-        arrows={true}
+        arrows={isMobile ? false : !isKnowMore}
         customLeftArrow={
           <button
             style={leftArrowStyle}

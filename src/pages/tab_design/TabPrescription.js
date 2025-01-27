@@ -49,6 +49,7 @@ import ddxVector from "../../assets/images/ddx-tab-vector.svg";
 import ddxImg from "../../assets/images/ddx.svg";
 import ddxInactiveImg from "../../assets/images/tab-ddx-inactive.svg";
 import genRxImg from "../../assets/images/gen-rx-mic.svg";
+import voiceRxDefault from "../../assets/images/voice-rx-default.svg";
 import obstetricWhite from "../../assets/images/obstetric-white.svg";
 import obstetricDark from "../../assets/images/obstetric-dark.svg";
 import medicalRecordsWhite from "../../assets/images/upload-doc-white.svg";
@@ -880,7 +881,7 @@ function TabPrescription() {
                       style={{backgroundColor: "inherit"}}
                     >
                       <img
-                        src={collapsedFlag == 10 ? genRxImg : genRxImg}
+                        src={collapsedFlag == 10 ? genRxImg : voiceRxDefault}
                         alt="VoiceRx"
                         width={42}
                         height={42}
@@ -888,7 +889,7 @@ function TabPrescription() {
                     </div>
                     <label className="text-white mt-1">Voice Rx</label>
                   </button>}
-                  {true && <button
+                  {isApexAIAccessable && <button
                     type="button"
                     className="mb-3 text-center btn btn-action"
                     onClick={() => openCollapsed(9)}
