@@ -48,7 +48,8 @@ import {
     endVisit,
     zydusConsultAppoint,
     syncZydusPatientAndAppointment,
-    copyGetAllAppointment
+    copyGetAllAppointment,
+    viewPatient
 } from "../redux/appointmentsSlice";
 
 import {
@@ -347,6 +348,14 @@ function AppointmentData({ locationPath }) {
     const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
     const [isDigitisationTab, setIsDigitisationTab] = useState(false);
 
+    useEffect(() => {
+        const decodedToken = getDecodedToken();
+        const tokenData = decodedToken?.result;
+        if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
+            setSelectedTab(TAB_ZYDUS_ENCOUNTER)
+        }
+    }, []);
+
     const calanderOptions = [
         { value: 1, label: "Today" },
         { value: 2, label: "Next 7 Days" },
@@ -606,7 +615,7 @@ function AppointmentData({ locationPath }) {
     const getMenuItems = (record) => {
         const items = [
             {
-                label: <Link to="/patient_details" state={{ patient_data: record }}>Patient Details</Link>,
+                label: <span onClick={()=>onPatientDetailsClick(record)}>Patient Details</span>,
                 key: "patientdetails",
             },
             {
@@ -692,6 +701,20 @@ function AppointmentData({ locationPath }) {
             "patient_id": record?.patient_unique_id
         });
         navigate("/prescription", { state: { patient_data: record } })
+    }
+
+    const onPatientDetailsClick = async (record) => {
+        if (selectedTab === TAB_FINISHED) {
+            const sendData = {
+                patient_unique_id: record?.patient_unique_id,
+            };
+            const action = await dispatch(viewPatient(sendData));
+            if (action.meta.requestStatus === "fulfilled") {
+                navigate("/patient_details", { state: { patient_data: { ...record, mrno: action?.payload?.pm_reference_id } } })
+            }
+        } else {
+            navigate("/patient_details", { state: { patient_data: record } })
+        }
     }
 
     const onZydusConsultClick = async (record) => {
@@ -933,13 +956,15 @@ function AppointmentData({ locationPath }) {
             ellipsis: true,
             render: (text, record) => (
                 <div>
-                    <span className="text-primary">
-                        {selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT ?
-                            <Link to="/patient_details" state={{ patient_data: record }}>{record.pm_salutation ? `${record.pm_salutation} ${record.pm_fullname}` : record.pm_fullname}</Link>
-                            :
-                            record.pm_fullname
-                        }
-                    </span>
+                    {selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT ?
+                        <span className="text-primary cursor-pointer" onClick={() => onPatientDetailsClick(record)}>
+                            {record.pm_salutation ? `${record.pm_salutation} ${record.pm_fullname}` : record.pm_fullname}
+                        </span>
+                        :
+                        <span className="text-primary">
+                            {record.pm_fullname}
+                        </span>
+                    }
                     <br />
                     <small>
                         {genderAge(record)}
