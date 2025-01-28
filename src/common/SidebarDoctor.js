@@ -17,12 +17,16 @@ import pharmacyIcon from '../assets/images/pharmacy.svg';
 import billingsIcon from '../assets/images/billings.svg';
 import followUpIcon from '../assets/images/followup-home.svg';
 import ipdActiveIcon from '../assets/images/ipd-active.svg';
+import tatvaAiIcon from '../assets/images/website-images/tatvaAiIcon.svg';
 import patientsActiveIcon from '../assets/images/patients-active.svg';
 import analyticsActiveIcon from '../assets/images/analytics-active.svg';
 import pharmacyActiveIcon from '../assets/images/pharmacy-active.svg';
 import billingsActiveIcon from '../assets/images/billings-active.svg';
 import followUpActiveIcon from '../assets/images/follow-up-active.svg';
+import tatvaAiActiveIcon from '../assets/images/website-images/tatvaAiActiveIcon.svg';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
+import { errorMessage } from "../utils/utils";
+import FullPageLoader from '../pages/vaccination/components/Loader';
 
 function SidebarDoctor() {
 
@@ -30,12 +34,17 @@ function SidebarDoctor() {
     const { profile } = useSelector((state) => state.doctors);
     const [tokenData, setTokenData] = useState(null);
     const [hoveredItem, setHoveredItem] = useState(null);
+    const [tatvaHovered, SetTatvaHovered] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
     const isApolloConsultationsEnabled = useFeatureIsOn('apollo-consultations');
 
     const location = useLocation();
+
+    const baseUrl = config.tatvaAi_api_url
+    const tatvaAiURL = config.tatvaAi_url
 
     useEffect(() => {
         if (profile) {
@@ -107,81 +116,132 @@ function SidebarDoctor() {
     }
 
     const getIcon = (type, isHovered) => {
-        if (isHovered) {
-            switch (type) {
-                case "ipd":
-                    return ipdActiveIcon;
-                case "all_patients":
-                    return patientsActiveIcon;
-                case "data_analytics":
-                    return analyticsActiveIcon;
-                case "pharmacy":
-                    return pharmacyActiveIcon;
-                case "opd_billing":
-                    return billingsActiveIcon;
-                case "dr_followup_appointment":
-                    return followUpActiveIcon;
-                default:
-                    return "";
-            }
-        } else {
-            switch (type) {
-                case "ipd":
-                    return ipdIcon;
-                case "all_patients":
-                    return patientsIcon;
-                case "data_analytics":
-                    return analyticsIcon;
-                case "pharmacy":
-                    return pharmacyIcon;
-                case "opd_billing":
-                    return billingsIcon;
-                case "dr_followup_appointment":
-                    return followUpIcon;
-                default:
-                    return "";
-            }
+      if (isHovered) {
+        switch (type) {
+          case "ipd":
+            return ipdActiveIcon;
+          case "all_patients":
+            return patientsActiveIcon;
+          case "data_analytics":
+            return analyticsActiveIcon;
+          case "pharmacy":
+            return pharmacyActiveIcon;
+          case "opd_billing":
+            return billingsActiveIcon;
+          case "dr_followup_appointment":
+            return followUpActiveIcon;
+          case "tatva_ai":
+            return tatvaAiActiveIcon;
+          default:
+            return "";
         }
+      } else {
+        switch (type) {
+          case "ipd":
+            return ipdIcon;
+          case "all_patients":
+            return patientsIcon;
+          case "data_analytics":
+            return analyticsIcon;
+          case "pharmacy":
+            return pharmacyIcon;
+          case "opd_billing":
+            return billingsIcon;
+          case "dr_followup_appointment":
+            return followUpIcon;
+          case "tatva_ai":
+            return tatvaAiIcon;
+          default:
+            return "";
+        }
+      }
     };
+
+    const handleTatvaAi = async () => {
+        try {
+            setLoading(true);
+            const token = await getToken()
+
+            const response = await axios.post(
+                `${baseUrl}/api/v1/practice/tatva-ai-token`,
+                {
+                  mobileNumber: `91${profile?.um_contact}`,
+                },
+                {
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+            );
+                  
+            // Extract the token from the response
+            const tatvaAitoken = response.data.data.token;
+        
+            // Construct the new URL with the token
+            const newUrl = `${tatvaAiURL}/login?authToken=${tatvaAitoken}`;
+
+            setLoading(false);            
+
+            if (!isChrome && !isSafari) {
+                navigate(`/?url=${newUrl}&key=phpRedirect`, { replace: true })
+                navigate(0, { replace: true });
+            } else {
+                await window.open(newUrl, '_blank');
+            }
+        
+          } catch (error) {
+            setLoading(false);
+            console.error('API Error:', error);
+            errorMessage(error.message)
+          }
+      };
+
+      const handleHover = (data) =>{
+        if(data){
+            setHoveredItem(null)
+            SetTatvaHovered(true)
+        } else{
+            SetTatvaHovered(false)
+        }
+      }
 
     return (
         <>
             <div className="SidebarDoctor">
-                <div className='sidebarScroll'>
+                <div className="scrollable-content">
                     <NavLink to="/" replace={true} className={({ isActive, isPending }) =>
                         isPending ? "pending" : isActive ? "active" : ""
                     }>
                         <i className='icon-calendarfill'></i>
                         <div className='mt-1 px-2'>{isMobile ? 'Appt' : <div className='text-truncate'>Appointment</div>}</div>
                     </NavLink>
-
-                    {/* <NavLink to="/" className={({ isActive, isPending }) =>
-                    isPending ? "pending" : isActive ? "active" : ""
+                    
+                    <NavLink replace={true} className={({ isActive, isPending }) =>
+                        isPending ? "pending" : tatvaHovered ? "active" : ""
                     }>
-                        <i className='icon-patients'></i>
-                        <div className='mt-1 px-2'>{isMobile ? 'Patients' : 'All Patients'}</div>
+                        <div
+                            className={`d-flex align-items-center flex-column ${tatvaHovered ? "hoveredColor": ""}`}
+                            onMouseEnter={() => handleHover(true)} // Set the hovered item
+                            onMouseLeave={() => handleHover(false)} // Clear the hovered item
+                            onClick={handleTatvaAi}
+                        >
+                            <img src={getIcon("tatva_ai",tatvaHovered )} alt="tatva_ai" />
+                            <div className={`mt-1 px-2 ${tatvaHovered ? "hoveredColor": ""}`} style={{fontSize:"12px", fontWeight:"500"}}>
+                                    Tatva AI
+                            </div>
+                        </div>
+                        <img src={newGif} className='mx-auto d-block text-center mb-2 position-absolute sidebar-message' style={{right: -4, top: 6, zIndex: -1}} alt='New' />
                     </NavLink>
-                    <NavLink to="/" className={({ isActive, isPending }) =>
-                        isPending ? "pending" : isActive ? "active" : ""
-                    }>
-                        <i className='icon-analytics'></i>
-                        <div className='mt-1 px-2'>Analytics</div>
-                    </NavLink>
-                    <NavLink to="/" className={({ isActive, isPending }) =>
-                        isPending ? "pending" : isActive ? "active" : ""
-                    }>
-                        <i className='icon-billings'></i>
-                        <div className='mt-1 px-2'>Billings</div>
-                    </NavLink> */}
-
+                    
                     {profile && profile?.module_data?.map((item, i) => {
-                        const isHovered = hoveredItem === i;
+                    const isHovered = hoveredItem === i;
                         return (
                             <NavLink key={i} onClick={() => clickOldModule(item.type)} replace={true} className={({ isActive, isPending }) =>
-                                isHovered ? "" : isPending ? "pending" : isActive ? "" : "active"
+                            isHovered ? "" : isPending ? "pending" : isActive ? "" : "active"
                             }
-                                onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
-                                onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
+                            onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
+                            onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
                             >
                                 <img src={getIcon(item.type, isHovered)} alt={`${item.type}`} />
                                 <div className='mt-1 px-2'>{item.title}</div>
@@ -189,12 +249,12 @@ function SidebarDoctor() {
                         )
                     })}
 
-                    {isApolloConsultationsEnabled &&
+                    {isApolloConsultationsEnabled && 
                         <NavLink to="/apollo-consultations" replace={true} className={({ isActive, isPending }) =>
                             isPending ? "pending" : isActive ? "active" : ""
                         }
-                            onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
-                            onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
+                        onMouseEnter={() => setHoveredItem(true)} // Set the hovered item
+                        onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
                         >
                             <img src={getIcon("data_analytics", hoveredItem || location.pathname === '/apollo-consultations')} alt="apollo" />
                             <div className='mt-1 px-2'>
@@ -202,7 +262,10 @@ function SidebarDoctor() {
                             </div>
                         </NavLink>
                     }
+
                 </div>
+
+                {loading && <FullPageLoader />}
                 
                 {profile?.ownerDoctor === 1 && (
                     <NavLink to="/bulk_messages" replace={true} className={({ isActive, isPending }) =>
@@ -217,10 +280,12 @@ function SidebarDoctor() {
                 )}
 
 
-                <Button className="btn btn-delete-prescription mx-auto d-block p-0 mt-2" onClick={() => window.Moengage.track_event("announcement_button_clicked")} id='beamerButton'>
-                    <i className="icon-announcement fs-3"></i> <br />
-                </Button>
-                <img src={newGif} width={42} className='mx-auto d-block text-center mb-2' alt='New' />
+                <div>                    
+                    <Button className="btn btn-delete-prescription mx-auto d-block p-0 mt-2" onClick={() => window.Moengage.track_event("announcement_button_clicked")} id='beamerButton'>
+                        <i className="icon-announcement fs-3"></i> <br />
+                    </Button>
+                    <img src={newGif} width={42} className='mx-auto d-block text-center mb-2' alt='New' />
+                </div>
             </div>
         </>
     )
