@@ -24,7 +24,7 @@ export const updatePrintSetting = async function (payload) {
 };
 
 export const deletePrintSetting = async function () {
-  let res = [];
+  let res = {};
   try {
     res = await api.delete(`/api/v1/billing/printSetting`, baseUrl);
   } catch (e) {
@@ -49,6 +49,52 @@ export const fetchAdvanceSetting = async function () {
     res = await api.get(`/api/v1/billing/advancedSetting`, baseUrl);
   } catch (e) {
     console.error("Error while fetching Advance settings details: ", e);
+  }
+  return res;
+};
+
+export const searchBillItem = async function (searchQuery) {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/billing/billItem?search=${searchQuery}`,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching search bill items: ", e);
+  }
+  return res;
+};
+
+export const upsertBillItem = async function (payload) {
+  let res = {};
+  try {
+    res = await api.post(`/api/v1/billing/billItem`, payload, baseUrl);
+  } catch (e) {
+    console.error("Error while upserting bill item: ", e);
+  }
+  return res;
+};
+
+export const deleteBillItem = async function (itemId) {
+  let res = {};
+  try {
+    res = await api.delete(`/api/v1/billing/billItem/${itemId}`, baseUrl);
+  } catch (e) {
+    console.error("Error while deleting the bill item: ", e);
+  }
+  return res;
+};
+
+export const fetchPatientDueAmount = async function (patientId) {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/billing/bill/patientDueAmount?patientId=${patientId}`,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching patient due amount: ", e);
   }
   return res;
 };

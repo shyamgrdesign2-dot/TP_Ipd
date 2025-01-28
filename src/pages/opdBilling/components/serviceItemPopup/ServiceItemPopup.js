@@ -1,15 +1,45 @@
 import { Input, Radio } from "antd";
 import CommonModal from "../../../../common/CommonModal";
 import { Button } from "react-bootstrap";
+import { useState } from "react";
+import { upsertBillItem } from "../../service";
 
-const ServiceItemPopup = ({ popupType, onCancel, title, ancDetails }) => {
+const ServiceItemPopup = ({ popupType, onCancel, editIndex, item }) => {
+  const [serviceItem, setServiceItem] = useState({
+    id: item?.id,
+    name: item?.name,
+    type: item?.type,
+    price: item?.price || item?.amount,
+    discount: item?.discount,
+    discountType: item?.discountType,
+    gst: item?.gst,
+    totalAmount: item?.totalAmount,
+  });
+
+  const handleServiceItem = (key, value) => {
+    setServiceItem((prev) => {
+      return {
+        ...prev,
+        [key]: value,
+      };
+    });
+  };
+
+  const addOrEditServieItem = async () => {
+    serviceItem.totalAmount =
+      (Number(serviceItem.price) - Number(serviceItem.discount)) *
+      (1 + Number(serviceItem.gst) / 100);
+    handleServiceItem(serviceItem);
+    await upsertBillItem(serviceItem);
+  };
+
   return (
     <div>
       <CommonModal
         isModalOpen={true}
         onCancel={onCancel}
         modalWidth={500}
-        title={title}
+        title={editIndex === -1 ? "Add New Item" : "Edit Item"}
         modalBody={
           <>
             <div className="d-flex flex-column gap-3">
@@ -20,7 +50,11 @@ const ServiceItemPopup = ({ popupType, onCancel, title, ancDetails }) => {
                 >
                   Name <span className="bdg-danger">*</span>
                 </label>
-                <Input value={"name"} style={{ height: 38 }} />
+                <Input
+                  value={serviceItem.name}
+                  style={{ height: 38 }}
+                  onChange={(e) => handleServiceItem("name", e.target.value)}
+                />
               </div>
 
               <div className="d-flex gap-5 align-items-center">
@@ -31,10 +65,11 @@ const ServiceItemPopup = ({ popupType, onCancel, title, ancDetails }) => {
                   Price/Unit <span className="bdg-danger">*</span>
                 </label>
                 <Input
-                  value={56}
+                  value={serviceItem.price}
                   onInput={(e) => {
                     e.target.value = e.target.value.replace(/[^0-9]/g, "");
                   }}
+                  onChange={(e) => handleServiceItem("price", e.target.value)}
                   style={{ height: 38 }}
                   prefix={
                     <i style={{ fontFamily: "Roboto", fontSize: 14 }}>₹</i>
@@ -50,10 +85,11 @@ const ServiceItemPopup = ({ popupType, onCancel, title, ancDetails }) => {
                   GST
                 </label>
                 <Input
-                  value={56}
+                  value={serviceItem.gst}
                   onInput={(e) => {
                     e.target.value = e.target.value.replace(/[^0-9]/g, "");
                   }}
+                  onChange={(e) => handleServiceItem("gst", e.target.value)}
                   style={{ height: 38 }}
                   suffix={
                     <i style={{ fontFamily: "Roboto", fontSize: 14 }}>%</i>
@@ -69,15 +105,47 @@ const ServiceItemPopup = ({ popupType, onCancel, title, ancDetails }) => {
                   Discount
                 </label>
                 <Input
-                  value={56}
+                  value={serviceItem.discount}
                   onInput={(e) => {
                     e.target.value = e.target.value.replace(/[^0-9]/g, "");
                   }}
-                  style={{ height: 38 }}
-                  suffix={
-                    <i style={{ fontFamily: "Roboto", fontSize: 14 }}>%</i>
+                  onChange={(e) =>
+                    handleServiceItem("discount", e.target.value)
                   }
+                  style={{ height: 38 }}
                 />
+                <div
+                  style={{ position: "absolute", right: "35px", zIndex: 10 }}
+                >
+                  <Radio.Group
+                    value={serviceItem.discountType}
+                    style={{ display: "flex", width: "60px" }}
+                    onChange={(e) =>
+                      handleServiceItem("discountType", e.target.value)
+                    }
+                  >
+                    <Radio.Button
+                      value={"percentage"}
+                      style={{
+                        width: "50%",
+                        height: "23px",
+                      }}
+                      className="custom-radio-button d-flex align-items-center justify-content-center"
+                    >
+                      %
+                    </Radio.Button>
+                    <Radio.Button
+                      value={"flat"}
+                      style={{
+                        width: "50%",
+                        height: "23px",
+                      }}
+                      className="custom-radio-button  d-flex align-items-center justify-content-center"
+                    >
+                      ₹
+                    </Radio.Button>
+                  </Radio.Group>
+                </div>
               </div>
 
               <div className="d-flex gap-5 align-items-center">
@@ -88,8 +156,9 @@ const ServiceItemPopup = ({ popupType, onCancel, title, ancDetails }) => {
                   Type <span className="bdg-danger">*</span>
                 </label>
                 <Radio.Group
-                  //    value={pastPregnancyData.gender}
+                  value={serviceItem.type}
                   style={{ display: "flex", width: "100%" }}
+                  onChange={(e) => handleServiceItem("type", e.target.value)}
                 >
                   <Radio.Button
                     value={"Service"}
@@ -126,7 +195,7 @@ const ServiceItemPopup = ({ popupType, onCancel, title, ancDetails }) => {
                   {popupType === "delete" ? "No, Keep it" : "Cancel"}
                 </div>
                 <Button
-                  //   onClick={addOrEditCustomScheduler}
+                  onClick={addOrEditServieItem}
                   className="lh-lg btn btn-primary3 btn-41 px-4"
                 >
                   <span>Add</span>

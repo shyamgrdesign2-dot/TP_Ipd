@@ -1,7 +1,7 @@
 import { Button, Col, Drawer, Row, Spin } from "antd";
 import HeaderPrescriptionPrint from "../../common/HeaderPrescriptionPrint";
 import { isMobile } from "react-device-detect";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ConfigureBillSettings from "./components/configureBillSettings/ConfigureBillSettings";
 import { Document, Page } from "react-pdf";
 import ViewBillPdf from "./components/viewBillPdf/ViewBillPdf";
@@ -333,4 +333,4 @@ const PreviewBill = ({
   );
 };
 
-export default PreviewBill;
+export default React.memo(PreviewBill);

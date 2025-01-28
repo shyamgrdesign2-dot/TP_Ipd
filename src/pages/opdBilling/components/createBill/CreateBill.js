@@ -7,12 +7,13 @@ import {
   Divider,
   Drawer,
   Input,
+  Radio,
   Select,
   Table,
 } from "antd";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
 import { PlusOutlined } from "@ant-design/icons";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import DiagnosisNotes from "../../../obstetric/components/diagnosisNotes/DiagnosisNotes";
 import { removeBeforeWhiteSpace } from "../../../../utils/utils";
 import ServiceItemPopup from "../serviceItemPopup/ServiceItemPopup";
@@ -25,7 +26,12 @@ import { pdf } from "@react-pdf/renderer";
 import PreviewBill from "../../PreviewBill";
 import { printContent } from "../../utils/helper";
 import moment from "moment";
-import { createBill, fetchAdvanceSetting } from "../../service";
+import {
+  createBill,
+  fetchAdvanceSetting,
+  fetchPatientDueAmount,
+  searchBillItem,
+} from "../../service";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
 import { useDispatch } from "react-redux";
 import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
@@ -50,12 +56,12 @@ const CreateBill = ({
   const [billNotesDrawer, setBillNotesDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [patientBillNotes, setPatientBillNotes] = useState("");
-  const [searchCustomSelected, setSearchCustomSelected] = useState(null);
+  const [searchItemSelected, setSearchItemSelected] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
   const [dataSource, setDataSource] = useState([
     {
-      key: "1",
-      item: "",
+      masterId: "",
+      name: "",
       quantity: "",
       amount: "",
       discount: "",
@@ -72,17 +78,84 @@ const CreateBill = ({
   const [mobileNumber, setMobileNumber] = useState(patientData?.pm_contact_no);
   const [includeInRx, setIncludeInRx] = useState(false);
   const [shouldAddBillTo3C, setAddBillTo3C] = useState(false);
+  const [editIndex, setEditIndex] = useState(-1);
+  const [extraDiscount, setExtraDiscount] = useState(undefined);
+  const [extraDiscountType, setExtraDiscountType] = useState("flat");
+  const [patientDueAmount, setPatientDueAmount] = useState(0);
+  const [paymentModes, setPaymentModes] = useState([]);
+  const [disableSaveBtn, setDisableSaveBtn] = useState(true);
+
+  const subTotal = dataSource.reduce((sum, service) => sum + service.amount, 0);
+  const lineItemDiscount = dataSource.reduce(
+    (sum, service) => sum + service.discount,
+    0
+  );
+
+  const applicableGst = dataSource
+    .reduce(
+      (sum, service) =>
+        sum +
+        (Number(service.amount) - Number(service.discount)) *
+          (Number(service.gst) / 100),
+      0
+    )
+    .toFixed(2);
+  const payableAmount =
+    dataSource.reduce((sum, service) => sum + service.totalAmount, 0) -
+    extraDiscount;
+  const paidAmount =
+    paymentModes.reduce((sum, payment) => sum + payment.amount, 0) || 0;
 
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings).length === 0) {
       getAdvanceSettings();
     }
+    getPatientDueAmount();
   }, []);
+
+  const validateData = (data) => {
+    return data.every((item) => {
+      const { masterId, name, quantity, amount, gst, totalAmount } = item;
+      return masterId && name && quantity && amount && gst && totalAmount;
+    });
+  };
+
+  const validatePaymentData = (data) => {
+    return data.some(
+      (item) => item.paymentMode && item.amount && Number(item.amount) > 0
+    );
+  };
+
+  useEffect(() => {
+    const validateDataSource = validateData(dataSource);
+    const validatePayment = validatePaymentData(paymentModes);
+    if (validateDataSource && validatePayment) {
+      setDisableSaveBtn(false);
+    } else {
+      setDisableSaveBtn(true);
+    }
+  }, [dataSource, paymentModes]);
+
+  const getPatientDueAmount = async () => {
+    const patientDueRes = await fetchPatientDueAmount(
+      patientData?.patient_unique_id
+    );
+    if (patientDueRes?.previousDueAmount) {
+      setPatientDueAmount(patientDueRes?.previousDueAmount);
+    }
+  };
 
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings)?.length) {
-      setIncludeInRx(advancedSettings?.enableCreatedByInRx);
-      setAddBillTo3C(advancedSettings?.defaultForm3cFlag);
+      setIncludeInRx(advancedSettings.enableCreatedByInRx);
+      setAddBillTo3C(advancedSettings.defaultForm3cFlag);
+      setPaymentModes([
+        {
+          paymentMode: advancedSettings.defaultPaymentMode,
+          amount: undefined,
+          refId: "",
+        },
+      ]);
     }
   }, [advancedSettings]);
 
@@ -125,45 +198,7 @@ const CreateBill = ({
   };
 
   const getSearchOptions = async () => {
-    // const searchOptionsRes = await fetchSearchImmunisation(
-    //   searchQuery,
-    //   patient_data.patient_unique_id
-    // );
-    const searchOptionsRes = [
-      {
-        name: "Item A",
-        id: 1,
-        item: "Item A",
-        quantity: 2,
-        discountType: "",
-        amount: 100,
-        discount: 10,
-        gst: 18,
-        totalAmount: 110,
-      },
-      {
-        name: "Item B",
-        id: 2,
-        item: "Item B",
-        quantity: "2",
-        discountType: "",
-        amount: "100",
-        discount: "10",
-        gst: "18",
-        totalAmount: "110",
-      },
-      {
-        name: "Item C",
-        id: 3,
-        item: "Item C",
-        quantity: "2",
-        discountType: "",
-        amount: "100",
-        discount: "10",
-        gst: "18",
-        totalAmount: "110",
-      },
-    ];
+    const searchOptionsRes = await searchBillItem(searchQuery);
     const data = [];
     searchOptionsRes?.map((e) => {
       return data.push({
@@ -195,17 +230,17 @@ const CreateBill = ({
       });
     setSearchOptions(data);
   };
-  const handleInputChange = (value, key, column) => {
-    const updatedData = dataSource.map((row) =>
-      row.key === key ? { ...row, [column]: value } : row
+  const handleInputChange = (value, index, column) => {
+    const updatedData = dataSource.map((row, i) =>
+      i === index ? { ...row, [column]: value } : row
     );
     setDataSource(updatedData);
   };
 
   const handleAddRow = () => {
     const newRow = {
-      key: (dataSource.length + 1).toString(),
-      item: "",
+      masterId: "",
+      name: "",
       quantity: "",
       amount: "",
       discount: "",
@@ -216,23 +251,33 @@ const CreateBill = ({
     setDataSource([...dataSource, newRow]);
   };
 
-  const handleDeleteRow = (key) => {
-    const updatedData = dataSource.filter((row) => row.key !== key);
+  const handleDeleteRow = (masterId) => {
+    const updatedData = dataSource.filter((row) => row.masterId !== masterId);
     setDataSource(updatedData);
   };
 
   const onSelect = (value, option, index) => {
     const selectedData = option?.key && JSON.parse(option.key);
     if (option?.isCustom) {
-      setSearchCustomSelected({ ...selectedData, isCustom: option.isCustom });
+      setSearchItemSelected({ ...selectedData, isCustom: option.isCustom });
     } else if (option) {
-      handleInputChange(selectedData.item, index, "item");
-      handleInputChange(typeof selectedData.quantity, index, "quantity");
-      handleInputChange(selectedData.amount, index, "amount");
-      handleInputChange(selectedData.discount, index, "discount");
-      handleInputChange(selectedData.discountType, index, "discountType");
-      handleInputChange(selectedData.gst, index, "gst");
-      handleInputChange(selectedData.totalAmount, index, "totalAmount");
+      const updatedData = dataSource.map((row, idx) =>
+        index === idx
+          ? {
+              ...row,
+              masterId: selectedData.id,
+              quantity: 1,
+              name: selectedData.name,
+              amount: selectedData.price,
+              discount: selectedData.discount,
+              discountType: selectedData.discountType,
+              type: selectedData.type,
+              gst: selectedData.gst,
+              totalAmount: selectedData.totalAmount,
+            }
+          : row
+      );
+      setDataSource(updatedData);
     } else {
       console.log("directly add the entry to the table");
     }
@@ -248,39 +293,54 @@ const CreateBill = ({
   const columns = [
     {
       title: "ITEMS",
-      dataIndex: "item",
+      dataIndex: "name",
       width: "27%",
       render: (_, record, index) => (
-        <AutoComplete
-          value={record.item}
-          onSearch={onSearch}
-          options={searchOptions}
-          onSelect={(value, option) => onSelect(value, option, index + 1)}
-          className="autocomplete-custom w-100"
-          defaultActiveFirstOption={true}
-        >
-          <Input
-            placeholder="Search & add new item"
-            style={{ border: "none" }}
-            onChange={(e) =>
-              handleInputChange(e.target.value, record.key, "item")
-            }
-          />
-        </AutoComplete>
+        <>
+          <AutoComplete
+            value={record.name}
+            onSearch={onSearch}
+            options={searchOptions}
+            onSelect={(value, option) => onSelect(value, option, index)}
+            className="autocomplete-custom w-100"
+            defaultActiveFirstOption={true}
+          >
+            <Input
+              placeholder="Search & add new item"
+              style={{ border: "none" }}
+              onChange={(e) => handleInputChange(e.target.value, index, "name")}
+              value={record.name}
+            />
+          </AutoComplete>
+          {dataSource[index]?.totalAmount && (
+            <i
+              className="icon-Edit fs-6 d-flex justify-content-end"
+              style={{
+                cursor: "pointer",
+                position: "absolute",
+                right: "10px",
+                bottom: "10px",
+              }}
+              onClick={() => {
+                setEditIndex(index);
+                setSearchItemSelected(dataSource[index]);
+              }}
+            />
+          )}
+        </>
       ),
     },
     {
       title: "QTY",
       dataIndex: "quantity",
       width: "11%",
-      render: (_, record) => (
+      render: (_, record, index) => (
         <Input
-          value={record.qty}
+          value={record.quantity}
           onChange={(e) =>
-            handleInputChange(e.target.value, record.key, "quantity")
+            handleInputChange(Number(e.target.value), index, "quantity")
           }
           bordered={false}
-          style={{ textAlign: "center" }}
           type="number"
         />
       ),
@@ -289,11 +349,11 @@ const CreateBill = ({
       title: "PRICE PER UNIT",
       dataIndex: "amount",
       width: "13%",
-      render: (_, record) => (
+      render: (_, record, index) => (
         <Input
           value={record.amount}
           onChange={(e) =>
-            handleInputChange(e.target.value, record.key, "amount")
+            handleInputChange(Number(e.target.value), index, "amount")
           }
           prefix="₹"
           bordered={false}
@@ -305,26 +365,67 @@ const CreateBill = ({
       title: "DISCOUNT",
       dataIndex: "discount",
       width: "15%",
-      render: (_, record) => (
-        <Input
-          value={record.discount}
-          onChange={(e) =>
-            handleInputChange(e.target.value, record.key, "discount")
-          }
-          prefix="₹"
-          bordered={false}
-          style={{ textAlign: "center" }}
-        />
+      render: (_, record, index) => (
+        <>
+          <Input
+            value={record.discount}
+            onChange={(e) =>
+              handleInputChange(Number(e.target.value), index, "discount")
+            }
+            prefix="₹"
+            bordered={false}
+            style={{ textAlign: "center" }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              right: "18px",
+              bottom: "18px",
+              zIndex: 10,
+            }}
+          >
+            <Radio.Group
+              value={record.discountType}
+              style={{ display: "flex", width: "60px" }}
+              onChange={(e) =>
+                handleInputChange(e.target.value, index, "discountType")
+              }
+            >
+              <Radio.Button
+                value={"percentage"}
+                style={{
+                  width: "50%",
+                  height: "23px",
+                }}
+                className="custom-radio-button d-flex align-items-center justify-content-center"
+              >
+                %
+              </Radio.Button>
+              <Radio.Button
+                value={"flat"}
+                style={{
+                  width: "50%",
+                  height: "23px",
+                }}
+                className="custom-radio-button  d-flex align-items-center justify-content-center"
+              >
+                ₹
+              </Radio.Button>
+            </Radio.Group>
+          </div>
+        </>
       ),
     },
     {
       title: "GST (%)",
       dataIndex: "gst",
       width: "11%",
-      render: (_, record) => (
+      render: (_, record, index) => (
         <Input
           value={record.gst}
-          onChange={(e) => handleInputChange(e.target.value, record.key, "gst")}
+          onChange={(e) =>
+            handleInputChange(Number(e.target.value), index, "gst")
+          }
           suffix="%"
           bordered={false}
           style={{ textAlign: "center" }}
@@ -335,11 +436,11 @@ const CreateBill = ({
       title: "TOTAL AMOUNT",
       dataIndex: "totalAmount",
       width: "13%",
-      render: (_, record) => (
+      render: (_, record, index) => (
         <Input
           value={record.totalAmount}
           onChange={(e) =>
-            handleInputChange(e.target.value, record.key, "totalAmount")
+            handleInputChange(Number(e.target.value), index, "totalAmount")
           }
           prefix="₹"
           bordered={false}
@@ -360,17 +461,13 @@ const CreateBill = ({
       render: (_, record) => (
         <Button
           className="btn btn-delete-prescription p-0"
-          onClick={() => handleDeleteRow(record.key)}
+          onClick={() => handleDeleteRow(record.masterId)}
         >
           <i className="icon-delete" style={{ color: "#454551" }} />
         </Button>
       ),
     },
   ];
-
-  const [paymentModes, setPaymentModes] = useState([
-    { paymentMode: "Cash", amount: 850, refId: "" },
-  ]);
 
   const handleModeChange = (value, index, type) => {
     const updatedModes = [...paymentModes];
@@ -402,6 +499,7 @@ const CreateBill = ({
   };
 
   const handlePrint = async () => {
+    handleCreateBill();
     printContent(printBlob, patient_unique_id, setStartLoader);
     handleCreateBillDrawer();
   };
@@ -410,31 +508,20 @@ const CreateBill = ({
     const payload = {
       patientId: patientData?.patient_unique_id,
       doctorId: userId,
-      billItems: [
-        {
-          masterId: "3a91cb7c-bdb2-41db-a11f-936b141bb42e",
-          quantity: 1,
-          amount: 100,
-          discount: 5,
-          discountType: "percentage",
-          gst: 18,
-          totalAmount: 105,
-        },
-      ],
+      billItems: dataSource,
       paymentModes: paymentModes,
-      subTotal: 0,
-      lineItemDiscount: 0,
-      extraDiscount: 0,
-      extraDiscountType: "flat",
-      applicableGst: "18",
-      payableAmount: 2000,
-      paidAmount: 2000,
+      subTotal: subTotal,
+      lineItemDiscount: lineItemDiscount,
+      extraDiscount: extraDiscount || 0,
+      extraDiscountType: extraDiscountType,
+      applicableGst: applicableGst,
+      payableAmount: payableAmount,
+      paidAmount: paidAmount,
       includeInRx: includeInRx,
       isForm3C: shouldAddBillTo3C,
-      date: moment().format("DD-MM-YYYY"),
+      date: moment().format("YYYY-MM-DD"),
       notes: patientBillNotes,
-      dueFromPreviousBill: 0,
-      previousBillId: "1d251db7-c799-4b18-9d40-d145f1157779",
+      dueFromPreviousBill: patientDueAmount,
     };
     const createRes = await createBill(payload);
   };
@@ -546,15 +633,19 @@ const CreateBill = ({
                     <Button
                       type="button"
                       className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
-                      onClick={handleCreateBillDrawer}
+                      onClick={() => {
+                        handleCreateBillDrawer();
+                        handleCreateBill();
+                      }}
+                      disabled={disableSaveBtn}
                     >
                       Save & Exit
                     </Button>
 
                     <Button
-                      type="primary"
-                      className="btn-41 btn px-4 me-2 ant-btn-text align-items-center d-flex"
+                      className="btn btn-primary3 btn-41 px-4 me-20"
                       onClick={handlePrint}
+                      disabled={disableSaveBtn}
                     >
                       Save & Print
                     </Button>
@@ -565,14 +656,18 @@ const CreateBill = ({
                       type="button"
                       className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
                       onClick={handlePrint}
+                      disabled={disableSaveBtn}
                     >
                       Save & Print
                     </Button>
 
                     <Button
-                      type="primary"
-                      className="btn-41 btn px-4 me-2 ant-btn-text align-items-center d-flex"
-                      onClick={handleDrawerPreviewBill}
+                      className="btn btn-primary3 btn-41 px-4 me-20"
+                      onClick={() => {
+                        handleDrawerPreviewBill();
+                        handleCreateBill();
+                      }}
+                      disabled={disableSaveBtn}
                     >
                       Save & Preview
                     </Button>
@@ -588,8 +683,8 @@ const CreateBill = ({
           <Col
             className="h-100"
             style={{
-              flex: "0 0 72%",
-              maxWidth: "72%",
+              flex: "0 0 70%",
+              maxWidth: "70%",
               overflowY: "auto",
               height: "100%",
               paddingRight: 0,
@@ -668,8 +763,8 @@ const CreateBill = ({
           <Col
             className="h-100 py-4"
             style={{
-              flex: "0 0 28%",
-              maxWidth: "28%",
+              flex: "0 0 30%",
+              maxWidth: "30%",
               overflowY: "auto",
               height: "100%",
               backgroundColor: "rgba(241, 241, 245, 0.5)",
@@ -781,34 +876,88 @@ const CreateBill = ({
             >
               <div className="d-flex justify-content-between">
                 <span>Subtotal:</span>
-                <span>950</span>
+                <span>{subTotal}</span>
               </div>
               <div className="d-flex justify-content-between">
                 <span>Line Item Discount:</span>
-                <span>-140</span>
+                <span className="tick-icon">-{lineItemDiscount}</span>
               </div>
               <div className="d-flex justify-content-between">
                 <span>Extra Discount:</span>
-                <span>950</span>
+                <div style={{ position: "relative", width: "50%" }}>
+                  <Input
+                    value={extraDiscount}
+                    onChange={(e) => setExtraDiscount(e.target.value)}
+                    prefix={extraDiscountType === "flat" ? "₹" : "%"}
+                    style={{
+                      textAlign: "center",
+                      width: "100%",
+                      height: "38px",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      right: "6px",
+                      bottom: "8px",
+                      zIndex: 10,
+                    }}
+                  >
+                    <Radio.Group
+                      value={extraDiscountType}
+                      style={{ display: "flex", width: "60px" }}
+                      onChange={(e) => setExtraDiscountType(e.target.value)}
+                    >
+                      <Radio.Button
+                        value={"percentage"}
+                        style={{
+                          width: "50%",
+                          height: "23px",
+                        }}
+                        className="custom-radio-button d-flex align-items-center justify-content-center"
+                      >
+                        %
+                      </Radio.Button>
+                      <Radio.Button
+                        value={"flat"}
+                        style={{
+                          width: "50%",
+                          height: "23px",
+                        }}
+                        className="custom-radio-button  d-flex align-items-center justify-content-center"
+                      >
+                        ₹
+                      </Radio.Button>
+                    </Radio.Group>
+                  </div>
+                </div>
+              </div>
+              <div className="d-flex justify-content-between">
+                <span>Applicable GST:</span>
+                <span>{applicableGst}</span>
               </div>
               <Divider style={{ margin: 0 }} />
               <div className="d-flex justify-content-between">
                 <span style={{ fontWeight: 600 }}>Total Payable Amount:</span>
-                <span style={{ fontWeight: 600 }}>950</span>
+                <span style={{ fontWeight: 600 }}>{payableAmount}</span>
               </div>
               <Divider style={{ margin: 0 }} />
-              <div className="d-flex justify-content-between">
-                <span>Paid Via “Cash”:</span>
-                <span>950</span>
-              </div>
-              <div className="d-flex justify-content-between">
-                <span>Paid Via “UPI”:</span>
-                <span>950</span>
-              </div>
+              {paymentModes?.map((payment, index) => {
+                return (
+                  <div key={index} className="d-flex justify-content-between">
+                    <span>Paid Via "{payment.paymentMode}":</span>
+                    <span>{payment.amount}</span>
+                  </div>
+                );
+              })}
               <Divider style={{ margin: 0 }} />
               <div className="d-flex justify-content-between">
-                <span>Total Amount Paid:</span>
-                <span>850</span>
+                <span className="tick-icon" style={{ fontWeight: 500 }}>
+                  Total Amount Paid:
+                </span>
+                <span className="tick-icon" style={{ fontWeight: 500 }}>
+                  {paidAmount}
+                </span>
               </div>
             </div>
 
@@ -841,10 +990,14 @@ const CreateBill = ({
           </Col>
         </Row>
       </div>
-      {searchCustomSelected?.isCustom && (
+      {(searchItemSelected?.isCustom || editIndex > -1) && (
         <ServiceItemPopup
-          onCancel={() => setSearchCustomSelected(null)}
-          title={"Add New Item"}
+          onCancel={() => {
+            setSearchItemSelected(null);
+            setEditIndex(-1);
+          }}
+          editIndex={editIndex}
+          item={searchItemSelected}
         />
       )}
       {shouldShowRefIdPopup !== null && shouldShowRefIdPopup >= 0 && (
@@ -893,4 +1046,4 @@ const CreateBill = ({
   );
 };
 
-export default CreateBill;
+export default React.memo(CreateBill);

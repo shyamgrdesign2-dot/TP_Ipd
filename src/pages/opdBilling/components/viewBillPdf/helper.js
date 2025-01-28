@@ -55,17 +55,9 @@ export const patientDataShow = (id, patient_data, billData, profile) => {
       patient_data?.pm_contact_no ? patient_data?.pm_contact_no : "-"
     }`;
   } else if (id == 5) {
-    value = `${
-      patient_data?.patient_consultation_type
-        ? patient_data?.patient_consultation_type
-        : "-"
-    }`;
+    value = `${patient_data?.patient_consultation_type ?? "-"}`;
   } else if (id == 6) {
-    value = `${
-      patient_data?.patient_reference_id
-        ? patient_data?.patient_reference_id
-        : "-"
-    }`;
+    value = `${patient_data?.tpml_refrence_id ?? "-"}`;
   } else if (id == 7) {
     value = `${
       patient_data?.pm_salutation
