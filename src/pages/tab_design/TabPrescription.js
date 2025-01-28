@@ -221,7 +221,9 @@ function TabPrescription() {
     setAdditionalNote,
     startTime,
     customModuleContents,
-    setCustomModuleContents
+    setCustomModuleContents,
+    pillupSwitch, 
+    setPillupSwitch
   };
 
   const [collapsed, setCollapsed] = useState(false);
@@ -249,6 +251,7 @@ function TabPrescription() {
   const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
   const [isGenRxDrawerVisible, setIsGenRxDrawerVisible] = useState(caseManagerData?.smart_prescription_filename || false);
   const [tatvaAiKnowMoreDrawer, setTatvaAiKnowMoreDrawer] = useState(false);
+  const [pillupSwitch, setPillupSwitch] = useState(true);
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchObstetricDetails(

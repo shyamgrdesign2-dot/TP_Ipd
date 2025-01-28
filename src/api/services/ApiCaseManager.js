@@ -61,6 +61,10 @@ ApiCaseManager.getSmartRx = function (data) {
     return api.post(`/api/v1/casemanager/smart-rx`, data, baseUrl);
 };
 
+ApiCaseManager.getInvestigationAndMedicine = function (data) {
+    return api.post(`/api/v1/casemanager/getInvestigationAndMedicine`, data, baseUrl);
+};
+
 // ApiCaseManager.saveSmartRx = function (data) {
 //     return api.post(`/api/v1/casemanager/smartrx`, data, smartrxUrl);
 // };

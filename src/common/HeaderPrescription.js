@@ -22,7 +22,7 @@ import VideoModal from './VideoModal';
 
 import { errorMessage, getClinicName, removeBeforeWhiteSpace } from "../utils/utils";
 
-import { EXTRA_OPTIONS, GB_ZYDUS_USER, MESSAGE_KEY } from "../utils/constants";
+import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, GB_ZYDUS_USER, MESSAGE_KEY } from "../utils/constants";
 
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
@@ -36,7 +36,8 @@ import {
     oneClickTemplatesList,
     oneClickSingleTemplateDetails,
     addCaseManager,
-    editCaseManager
+    editCaseManager,
+    getInvestigationAndMedicine
 } from "../redux/caseManagerSlice";
 import { listVideo } from "../redux/doctorsSlice";
 import GenRxButton from '../components/GenRxButton';
@@ -67,7 +68,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
     const {customModules} = useSelector((state) => state.customModules);
 
     const navigate = useNavigate();
-    const { patient_data, send_path, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, surgeriesData, setSurgeriesData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, privateNotesData, setPrivateNotesData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime, customModuleContents, setCustomModuleContents } = useContext(CashManagerContext);
+    const { patient_data, send_path, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, surgeriesData, setSurgeriesData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, privateNotesData, setPrivateNotesData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime, customModuleContents, setCustomModuleContents, pillupSwitch } = useContext(CashManagerContext);
 
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
@@ -101,6 +102,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
     const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
 
     const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+    const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
     
     useEffect(() => {
         dispatch(oneClickTemplatesList());
@@ -961,6 +963,14 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     ),
                     duration: 5,
                 });
+
+                if(isPillUpAccessableFromGB && pillupSwitch){
+                    let sendInvestigationAndMedicine = {
+                        patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+                        tcm_id: action?.payload?.tcm_id
+                    }
+                    dispatch(getInvestigationAndMedicine(sendInvestigationAndMedicine))
+                }
 
                 const decodedToken = getDecodedToken();
                 const tokenData = decodedToken?.result;
