@@ -9,7 +9,7 @@ import { env } from "../../EnvironmentConfig";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, GB_ZYDUS_USER, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 
 import { getPatientBirthWeight, getVitals } from "../../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../../redux/medicalhistorySlice";
@@ -70,7 +70,7 @@ import Obstetric from "../obstetric/Obstetric";
 import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
 import { fetchObstetricDetails } from "../obstetric/service";
 import { addObstetricDetails } from "../../redux/obstetricSlice";
-import { setAllUploadedDocs, setPatientUploadedDocs, setUploadDocCategories } from "../../redux/uploadDocSlice";
+import { setAllUploadedDocs, setPatientUploadedDocs, setUploadDocCategories, zydusDocsList } from "../../redux/uploadDocSlice";
 import { fetchAllDocumentCategories, fetchAllPatientDocs, fetchDocsUploadedByPatient } from "../medicalRecords/service";
 import TabUploadDocumentList from "../medicalRecords/components/uploadDocumentList/TabUploadDocumentList";
 import UploadDocument from "../medicalRecords/UploadDocument";
@@ -113,6 +113,7 @@ function TabPrescription() {
   } = useSelector((state) => state.doctors);
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
+  const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -272,6 +273,10 @@ function TabPrescription() {
     dispatch(
       setAllUploadedDocs(mergeDocuments(doctorUploadedDocs, patientUploadedDocs))
     );
+    const tokenData = decodedToken?.result;
+    if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
+      dispatch(zydusDocsList({ mrno: patient_data.mrno }))
+    }
   };
 
   const getAllDocumentCategories = async () => {
