@@ -48,6 +48,7 @@ export default {
   razorPay_key: env.razorPay_key,
   tatvaAi_api_url: env.tatvaAi_api_url,
   tatvaAi_url : env.tatvaAi_url,
+  tatvaAi_logout_url: env.tatvaAi_logout_url,
   lite_api_key: env.lite_api_key,
   lite_secret_key: env.lite_secret_key,
   gen_rx_api_url: env.gen_rx_api_url,
