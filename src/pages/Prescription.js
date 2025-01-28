@@ -1151,7 +1151,7 @@ const handleTatvaAiKnowMore = () => {
             </div>
             <div className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3">
               <Content>
-                {(shouldShowGenRxPopup || shouldShowApexPopup || shouldShowTatvaAiPopup) && 
+                {/* {(shouldShowGenRxPopup || shouldShowApexPopup || shouldShowTatvaAiPopup) && 
                   <Carousel
                   responsive={responsive}
                   infinite={true}
@@ -1176,7 +1176,7 @@ const handleTatvaAiKnowMore = () => {
                     />
                   )}
                   </Carousel>
-                }
+                } */}
                 {customizedPadRightList?.map((e, i) => {
                   const customModule = customModules?.find(
                     (m) => m.module_id === e.tmdpm_id
