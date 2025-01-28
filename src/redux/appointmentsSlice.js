@@ -317,8 +317,6 @@ const appointmentsSlice = createSlice({
                     return { ...e, key: uuidv4() }
                 });
                 if (action.meta.arg.page == 0) {
-                    state.zydusEncounterCount = 0
-                    state.zydusAappointmentCount = 0
                     state.queueCount = action.payload.queue_count;
                     state.finishedCount = action.payload.finished_count;
                     state.cancelledCount = action.payload.cancelled_count;
@@ -331,8 +329,6 @@ const appointmentsSlice = createSlice({
                 state.loading = false;
                 state.setOnLoad = false;
                 if (action.meta.arg.page == 0) {
-                    state.zydusEncounterCount = 0
-                    state.zydusAappointmentCount = 0
                     state.queueCount = 0;
                     state.finishedCount = 0;
                     state.cancelledCount = 0;
@@ -480,9 +476,7 @@ const appointmentsSlice = createSlice({
 
                 if (action.meta.arg.apStatue === TAB_ZYDUS_ENCOUNTER) {
                     state.zydusEncounterCount = modifiedData?.length
-                    state.zydusAappointmentCount = 0
                 } else {
-                    state.zydusEncounterCount = 0
                     state.zydusAappointmentCount = modifiedData?.length
                 }
                 if (action.meta.arg.page == 0) {

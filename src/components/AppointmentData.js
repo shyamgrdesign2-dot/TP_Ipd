@@ -319,15 +319,6 @@ function AppointmentData({ locationPath }) {
         if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
             const zydusItems = [
                 {
-                    key: TAB_ZYDUS_ENCOUNTER,
-                    label: (
-                        <div className="d-flex align-items-center">
-                            <i className="icon-Queue"></i>
-                            Encounter {zydusEncounterCount ? `(${zydusEncounterCount})` : ''}
-                        </div>
-                    ),
-                },
-                {
                     key: TAB_ZYDUS_APPOINTMENT,
                     label: (
                         <div className="d-flex align-items-center">
@@ -335,9 +326,18 @@ function AppointmentData({ locationPath }) {
                             Appointment {zydusAappointmentCount ? `(${zydusAappointmentCount})` : ''}
                         </div>
                     ),
+                },
+                {
+                    key: TAB_ZYDUS_ENCOUNTER,
+                    label: (
+                        <div className="d-flex align-items-center">
+                            <i className="icon-Queue"></i>
+                            Encounter {zydusEncounterCount ? `(${zydusEncounterCount})` : ''}
+                        </div>
+                    ),
                 }
             ];
-            updatedItems.push(...zydusItems);
+            updatedItems.splice(1, 0, ...zydusItems);
         }
 
         // Update the items state with new data
@@ -418,24 +418,26 @@ function AppointmentData({ locationPath }) {
                 // console.log(sendData)
                 dispatch(getAllAppointment(sendData));
             } else {
-                let sendData = {
-                    startDate: date.startDate,
-                    endDate: date.endDate,
-                    apStatue: TAB_FINISHED,
-                    page: 0
+                if(siteId){
+                    let sendData = {
+                        startDate: date.startDate,
+                        endDate: date.endDate,
+                        apStatue: TAB_FINISHED,
+                        page: 0
+                    }
+    
+                    await dispatch(copyGetAllAppointment(sendData))
+    
+                    var sendZydusData = {
+                        siteId: siteId,
+                        empNo: empNo.toString(),
+                        date: moment(date.startDate).format(showDateFormat),
+                        apStatue: selectedTab,
+                        page: 0,
+                        filterVisitType: visitTypeFilters,
+                    }
+                    dispatch(zydusConsultAppoint(sendZydusData));
                 }
-
-                await dispatch(copyGetAllAppointment(sendData))
-
-                var sendZydusData = {
-                    siteId: siteId,
-                    empNo: empNo.toString(),
-                    date: moment(date.startDate).format(showDateFormat),
-                    apStatue: selectedTab,
-                    page: 0,
-                    filterVisitType: visitTypeFilters,
-                }
-                dispatch(zydusConsultAppoint(sendZydusData));
             }
 
             // if (searchQuery) {
@@ -452,7 +454,7 @@ function AppointmentData({ locationPath }) {
         return () => {
             clearTimeout(timeOutId);
         };
-    }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order, isDigitisationTab]);
+    }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order, isDigitisationTab, siteId]);
 
     useEffect(() => {
         if (isSmartSyncAccessableFromGB && isSmartSyncCVTAccessableFromGB) {
