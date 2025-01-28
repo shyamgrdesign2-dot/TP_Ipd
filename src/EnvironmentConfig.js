@@ -301,7 +301,7 @@ const prod = {
   razorPay_key: "rzp_live_GvLkPHHNSMs2G3",
   tatvaAi_api_url: "https://pm-doctor-tatva-prod.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-prod.tatvacare.in",
-  tatvaAi_logout_url:"https://tatva-ai-prod.tatvacare.in/logout",
+  tatvaAi_logout_url:"https://tatva-ai.tatvacare.in/logout",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-prod.tatvacare.in",
