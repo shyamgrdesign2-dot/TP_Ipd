@@ -354,7 +354,7 @@ function AppointmentData({ locationPath }) {
         if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
             setSelectedTab(TAB_ZYDUS_ENCOUNTER)
         }
-    }, []);
+    }, [isZydusUserAccessableFromGB]);
 
     const calanderOptions = [
         { value: 1, label: "Today" },
