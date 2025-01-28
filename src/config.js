@@ -32,6 +32,7 @@ export default {
   obstetric_api_url: env.obstetric_api_url,
   zydus_api_url: env.zydus_api_url,
   zydus_business_id: env.zydus_business_id,
+  zydus_proxy_url: env.zydus_proxy_url,
   rx_digitization: env.rx_digitization,
   visit_api_url: env.visit_api_url,
   user_management_api_url: env.user_management_api_url,
