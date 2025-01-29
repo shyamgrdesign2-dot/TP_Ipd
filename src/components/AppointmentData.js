@@ -986,12 +986,12 @@ function AppointmentData({ locationPath }) {
             )
         },
         {
-            title: "Visit Type",
-            dataIndex: "toct_type",
-            key: "toct_type",
+            title:selectedTab !== TAB_ZYDUS_APPOINTMENT ? "Visit Type" : "Status",
+            dataIndex: selectedTab !== TAB_ZYDUS_APPOINTMENT ? "toct_type" : "appointmentStatus",
+            key: selectedTab !== TAB_ZYDUS_APPOINTMENT ? "toct_type" : "appointmentStatus",
             ellipsis: true,
             filteredValue: visitTypeFilters.split(',') || '',
-            filters: getVisitTypeFilters()
+            filters: selectedTab !== TAB_ZYDUS_APPOINTMENT ? getVisitTypeFilters() : null
         },
         {
             title: "Slot",
@@ -1485,7 +1485,7 @@ function AppointmentData({ locationPath }) {
                             <>
                                 <Table
                                     className="px-xl-4 px-0"
-                                    columns={selectedTab !== TAB_ZYDUS_APPOINTMENT ? columns : columns.filter(e => e?.key != "toct_type")}
+                                    columns={columns}
                                     dataSource={appointmentsData}
                                     onChange={handleChange}
                                     pagination={false}
