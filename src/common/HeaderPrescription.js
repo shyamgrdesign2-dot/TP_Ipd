@@ -926,7 +926,8 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     given: givenVaccines,
                     due: updatedDueVaccines
                 },
-                moduleContents: customModuleContents?.map((e) => ({...e, content: e.content.filter((e1) => e1.title || e1.notes)}))
+                moduleContents: customModuleContents?.map((e) => ({...e, content: e.content.filter((e1) => e1.title || e1.notes)})),
+                pillup_fulfilment: isPillUpAccessableFromGB && pillupSwitch ? 1 : 0
             };
 
             const clinic_name = getClinicName(profile?.hospital_data);
@@ -964,32 +965,37 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     duration: 5,
                 });
 
-                if(isPillUpAccessableFromGB && pillupSwitch){
+                const decodedToken = getDecodedToken();
+                const tokenData = decodedToken?.result;
+                if (tokenData?.hospital_business_id == env.zydus_business_id
+                    && isZydusUserAccessableFromGB
+                    && patient_data?.mrno !== undefined
+                    && medicationData.length > 0
+                    && investigationData.length > 0
+                ) {
                     let sendInvestigationAndMedicine = {
                         patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
                         tcm_id: action?.payload?.tcm_id
                     }
-                    dispatch(getInvestigationAndMedicine(sendInvestigationAndMedicine))
-                }
-
-                const decodedToken = getDecodedToken();
-                const tokenData = decodedToken?.result;
-                if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB && patient_data?.mrno !== undefined) {
-                    let zydusSendData = {
-                        "action": tcmId == 0 ? 'add' : 'edit',
-                        "tcmId": action?.payload?.tcm_id,
-                        "siteId": siteId,
-                        "departmentId": patient_data?.departmentId,
-                        "visitId": patient_data?.visitId,
-                        "encounterId": patient_data?.encounterId,
-                        "mrno": patient_data?.mrno,
-                        "doctorCode": patient_data?.employeeId,
-                        "storeCode": "PHOS", // hardcoded value
-                        "duplicateCheck": 1, // hardcoded value
-                        "investigationList": investigationData.filter(item => item.hasOwnProperty('objectID')).map(item => item.objectID),
-                        "medicineList": medicationData.map(({ tmm_id, tmm_remarks }) => ({ objectId: tmm_id, instruction: tmm_remarks }))
+                    const actionIM = await dispatch(getInvestigationAndMedicine(sendInvestigationAndMedicine))
+                    if (actionIM.meta.requestStatus === "fulfilled") {
+                        let zydusSendData = {
+                            "action": tcmId == 0 ? 'add' : 'edit',
+                            "tcmId": action?.payload?.tcm_id,
+                            "siteId": siteId,
+                            "departmentId": patient_data?.departmentId,
+                            "visitId": patient_data?.visitId,
+                            "encounterId": patient_data?.encounterId,
+                            "mrno": patient_data?.mrno,
+                            "doctorCode": patient_data?.employeeId,
+                            "storeCode": "PHOS", // hardcoded value
+                            "duplicateCheck": 1, // hardcoded value
+                            "investigationList": actionIM?.payload?.investigation.filter(item => item.hasOwnProperty('objectID')).map(item => item.objectID),
+                            "medicineList": actionIM?.payload?.medicine.map(({ tmm_id, tmm_remarks }) => ({ objectId: tmm_id, instruction: tmm_remarks }))
+                        }
+                        console.log(zydusSendData)
+                        dispatch(placeIctOrder(zydusSendData))
                     }
-                    // dispatch(placeIctOrder(zydusSendData))
                 }
 
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
