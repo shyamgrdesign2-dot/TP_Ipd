@@ -4146,7 +4146,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         <View style={[styles.table, { marginTop: 0 }]}>
                                                             <View
                                                                 style={[
-                                                                    styles.row
+                                                                    styles.headerRow
                                                                 ]}
                                                                 wrap={false}
                                                             >
