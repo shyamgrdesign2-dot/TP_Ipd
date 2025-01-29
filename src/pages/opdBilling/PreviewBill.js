@@ -21,8 +21,19 @@ const PreviewBill = ({
   handleCreateBillDrawer,
   isPreviewFromTable,
   isDepositReceipt,
-  patientData,
+  billData,
 }) => {
+  const { patient = {} } = billData;
+  const patientData = {
+    pm_pid: patient.id,
+    pm_fullname: patient.name,
+    pm_gender: patient.gender,
+    pm_contact_no: patient.phone,
+    pam_ref_id: patient.refId,
+    ageDays: patient.ageDays,
+    ageMonths: patient.ageMonths,
+    ageYears: patient.ageYears,
+  };
   const dispatch = useDispatch();
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const { billPrintSettings } = useSelector((state) => state.billing);
@@ -64,6 +75,7 @@ const PreviewBill = ({
         isDepositReceipt={isDepositReceipt}
         patientData={patientData}
         profile={profile}
+        billData={billData}
       />
     ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));
@@ -326,6 +338,7 @@ const PreviewBill = ({
             showConfigureSettings={showConfigureSettings}
             handleDrawerConfigureSettings={handleDrawerConfigureSettings}
             patientData={patientData}
+            billData={billData}
           />
         </Drawer>
       )}

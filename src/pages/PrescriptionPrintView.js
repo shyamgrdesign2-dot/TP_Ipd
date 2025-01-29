@@ -26,14 +26,14 @@ import { env } from "../EnvironmentConfig";
 import { setCurrentSessionRx } from "../redux/obstetricSlice";
 import CreateBill from "./opdBilling/components/createBill/CreateBill";
 import RecentBills from "./opdBilling/components/recentBills/RecentBills";
+import { fetchBillsByPatient } from "./opdBilling/service";
+import moment from "moment";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 //     "pdfjs-dist/build/pdf.worker.min.js",
 //     import.meta.url
 // ).toString();
-
-const isBillCreated = true;
 
 const LANGUAGE_LIST = [
     {
@@ -120,6 +120,7 @@ function PrescriptionPrintView() {
     const [createBillDrawer, setCreateBillDrawer] = useState(false);
     const [recentBillDrawer, setRecentBillDrawer] = useState(false);
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+    const [patientBills, setPatientBills] = useState([]);
     const {isGynaecHistoryAccessable} = useAccess();
 
     const baseUrl = env.lab_params_api_url;
@@ -160,7 +161,30 @@ function PrescriptionPrintView() {
 
     useEffect(() => {
         getLabParams();
+        getPatientBills();
     },[])
+
+    const getPatientBills = async () => {
+        const queryParams = {
+          doctorIds: userId,
+          startDate: moment().format("YYYY-MM-DD"),
+          endDate: moment().format("YYYY-MM-DD"),
+          sortBy: "date",
+          sortOrder: "asc",
+          page: 1,
+          limit: 25,
+          patientId: patient_data?.patient_unique_id,
+          appointmentId: patient_data?.pam_id,
+        };
+        const response = await fetchBillsByPatient(queryParams);
+        if (response?.bills?.length > 0) {
+          const billData = response?.bills?.map((bill) => ({
+            ...bill,
+            patient: response?.patient,
+          }));
+          setPatientBills(billData);
+        }
+    };
 
     const handleCreateBillDrawer = useCallback(() => {
         setCreateBillDrawer(!createBillDrawer);
@@ -308,9 +332,9 @@ function PrescriptionPrintView() {
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-billings"></i>}
-                                    onClick={isBillCreated ? handleRecentBillDrawer : handleCreateBillDrawer}
+                                    onClick={patientBills?.length > 0 ? handleRecentBillDrawer : handleCreateBillDrawer}
                                 >
-                                    <span className="fw-semibold">{isBillCreated ? "Create/ View Bill" : "Create Bill"}</span>
+                                    <span className="fw-semibold">{patientBills?.length > 0 ? "Create/ View Bill" : "Create Bill"}</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                                 <Button
@@ -428,7 +452,7 @@ function PrescriptionPrintView() {
                     width="77%"
                     push={false}
                     >
-                    <RecentBills handleRecentBillDrawer={handleRecentBillDrawer} handleCreateBillDrawer={handleCreateBillDrawer} patientData={patient_data} />
+                    <RecentBills handleRecentBillDrawer={handleRecentBillDrawer} handleCreateBillDrawer={handleCreateBillDrawer} patientBills={patientBills} />
                 </Drawer>
             }
             </div>

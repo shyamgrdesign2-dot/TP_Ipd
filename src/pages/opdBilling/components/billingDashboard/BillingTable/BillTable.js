@@ -4,7 +4,7 @@ import { useState } from "react";
 import PreviewBill from "../../../PreviewBill";
 import RefundBill from "../RefundBill/RefundBill";
 
-const BillTable = ({ patientData, isPatientScreen }) => {
+const BillTable = ({ data, isPatientScreen }) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [billData, setBillData] = useState(null);
@@ -14,17 +14,17 @@ const BillTable = ({ patientData, isPatientScreen }) => {
   };
 
   const onBillingDetailsClick = async (status, record) => {
+    setBillData(record);
     if (status === 1) {
       handleDrawerPreviewBill();
     } else if (status === 2) {
-      handleRefundBillDrawer(record);
+      handleRefundBillDrawer();
     } else {
     }
   };
 
   // Drawer form 3c
-  const handleRefundBillDrawer = (record) => {
-    setBillData(record);
+  const handleRefundBillDrawer = () => {
     setRefundBillDrawer(!refundBillDrawer);
   };
 
@@ -243,7 +243,7 @@ const BillTable = ({ patientData, isPatientScreen }) => {
           <PreviewBill
             handleCreateBillDrawer={handleDrawerPreviewBill}
             isPreviewFromTable={true}
-            patientData={patientData}
+            billData={billData}
           />
         </Drawer>
       )}

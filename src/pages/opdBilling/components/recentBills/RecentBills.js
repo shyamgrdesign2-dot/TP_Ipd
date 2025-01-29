@@ -4,7 +4,7 @@ import BillTable from "../billingDashboard/BillingTable/BillTable";
 const RecentBills = ({
   handleRecentBillDrawer,
   handleCreateBillDrawer,
-  patientData,
+  patientBills,
 }) => {
   return (
     <div>
@@ -38,7 +38,7 @@ const RecentBills = ({
         </Button>
       </div>
       <div className="m-4 rounded-20px bg-white">
-        <BillTable patientData={patientData} isPatientScreen={true} />
+        <BillTable data={patientBills} isPatientScreen={true} />
       </div>
     </div>
   );

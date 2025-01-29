@@ -49,9 +49,9 @@ export default function AdvanceDepositTable() {
   const [tabLoader, setTabLoader] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
+  const [billData, setBillData] = useState(null);
 
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
-  const [patientData, setPatientData] = useState({});
 
   const [dateRange, setDateRange] = useState({
     startDate: moment().format(dateFormat),
@@ -152,7 +152,7 @@ export default function AdvanceDepositTable() {
   };
 
   const onBillingDetailsClick = async (status, record) => {
-    setPatientData(record);
+    setBillData(record);
     if (status === 1) {
       handleDrawerPreviewBill();
     } else if (status === 3) {
@@ -666,7 +666,7 @@ export default function AdvanceDepositTable() {
             handleCreateBillDrawer={handleDrawerPreviewBill}
             isPreviewFromTable={true}
             isDepositReceipt={true}
-            patientData={patientData}
+            billData={billData}
           />
         </Drawer>
       )}

@@ -40,11 +40,7 @@ export const processBillRefund = async function (payload) {
     const apiUrl = `/api/v1/billing/bill/refund`;
 
     // Make the API call
-    res = await api.post(
-      apiUrl,
-      payload,
-      baseUrl
-    );
+    res = await api.post(apiUrl, payload, baseUrl);
   } catch (e) {
     console.error("Error while processing bill refund: ", e);
   }
@@ -82,7 +78,6 @@ export const searchBillItem = async function (searchQuery) {
   }
   return res;
 };
-
 
 // Function to fetch billing dashboard data
 export const fetchBillingDashboard = async function (params) {
@@ -209,6 +204,22 @@ export const listAdvancedDepositByPatient = async function (params) {
     res = await api.get(apiUrl, {
       customBaseUrl: baseUrl.customBaseUrl,
     });
+  } catch (e) {
+    console.error("Error while listing advanced deposits by patient: ", e);
+  }
+  return res;
+};
+
+export const fetchBillsByPatient = async function (queryParams) {
+  let res = {};
+  try {
+    // Combine query parameters into a single query string
+    const queryString = new URLSearchParams(queryParams).toString();
+
+    res = await api.get(
+      `/api/v1/billing/bill/listByPatient?${queryString}`,
+      baseUrl
+    );
   } catch (e) {
     console.error("Error while listing advanced deposits by patient: ", e);
   }

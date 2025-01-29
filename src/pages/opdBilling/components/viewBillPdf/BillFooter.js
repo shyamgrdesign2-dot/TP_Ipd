@@ -1,6 +1,7 @@
 import { Image, Text, View } from "@react-pdf/renderer";
 import { getMarginByFormat } from "./helper";
 import { PX_TO_PT } from "./constants";
+import moment from "moment";
 
 const BillFooter = ({ printSettings, billData }) => {
   const { headerFooter } = printSettings;
@@ -42,8 +43,10 @@ const BillFooter = ({ printSettings, billData }) => {
           maxLines: 1,
         }}
       >
-        Bill Created By : {billData?.createdBy} | Created on :{" "}
-        {billData?.createdAt}
+        Bill Created By : {billData?.createdByName} | Created on :{" "}
+        {billData?.createdAt
+          ? moment(billData.createdAt).format("DD/MM/YYYY")
+          : "-"}
       </Text>
 
       {headerFooter?.letterHeadFormat === 0 ? (

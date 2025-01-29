@@ -27,6 +27,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = worker;
 const ConfigureBillSettings = ({
   handleDrawerConfigureSettings,
   patientData,
+  billData,
 }) => {
   const dispatch = useDispatch();
   const { defaultPrintSettings, profile } = useSelector(
@@ -75,6 +76,7 @@ const ConfigureBillSettings = ({
         printSettings={printSettings}
         patientData={patientData}
         profile={profile}
+        billData={billData}
       />
     ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));

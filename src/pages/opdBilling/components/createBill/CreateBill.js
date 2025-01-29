@@ -30,6 +30,7 @@ import {
   createBill,
   fetchAdvanceSetting,
   fetchPatientDueAmount,
+  fetchPrintSetting,
   searchBillItem,
 } from "../../service";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
@@ -37,14 +38,16 @@ import { useDispatch } from "react-redux";
 import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../../firebase";
 import { deleteDocsUploadedFromAndroid } from "../../../medicalRecords/service";
-import { setAdvancedSettings } from "../../../../redux/billingSlice";
+import {
+  setAdvancedSettings,
+  setBillPrintSettings,
+} from "../../../../redux/billingSlice";
 import { jwtDecode } from "jwt-decode";
 import { useLocalStorage } from "../../../../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 
 const CreateBill = ({
   handleCreateBillDrawer,
-  patient_unique_id,
   isBackModalOpen,
   showHideBackModal,
   isRxPage,
@@ -76,6 +79,11 @@ const CreateBill = ({
   ]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOptions, setSearchOptions] = useState([]);
+  const [patientNameAndId, setPatientNameAndId] = useState(
+    patientData.pm_pid
+      ? `${patientData?.pm_fullname}, ${patientData.pm_pid}`
+      : undefined
+  );
   const [mobileNumber, setMobileNumber] = useState(patientData?.pm_contact_no);
   const [includeInRx, setIncludeInRx] = useState(false);
   const [shouldAddBillTo3C, setAddBillTo3C] = useState(false);
@@ -87,13 +95,13 @@ const CreateBill = ({
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
   const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const [tokenData, setTokenData] = useState(null);
+  const [billData, setBillData] = useState({});
 
   const subTotal = dataSource.reduce((sum, service) => sum + service.amount, 0);
   const lineItemDiscount = dataSource.reduce(
     (sum, service) => sum + service.discount,
     0
   );
-
   const applicableGst = dataSource
     .reduce(
       (sum, service) =>
@@ -105,7 +113,8 @@ const CreateBill = ({
     .toFixed(2);
   const payableAmount =
     dataSource.reduce((sum, service) => sum + service.totalAmount, 0) -
-    (extraDiscount || 0);
+    (extraDiscount || 0) +
+    patientDueAmount;
   const paidAmount =
     paymentModes.reduce((sum, payment) => sum + payment.amount, 0) || undefined;
 
@@ -113,9 +122,19 @@ const CreateBill = ({
     if (advancedSettings && Object.keys(advancedSettings).length === 0) {
       getAdvanceSettings();
     }
+    if (billPrintSettings && Object.keys(billPrintSettings).length === 0) {
+      getBillPrintSettings();
+    }
     getPatientDueAmount();
     getStorageData();
   }, []);
+
+  const getBillPrintSettings = async () => {
+    const printSettingsResponse = await fetchPrintSetting();
+    if (printSettingsResponse) {
+      dispatch(setBillPrintSettings(printSettingsResponse));
+    }
+  };
 
   const getStorageData = () => {
     const token = getToken();
@@ -253,8 +272,8 @@ const CreateBill = ({
     setDataSource([...dataSource, newRow]);
   };
 
-  const handleDeleteRow = (masterId) => {
-    const updatedData = dataSource.filter((row) => row.masterId !== masterId);
+  const handleDeleteRow = (index) => {
+    const updatedData = dataSource.filter((_, i) => i !== index);
     setDataSource(updatedData);
   };
 
@@ -463,10 +482,10 @@ const CreateBill = ({
       title: "ACTION",
       dataIndex: "action",
       width: "10%",
-      render: (_, record) => (
+      render: (_, record, index) => (
         <Button
           className="btn btn-delete-prescription p-0"
-          onClick={() => handleDeleteRow(record.masterId)}
+          onClick={() => handleDeleteRow(index)}
         >
           <i className="icon-delete" style={{ color: "#454551" }} />
         </Button>
@@ -521,9 +540,11 @@ const CreateBill = ({
       date: moment().format("YYYY-MM-DD"),
       notes: patientBillNotes,
       dueFromPreviousBill: patientDueAmount,
+      appointmentId: patientData?.pam_id,
     };
     const createRes = await createBill(payload);
     if (createRes?.id) {
+      setBillData(createRes);
       if (type === "exit") {
         handleCreateBillDrawer();
       } else if (type === "preview") {
@@ -534,10 +555,10 @@ const CreateBill = ({
             printSettings={billPrintSettings}
             patientData={patientData}
             profile={profile}
-            createRes={createRes}
+            billData={createRes}
           />
         ).toBlob();
-        printContent(blob, patient_unique_id, setStartLoader);
+        printContent(blob, patientData.patient_unique_id, setStartLoader);
         handleCreateBillDrawer();
       }
     }
@@ -720,11 +741,10 @@ const CreateBill = ({
                   <Input
                     className="text-main"
                     style={{ width: 230 }}
-                    value={`${patientData?.pm_fullname}, ${patientData.pm_pid}`}
-                    onInput={(e) => {
-                      e.target.value = e.target.value.replace(/[^0-6]/g, "");
-                    }}
-                    disabled={true}
+                    value={patientNameAndId}
+                    placeholder="Search by patient name / ID"
+                    onChange={(e) => setPatientNameAndId(e.target.value)}
+                    disabled={patientData?.pm_fullname}
                   />
                 </div>
                 <div>
@@ -733,10 +753,11 @@ const CreateBill = ({
                     className="text-main"
                     style={{ width: 130 }}
                     value={mobileNumber}
+                    placeholder="Search number"
                     onInput={(e) => {
                       setMobileNumber(e.target.value.replace(/[^0-6]/g, ""));
                     }}
-                    disabled={true}
+                    disabled={patientData?.pm_contact_no}
                   />
                 </div>
                 <div>
@@ -796,7 +817,7 @@ const CreateBill = ({
             <div className="d-flex gap-2">
               <div>
                 <div className="text-lg font-medium mb-2">
-                  Paid Amount <span>*</span>
+                  Paid Amount <span className="lab-params-warning">*</span>
                 </div>
                 {paymentModes.map((payment, index) => (
                   <div key={index} className="relative">
@@ -894,7 +915,7 @@ const CreateBill = ({
             </div>
             <Divider />
             <div
-              className="d-flex flex-column gap-2"
+              className="d-flex flex-column gap-3"
               style={{ background: "white", borderRadius: 16, padding: 14 }}
             >
               <div className="d-flex justify-content-between">
@@ -959,6 +980,12 @@ const CreateBill = ({
                 <span>Applicable GST:</span>
                 <span>{applicableGst}</span>
               </div>
+              {patientDueAmount > 0 && (
+                <div className="d-flex justify-content-between">
+                  <span>Due from Previous bill:</span>
+                  <span className="text-scheduled">{patientDueAmount}</span>
+                </div>
+              )}
               <Divider style={{ margin: 0 }} />
               <div className="d-flex justify-content-between">
                 <span style={{ fontWeight: 600 }}>Total Payable Amount:</span>
@@ -982,6 +1009,16 @@ const CreateBill = ({
                   {paidAmount}
                 </span>
               </div>
+              {payableAmount - paidAmount > 0 && (
+                <div className="d-flex justify-content-between">
+                  <span className="text-scheduled" style={{ fontWeight: 500 }}>
+                    Payment Due:
+                  </span>
+                  <span className="text-scheduled" style={{ fontWeight: 500 }}>
+                    {payableAmount - paidAmount}
+                  </span>
+                </div>
+              )}
             </div>
 
             {patientBillNotes?.length === 0 ? (
@@ -1062,6 +1099,7 @@ const CreateBill = ({
             handleDrawerPreviewBill={handleDrawerPreviewBill}
             handleCreateBillDrawer={handleCreateBillDrawer}
             patientData={patientData}
+            billData={billData}
           />
         </Drawer>
       )}

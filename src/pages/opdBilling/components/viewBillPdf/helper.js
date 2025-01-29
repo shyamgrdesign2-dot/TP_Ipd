@@ -45,26 +45,20 @@ export const patientDataShow = (id, patient_data, billData, profile) => {
         : `${patient_data?.pm_fullname}, ${patient_data?.pm_pid}`
     }`;
   } else if (id == 2) {
-    value = `${
-      billData?.date ? moment(billData.date).format("DD/MM/YYYY HH:mm") : "-"
-    }`;
-  } else if (id == 3) {
     value = `${genderAge(patient_data, profile)}, ${patient_data?.pm_gender}`;
-  } else if (id == 4) {
+  } else if (id == 3) {
     value = `${
       patient_data?.pm_contact_no ? patient_data?.pm_contact_no : "-"
     }`;
-  } else if (id == 5) {
-    value = `${patient_data?.patient_consultation_type ?? "-"}`;
-  } else if (id == 6) {
+  } else if (id == 4) {
     value = `${patient_data?.tpml_refrence_id ?? "-"}`;
-  } else if (id == 7) {
+  } else if (id == 5) {
     value = `${
       patient_data?.pm_salutation
         ? `${patient_data?.pm_salutation} ${patient_data?.pm_fullname}`
         : `${patient_data?.pm_fullname}`
     }`;
-  } else if (id == 8) {
+  } else if (id == 6) {
     value = `${patient_data?.pm_pid ? patient_data?.pm_pid : "-"}`;
   }
   return value;
@@ -73,13 +67,15 @@ export const patientDataShow = (id, patient_data, billData, profile) => {
 export const billDataShow = (id, billData) => {
   var value = "";
   if (id == 1) {
-    value = `${billData?.billNo ?? "-"}`;
+    value = `${billData?.billNumber ?? "-"}`;
   } else if (id == 2) {
-    value = billData?.receiptNo ?? "-";
+    value = billData?.receiptNumber ?? "-";
   } else if (id == 3) {
-    value = billData?.date ?? "-";
+    value = billData?.updatedAt
+      ? moment(billData.updatedAt).format("DD/MM/YYYY HH:mm")
+      : "-";
   } else if (id == 4) {
-    value = billData?.status;
+    value = billData?.paymentStatus;
   } else if (id == 5) {
     value = billData?.gstIn ?? "-";
   }

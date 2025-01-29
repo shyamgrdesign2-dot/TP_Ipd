@@ -121,6 +121,7 @@ const ViewBillPdf = ({
   isDepositReceipt,
   patientData,
   profile,
+  billData,
 }) => {
   const [fileWatermark, setFileWatermark] = useState(null);
   const paddingStyles = calculatePadding(printSettings?.headerFooter);
@@ -128,42 +129,6 @@ const ViewBillPdf = ({
   const depositData = {
     billNumber: "INV-2900569",
     total: 5000,
-  };
-
-  const billData = {
-    date: "30th Apr 2024",
-    gstIn: "1234",
-    billNo: 123,
-    receiptNo: 124,
-    status: "done",
-    createdBy: "Harish",
-    createdAt: "24/12/2024",
-    billItems: [
-      {
-        items: "Consultaion",
-        quantity: 10,
-        amount: 100,
-        discount: 10,
-        gst: 18,
-        total: 120,
-      },
-      {
-        items: "Consultaion",
-        quantity: 10,
-        amount: 100,
-        discount: 10,
-        gst: 18,
-        total: 120,
-      },
-      {
-        items: "Consultaion",
-        quantity: 10,
-        amount: 100,
-        discount: 10,
-        gst: 18,
-        total: 120,
-      },
-    ],
   };
 
   return (
@@ -190,7 +155,7 @@ const ViewBillPdf = ({
         ) : (
           <BillDetails
             pageFormat={printSettings?.pageFormat}
-            billItems={billData?.billItems}
+            billData={billData}
           />
         )}
         <BillOtherSettings printSettings={printSettings} profile={profile} />

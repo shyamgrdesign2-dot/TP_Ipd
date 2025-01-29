@@ -2,7 +2,64 @@ import { Text, View } from "@react-pdf/renderer";
 import { PX_TO_PT, styles } from "./constants";
 import React from "react";
 
-const BillDetails = ({ pageFormat, billItems }) => {
+const BillDetails = ({ pageFormat, billData }) => {
+  const {
+    billItems,
+    subTotal,
+    lineItemDiscount,
+    extraDiscount,
+    applicableGst,
+    payableAmount,
+    paymentModes = [],
+    paidAmount,
+    dueFromPreviousBill,
+    dueAmount,
+    notes,
+  } = billData || {};
+
+  const billInfo = [
+    { label: "Subtotal:", value: `${subTotal}` },
+    { label: "Line Item Discount:", value: lineItemDiscount },
+    { label: "Extra Discount:", value: `${extraDiscount}` },
+    {
+      label: "Applicable GST:",
+      value: `${applicableGst}`,
+      divider: dueFromPreviousBill === 0,
+    },
+    dueFromPreviousBill > 0
+      ? {
+          label: "Due from Previous bill:",
+          value: `${dueFromPreviousBill}`,
+          divider: true,
+        }
+      : undefined,
+    {
+      label: "Total Payable Amount:",
+      value: `${payableAmount}`,
+      bold: true,
+      divider: true,
+    },
+    ...paymentModes?.map((mode, index) => ({
+      label: `Paid Via ${mode.paymentMode}:`,
+      value: `${mode.amount.toFixed(2)}`,
+      divider: index === paymentModes.length - 1,
+    })),
+    {
+      label: "Total Amount Paid:",
+      value: `${paidAmount}`,
+      color: "#3D8C40",
+      bold: true,
+    },
+    dueAmount > 0
+      ? {
+          label: "Payment Due:",
+          value: `${dueAmount}`,
+          color: "#ED8A00",
+          bold: true,
+        }
+      : undefined,
+  ]?.filter((item) => item);
+
   return (
     <>
       <View style={styles.table}>
@@ -141,7 +198,7 @@ const BillDetails = ({ pageFormat, billItems }) => {
                 },
               ]}
             >
-              {item?.items ?? ""}
+              {item?.name ?? ""}
             </Text>
             <Text
               style={[
@@ -211,7 +268,7 @@ const BillDetails = ({ pageFormat, billItems }) => {
                 },
               ]}
             >
-              {item?.total ?? ""}
+              {item?.totalAmount ?? ""}
             </Text>
           </View>
         ))}
@@ -226,26 +283,7 @@ const BillDetails = ({ pageFormat, billItems }) => {
           marginTop: 10,
         }}
       >
-        {[
-          { label: "Subtotal:", value: "$100.00" },
-          { label: "Line Item Discount:", value: "10" },
-          { label: "Extra Discount:", value: "$10.00" },
-          { label: "Applicable GST:", value: "$18.00", divider: true },
-          {
-            label: "Total Payable Amount:",
-            value: "$108.00",
-            bold: true,
-            divider: true,
-          },
-          { label: "Paid Via “Cash”:", value: "$10.00" },
-          { label: "Paid Via UPI:", value: "$10.00", divider: true },
-          {
-            label: "Total Amount Paid:",
-            value: "$108.00",
-            color: "#3D8C40",
-            bold: true,
-          },
-        ].map((item, index) => (
+        {billInfo.map((item, index) => (
           <React.Fragment key={index}>
             <View
               style={{
@@ -297,27 +335,28 @@ const BillDetails = ({ pageFormat, billItems }) => {
         ))}
       </View>
 
-      <Text
-        style={[
-          {
-            fontFamily: pageFormat?.fontFamily,
-            fontSize: (pageFormat?.fontSize || 12) * PX_TO_PT,
-            fontWeight: 500,
-            color: "#000",
-          },
-        ]}
-      >
-        {"\n"}Notes:&nbsp;
+      {notes && (
         <Text
-          style={{
-            fontFamily: pageFormat?.fontFamily,
-            fontWeight: 400,
-          }}
+          style={[
+            {
+              fontFamily: pageFormat?.fontFamily,
+              fontSize: (pageFormat?.fontSize || 12) * PX_TO_PT,
+              fontWeight: 500,
+              color: "#000",
+            },
+          ]}
         >
-          Can take painkiller tablets during the menstrual time. However, make
-          sure not to use more than 2 painkillers per day.
+          {"\n"}Notes:&nbsp;
+          <Text
+            style={{
+              fontFamily: pageFormat?.fontFamily,
+              fontWeight: 400,
+            }}
+          >
+            {notes}
+          </Text>
         </Text>
-      </Text>
+      )}
     </>
   );
 };
