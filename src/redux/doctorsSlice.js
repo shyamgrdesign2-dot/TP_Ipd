@@ -23,7 +23,8 @@ const initialState = {
   userId: null,
   dragDrop: {},
   siteId: null,
-  empNo: []
+  empNo: [],
+  pillupCheck: false
 };
 
 export const getProfile = createAsyncThunk(
@@ -348,6 +349,9 @@ const doctorsSlice = createSlice({
         state.dragDrop = {}
       }
     },
+    changePillupStatus: (state) => {
+      state.pillupCheck = true
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -554,5 +558,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop } = doctorsSlice.actions
+export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop, changePillupStatus } = doctorsSlice.actions
 export default doctorsSlice.reducer;

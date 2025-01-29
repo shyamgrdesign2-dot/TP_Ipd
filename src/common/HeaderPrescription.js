@@ -993,7 +993,6 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             "investigationList": actionIM?.payload?.investigation.filter(item => item.hasOwnProperty('objectID')).map(item => item.objectID),
                             "medicineList": actionIM?.payload?.medicine.map(({ tmm_id, tmm_remarks }) => ({ objectId: tmm_id, instruction: tmm_remarks }))
                         }
-                        console.log(zydusSendData)
                         dispatch(placeIctOrder(zydusSendData))
                     }
                 }

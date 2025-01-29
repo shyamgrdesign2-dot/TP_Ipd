@@ -81,9 +81,10 @@ import TabMedicationSearch from "./TabMedicationSearch";
 import TabMedicationMoreModal from "./TabMedicationMoreModal";
 import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, MESSAGE_KEY } from "../../utils/constants";
 import DoseCalculator from "../dose_calculator/doseCalculator";
+import { changePillupStatus } from "../../redux/doctorsSlice";
 
 function TabMedicationBox() {
-  const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
+  const { profile, frequencyList, timingList, medicineTypeList, pillupCheck } = useSelector((state) => state.doctors);
   const {
     dosesList,
     selectedMedicationList,
@@ -2635,20 +2636,21 @@ function TabMedicationBox() {
   }, [isModalOpen2]);
 
   // Tour Pillup
-  const onTourHandle = () => {
-    setTourOpen(!tourOpen)
-  }
   const tourRef = useRef(null);
 
+  const onTourHandle = () => {
+    dispatch(changePillupStatus())
+    setTourOpen(!tourOpen)
+  }
+  
   useEffect(() => {
-    {
-      isPillUpAccessableFromGB &&
-      tourRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (isPillUpAccessableFromGB && !pillupCheck) {
+      tourRef?.current?.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        setTourOpen(true)
+      }, 1000);
     }
-    setTimeout(() => {
-      setTourOpen(true)
-    }, 1000);
-  }, []);
+  }, [isPillUpAccessableFromGB]);
 
   const steps = [
     {

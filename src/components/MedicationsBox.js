@@ -41,11 +41,12 @@ import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, MESSAGE_KEY } from "../utils/constan
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DoseCalculator from "./dose_calculator/doseCalculator";
+import { changePillupStatus } from "../redux/doctorsSlice";
 
 const { TextArea } = Input;
 
 function MedicationsBox() {
-  const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
+  const { profile, frequencyList, timingList, medicineTypeList, pillupCheck } = useSelector((state) => state.doctors);
   const {
     dosesList,
     selectedMedicationList,
@@ -1906,16 +1907,21 @@ function MedicationsBox() {
   }, [isModalOpen2]);
 
   // Tour Pillup
-  const onTourHandle = () => {
-    setTourOpen(!tourOpen)
-  }
   const tourRef = useRef(null);
 
+  const onTourHandle = () => {
+    dispatch(changePillupStatus())
+    setTourOpen(!tourOpen)
+  }
+
   useEffect(() => {
-    setTimeout(() => {
-      setTourOpen(true)
-    }, 700);
-  }, []);
+    if(isPillUpAccessableFromGB && !pillupCheck){
+      tourRef?.current?.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        setTourOpen(true)
+      }, 1000);
+    }
+  }, [isPillUpAccessableFromGB]);
 
   const steps = [
     {
