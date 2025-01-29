@@ -81,6 +81,18 @@ function PageFormatLayout() {
         [printSettings]
     );
 
+    const onSelectPatientInfoFontSize = useCallback(
+        (data) => {
+            printSettings.page_format.patient_info_font_size = data
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
     return (
         <div className="px-3 form_addnewpatient">
             <div className="titleprint mb-3">Page Layout</div>
@@ -105,14 +117,25 @@ function PageFormatLayout() {
             </Form.Item>
 
             <Form.Item>
-                <label className="mb-1">Font Size</label>
+                <label className="mb-1">Consultation Details Font Size</label>
                 <Select
-                    // showSearch
                     className="autocomplete-custom"
                     placeholder="Select font size"
                     options={FONTS_SIZE_LIST}
                     value={printSettings?.page_format?.font_size}
                     onSelect={onSelectFontSize}
+                    allowClear
+                />
+            </Form.Item>
+
+            <Form.Item>
+                <label className="mb-1">Patient Info Font Size</label>
+                <Select
+                    className="autocomplete-custom"
+                    placeholder="Select font size"
+                    options={FONTS_SIZE_LIST}
+                    value={printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size}
+                    onSelect={onSelectPatientInfoFontSize}
                     allowClear
                 />
             </Form.Item>
