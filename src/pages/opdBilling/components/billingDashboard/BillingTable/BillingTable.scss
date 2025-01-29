@@ -65,6 +65,10 @@
 
   .billing-table {
 
+    .ant-table-body {
+      max-height: 300px !important; /* Set your desired height */
+      overflow-y: auto !important;  /* Enable vertical scrolling */
+    }
     .ant-table thead.ant-table-thead th,
     body .ant-table thead.ant-table-thead td {
       padding: 8px 16px !important;

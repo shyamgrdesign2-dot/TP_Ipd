@@ -17,6 +17,7 @@ import { useReactToPrint } from "react-to-print";
 import { handlePrintClick } from "../../../../../utils/utils.js";
 import DownloadBill from "../DownloadBill/DownloadBill.js";
 import BillTable from "./BillTable.js";
+import { fetchBillingDashboard } from "../../../service.js";
 const { RangePicker } = DatePicker;
 
 const { Option } = Select;
@@ -28,34 +29,38 @@ const doctorsList = [
   { id: 4, name: "Doctor 4" },
 ];
 
-const cards = [
+const cardsStaticData = [
   {
     id: 1,
-    title: "Total Paid Bill Amount (8)",
-    amount: "₹3,892/₹6,330",
+    title: "Total Paid Bill Amount",
     color: "#5A6774",
     fontColor: "#5A6774",
+    amountKey: "totalPaidAmount",
+    countKey: "count",
   },
   {
     id: 2,
-    title: "Paid fully (4)",
-    amount: "₹1,500",
+    title: "Paid fully",
     color: "#A5D6A7",
     fontColor: "#3D8C40",
+    amountKey: "paidFullyAmount",
+    countKey: "paidFullyCount",
   },
   {
     id: 3,
-    title: "Due (3)",
-    amount: "₹500",
+    title: "Due",
     color: "#FFCC80",
     fontColor: "#ED8A00",
+    amountKey: "dueAmount",
+    countKey: "dueCount",
   },
   {
     id: 4,
-    title: "Refunded (1)",
-    amount: "₹800",
+    title: "Refunded",
     color: "#EF9A9A",
     fontColor: "#B73A3A",
+    amountKey: "refundedAmount",
+    countKey: "refundedCount",
   },
 ];
 
@@ -73,6 +78,11 @@ export default function BillingTable() {
   const printableRef = useRef(null);
   const [tabLoader, setTabLoader] = useState(false);
 
+  const [data, setData] = useState(null);
+  const [cards, setCards] = useState([]);
+  const [totalBillCount, setTotalBillCount] = useState(null);
+  const [billData, setBillData] = useState(null);
+
   // Drawer states
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
@@ -82,6 +92,20 @@ export default function BillingTable() {
     endDate: moment().format(dateFormat),
   });
   const [dateStatus, setDateStatus] = useState(1);
+
+  useEffect(() => {
+    // Update cards state whenever the summary prop changes
+    const updatedCards = cardsStaticData.map((card) => ({
+      ...card,
+      amount: data?.summary[card?.amountKey] || 0,
+      count: data?.summary[card?.countKey] || 0,
+    }));
+    const totalBillCount = updatedCards
+    .slice(1, 4) // Extracts cards 2, 3, and 4
+    .reduce((sum, card) => sum + (card.count || 0), 0);
+    setTotalBillCount(totalBillCount)
+    setCards(updatedCards);
+  }, [data]);
 
   const handleSelectAll = (checked) => {
     if (checked) {
@@ -114,7 +138,8 @@ export default function BillingTable() {
   }, [pickerModal]);
 
   // Drawer form 3c
-  const handleRefundBillDrawer = () => {
+  const handleRefundBillDrawer = (record) => {
+    setBillData(record);
     setRefundBillDrawer(!refundBillDrawer);
   };
 
@@ -199,9 +224,6 @@ export default function BillingTable() {
 
   const onRangeChange = (dates, dateStrings) => {
     if (dates) {
-      // console.log('From: ', dates[0], ', to: ', dates[1]);
-      // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
-
       if (
         dayjs().format(dateFormat) ==
           moment(dateStrings[0], showDateFormat).format(dateFormat) &&
@@ -302,6 +324,43 @@ export default function BillingTable() {
       </Button>
     </div>
   );
+
+  const loadData = async () => {
+    // setLoading(true);
+    const params = {
+      status:
+        selectedCard === 1
+          ? null
+          : selectedCard === 2
+          ? ["FullyPaid"]
+          : selectedCard === 3
+          ? ["Due","CarriedForward"]
+          : ["Refunded"],
+      sortBy: "date",
+      sortOrder: "asc",
+      page: 1,
+      limit: 25,
+      // startDate: dateRange.startDate,
+      // endDate: dateRange.endDate,
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+      doctorIds: "514",
+      isForm3C: true,
+      search: searchQuery || "",
+    };
+    try {
+      const response = await fetchBillingDashboard(params);
+      setData(response || []);
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [selectedCard, dateRange, searchQuery, doctorsList]);
 
   return (
     <div>
@@ -490,9 +549,16 @@ export default function BillingTable() {
                   className="card-title"
                   style={{ "--dynamic-color": card.fontColor }}
                 >
-                  {card.title}
+                  {card.title} {"("} {card.id === 1 && data ? totalBillCount : card.count} {")"}
                 </div>
-                <div className="card-amount">{card.amount}</div>
+                <div className="card-amount">
+                  {card.amount}
+                  {card.id === 1 && data && (
+                    <span>
+                      {"/"} {data?.summary?.totalPaidAmount}
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -516,7 +582,7 @@ export default function BillingTable() {
             open={refundBillDrawer}
             width="50%"
           >
-            <RefundBill handleRefundBillDrawer={handleRefundBillDrawer} />
+            <RefundBill handleRefundBillDrawer={handleRefundBillDrawer} billData={billData}/>
           </Drawer>
         )}
       </div>

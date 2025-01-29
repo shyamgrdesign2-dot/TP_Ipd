@@ -18,7 +18,7 @@ const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
 const { TextArea } = Input;
 
-function RefundBill({ handleRefundBillDrawer }) {
+function RefundBill({ handleRefundBillDrawer, billData }) {
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
   const dispatch = useDispatch();
@@ -62,9 +62,9 @@ function RefundBill({ handleRefundBillDrawer }) {
       width: 200,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold">{record.bill_bum}</div>
+          <div className="fs-14 fw-semibold">{record.billNumber}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.bill_date}
+            {record.date}
           </div>
         </div>
       ),
@@ -78,7 +78,7 @@ function RefundBill({ handleRefundBillDrawer }) {
         <div className="cursor-pointer" onClick={async () => {}}>
           <div className="fs-14">{record.patient_details}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.mobile_number}
+            {record.patientPhone}
           </div>
         </div>
       ),
@@ -89,14 +89,14 @@ function RefundBill({ handleRefundBillDrawer }) {
       key: "total_amount",
       ellipsis: true,
       onFilter: (value, record) => record.send_on.startsWith(value),
-      render: (text, record) => <div> {record.total_amount} </div>,
+      render: (text, record) => <div> {record.payableAmount} </div>,
     },
     {
       title: "PAID AMOUNT",
       dataIndex: "paid_Amount",
       key: "paid_Amount",
       ellipsis: true,
-      render: (text, record) => <div> {record.paid_Amount} </div>,
+      render: (text, record) => <div> {record.paidAmount} </div>,
     },
     {
       title: "STATUS",
@@ -115,41 +115,26 @@ function RefundBill({ handleRefundBillDrawer }) {
             case "due":
               return {
                 className: "status-due",
-                displayText: `Due: ₹${record.paid_Amount}`,
+                displayText: `Due: ₹${record.dueAmount}`,
               };
             case "refunded":
               return {
                 className: "status-refunded",
-                displayText: `Refunded ₹${record.total_amount}`,
+                displayText: `Refunded ₹${record.payableAmount}`,
               };
             default:
               return {
                 className: "due",
-                displayText: `Due: ₹${record.paid_Amount}`,
+                displayText: `Due: ₹${record.dueAmount}`,
               };
           }
         };
 
         // Get status details
-        const { className, displayText } = getStatusDetails(record.status);
+        const { className, displayText } = getStatusDetails(record.paymentStatus);
 
         return <div className={className}>{displayText}</div>;
       },
-    },
-  ];
-
-  const data = [
-    {
-      key: "1",
-      srno: "1",
-      bill_bum: "INV-2900567",
-      patient_details: "John Doe",
-      bill_date: "15 Oct 2023",
-      bill_time: "10:30 AM",
-      total_amount: "5,000",
-      paid_Amount: "3,000",
-      status: "due",
-      mobile_number: "9930875752",
     },
   ];
 
@@ -180,7 +165,7 @@ function RefundBill({ handleRefundBillDrawer }) {
             className="billing-table px-0"
             columns={columns}
             width="100%"
-            dataSource={data}
+            dataSource={[billData]}
             pagination={false}
           />
         </div>

@@ -98,3 +98,104 @@ export const fetchPatientDueAmount = async function (patientId) {
   }
   return res;
 };
+
+// Function to fetch Form 3C billing data
+export const fetchForm3CBills = async function (params) {
+  let res = [];
+  try {
+    res = await api.get(`/api/v1/billing/dashboard/bills`, baseUrl);
+  } catch (e) {
+    console.error("Error while fetching Form 3C bills: ", e);
+  }
+  return res;
+};
+
+// Function to add advanced deposit
+export const createAdvancedDeposit = async function (payload) {
+  let res = {};
+  try {
+    res = await api.post(`/api/v1/billing/advancedDeposit`, payload, baseUrl);
+  } catch (e) {
+    console.error("Error while adding advanced deposit: ", e);
+  }
+  return res;
+};
+
+// Function to list advanced deposits by patient
+export const listAdvancedDepositByPatient = async function (params) {
+  let res = {};
+  try {
+    // Extract non-array query parameters
+    const queryParams = {
+      sortBy: params.sortBy,
+      sortOrder: params.sortOrder,
+      patientId: params.patientId,
+      page: params.page || 1, // Default to page 1 if not provided
+      limit: params.limit || 25, // Default to limit 25 if not provided
+    };
+
+    // Handle the 'status' array to create multiple status query parameters
+    const statusParams = params.status
+      ? params.status
+          .map((status) => `status=${encodeURIComponent(status)}`)
+          .join("&")
+      : "";
+
+    // Combine query parameters into a single query string
+    const queryString =
+      new URLSearchParams(queryParams).toString() +
+      (statusParams ? `&${statusParams}` : "");
+
+    // Construct the final API URL
+    const apiUrl = `/api/v1/billing/advancedDeposit/listByPatient?${queryString}`;
+
+    // Perform the API request
+    res = await api.get(apiUrl, {
+      customBaseUrl: baseUrl.customBaseUrl,
+    });
+  } catch (e) {
+    console.error("Error while listing advanced deposits by patient: ", e);
+  }
+  return res;
+};
+
+// Function to get advanced deposit dashboard data
+export const fetchAdvancedDepositDashboard = async function (params) {
+  let res = {};
+  try {
+    const queryParams = {
+      status: params.status, // Pass an array, Axios will handle repeated query params
+      sortBy: params.sortBy,
+      sortOrder: params.sortOrder,
+      page: params.page,
+      limit: params.limit,
+      startDate: params.startDate,
+      endDate: params.endDate,
+      patientName: params.patientName,
+      patientPhone: params.patientPhone,
+    };
+    res = await api.get(`/api/v1/billing/advancedDeposit/dashboard`, {
+      params: queryParams,
+      customBaseUrl: baseUrl.customBaseUrl,
+    });
+  } catch (e) {
+    console.error("Error while fetching advanced deposit dashboard data: ", e);
+  }
+  return res;
+};
+
+// Function to add bills to Form 3C
+export const addToForm3C = async function (billIds) {
+  let res = {};
+  try {
+    // API request payload
+    const payload = {
+      billIds: billIds, // Array of bill IDs
+    };
+
+    res = await api.post(`/api/v1/billing/bill/addToForm3C`, payload, baseUrl);
+  } catch (e) {
+    console.error("Error while adding bills to Form 3C: ", e);
+  }
+  return res;
+};
