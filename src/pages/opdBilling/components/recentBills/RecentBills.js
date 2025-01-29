@@ -1,7 +1,11 @@
 import { Button } from "antd";
 import BillTable from "../billingDashboard/BillingTable/BillTable";
 
-const RecentBills = ({ handleRecentBillDrawer, handleCreateBillDrawer }) => {
+const RecentBills = ({
+  handleRecentBillDrawer,
+  handleCreateBillDrawer,
+  patientData,
+}) => {
   return (
     <div>
       <div
@@ -34,7 +38,7 @@ const RecentBills = ({ handleRecentBillDrawer, handleCreateBillDrawer }) => {
         </Button>
       </div>
       <div className="m-4 rounded-20px bg-white">
-        <BillTable isPatientScreen={true} />
+        <BillTable patientData={patientData} isPatientScreen={true} />
       </div>
     </div>
   );

@@ -3,34 +3,7 @@ import moment from "moment";
 import { useState } from "react";
 import PreviewBill from "../../../PreviewBill";
 
-const patient_data = {
-  pm_salutation: "Mr",
-  pm_fullname: "A A RATHVA",
-  pm_first_name: "A A RATHVA",
-  pm_contact_no: "7567784027",
-  pm_gender: "Male",
-  pm_dob: "1982-06-12",
-  pm_pincode: "",
-  pm_city: "",
-  pm_image: "",
-  pm_image_path: "",
-  pm_state: "",
-  pm_address: "",
-  pm_reference_id: "10012020049092",
-  doctor_unique_id: "2cAKe9FUbvGRJtN",
-  mobile_no: "9742639958",
-  clinic_id: "368",
-  hospital_business_id: "754811713438773",
-  user_id: 493,
-  patient_unique_id: 833190707254,
-  pm_pid: "PAT0450",
-  pm_id: 6942,
-  ageYears: 42,
-  ageMonths: 6,
-  ageDays: 27,
-};
-
-const BillTable = ({ isPatientScreen }) => {
+const BillTable = ({ patientData, isPatientScreen }) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
 
@@ -317,7 +290,7 @@ const BillTable = ({ isPatientScreen }) => {
           <PreviewBill
             handleCreateBillDrawer={handleDrawerPreviewBill}
             isPreviewFromTable={true}
-            patientData={patient_data}
+            patientData={patientData}
           />
         </Drawer>
       )}

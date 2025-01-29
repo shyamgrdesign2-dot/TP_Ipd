@@ -138,6 +138,32 @@ const ViewBillPdf = ({
     status: "done",
     createdBy: "Harish",
     createdAt: "24/12/2024",
+    billItems: [
+      {
+        items: "Consultaion",
+        quantity: 10,
+        amount: 100,
+        discount: 10,
+        gst: 18,
+        total: 120,
+      },
+      {
+        items: "Consultaion",
+        quantity: 10,
+        amount: 100,
+        discount: 10,
+        gst: 18,
+        total: 120,
+      },
+      {
+        items: "Consultaion",
+        quantity: 10,
+        amount: 100,
+        discount: 10,
+        gst: 18,
+        total: 120,
+      },
+    ],
   };
 
   return (
@@ -162,7 +188,10 @@ const ViewBillPdf = ({
             depositData={depositData}
           />
         ) : (
-          <BillDetails pageFormat={printSettings?.pageFormat} />
+          <BillDetails
+            pageFormat={printSettings?.pageFormat}
+            billItems={billData?.billItems}
+          />
         )}
         <BillOtherSettings printSettings={printSettings} profile={profile} />
         <BillFooter printSettings={printSettings} billData={billData} />

@@ -2,34 +2,7 @@ import { Text, View } from "@react-pdf/renderer";
 import { PX_TO_PT, styles } from "./constants";
 import React from "react";
 
-const BillData = [
-  {
-    items: "Consultaion",
-    quantity: 10,
-    amount: 100,
-    discount: 10,
-    gst: 18,
-    total: 120,
-  },
-  {
-    items: "Consultaion",
-    quantity: 10,
-    amount: 100,
-    discount: 10,
-    gst: 18,
-    total: 120,
-  },
-  {
-    items: "Consultaion",
-    quantity: 10,
-    amount: 100,
-    discount: 10,
-    gst: 18,
-    total: 120,
-  },
-];
-
-const BillDetails = ({ pageFormat }) => {
+const BillDetails = ({ pageFormat, billItems }) => {
   return (
     <>
       <View style={styles.table}>
@@ -140,7 +113,7 @@ const BillDetails = ({ pageFormat }) => {
             TOTAL AMOUNT
           </Text>
         </View>
-        {BillData?.map((item, i) => (
+        {billItems?.map((item, i) => (
           <View style={styles.row} key={i}>
             <Text
               style={[

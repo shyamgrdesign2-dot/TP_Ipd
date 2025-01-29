@@ -428,7 +428,7 @@ function PrescriptionPrintView() {
                     width="77%"
                     push={false}
                     >
-                    <RecentBills handleRecentBillDrawer={handleRecentBillDrawer} handleCreateBillDrawer={handleCreateBillDrawer} />
+                    <RecentBills handleRecentBillDrawer={handleRecentBillDrawer} handleCreateBillDrawer={handleCreateBillDrawer} patientData={patient_data} />
                 </Drawer>
             }
             </div>

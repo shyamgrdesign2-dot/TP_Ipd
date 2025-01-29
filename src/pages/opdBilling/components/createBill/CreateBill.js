@@ -38,6 +38,9 @@ import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../../firebase";
 import { deleteDocsUploadedFromAndroid } from "../../../medicalRecords/service";
 import { setAdvancedSettings } from "../../../../redux/billingSlice";
+import { jwtDecode } from "jwt-decode";
+import { useLocalStorage } from "../../../../utils/localStorage";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -68,13 +71,11 @@ const CreateBill = ({
       discountType: "",
       gst: "",
       totalAmount: "",
+      createdBy: "",
     },
   ]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOptions, setSearchOptions] = useState([]);
-  const [pdfUrl, setPdfUrl] = useState(null);
-  const [printBlob, setPrintBlob] = useState(null);
-  const [isSaveEnabled, setSaveEnabled] = useState(true);
   const [mobileNumber, setMobileNumber] = useState(patientData?.pm_contact_no);
   const [includeInRx, setIncludeInRx] = useState(false);
   const [shouldAddBillTo3C, setAddBillTo3C] = useState(false);
@@ -84,6 +85,8 @@ const CreateBill = ({
   const [patientDueAmount, setPatientDueAmount] = useState(0);
   const [paymentModes, setPaymentModes] = useState([]);
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
+  const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const [tokenData, setTokenData] = useState(null);
 
   const subTotal = dataSource.reduce((sum, service) => sum + service.amount, 0);
   const lineItemDiscount = dataSource.reduce(
@@ -102,16 +105,29 @@ const CreateBill = ({
     .toFixed(2);
   const payableAmount =
     dataSource.reduce((sum, service) => sum + service.totalAmount, 0) -
-    extraDiscount;
+    (extraDiscount || 0);
   const paidAmount =
-    paymentModes.reduce((sum, payment) => sum + payment.amount, 0) || 0;
+    paymentModes.reduce((sum, payment) => sum + payment.amount, 0) || undefined;
 
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings).length === 0) {
       getAdvanceSettings();
     }
     getPatientDueAmount();
+    getStorageData();
   }, []);
+
+  const getStorageData = () => {
+    const token = getToken();
+    if (token !== undefined) {
+      try {
+        const decoded = jwtDecode(token);
+        setTokenData(decoded.result);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
 
   const validateData = (data) => {
     return data.every((item) => {
@@ -134,6 +150,9 @@ const CreateBill = ({
     } else {
       setDisableSaveBtn(true);
     }
+    if (paidAmount > payableAmount) {
+      setDisableSaveBtn(true);
+    }
   }, [dataSource, paymentModes]);
 
   const getPatientDueAmount = async () => {
@@ -147,7 +166,7 @@ const CreateBill = ({
 
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings)?.length) {
-      setIncludeInRx(advancedSettings.enableCreatedByInRx);
+      setIncludeInRx(advancedSettings.defaultRxFlag);
       setAddBillTo3C(advancedSettings.defaultForm3cFlag);
       setPaymentModes([
         {
@@ -171,24 +190,6 @@ const CreateBill = ({
       setSearchOptions([]);
     }
   }, [searchQuery]);
-
-  const makePDFUrl = async () => {
-    const blob = await pdf(
-      <ViewBillPdf
-        printSettings={billPrintSettings}
-        patientData={patientData}
-        profile={profile}
-      />
-    ).toBlob();
-    setPrintBlob(blob);
-    setPdfUrl(URL.createObjectURL(blob));
-  };
-
-  useEffect(() => {
-    if (isSaveEnabled) {
-      makePDFUrl();
-    }
-  }, [isSaveEnabled]);
 
   const getAdvanceSettings = async () => {
     const advanceSettingsResponse = await fetchAdvanceSetting();
@@ -247,6 +248,7 @@ const CreateBill = ({
       discountType: "",
       gst: "",
       totalAmount: "",
+      createdBy: "",
     };
     setDataSource([...dataSource, newRow]);
   };
@@ -274,6 +276,7 @@ const CreateBill = ({
               type: selectedData.type,
               gst: selectedData.gst,
               totalAmount: selectedData.totalAmount,
+              createdBy: selectedData.createdBy,
             }
           : row
       );
@@ -312,21 +315,23 @@ const CreateBill = ({
               value={record.name}
             />
           </AutoComplete>
-          {dataSource[index]?.totalAmount && (
-            <i
-              className="icon-Edit fs-6 d-flex justify-content-end"
-              style={{
-                cursor: "pointer",
-                position: "absolute",
-                right: "10px",
-                bottom: "10px",
-              }}
-              onClick={() => {
-                setEditIndex(index);
-                setSearchItemSelected(dataSource[index]);
-              }}
-            />
-          )}
+          {dataSource[index]?.totalAmount &&
+            (userId === dataSource[index]?.createdBy ||
+              tokenData?.admin === 1) && (
+              <i
+                className="icon-Edit fs-6 d-flex justify-content-end"
+                style={{
+                  cursor: "pointer",
+                  position: "absolute",
+                  right: "10px",
+                  bottom: "10px",
+                }}
+                onClick={() => {
+                  setEditIndex(index);
+                  setSearchItemSelected(dataSource[index]);
+                }}
+              />
+            )}
         </>
       ),
     },
@@ -498,13 +503,7 @@ const CreateBill = ({
     setPreviewBillDrawer(!previewBillDrawer);
   };
 
-  const handlePrint = async () => {
-    handleCreateBill();
-    printContent(printBlob, patient_unique_id, setStartLoader);
-    handleCreateBillDrawer();
-  };
-
-  const handleCreateBill = async () => {
+  const handleCreateBill = async (type) => {
     const payload = {
       patientId: patientData?.patient_unique_id,
       doctorId: userId,
@@ -524,6 +523,24 @@ const CreateBill = ({
       dueFromPreviousBill: patientDueAmount,
     };
     const createRes = await createBill(payload);
+    if (createRes?.id) {
+      if (type === "exit") {
+        handleCreateBillDrawer();
+      } else if (type === "preview") {
+        handleDrawerPreviewBill();
+      } else {
+        const blob = await pdf(
+          <ViewBillPdf
+            printSettings={billPrintSettings}
+            patientData={patientData}
+            profile={profile}
+            createRes={createRes}
+          />
+        ).toBlob();
+        printContent(blob, patient_unique_id, setStartLoader);
+        handleCreateBillDrawer();
+      }
+    }
   };
 
   const setStartLoader = () => {
@@ -620,11 +637,19 @@ const CreateBill = ({
             <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
               <div className="align-items-center d-flex h-100 gap-4">
                 <div>
-                  <Checkbox className="me-2" />
+                  <Checkbox
+                    className="me-2"
+                    checked={shouldAddBillTo3C}
+                    onChange={(e) => setAddBillTo3C(e.target.checked)}
+                  />
                   Add bill for Form 3C
                 </div>
                 <div>
-                  <Checkbox className="me-2" />
+                  <Checkbox
+                    className="me-2"
+                    checked={includeInRx}
+                    onChange={(e) => setIncludeInRx(e.target.checked)}
+                  />
                   Include in RX
                 </div>
 
@@ -634,8 +659,7 @@ const CreateBill = ({
                       type="button"
                       className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
                       onClick={() => {
-                        handleCreateBillDrawer();
-                        handleCreateBill();
+                        handleCreateBill("exit");
                       }}
                       disabled={disableSaveBtn}
                     >
@@ -644,7 +668,7 @@ const CreateBill = ({
 
                     <Button
                       className="btn btn-primary3 btn-41 px-4 me-20"
-                      onClick={handlePrint}
+                      onClick={handleCreateBill}
                       disabled={disableSaveBtn}
                     >
                       Save & Print
@@ -655,7 +679,7 @@ const CreateBill = ({
                     <Button
                       type="button"
                       className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
-                      onClick={handlePrint}
+                      onClick={handleCreateBill}
                       disabled={disableSaveBtn}
                     >
                       Save & Print
@@ -664,8 +688,7 @@ const CreateBill = ({
                     <Button
                       className="btn btn-primary3 btn-41 px-4 me-20"
                       onClick={() => {
-                        handleDrawerPreviewBill();
-                        handleCreateBill();
+                        handleCreateBill("preview");
                       }}
                       disabled={disableSaveBtn}
                     >
