@@ -33,6 +33,23 @@ export const deletePrintSetting = async function () {
   return res;
 };
 
+// Function to process a bill refund
+export const processBillRefund = async function (payload) {
+  let res = {};
+  try {
+    const apiUrl = `/api/v1/billing/bill/refund`;
+
+    // Make the API call
+    res = await api.post(
+      apiUrl,
+      payload,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while processing bill refund: ", e);
+  }
+  return res;
+};
 export const createBill = async function (payload) {
   let res = {};
   try {
@@ -66,6 +83,45 @@ export const searchBillItem = async function (searchQuery) {
   return res;
 };
 
+
+// Function to fetch billing dashboard data
+export const fetchBillingDashboard = async function (params) {
+  let res = {};
+  try {
+    // Construct query parameters
+    const queryParams = {
+      search: params.search,
+      doctorIds: params.doctorIds,
+      startDate: params.startDate,
+      endDate: params.endDate,
+      sortBy: params.sortBy || "date", // Default sorting field
+      sortOrder: params.sortOrder || "desc", // Default sorting order
+      page: params.page || 1,
+      limit: params.limit || 25,
+      // isForm3C: params.isForm3C,
+    };
+
+    // Convert status array into multiple query params
+    let statusParams = "";
+    if (params.status) {
+      statusParams = params.status
+        .map((status) => `status=${encodeURIComponent(status)}`)
+        .join("&");
+    }
+
+    // Construct the final query string
+    const queryString = new URLSearchParams(queryParams).toString();
+    const apiUrl = `/api/v1/billing/bill/dashboard?${queryString}${
+      statusParams ? `&${statusParams}` : ""
+    }`;
+
+    // Make the API call
+    res = await api.get(apiUrl, baseUrl);
+  } catch (e) {
+    console.error("Error while fetching billing dashboard data: ", e);
+  }
+  return res;
+};
 export const upsertBillItem = async function (payload) {
   let res = {};
   try {

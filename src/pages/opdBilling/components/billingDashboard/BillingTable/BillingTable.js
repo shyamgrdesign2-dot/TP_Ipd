@@ -12,7 +12,6 @@ import {
 import moment from "moment";
 import dayjs from "dayjs";
 import "./BillingTable.scss";
-import RefundBill from "../RefundBill/RefundBill";
 import { useReactToPrint } from "react-to-print";
 import { handlePrintClick } from "../../../../../utils/utils.js";
 import DownloadBill from "../DownloadBill/DownloadBill.js";
@@ -81,10 +80,8 @@ export default function BillingTable() {
   const [data, setData] = useState(null);
   const [cards, setCards] = useState([]);
   const [totalBillCount, setTotalBillCount] = useState(null);
-  const [billData, setBillData] = useState(null);
 
   // Drawer states
-  const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
 
   const [dateRange, setDateRange] = useState({
@@ -136,12 +133,6 @@ export default function BillingTable() {
   const handlePickerModal = useCallback(() => {
     setPickerModal(!pickerModal);
   }, [pickerModal]);
-
-  // Drawer form 3c
-  const handleRefundBillDrawer = (record) => {
-    setBillData(record);
-    setRefundBillDrawer(!refundBillDrawer);
-  };
 
   // Download Options Modal
   const handleOpenDownloadModal = () => {
@@ -337,7 +328,7 @@ export default function BillingTable() {
           ? ["Due","CarriedForward"]
           : ["Refunded"],
       sortBy: "date",
-      sortOrder: "asc",
+      sortOrder: "desc",
       page: 1,
       limit: 25,
       // startDate: dateRange.startDate,
@@ -573,18 +564,6 @@ export default function BillingTable() {
             </div>
           </div>
         }
-
-        {refundBillDrawer && (
-          <Drawer
-            closeIcon={false}
-            placement="right"
-            onClose={handleRefundBillDrawer}
-            open={refundBillDrawer}
-            width="50%"
-          >
-            <RefundBill handleRefundBillDrawer={handleRefundBillDrawer} billData={billData}/>
-          </Drawer>
-        )}
       </div>
     </div>
   );

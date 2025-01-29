@@ -62,9 +62,9 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
       width: 200,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold">{record.billNumber}</div>
+          <div className="fs-14 fw-semibold">{record?.billNumber}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.date}
+            {record?.date}
           </div>
         </div>
       ),
@@ -76,9 +76,9 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
       ellipsis: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14">{record.patient_details}</div>
+          <div className="fs-14">{record?.patient_details}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.patientPhone}
+            {record?.patientPhone}
           </div>
         </div>
       ),
@@ -89,14 +89,14 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
       key: "total_amount",
       ellipsis: true,
       onFilter: (value, record) => record.send_on.startsWith(value),
-      render: (text, record) => <div> {record.payableAmount} </div>,
+      render: (text, record) => <div> {record?.payableAmount} </div>,
     },
     {
       title: "PAID AMOUNT",
       dataIndex: "paid_Amount",
       key: "paid_Amount",
       ellipsis: true,
-      render: (text, record) => <div> {record.paidAmount} </div>,
+      render: (text, record) => <div> {record?.paidAmount} </div>,
     },
     {
       title: "STATUS",
@@ -106,7 +106,7 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
       render: (text, record) => {
         // Determine the class name and display value based on the status
         const getStatusDetails = (status) => {
-          switch (status.toLowerCase()) {
+          switch (status?.toLowerCase()) {
             case "paid fully":
               return {
                 className: "status-paid-fully",
@@ -115,23 +115,23 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
             case "due":
               return {
                 className: "status-due",
-                displayText: `Due: ₹${record.dueAmount}`,
+                displayText: `Due: ₹${record?.dueAmount}`,
               };
             case "refunded":
               return {
                 className: "status-refunded",
-                displayText: `Refunded ₹${record.payableAmount}`,
+                displayText: `Refunded ₹${record?.payableAmount}`,
               };
             default:
               return {
                 className: "due",
-                displayText: `Due: ₹${record.dueAmount}`,
+                displayText: `Due: ₹${record?.dueAmount}`,
               };
           }
         };
 
         // Get status details
-        const { className, displayText } = getStatusDetails(record.paymentStatus);
+        const { className, displayText } = getStatusDetails(record?.paymentStatus);
 
         return <div className={className}>{displayText}</div>;
       },

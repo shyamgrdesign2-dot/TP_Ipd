@@ -2,14 +2,12 @@ import { Drawer, Dropdown, Table } from "antd";
 import moment from "moment";
 import { useState } from "react";
 import PreviewBill from "../../../PreviewBill";
+import RefundBill from "../RefundBill/RefundBill";
 
 const BillTable = ({ patientData, isPatientScreen }) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
-
-  const handleRefundBillDrawer = () => {
-    setRefundBillDrawer(!refundBillDrawer);
-  };
+  const [billData, setBillData] = useState(null);
 
   const handleDrawerPreviewBill = () => {
     setPreviewBillDrawer(!previewBillDrawer);
@@ -19,9 +17,15 @@ const BillTable = ({ patientData, isPatientScreen }) => {
     if (status === 1) {
       handleDrawerPreviewBill();
     } else if (status === 2) {
-      handleRefundBillDrawer();
+      handleRefundBillDrawer(record);
     } else {
     }
+  };
+
+  // Drawer form 3c
+  const handleRefundBillDrawer = (record) => {
+    setBillData(record);
+    setRefundBillDrawer(!refundBillDrawer);
   };
 
   const columns = [
@@ -71,9 +75,9 @@ const BillTable = ({ patientData, isPatientScreen }) => {
           ellipsis: true,
           render: (text, record) => (
             <div className="cursor-pointer" onClick={async () => {}}>
-              <div className="fs-14">{record.patient_details}</div>
+              <div className="fs-14">{record.patientName}</div>
               <div className="fs-14 fw-normal text-truncate-twolines">
-                {record.mobile_number}
+                {record.patientPhone}
               </div>
             </div>
           ),
@@ -150,10 +154,15 @@ const BillTable = ({ patientData, isPatientScreen }) => {
                 className: "status-refunded",
                 displayText: `Refunded ₹${record.total_amount}`,
               };
+            case "carriedforward":
+              return {
+                className: "status-carriedforrward",
+                displayText: `Due ₹${record.dueAmount}`,
+              };
             default:
               return {
-                className: "due",
-                displayText: `Due: ₹${record.paid_Amount}`,
+                className: "status-due",
+                displayText: `Due: ₹${record.dueAmount}`,
               };
           }
         };
@@ -192,83 +201,27 @@ const BillTable = ({ patientData, isPatientScreen }) => {
       },
       {
         label: (
-          <div onClick={() => onBillingDetailsClick(2, record)}>
-            Refund bill
-          </div>
+          <div onClick={() => onBillingDetailsClick(2, record)}>Refund bill</div>
         ),
         key: "refund_bill",
       },
-      {
+    ];
+  
+    // Conditionally add "Add to Form 3C" if isForm3C is false
+    if (!record.isForm3C) {
+      items.push({
         label: (
           <div onClick={() => onBillingDetailsClick(3, record)}>
-            Add to Form 3c
+            Add to Form 3C
           </div>
         ),
         key: "add_to_3c",
-      },
-    ];
-
-    if (record?.campaign_sent) {
-      return items.filter(
-        (item) => item.key !== "edit_campaign" && item.key !== "delete_campaign"
-      );
-    } else if (record?.edit_status) {
-      return items.filter((item) => item.key !== "edit_campaign");
-    } else {
-      return items;
+      });
     }
+  
+    return items;
   };
-
-  const data = [
-    {
-      key: "1",
-      srno: "1",
-      bill_bum: "INV-2900567",
-      patient_details: "John Doe",
-      bill_date: "15 Oct 2023",
-      bill_time: "10:30 AM",
-      total_amount: "5,000",
-      paid_Amount: "3,000",
-      status: "due",
-      mobile_number: "9930875752",
-    },
-    {
-      key: "2",
-      srno: "2",
-      bill_bum: "INV-2900568",
-      patient_details: "Jane Smith",
-      bill_date: "14 Oct 2023",
-      bill_time: "02:45 PM",
-      total_amount: "7,500",
-      paid_Amount: "7,500",
-      status: "paid fully",
-      mobile_number: "9930875752",
-    },
-    {
-      key: "3",
-      srno: "3",
-      bill_bum: "INV-2900569",
-      patient_details: "Michael Johnson",
-      bill_date: "16 Oct 2023",
-      bill_time: "11:15 AM",
-      total_amount: "6,000",
-      paid_Amount: "0",
-      status: "refunded",
-      mobile_number: "9930875752",
-    },
-    {
-      key: "4",
-      srno: "4",
-      bill_bum: "INV-2900570",
-      patient_details: "Emily Davis",
-      bill_date: "13 Oct 2023",
-      bill_time: "09:00 AM",
-      total_amount: "4,200",
-      paid_Amount: "4,200",
-      status: "paid fully",
-      mobile_number: "9930875752",
-    },
-  ];
+  
   return (
     <>
       <Table
@@ -291,6 +244,21 @@ const BillTable = ({ patientData, isPatientScreen }) => {
             handleCreateBillDrawer={handleDrawerPreviewBill}
             isPreviewFromTable={true}
             patientData={patientData}
+          />
+        </Drawer>
+      )}
+
+      {refundBillDrawer && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleRefundBillDrawer}
+          open={refundBillDrawer}
+          width="50%"
+        >
+          <RefundBill
+            handleRefundBillDrawer={handleRefundBillDrawer}
+            billData={billData}
           />
         </Drawer>
       )}

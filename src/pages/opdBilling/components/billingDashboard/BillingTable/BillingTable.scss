@@ -102,6 +102,17 @@
     color: #ED8A00 !important;
   }
 
+  .status-carriedforrward {
+    display: inline-flex;
+    padding: 4px 10px;
+    align-items: center;
+    gap: 4px;
+    border-radius: 30px;
+    background: var(--Colour-Yellow-Yellow---20, #FDF7D7);
+    color: #ED8A00 !important;
+    text-decoration: line-through;
+  }
+
   .status-refunded {
     display: inline-flex;
     padding: 4px 10px;

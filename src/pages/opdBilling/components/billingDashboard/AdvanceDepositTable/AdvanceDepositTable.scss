@@ -83,4 +83,14 @@
     background: var(--Colour-Red-Red---10, #FCEDED);
     color: #B73A3A !important;
   }
+
+  .status-debited {
+    display: inline-flex;
+    padding: 4px 10px;
+    align-items: center;
+    gap: 4px;
+    border-radius: 30px;
+    background: var(--Colour-Orange-Orange---10, #FEEEE9);
+    color: #ED8A00 !important;
+}
 }
