@@ -942,17 +942,17 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         <View style={{ flex: 2.9 }}>
                                                             <View style={{ flexGrow: 1, flexDirection: 'row' }}>
                                                                 {option?.medicine_option?.includes('dose') && (
-                                                                    <Text style={[styles.cell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DOSE</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DOSE</Text>
                                                                 )}
-                                                                <Text style={[styles.cell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FREQUENCY</Text>
+                                                                <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FREQUENCY</Text>
                                                                 {option?.medicine_option?.includes('duration') && (
-                                                                    <Text style={[styles.cell, { flex: 0.53, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.53, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
                                                                 )}
                                                                 {option?.medicine_option?.includes('quantity') && (
-                                                                    <Text style={[styles.cell, { flex: 0.18, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.18, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY</Text>
                                                                 )}
                                                                 {option?.medicine_option?.includes('note') && (
-                                                                    <Text style={[styles.cell, { flex: 0.7, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTES</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.7, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTES</Text>
                                                                 )}
                                                             </View>
                                                         </View>
@@ -1554,7 +1554,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     <>
                                                         <Text style={{ color: '#000', marginTop: PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`Additional History : `}</Text>
                                                         <View style={[styles.table, { marginTop: 0 }]}>
-                                                            <View style={styles.row}>
+                                                            <View style={styles.row} wrap={false}>
                                                                 <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{caseManagerData?.medical_history?.[0]?.medical_history_remarks}</Text>
                                                             </View>
                                                         </View>
@@ -4090,6 +4090,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         style={[
                                                             styles.row
                                                         ]}
+                                                        wrap={false}
                                                     >
                                                         <Text
                                                             style={[
@@ -4145,12 +4146,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         <View style={[styles.table, { marginTop: 0 }]}>
                                                             <View
                                                                 style={[
-                                                                    styles.headerRow
+                                                                    styles.row
                                                                 ]}
+                                                                wrap={false}
                                                             >
                                                                 <Text
                                                                     style={[
-                                                                        styles.headerCell,
+                                                                        styles.cell,
                                                                         {
                                                                             fontFamily: printSettings?.page_format?.font_family,
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -4426,7 +4428,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                                                 <View wrap={false} style={{ marginTop: PX_TO_PT * 6 }}>
                                                     <View style={[styles.table, { marginTop: 0 }]}>
-                                                        <View style={[styles.headerRow]}>
+                                                        <View style={[styles.headerRow]} fixed>
                                                             <Text
                                                                 style={[
                                                                     styles.headerCell,
@@ -4445,7 +4447,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 <Text
                                                                     key={i}
                                                                     style={[
-                                                                        styles.cell,
+                                                                        styles.headerCell,
                                                                         {
                                                                             flex: 1,
                                                                             fontFamily: printSettings?.page_format?.font_family,
@@ -4462,7 +4464,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                                                         {Object.keys(labParamsPatchTableData[0].groupedInputs).map((reportName, j) => (
                                                             <View key={j} style={{ marginTop: PX_TO_PT * 0 }}>
-                                                                <View style={[styles.row]}>
+                                                                <View style={[styles.row]} wrap={false}>
                                                                     <Text
                                                                         style={[
                                                                             styles.cell,
@@ -4481,7 +4483,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                                                                 {labParamsPatchTableData[0].groupedInputs[reportName].map((test, idx) => (
                                                                     <View key={idx} style={{ marginTop: PX_TO_PT * 0 }}>
-                                                                        <View style={[styles.row]}>
+                                                                        <View style={[styles.row]} wrap={false}>
                                                                             <Text
                                                                                 style={[
                                                                                     styles.cell,
