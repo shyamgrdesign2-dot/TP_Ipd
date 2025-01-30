@@ -75,6 +75,7 @@ function MedicationsBox() {
   const [frequencyOptions, setFrequencyOptions] = useState([]);
   const [sinceOptions, setSinceOptions] = useState(EXTRA_OPTIONS);
   const [tourOpen, setTourOpen] = useState(false);
+  const [popOver3, setPopOver3] = useState(false);
   const SINCE_OPTIONS = [
     { value: "Day(s)", label: "Days" },
     { value: "Week(s)", label: "Weeks" },
@@ -1909,13 +1910,8 @@ function MedicationsBox() {
   // Tour Pillup
   const tourRef = useRef(null);
 
-  const onTourHandle = () => {
-    dispatch(changePillupStatus())
-    setTourOpen(!tourOpen)
-  }
-
   useEffect(() => {
-    if(isPillUpAccessableFromGB && !pillupCheck){
+    if (isPillUpAccessableFromGB && !pillupCheck) {
       tourRef?.current?.scrollIntoView({ behavior: 'smooth' });
       setTimeout(() => {
         setTourOpen(true)
@@ -1923,14 +1919,32 @@ function MedicationsBox() {
     }
   }, [isPillUpAccessableFromGB]);
 
+  const PILLUP_CONTENT = useCallback(() => {
+    return (
+      <div className="p-2">
+        <div className="fs-18 fw-semibold text-black">Pillup Fullfillment <img className="img-fluid ms-2" src={tagNew} /></div>
+        <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfillment for the patient by enabling <br /> the toogle</div>
+      </div>
+    );
+  }, [popOver3]);
+
+  //PopOver3 function
+  const showHidePillUpPopover = useCallback(() => {
+    setPopOver3(!popOver3);
+  }, [popOver3]);
+
+  const onTourHandle = () => {
+    dispatch(changePillupStatus())
+    setTourOpen(!tourOpen)
+  }
+
   const steps = [
     {
       description:
         <>
           <div className="fs-18 fw-semibold pt-3 text-black">Pillup Fullfillment <img className="img-fluid ms-2" src={tagNew} /></div>
           <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfillment for the patient by enabling <br /> the toogle</div>
-        </>
-      ,
+        </>,
       target: () => tourRef.current,
       nextButtonProps: {
         children: 'Okay',
@@ -1953,7 +1967,15 @@ function MedicationsBox() {
             {isPillUpAccessableFromGB &&
               <div ref={tourRef} className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center" style={{ backgroundColor: 'rgb(226, 226, 234, 0.2)' }}>
                 <img src={Pillup} />
-                <i className="icon-info opacity-50 fs-18 mx-1"></i>
+                <Popover
+                  open={popOver3}
+                  onOpenChange={showHidePillUpPopover}
+                  content={pillupCheck ? PILLUP_CONTENT() : null}
+                  trigger="hover"
+                  placement="bottom"
+                >
+                  <i className="icon-info opacity-50 fs-18 mx-1"></i>
+                </Popover>
                 <Switch className="switch-custom" value={pillupSwitch} onChange={pillUpChange} />
                 <Tour placement="bottom" closeIcon={false} open={tourOpen} steps={steps} onClose={onTourHandle} />
               </div>

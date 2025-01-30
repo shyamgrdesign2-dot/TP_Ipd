@@ -24,6 +24,7 @@ import {
   message,
   Switch,
   Tour,
+  Popover
 } from "antd";
 import {
   Button as BSButton,
@@ -122,6 +123,7 @@ function TabMedicationBox() {
   ];
   const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
   const [tourOpen, setTourOpen] = useState(false);
+  const [popOver3, setPopOver3] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const SINCE_OPTIONS = [
     { value: "Day(s)", label: "D" },
@@ -2638,11 +2640,6 @@ function TabMedicationBox() {
   // Tour Pillup
   const tourRef = useRef(null);
 
-  const onTourHandle = () => {
-    dispatch(changePillupStatus())
-    setTourOpen(!tourOpen)
-  }
-  
   useEffect(() => {
     if (isPillUpAccessableFromGB && !pillupCheck) {
       tourRef?.current?.scrollIntoView({ behavior: 'smooth' });
@@ -2652,14 +2649,33 @@ function TabMedicationBox() {
     }
   }, [isPillUpAccessableFromGB]);
 
+  const PILLUP_CONTENT = useCallback(() => {
+    return (
+      <div className="p-2">
+        <div className="fs-18 fw-semibold text-black">Pillup Fullfillment <img className="img-fluid ms-2" src={tagNew} /></div>
+        <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfillment for the patient by enabling <br /> the toogle</div>
+        <Button className="w-100 mt-2 border-0 rounded-3 bg-black h-38" onClick={showHidePillUpPopover}><span className="text-white">Okay</span></Button>
+      </div>
+    );
+  }, [popOver3]);
+
+  //PopOver3 function
+  const showHidePillUpPopover = useCallback(() => {
+    setPopOver3(!popOver3);
+  }, [popOver3]);
+
+  const onTourHandle = () => {
+    dispatch(changePillupStatus())
+    setTourOpen(!tourOpen)
+  }
+
   const steps = [
     {
       description:
         <>
           <div className="fs-18 fw-semibold pt-3 text-black">Pillup Fullfillment <img className="img-fluid ms-2" src={tagNew} /></div>
           <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfillment for the patient by enabling <br /> the toogle</div>
-        </>
-      ,
+        </>,
       target: () => tourRef.current,
       nextButtonProps: {
         children: 'Okay',
@@ -2682,7 +2698,15 @@ function TabMedicationBox() {
             {isPillUpAccessableFromGB &&
               <div ref={tourRef} className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center" style={{ backgroundColor: 'rgb(226, 226, 234, 0.2)' }}>
                 <img src={Pillup} />
-                <i className="icon-info opacity-50 fs-18 mx-1"></i>
+                <Popover
+                  open={popOver3}
+                  onOpenChange={showHidePillUpPopover}
+                  content={pillupCheck ? PILLUP_CONTENT() : null}
+                  trigger="hover"
+                  placement="bottom"
+                >
+                  <i className="icon-info opacity-50 fs-18 mx-1"></i>
+                </Popover>
                 <Switch className="switch-custom" value={pillupSwitch} onChange={pillUpChange} />
                 <Tour placement="bottom" closeIcon={false} open={tourOpen} steps={steps} onClose={onTourHandle} />
               </div>
