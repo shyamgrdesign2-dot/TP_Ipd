@@ -93,9 +93,12 @@ export const fetchBillingDashboard = async function (params) {
       sortOrder: params.sortOrder || "desc", // Default sorting order
       page: params.page || 1,
       limit: params.limit || 25,
-      // isForm3C: params.isForm3C,
     };
 
+    // Conditionally add isForm3C **only if the key exists in params**
+    if ("isForm3C" in params) {
+      queryParams.isForm3C = params.isForm3C;
+    }
     // Convert status array into multiple query params
     let statusParams = "";
     if (params.status) {
@@ -131,11 +134,7 @@ export const upsertBillItem = async function (payload) {
 export const deleteBillItem = async function (itemId) {
   let res = {};
   try {
-    res = await api.post(
-      `api/v1/billing/bill/addToForm3C`,
-      payload,
-      baseUrl
-    );
+    res = await api.post(`api/v1/billing/bill/addToForm3C`, payload, baseUrl);
   } catch (e) {
     console.error("Error while fetching patient due amount: ", e);
   }

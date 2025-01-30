@@ -26,20 +26,7 @@ import moment from "moment";
 import dayjs from "dayjs";
 import MenuDivider from "antd/es/menu/MenuDivider";
 
-// import { errorMessage, onlyNumberFormat } from "../../../../utils/utils";
-// import { MESSAGE_KEY } from "../../../../utils/constants";
-
-// import VideoModal from "../../../../common/VideoModal";
-// import messageCorner from "../../../../assets/images/message-corner.svg";
-// import CreditImg from "../../../../assets/images/credit_icon.svg";
-// import tutorial from "../../../../assets/images/tutorial-icon.svg";
-// import messageCornerGrey from "../../../../assets/images/message-corner-grey.svg";
-// import alertIcon from "../../../../assets/images/alertIcon.svg";
-// import imgCloseVisit from "../../../../assets/images/close-visit.svg";
-// import visitEnd from "../../../../assets/images/end-visit.svg";
-
-// import AvailableCredits from "../../../../components/bulk_messages/AvailableCredits";
-// import CommonModal from "../../../../common/CommonModal";
+import { addBillsToForm3C, fetchBillingDashboard } from "../../service";
 
 const { RangePicker } = DatePicker;
 const dateFormat = "YYYY-MM-DD";
@@ -89,6 +76,8 @@ function AddForm3cBills({ handleAddForm3cBill }) {
   });
   const [dateStatus, setDateStatus] = useState(1);
   const [pageNo, setPageNo] = useState(0);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]); // Store selected row objects
   const [searchQuery, setSearchQuery] = useState("");
   const [pickerModal, setPickerModal] = useState(false);
 
@@ -138,9 +127,6 @@ function AddForm3cBills({ handleAddForm3cBill }) {
 
   const onRangeChange = (dates, dateStrings) => {
     if (dates) {
-      // console.log('From: ', dates[0], ', to: ', dates[1]);
-      // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
-
       if (
         dayjs().format(dateFormat) ==
           moment(dateStrings[0], showDateFormat).format(dateFormat) &&
@@ -229,16 +215,25 @@ function AddForm3cBills({ handleAddForm3cBill }) {
     setIsBackModalOpen(!isBackModalOpen);
   }, [isBackModalOpen]);
 
+  // Handle individual row selection
+  const onSelectChange = (selectedKeys, selectedRows) => {
+    setSelectedRowKeys(selectedKeys)
+    setSelectedRows(selectedRows);
+  };
+
+  // Handle "Select All" checkbox in header
+  const onSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedRows(data.bills);
+    } else {
+      setSelectedRows([]);
+    }
+  };
+
   const columns = [
     {
-      title: "Action",
       key: "action",
-      width: 80,
-      render: (text, record) => (
-        <>
-          <Checkbox />
-        </>
-      ),
+      width: 30,
     },
     {
       title: "#",
@@ -271,9 +266,9 @@ function AddForm3cBills({ handleAddForm3cBill }) {
       },
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold">{record.bill_bum}</div>
+          <div className="fs-14 fw-semibold">{record.billNumber}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.bill_date}
+            {record.date}
           </div>
         </div>
       ),
@@ -285,9 +280,9 @@ function AddForm3cBills({ handleAddForm3cBill }) {
       ellipsis: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14">{record.patient_details}</div>
+          <div className="fs-14">{record.patient.name}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.mobile_number}
+            {record.patient.phone}
           </div>
         </div>
       ),
@@ -314,7 +309,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
         return result;
       },
       onFilter: (value, record) => record.send_on.startsWith(value),
-      render: (text, record) => <div> {record.total_amount} </div>,
+      render: (text, record) => <div> {record.payableAmount} </div>,
     },
     {
       title: "PAID AMOUNT",
@@ -337,67 +332,95 @@ function AddForm3cBills({ handleAddForm3cBill }) {
         const result = lhsLongTime - rhsLongTime;
         return result;
       },
-      render: (text, record) => <div> {record.paid_Amount} </div>,
+      render: (text, record) => <div> {record.paidAmount} </div>,
     },
     {
       title: "STATUS",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "paymentStatus",
+      key: "paymentStatus",
       ellipsis: true,
-      render: (text, record) => <div> {record.status} </div>,
+      render: (text, record) => {
+        // Determine the class name and display value based on the status
+        const getStatusDetails = (status) => {
+          switch (status?.toLowerCase()) {
+            case "fullypaid":
+              return {
+                className: "status-paid-fully",
+                displayText: "Paid Fully",
+              };
+            case "due":
+              return {
+                className: "status-due",
+                displayText: `Due`,
+              };
+            case "carriedforward":
+              return {
+                className: "status-carriedforrward",
+                displayText: `Due`,
+              };
+            default:
+              return {
+                className: "status-paid-fully",
+                displayText: `Paid Fully`,
+              };
+          }
+        };
+
+        // Get status details
+        const { className, displayText } = getStatusDetails(
+          record.paymentStatus
+        );
+
+        return <div className={className}>{displayText}</div>;
+      },
     },
   ];
 
-  const data = [
-    {
-      key: "1",
-      srno: "1",
-      bill_bum: "INV-2900567",
-      patient_details: "John Doe",
-      bill_date: "15 Oct 2023",
-      bill_time: "10:30 AM",
-      total_amount: "₹5,000",
-      paid_Amount: "₹3,000",
-      status: "Pending",
-      mobile_number: "9930875752",
-    },
-    {
-      key: "2",
-      srno: "2",
-      bill_bum: "INV-2900568",
-      patient_details: "Jane Smith",
-      bill_date: "14 Oct 2023",
-      bill_time: "02:45 PM",
-      total_amount: "₹7,500",
-      paid_Amount: "₹7,500",
-      status: "Paid",
-      mobile_number: "9930875752",
-    },
-    {
-      key: "3",
-      srno: "3",
-      bill_bum: "INV-2900569",
-      patient_details: "Michael Johnson",
-      bill_date: "16 Oct 2023",
-      bill_time: "11:15 AM",
-      total_amount: "₹6,000",
-      paid_Amount: "₹0",
-      status: "Unpaid",
-      mobile_number: "9930875752",
-    },
-    {
-      key: "4",
-      srno: "4",
-      bill_bum: "INV-2900570",
-      patient_details: "Emily Davis",
-      bill_date: "13 Oct 2023",
-      bill_time: "09:00 AM",
-      total_amount: "₹4,200",
-      paid_Amount: "₹4,200",
-      status: "Paid",
-      mobile_number: "9930875752",
-    },
-  ];
+  const loadData = async () => {
+    // setLoading(true);
+    const params = {
+      sortBy: "date",
+      sortOrder: "desc",
+      page: 1,
+      limit: 25,
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+      doctorIds: "514",
+      isForm3C: false,
+      search: searchQuery || "",
+    };
+    try {
+      const response = await fetchBillingDashboard(params);
+      setData(
+        response?.bills?.filter((item) => item.paymentStatus !== "Refunded" && item.isForm3C !== true) ||
+          []
+      );
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [dateRange, searchQuery]);
+
+  const handleAddForm3cBill = () => {
+    handleAddForm3cDrawer();
+    const payload = {
+      billIds: [...selectedRowKeys],
+    };
+    const res = addBillsToForm3C(payload);
+    if (res) {
+      setForm3cData(selectedRowKeys.length);
+    }
+  };
+
+  const handleBackAddForm3CDrawer = () => {
+    setForm3cData(0)
+    handleAddForm3cDrawer();
+  };
 
   return (
     <div className="manage-3c-bills-wrapper">
@@ -406,15 +429,21 @@ function AddForm3cBills({ handleAddForm3cBill }) {
           <div className="border-end h-100 text-center">
             <Button
               className="btn btn-delete-prescription px-3 h-100"
-              onClick={handleAddForm3cBill}
+              onClick={handleBackAddForm3CDrawer}
             >
               <i className="icon-right lh-lg"></i>
             </Button>
           </div>
-          <div className="w-100 px-20 fs-16 fw-semibold">Add New Bills to Form 3C</div>
+          <div className="w-100 px-20 fs-16 fw-semibold">
+            Add New Bills to Form 3C
+          </div>
         </div>
         <div className="align-items-center d-flex gap-4 me-4">
-          <Button className="btn-create-bill" disabled={true}>
+          <Button
+            className="btn-create-bill"
+            // disabled={true}
+            onClick={handleAddForm3cBill}
+          >
             <span>{"Add to Form 3C"}</span>
           </Button>
         </div>
@@ -522,9 +551,14 @@ function AddForm3cBills({ handleAddForm3cBill }) {
             </div>
           </div>
         </div>
-        <div className="justify-content-between align-items-center px-4 my-2">
+        <div className="justify-content-between align-items-center px-4 my-2 billing-table-wrapper">
           <Table
-            className="billing-table px-0"
+            rowKey="id"
+            rowSelection={{
+              selectedRowKeys: selectedRows.map((row) => row.id),
+              onChange: onSelectChange,
+            }}
+            className="px-0"
             columns={columns}
             width="100%"
             dataSource={data}

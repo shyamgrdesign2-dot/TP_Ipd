@@ -49,9 +49,6 @@ import { fetchBillingDashboard } from "../../service.js";
 // import tutorial from "../../../../assets/images/tutorial-icon.svg";
 // import messageCornerGrey from "../../../../assets/images/message-corner-grey.svg";
 // import alertIcon from "../../../../assets/images/alertIcon.svg";
-// import imgCloseVisit from "../../../../assets/images/close-visit.svg";
-// import visitEnd from "../../../../assets/images/end-visit.svg";
-
 // import AvailableCredits from "../../../../components/bulk_messages/AvailableCredits";
 // import CommonModal from "../../../../common/CommonModal";
 
@@ -469,7 +466,6 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
     loadData();
   }, [ dateRange, searchQuery]);
 
-console.log(selectedRows,"rows")
   return (
     <div className="manage-3c-bills-wrapper">
       <div className="modalCard-header align-items-center d-flex justify-content-between">
@@ -490,9 +486,9 @@ console.log(selectedRows,"rows")
             <span>{"Add New Bills to 3C"}</span>
           </Button>
           <Button
-            className="btn-create-bill"
+            className={`btn-create-bill ${selectedRows?.length === 0 ? "disabled" : ""} `}
             onClick={handleForm3cPrint}
-            // disabled={true}
+            disabled={selectedRows?.length === 0}
           >
             <span>{"Print Form 3C"}</span>
           </Button>

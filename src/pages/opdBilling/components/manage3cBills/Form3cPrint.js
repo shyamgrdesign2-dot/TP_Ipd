@@ -1,31 +1,33 @@
 import React from "react";
 import { Table } from "antd";
-import "./Form3cPrint.scss"
+import moment from "moment";
+import "./Form3cPrint.scss";
 
-const Form3cPrint = ({rows}) => {
-
+const Form3cPrint = ({ rows }) => {
   // Define the columns
   const columns = [
     {
-      title: "Date",
+      title: <i>Date</i>,
       dataIndex: "date",
       key: "date",
+      width: 120,
       align: "center",
-      width: 40
+      render: (text, record) => moment(record.date).format("DD/MM/YYYY"),
     },
     {
-      title: "Sl. No.",
+      title: <i>Sl. No.</i>,
       dataIndex: "slNo",
       key: "slNo",
+      width: 160,
       align: "center",
-      width: 30
+      render: (text, record) => (record.billNumber),
     },
     {
-      title: "Patient's name",
+      title: <i>Patient's name</i>,
       dataIndex: "patientName",
       key: "patientName",
-      align: "center",
-      width: 50,
+      width: 150,
+      align: "left",
       render: (text, record) => (
         <div className="cursor-pointer">
           <div className="fs-14">{record?.patient?.name}</div>
@@ -33,19 +35,28 @@ const Form3cPrint = ({rows}) => {
       ),
     },
     {
-      title:
-        "Nature of professional services rendered, i.e., general consultation, surgery, injection, visit, etc.",
+      title: (
+        <i>
+          Nature of professional services rendered, i.e., general consultation,
+          surgery, injection, visit, etc.
+        </i>
+      ),
       dataIndex: "servicesRendered",
       key: "servicesRendered",
-      align: "center",
-      width: 70
+      align: "left",
+      width: 280,
+      render: (text, record) => (
+        <div className="fs-14">
+          {record?.billItems?.map((item) => item.name).join(", ") || "-"}
+        </div>
+      ),
     },
     {
-      title: "Fees received",
+      title: <i>Fees received</i>,
       dataIndex: "feesReceived",
       key: "feesReceived",
-      align: "center",
-      width: 40,
+      width: 100,
+      align: "right",
       render: (text, record) => (
         <div className="cursor-pointer">
           <div className="fs-14">{record?.paidAmount}</div>
@@ -53,16 +64,20 @@ const Form3cPrint = ({rows}) => {
       ),
     },
     {
-      title: "Date of receipt",
+      title: <i>Date of receipt</i>,
       dataIndex: "receiptDate",
-      key: "date",
+      key: "receiptDate",
+      width: 120,
       align: "center",
-      width: 40
+      render: (text, record) => moment(record.date).format("DD/MM/YYYY"),
     },
   ];
 
   return (
-    <div  className="form-3c-print-wrapper" style={{ padding: "20px", backgroundColor: "#fff" }}>
+    <div
+      className="form-3c-print-wrapper"
+      style={{ padding: "20px", backgroundColor: "#fff" }}
+    >
       {/* Header Section */}
       <div style={{ textAlign: "center", marginBottom: "20px" }}>
         <div
@@ -103,11 +118,8 @@ const Form3cPrint = ({rows}) => {
         columns={columns}
         pagination={false}
         bordered
-        style={{ margin: "1rem" }}
         size="small"
-        rowClassName={(record, index) =>
-          index === -1 ? "ant-table-header" : "data-row"
-        }
+        tableLayout="fixed"
       />
 
       {/* Footer Section */}
