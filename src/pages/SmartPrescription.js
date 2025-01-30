@@ -194,6 +194,7 @@ function SmartPrescription() {
   const [loader, setLoader] = useState(false);
   const [customModuleContents, setCustomModuleContents] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
+  const [pillupSwitch, setPillupSwitch] = useState(true);
 
   const contextApi = {
     patient_data,
@@ -227,6 +228,8 @@ function SmartPrescription() {
     customModuleContents,
     setCustomModuleContents,
     startTime,
+    pillupSwitch, 
+    setPillupSwitch
   };
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
@@ -1465,6 +1468,7 @@ function SmartPrescription() {
           onSubmit={handleSubmit}
           smartRxData={smartRxDetails}
           loader={loader}
+          caseManagerData={caseManagerData}
         />
         {loading && <FullPageLoader />}
         <div className="w-100 bg-body wrapper2 prescription-wrapper">

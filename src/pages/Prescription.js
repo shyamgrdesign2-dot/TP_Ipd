@@ -171,6 +171,7 @@ const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
   const [customModuleContents, setCustomModuleContents] = useState([]);
   const [isGenRxDrawerVisible, setIsGenRxDrawerVisible] = useState(caseManagerData?.smart_prescription_filename || false);
+  const [pillupSwitch, setPillupSwitch] = useState(true);
 
   const responsive = {
     desktop: {
@@ -218,7 +219,9 @@ const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
     setAdditionalNote,
     startTime,
     customModuleContents,
-    setCustomModuleContents
+    setCustomModuleContents,
+    pillupSwitch, 
+    setPillupSwitch
   };
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
@@ -480,6 +483,7 @@ const shouldShowImmunisation = obstetricDetails?.immunisationHistory?.find(
           (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
         ))
       }
+      setPillupSwitch(caseManagerData?.pillup_fulfilment == 1 ? true : false)
     }
   }, []);
 

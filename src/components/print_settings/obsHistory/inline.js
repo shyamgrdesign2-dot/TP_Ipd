@@ -791,7 +791,7 @@ function ObsHistoryInlineView({
                         fontWeight: 400,
                       }}
                     >
-                      {Boolean(obsHistoryData?.consang) ? `Yes` : `No`}
+                        {obsHistoryData?.consang ? `Yes` : obsHistoryData?.consang === false ? `No` : `-`}
                     </Text>
                     {("maritialStatus" in obsHistoryData ||
                       ("marriageDurationYears" in obsHistoryData &&

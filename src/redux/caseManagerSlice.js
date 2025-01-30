@@ -178,6 +178,19 @@ export const sendSmartRxLinkOnWhatsapp = createAsyncThunk(
     }
 );
 
+export const getInvestigationAndMedicine = createAsyncThunk(
+    "caseManager/getInvestigationAndMedicine",
+    async (data) => {
+        let result = {};
+        result = await ApiCaseManager.getInvestigationAndMedicine(data);
+        if (result.status) {
+            return result.data;
+        } else {
+            throw Error(result.error);
+        }
+    }
+);
+
 const caseManagerSlice = createSlice({
     name: "caseManager",
     initialState,

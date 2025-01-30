@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
-import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip, Drawer, message } from "antd";
+import React, { useState, useEffect, useCallback, useContext, useMemo, useRef } from "react";
+import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip, Drawer, message, Switch, Tour } from "antd";
 import { InfoCircleOutlined, LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
@@ -16,6 +16,11 @@ import calculatorIconBlue from '../assets/images/calculator-blue.svg';
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
 import { MenuOutlined } from '@ant-design/icons';
+import tagNew from '../../src/assets/images/tag-new.svg';
+import Pillup from '../assets/images/pillup.svg';
+
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+
 import {
   addTemplate,
   updateTemplate,
@@ -32,15 +37,16 @@ import {
   updateFrequentlyMedication,
   getAllDoses
 } from "../redux/medicationSlice";
-import { EXTRA_OPTIONS, MESSAGE_KEY } from "../utils/constants";
+import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, MESSAGE_KEY } from "../utils/constants";
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DoseCalculator from "./dose_calculator/doseCalculator";
+import { changePillupStatus } from "../redux/doctorsSlice";
 
 const { TextArea } = Input;
 
 function MedicationsBox() {
-  const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
+  const { profile, frequencyList, timingList, medicineTypeList, pillupCheck } = useSelector((state) => state.doctors);
   const {
     dosesList,
     selectedMedicationList,
@@ -52,7 +58,7 @@ function MedicationsBox() {
   const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
 
-  const { patient_data, medicationData, setMedicationData } = useContext(CashManagerContext);
+  const { patient_data, medicationData, setMedicationData, pillupSwitch, setPillupSwitch } = useContext(CashManagerContext);
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -68,6 +74,8 @@ function MedicationsBox() {
   const [unitPerDoseOptions, setUnitPerDoseOptions] = useState([]);
   const [frequencyOptions, setFrequencyOptions] = useState([]);
   const [sinceOptions, setSinceOptions] = useState(EXTRA_OPTIONS);
+  const [tourOpen, setTourOpen] = useState(false);
+  const [popOver3, setPopOver3] = useState(false);
   const SINCE_OPTIONS = [
     { value: "Day(s)", label: "Days" },
     { value: "Week(s)", label: "Weeks" },
@@ -98,6 +106,8 @@ function MedicationsBox() {
   const [medicationLibrary, setMedicationLibrary] = useState([]);
   const [editDoseId, setEditDoseId] = useState(0);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
+
+  const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
 
   const handleViewDoseCalcDrawer = (tab, value) => {
     setDoseCalculatorDrawer(!doseCalculatorDrawer)
@@ -886,7 +896,7 @@ function MedicationsBox() {
       "Patient_Name": patient_data?.pm_fullname,
       "Patient_ID": patient_data?.patient_unique_id,
       "Rx_Id": item?.tmm_id,
-  });
+    });
     const array = await innerMedication(item?.index).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) }))
     let updatedData = {
       ...array.at(-1),
@@ -1897,13 +1907,79 @@ function MedicationsBox() {
     setIsModalOpen2(!isModalOpen2);
   }, [isModalOpen2]);
 
+  // Tour Pillup
+  const tourRef = useRef(null);
+
+  useEffect(() => {
+    if (isPillUpAccessableFromGB && !pillupCheck) {
+      tourRef?.current?.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        setTourOpen(true)
+      }, 1000);
+    }
+  }, [isPillUpAccessableFromGB]);
+
+  const PILLUP_CONTENT = useCallback(() => {
+    return (
+      <div className="p-2">
+        <div className="fs-18 fw-semibold text-black">Pillup Fullfillment <img className="img-fluid ms-2" src={tagNew} /></div>
+        <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfillment for the patient by enabling <br /> the toogle</div>
+      </div>
+    );
+  }, [popOver3]);
+
+  //PopOver3 function
+  const showHidePillUpPopover = useCallback(() => {
+    setPopOver3(!popOver3);
+  }, [popOver3]);
+
+  const onTourHandle = () => {
+    dispatch(changePillupStatus())
+    setTourOpen(!tourOpen)
+  }
+
+  const steps = [
+    {
+      description:
+        <>
+          <div className="fs-18 fw-semibold pt-3 text-black">Pillup Fullfillment <img className="img-fluid ms-2" src={tagNew} /></div>
+          <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfillment for the patient by enabling <br /> the toogle</div>
+        </>,
+      target: () => tourRef.current,
+      nextButtonProps: {
+        children: 'Okay',
+        onClick: onTourHandle
+      }
+    }
+  ];
+
+  const pillUpChange = (checked) => {
+    setPillupSwitch(checked)
+  };
+
   return (
     <>
       <div>
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Medicationicon} alt="Medication" />
-            <div className="title-common">Medications (Rx)</div>
+            <div className="title-common">{isPillUpAccessableFromGB ? 'Meds' : 'Medications'} (Rx)</div>
+            {isPillUpAccessableFromGB &&
+              <div ref={tourRef} className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center" style={{ backgroundColor: 'rgb(226, 226, 234, 0.2)' }}>
+                <img src={Pillup} />
+                <Popover
+                  open={popOver3}
+                  onOpenChange={showHidePillUpPopover}
+                  content={pillupCheck ? PILLUP_CONTENT() : null}
+                  trigger="hover"
+                  placement="bottom"
+                >
+                  <i className="icon-info opacity-50 fs-18 mx-1"></i>
+                </Popover>
+                <Switch className="switch-custom" value={pillupSwitch} onChange={pillUpChange} />
+                <Tour placement="bottom" closeIcon={false} open={tourOpen} steps={steps} onClose={onTourHandle} />
+              </div>
+            }
           </div>
           <div className="d-flex align-items-center">
             {profile?.dp_id === 9 && (
@@ -1912,7 +1988,7 @@ function MedicationsBox() {
                 onClick={handleViewDoseCalcDrawer}
               >
                 {" "}
-                <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>Dose calculator</span>
+                <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>{isPillUpAccessableFromGB ? 'Dose calc' : 'Dose calculator'}</span>
               </button>
             )}
             <button
@@ -1920,7 +1996,7 @@ function MedicationsBox() {
               onClick={loadPreviousRxClick}
             >
               {" "}
-              <i className="icon-reload me-2"></i> <span>Load Prev. Rx</span>
+              <i className="icon-reload me-2"></i> <span>{isPillUpAccessableFromGB ? 'Prev. Rx ' : 'Load Prev. Rx'}</span>
             </button>
             <Popover
               open={popOver1}
@@ -1932,7 +2008,7 @@ function MedicationsBox() {
             >
               <button className="btn d-flex align-items-center btn-text">
                 {" "}
-                <i className="icon-template me-2"></i> <span>Templates</span>
+                <i className="icon-template me-2"></i> <span>{isPillUpAccessableFromGB ? 'Temp' : 'Templates'}</span>
               </button>
             </Popover>
             <Tooltip placement="bottom" title={(medicationData.length > 0) ? "" : "Please enter some medications to save a template"}>
@@ -1953,7 +2029,7 @@ function MedicationsBox() {
               </Popover>
             </Tooltip>
             <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={medicationData.length > 0 ? false : true}>
-              <i className="icon-eraser1 me-2"></i> <span>Clear</span>
+              <i className="icon-eraser1 me-2"></i> {!isPillUpAccessableFromGB && <span>Clear</span>}
             </button>
           </div>
         </div>

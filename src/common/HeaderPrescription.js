@@ -22,7 +22,7 @@ import VideoModal from './VideoModal';
 
 import { errorMessage, getClinicName, removeBeforeWhiteSpace } from "../utils/utils";
 
-import { EXTRA_OPTIONS, GB_ZYDUS_USER, MESSAGE_KEY } from "../utils/constants";
+import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, GB_ZYDUS_USER, MESSAGE_KEY } from "../utils/constants";
 
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
@@ -36,7 +36,8 @@ import {
     oneClickTemplatesList,
     oneClickSingleTemplateDetails,
     addCaseManager,
-    editCaseManager
+    editCaseManager,
+    getInvestigationAndMedicine
 } from "../redux/caseManagerSlice";
 import { listVideo } from "../redux/doctorsSlice";
 import GenRxButton from '../components/GenRxButton';
@@ -67,7 +68,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
     const {customModules} = useSelector((state) => state.customModules);
 
     const navigate = useNavigate();
-    const { patient_data, send_path, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, surgeriesData, setSurgeriesData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, privateNotesData, setPrivateNotesData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime, customModuleContents, setCustomModuleContents } = useContext(CashManagerContext);
+    const { patient_data, send_path, tcmId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, surgeriesData, setSurgeriesData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, privateNotesData, setPrivateNotesData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime, customModuleContents, setCustomModuleContents, pillupSwitch } = useContext(CashManagerContext);
 
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
@@ -101,6 +102,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
     const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
 
     const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+    const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
     
     useEffect(() => {
         dispatch(oneClickTemplatesList());
@@ -924,7 +926,8 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     given: givenVaccines,
                     due: updatedDueVaccines
                 },
-                moduleContents: customModuleContents?.map((e) => ({...e, content: e.content.filter((e1) => e1.title || e1.notes)}))
+                moduleContents: customModuleContents?.map((e) => ({...e, content: e.content.filter((e1) => e1.title || e1.notes)})),
+                pillup_fulfilment: isPillUpAccessableFromGB && pillupSwitch ? 1 : 0
             };
 
             const clinic_name = getClinicName(profile?.hospital_data);
@@ -964,22 +967,34 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
 
                 const decodedToken = getDecodedToken();
                 const tokenData = decodedToken?.result;
-                if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB && patient_data?.mrno !== undefined) {
-                    let zydusSendData = {
-                        "action": tcmId == 0 ? 'add' : 'edit',
-                        "tcmId": action?.payload?.tcm_id,
-                        "siteId": siteId,
-                        "departmentId": patient_data?.departmentId,
-                        "visitId": patient_data?.visitId,
-                        "encounterId": patient_data?.encounterId,
-                        "mrno": patient_data?.mrno,
-                        "doctorCode": patient_data?.employeeId,
-                        "storeCode": "PHOS", // hardcoded value
-                        "duplicateCheck": 1, // hardcoded value
-                        "investigationList": investigationData.filter(item => item.hasOwnProperty('objectID')).map(item => item.objectID),
-                        "medicineList": medicationData.map(({ tmm_id, tmm_remarks }) => ({ objectId: tmm_id, instruction: tmm_remarks }))
+                if (tokenData?.hospital_business_id == env.zydus_business_id
+                    && isZydusUserAccessableFromGB
+                    && patient_data?.mrno !== undefined
+                    && medicationData.length > 0
+                    && investigationData.length > 0
+                ) {
+                    let sendInvestigationAndMedicine = {
+                        patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+                        tcm_id: action?.payload?.tcm_id
                     }
-                    // dispatch(placeIctOrder(zydusSendData))
+                    const actionIM = await dispatch(getInvestigationAndMedicine(sendInvestigationAndMedicine))
+                    if (actionIM.meta.requestStatus === "fulfilled") {
+                        let zydusSendData = {
+                            "action": tcmId == 0 ? 'add' : 'edit',
+                            "tcmId": action?.payload?.tcm_id,
+                            "siteId": siteId,
+                            "departmentId": patient_data?.departmentId,
+                            "visitId": patient_data?.visitId,
+                            "encounterId": patient_data?.encounterId,
+                            "mrno": patient_data?.mrno,
+                            "doctorCode": patient_data?.employeeId,
+                            "storeCode": "PHOS", // hardcoded value
+                            "duplicateCheck": 1, // hardcoded value
+                            "investigationList": actionIM?.payload?.investigation.filter(item => item.hasOwnProperty('objectID')).map(item => item.objectID),
+                            "medicineList": actionIM?.payload?.medicine.map(({ tmm_id, tmm_remarks }) => ({ objectId: tmm_id, instruction: tmm_remarks }))
+                        }
+                        dispatch(placeIctOrder(zydusSendData))
+                    }
                 }
 
                 navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })

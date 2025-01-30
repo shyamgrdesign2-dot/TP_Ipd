@@ -514,38 +514,71 @@ function Header({ locationPath }) {
 
   const iframeRef = useRef(null);
 
-  const openUrlSilently = () => {
-    // Create an invisible iframe to load the URL
-    const iframe = document.createElement("iframe");
-    iframe.src = config.pedia_logout_url;
-    iframe.style.width = "0";
-    iframe.style.height = "0";
-    iframe.style.border = "none";
-    iframe.style.visibility = "hidden";
-    document.body.appendChild(iframe);
-
-    iframeRef.current = iframe;
-
-    // Remove the iframe after 3 seconds
-    setTimeout(() => {
-      if (iframeRef.current) {
-        document.body.removeChild(iframeRef.current);
-        iframeRef.current = null;
-      }
-    }, 3000);
+  const openUrlsSilently = async (urls) => {
+    const iframeStatuses = await Promise.all(
+      urls.map((url) => {
+        return new Promise((resolve, reject) => {
+          const iframe = document.createElement("iframe");
+          iframe.src = url;
+          iframe.style.width = "0";
+          iframe.style.height = "0";
+          iframe.style.border = "none";
+          iframe.style.visibility = "hidden";
+  
+          iframe.onload = () => {
+            resolve({ url, status: "success" });
+          };
+  
+          iframe.onerror = () => {
+            reject({ url, status: "error" });
+          };
+  
+          document.body.appendChild(iframe);
+  
+          // Cleanup the iframe after it's loaded or failed
+          setTimeout(() => {
+            document.body.removeChild(iframe);
+          }, 3000);
+        });
+      })
+    );
+  
+    return iframeStatuses;
   };
-
-  const handleLogout = () => {
+  
+  const handleLogout = async () => {
+    // URLs to open silently
+    const urlsToOpen = [
+      config.pedia_logout_url,
+      config.tatvaAi_logout_url,
+    ];
+  
+    try {
+      const statuses = await openUrlsSilently(urlsToOpen);
+  
+      statuses.forEach(({ url, status }) => {
+        // testing purpose
+        console.log(`URL: ${url} - Status: ${status}`);
+      });
+  
+      const allSuccessful = statuses.every(({ status }) => status === "success");
+  
+      if (allSuccessful) {
+        // testing purpose
+        console.log("All URLs loaded successfully!");
+      } else {
+        console.error("Some URLs failed to load.");
+      }
+    } catch (error) {
+      console.error("Error opening URLs:", error);
+    }
+  
     // Clear local storage
     localStorage.clear();
-
+  
     // Clear session storage (if used)
     sessionStorage.clear();
-
-    // openAndCloseTab();
-
-    openUrlSilently();
-
+  
     // Redirect to the login page
     navigate("/login");
   };
@@ -679,7 +712,7 @@ function Header({ locationPath }) {
       //   key: '8',
       // },
     ];
-
+  
     const extraItems = [
       {
         label: (
@@ -744,17 +777,17 @@ function Header({ locationPath }) {
       'Content-Type': 'application/json'
     };
     try {
-      const response = await axios.post(apiUrl, data, { headers });
-      return response.data
+        const response = await axios.post(apiUrl, data, { headers });
+        return response.data
     } catch (error) {
-      console.error('Error:', error);
+        console.error('Error:', error);
     }
   };
 
   const clickOpdPlans = async () => {
     const clinic_Id = decodedToken?.result?.clinic_id;
     const doc_Id = decodedToken?.result?.doctor_unique_id;
-
+    
     const decryptData = { d_id: doc_Id, clinic_Id: clinic_Id };
 
     // Encrypt clinic and doctor ID
@@ -763,7 +796,7 @@ function Header({ locationPath }) {
     const url = `${opdVisitUrl}/tatva-care?p_id=${encryptedCata}`;
     setOpdPlansUrl(url);
   };
-
+  
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
     pageStyle: `
@@ -844,44 +877,44 @@ function Header({ locationPath }) {
             destroyOnClose
             className="opd-plan-qr"
           >
-            <div className="opd-qr">
-              <button className="qr-close-btn" onClick={showHideBackModal}>
+              <div className="opd-qr">
+                <button className="qr-close-btn" onClick={showHideBackModal}>
                 <i style={{ fontSize: "2rem" }} className="icon-Cross"></i>
-              </button>
-              <div ref={printRef} className="opd-plans-inner-contianer">
-                <div className="opd-title" style={{ fontWeight: "700", fontSize: "2rem", color: "#1F2933 !important" }}>
-                  OPD Plans
-                </div>
-                <div className="opd-byline" style={{ marginBottom: "2rem", marginTop: "0.4rem" }}>
-                  by <strong>{profile?.um_name}</strong>
-                </div>
-                <div className="d-flex align-items-center justify-content-center">
-                  <div className="opd-logo log-holder">
-                    <img src={logoIcom} style={{ height: "1.8rem" }} className="logo-text-icon" alt="Logo" />
+                </button>
+                <div ref={printRef} className="opd-plans-inner-contianer">
+                  <div className="opd-title" style={{ fontWeight: "700", fontSize: "2rem", color: "#1F2933 !important" }}>
+                    OPD Plans
                   </div>
-                  <QRCodeSVG className="opd-qr-image" value={opdPlansUrl} size={180} />
+                  <div className="opd-byline" style={{ marginBottom: "2rem", marginTop: "0.4rem" }}>
+                    by <strong>{profile?.um_name}</strong>
+                  </div>
+                  <div className="d-flex align-items-center justify-content-center">
+                    <div className="opd-logo log-holder">
+                      <img src={logoIcom} style={{ height: "1.8rem" }} className="logo-text-icon" alt="Logo" />
+                    </div>
+                    <QRCodeSVG className="opd-qr-image" value={opdPlansUrl} size={180} />
+                  </div>
+                  <div className="opd-scan-text" style={{ marginTop: "2rem", fontSize: "1.2rem", color: "#454551 !important" }}>
+                    Scan the QR to view & buy OPD plans
+                  </div>
                 </div>
-                <div className="opd-scan-text" style={{ marginTop: "2rem", fontSize: "1.2rem", color: "#454551 !important" }}>
-                  Scan the QR to view & buy OPD plans
-                </div>
-              </div>
-              <div className="d-flex align-items-center justify-content-between gap-4 mt-4">
-                <ButtonOPD
-                  onClick={handlePrint}
-                  className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
+                  <div className="d-flex align-items-center justify-content-between gap-4 mt-4">
+                    <ButtonOPD
+                      onClick={handlePrint}
+                      className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
                   style={{ width: "13rem", height: "3rem" }}
-                >
-                  <span className="fs-18 align-items-center d-flex "><i className="icon-Print me-2"></i>Print</span>
-                </ButtonOPD>
-                <ButtonOPD
-                  onClick={handleDownload}
-                  className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
+                    >
+                      <span className="fs-18 align-items-center d-flex "><i className="icon-Print me-2"></i>Print</span>
+                    </ButtonOPD>
+                    <ButtonOPD
+                      onClick={handleDownload}
+                      className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
                   style={{ width: "13rem", height: "3rem" }}
-                >
-                  <span className="fs-18 align-items-center d-flex"><i className="icon-download me-2"></i>Download</span>
-                </ButtonOPD>
+                    >
+                      <span className="fs-18 align-items-center d-flex"><i className="icon-download me-2"></i>Download</span>
+                    </ButtonOPD>
+                  </div>
               </div>
-            </div>
           </Modal>
 
           {locationPath == "/" || locationPath == "/bulk_messages" ? (
