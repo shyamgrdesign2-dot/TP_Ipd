@@ -19,6 +19,8 @@ import {
   Select,
   Drawer,
   message,
+  Switch,
+  Tour,
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +40,8 @@ import api from "../api/services/axiosService";
 import devicePad from "../assets/images/device-pad.svg";
 import smartSyncConnected from "../assets/images/smart-sync-connected.svg";
 import smartSyncDisconnected from "../assets/images/smart-sync-disconnected.svg";
+import tagNew from '../assets/images/tag-new.svg';
+import Pillup from '../assets/images/pillup.svg';
 
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
@@ -52,10 +56,12 @@ import {
   IS_RX_DIGI_API_CALL,
   WS_CONTROL_URL,
   MESSAGE_KEY,
+  GB_PILLUP_MEDICINE,
 } from "../utils/constants";
 import ReconnectingWebSocket from "reconnectingwebsocket";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_SMARTSYNC_CONNECT } from "../utils/constants";
+import { changePillupStatus } from "../redux/doctorsSlice";
 
 function HeaderPrescription({
   prescription,
@@ -65,10 +71,12 @@ function HeaderPrescription({
   loader,
   isVaccinationEnabled,
   isGrowthChartEnabled,
+  caseManagerData
 }) {
   const { templates, loading } = useSelector((state) => state.caseManager);
-  const { videoList } = useSelector((state) => state.doctors);
+  const { videoList, pillupCheck } = useSelector((state) => state.doctors);
   const [videoLink, setVideoLink] = useState(null);
+
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
@@ -89,6 +97,8 @@ function HeaderPrescription({
     followUpDate,
     setFollowUpDate,
     additionalNote,
+    pillupSwitch, 
+    setPillupSwitch 
   } = useContext(CashManagerContext);
 
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
@@ -106,10 +116,13 @@ function HeaderPrescription({
   const [status, setStatus] = useState(null);
   const [customizeDrawer, setCustomizeDrawer] = useState(false);
   const intervalRef = useRef(null);
+  const [tourOpen, setTourOpen] = useState(false);
 
   const baseUrl = { customBaseUrl: env.rx_digitization };
   const isSmartSyncConnectAccessableFromGB =
     useFeatureIsOn(GB_SMARTSYNC_CONNECT);
+
+  const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
 
   const items = [
     {
@@ -396,6 +409,7 @@ function HeaderPrescription({
       visit_advice: additionalNote,
       medical_history: medicalHistoryData,
       smart_prescription_filename: smartRxFiles || [],
+      pillup_fulfilment: isPillUpAccessableFromGB && pillupSwitch ? 1 : 0
     };
 
     const action =
@@ -433,6 +447,49 @@ function HeaderPrescription({
       />
     );
   }, [customizeDrawer]);
+
+    // Tour Pillup
+    const tourRef = useRef(null);
+
+    const onTourHandle = () => {
+      dispatch(changePillupStatus())
+      setTourOpen(!tourOpen)
+    }
+  
+    useEffect(() => {
+      if(isPillUpAccessableFromGB && !pillupCheck){
+        tourRef?.current?.scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => {
+          setTourOpen(true)
+        }, 1000);
+      }
+    }, [isPillUpAccessableFromGB]);
+  
+    const steps = [
+      {
+        description:
+          <>
+            <div className="fs-18 fw-semibold pt-3 text-black">Pillup Fullfillment <img className="img-fluid ms-2" src={tagNew} /></div>
+            <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfillment for the patient by enabling <br /> the toogle</div>
+          </>
+        ,
+        target: () => tourRef.current,
+        nextButtonProps: {
+          children: 'Okay',
+          onClick: onTourHandle
+        }
+      }
+    ];
+  
+    const pillUpChange = (checked) => {
+      setPillupSwitch(checked)
+    };
+
+    useEffect(() => {
+      if (caseManagerData !== undefined) {
+        setPillupSwitch(caseManagerData?.pillup_fulfilment)
+      }
+    }, []);
 
   return (
     <Navbar className="justify-content-between headerprescription p-0">
@@ -592,6 +649,28 @@ function HeaderPrescription({
                     </div>
                   </div>
                 </Button>
+              )}
+              {isPillUpAccessableFromGB && (
+                <div
+                  ref={tourRef}
+                  className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center"
+                  style={{ backgroundColor: "rgb(226, 226, 234, 0.2)" }}
+                >
+                  <img src={Pillup} />
+                  <i className="icon-info opacity-50 fs-18 mx-1"></i>
+                  <Switch
+                    className="switch-custom"
+                    value={pillupSwitch}
+                    onChange={pillUpChange}
+                  />
+                  <Tour
+                    placement="bottom"
+                    closeIcon={false}
+                    open={tourOpen}
+                    steps={steps}
+                    onClose={onTourHandle}
+                  />
+                </div>
               )}
               <CommonModal
                 isModalOpen={isDisconnect}
