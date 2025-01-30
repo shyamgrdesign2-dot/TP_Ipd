@@ -589,7 +589,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />
 
                 <View style={{ flexDirection: 'row', marginVertical: PX_TO_PT * 15 }}>
-                    <View style={{ flex: 0.65, marginRight: PX_TO_PT * 8 }}>
+                    <View style={{ flex: 0.7 }}>
                         {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
                             return (
                                 i % 2 === 0 && (
@@ -601,7 +601,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             )
                         })}
                     </View>
-                    <View style={{ flex: 0.35, marginLeft: PX_TO_PT * 8 }}>
+                    <View style={{ flex: 0.4 }}>
                         {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
                             return (
                                 i % 2 === 1 && (
