@@ -24,12 +24,12 @@ const trustDetails = [
       "Developed and reviewed in collaboration with top physicians to ensure clinical relevance and safety.",
     icon: validateHealthcareIcon,
   },
-  {
-    title: "HIPAA & GDPR Compliant",
-    description:
-      "Fully adheres to global healthcare data privacy standards, ensuring the safety and confidentiality of patient.",
-    icon: compliantIcon,
-  },
+  // {
+  //   title: "HIPAA & GDPR Compliant",
+  //   description:
+  //     "Fully adheres to global healthcare data privacy standards, ensuring the safety and confidentiality of patient.",
+  //   icon: compliantIcon,
+  // },
   {
     title: "Backed by Clinical Studies",
     description:
@@ -133,9 +133,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
 
       {/* Scrollable Content */}
       <div className="drawer-scrollable-content">
-        <div
-          className="section"
-        >
+        <div className="section">
           <span
             id="basicInfo"
             ref={(el) => (sectionsRef.current.basicInfo = el)}
@@ -158,10 +156,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
           </div>
         </div>
 
-        <div
-          className="section"
-          style={{ minHeight: 430 }}
-        >
+        <div className="section" style={{ minHeight: 210 }}>
           <span
             id="trust"
             ref={(el) => (sectionsRef.current.trust = el)}
@@ -207,9 +202,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
           </div>
         </div>
 
-        <div
-          className="video-section"
-        >
+        <div className="video-section">
           <span
             id="digitisationProcess"
             ref={(el) => (sectionsRef.current.digitisationProcess = el)}
@@ -245,9 +238,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
           </div>
         </div>
 
-        <div
-          className="section"
-        >
+        <div className="section">
           <span
             id="tips"
             ref={(el) => (sectionsRef.current.tips = el)}
@@ -261,8 +252,8 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
           <div className="know-more-section-content cvt-tips-content">
             <span style={{ fontWeight: "600" }}>Enter detailed Analysis: </span>
             The more detailed and structured the patient information you provide
-            (such as symptoms, examinations, history, and medications), the better the
-            accuracy of the differential diagnosis results.
+            (such as symptoms, examinations, history, and medications), the
+            better the accuracy of the differential diagnosis results.
           </div>
           <div
             style={{ padding: "40px 0 80px 0", textAlign: "center" }}

@@ -217,6 +217,7 @@ function SidebarDoctor() {
                         <div className='mt-1 px-2'>{isMobile ? 'Appt' : <div className='text-truncate'>Appointment</div>}</div>
                     </NavLink>
                     
+                    {/* Will be commenting this code for future Tatva.AI
                     <NavLink replace={true} className={({ isActive, isPending }) =>
                         isPending ? "pending" : tatvaHovered ? "active" : ""
                     }>
@@ -232,7 +233,7 @@ function SidebarDoctor() {
                             </div>
                         </div>
                         <img src={newGif} className='mx-auto d-block text-center mb-2 position-absolute sidebar-message' style={{right: -4, top: 6, zIndex: -1}} alt='New' />
-                    </NavLink>
+                    </NavLink> */}
                     
                     {profile && profile?.module_data?.map((item, i) => {
                     const isHovered = hoveredItem === i;
