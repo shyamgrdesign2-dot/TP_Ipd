@@ -621,7 +621,7 @@ function ObsHistoryTableView({
                   styles.minHeight38,
                 ]}
               >
-                {obsHistoryData?.consang ? Boolean(obsHistoryData?.consang) ? `Yes` : `No` : `-`}
+                  {obsHistoryData?.consang ? `Yes` : obsHistoryData?.consang === false ? `No` : `-`}
               </Text>
               <Text
                 style={[

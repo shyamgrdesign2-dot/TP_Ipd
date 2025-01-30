@@ -4426,7 +4426,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     Lab Results:&nbsp;
                                                 </Text>
 
-                                                <View wrap={false} style={{ marginTop: PX_TO_PT * 6 }}>
+                                                <View style={{ marginTop: PX_TO_PT * 6 }}>
                                                     <View style={[styles.table, { marginTop: 0 }]}>
                                                         <View style={[styles.headerRow]} fixed>
                                                             <Text
