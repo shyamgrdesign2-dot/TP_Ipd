@@ -93,8 +93,7 @@ function ObsHistoryTableView({
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                     fontWeight: 500,
                     padding: 6,
-                    borderBottom: "1px solid #171725",
-                    borderRight: "1px solid #171725",
+                    border: "1px solid #171725",
                   }}
                 >
                   Primigravida
