@@ -117,6 +117,7 @@ export const fetchBillingDashboard = async function (params) {
   }
   return res;
 };
+
 export const upsertBillItem = async function (payload) {
   let res = {};
   try {
@@ -130,18 +131,9 @@ export const upsertBillItem = async function (payload) {
 export const deleteBillItem = async function (itemId) {
   let res = {};
   try {
-    res = await api.delete(`/api/v1/billing/billItem/${itemId}`, baseUrl);
-  } catch (e) {
-    console.error("Error while deleting the bill item: ", e);
-  }
-  return res;
-};
-
-export const fetchPatientDueAmount = async function (patientId) {
-  let res = {};
-  try {
-    res = await api.get(
-      `/api/v1/billing/bill/patientDueAmount?patientId=${patientId}`,
+    res = await api.post(
+      `api/v1/billing/bill/addToForm3C`,
+      payload,
       baseUrl
     );
   } catch (e) {

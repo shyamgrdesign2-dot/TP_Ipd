@@ -17,16 +17,13 @@ import { handlePrintClick } from "../../../../../utils/utils.js";
 import DownloadBill from "../DownloadBill/DownloadBill.js";
 import BillTable from "./BillTable.js";
 import { fetchBillingDashboard } from "../../../service.js";
+import { listDoctor } from "../../../../../redux/bulkMessagesSlice.js";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { getDecodedToken } from "../../../../../utils/localStorage.js";
 const { RangePicker } = DatePicker;
 
 const { Option } = Select;
-
-const doctorsList = [
-  { id: 1, name: "Doctor 1" },
-  { id: 2, name: "Doctor 2" },
-  { id: 3, name: "Doctor 3" },
-  { id: 4, name: "Doctor 4" },
-];
 
 const cardsStaticData = [
   {
@@ -67,6 +64,8 @@ const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
 export default function BillingTable() {
+  const decodedToken = getDecodedToken();
+  const isAdmin = decodedToken?.result?.admin;
   const [selectedDoctors, setSelectedDoctors] = useState([]);
   const [selectAll, setSelectAll] = useState(true);
   const [pageNo, setPageNo] = useState(0);
@@ -90,6 +89,15 @@ export default function BillingTable() {
   });
   const [dateStatus, setDateStatus] = useState(1);
 
+  const { doctorList } = useSelector((state) => state.bulkMessages);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (isAdmin) {
+      dispatch(listDoctor());
+    }
+  }, []);
+
   useEffect(() => {
     // Update cards state whenever the summary prop changes
     const updatedCards = cardsStaticData.map((card) => ({
@@ -98,15 +106,15 @@ export default function BillingTable() {
       count: data?.summary[card?.countKey] || 0,
     }));
     const totalBillCount = updatedCards
-    .slice(1, 4) // Extracts cards 2, 3, and 4
-    .reduce((sum, card) => sum + (card.count || 0), 0);
-    setTotalBillCount(totalBillCount)
+      .slice(1, 4) // Extracts cards 2, 3, and 4
+      .reduce((sum, card) => sum + (card.count || 0), 0);
+    setTotalBillCount(totalBillCount);
     setCards(updatedCards);
   }, [data]);
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      setSelectedDoctors(doctorsList.map((doctor) => doctor.id));
+      setSelectedDoctors(doctorList.map((doctor) => doctor.um_id));
     } else {
       setSelectedDoctors([]);
     }
@@ -325,7 +333,7 @@ export default function BillingTable() {
           : selectedCard === 2
           ? ["FullyPaid"]
           : selectedCard === 3
-          ? ["Due","CarriedForward"]
+          ? ["Due", "CarriedForward"]
           : ["Refunded"],
       sortBy: "date",
       sortOrder: "desc",
@@ -351,7 +359,7 @@ export default function BillingTable() {
 
   useEffect(() => {
     loadData();
-  }, [selectedCard, dateRange, searchQuery, doctorsList]);
+  }, [selectedCard, dateRange, searchQuery, doctorList]);
 
   return (
     <div>
@@ -372,62 +380,67 @@ export default function BillingTable() {
             />
           </div>
           <div className="d-flex flex-row gap-2">
-            <div className="d-flex align-items-center">
-              <Select
-                className=""
-                dropdownRender={(menu) => (
-                  <div>
-                    {/* All Doctors Option */}
-                    <div style={{ padding: "10px" }}>
-                      <Checkbox
-                        checked={selectAll}
-                        onChange={(e) => handleSelectAll(e.target.checked)}
+            { isAdmin && doctorList?.length > 0 &&
+              <div className="d-flex align-items-center">
+                <Select
+                  className=""
+                  dropdownRender={(menu) => (
+                    <div>
+                      {/* All Doctors Option */}
+                      <div style={{ padding: "10px" }}>
+                        <Checkbox
+                          checked={selectAll}
+                          onChange={(e) => handleSelectAll(e.target.checked)}
+                        >
+                          All Doctors
+                        </Checkbox>
+                      </div>
+                      <div
+                        style={{
+                          borderBottom: "1px solid #e8e8e8",
+                          margin: "8px 0",
+                        }}
+                      />
+                      {/* Custom Doctors */}
+                      <div
+                        style={{
+                          maxHeight: "200px",
+                          overflowY: "auto",
+                          padding: "8px",
+                        }}
                       >
-                        All Doctors
-                      </Checkbox>
+                        {doctorList.map((doctor) => (
+                          <div key={doctor.um_id} style={{ padding: "4px 0" }}>
+                            <Checkbox
+                              checked={selectedDoctors.includes(doctor.um_id)}
+                              onChange={(e) =>
+                                handleDoctorSelection(
+                                  doctor.um_id,
+                                  e.target.checked
+                                )
+                              }
+                            >
+                              {doctor.um_name}
+                            </Checkbox>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div
-                      style={{
-                        borderBottom: "1px solid #e8e8e8",
-                        margin: "8px 0",
-                      }}
-                    />
-                    {/* Custom Doctors */}
-                    <div
-                      style={{
-                        maxHeight: "200px",
-                        overflowY: "auto",
-                        padding: "8px",
-                      }}
-                    >
-                      {doctorsList.map((doctor) => (
-                        <div key={doctor.id} style={{ padding: "4px 0" }}>
-                          <Checkbox
-                            checked={selectedDoctors.includes(doctor.id)}
-                            onChange={(e) =>
-                              handleDoctorSelection(doctor.id, e.target.checked)
-                            }
-                          >
-                            {doctor.name}
-                          </Checkbox>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                value={
-                  selectAll
-                    ? "All Doctors"
-                    : `Selected (${selectedDoctors.length})`
-                }
-                style={{ width: "100%" }}
-              >
-                {/* Empty Option for Placeholder */}
-                <Option value="placeholder" disabled>
-                  Select Doctors
-                </Option>
-              </Select>
-            </div>
+                  )}
+                  value={
+                    selectAll
+                      ? "All Doctors"
+                      : `Selected (${selectedDoctors.length})`
+                  }
+                  style={{ width: "100%" }}
+                >
+                  {/* Empty Option for Placeholder */}
+                  <Option value="placeholder" disabled>
+                    Select Doctors
+                  </Option>
+                </Select>
+              </div>
+            }
             <div className="massage-date-wrapper">
               <div
                 className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between"
@@ -540,7 +553,8 @@ export default function BillingTable() {
                   className="card-title"
                   style={{ "--dynamic-color": card.fontColor }}
                 >
-                  {card.title} {"("} {card.id === 1 && data ? totalBillCount : card.count} {")"}
+                  {card.title} {"("}{" "}
+                  {card.id === 1 && data ? totalBillCount : card.count} {")"}
                 </div>
                 <div className="card-amount">
                   {card.amount}

@@ -35,6 +35,10 @@ import moment from "moment";
 import dayjs from "dayjs";
 // import MenuDivider from "antd/es/menu/MenuDivider";
 import Form3cPrint from "./Form3cPrint.js";
+import { MESSAGE_KEY } from "../../../../utils/constants.js";
+import visitEnd from '../../../../assets/images/end-visit.svg';
+import imgCloseVisit from '../../../../assets/images/close-visit.svg';
+import { fetchBillingDashboard } from "../../service.js";
 
 // import { errorMessage, onlyNumberFormat } from "../../../../utils/utils";
 // import { MESSAGE_KEY } from "../../../../utils/constants";
@@ -98,6 +102,9 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
     endDate: moment().format(dateFormat),
   });
   const [dateStatus, setDateStatus] = useState(1);
+  const [data, setData] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]); // Store selected row objects
   const [pageNo, setPageNo] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [pickerModal, setPickerModal] = useState(false);
@@ -128,6 +135,41 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
       "DownloadBill"
     );
   };
+
+  // Handle individual row selection
+  const onSelectChange = (selectedKeys, selectedRows) => {
+    setSelectedRows(selectedRows);
+  };
+
+  // Handle "Select All" checkbox in header
+  const onSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedRows(data.bills);
+    } else {
+      setSelectedRows([]);
+    }
+  };
+
+  useEffect(() => {
+      if (form3cData){
+        message.open({
+          key: MESSAGE_KEY,
+          type: '',
+          className: 'message-appointment',
+          content: (
+              <div className='d-flex align-items-center'>
+                  <img src={visitEnd} className='me-3' />
+                  <div>
+                      <div className='title-common text-start fontroboto'>{`${form3cData} Bills added Form 3C.`}</div>
+                      {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
+                  </div>
+                  <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+              </div>
+          ),
+          duration: 5,
+      });
+      }
+  }, [form3cData]);
 
   const rangePresets = [
     {
@@ -256,14 +298,8 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
 
   const columns = [
     {
-      title: "Action",
       key: "action",
-      width: 80,
-      render: (text, record) => (
-        <>
-          <Checkbox />
-        </>
-      ),
+      width: 30,
     },
     {
       title: "#",
@@ -296,9 +332,9 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
       },
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold">{record.bill_bum}</div>
+          <div className="fs-14 fw-semibold">{record.billNumber}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.bill_date}
+            {record.date}
           </div>
         </div>
       ),
@@ -310,9 +346,9 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
       ellipsis: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14">{record.patient_details}</div>
+          <div className="fs-14">{record.patient.name}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.mobile_number}
+            {record.patient.phone}
           </div>
         </div>
       ),
@@ -339,7 +375,7 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
         return result;
       },
       onFilter: (value, record) => record.send_on.startsWith(value),
-      render: (text, record) => <div> {record.total_amount} </div>,
+      render: (text, record) => <div> {record.payableAmount} </div>,
     },
     {
       title: "PAID AMOUNT",
@@ -362,68 +398,78 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
         const result = lhsLongTime - rhsLongTime;
         return result;
       },
-      render: (text, record) => <div> {record.paid_Amount} </div>,
+      render: (text, record) => <div> {record.paidAmount} </div>,
     },
     {
       title: "STATUS",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "paymentStatus",
+      key: "paymentStatus",
       ellipsis: true,
-      render: (text, record) => <div> {record.status} </div>,
+      render: (text, record) => {
+        // Determine the class name and display value based on the status
+        const getStatusDetails = (status) => {
+          switch (status?.toLowerCase()) {
+            case "fullypaid":
+              return {
+                className: "status-paid-fully",
+                displayText: "Paid Fully",
+              };
+            case "due":
+              return {
+                className: "status-due",
+                displayText: `Due`,
+              };
+            case "carriedforward":
+              return {
+                className: "status-carriedforrward",
+                displayText: `Due`,
+              };
+            default:
+              return {
+                className: "status-paid-fully",
+                displayText: `Paid Fully`,
+              };
+          }
+        };
+
+        // Get status details
+        const { className, displayText } = getStatusDetails(
+          record.paymentStatus
+        );
+
+        return <div className={className}>{displayText}</div>;
+      },
     },
   ];
 
-  const data = [
-    {
-      key: "1",
-      srno: "1",
-      bill_bum: "INV-2900567",
-      patient_details: "John Doe",
-      bill_date: "15 Oct 2023",
-      bill_time: "10:30 AM",
-      total_amount: "₹5,000",
-      paid_Amount: "₹3,000",
-      status: "Pending",
-      mobile_number: "9930875752",
-    },
-    {
-      key: "2",
-      srno: "2",
-      bill_bum: "INV-2900568",
-      patient_details: "Jane Smith",
-      bill_date: "14 Oct 2023",
-      bill_time: "02:45 PM",
-      total_amount: "₹7,500",
-      paid_Amount: "₹7,500",
-      status: "Paid",
-      mobile_number: "9930875752",
-    },
-    {
-      key: "3",
-      srno: "3",
-      bill_bum: "INV-2900569",
-      patient_details: "Michael Johnson",
-      bill_date: "16 Oct 2023",
-      bill_time: "11:15 AM",
-      total_amount: "₹6,000",
-      paid_Amount: "₹0",
-      status: "Unpaid",
-      mobile_number: "9930875752",
-    },
-    {
-      key: "4",
-      srno: "4",
-      bill_bum: "INV-2900570",
-      patient_details: "Emily Davis",
-      bill_date: "13 Oct 2023",
-      bill_time: "09:00 AM",
-      total_amount: "₹4,200",
-      paid_Amount: "₹4,200",
-      status: "Paid",
-      mobile_number: "9930875752",
-    },
-  ];
+  const loadData = async () => {
+    // setLoading(true);
+    const params = {
+      sortBy: "date",
+      sortOrder: "desc",
+      page: 1,
+      limit: 25,
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+      doctorIds: "514",
+      isForm3C: true,
+      search: searchQuery || "",
+    };
+    try {
+      const response = await fetchBillingDashboard(params);
+      setData(response || []);
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    loadData();
+  }, [ dateRange, searchQuery]);
+
+console.log(selectedRows,"rows")
   return (
     <div className="manage-3c-bills-wrapper">
       <div className="modalCard-header align-items-center d-flex justify-content-between">
@@ -559,16 +605,21 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
         {
           <div style={{ display: "none" }}>
             <div ref={printableRef}>
-              <Form3cPrint />
+              <Form3cPrint rows={selectedRows}/>
             </div>
           </div>
         }
-        <div className="justify-content-between align-items-center px-4 my-2">
+        <div className="justify-content-between align-items-center px-4 my-2 billing-table-wrapper">
           <Table
-            className="billing-table px-0"
+            rowKey="id"
+            rowSelection={{
+              selectedRowKeys: selectedRows.map((row) => row.id),
+              onChange: onSelectChange,
+            }}
+            className="px-0"
             columns={columns}
             width="100%"
-            dataSource={data}
+            dataSource={data.bills}
             pagination={false}
           />
         </div>

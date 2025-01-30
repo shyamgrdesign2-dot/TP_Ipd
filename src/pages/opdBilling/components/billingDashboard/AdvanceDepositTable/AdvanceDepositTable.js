@@ -206,7 +206,7 @@ export default function AdvanceDepositTable() {
       ellipsis: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14">{record.patient_details}</div>
+          <div className="fs-14">{record.patient.name}</div>
         </div>
       ),
     },
@@ -217,7 +217,7 @@ export default function AdvanceDepositTable() {
       ellipsis: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14">{record.mobile_number}</div>
+          <div className="fs-14">{record.patient.phone}</div>
         </div>
       ),
     },
@@ -502,7 +502,7 @@ export default function AdvanceDepositTable() {
           <Col xl={7} sm={5}>
             <Input
               value={searchQuery}
-              placeholder="Search by patient name / phone no / bill no"
+              placeholder="Search by patient name / phone no / receipt no"
               className="inputheight38"
               prefix={<i className="icon-search" />}
               suffix={

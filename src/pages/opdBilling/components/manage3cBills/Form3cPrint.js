@@ -2,64 +2,7 @@ import React from "react";
 import { Table } from "antd";
 import "./Form3cPrint.scss"
 
-const Form3cPrint = () => {
-  // Define the data source
-  const dataSource = [
-    {
-      key: "1",
-      date: "19/12/2024",
-      slNo: "A1148",
-      patientName: "Asha",
-      servicesRendered: "Consultation 123, nurse fee, Xray Report",
-      feesReceived: "₹2,600",
-      receiptDate: "19/12/2024",
-    },
-    {
-      key: "2",
-      date: "19/12/2024",
-      slNo: "A1147",
-      patientName: "Asha",
-      servicesRendered: "uhuhu",
-      feesReceived: "₹2,345",
-      receiptDate: "19/12/2024",
-    },
-    {
-      key: "3",
-      date: "19/12/2024",
-      slNo: "A1146",
-      patientName: "Asha",
-      servicesRendered: "Consultation 123",
-      feesReceived: "₹500",
-      receiptDate: "19/12/2024",
-    },
-    {
-      key: "4",
-      date: "19/12/2024",
-      slNo: "A1145",
-      patientName: "Asha",
-      servicesRendered: "Consultation 123",
-      feesReceived: "₹500",
-      receiptDate: "19/12/2024",
-    },
-    {
-      key: "5",
-      date: "18/12/2024",
-      slNo: "A1144",
-      patientName: "Shyam",
-      servicesRendered: "uhuhu, Consultation 123",
-      feesReceived: "₹2,845",
-      receiptDate: "18/12/2024",
-    },
-    {
-      key: "6",
-      date: "18/12/2024",
-      slNo: "A1143",
-      patientName: "Shyam",
-      servicesRendered: "hbvfd, Consultation 123, test",
-      feesReceived: "₹1,633",
-      receiptDate: "18/12/2024",
-    },
-  ];
+const Form3cPrint = ({rows}) => {
 
   // Define the columns
   const columns = [
@@ -68,18 +11,26 @@ const Form3cPrint = () => {
       dataIndex: "date",
       key: "date",
       align: "center",
+      width: 40
     },
     {
       title: "Sl. No.",
       dataIndex: "slNo",
       key: "slNo",
       align: "center",
+      width: 30
     },
     {
       title: "Patient's name",
       dataIndex: "patientName",
       key: "patientName",
       align: "center",
+      width: 50,
+      render: (text, record) => (
+        <div className="cursor-pointer">
+          <div className="fs-14">{record?.patient?.name}</div>
+        </div>
+      ),
     },
     {
       title:
@@ -87,18 +38,26 @@ const Form3cPrint = () => {
       dataIndex: "servicesRendered",
       key: "servicesRendered",
       align: "center",
+      width: 70
     },
     {
       title: "Fees received",
       dataIndex: "feesReceived",
       key: "feesReceived",
       align: "center",
+      width: 40,
+      render: (text, record) => (
+        <div className="cursor-pointer">
+          <div className="fs-14">{record?.paidAmount}</div>
+        </div>
+      ),
     },
     {
       title: "Date of receipt",
       dataIndex: "receiptDate",
-      key: "receiptDate",
+      key: "date",
       align: "center",
+      width: 40
     },
   ];
 
@@ -140,7 +99,7 @@ const Form3cPrint = () => {
 
       {/* Table */}
       <Table
-        dataSource={dataSource}
+        dataSource={rows}
         columns={columns}
         pagination={false}
         bordered

@@ -1,8 +1,12 @@
-import { Drawer, Dropdown, Table } from "antd";
+import { Drawer, Dropdown, Table, message} from "antd";
 import moment from "moment";
 import { useState } from "react";
 import PreviewBill from "../../../PreviewBill";
 import RefundBill from "../RefundBill/RefundBill";
+import { addBillsToForm3C } from "../../../service";
+import imgCloseVisit from '../../../../../assets/images/close-visit.svg';
+import visitEnd from '../../../../../assets/images/end-visit.svg';
+import { MESSAGE_KEY } from "../../../../../utils/constants";
 
 const BillTable = ({ data, isPatientScreen }) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
@@ -18,8 +22,36 @@ const BillTable = ({ data, isPatientScreen }) => {
     if (status === 1) {
       handleDrawerPreviewBill();
     } else if (status === 2) {
-      handleRefundBillDrawer();
-    } else {
+      handleRefundBillDrawer(record);
+    } else if (status === 3) {
+      try {
+        const payload = { billIds: [record.id] }; // Adjust payload as needed
+        const response = await addBillsToForm3C(payload);
+        if (response) {
+            message.open({
+              key: MESSAGE_KEY,
+              type: '',
+              className: 'message-appointment',
+              content: (
+                  <div className='d-flex align-items-center'>
+                      <img src={visitEnd} className='me-3' />
+                      <div>
+                          <div className='title-common text-start fontroboto'>{`${record.billNumber} Added to Form 3C`}</div>
+                          {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
+                      </div>
+                      <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                  </div>
+              ),
+              duration: 5,
+          });
+          console.log("Bill successfully added to Form 3C");
+          // You can show a success message or update the UI accordingly
+        } else {
+          console.error("Failed to add bill to Form 3C");
+        }
+      } catch (error) {
+        console.error("Error in adding bill to Form 3C:", error);
+      }
     }
   };
 
@@ -75,9 +107,9 @@ const BillTable = ({ data, isPatientScreen }) => {
           ellipsis: true,
           render: (text, record) => (
             <div className="cursor-pointer" onClick={async () => {}}>
-              <div className="fs-14">{record.patientName}</div>
+              <div className="fs-14">{record.patient.name}</div>
               <div className="fs-14 fw-normal text-truncate-twolines">
-                {record.patientPhone}
+                {record.patient.phone}
               </div>
             </div>
           ),
