@@ -448,6 +448,7 @@ function TabPrescription() {
           (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
         ))
       }
+      setPillupSwitch(caseManagerData?.pillup_fulfilment)
     }
   }, []);
 

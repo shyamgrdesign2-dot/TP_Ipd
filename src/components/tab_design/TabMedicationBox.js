@@ -96,7 +96,7 @@ function TabMedicationBox() {
   const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
 
-  const { patient_data, medicationData, setMedicationData, setPillupSwitch } =
+  const { patient_data, medicationData, setMedicationData, pillupSwitch, setPillupSwitch } =
     useContext(CashManagerContext);
 
   const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
@@ -2683,7 +2683,7 @@ function TabMedicationBox() {
               <div ref={tourRef} className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center" style={{ backgroundColor: 'rgb(226, 226, 234, 0.2)' }}>
                 <img src={Pillup} />
                 <i className="icon-info opacity-50 fs-18 mx-1"></i>
-                <Switch className="switch-custom" defaultChecked onChange={pillUpChange} />
+                <Switch className="switch-custom" value={pillupSwitch} onChange={pillUpChange} />
                 <Tour placement="bottom" closeIcon={false} open={tourOpen} steps={steps} onClose={onTourHandle} />
               </div>
             }
