@@ -589,7 +589,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />
 
                 <View style={{ flexDirection: 'row', marginVertical: PX_TO_PT * 15 }}>
-                    <View style={{ flex: 0.7, marginRight: PX_TO_PT * 8 }}>
+                    <View style={{ flex: 0.65, marginRight: PX_TO_PT * 8 }}>
                         {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
                             return (
                                 i % 2 === 0 && (
@@ -601,7 +601,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             )
                         })}
                     </View>
-                    <View style={{ flex: 0.3, marginLeft: PX_TO_PT * 8 }}>
+                    <View style={{ flex: 0.35, marginLeft: PX_TO_PT * 8 }}>
                         {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
                             return (
                                 i % 2 === 1 && (
@@ -663,7 +663,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
                                                     Symptoms:&nbsp;
                                                 </Text>
-                                                <View style={styles.table}>
+                                                <View style={styles.table} wrap={false}>
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
                                                         <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
@@ -720,8 +720,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
-                                                <View style={styles.table}>
-                                                    <View style={styles.headerRow} fixed>
+                                                <View style={styles.table} wrap={false}>
+                                                    <View style={styles.headerRow} fixed wrap={false}>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>
                                                             NAME
                                                         </Text>
@@ -3380,7 +3380,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 >
                                                     Menstrual details&nbsp;:&nbsp;
                                                 </Text>
-
+                                                <View wrap={false} style={{ break: "avoid" }}>
                                                 <Text
                                                     style={{
                                                         color: "#000",
@@ -3394,7 +3394,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         borderRight: "1px solid #171725",
                                                         backgroundColor: "#E2E2EA",
                                                     }}
-                                                    wrap={false}
                                                 >
                                                     LMP
                                                 </Text>
@@ -3404,7 +3403,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             styles.headerRow,
                                                             { alignItems: "center", justifyContent: "center" },
                                                         ]}
-                                                        fixed
                                                     >
                                                         <Text
                                                             style={[
@@ -3425,7 +3423,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             styles.row,
                                                             { alignItems: "center", justifyContent: "center" },
                                                         ]}
-                                                        wrap={false}
                                                     >
                                                         <Text
                                                             style={[
@@ -3442,7 +3439,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </Text>
                                                     </View>
                                                 </View>
-
+                                                </View>
+                                                <View wrap={false} style={{ break: "avoid" }}>
                                                 <Text
                                                     style={{
                                                         color: "#000",
@@ -3456,7 +3454,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         borderRight: "1px solid #171725",
                                                         backgroundColor: "#E2E2EA",
                                                     }}
-                                                    wrap={false}
                                                 >
                                                     Cycle
                                                 </Text>
@@ -3466,7 +3463,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             styles.headerRow,
                                                             { alignItems: "center", justifyContent: "center" },
                                                         ]}
-                                                        fixed
                                                     >
                                                         <Text
                                                             style={[
@@ -3503,7 +3499,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             styles.row,
                                                             { alignItems: "center", justifyContent: "center" },
                                                         ]}
-                                                        wrap={false}
                                                     >
                                                         <Text
                                                             style={[
@@ -3573,7 +3568,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </Text>
                                                     </View>
                                                 </View>
-
+                                                </View>
+                                                <View wrap={false} style={{ break: "avoid" }}>
                                                 <Text
                                                     style={{
                                                         color: "#000",
@@ -3587,7 +3583,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         borderRight: "1px solid #171725",
                                                         backgroundColor: "#E2E2EA",
                                                     }}
-                                                    wrap={false}
                                                 >
                                                     Flow
                                                 </Text>
@@ -3597,7 +3592,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             styles.headerRow,
                                                             { alignItems: "center", justifyContent: "center" },
                                                         ]}
-                                                        fixed
                                                     >
                                                         <Text
                                                             style={[
@@ -3662,7 +3656,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             styles.row,
                                                             { alignItems: "center", justifyContent: "center" },
                                                         ]}
-                                                        wrap={false}
                                                     >
                                                         <Text
                                                             style={[
@@ -3762,7 +3755,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </Text>
                                                     </View>
                                                 </View>
-
+                                                </View>
+                                                <View wrap={false} style={{ break: "avoid" }}>
                                                 <Text
                                                     style={{
                                                         color: "#000",
@@ -3776,7 +3770,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         borderRight: "1px solid #171725",
                                                         backgroundColor: "#E2E2EA",
                                                     }}
-                                                    wrap={false}
                                                 >
                                                     Pain
                                                 </Text>
@@ -3786,7 +3779,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             styles.headerRow,
                                                             { alignItems: "center", justifyContent: "center" },
                                                         ]}
-                                                        fixed
                                                     >
                                                         <Text
                                                             style={[
@@ -3823,7 +3815,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             styles.row,
                                                             { alignItems: "center", justifyContent: "center" },
                                                         ]}
-                                                        wrap={false}
                                                     >
                                                         <Text
                                                             style={[
@@ -3893,6 +3884,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </Text>
                                                     </View>
                                                 </View>
+</View>
+<View wrap={false} style={{ break: "avoid" }}>
 
                                                 <Text
                                                     style={{
@@ -3907,7 +3900,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         borderRight: "1px solid #171725",
                                                         backgroundColor: "#E2E2EA",
                                                     }}
-                                                    wrap={false}
                                                 >
                                                     Menarche
                                                 </Text>
@@ -3917,7 +3909,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             styles.headerRow,
                                                             { alignItems: "center", justifyContent: "center" },
                                                         ]}
-                                                        fixed
                                                     >
                                                         <Text
                                                             style={[
@@ -3939,7 +3930,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             styles.row,
                                                             { alignItems: "center", justifyContent: "center" },
                                                         ]}
-                                                        wrap={false}
                                                     >
                                                         <Text
                                                             style={[
@@ -3992,7 +3982,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </Text>
                                                     </View>
                                                 </View>
-
+</View>
+<View wrap={false} style={{ break: "avoid" }}>
                                                 <Text
                                                     style={{
                                                         color: "#000",
@@ -4006,7 +3997,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         borderRight: "1px solid #171725",
                                                         backgroundColor: "#E2E2EA",
                                                     }}
-                                                    wrap={false}
                                                 >
                                                     {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}
                                                 </Text>
@@ -4016,7 +4006,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             styles.headerRow,
                                                             { alignItems: "center", justifyContent: "center" },
                                                         ]}
-                                                        fixed
                                                     >
                                                         <Text
                                                             style={[
@@ -4053,7 +4042,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             styles.row,
                                                             { alignItems: "center", justifyContent: "center" },
                                                         ]}
-                                                        wrap={false}
                                                     >
                                                         <Text
                                                             style={[
@@ -4125,7 +4113,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 </View>
 
                                                 {gynecHistoryData?.notes && (
-                                                    <>
+                                                    <View wrap={false} style={{ break: "avoid" }}>
                                                         <Text
                                                             style={{
                                                                 color: "#000",
@@ -4139,7 +4127,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 borderRight: "1px solid #171725",
                                                                 backgroundColor: "#E2E2EA",
                                                             }}
-                                                            wrap={false}
                                                         >
                                                             Menstruation note
                                                         </Text>
@@ -4148,7 +4135,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 style={[
                                                                     styles.headerRow
                                                                 ]}
-                                                                wrap={false}
                                                             >
                                                                 <Text
                                                                     style={[
@@ -4165,8 +4151,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 </Text>
                                                             </View>
                                                         </View>
-                                                    </>
+                                                    </View>
                                                 )}
+                                                </View>
                                             </View>
                                         )
                                         )}

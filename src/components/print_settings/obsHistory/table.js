@@ -59,7 +59,7 @@ function ObsHistoryTableView({
           obsHistoryData?.ectopicPregnancies != null) ||
         ("diagnosisNotes" in obsHistoryData &&
           obsHistoryData?.diagnosisNotes != null)) && (
-        <View>
+        <View wrap={false} style={{ break: "avoid" }}>
           <Text
             style={{
               color: "#000",
@@ -107,7 +107,6 @@ function ObsHistoryTableView({
                     styles.headerRow,
                     { alignItems: "center", justifyContent: "center" },
                   ]}
-                  fixed
                 >
                   <Text
                     style={[
@@ -191,7 +190,6 @@ function ObsHistoryTableView({
                     styles.row,
                     { alignItems: "center", justifyContent: "center" },
                   ]}
-                  wrap={false}
                 >
                   <Text
                     style={[
@@ -332,7 +330,7 @@ function ObsHistoryTableView({
           obsHistoryData?.marriageDurationYears != null) ||
         ("marriageDurationMonths" in obsHistoryData &&
           obsHistoryData?.marriageDurationMonths != null)) && (
-        <View>
+        <View wrap={false} style={{ break: "avoid" }}>
           <Text
             style={{
               color: "#000",
@@ -355,7 +353,6 @@ function ObsHistoryTableView({
                 styles.headerRow,
                 { alignItems: "center", justifyContent: "center" },
               ]}
-              fixed
             >
               <Text
                 style={[
@@ -499,7 +496,6 @@ function ObsHistoryTableView({
                 styles.row,
                 { alignItems: "center", justifyContent: "center" },
               ]}
-              wrap={false}
             >
               <Text
                 style={[
@@ -691,7 +687,7 @@ function ObsHistoryTableView({
 
       {options?.includes("history") &&
         pregnancyHistory?.length > 0 && (
-          <View>
+          <View wrap={false} style={{ break: "avoid" }}>
             <Text
               style={{
                 color: "#000",
@@ -717,7 +713,6 @@ function ObsHistoryTableView({
                         styles.headerRow,
                         { alignItems: "center", justifyContent: "center" },
                       ]}
-                      fixed
                     >
                       <Text
                         style={[
@@ -970,7 +965,6 @@ function ObsHistoryTableView({
                         styles.row,
                         { alignItems: "center", justifyContent: "center" },
                       ]}
-                      wrap={false}
                     >
                       <Text
                         style={[
@@ -1276,7 +1270,7 @@ function ObsHistoryTableView({
         )}
 
       {options?.includes("examination") && obsHistoryData?.examinationHistory?.length > 0 && (
-        <View>
+        <View wrap={false} style={{ break: "avoid" }}>
           <Text
             style={{
               color: "#000",
@@ -1290,19 +1284,17 @@ function ObsHistoryTableView({
               borderRight: "1px solid #171725",
               backgroundColor: "#E2E2EA",
             }}
-            wrap={false}
           >
             Examination
           </Text>
           {obsHistoryData?.examinationHistory.map((item, i) => (
-            <View key={i} wrap={false}>
+            <View key={i}>
               <View style={[styles.table, { marginTop: 0 }]}>
                 <View
                   style={[
                     styles.headerRow,
                     { alignItems: "center", justifyContent: "center" },
                   ]}
-                  fixed
                 >
                   <Text
                     style={[
@@ -1455,7 +1447,6 @@ function ObsHistoryTableView({
                     styles.row,
                     { alignItems: "center", justifyContent: "center" },
                   ]}
-                  wrap={false}
                 >
                   <Text
                     style={[
