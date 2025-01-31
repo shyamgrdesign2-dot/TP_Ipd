@@ -10,8 +10,11 @@ import {
   Radio,
   Select,
   Table,
+  message,
 } from "antd";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
+import imgCloseVisit from "./../../../../assets/images/close-visit.svg";
+import visitEnd from "./../../../../assets/images/end-visit.svg";
 import { PlusOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useState } from "react";
 import DiagnosisNotes from "../../../obstetric/components/diagnosisNotes/DiagnosisNotes";
@@ -44,7 +47,12 @@ import {
 } from "../../../../redux/billingSlice";
 import { jwtDecode } from "jwt-decode";
 import { useLocalStorage } from "../../../../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
+import {
+  MESSAGE_KEY,
+  PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+} from "../../../../utils/constants";
+import { useLocation } from "react-router-dom";
+import { PaymentOptions } from "../../utils/constants";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -52,7 +60,10 @@ const CreateBill = ({
   showHideBackModal,
   isRxPage,
   patientData = {},
+  isDashboard,
 }) => {
+  const { state } = useLocation();
+  const { pam_id } = state || {};
   const dispatch = useDispatch();
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const { profile, userId } = useSelector((state) => state.doctors);
@@ -118,6 +129,12 @@ const CreateBill = ({
   const paidAmount =
     paymentModes.reduce((sum, payment) => sum + payment.amount, 0) || undefined;
 
+  const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
+
+  const filteredOptions = PaymentOptions.filter(
+    (option) => !usedPaymentModes.includes(option.value)
+  );
+
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings).length === 0) {
       getAdvanceSettings();
@@ -150,8 +167,8 @@ const CreateBill = ({
 
   const validateData = (data) => {
     return data.every((item) => {
-      const { masterId, name, quantity, amount, gst, totalAmount } = item;
-      return masterId && name && quantity && amount && gst && totalAmount;
+      const { masterId, name, quantity, amount, totalAmount } = item;
+      return masterId && name && quantity && amount && totalAmount;
     });
   };
 
@@ -270,6 +287,7 @@ const CreateBill = ({
       createdBy: "",
     };
     setDataSource([...dataSource, newRow]);
+    setSearchQuery("");
   };
 
   const handleDeleteRow = (index) => {
@@ -280,7 +298,11 @@ const CreateBill = ({
   const onSelect = (value, option, index) => {
     const selectedData = option?.key && JSON.parse(option.key);
     if (option?.isCustom) {
-      setSearchItemSelected({ ...selectedData, isCustom: option.isCustom });
+      setSearchItemSelected({
+        ...selectedData,
+        isCustom: option.isCustom,
+        index: index,
+      });
     } else if (option) {
       const updatedData = dataSource.map((row, idx) =>
         index === idx
@@ -300,6 +322,7 @@ const CreateBill = ({
           : row
       );
       setDataSource(updatedData);
+      setSearchQuery(selectedData.name);
     } else {
       console.log("directly add the entry to the table");
     }
@@ -540,10 +563,31 @@ const CreateBill = ({
       date: moment().format("YYYY-MM-DD"),
       notes: patientBillNotes,
       dueFromPreviousBill: patientDueAmount,
-      appointmentId: patientData?.pam_id,
+      appointmentId: pam_id || patientData?.pam_id,
     };
     const createRes = await createBill(payload);
     if (createRes?.id) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: "",
+        className: "message-appointment",
+        content: (
+          <div className="d-flex align-items-center">
+            <img src={visitEnd} className="me-3" />
+            <div>
+              <div className="title-common text-start fontroboto">
+                {`${patientData?.pm_fullname}’s new bill saved successfully`}
+              </div>
+            </div>
+            <img
+              src={imgCloseVisit}
+              className="ms-3"
+              onClick={() => message.destroy()}
+            />
+          </div>
+        ),
+        duration: 3,
+      });
       setBillData(createRes);
       if (type === "exit") {
         handleCreateBillDrawer();
@@ -665,14 +709,16 @@ const CreateBill = ({
                   />
                   Add bill for Form 3C
                 </div>
-                <div>
-                  <Checkbox
-                    className="me-2"
-                    checked={includeInRx}
-                    onChange={(e) => setIncludeInRx(e.target.checked)}
-                  />
-                  Include in RX
-                </div>
+                {!isDashboard && (
+                  <div>
+                    <Checkbox
+                      className="me-2"
+                      checked={includeInRx}
+                      onChange={(e) => setIncludeInRx(e.target.checked)}
+                    />
+                    Include in RX
+                  </div>
+                )}
 
                 {isRxPage ? (
                   <>
@@ -744,7 +790,7 @@ const CreateBill = ({
                     value={patientNameAndId}
                     placeholder="Search by patient name / ID"
                     onChange={(e) => setPatientNameAndId(e.target.value)}
-                    disabled={patientData?.pm_fullname}
+                    disabled={!isDashboard}
                   />
                 </div>
                 <div>
@@ -757,7 +803,7 @@ const CreateBill = ({
                     onInput={(e) => {
                       setMobileNumber(e.target.value.replace(/[^0-6]/g, ""));
                     }}
-                    disabled={patientData?.pm_contact_no}
+                    disabled={!isDashboard}
                   />
                 </div>
                 <div>
@@ -847,18 +893,7 @@ const CreateBill = ({
                               }
                               className="payment-mode"
                               dropdownStyle={{ width: 180 }}
-                              options={[
-                                { value: "Cash", label: "Cash" },
-                                { value: "Credit Card", label: "Credit Card" },
-                                { value: "Debit Card", label: "Debit Card" },
-                                { value: "UPI", label: "UPI" },
-                                { value: "Cheque", label: "Cheque" },
-                                {
-                                  value: "Advance Deposit",
-                                  label: "Advance Deposit",
-                                },
-                                { value: "Others", label: "Others" },
-                              ]}
+                              options={filteredOptions}
                             />
                             <Input
                               type="number"
@@ -882,8 +917,9 @@ const CreateBill = ({
                                 }}
                                 onClick={() => setShowRefIdPopup(index)}
                               >
-                                {payment?.refId ??
-                                  `Add ${payment.paymentMode} Ref ID`}
+                                {payment?.refId
+                                  ? payment?.refId
+                                  : `Add ${payment.paymentMode} Ref ID`}
                               </span>
                             )}
                         </div>
@@ -902,15 +938,17 @@ const CreateBill = ({
                     </div>
                   </div>
                 ))}
-                <div className="flex align-items-center gap-2">
-                  <button
-                    className="btn d-flex align-items-center btn-text"
-                    onClick={addPaymentMode}
-                  >
-                    <i className={`icon-Add me-1 fs-5 text-primary`} />
-                    <span className="text-primary">Payment mode</span>
-                  </button>
-                </div>
+                {paymentModes.length < 4 && (
+                  <div className="flex align-items-center gap-2">
+                    <button
+                      className="btn d-flex align-items-center btn-text"
+                      onClick={addPaymentMode}
+                    >
+                      <i className={`icon-Add me-1 fs-5 text-primary`} />
+                      <span className="text-primary">Payment mode</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
             <Divider />
@@ -920,11 +958,11 @@ const CreateBill = ({
             >
               <div className="d-flex justify-content-between">
                 <span>Subtotal:</span>
-                <span>{subTotal}</span>
+                <span>₹{subTotal}</span>
               </div>
               <div className="d-flex justify-content-between">
                 <span>Line Item Discount:</span>
-                <span className="tick-icon">-{lineItemDiscount}</span>
+                <span className="tick-icon">-₹{lineItemDiscount}</span>
               </div>
               <div className="d-flex justify-content-between">
                 <span>Extra Discount:</span>
@@ -978,25 +1016,25 @@ const CreateBill = ({
               </div>
               <div className="d-flex justify-content-between">
                 <span>Applicable GST:</span>
-                <span>{applicableGst}</span>
+                <span>₹{applicableGst}</span>
               </div>
               {patientDueAmount > 0 && (
                 <div className="d-flex justify-content-between">
                   <span>Due from Previous bill:</span>
-                  <span className="text-scheduled">{patientDueAmount}</span>
+                  <span className="text-scheduled">₹{patientDueAmount}</span>
                 </div>
               )}
               <Divider style={{ margin: 0 }} />
               <div className="d-flex justify-content-between">
                 <span style={{ fontWeight: 600 }}>Total Payable Amount:</span>
-                <span style={{ fontWeight: 600 }}>{payableAmount}</span>
+                <span style={{ fontWeight: 600 }}>₹{payableAmount}</span>
               </div>
               <Divider style={{ margin: 0 }} />
               {paymentModes?.map((payment, index) => {
                 return (
                   <div key={index} className="d-flex justify-content-between">
                     <span>Paid Via "{payment.paymentMode}":</span>
-                    <span>{payment.amount}</span>
+                    <span>₹{payment.amount}</span>
                   </div>
                 );
               })}
@@ -1006,16 +1044,16 @@ const CreateBill = ({
                   Total Amount Paid:
                 </span>
                 <span className="tick-icon" style={{ fontWeight: 500 }}>
-                  {paidAmount}
+                  ₹{paidAmount}
                 </span>
               </div>
               {payableAmount - paidAmount > 0 && (
                 <div className="d-flex justify-content-between">
                   <span className="text-scheduled" style={{ fontWeight: 500 }}>
-                    Payment Due:
+                    Total Payment Due:
                   </span>
                   <span className="text-scheduled" style={{ fontWeight: 500 }}>
-                    {payableAmount - paidAmount}
+                    ₹{payableAmount - paidAmount}
                   </span>
                 </div>
               )}
@@ -1058,6 +1096,7 @@ const CreateBill = ({
           }}
           editIndex={editIndex}
           item={searchItemSelected}
+          setDataSource={setDataSource}
         />
       )}
       {shouldShowRefIdPopup !== null && shouldShowRefIdPopup >= 0 && (

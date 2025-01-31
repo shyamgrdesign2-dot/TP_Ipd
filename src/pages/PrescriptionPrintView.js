@@ -104,11 +104,11 @@ function PrescriptionPrintView() {
     const navigate = useNavigate();
 
     const { state } = useLocation();
-    const { patient_data } = state
+    const { patient_data, pam_id } = state;
 
     const [selectedLang, setSelectedLang] = useState(1);
 
-    const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}` : null);
+    const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}&pam_id=${pam_id}` : null);
     const [printRxUrl, setPrintRxUrl] = useState(state !== undefined ? `${state.print_rx_url}` : null);
 
     const [divWidth, setDivWidth] = useState(0);
@@ -161,8 +161,13 @@ function PrescriptionPrintView() {
 
     useEffect(() => {
         getLabParams();
-        getPatientBills();
     },[])
+
+    useEffect(() => {
+      if (!createBillDrawer) {
+        getPatientBills();
+      }
+    }, [createBillDrawer]);
 
     const getPatientBills = async () => {
         const queryParams = {
@@ -174,7 +179,7 @@ function PrescriptionPrintView() {
           page: 1,
           limit: 25,
           patientId: patient_data?.patient_unique_id,
-          appointmentId: patient_data?.pam_id,
+          appointmentId: pam_id || patient_data?.pam_id,
         };
         const response = await fetchBillsByPatient(queryParams);
         if (response?.bills?.length > 0) {
@@ -300,7 +305,7 @@ function PrescriptionPrintView() {
         }
         const action = await dispatch(viewCaseManager(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate('/configure_print_setting', { state: { caseManagerData: {...action.payload, patient_data: {...action.payload.patient_data, pm_id: patient_data?.pm_id}, gynecHistoryData, labParamsData} } })
+            navigate('/configure_print_setting', { state: { caseManagerData: {...action.payload, patient_data: {...action.payload.patient_data, pm_id: patient_data?.pm_id}, gynecHistoryData, labParamsData}, pam_id: pam_id } })
         } else {
             errorMessage(action.error)
         }
@@ -332,7 +337,7 @@ function PrescriptionPrintView() {
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-billings"></i>}
-                                    onClick={patientBills?.length > 0 ? handleRecentBillDrawer : handleCreateBillDrawer}
+                                    onClick={patientBills?.length === 0 ? handleCreateBillDrawer : handleRecentBillDrawer}
                                 >
                                     <span className="fw-semibold">{patientBills?.length > 0 ? "Create/ View Bill" : "Create Bill"}</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>

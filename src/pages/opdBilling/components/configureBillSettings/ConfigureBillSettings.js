@@ -240,6 +240,27 @@ const ConfigureBillSettings = ({
         },
       };
     });
+    message.open({
+      key: MESSAGE_KEY,
+      type: "",
+      className: "message-appointment",
+      content: (
+        <div className="d-flex align-items-center">
+          <img src={visitEnd} className="me-3" />
+          <div>
+            <div className="title-common text-start fontroboto">
+              {"Fetched & Autofilled Details from Rx Print Settings "}
+            </div>
+          </div>
+          <img
+            src={imgCloseVisit}
+            className="ms-3"
+            onClick={() => message.destroy()}
+          />
+        </div>
+      ),
+      duration: 3,
+    });
   };
 
   return (

@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData, customModules } = props
+    let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData, customModules, patientBills } = props
 
     const gynecHistoryData = caseManagerData?.gynecHistoryData
     const labParamsData = caseManagerData?.labParamsData
@@ -4573,7 +4573,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         )
                                     )}
                                 </>
-                            ) : option?.is_custom_module === true && option?.enable === 'Y' && option?.custom_status === 'Y' && customModule?.content?.length > 0 && (
+                            ) : option?.is_custom_module === true && option?.enable === 'Y' && option?.custom_status === 'Y' && customModule?.content?.length > 0 ? (
                                 option?.format === 'inline' ? (
                                     <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
                                         <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
@@ -4620,6 +4620,20 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         </View>
                                     </View>
                                 )
+                            ) : option?.id === 17 && option?.enable === 'Y' && option?.custom_status === 'Y' && patientBills?.length > 0 && (
+                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Payment:&nbsp;</Text>
+                                    {patientBills?.map((patientBill, i) => (
+                                        <Text key={i} style={{ color: "#171725", fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, }}>
+                                            {"\n"}
+                                            {`Received ₹${patientBill?.paidAmount} via ${patientBill?.paymentModes
+                                            ?.map((item) => item?.paymentMode)
+                                            .join(" & ")} for ( ${patientBill?.billItems
+                                            ?.map((item) => `${item?.name}: ₹${item?.totalAmount}`)
+                                            .join(" | ")}${patientBill?.dueAmount ? ` | Due Amount: ₹${patientBill?.dueAmount}` : ""} )`}
+                                        </Text>
+                                    ))}
+                                </Text>
                             )
                         )
                     })}

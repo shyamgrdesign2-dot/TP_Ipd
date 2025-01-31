@@ -23,6 +23,8 @@ import { useTodayVaccines } from "./vaccination/useTodayVaccines";
 import { useGrowthChart } from "./growthChart/useGrowthChart";
 import useObstetric from "./obstetric/useObstetric";
 import { getModules } from "../redux/customModuleSlice";
+import moment from "moment";
+import { fetchBillsByPatient } from "./opdBilling/service";
 
 function ConfigurePrintSetting() {
 
@@ -31,7 +33,7 @@ function ConfigurePrintSetting() {
     const { defaultPrintSettings, userId } = useSelector((state) => state.doctors);
 
     const { state } = useLocation();
-    const { caseManagerData, certificateData, smartRxFile } = state
+    const { caseManagerData, certificateData, smartRxFile, pam_id } = state;
 
     const [divWidth, setDivWidth] = useState(0);
     const [selectedTab, setSelectedTab] = useState(caseManagerData !== undefined ? TAB_PRESCRIPTION : TAB_HEADER_FOOTER);
@@ -47,6 +49,7 @@ function ConfigurePrintSetting() {
     const medicalHistoryCheckboxOptions = caseManagerData?.medical_history?.map(e => {
         return { label: e?.title, value: e?.tmmhs_id }
     })
+    const [patientBills, setPatientBills] = useState([]);
 
     const {customModules} = useSelector((state) => state.customModules);
     const dispatch = useDispatch();
@@ -57,6 +60,7 @@ function ConfigurePrintSetting() {
 
     useEffect(() => {
         growthChartDetails.getGrowthChartDetails();
+        getPatientBills();
     }, []);
 
     useEffect(() => {
@@ -103,6 +107,22 @@ function ConfigurePrintSetting() {
         [selectedTab]
     );
 
+    const getPatientBills = async () => {
+        const queryParams = {
+          doctorIds: userId,
+          sortBy: "date",
+          sortOrder: "asc",
+          page: 1,
+          limit: 25,
+          patientId: caseManagerData?.patient_data?.patient_unique_id,
+          appointmentId: pam_id || caseManagerData?.patient_data?.pam_id,
+        };
+        const response = await fetchBillsByPatient(queryParams);
+        if (response?.bills?.length > 0) {
+            setPatientBills(response?.bills);
+        }
+    };
+
     return (
         <PrintSettingsContext.Provider value={contextApi}>
             <>
@@ -114,7 +134,7 @@ function ConfigurePrintSetting() {
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <Tabs defaultActiveKey="1" items={caseManagerData !== undefined ? TabsPrintSetting : TabsPrintSetting.slice(1, 2)} onChange={onTabChange} className="print-tabs" />
                                 {selectedTab === TAB_PRESCRIPTION ? (
-                                    <PrescriptionLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} />
+                                    <PrescriptionLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={patientBills} />
                                 ) : selectedTab === TAB_HEADER_FOOTER ? (
                                     <HeaderFooterLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} />
                                 ) : selectedTab === TAB_PAGE_FORMAT && (
@@ -127,7 +147,7 @@ function ConfigurePrintSetting() {
                                 <div className="titleprint mt-20">Preview</div>
                                 <div ref={divRef} className="rounded-20px bg-white mt-20 overflow-hidden">
                                     <div className="position-relative printheight">
-                                        {caseManagerData !== undefined ? <Quixote mode={NORMAL} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} /> : <QuixoteCertificate mode={NORMAL} />}
+                                        {caseManagerData !== undefined ? <Quixote mode={NORMAL} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={patientBills} /> : <QuixoteCertificate mode={NORMAL} />}
                                     </div>
                                 </div>
                             </div>

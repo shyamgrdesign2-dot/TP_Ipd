@@ -18,42 +18,42 @@ const BillDetails = ({ pageFormat, billData }) => {
   } = billData || {};
 
   const billInfo = [
-    { label: "Subtotal:", value: `${subTotal}` },
-    { label: "Line Item Discount:", value: lineItemDiscount },
-    { label: "Extra Discount:", value: `${extraDiscount}` },
+    { label: "Subtotal:", value: `₹${subTotal}` },
+    { label: "Line Item Discount:", value: `₹${lineItemDiscount}` },
+    { label: "Extra Discount:", value: `₹${extraDiscount}` },
     {
       label: "Applicable GST:",
-      value: `${applicableGst}`,
+      value: `₹${applicableGst}`,
       divider: dueFromPreviousBill === 0,
     },
     dueFromPreviousBill > 0
       ? {
           label: "Due from Previous bill:",
-          value: `${dueFromPreviousBill}`,
+          value: `₹${dueFromPreviousBill}`,
           divider: true,
         }
       : undefined,
     {
       label: "Total Payable Amount:",
-      value: `${payableAmount}`,
+      value: `₹${payableAmount}`,
       bold: true,
       divider: true,
     },
     ...paymentModes?.map((mode, index) => ({
       label: `Paid Via ${mode.paymentMode}:`,
-      value: `${mode.amount.toFixed(2)}`,
+      value: `₹${mode.amount.toFixed(2)}`,
       divider: index === paymentModes.length - 1,
     })),
     {
       label: "Total Amount Paid:",
-      value: `${paidAmount}`,
+      value: `₹${paidAmount}`,
       color: "#3D8C40",
       bold: true,
     },
     dueAmount > 0
       ? {
-          label: "Payment Due:",
-          value: `${dueAmount}`,
+          label: "Total Payment Due:",
+          value: `₹${dueAmount}`,
           color: "#ED8A00",
           bold: true,
         }
@@ -226,7 +226,7 @@ const BillDetails = ({ pageFormat, billData }) => {
                 },
               ]}
             >
-              {item?.amount ?? ""}
+              {item?.amount ? `₹${item?.amount}` : ""}
             </Text>
             <Text
               style={[
@@ -240,7 +240,11 @@ const BillDetails = ({ pageFormat, billData }) => {
                 },
               ]}
             >
-              {item?.discount ?? ""}
+              {item?.discount && item?.discountType === "flat"
+                ? `₹${item?.discount}`
+                : item?.discount
+                ? `${item?.discount}%`
+                : ""}
             </Text>
             <Text
               style={[
@@ -254,7 +258,7 @@ const BillDetails = ({ pageFormat, billData }) => {
                 },
               ]}
             >
-              {item.gst ?? ""}
+              {item.gst ? `${item?.gst}%` : ""}
             </Text>
             <Text
               style={[
@@ -268,7 +272,7 @@ const BillDetails = ({ pageFormat, billData }) => {
                 },
               ]}
             >
-              {item?.totalAmount ?? ""}
+              {item?.totalAmount ? `₹${item?.totalAmount}` : ""}
             </Text>
           </View>
         ))}

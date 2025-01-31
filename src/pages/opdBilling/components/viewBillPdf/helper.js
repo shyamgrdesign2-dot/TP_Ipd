@@ -41,25 +41,25 @@ export const patientDataShow = (id, patient_data, billData, profile) => {
   if (id == 1) {
     value = `${
       patient_data?.pm_salutation
-        ? `${patient_data?.pm_salutation} ${patient_data?.pm_fullname}, ${patient_data?.pm_pid}`
-        : `${patient_data?.pm_fullname}, ${patient_data?.pm_pid}`
-    }`;
-  } else if (id == 2) {
-    value = `${genderAge(patient_data, profile)}, ${patient_data?.pm_gender}`;
-  } else if (id == 3) {
-    value = `${
-      patient_data?.pm_contact_no ? patient_data?.pm_contact_no : "-"
-    }`;
-  } else if (id == 4) {
-    value = `${patient_data?.tpml_refrence_id ?? "-"}`;
-  } else if (id == 5) {
-    value = `${
-      patient_data?.pm_salutation
         ? `${patient_data?.pm_salutation} ${patient_data?.pm_fullname}`
         : `${patient_data?.pm_fullname}`
     }`;
-  } else if (id == 6) {
+  } else if (id == 2) {
     value = `${patient_data?.pm_pid ? patient_data?.pm_pid : "-"}`;
+  } else if (id == 3) {
+    value = `${genderAge(patient_data, profile)}, ${patient_data?.pm_gender}`;
+  } else if (id == 4) {
+    value = `${
+      patient_data?.pm_contact_no ? patient_data?.pm_contact_no : "-"
+    }`;
+  } else if (id == 5) {
+    value = `${patient_data?.tpml_refrence_id ?? "-"}`;
+  } else if (id == 6) {
+    value = `${
+      patient_data?.pm_salutation
+        ? `${patient_data?.pm_salutation} ${patient_data?.pm_fullname}, ${patient_data?.pm_pid}`
+        : `${patient_data?.pm_fullname}, ${patient_data?.pm_pid}`
+    }`;
   }
   return value;
 };

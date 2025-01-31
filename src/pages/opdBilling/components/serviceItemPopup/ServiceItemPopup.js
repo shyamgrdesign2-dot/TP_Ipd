@@ -3,16 +3,24 @@ import CommonModal from "../../../../common/CommonModal";
 import { Button } from "react-bootstrap";
 import { useState } from "react";
 import { upsertBillItem } from "../../service";
+import { useSelector } from "react-redux";
 
-const ServiceItemPopup = ({ popupType, onCancel, editIndex, item }) => {
+const ServiceItemPopup = ({
+  popupType,
+  onCancel,
+  editIndex,
+  item,
+  setDataSource,
+}) => {
+  const { advancedSettings } = useSelector((state) => state.billing);
   const [serviceItem, setServiceItem] = useState({
     id: item?.id,
     name: item?.name,
     type: item?.type,
     price: item?.price || item?.amount,
-    discount: item?.discount,
-    discountType: item?.discountType,
-    gst: item?.gst,
+    discount: item?.discount || 0,
+    discountType: item?.discountType || advancedSettings?.defaultDiscountType,
+    gst: item?.gst || 0,
     totalAmount: item?.totalAmount,
   });
 
@@ -27,10 +35,51 @@ const ServiceItemPopup = ({ popupType, onCancel, editIndex, item }) => {
 
   const addOrEditServieItem = async () => {
     serviceItem.totalAmount =
-      (Number(serviceItem.price) - Number(serviceItem.discount)) *
+      (Number(serviceItem.price) -
+        (serviceItem.discountType === "flat"
+          ? Number(serviceItem.discount)
+          : (Number(serviceItem.discount) / 100) * Number(serviceItem.price))) *
       (1 + Number(serviceItem.gst) / 100);
     handleServiceItem(serviceItem);
-    await upsertBillItem(serviceItem);
+    const billItemRes = await upsertBillItem(serviceItem);
+    if (billItemRes?.id) {
+      setDataSource((prev) => {
+        const updatedData = [...prev];
+        const updateIndex = editIndex > -1 ? editIndex : item?.index;
+
+        if (updateIndex > -1 && updatedData[updateIndex]) {
+          updatedData[updateIndex] = {
+            ...updatedData[updateIndex], // Keep existing values
+            masterId: billItemRes?.id,
+            quantity: 1,
+            name: serviceItem?.name,
+            amount: serviceItem?.price,
+            discount: serviceItem?.discount,
+            discountType: serviceItem?.discountType,
+            type: serviceItem?.type,
+            gst: serviceItem?.gst,
+            totalAmount: serviceItem?.totalAmount,
+            createdBy: billItemRes?.createdBy,
+          };
+        } else {
+          // If no valid index, add a new item
+          updatedData.push({
+            masterId: billItemRes?.id,
+            quantity: 1,
+            name: serviceItem?.name,
+            amount: serviceItem?.price,
+            discount: serviceItem?.discount,
+            discountType: serviceItem?.discountType,
+            type: serviceItem?.type,
+            gst: serviceItem?.gst,
+            totalAmount: serviceItem?.totalAmount,
+            createdBy: billItemRes?.createdBy,
+          });
+        }
+        return updatedData;
+      });
+      onCancel();
+    }
   };
 
   return (
@@ -197,8 +246,11 @@ const ServiceItemPopup = ({ popupType, onCancel, editIndex, item }) => {
                 <Button
                   onClick={addOrEditServieItem}
                   className="lh-lg btn btn-primary3 btn-41 px-4"
+                  disabled={
+                    !serviceItem.type || !serviceItem.name || !serviceItem.price
+                  }
                 >
-                  <span>Add</span>
+                  <span>{editIndex === -1 ? "Add" : "Save"}</span>
                 </Button>
               </div>
             </div>

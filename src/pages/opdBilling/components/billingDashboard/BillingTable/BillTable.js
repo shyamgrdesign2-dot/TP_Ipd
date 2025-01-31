@@ -92,7 +92,7 @@ const BillTable = ({ data, isPatientScreen }) => {
       },
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold">{record.bill_bum}</div>
+          <div className="fs-14 fw-semibold text-primary">{record.billNumber}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {record.bill_date}
           </div>

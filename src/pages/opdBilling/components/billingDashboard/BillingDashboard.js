@@ -164,7 +164,7 @@ function BillingDashboard() {
           width="100%"
           push={false}
           >
-              <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientData={{}} />
+              <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientData={{}} isDashboard={true} />
           </Drawer>)}
       </div>
     </>
