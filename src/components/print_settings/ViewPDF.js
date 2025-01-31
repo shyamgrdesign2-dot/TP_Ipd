@@ -593,7 +593,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
                             return (
                                 i % 2 === 0 && (
-                                    <View key={i} style={{ flexDirection: 'row', paddingVertical: PX_TO_PT * 3 }}>
+                                    <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
                                         <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
                                         <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
                                     </View>
@@ -605,7 +605,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
                             return (
                                 i % 2 === 1 && (
-                                    <View key={i} style={{ flexDirection: 'row', paddingVertical: PX_TO_PT * 3 }}>
+                                    <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
                                         <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
                                         <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
                                     </View>
