@@ -33,6 +33,10 @@
     color: var(--dynamic-color) !important;
   }
 
+  .theme-color{
+    color: #4B4AD5;
+  }
+
   .card-amount {
     color: var(--T-Text-80, #454551);
     font-feature-settings: 'liga' off, 'clig' off;

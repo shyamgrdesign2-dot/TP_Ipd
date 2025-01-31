@@ -15,6 +15,10 @@ import "./BillingTable.scss";
 import { useReactToPrint } from "react-to-print";
 import { handlePrintClick } from "../../../../../utils/utils.js";
 import DownloadBill from "../DownloadBill/DownloadBill.js";
+import {
+  fetchBillingDashboard,
+  fetchBillsByPatient,
+} from "../../../service.js";
 import BillTable from "./BillTable.js";
 import { fetchBillingDashboard } from "../../../service.js";
 import { listDoctor } from "../../../../../redux/bulkMessagesSlice.js";
@@ -63,7 +67,7 @@ const cardsStaticData = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-export default function BillingTable() {
+export default function BillingTable({ patientData }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
   const [selectedDoctors, setSelectedDoctors] = useState([]);
@@ -73,12 +77,14 @@ export default function BillingTable() {
   const [pickerModal, setPickerModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const [downloadData, setDownloadData] = useState([]);
   const printableRef = useRef(null);
   const [tabLoader, setTabLoader] = useState(false);
 
   const [data, setData] = useState(null);
   const [cards, setCards] = useState([]);
   const [totalBillCount, setTotalBillCount] = useState(null);
+  const [form3cTriggered, setForm3cTriggered] = useState(false);
 
   // Drawer states
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
@@ -155,6 +161,18 @@ export default function BillingTable() {
     content: () => printableRef.current,
   });
 
+  useEffect(() => {
+    const filteredOptions = selectedOptions.includes("Due")
+      ? ["CarriedForward", ...selectedOptions]
+      : selectedOptions;
+
+    setDownloadData(
+      data?.bills?.filter((item) =>
+        filteredOptions.includes(item.paymentStatus)
+      )
+    );
+  }, [selectedOptions, data]);
+
   const handleDownload = async () => {
     // if (selectedOptions.length === 0) {
     //   // message.warning("Please select at least one option or download all sections!");
@@ -181,7 +199,7 @@ export default function BillingTable() {
       // // Pass the data to downloadView
       // downloadView(data);
       // message.success("Download started!");
-      handleOpenDownloadModal();
+      // handleOpenDownloadModal();
     } catch (error) {
       // message.error("Failed to download. Please try again.");
     }
@@ -297,13 +315,13 @@ export default function BillingTable() {
         }}
         onChange={handleCheckboxChange}
       >
-        <Checkbox value="fullyPaid">
+        <Checkbox value="FullyPaid">
           <span className="color-paid">Fully Paid</span>
         </Checkbox>
-        <Checkbox value="due">
+        <Checkbox value="Due">
           <span className="color-due">Due</span>
         </Checkbox>
-        <Checkbox value="refunded">
+        <Checkbox value="Refunded">
           <span className="color-refunded">Refunded</span>
         </Checkbox>
       </Checkbox.Group>
@@ -324,6 +342,11 @@ export default function BillingTable() {
     </div>
   );
 
+  // Function to handle form3c messages
+  const handleMessageForm3c = () => {
+    setForm3cTriggered((prev) => !prev); // Toggle state to trigger useEffect
+  };
+
   const loadData = async () => {
     // setLoading(true);
     const params = {
@@ -343,8 +366,7 @@ export default function BillingTable() {
       // endDate: dateRange.endDate,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
-      doctorIds: "514",
-      isForm3C: true,
+      doctorIds: decodedToken?.result?.user_id,
       search: searchQuery || "",
     };
     try {
@@ -357,9 +379,44 @@ export default function BillingTable() {
     }
   };
 
+  const patientBillingData = async () => {
+    // setLoading(true);
+    const params = {
+      status:
+        selectedCard === 1
+          ? null
+          : selectedCard === 2
+          ? ["FullyPaid"]
+          : selectedCard === 3
+          ? ["Due", "CarriedForward"]
+          : ["Refunded"],
+      sortBy: "date",
+      sortOrder: "desc",
+      page: 1,
+      limit: 25,
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+      doctorIds: decodedToken?.result?.user_id,
+      search: searchQuery || "",
+      patientId: patientData?.patient_unique_id,
+    };
+    try {
+      const response = await fetchBillsByPatient(params);
+      setData(response || []);
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    loadData();
-  }, [selectedCard, dateRange, searchQuery, doctorList]);
+    if (patientData) {
+      patientBillingData();
+    } else {
+      loadData();
+    }
+  }, [selectedCard, dateRange, searchQuery, doctorList, form3cTriggered]);
 
   return (
     <div>
@@ -380,7 +437,7 @@ export default function BillingTable() {
             />
           </div>
           <div className="d-flex flex-row gap-2">
-            { isAdmin && doctorList?.length > 0 &&
+            {isAdmin && doctorList?.length > 0 && (
               <div className="d-flex align-items-center">
                 <Select
                   className=""
@@ -440,7 +497,7 @@ export default function BillingTable() {
                   </Option>
                 </Select>
               </div>
-            }
+            )}
             <div className="massage-date-wrapper">
               <div
                 className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between"
@@ -560,7 +617,7 @@ export default function BillingTable() {
                   {card.amount}
                   {card.id === 1 && data && (
                     <span>
-                      {"/"} {data?.summary?.totalPaidAmount}
+                      {"/"} {data?.summary?.totalBillAmount}
                     </span>
                   )}
                 </div>
@@ -568,13 +625,17 @@ export default function BillingTable() {
             ))}
           </div>
 
-          <BillTable />
+          <BillTable
+            data={data?.bills}
+            isPatientScreen={patientData ? true : false}
+            handleMessageForm3c={handleMessageForm3c}
+          />
         </Row>
 
         {
           <div style={{ display: "none" }}>
             <div ref={printableRef}>
-              <DownloadBill />
+              <DownloadBill downloadData={downloadData} />
             </div>
           </div>
         }

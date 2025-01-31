@@ -63,7 +63,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
     doctorList,
     patientCount,
   } = useSelector((state) => state.bulkMessages);
-  const { profile } = useSelector((state) => state.doctors);
+  const { profile, userId} = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
@@ -266,7 +266,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
       },
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold">{record.billNumber}</div>
+          <div className="fs-14 fw-semibold theme-color">{record.billNumber}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {record.date}
           </div>
@@ -385,7 +385,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
-      doctorIds: "514",
+      doctorIds: userId,
       isForm3C: false,
       search: searchQuery || "",
     };
@@ -407,7 +407,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
   }, [dateRange, searchQuery]);
 
   const handleAddForm3cBill = () => {
-    handleAddForm3cDrawer();
+    console.log(selectedRowKeys,"selectedRowKeys")
     const payload = {
       billIds: [...selectedRowKeys],
     };
@@ -415,6 +415,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
     if (res) {
       setForm3cData(selectedRowKeys.length);
     }
+    handleAddForm3cDrawer();
   };
 
   const handleBackAddForm3CDrawer = () => {

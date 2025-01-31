@@ -1,70 +1,7 @@
 import React from "react";
 import { Table } from "antd";
 
-const DownloadBill = () => {
-  // Define the data source
-  const dataSource = [
-    {
-      key: "1",
-      billNo: "INV-2900567",
-      date: "10th Oct 2023",
-      patientDetails: "Tony Danza",
-      contact: "9708823109",
-      totalAmount: "₹500",
-      paidAmount: "₹500",
-      status: "Paid fully",
-    },
-    {
-      key: "2",
-      billNo: "INV-2900569",
-      date: "10th Oct 2023",
-      patientDetails: "Jonathan Higgins",
-      contact: "9668796397",
-      totalAmount: "₹750",
-      paidAmount: "₹500",
-      status: "Due: ₹250",
-    },
-    {
-      key: "3",
-      billNo: "INV-2900571",
-      date: "9th Oct 2023",
-      patientDetails: "Templeton Peck",
-      contact: "6142245228",
-      totalAmount: "₹500",
-      paidAmount: "₹500",
-      status: "Paid fully",
-    },
-    {
-      key: "4",
-      billNo: "INV-2900572",
-      date: "9th Oct 2023",
-      patientDetails: "Capt. Trunk",
-      contact: "6867692673",
-      totalAmount: "₹890",
-      paidAmount: "₹700",
-      status: "Due: ₹250",
-    },
-    {
-      key: "5",
-      billNo: "INV-2900573",
-      date: "9th Oct 2023",
-      patientDetails: "Michael Knight",
-      contact: "6397782297",
-      totalAmount: "₹800",
-      paidAmount: "₹800",
-      status: "Refunded: ₹800",
-    },
-    {
-      key: "6",
-      billNo: "INV-2900570",
-      date: "9th Oct 2023",
-      patientDetails: "Jonathan Higgins",
-      contact: "6977649184",
-      totalAmount: "₹890",
-      paidAmount: "₹640",
-      status: "Due: ₹250",
-    },
-  ];
+const DownloadBill = ({downloadData}) => {
 
   // Define the columns
   const columns = [
@@ -73,12 +10,14 @@ const DownloadBill = () => {
       dataIndex: "key",
       key: "key",
       align: "center",
+      render: (text, record, index) => <div className="fs-14">{index + 1}</div>,
     },
     {
       title: "BILL NO",
       dataIndex: "billNo",
       key: "billNo",
       align: "center",
+      render: (text, record) => (record.billNumber),
     },
     {
       title: "DATE",
@@ -88,21 +27,31 @@ const DownloadBill = () => {
     },
     {
       title: "PATIENT DETAILS",
+      dataIndex: "patientName",
+      key: "patientName",
+      width: 150,
+      align: "left",
+      render: (text, record) => (
+        <div className="cursor-pointer">
+          <div className="fs-14">{record?.patient?.name}</div>
+        </div>
+      ),
+    },
+    {
+      title: "PATIENT DETAILS",
       dataIndex: "patientDetails",
       key: "patientDetails",
       align: "center",
       render: (text, record) => (
         <div>
-          {text}
-          <br />
-          <span style={{ color: "#888" }}>{record.contact}</span>
+          <span style={{ color: "#888" }}>{record?.patient?.phone}</span>
         </div>
       ),
     },
     {
       title: "TOTAL AMOUNT",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
+      dataIndex: "payableAmount",
+      key: "payableAmount",
       align: "center",
     },
     {
@@ -116,17 +65,8 @@ const DownloadBill = () => {
       dataIndex: "status",
       key: "status",
       align: "center",
-      render: (status) => (
-        <span
-          style={{
-            color:
-              status.includes("Paid") || status.includes("Refunded")
-                ? "green"
-                : "red",
-          }}
-        >
-          {status}
-        </span>
+      render: (text, record) => (
+        <span style={{ color: "#888" }}>{record?.paymentStatus}</span>
       ),
     },
   ];
@@ -146,7 +86,7 @@ const DownloadBill = () => {
 
       {/* Table */}
       <Table
-        dataSource={dataSource}
+        dataSource={downloadData}
         columns={columns}
         pagination={false}
         bordered

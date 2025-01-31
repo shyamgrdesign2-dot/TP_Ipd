@@ -32,6 +32,7 @@ import VisitLabParameters from "../components/VisitLabParameters";
 import UploadDocPopup from "./medicalRecords/components/uploadDocPopup/UploadDocPopup";
 import CommonModal from "../common/CommonModal";
 import UploadDocument from "./medicalRecords/UploadDocument";
+import BillingDashboard from "./opdBilling/components/billingDashboard/BillingDashboard";
 
 const { Sider, Content } = Layout;
 
@@ -178,17 +179,19 @@ function PatientDetails() {
 
                 <Content>
                     <div className='w-100 vh-100 overflow-y-auto'>
-                        <Welcome1
-                            locationPath={locationPath}
-                            isMobile={isMobile}
-                            patient_data={patient_data}
-                            viewCaseManagerData={viewCaseManagerData}
-                            sidebarKey={sidebarKey}
-                            filesData={filesData}
-                            setFilesData={setFilesData}
-                            handleUploadDocPopup={handleUploadDocPopup}
-                            handleDrawerUploadDoc={handleDrawerUploadDoc}
-                         />
+                        { sidebarKey !== 4 &&
+                            <Welcome1
+                                locationPath={locationPath}
+                                isMobile={isMobile}
+                                patient_data={patient_data}
+                                viewCaseManagerData={viewCaseManagerData}
+                                sidebarKey={sidebarKey}
+                                filesData={filesData}
+                                setFilesData={setFilesData}
+                                handleUploadDocPopup={handleUploadDocPopup}
+                                handleDrawerUploadDoc={handleDrawerUploadDoc}
+                            />
+                        }
                         {sidebarKey === 1 ? (
                             <div className="appointment-wrap PatientDetailsPageWrap">
                                 <div className='row'>
@@ -217,7 +220,7 @@ function PatientDetails() {
                             <div className="appointment-wrap PatientDetailswrap">
                                 <CertificateDetails patient_data={patient_data} />
                             </div>
-                        ) : (
+                        ) : sidebarKey === 3 ? (
                             <div className="appointment-wrap PatientDetailswrap">
                                 <VisitMedicalRecords
                                     filesData={filesData}
@@ -227,6 +230,10 @@ function PatientDetails() {
                                     setIsEditDocument={setIsEditDocument}
                                     handleDrawerUploadDoc={handleDrawerUploadDoc}
                                  />
+                            </div>
+                        ) : (
+                            <div className="vh-100">
+                                <BillingDashboard patientData={patient_data} />
                             </div>
                         )}
                     </div>

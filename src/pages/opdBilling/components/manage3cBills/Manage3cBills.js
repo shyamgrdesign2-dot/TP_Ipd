@@ -329,7 +329,7 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
       },
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold">{record.billNumber}</div>
+          <div className="fs-14 fw-semibold theme-color">{record.billNumber}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {record.date}
           </div>

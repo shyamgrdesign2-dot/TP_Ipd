@@ -201,18 +201,30 @@ export const listAdvancedDepositByPatient = async function (params) {
   return res;
 };
 
-export const fetchBillsByPatient = async function (queryParams) {
+export const fetchBillsByPatient = async function (params) {
   let res = {};
   try {
-    // Combine query parameters into a single query string
+    // Construct query parameters dynamically
+    const queryParams = {
+      search: params.search,
+      doctorIds: params.doctorIds,
+      startDate: params.startDate,
+      endDate: params.endDate,
+      sortBy: params.sortBy || "date",
+      sortOrder: params.sortOrder || "asc",
+      page: params.page || 1,
+      limit: params.limit || 25,
+      patientId: params.patientId,
+      // ...(params.isForm3C ? { isForm3C: params.isForm3C } : {}), // Add only if true
+    };
+
+    // Create query string
     const queryString = new URLSearchParams(queryParams).toString();
 
-    res = await api.get(
-      `/api/v1/billing/bill/listByPatient?${queryString}`,
-      baseUrl
-    );
+    // API call
+    res = await api.get(`/api/v1/billing/bill/listByPatient?${queryString}`, baseUrl);
   } catch (e) {
-    console.error("Error while listing advanced deposits by patient: ", e);
+    console.error("Error while fetching bills by patient: ", e);
   }
   return res;
 };

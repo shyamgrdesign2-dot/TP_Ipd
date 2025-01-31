@@ -11,8 +11,7 @@
         background: var(--S-BG-50, #FFE8AE);
 
         &:hover,
-        &:focus
-        {
+        &:focus {
             background-color: var(--S-BG-50, #FFE8AE) !important;
             border: 1px solid var(--P-CTA-100, #4B4AD5);
         }
@@ -34,13 +33,43 @@
         background: var(--P-CTA-100, #4B4AD5);
 
         &:hover,
-        &:focus
-        {
+        &:focus {
             background: var(--P-CTA-100, #4B4AD5) !important;
         }
 
         span {
             color: white !important;
         }
+    }
+
+    .advance-deposite-container {
+        display: flex;
+        margin-left: 2rem !important;
+        align-items: center;
+        justify-content: space-between;
+        gap: 5px;
+        flex-shrink: 0;
+        border-radius: 100px;
+        border: 1px solid var(--S-Icon-80, #BA7DE9);
+        background: #F6EFFB;
+
+        span{
+            color: #BA7DE9 !important;
+            padding-left: 5px;
+        }
+
+        .add-advance-icon {
+            // background: rgba(237, 223, 247, 0.6) !important;
+            width: 20%;
+            position: relative;
+            right: -6px;
+            margin: 0;
+            padding: 8px 13px;
+            border: 1px solid F6EFFB !important;
+            border-bottom-right-radius: 18px !important;
+            border-top-right-radius: 18px !important;
+            background: rgba(237, 223, 247, 0.60) !important;
+        }
+
     }
 }

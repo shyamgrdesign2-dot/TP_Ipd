@@ -40,7 +40,7 @@ const cards = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-export default function AdvanceDepositTable() {
+export default function AdvanceDepositTable({patientData}) {
   const [pageNo, setPageNo] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [pickerModal, setPickerModal] = useState(false);
@@ -192,7 +192,7 @@ export default function AdvanceDepositTable() {
       },
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold">{ selectedCard === 3 ? record.billNumber : record.receiptNumber}</div>
+          <div className="fs-14 fw-semibold theme-color">{ selectedCard === 3 ? record.billNumber : record.receiptNumber}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {record.bill_date}
           </div>

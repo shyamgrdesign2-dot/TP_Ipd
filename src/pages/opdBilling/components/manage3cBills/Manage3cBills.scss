@@ -1,4 +1,4 @@
-.manage-3c-bills-wrapper{
+.manage-3c-bills-wrapper {
     .btn-manage-bill {
         cursor: pointer;
         display: flex;
@@ -11,8 +11,7 @@
         background: var(--S-BG-50, #FFF);
 
         &:hover,
-        &:focus
-        {
+        &:focus {
             background-color: var(--S-BG-50, #FFF) !important;
             border: 1px solid var(--P-CTA-100, #4B4AD5);
         }
@@ -20,6 +19,10 @@
         span {
             color: #4B4AD5 !important;
         }
+    }
+
+    .theme-color {
+        color: #4B4AD5;
     }
 
     .btn-create-bill {
@@ -34,8 +37,7 @@
         background: var(--P-CTA-100, #4B4AD5);
 
         &:hover,
-        &:focus
-        {
+        &:focus {
             background: var(--P-CTA-100, #4B4AD5) !important;
         }
 
@@ -48,7 +50,7 @@
         width: 25rem !important;
     }
 
-    .disabled{
+    .disabled {
         opacity: 0.4;
     }
 }

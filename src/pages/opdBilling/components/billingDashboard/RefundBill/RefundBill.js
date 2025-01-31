@@ -62,7 +62,7 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
       width: 200,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold">{record?.billNumber}</div>
+          <div className="fs-14 fw-semibold theme-color">{record?.billNumber}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {record?.date}
           </div>

@@ -8,7 +8,7 @@ import imgCloseVisit from '../../../../../assets/images/close-visit.svg';
 import visitEnd from '../../../../../assets/images/end-visit.svg';
 import { MESSAGE_KEY } from "../../../../../utils/constants";
 
-const BillTable = ({ data, isPatientScreen }) => {
+const BillTable = ({ data, isPatientScreen, handleMessageForm3c }) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [billData, setBillData] = useState(null);
@@ -44,7 +44,6 @@ const BillTable = ({ data, isPatientScreen }) => {
               ),
               duration: 5,
           });
-          console.log("Bill successfully added to Form 3C");
           // You can show a success message or update the UI accordingly
         } else {
           console.error("Failed to add bill to Form 3C");
@@ -92,14 +91,16 @@ const BillTable = ({ data, isPatientScreen }) => {
       },
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold text-primary">{record.billNumber}</div>
+          <div className="fs-14 fw-semibold">
+            <a className="theme-color">{record.billNumber}</a>
+          </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {record.bill_date}
           </div>
         </div>
       ),
     },
-    !isPatientScreen
+    !isPatientScreen 
       ? {
           title: "PATIENT DETAILS",
           dataIndex: "patient_details",
@@ -107,9 +108,9 @@ const BillTable = ({ data, isPatientScreen }) => {
           ellipsis: true,
           render: (text, record) => (
             <div className="cursor-pointer" onClick={async () => {}}>
-              <div className="fs-14">{record.patient.name}</div>
+              <div className="fs-14">{record?.patient?.name}</div>
               <div className="fs-14 fw-normal text-truncate-twolines">
-                {record.patient.phone}
+                {record?.patient?.phone}
               </div>
             </div>
           ),

@@ -7,7 +7,10 @@ import SidebarDoctor from "../../../../common/SidebarDoctor";
 import Welcome from "../../../../common/Welcome";
 
 import { useSelector, useDispatch } from "react-redux";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
+import {
+  MESSAGE_KEY,
+  PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+} from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { setUserId } from "../../../../redux/doctorsSlice";
 import { getClinicName } from "../../../../utils/utils";
@@ -17,13 +20,14 @@ import "./BillingDashboard.scss";
 import Vaccination from "../../../vaccination/Vaccination";
 import Manage3cBill from "../manage3cBills/Manage3cBills";
 import AddForm3cBills from "../manage3cBills/AddForm3cBills";
-import visitEnd from '../../../../assets/images/end-visit.svg';
-import imgCloseVisit from '../../../../assets/images/close-visit.svg';
+import addCircleIcon from "../../../../assets/images/add-circle.svg";
+import visitEnd from "../../../../assets/images/end-visit.svg";
+import imgCloseVisit from "../../../../assets/images/close-visit.svg";
 import { clearSearch } from "../../../../redux/appointmentsSlice";
 import AddAdvance from "../advanceDeposit/AddAdvance";
 import CreateBill from "../createBill/CreateBill";
 
-function BillingDashboard() {
+function BillingDashboard({ patientData }) {
   const dispatch = useDispatch();
   let location = useLocation();
   const [locationPath, setLocationPath] = useState("/");
@@ -60,15 +64,16 @@ function BillingDashboard() {
   // Drawer form 3c
   const handleManage3cBill = () => {
     setForm3cDrawer(!form3cDrawer);
+    setForm3cData(null);
   };
 
   const handleCreateBillDrawer = useCallback(() => {
     setCreateBillDrawer(!createBillDrawer);
   }, [createBillDrawer]);
 
-    const showHideBackModal = () => {
-      setIsBackModalOpen(!isBackModalOpen);
-    };
+  const showHideBackModal = () => {
+    setIsBackModalOpen(!isBackModalOpen);
+  };
 
   // Add form 3c drawer
   const handleAddForm3cDrawer = () => {
@@ -76,42 +81,66 @@ function BillingDashboard() {
     setForm3cDrawer(!form3cDrawer);
   };
 
-  console.log("addForm3cDrawer",addForm3cDrawer)
-  console.log("form3cDrawer",form3cDrawer)
+  // Add Advance Drawer
+  const handleAddAdvanceDrawer = () => {
+    console.log("this is getting called");
+    setAddAdvanceDrawer(!addAdvanceDrawer);
+  };
 
   return (
     <>
-      <Header locationPath={locationPath} />
+      {!patientData && <Header locationPath={locationPath} />}
       <div className="d-flex billing-dashboard-wraper">
-        <SidebarDoctor activeItem={"opd-billing"} />
+        {!patientData && <SidebarDoctor activeItem={"opd-billing"} />}
         <div className="w-100 bg-body wrapper">
           <>
-            <div className="welcomesection position-relative">
+            <div className="welcomesection position-relative mb-3">
               <div className="bg-welcome d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center">
-                  <div>
-                    <h1>OPD Billing</h1>
-                  </div>
-                  <img
-                    src={require("../../../../assets/images/bg-welcome.png")}
-                    className="welcomeig d-inline-block align-top"
-                    alt="Welcome"
-                  />
+                  {patientData ? (
+                    <>
+                      <div>
+                        <h1>Billing History</h1>
+                      </div>
+                      <button
+                        className="advance-deposite-container mx-4"
+                        // onClick={onClick}
+                      >
+                        <span className="text-lg">Advance Balance: ₹1000</span>
+                        <span className="add-advance-icon">
+                          <img src={addCircleIcon} alt="add-deposit" />
+                        </span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <h1>OPD Billing</h1>
+                      </div>
+                      <img
+                        src={require("../../../../assets/images/bg-welcome.png")}
+                        className="welcomeig d-inline-block align-top"
+                        alt="Welcome"
+                      />
+                    </>
+                  )}
                 </div>
                 <div className="d-flex gap-1">
                   {selectedTab === "billingtable" ? (
                     <div className="d-lg-flex d-block gap-2">
-                      <Button
-                        className="btn-manage-bill"
-                        onClick={handleManage3cBill}
-                      >
-                        <span>{"Manage Form 3c Bills"}</span>
-                      </Button>
+                      {!patientData && (
+                        <Button
+                          className="btn-manage-bill"
+                          onClick={handleManage3cBill}
+                        >
+                          <span>{"Manage Form 3c Bills"}</span>
+                        </Button>
+                      )}
                       <Button
                         className="btn-create-bill"
                         onClick={handleCreateBillDrawer}
                       >
-                        <span style={{fontSize:"22px"}}>{"+"}</span>
+                        <span style={{ fontSize: "22px" }}>{"+"}</span>
                         <span>{"Create New Bill"}</span>
                       </Button>
                     </div>
@@ -120,7 +149,7 @@ function BillingDashboard() {
                       className="btn-create-bill"
                       onClick={handleAddAdvance}
                     >
-                      <span style={{fontSize:"22px"}}>{"+"}</span>
+                      <span style={{ fontSize: "22px" }}>{"+"}</span>
                       <span>{"Add Advance Deposit"}</span>
                     </Button>
                   )}
@@ -129,7 +158,7 @@ function BillingDashboard() {
               <div className="pb-5">&nbsp;</div>
             </div>
           </>
-          <TableBillingDashboard onTabChange={setSelectedTab} />
+          <TableBillingDashboard onTabChange={setSelectedTab} patientData={patientData}/>
         </div>
 
         {form3cDrawer && (
@@ -140,7 +169,11 @@ function BillingDashboard() {
             open={form3cDrawer}
             width="100%"
           >
-            <Manage3cBill handleForm3cBill={handleManage3cBill} handleAddForm3cBill={handleAddForm3cDrawer}/>
+            <Manage3cBill
+              handleForm3cBill={handleManage3cBill}
+              handleAddForm3cDrawer={handleAddForm3cDrawer}
+              form3cData={form3cData}
+            />
           </Drawer>
         )}
 
@@ -152,20 +185,42 @@ function BillingDashboard() {
             open={addForm3cDrawer}
             width="100%"
           >
-            <AddForm3cBills handleAddForm3cBill={handleAddForm3cDrawer} />
+            <AddForm3cBills
+              handleAddForm3cDrawer={handleAddForm3cDrawer}
+              setForm3cData={setForm3cData}
+            />
           </Drawer>
         )}
-        {createBillDrawer &&(<Drawer
-          closeIcon={false}
-          placement="right"
-          bodyStyle={{ backgroundColor: "white" }}
-          open={createBillDrawer}
-          onClose={showHideBackModal}
-          width="100%"
-          push={false}
+
+        {addAdvanceDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleAddAdvanceDrawer}
+            open={addAdvanceDrawer}
+            width="80%"
           >
-              <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientData={{}} isDashboard={true} />
-          </Drawer>)}
+            <AddAdvance handleAddAdvanceDrawer={handleAddAdvanceDrawer} patientData={patientData}/>
+          </Drawer>
+        )}
+        {createBillDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            bodyStyle={{ backgroundColor: "white" }}
+            open={createBillDrawer}
+            onClose={showHideBackModal}
+            width="100%"
+            push={false}
+          >
+            <CreateBill
+              handleCreateBillDrawer={handleCreateBillDrawer}
+              isBackModalOpen={isBackModalOpen}
+              showHideBackModal={showHideBackModal}
+              patientData={patientData}
+            />
+          </Drawer>
+        )}
       </div>
     </>
   );
