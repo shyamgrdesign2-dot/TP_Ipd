@@ -29,7 +29,7 @@ const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
 const { TextArea } = Input;
 
-function RefundBill({ handleRefundBillDrawer, billData }) {
+function RefundBill({ handleRefundBillDrawer, billData, getPatientBills }) {
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
   const dispatch = useDispatch();
@@ -74,8 +74,9 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
         paymentModes: [...paymentModes],
       };
       const response = await processBillRefund(payload);
-      if(response){
+      if (response) {
         handleRefundBillDrawer();
+        getPatientBills && getPatientBills();
       }
     } catch (e) {
       message.error(e);

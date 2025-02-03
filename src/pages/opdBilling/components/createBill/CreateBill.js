@@ -156,6 +156,28 @@ const CreateBill = ({
     getStorageData();
   }, []);
 
+  useEffect(() => {
+    const updatedPayableAmount = (
+      dataSource.reduce(
+        (sum, service) => sum + (Number(service.totalAmount) || 0),
+        0
+      ) -
+      (Number(extraDiscount) || 0) +
+      (Number(patientDueAmount) || 0)
+    ).toFixed(2);
+
+    if (
+      updatedPayableAmount &&
+      Array.isArray(paymentModes) &&
+      paymentModes.length
+    ) {
+      const updatedPaymentModes = paymentModes.map((mode, index) =>
+        index === 0 ? { ...mode, amount: updatedPayableAmount } : mode
+      );
+      setPaymentModes(updatedPaymentModes);
+    }
+  }, [extraDiscount, patientDueAmount, dataSource]);
+
   const getBillPrintSettings = async () => {
     const printSettingsResponse = await fetchPrintSetting();
     if (printSettingsResponse) {
@@ -196,19 +218,21 @@ const CreateBill = ({
     } else {
       setDisableSaveBtn(true);
     }
-    if (paidAmount > payableAmount) {
+    if (Number(paidAmount) > Number(payableAmount)) {
       setDisableSaveBtn(true);
+    } else {
+      setDisableSaveBtn(false);
     }
   }, [dataSource, paymentModes]);
 
   useEffect(() => {
-    setDataSource((prevData) =>
-      prevData.map((item) => ({
+    setDataSource((prevData) => {
+      return prevData.map((item) => ({
         ...item,
         totalAmount: calculateTotalAmount(item),
-      }))
-    );
-  }, [dataSource]);
+      }));
+    });
+  }, [JSON.stringify(dataSource)]);
 
   const getPatientDueAmount = async () => {
     const patientDueRes = await fetchPatientDueAmount(
@@ -376,7 +400,7 @@ const CreateBill = ({
               value={record.name}
             />
           </AutoComplete>
-          {dataSource[index]?.totalAmount &&
+          {dataSource[index]?.totalAmount > 0 &&
             (userId === dataSource[index]?.createdBy ||
               tokenData?.admin === 1) && (
               <i
@@ -404,7 +428,11 @@ const CreateBill = ({
         <Input
           value={record.quantity}
           onChange={(e) =>
-            handleInputChange(Number(e.target.value), index, "quantity")
+            handleInputChange(
+              e.target.value.replace(/[^0-6]/g, ""),
+              index,
+              "quantity"
+            )
           }
           bordered={false}
           type="number"
@@ -419,7 +447,11 @@ const CreateBill = ({
         <Input
           value={record.amount}
           onChange={(e) =>
-            handleInputChange(Number(e.target.value), index, "amount")
+            handleInputChange(
+              e.target.value.replace(/[^0-6]/g, ""),
+              index,
+              "amount"
+            )
           }
           prefix="₹"
           bordered={false}
@@ -434,11 +466,19 @@ const CreateBill = ({
       render: (_, record, index) => (
         <>
           <Input
-            value={`${record.discountType === "flat" ? "₹ " : ""}${
+            value={
               record.discount
-            }${record.discountType === "flat" ? "" : " %"}`}
+                ? `${record.discountType === "flat" ? "₹ " : ""}${
+                    record.discount
+                  }${record.discountType === "flat" ? "" : " %"}`
+                : undefined
+            }
             onChange={(e) =>
-              handleInputChange(Number(e.target.value), index, "discount")
+              handleInputChange(
+                e.target.value.replace(/[^0-6]/g, ""),
+                index,
+                "discount"
+              )
             }
             bordered={false}
           />
@@ -490,7 +530,11 @@ const CreateBill = ({
         <Input
           value={record.gst}
           onChange={(e) =>
-            handleInputChange(Number(e.target.value), index, "gst")
+            handleInputChange(
+              e.target.value.replace(/[^0-6]/g, ""),
+              index,
+              "gst"
+            )
           }
           suffix="%"
           bordered={false}
@@ -506,7 +550,11 @@ const CreateBill = ({
         <Input
           value={record.totalAmount}
           onChange={(e) =>
-            handleInputChange(Number(e.target.value), index, "totalAmount")
+            handleInputChange(
+              e.target.value.replace(/[^0-6]/g, ""),
+              index,
+              "totalAmount"
+            )
           }
           prefix="₹"
           bordered={false}
@@ -525,12 +573,16 @@ const CreateBill = ({
       dataIndex: "action",
       width: "10%",
       render: (_, record, index) => (
-        <Button
-          className="btn btn-delete-prescription p-0"
-          onClick={() => handleDeleteRow(index)}
-        >
-          <i className="icon-delete" style={{ color: "#454551" }} />
-        </Button>
+        <>
+          {dataSource?.length > 1 && (
+            <Button
+              className="btn btn-delete-prescription p-0"
+              onClick={() => handleDeleteRow(index)}
+            >
+              <i className="icon-delete" style={{ color: "#454551" }} />
+            </Button>
+          )}
+        </>
       ),
     },
   ];
@@ -919,7 +971,10 @@ const CreateBill = ({
                               prefix="₹"
                               value={payment.amount}
                               onChange={(e) =>
-                                handleAmountChange(e.target.value, index)
+                                handleAmountChange(
+                                  e.target.value.replace(/[^0-6]/g, ""),
+                                  index
+                                )
                               }
                               className="w-40 payment-input"
                             />
@@ -988,7 +1043,9 @@ const CreateBill = ({
                 <div style={{ position: "relative", width: "50%" }}>
                   <Input
                     value={extraDiscount}
-                    onChange={(e) => setExtraDiscount(e.target.value)}
+                    onChange={(e) =>
+                      setExtraDiscount(e.target.value.replace(/[^0-6]/g, ""))
+                    }
                     prefix={extraDiscountType === "flat" ? "₹" : "%"}
                     style={{
                       textAlign: "center",

@@ -4629,14 +4629,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         paymentModes.length > 1
                                             ? paymentModes.slice(0, -1).join(", ") + " & " + paymentModes[paymentModes.length - 1]
                                             : paymentModes.join("");
-                                        return (
-                                            <Text key={i} style={{ color: "#171725", fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, }}>
-                                                {"\n"}
-                                                {`Received ₹${patientBill?.paidAmount} via ${formattedPaymentModes} for ( ${patientBill?.billItems
-                                                ?.map((item) => `${item?.name}: ₹${item?.totalAmount}`)
-                                                .join(" | ")}${patientBill?.dueAmount ? ` | Due Amount: ₹${patientBill?.dueAmount}` : ""} )`}
-                                            </Text>
-                                        )
+                                            if (patientBill?.paymentStatus === "Refunded") {
+                                                return (
+                                                    <Text key={i} style={{ color: "#171725", fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, }}>
+                                                        {"\n"}
+                                                        {`Received ₹${patientBill?.paidAmount} via ${formattedPaymentModes} for ( ${patientBill?.billItems
+                                                        ?.map((item) => `${item?.name}: ₹${item?.totalAmount}`)
+                                                        .join(" | ")}${patientBill?.dueAmount ? ` | Due Amount: ₹${patientBill?.dueAmount}` : ""} )`}
+                                                    </Text>
+                                                )
+                                        }
                                     })}
                                     {advanceReceipts?.map((advanceReceipt, i) => {
                                         const paymentModes = advanceReceipt?.paymentModes?.map((item) => item?.paymentMode) || [];

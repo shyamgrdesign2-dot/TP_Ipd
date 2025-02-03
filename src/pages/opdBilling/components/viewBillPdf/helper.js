@@ -71,9 +71,12 @@ export const billDataShow = (id, billData) => {
   } else if (id == 2) {
     value = billData?.receiptNumber ?? "-";
   } else if (id == 3) {
-    value = billData?.updatedAt
-      ? moment(billData.updatedAt).format("DD/MM/YYYY HH:mm")
-      : "-";
+    value =
+      billData?.updatedAt || billData?.createdAt
+        ? moment(billData.updatedAt || billData?.createdAt).format(
+            "DD/MM/YYYY HH:mm"
+          )
+        : "-";
   } else if (id == 4) {
     value = billData?.paymentStatus || "Paid";
   } else if (id == 5) {

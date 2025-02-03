@@ -8,7 +8,7 @@ import imgCloseVisit from '../../../../../assets/images/close-visit.svg';
 import visitEnd from '../../../../../assets/images/end-visit.svg';
 import { MESSAGE_KEY } from "../../../../../utils/constants";
 
-const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange }) => {
+const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, getPatientBills }) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [billData, setBillData] = useState(null);
@@ -260,6 +260,7 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange })
           <RefundBill
             handleRefundBillDrawer={handleRefundBillDrawer}
             billData={billData}
+            getPatientBills={getPatientBills}
           />
         </Drawer>
       )}

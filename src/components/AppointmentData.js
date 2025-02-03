@@ -1678,18 +1678,6 @@ function AppointmentData({ locationPath }) {
                     placement="right"
                     open={addAdvanceDrawer}
                     onClose={handleAddAdvanceDrawer}
-                    width="85%"
-                    push={false}
-                    >
-                    <AddAdvance handleAddAdvanceDrawer={handleAddAdvanceDrawer} patientData={appointmentSelectedFromMenu} />
-                </Drawer>
-            }
-            {addAdvanceDrawer &&
-                <Drawer
-                    closeIcon={false}
-                    placement="right"
-                    open={addAdvanceDrawer}
-                    onClose={handleAddAdvanceDrawer}
                     width="77%"
                     push={false}
                     >

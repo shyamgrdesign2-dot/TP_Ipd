@@ -68,7 +68,7 @@ const cardsStaticData = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-export default function BillingTable({ patientData }) {
+export default function BillingTable({ patientData, getPatientBills }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
   const [selectedDoctors, setSelectedDoctors] = useState([]);
@@ -638,6 +638,7 @@ export default function BillingTable({ patientData }) {
             isPatientScreen={patientData ? true : false}
             handleMessageForm3c={handleMessageForm3c}
             onSortChange={handleSortChange}
+            getPatientBills={getPatientBills}
           />
         </Row>
 

@@ -29,7 +29,7 @@ const DepositDetails = ({ pageFormat, depositData }) => {
       value: `₹${mode.amount.toFixed(2)}`,
       divider: index === paymentModes.length - 1,
     })),
-    transactionType === "Refund"
+    transactionType === "Refunded"
       ? {
           label: "Total Refund Amount:",
           value: `₹${totalAmount}`,

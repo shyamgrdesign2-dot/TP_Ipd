@@ -20,7 +20,7 @@ import BillingTable from "./BillingTable/BillingTable";
 import AdvanceDeposit from "./AdvanceDepositTable/AdvanceDepositTable";
 import AdvanceDepositTable from "./AdvanceDepositTable/AdvanceDepositTable";
 
-function TableBillingDashboard({ onTabChange, patientData }) {
+function TableBillingDashboard({ onTabChange, patientData, getPatientBills }) {
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -87,7 +87,7 @@ function TableBillingDashboard({ onTabChange, patientData }) {
         <div className="appointment-data">
             {
                 selectedTab === 1 ?
-                <BillingTable patientData={patientData}/> :
+                <BillingTable patientData={patientData} getPatientBills={getPatientBills}/> :
                 <AdvanceDepositTable patientData={patientData}/>
             }
         </div>

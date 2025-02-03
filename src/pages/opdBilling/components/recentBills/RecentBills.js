@@ -5,6 +5,7 @@ const RecentBills = ({
   handleRecentBillDrawer,
   handleCreateBillDrawer,
   patientBills,
+  getPatientBills,
 }) => {
   return (
     <div>
@@ -38,7 +39,11 @@ const RecentBills = ({
         </Button>
       </div>
       <div className="m-4 rounded-20px bg-white">
-        <BillTable data={patientBills} isPatientScreen={true} />
+        <BillTable
+          data={patientBills}
+          isPatientScreen={true}
+          getPatientBills={getPatientBills}
+        />
       </div>
     </div>
   );

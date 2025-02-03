@@ -6,22 +6,16 @@ import { upsertBillItem } from "../../service";
 import { useSelector } from "react-redux";
 import { calculateTotalAmount } from "../../utils/helper";
 
-const ServiceItemPopup = ({
-  popupType,
-  onCancel,
-  editIndex,
-  item,
-  setDataSource,
-}) => {
+const ServiceItemPopup = ({ onCancel, editIndex, item, setDataSource }) => {
   const { advancedSettings } = useSelector((state) => state.billing);
   const [serviceItem, setServiceItem] = useState({
-    id: item?.id,
+    id: item?.id || item?.masterId,
     name: item?.name,
     type: item?.type,
     price: item?.price || item?.amount,
-    discount: item?.discount || 0,
+    discount: item?.discount,
     discountType: item?.discountType || advancedSettings?.defaultDiscountType,
-    gst: item?.gst || 0,
+    gst: item?.gst,
   });
 
   const handleServiceItem = (key, value) => {
@@ -236,7 +230,7 @@ const ServiceItemPopup = ({
                   onClick={onCancel}
                   className="me-4 text-decoration-underline btn p-0 text-main"
                 >
-                  {popupType === "delete" ? "No, Keep it" : "Cancel"}
+                  {"Cancel"}
                 </div>
                 <Button
                   onClick={addOrEditServieItem}

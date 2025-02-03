@@ -62,7 +62,7 @@ const BillDetails = ({ pageFormat, billData }) => {
           bold: true,
         }
       : undefined,
-    paymentStatus === "Refund"
+    paymentStatus === "Refunded"
       ? {
           label: "Total Refund Amount:",
           value: `₹${refundedAmount}`,
@@ -71,10 +71,14 @@ const BillDetails = ({ pageFormat, billData }) => {
           divider: true,
         }
       : undefined,
-    ...refundModes?.map((mode) => ({
-      label: `Refunded Via ${mode.paymentMode}:`,
-      value: `₹${mode.amount.toFixed(2)}`,
-    })),
+    refundModes
+      ? {
+          ...refundModes?.map((mode) => ({
+            label: `Refunded Via ${mode.paymentMode}:`,
+            value: `₹${mode.amount.toFixed(2)}`,
+          })),
+        }
+      : undefined,
   ]?.filter((item) => item);
 
   return (
