@@ -103,13 +103,13 @@ function ObsHistoryTableView({
               <>
                 <View
                   style={[
-                    styles.headerRow,
+                    styles.row,
                     { alignItems: "center", justifyContent: "center" },
                   ]}
                 >
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
@@ -124,7 +124,7 @@ function ObsHistoryTableView({
                   </Text>
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
@@ -139,7 +139,7 @@ function ObsHistoryTableView({
                   </Text>
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
@@ -154,7 +154,7 @@ function ObsHistoryTableView({
                   </Text>
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
@@ -169,7 +169,7 @@ function ObsHistoryTableView({
                   </Text>
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
@@ -338,9 +338,7 @@ function ObsHistoryTableView({
               fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
               fontWeight: 500,
               padding: 6,
-              borderTop: "1px solid #171725",
-              borderLeft: "1px solid #171725",
-              borderRight: "1px solid #171725",
+              border: "1px solid #171725",
               backgroundColor: "#E2E2EA",
             }}
           >
@@ -349,13 +347,13 @@ function ObsHistoryTableView({
           <View style={[styles.table, { marginTop: 0 }]}>
             <View
               style={[
-                styles.headerRow,
+                styles.row,
                 { alignItems: "center", justifyContent: "center" },
               ]}
             >
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     fontFamily: printSettings?.page_format?.font_family,
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -370,7 +368,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     fontFamily: printSettings?.page_format?.font_family,
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -385,7 +383,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     fontFamily: printSettings?.page_format?.font_family,
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -400,7 +398,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     fontFamily: printSettings?.page_format?.font_family,
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -415,7 +413,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     fontFamily: printSettings?.page_format?.font_family,
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -430,7 +428,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     fontFamily: printSettings?.page_format?.font_family,
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -445,7 +443,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     fontFamily: printSettings?.page_format?.font_family,
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -460,7 +458,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     fontFamily: printSettings?.page_format?.font_family,
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -475,7 +473,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     fontFamily: printSettings?.page_format?.font_family,
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -686,7 +684,7 @@ function ObsHistoryTableView({
 
       {options?.includes("history") &&
         pregnancyHistory?.length > 0 && (
-          <View wrap={false} style={{ break: "avoid" }}>
+          <View>
             <Text
               style={{
                 color: "#000",
@@ -695,11 +693,10 @@ function ObsHistoryTableView({
                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                 fontWeight: 500,
                 padding: 6,
-                borderTop: "1px solid #171725",
-                borderLeft: "1px solid #171725",
-                borderRight: "1px solid #171725",
+                border: "1px solid #171725",
                 backgroundColor: "#E2E2EA",
               }}
+              fixed
             >
               Pregnancy history
             </Text>
@@ -709,13 +706,13 @@ function ObsHistoryTableView({
                   <View style={[styles.table, { marginTop: 0 }]}>
                     <View
                       style={[
-                        styles.headerRow,
+                        styles.row,
                         { alignItems: "center", justifyContent: "center" },
                       ]}
                     >
                       <Text
                         style={[
-                          styles.headerCell,
+                          styles.cell,
                           {
                             fontFamily: printSettings?.page_format?.font_family,
                             fontSize:
@@ -730,7 +727,7 @@ function ObsHistoryTableView({
                       </Text>
                       <Text
                         style={[
-                          styles.headerCell,
+                          styles.cell,
                           {
                             fontFamily: printSettings?.page_format?.font_family,
                             fontSize:
@@ -745,7 +742,7 @@ function ObsHistoryTableView({
                       </Text>
                       <Text
                         style={[
-                          styles.headerCell,
+                          styles.cell,
                           {
                             fontFamily: printSettings?.page_format?.font_family,
                             fontSize:
@@ -761,7 +758,7 @@ function ObsHistoryTableView({
                       {"deliveryMode" in item && (
                         <Text
                           style={[
-                            styles.headerCell,
+                            styles.cell,
                             {
                               fontFamily:
                                 printSettings?.page_format?.font_family,
@@ -781,7 +778,7 @@ function ObsHistoryTableView({
                       {"gestationPeriod" in item && (
                         <Text
                           style={[
-                            styles.headerCell,
+                            styles.cell,
                             {
                               fontFamily:
                                 printSettings?.page_format?.font_family,
@@ -801,7 +798,7 @@ function ObsHistoryTableView({
                       {"location" in item && (
                         <Text
                           style={[
-                            styles.headerCell,
+                            styles.cell,
                             {
                               fontFamily:
                                 printSettings?.page_format?.font_family,
@@ -821,7 +818,7 @@ function ObsHistoryTableView({
                       {"modeOfManagement" in item && (
                         <Text
                           style={[
-                            styles.headerCell,
+                            styles.cell,
                             {
                               fontFamily:
                                 printSettings?.page_format?.font_family,
@@ -841,7 +838,7 @@ function ObsHistoryTableView({
                       {"typeOfAbortion" in item && (
                         <Text
                           style={[
-                            styles.headerCell,
+                            styles.cell,
                             {
                               fontFamily:
                                 printSettings?.page_format?.font_family,
@@ -861,7 +858,7 @@ function ObsHistoryTableView({
                       {"modeOfAbortion" in item && (
                         <Text
                           style={[
-                            styles.headerCell,
+                            styles.cell,
                             {
                               fontFamily:
                                 printSettings?.page_format?.font_family,
@@ -881,7 +878,7 @@ function ObsHistoryTableView({
                       {"dateOfDelivery" in item && (
                         <Text
                           style={[
-                            styles.headerCell,
+                            styles.cell,
                             {
                               fontFamily:
                                 printSettings?.page_format?.font_family,
@@ -901,7 +898,7 @@ function ObsHistoryTableView({
                       {"ageOfDelivery" in item && (
                         <Text
                           style={[
-                            styles.headerCell,
+                            styles.cell,
                             {
                               fontFamily:
                                 printSettings?.page_format?.font_family,
@@ -921,7 +918,7 @@ function ObsHistoryTableView({
                       {"gender" in item && (
                         <Text
                           style={[
-                            styles.headerCell,
+                            styles.cell,
                             {
                               fontFamily:
                                 printSettings?.page_format?.font_family,
@@ -941,7 +938,7 @@ function ObsHistoryTableView({
                       {"babysWeight" in item && (
                         <Text
                           style={[
-                            styles.headerCell,
+                            styles.cell,
                             {
                               fontFamily:
                                 printSettings?.page_format?.font_family,
@@ -1269,7 +1266,7 @@ function ObsHistoryTableView({
         )}
 
       {options?.includes("examination") && obsHistoryData?.examinationHistory?.length > 0 && (
-        <View wrap={false} style={{ break: "avoid" }}>
+        <View>
           <Text
             style={{
               color: "#000",
@@ -1278,11 +1275,10 @@ function ObsHistoryTableView({
               fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
               fontWeight: 500,
               padding: 6,
-              borderTop: "1px solid #171725",
-              borderLeft: "1px solid #171725",
-              borderRight: "1px solid #171725",
+              border: "1px solid #171725",
               backgroundColor: "#E2E2EA",
             }}
+            fixed
           >
             Examination
           </Text>
@@ -1291,13 +1287,14 @@ function ObsHistoryTableView({
               <View style={[styles.table, { marginTop: 0 }]}>
                 <View
                   style={[
-                    styles.headerRow,
+                    styles.row,
                     { alignItems: "center", justifyContent: "center" },
                   ]}
+                  fixed
                 >
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
@@ -1313,7 +1310,7 @@ function ObsHistoryTableView({
                   </Text>
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         flex: 0.5,
                         fontFamily: printSettings?.page_format?.font_family,
@@ -1329,7 +1326,7 @@ function ObsHistoryTableView({
                   </Text>
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         flex: 0.7,
                         fontFamily: printSettings?.page_format?.font_family,
@@ -1345,7 +1342,7 @@ function ObsHistoryTableView({
                   </Text>
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         flex: 1.1,
                         fontFamily: printSettings?.page_format?.font_family,
@@ -1361,7 +1358,7 @@ function ObsHistoryTableView({
                   </Text>
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
@@ -1377,7 +1374,7 @@ function ObsHistoryTableView({
                   </Text>
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         flex: 1,
                         fontFamily: printSettings?.page_format?.font_family,
@@ -1393,7 +1390,7 @@ function ObsHistoryTableView({
                   </Text>
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         flex: 1.3,
                         fontFamily: printSettings?.page_format?.font_family,
@@ -1409,7 +1406,7 @@ function ObsHistoryTableView({
                   </Text>
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         flex: 0.8,
                         fontFamily: printSettings?.page_format?.font_family,
@@ -1425,7 +1422,7 @@ function ObsHistoryTableView({
                   </Text>
                   <Text
                     style={[
-                      styles.headerCell,
+                      styles.cell,
                       {
                         flex: 1,
                         fontFamily: printSettings?.page_format?.font_family,
@@ -1612,6 +1609,7 @@ function ObsHistoryTableView({
                   borderLeft: "1px solid #171725",
                   borderRight: "1px solid #171725",
                 }}
+                wrap={false}
               >
                 Notes&nbsp;:&nbsp;
                 <Text
@@ -1643,20 +1641,20 @@ function ObsHistoryTableView({
               fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
               fontWeight: 500,
               padding: 6,
-              borderTop: "1px solid #171725",
-              borderLeft: "1px solid #171725",
-              borderRight: "1px solid #171725",
+              border: "1px solid #171725",
               backgroundColor: "#E2E2EA",
+              // minHeight: '100%'
             }}
             wrap={false}
+            fixed
           >
             ANC Scheduler
           </Text>
           <View style={[styles.table, { marginTop: 0 }]}>
-            <View style={styles.headerRow} fixed>
+            <View style={styles.row} fixed>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     flex: 1.3,
                     fontFamily: printSettings?.page_format?.font_family,
@@ -1671,7 +1669,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     flex: 0.6,
                     fontFamily: printSettings?.page_format?.font_family,
@@ -1686,7 +1684,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     flex: 0.6,
                     fontFamily: printSettings?.page_format?.font_family,
@@ -1701,7 +1699,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     flex: 1.3,
                     fontFamily: printSettings?.page_format?.font_family,
@@ -1803,20 +1801,19 @@ function ObsHistoryTableView({
               fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
               fontWeight: 500,
               padding: 6,
-              borderTop: "1px solid #171725",
-              borderLeft: "1px solid #171725",
-              borderRight: "1px solid #171725",
+              border: "1px solid #171725",
               backgroundColor: "#E2E2EA",
             }}
             wrap={false}
+            fixed
           >
             Immunisation Vaccine
           </Text>
           <View style={[styles.table, { marginTop: 0 }]}>
-            <View style={styles.headerRow} fixed>
+            <View style={styles.row} fixed>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     flex: 1,
                     fontFamily: printSettings?.page_format?.font_family,
@@ -1831,7 +1828,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     flex: 0.5,
                     fontFamily: printSettings?.page_format?.font_family,
@@ -1846,7 +1843,7 @@ function ObsHistoryTableView({
               </Text>
               <Text
                 style={[
-                  styles.headerCell,
+                  styles.cell,
                   {
                     flex: 1.5,
                     fontFamily: printSettings?.page_format?.font_family,

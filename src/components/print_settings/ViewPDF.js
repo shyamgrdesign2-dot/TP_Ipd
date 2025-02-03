@@ -593,7 +593,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
                             return (
                                 i % 2 === 0 && (
-                                    <View key={i} style={{ flexDirection: 'row', paddingVertical: PX_TO_PT * 3 }}>
+                                    <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
                                         <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
                                         <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
                                     </View>
@@ -605,7 +605,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
                             return (
                                 i % 2 === 1 && (
-                                    <View key={i} style={{ flexDirection: 'row', paddingVertical: PX_TO_PT * 3 }}>
+                                    <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
                                         <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
                                         <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
                                     </View>
@@ -660,10 +660,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
                                                     Symptoms:&nbsp;
                                                 </Text>
-                                                <View style={styles.table} wrap={false}>
+                                                <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
                                                         <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
@@ -719,8 +719,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
-                                                <View style={styles.table} wrap={false}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Examinations:&nbsp;</Text>
+                                                <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed wrap={false}>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>
                                                             NAME
@@ -780,7 +780,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Diagnosis:&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -934,7 +934,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Medication (Rx):&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { flex: 0.18, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>S.NO</Text>
@@ -1034,7 +1034,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Advices:&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -1085,7 +1085,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Lab Investigation:&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -1239,7 +1239,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
                                                     Vitals & Body Composition:&nbsp;
 
                                                     {patientBirthWeight && (
@@ -1713,7 +1713,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             ) : (
                                                 <>
                                                     {transformGivenVaccines?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;{'\n'}</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Given Vaccines :&nbsp;{'\n'}</Text>
                                                         <View style={styles.table}>
                                                             <View style={styles.headerRow} fixed>
                                                                 <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -1744,7 +1744,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </View>
                                                     </View>}
                                                     {todayVaccines?.due?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Due Vaccines :&nbsp;{'\n'}</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Due Vaccines :&nbsp;{'\n'}</Text>
                                                         <View style={styles.table}>
                                                             <View style={styles.headerRow} fixed>
                                                                 <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -1793,7 +1793,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         option?.format === 'table' ? (
                                             <>
                                                 <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Growth Chart &nbsp;{'\n'}</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Growth Chart &nbsp;{'\n'}</Text>
                                                     <View style={styles.table}>
                                                         <View style={styles.headerRow} fixed>
                                                             <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Parameters</Text>
@@ -4408,6 +4408,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         fontFamily: printSettings?.page_format?.font_family,
                                                         fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                         fontWeight: 700,
+                                                        marginBottom: PX_TO_PT * 6
                                                     }}
                                                 >
                                                     Lab Results:&nbsp;
@@ -4555,7 +4556,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Surgeries/Procedures:&nbsp;</Text>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Surgeries/Procedures:&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -4604,7 +4605,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </View>
                                 ) : (customModule?.content?.some((item) => item.title || item.notes) &&
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>{customModule?.name}:&nbsp;</Text>
                                         <View style={styles.table}>
                                             <View style={styles.headerRow} fixed>
                                                 {customModule?.content?.some((item) => item.title) && <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>}
