@@ -622,10 +622,10 @@ export default function BillingTable({ patientData, getPatientBills }) {
                   {card.id === 1 && data ? totalBillCount : card.count} {")"}
                 </div>
                 <div className="card-amount">
-                  {card.amount}
+                  {parseFloat(card.amount).toFixed(2)}
                   {card.id === 1 && data && (
                     <span>
-                      {"/"} {data?.summary?.totalBillAmount}
+                      {"/"} {parseFloat(data?.summary?.totalBillAmount).toFixed(2)}
                     </span>
                   )}
                 </div>

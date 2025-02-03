@@ -27,7 +27,7 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
       try {
         const payload = { billIds: [record.id] }; // Adjust payload as needed
         const response = await addBillsToForm3C(payload);
-        if (response) {
+        if (response.status === 200) {
             message.open({
               key: MESSAGE_KEY,
               type: '',
@@ -44,7 +44,8 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
               ),
               duration: 5,
           });
-          // You can show a success message or update the UI accordingly
+
+          handleMessageForm3c();
         } else {
           console.error("Failed to add bill to Form 3C");
         }
@@ -135,22 +136,22 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
             case "due":
               return {
                 className: "status-due",
-                displayText: `Due: ₹${record.paid_Amount}`,
+                displayText: `Due: ₹${parseFloat(record.dueAmount).toFixed(2)}`,
               };
             case "refunded":
               return {
                 className: "status-refunded",
-                displayText: `Refunded ₹${record.total_amount}`,
+                displayText: `Refunded ₹${parseFloat(record.paidAmount).toFixed(2)}`,
               };
             case "carriedforward":
               return {
                 className: "status-carriedforrward",
-                displayText: `Due ₹${record.dueAmount}`,
+                displayText: `Due ₹${parseFloat(record.dueAmount).toFixed(2)}`,
               };
             default:
               return {
                 className: "status-due",
-                displayText: `Due: ₹${record.dueAmount}`,
+                displayText: `Due: ₹${parseFloat(record.dueAmount).toFixed(2)}`,
               };
           }
         };
@@ -196,17 +197,11 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
           <div onClick={() => onBillingDetailsClick(1, record)}>View bill</div>
         ),
         key: "view_bill",
-      },
-      {
-        label: (
-          <div onClick={() => onBillingDetailsClick(2, record)}>Refund bill</div>
-        ),
-        key: "refund_bill",
-      },
+      }
     ];
   
     // Conditionally add "Add to Form 3C" if isForm3C is false
-    if (!record.isForm3C) {
+    if (!record.isForm3C && record.paymentStatus !== "Refunded") {
       items.push({
         label: (
           <div onClick={() => onBillingDetailsClick(3, record)}>
@@ -214,6 +209,18 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
           </div>
         ),
         key: "add_to_3c",
+      });
+    }
+
+    // Conditionally add "Add to Form 3C" if isForm3C is false
+    if (record.paymentStatus !== "Refunded") {
+      items.push({
+        label: (
+          <div onClick={() => onBillingDetailsClick(3, record)}>
+            Refund Bill
+          </div>
+        ),
+        key: "refund_bill",
       });
     }
   
@@ -260,7 +267,7 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
           <RefundBill
             handleRefundBillDrawer={handleRefundBillDrawer}
             billData={billData}
-            getPatientBills={getPatientBills}
+            handleMessageForm3c={handleMessageForm3c}
           />
         </Drawer>
       )}

@@ -24,17 +24,21 @@ import "./RefundBill.scss";
 
 import { useSelector, useDispatch } from "react-redux";
 import { processBillRefund } from "../../../service";
+import imgCloseVisit from '../../../../../assets/images/close-visit.svg';
+import visitEnd from '../../../../../assets/images/end-visit.svg';
+import { MESSAGE_KEY } from "../../../../../utils/constants";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
 const { TextArea } = Input;
 
-function RefundBill({ handleRefundBillDrawer, billData, getPatientBills }) {
+function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c}) {
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
   const dispatch = useDispatch();
   const [dateString, setDateString] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
+  const [totalRefundAmount, setTotalRefundAmount] = useState(0);
 
   const [paymentModes, setPaymentModes] = useState([
     { mode: "Cash", amount: "", refId: "" },
@@ -52,18 +56,19 @@ function RefundBill({ handleRefundBillDrawer, billData, getPatientBills }) {
     setPaymentModes(updatedModes);
   };
 
-  const calculateTotalAmount = (modes) => {
-    return modes.reduce((total, mode) => {
-      const amount = parseFloat(mode.amount) || 0; // Ensure amount is a number
-      return total + amount;
-    }, 0);
-  };
+  // Calculate total refund whenever paymentModes change
+  useEffect(() => {
+    const total = paymentModes.reduce(
+      (sum, item) => sum + (parseFloat(item.amount) || 0),
+      0
+    );
+    setTotalRefundAmount(total);
+  }, [paymentModes]);
 
   const handleRefundBill = async () => {
-    const totalRefundAmount = calculateTotalAmount(paymentModes);
     if (totalRefundAmount !== billData?.paidAmount) {
       message.error(
-        "You can't do partial refund, refund amount should be equal to Total Paid Amount"
+        "You can't do partial refund OR Refund amount should be equal to Total Paid Amount"
       );
       return;
     }
@@ -74,9 +79,27 @@ function RefundBill({ handleRefundBillDrawer, billData, getPatientBills }) {
         paymentModes: [...paymentModes],
       };
       const response = await processBillRefund(payload);
-      if (response) {
+      if (response.status === 200) {
+          message.open({
+            key: MESSAGE_KEY,
+            type: '',
+            className: 'message-appointment',
+            content: (
+                <div className='d-flex align-items-center'>
+                    <img src={visitEnd} className='me-3' />
+                    <div>
+                        <div className='title-common text-start fontroboto'>{`${totalRefundAmount} is refunded`}</div>
+                        {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
+                    </div>
+                    <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                </div>
+            ),
+            duration: 5,
+        });
         handleRefundBillDrawer();
-        getPatientBills && getPatientBills();
+        handleMessageForm3c();
+      } else {
+        throw new Error(response.error || "Failed to refund the bill.");
       }
     } catch (e) {
       message.error(e);
@@ -145,7 +168,7 @@ function RefundBill({ handleRefundBillDrawer, billData, getPatientBills }) {
         // Determine the class name and display value based on the status
         const getStatusDetails = (status) => {
           switch (status?.toLowerCase()) {
-            case "paid fully":
+            case "fullypaid":
               return {
                 className: "status-paid-fully",
                 displayText: "Paid Fully",
@@ -294,18 +317,10 @@ function RefundBill({ handleRefundBillDrawer, billData, getPatientBills }) {
             </div>
           </div>
         </div>
-        <div className="d-flex gap-2 mx-4 my-2 p-2">
-          <TextArea
-            className=" h-100 align-self-center"
-            placeholder="Add Notes(optional)"
-            // defaultValue={item.tmm_remarks}
-            // value={item.tmm_remarks}
-            autoSize={{
-              minRows: 1,
-              maxRows: 2,
-            }}
-            // onChange={(e) => onChangeNoteChild()}
-          />
+
+        <div className="mx-4 my-2 p-2 refund-info h-50">
+          <span className="color-red fw-semibold">{totalRefundAmount ? totalRefundAmount : 0}</span>
+           will be Refunded to the patient
         </div>
         <div className=" mx-4 my-2 p-2 refund-info">
             <span className="color-red fw-semibold">{500}</span> will be Refunded to the patient

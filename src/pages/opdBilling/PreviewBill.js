@@ -16,6 +16,7 @@ import { setLoadingStatus } from "../../redux/uploadDocSlice";
 import { db } from "../../firebase";
 import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { deleteDocsUploadedFromAndroid } from "../medicalRecords/service";
+import RefundBill from "./components/billingDashboard/RefundBill/RefundBill";
 
 const PreviewBill = ({
   handleCreateBillDrawer,
@@ -44,6 +45,7 @@ const PreviewBill = ({
   const [numPages, setNumPages] = useState();
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [refundBillDrawer, setRefundBillDrawer] = useState(false);
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -125,6 +127,10 @@ const PreviewBill = ({
 
     return () => checkInFireBase();
   }, [db, deviceUid]);
+
+  const handleRefundBillDrawer = () => {
+    setRefundBillDrawer(!refundBillDrawer);
+  };
 
   return (
     <div>
@@ -244,6 +250,8 @@ const PreviewBill = ({
                     type="text"
                     className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
                     icon={<i className="icon-Edit" />}
+                    onClick={() => handleRefundBillDrawer()}
+                    disabled={billData?.paymentStatus === "Refunded"}
                   >
                     <span className="fw-semibold">Refund</span>
                     <i className="icon-right iconrotate180 ms-auto"></i>
@@ -340,6 +348,22 @@ const PreviewBill = ({
             patientData={patientData}
             billData={billData}
             isDepositReceipt={isDepositReceipt}
+          />
+        </Drawer>
+      )}
+
+      {refundBillDrawer && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleRefundBillDrawer}
+          open={refundBillDrawer}
+          width="56%"
+        >
+          <RefundBill
+            handleRefundBillDrawer={handleRefundBillDrawer}
+            billData={billData}
+            // handleMessageForm3c={handleMessageForm3c}
           />
         </Drawer>
       )}
