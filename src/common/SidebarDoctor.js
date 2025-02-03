@@ -32,6 +32,7 @@ function SidebarDoctor() {
 
     const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
     const { profile } = useSelector((state) => state.doctors);
+    const { planDetails } = useSelector((state) => state.subscription);
     const [tokenData, setTokenData] = useState(null);
     const [hoveredItem, setHoveredItem] = useState(null);
     const [tatvaHovered, SetTatvaHovered] = useState(null);
@@ -160,6 +161,13 @@ function SidebarDoctor() {
     const handleTatvaAi = async () => {
         try {
             setLoading(true);
+            window.Moengage.track_event("TP_TatvaAI_Open", {
+                "Doctor_Name": profile?.um_name,
+                "Doctor_Number": profile?.um_contact,
+                "Doctor_Unique_Id": profile?.doctor_unique_id,
+                "Doctor_Um_Id": tokenData?.user_id,
+                "Payment_Status": planDetails?.currentPlanStatus,
+            });
             const token = await getToken()
 
             const response = await axios.post(
@@ -217,7 +225,6 @@ function SidebarDoctor() {
                         <div className='mt-1 px-2'>{isMobile ? 'Appt' : <div className='text-truncate'>Appointment</div>}</div>
                     </NavLink>
                     
-                    {/* Will be commenting this code for future Tatva.AI
                     <NavLink replace={true} className={({ isActive, isPending }) =>
                         isPending ? "pending" : tatvaHovered ? "active" : ""
                     }>
@@ -233,7 +240,7 @@ function SidebarDoctor() {
                             </div>
                         </div>
                         <img src={newGif} className='mx-auto d-block text-center mb-2 position-absolute sidebar-message' style={{right: -4, top: 6, zIndex: -1}} alt='New' />
-                    </NavLink> */}
+                    </NavLink>
                     
                     {profile && profile?.module_data?.map((item, i) => {
                     const isHovered = hoveredItem === i;
