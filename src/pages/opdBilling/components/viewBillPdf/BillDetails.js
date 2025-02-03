@@ -24,12 +24,12 @@ const BillDetails = ({ pageFormat, billData }) => {
   const billInfo = [
     { label: "Subtotal:", value: `₹${subTotal}` },
     { label: "Line Item Discount:", value: `₹${lineItemDiscount}` },
-    { label: "Extra Discount:", value: `₹${extraDiscount}` },
     {
       label: "Applicable GST:",
       value: `₹${applicableGst}`,
       divider: dueFromPreviousBill === 0,
     },
+    { label: "Extra Discount:", value: `₹${extraDiscount}` },
     dueFromPreviousBill > 0
       ? {
           label: "Due from Previous bill:",
@@ -66,7 +66,7 @@ const BillDetails = ({ pageFormat, billData }) => {
       ? {
           label: "Total Refund Amount:",
           value: `₹${refundedAmount}`,
-          color: "#B73A3A",
+          color: "#FC5A5A",
           bold: true,
           divider: true,
         }

@@ -24,15 +24,16 @@ import "./RefundBill.scss";
 
 import { useSelector, useDispatch } from "react-redux";
 import { processBillRefund } from "../../../service";
-import imgCloseVisit from '../../../../../assets/images/close-visit.svg';
-import visitEnd from '../../../../../assets/images/end-visit.svg';
+import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
+import visitEnd from "../../../../../assets/images/end-visit.svg";
 import { MESSAGE_KEY } from "../../../../../utils/constants";
+import { PaymentOptions } from "../../../utils/constants";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
 const { TextArea } = Input;
 
-function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c}) {
+function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
   const dispatch = useDispatch();
@@ -43,6 +44,12 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c}) {
   const [paymentModes, setPaymentModes] = useState([
     { mode: "Cash", amount: "", refId: "" },
   ]);
+
+  const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
+
+  const filteredOptions = PaymentOptions.filter(
+    (option) => !usedPaymentModes.includes(option.value)
+  );
 
   const handleModeChange = (value, index, type) => {
     const updatedModes = [...paymentModes];
@@ -80,21 +87,25 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c}) {
       };
       const response = await processBillRefund(payload);
       if (response.status === 200) {
-          message.open({
-            key: MESSAGE_KEY,
-            type: '',
-            className: 'message-appointment',
-            content: (
-                <div className='d-flex align-items-center'>
-                    <img src={visitEnd} className='me-3' />
-                    <div>
-                        <div className='title-common text-start fontroboto'>{`${totalRefundAmount} is refunded`}</div>
-                        {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
-                    </div>
-                    <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
-                </div>
-            ),
-            duration: 5,
+        message.open({
+          key: MESSAGE_KEY,
+          type: "",
+          className: "message-appointment",
+          content: (
+            <div className="d-flex align-items-center">
+              <img src={visitEnd} className="me-3" />
+              <div>
+                <div className="title-common text-start fontroboto">{`${totalRefundAmount} is refunded`}</div>
+                {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
+              </div>
+              <img
+                src={imgCloseVisit}
+                className="ms-3"
+                onClick={() => message.destroy()}
+              />
+            </div>
+          ),
+          duration: 5,
         });
         handleRefundBillDrawer();
         handleMessageForm3c();
@@ -215,7 +226,12 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c}) {
             </Button>
             <div className="modal-title">Refund Bill</div>
           </div>
-          <Button className="btn btn-primary3 btn-41 px-4 me-20" onClick={handleRefundBill}>Refund</Button>
+          <Button
+            className="btn btn-primary3 btn-41 px-4 me-20"
+            onClick={handleRefundBill}
+          >
+            Refund
+          </Button>
         </div>
         <div
           className="billing-table-wrapper align-items-center d-flex justify-content-between mx-4 mt-4 "
@@ -232,54 +248,53 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c}) {
             pagination={false}
           />
         </div>
-        <div className="d-flex gap-2 mx-4 my-2 p-2">
-          <div style={{ padding: "16px 16px 0px 0px" }}>
-            <div className="text-lg font-medium mb-2">
-              Paid Amount <span className="color-red">*</span>
-            </div>
-            {paymentModes.map((payment, index) => (
-              <div key={index} className="relative">
-                {index > 0 && (
-                  <div className="flex items-center gap-2 mb-2 relative">
-                    <span className="text-gray-500 text-sm font-medium z-10 bg-white px-2">
-                      And
-                    </span>
-                    <div className="absolute left-0 top-1/2 w-full h-0.5 bg-gray-300 -z-10"></div>
-                  </div>
-                )}
-                <div className="flex align-items-center gap-4 mb-3">
-                  <div className="d-flex align-items-center">
-                    <div className="d-flex flex-column">
-                      <div className="d-flex">
-                        <Select
-                          placeholder="Select"
-                          value={payment.lable}
-                          onChange={(value) =>
-                            handleModeChange(value, index, "mode")
-                          }
-                          dropdownStyle={{ width: 180 }}
-                          options={[
-                            { value: "Cash", label: "Cash" },
-                            { value: "Credit Card", label: "Credit Card" },
-                            { value: "Debit Card", label: "Debit Card" },
-                            { value: "UPI", label: "UPI" },
-                            { value: "Check", label: "Check" },
-                            {
-                              value: "Advance Deposit",
-                              label: "Advance Deposit",
-                            },
-                            { value: "Others", label: "Others" },
-                          ]}
-                        />
-                        <Input
-                          type="number"
-                          prefix="₹"
-                          value={payment.amount}
-                          onChange={(e) =>
-                            handleAmountChange(e.target.value, index)
-                          }
-                          className="w-40 payment-input"
-                        />
+        <div className="payment-methods-container">
+          <div className="d-flex gap-2 mx-4 my-2 p-2">
+            <div style={{ padding: "16px 16px 0px 0px" }}>
+              <div className="text-lg font-medium mb-2">
+                Paid Amount <span className="color-red">*</span>
+              </div>
+              {paymentModes.map((payment, index) => (
+                <div key={index} className="relative">
+                  {index > 0 && (
+                    <div className="flex items-center gap-2 mb-2 relative">
+                      <span className="text-gray-500 text-sm font-medium z-10 bg-white px-2">
+                        And
+                      </span>
+                      <div className="absolute left-0 top-1/2 w-full h-0.5 bg-gray-300 -z-10"></div>
+                    </div>
+                  )}
+                  <div className="flex align-items-center gap-4 mb-3">
+                    <div className="d-flex align-items-center">
+                      <div className="d-flex flex-column">
+                        <div className="d-flex">
+                          <Select
+                            placeholder="Select"
+                            value={payment.lable}
+                            onChange={(value) =>
+                              handleModeChange(value, index, "mode")
+                            }
+                            dropdownStyle={{ width: 180 }}
+                            options={filteredOptions}
+                          />
+                          <Input
+                            type="number"
+                            prefix="₹"
+                            value={payment.amount}
+                            onChange={(e) =>
+                              handleAmountChange(e.target.value, index)
+                            }
+                            className="w-40 payment-input"
+                          />
+                        </div>
+                        {payment.lable !== "Cash" && (
+                          <span
+                            className="show-more-link"
+                            onClick={() => setShowRefIdPopup(index)}
+                          >
+                            {payment?.refId ?? `Add ${payment.mode} Ref ID`}
+                          </span>
+                        )}
                       </div>
                       {payment.lable !== "Cash" && (
                         <span
@@ -303,27 +318,30 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c}) {
                     )}
                   </div>
                 </div>
+              ))}
+              <div className="flex items-center gap-2">
+                <Button
+                  type="link"
+                  icon={<PlusOutlined />}
+                  onClick={addPaymentMode}
+                  className="payment-btn"
+                >
+                  Payment mode
+                </Button>
               </div>
-            ))}
-            <div className="flex items-center gap-2">
-              <Button
-                type="link"
-                icon={<PlusOutlined />}
-                onClick={addPaymentMode}
-                className="payment-btn"
-              >
-                Payment mode
-              </Button>
             </div>
           </div>
         </div>
 
         <div className="mx-4 my-2 p-2 refund-info h-50">
-          <span className="color-red fw-semibold">{totalRefundAmount ? totalRefundAmount : 0}</span>
+          <span className="color-red fw-semibold">
+            {totalRefundAmount ? totalRefundAmount : 0}
+          </span>
            will be Refunded to the patient
         </div>
         <div className=" mx-4 my-2 p-2 refund-info">
-            <span className="color-red fw-semibold">{500}</span> will be Refunded to the patient
+          <span className="color-red fw-semibold">{500}</span> will be Refunded
+          to the patient
         </div>
       </Card>
     </>

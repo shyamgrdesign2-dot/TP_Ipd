@@ -3,6 +3,8 @@ import CommonModal from "../../../../common/CommonModal";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
 import { useCallback, useState } from "react";
 
+const { TextArea } = Input;
+
 const RefIdPopup = ({ index, refId, showHideModal, handleModeChange }) => {
   const [refIdData, setRefId] = useState(refId);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
@@ -19,10 +21,20 @@ const RefIdPopup = ({ index, refId, showHideModal, handleModeChange }) => {
         title={"Add UPI Ref ID"}
         modalBody={
           <>
-            <Input
+            <TextArea
               placeholder="Enter Ref ID"
-              style={{ height: 48 }}
-              onChange={(e) => setRefId(e.target.value)}
+              autoSize
+              style={{
+                minHeight: 38,
+                maxHeight: 180,
+                overflowY: "auto",
+              }}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value.length <= 150) {
+                  setRefId(value);
+                }
+              }}
               value={refIdData}
             />
             <div className="d-flex justify-content-between align-items-center mt-4">

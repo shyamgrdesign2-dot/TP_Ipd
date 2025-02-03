@@ -8,6 +8,7 @@ const DepositDetails = ({ pageFormat, depositData }) => {
     paymentModes = [],
     totalAmount,
     transactionType,
+    payableAmount,
   } = depositData;
   const BillData = [
     {
@@ -20,7 +21,7 @@ const DepositDetails = ({ pageFormat, depositData }) => {
   const advanceReceipt = [
     {
       label: "Total Payable Amount:",
-      value: "108.00",
+      value: `₹${payableAmount}`,
       bold: true,
       divider: true,
     },

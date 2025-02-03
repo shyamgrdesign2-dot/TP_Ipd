@@ -278,3 +278,29 @@ export const addToForm3C = async function (billIds) {
   }
   return res;
 };
+
+export const fetchPatientDueAmount = async function (patientId) {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/billing/bill/patientDueAmount?patientId=${patientId}`,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching patient due amount: ", e);
+  }
+  return res;
+};
+
+export const fetchPatientWalletBalance = async function (patientId) {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/billing/advancedDeposit/walletBalance?patientId=${patientId}`,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching patient wallet balance: ", e);
+  }
+  return res;
+};

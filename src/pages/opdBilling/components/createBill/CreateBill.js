@@ -18,7 +18,10 @@ import visitEnd from "./../../../../assets/images/end-visit.svg";
 import { PlusOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useState } from "react";
 import DiagnosisNotes from "../../../obstetric/components/diagnosisNotes/DiagnosisNotes";
-import { removeBeforeWhiteSpace } from "../../../../utils/utils";
+import {
+  onlyDecimalFormat,
+  removeBeforeWhiteSpace,
+} from "../../../../utils/utils";
 import ServiceItemPopup from "../serviceItemPopup/ServiceItemPopup";
 import "./CreateBill.scss";
 import RefIdPopup from "../refIdPopup/RefIdPopup";
@@ -33,6 +36,7 @@ import {
   createBill,
   fetchAdvanceSetting,
   fetchPatientDueAmount,
+  fetchPatientWalletBalance,
   fetchPrintSetting,
   searchBillItem,
 } from "../../service";
@@ -102,6 +106,7 @@ const CreateBill = ({
   const [extraDiscount, setExtraDiscount] = useState(undefined);
   const [extraDiscountType, setExtraDiscountType] = useState("flat");
   const [patientDueAmount, setPatientDueAmount] = useState(0);
+  const [patientWalletBalance, setPatientWalletBalance] = useState(0);
   const [paymentModes, setPaymentModes] = useState([]);
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
   const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
@@ -142,10 +147,13 @@ const CreateBill = ({
   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
 
   const filteredOptions = PaymentOptions.filter(
-    (option) => !usedPaymentModes.includes(option.value)
+    (option) =>
+      !usedPaymentModes.includes(option.value) &&
+      (option.value !== "Advance Deposit" || patientWalletBalance > 0)
   );
 
   useEffect(() => {
+    getStorageData();
     if (advancedSettings && Object.keys(advancedSettings).length === 0) {
       getAdvanceSettings();
     }
@@ -153,7 +161,7 @@ const CreateBill = ({
       getBillPrintSettings();
     }
     getPatientDueAmount();
-    getStorageData();
+    getPatientWalletBalance();
   }, []);
 
   useEffect(() => {
@@ -197,13 +205,6 @@ const CreateBill = ({
     }
   };
 
-  const validateData = (data) => {
-    return data.every((item) => {
-      const { masterId, name, quantity, amount, totalAmount } = item;
-      return masterId && name && quantity && amount && totalAmount;
-    });
-  };
-
   const validatePaymentData = (data) => {
     return data.some(
       (item) => item.paymentMode && item.amount && Number(item.amount) > 0
@@ -211,9 +212,8 @@ const CreateBill = ({
   };
 
   useEffect(() => {
-    const validateDataSource = validateData(dataSource);
     const validatePayment = validatePaymentData(paymentModes);
-    if (validateDataSource && validatePayment) {
+    if (validatePayment) {
       setDisableSaveBtn(false);
     } else {
       setDisableSaveBtn(true);
@@ -243,6 +243,15 @@ const CreateBill = ({
     }
   };
 
+  const getPatientWalletBalance = async () => {
+    const patientWalletBalanceRes = await fetchPatientWalletBalance(
+      patientData?.patient_unique_id
+    );
+    if (patientWalletBalanceRes?.advanceDepositBalance) {
+      setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
+    }
+  };
+
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings)?.length) {
       setIncludeInRx(advancedSettings.defaultRxFlag);
@@ -258,16 +267,12 @@ const CreateBill = ({
   }, [advancedSettings]);
 
   useEffect(() => {
-    if (searchQuery) {
-      const timeOutId = setTimeout(() => {
-        getSearchOptions();
-      }, 500);
-      return () => {
-        clearTimeout(timeOutId);
-      };
-    } else {
-      setSearchOptions([]);
-    }
+    const timeOutId = setTimeout(() => {
+      getSearchOptions();
+    }, 500);
+    return () => {
+      clearTimeout(timeOutId);
+    };
   }, [searchQuery]);
 
   const getAdvanceSettings = async () => {
@@ -317,7 +322,7 @@ const CreateBill = ({
     setDataSource(updatedData);
   };
 
-  const handleAddRow = () => {
+  const handleAddRow = (updatedData = dataSource) => {
     const newRow = {
       masterId: "",
       name: "",
@@ -329,7 +334,7 @@ const CreateBill = ({
       totalAmount: "",
       createdBy: "",
     };
-    setDataSource([...dataSource, newRow]);
+    setDataSource([...updatedData, newRow]);
     setSearchQuery("");
   };
 
@@ -366,6 +371,9 @@ const CreateBill = ({
       );
       setDataSource(updatedData);
       setSearchQuery(selectedData.name);
+      if (index === dataSource?.length - 1) {
+        handleAddRow(updatedData);
+      }
     } else {
       console.log("directly add the entry to the table");
     }
@@ -429,7 +437,7 @@ const CreateBill = ({
           value={record.quantity}
           onChange={(e) =>
             handleInputChange(
-              e.target.value.replace(/[^0-6]/g, ""),
+              e.target.value.replace(/[^0-9]/g, ""),
               index,
               "quantity"
             )
@@ -448,7 +456,7 @@ const CreateBill = ({
           value={record.amount}
           onChange={(e) =>
             handleInputChange(
-              e.target.value.replace(/[^0-6]/g, ""),
+              onlyDecimalFormat(e.target.value),
               index,
               "amount"
             )
@@ -467,19 +475,17 @@ const CreateBill = ({
         <>
           <Input
             value={
-              record.discount
+              record.discount !== undefined && record.discount !== null
                 ? `${record.discountType === "flat" ? "₹ " : ""}${
                     record.discount
                   }${record.discountType === "flat" ? "" : " %"}`
-                : undefined
+                : ""
             }
-            onChange={(e) =>
-              handleInputChange(
-                e.target.value.replace(/[^0-6]/g, ""),
-                index,
-                "discount"
-              )
-            }
+            inputMode="decimal"
+            onChange={(e) => {
+              const numericValue = e.target.value.replace(/[^\d.]/g, "");
+              handleInputChange(numericValue, index, "discount");
+            }}
             bordered={false}
           />
           <div
@@ -529,13 +535,13 @@ const CreateBill = ({
       render: (_, record, index) => (
         <Input
           value={record.gst}
-          onChange={(e) =>
-            handleInputChange(
-              e.target.value.replace(/[^0-6]/g, ""),
-              index,
-              "gst"
-            )
-          }
+          onInput={(e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, "");
+          }}
+          onChange={(e) => {
+            const value = onlyDecimalFormat(e.target.value);
+            handleInputChange(value <= 100 ? value : record.gst, index, "gst");
+          }}
           suffix="%"
           bordered={false}
           style={{ textAlign: "center" }}
@@ -551,7 +557,7 @@ const CreateBill = ({
           value={record.totalAmount}
           onChange={(e) =>
             handleInputChange(
-              e.target.value.replace(/[^0-6]/g, ""),
+              e.target.value.replace(/[^0-9]/g, ""),
               index,
               "totalAmount"
             )
@@ -594,9 +600,11 @@ const CreateBill = ({
   };
 
   const handleAmountChange = (value, index) => {
-    const updatedModes = [...paymentModes];
-    updatedModes[index].amount = parseFloat(value) || 0;
-    setPaymentModes(updatedModes);
+    if (value <= 1000000000) {
+      const updatedModes = [...paymentModes];
+      updatedModes[index].amount = onlyDecimalFormat(value);
+      setPaymentModes(updatedModes);
+    }
   };
 
   const addPaymentMode = () => {
@@ -617,10 +625,14 @@ const CreateBill = ({
   };
 
   const handleCreateBill = async (type) => {
+    const updatedDataSource = dataSource.filter((item) => {
+      const { masterId, name, quantity, amount, totalAmount } = item;
+      return masterId && name && quantity && amount && totalAmount;
+    });
     const payload = {
       patientId: patientData?.patient_unique_id,
       doctorId: userId,
-      billItems: dataSource,
+      billItems: updatedDataSource,
       paymentModes: paymentModes,
       subTotal: subTotal,
       lineItemDiscount: lineItemDiscount,
@@ -872,7 +884,7 @@ const CreateBill = ({
                     value={mobileNumber}
                     placeholder="Search number"
                     onInput={(e) => {
-                      setMobileNumber(e.target.value.replace(/[^0-6]/g, ""));
+                      setMobileNumber(e.target.value.replace(/[^0-9]/g, ""));
                     }}
                     disabled={!isDashboard}
                   />
@@ -884,7 +896,7 @@ const CreateBill = ({
                     style={{ width: 125 }}
                     value={moment().format("DD-MM-YYYY")}
                     onInput={(e) => {
-                      e.target.value = e.target.value.replace(/[^0-6]/g, "");
+                      e.target.value = e.target.value.replace(/[^0-9]/g, "");
                     }}
                     disabled={true}
                   />
@@ -895,7 +907,7 @@ const CreateBill = ({
                     className="text-main"
                     value={profile?.um_name}
                     onInput={(e) => {
-                      e.target.value = e.target.value.replace(/[^0-6]/g, "");
+                      e.target.value = e.target.value.replace(/[^0-9]/g, "");
                     }}
                     disabled={true}
                   />
@@ -910,15 +922,17 @@ const CreateBill = ({
                 bordered
                 className="customize-table"
               />
-              <Button
-                type="button"
-                className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
-                onClick={handleAddRow}
-                icon={<PlusOutlined />}
-                style={{ marginTop: 16, width: "fit-content" }}
-              >
-                Add Another Service
-              </Button>
+              <div>
+                <Button
+                  type="button"
+                  className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
+                  onClick={handleAddRow}
+                  icon={<PlusOutlined />}
+                  style={{ marginTop: 16, width: "fit-content" }}
+                >
+                  <span>Add Another Service</span>
+                </Button>
+              </div>
             </div>
           </Col>
           <Col
@@ -955,7 +969,13 @@ const CreateBill = ({
                             borderRadius: 10,
                           }}
                         >
-                          <div className="d-flex">
+                          <div
+                            className="d-flex"
+                            style={{
+                              border: disableSaveBtn ? "solid 1px red" : "",
+                              borderRadius: disableSaveBtn ? 10 : "",
+                            }}
+                          >
                             <Select
                               placeholder="Select"
                               value={payment.paymentMode}
@@ -967,14 +987,11 @@ const CreateBill = ({
                               options={filteredOptions}
                             />
                             <Input
-                              type="number"
+                              inputMode="numeric"
                               prefix="₹"
                               value={payment.amount}
                               onChange={(e) =>
-                                handleAmountChange(
-                                  e.target.value.replace(/[^0-6]/g, ""),
-                                  index
-                                )
+                                handleAmountChange(e.target.value, index)
                               }
                               className="w-40 payment-input"
                             />
@@ -982,18 +999,28 @@ const CreateBill = ({
                           {payment?.paymentMode &&
                             payment.paymentMode !== "Cash" && (
                               <span
-                                className="show-more-link"
                                 style={{
-                                  textAlign: "center",
+                                  textAlign: payment?.refId ? "" : "center",
+                                  textDecoration: payment?.refId
+                                    ? "none"
+                                    : "underline",
                                   borderRadius: "0 0 10px 10px",
-                                  height: 25,
+                                  minHeight: 25,
                                   cursor: "pointer",
+                                  wordBreak: "break-word",
                                 }}
                                 onClick={() => setShowRefIdPopup(index)}
                               >
-                                {payment?.refId
-                                  ? payment?.refId
-                                  : `Add ${payment.paymentMode} Ref ID`}
+                                {payment?.refId ? (
+                                  <div className="d-flex align-items-center justify-content-between px-2">
+                                    <span>Ref ID: {payment?.refId}</span>
+                                    <span className="icon-Edit fs-18" />
+                                  </div>
+                                ) : (
+                                  <span className="show-more-link">
+                                    {`Add ${payment.paymentMode} Ref ID`}
+                                  </span>
+                                )}
                               </span>
                             )}
                         </div>
@@ -1012,6 +1039,15 @@ const CreateBill = ({
                     </div>
                   </div>
                 ))}
+                {disableSaveBtn && (
+                  <div className="d-flex align-items-start gap-2">
+                    <span className="icon-info fs-18 mt-1 bdg-danger" />
+                    <span className="bdg-danger">
+                      The sum of paid amount cannot exceed the total payable
+                      amount
+                    </span>
+                  </div>
+                )}
                 {paymentModes.length < 4 && (
                   <div className="flex align-items-center gap-2">
                     <button
@@ -1039,13 +1075,18 @@ const CreateBill = ({
                 <span className="tick-icon">-₹{lineItemDiscount}</span>
               </div>
               <div className="d-flex justify-content-between">
+                <span>Applicable GST:</span>
+                <span>₹{applicableGst}</span>
+              </div>
+              <div className="d-flex justify-content-between">
                 <span>Extra Discount:</span>
                 <div style={{ position: "relative", width: "50%" }}>
                   <Input
                     value={extraDiscount}
-                    onChange={(e) =>
-                      setExtraDiscount(e.target.value.replace(/[^0-6]/g, ""))
-                    }
+                    onChange={(e) => {
+                      const value = onlyDecimalFormat(e.target.value);
+                      setExtraDiscount(value);
+                    }}
                     prefix={extraDiscountType === "flat" ? "₹" : "%"}
                     style={{
                       textAlign: "center",
@@ -1089,10 +1130,6 @@ const CreateBill = ({
                     </Radio.Group>
                   </div>
                 </div>
-              </div>
-              <div className="d-flex justify-content-between">
-                <span>Applicable GST:</span>
-                <span>₹{applicableGst}</span>
               </div>
               {patientDueAmount > 0 && (
                 <div className="d-flex justify-content-between">

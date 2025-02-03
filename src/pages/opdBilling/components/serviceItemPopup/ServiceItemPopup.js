@@ -120,26 +120,6 @@ const ServiceItemPopup = ({ onCancel, editIndex, item, setDataSource }) => {
                   className="d-flex"
                   style={{ fontWeight: 500, width: 110 }}
                 >
-                  GST
-                </label>
-                <Input
-                  value={serviceItem.gst}
-                  onInput={(e) => {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
-                  }}
-                  onChange={(e) => handleServiceItem("gst", e.target.value)}
-                  style={{ height: 38 }}
-                  suffix={
-                    <i style={{ fontFamily: "Roboto", fontSize: 14 }}>%</i>
-                  }
-                />
-              </div>
-
-              <div className="d-flex gap-5 align-items-center">
-                <label
-                  className="d-flex"
-                  style={{ fontWeight: 500, width: 110 }}
-                >
                   Discount
                 </label>
                 <Input
@@ -184,6 +164,26 @@ const ServiceItemPopup = ({ onCancel, editIndex, item, setDataSource }) => {
                     </Radio.Button>
                   </Radio.Group>
                 </div>
+              </div>
+
+              <div className="d-flex gap-5 align-items-center">
+                <label
+                  className="d-flex"
+                  style={{ fontWeight: 500, width: 110 }}
+                >
+                  GST
+                </label>
+                <Input
+                  value={serviceItem.gst}
+                  onInput={(e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                  }}
+                  onChange={(e) => handleServiceItem("gst", e.target.value)}
+                  style={{ height: 38 }}
+                  suffix={
+                    <i style={{ fontFamily: "Roboto", fontSize: 14 }}>%</i>
+                  }
+                />
               </div>
 
               <div className="d-flex gap-5 align-items-center">

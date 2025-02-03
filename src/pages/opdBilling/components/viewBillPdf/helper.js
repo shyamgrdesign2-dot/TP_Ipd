@@ -60,6 +60,8 @@ export const patientDataShow = (id, patient_data, billData, profile) => {
         ? `${patient_data?.pm_salutation} ${patient_data?.pm_fullname}, ${patient_data?.pm_pid}`
         : `${patient_data?.pm_fullname}, ${patient_data?.pm_pid}`
     }`;
+  } else if (id == 7) {
+    value = patient_data?.address ?? "-";
   }
   return value;
 };

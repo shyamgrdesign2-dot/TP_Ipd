@@ -34,6 +34,8 @@ const PreviewBill = ({
     ageDays: patient.ageDays,
     ageMonths: patient.ageMonths,
     ageYears: patient.ageYears,
+    pm_salutation: patient.salutation,
+    address: patient.address,
   };
   const dispatch = useDispatch();
   const deviceUid = localStorage.getItem("app_device_unique_id");
