@@ -593,6 +593,14 @@ function AppointmentData({ locationPath }) {
                 label: <span
                     onClick={() => {
                         setAppointmentSelectedFromMenu(record);
+                        handleAddAdvanceDrawer();
+                    }}>Advance Deposit</span>,
+                key: "advancebill",
+          },
+          {
+                label: <span
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
                         handleAddLabParamsDrawer()
                     }}>Add Lab Results</span>,
                 key: "labparams",
@@ -1671,6 +1679,18 @@ function AppointmentData({ locationPath }) {
                     open={addAdvanceDrawer}
                     onClose={handleAddAdvanceDrawer}
                     width="85%"
+                    push={false}
+                    >
+                    <AddAdvance handleAddAdvanceDrawer={handleAddAdvanceDrawer} patientData={appointmentSelectedFromMenu} />
+                </Drawer>
+            }
+            {addAdvanceDrawer &&
+                <Drawer
+                    closeIcon={false}
+                    placement="right"
+                    open={addAdvanceDrawer}
+                    onClose={handleAddAdvanceDrawer}
+                    width="77%"
                     push={false}
                     >
                     <AddAdvance handleAddAdvanceDrawer={handleAddAdvanceDrawer} patientData={appointmentSelectedFromMenu} />

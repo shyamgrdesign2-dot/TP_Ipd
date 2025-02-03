@@ -11,13 +11,19 @@ import {
   Dropdown,
   Drawer,
 } from "antd";
+import { useSelector } from "react-redux";
 import moment from "moment";
 import dayjs from "dayjs";
 import "../AdvanceDepositTable/AdvanceDepositTable.scss";
 import { useReactToPrint } from "react-to-print";
 import { handlePrintClick } from "../../../../../utils/utils.js";
 import DownloadBill from "../DownloadBill/DownloadBill.js";
+import {
+  fetchAdvancedDepositDashboard,
+  listAdvancedDepositByPatient,
+} from "../../../service.js";
 import PreviewBill from "../../../PreviewBill.js";
+import { getDecodedToken } from "../../../../../utils/localStorage.js";
 const { RangePicker } = DatePicker;
 
 const cards = [
@@ -40,7 +46,9 @@ const cards = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-export default function AdvanceDepositTable({patientData}) {
+export default function AdvanceDepositTable({ patientData }) {
+  const decodedToken = getDecodedToken();
+  const isAdmin = decodedToken?.result?.admin;
   const [pageNo, setPageNo] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [pickerModal, setPickerModal] = useState(false);
@@ -48,10 +56,16 @@ export default function AdvanceDepositTable({patientData}) {
   const printableRef = useRef(null);
   const [tabLoader, setTabLoader] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ field: null, order: null });
+  const [data, setData] = useState(null);
+  const [cards, setCards] = useState([]);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [billData, setBillData] = useState(null);
+  const [advanceData, setAdvanceData] = useState([]);
 
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
+
+  const { doctorList } = useSelector((state) => state.bulkMessages);
 
   const [dateRange, setDateRange] = useState({
     startDate: moment().format(dateFormat),
@@ -107,9 +121,6 @@ export default function AdvanceDepositTable({patientData}) {
 
   const onRangeChange = (dates, dateStrings) => {
     if (dates) {
-      // console.log('From: ', dates[0], ', to: ', dates[1]);
-      // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
-
       if (
         dayjs().format(dateFormat) ==
           moment(dateStrings[0], showDateFormat).format(dateFormat) &&
@@ -151,6 +162,16 @@ export default function AdvanceDepositTable({patientData}) {
     setPreviewBillDrawer(!previewBillDrawer);
   };
 
+  const handleSortChange = (pagination, filters, sorter) => {
+    if (sorter.order) {
+      const order = sorter.order === "ascend" ? "asc" : "desc"; // Convert for API
+      const field = sorter.field;
+      setSortConfig({ field, order });
+    } else {
+      setSortConfig({ field: null, order: null }); // Reset sorting
+    }
+  };
+
   const onBillingDetailsClick = async (status, record) => {
     setBillData(record);
     if (status === 1) {
@@ -171,30 +192,17 @@ export default function AdvanceDepositTable({patientData}) {
     },
     {
       title: "RECEIPT NO & DATE",
-      dataIndex: "receipt_no_date",
-      key: "receipt_no_date",
-      width: 200,
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
+      dataIndex: "date",
+      key: "date",
+      width: 250,
+      sorter: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold theme-color">{ selectedCard === 3 ? record.billNumber : record.receiptNumber}</div>
+          <div className="fs-14 fw-semibold theme-color">
+            {selectedCard === 3 ? record?.billNumber : record?.receiptNumber}
+          </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.bill_date}
+            {moment(record?.date).format(showDateFormat)}
           </div>
         </div>
       ),
@@ -206,18 +214,10 @@ export default function AdvanceDepositTable({patientData}) {
       ellipsis: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14">{record.patient.name}</div>
-        </div>
-      ),
-    },
-    {
-      title: "MOBILE NUMBER",
-      dataIndex: "mobile_number",
-      key: "mobile_number",
-      ellipsis: true,
-      render: (text, record) => (
-        <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14">{record.patient.phone}</div>
+          <div className="fs-14">{record?.patient?.name}</div>
+          <div className="fs-14 fw-normal text-truncate-twolines">
+            {record?.patient?.phone}
+          </div>
         </div>
       ),
     },
@@ -226,24 +226,8 @@ export default function AdvanceDepositTable({patientData}) {
       dataIndex: "total_amount",
       key: "total_amount",
       ellipsis: true,
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
-      onFilter: (value, record) => record.send_on.startsWith(value),
-      render: (text, record) => <div> {record.total_amount} </div>,
+      sorter: true,
+      render: (text, record) => <div> {record?.totalAmount} </div>,
     },
     {
       title: "STATUS",
@@ -273,7 +257,101 @@ export default function AdvanceDepositTable({patientData}) {
         };
 
         // Get status details
-        const { className, displayText } = getStatusDetails(record.status);
+        const { className, displayText } = getStatusDetails(
+          record?.transactionType
+        );
+
+        return <div className={className}>{displayText}</div>;
+      },
+    },
+    {
+      title: "Action",
+      key: "action",
+      width: 80,
+      render: (text, record) => (
+        <Dropdown
+          className="cursor-pointer"
+          menu={{
+            items: getMenuItems(record),
+          }}
+          trigger={["click"]}
+        >
+          <i className="icon-More"></i>
+        </Dropdown>
+      ),
+    },
+  ];
+
+  const patientColumns = [
+    {
+      title: "#",
+      dataIndex: "srno",
+      key: "srno",
+      ellipsis: true,
+      width: 50,
+      render: (text, record, index) => <div className="fs-14">{index + 1}</div>,
+    },
+    {
+      title: "RECEIPT NO & DATE",
+      dataIndex: "receipt_no_date",
+      key: "receipt_no_date",
+      width: 250,
+      sorter: true,
+      render: (text, record) => (
+        <div className="cursor-pointer" onClick={async () => {}}>
+          <div className="fs-14 fw-semibold theme-color">
+            {selectedCard === 3 ? record?.billNumber : record?.receiptNumber}
+          </div>
+          <div className="fs-14 fw-normal text-truncate-twolines">
+            {moment(record?.date).format(showDateFormat)}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "TOTAL AMOUNT",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
+      ellipsis: true,
+      sorter: true,
+      render: (text, record) => <div> {record?.totalAmount} </div>,
+    },
+    {
+      title: "STATUS",
+      dataIndex: "transactionType",
+      key: "transactionType",
+      ellipsis: true,
+      render: (text, record) => {
+        // Determine the class name and display value based on the status
+        const getStatusDetails = (status) => {
+          switch (status.toLowerCase()) {
+            case "deposit":
+              return {
+                className: "status-advance",
+                displayText: `Advance`,
+              };
+            case "refund":
+              return {
+                className: "status-refunded",
+                displayText: `Refunded`,
+              };
+            case "debit":
+              return {
+                className: "status-debited",
+                displayText: `Debited`,
+              };
+            default:
+              return {
+                className: "status-advance",
+                displayText: `Advance`,
+              };
+          }
+        };
+
+        // Get status details
+        const { className, displayText } = getStatusDetails(
+          record?.transactionType
+        );
 
         return <div className={className}>{displayText}</div>;
       },
@@ -444,56 +522,70 @@ export default function AdvanceDepositTable({patientData}) {
     </div>
   );
 
-  const data = [
-    {
-      key: "1",
-      srno: "1",
-      bill_bum: "INV-2900567",
-      patient_details: "John Doe",
-      bill_date: "15 Oct 2023",
-      bill_time: "10:30 AM",
-      total_amount: "₹5,00",
-      paid_Amount: "₹3,00",
-      status: "Advance",
-      mobile_number: "9930875752",
-    },
-    {
-      key: "2",
-      srno: "2",
-      bill_bum: "INV-2900568",
-      patient_details: "Jane Smith",
-      bill_date: "14 Oct 2023",
-      bill_time: "02:45 PM",
-      total_amount: "₹500",
-      paid_Amount: "₹7,500",
-      status: "Advance",
-      mobile_number: "9930875752",
-    },
-    {
-      key: "3",
-      srno: "3",
-      bill_bum: "INV-2900569",
-      patient_details: "Michael Johnson",
-      bill_date: "16 Oct 2023",
-      bill_time: "11:15 AM",
-      total_amount: "₹500",
-      paid_Amount: "₹0",
-      status: "Refunded",
-      mobile_number: "9930875752",
-    },
-    {
-      key: "4",
-      srno: "4",
-      bill_bum: "INV-2900570",
-      patient_details: "Emily Davis",
-      bill_date: "13 Oct 2023",
-      bill_time: "09:00 AM",
-      total_amount: "₹500",
-      paid_Amount: "₹4,200",
-      status: "Refunded",
-      mobile_number: "9930875752",
-    },
-  ];
+  const loadData = async () => {
+    // setLoading(true);
+    const params = {
+      status:
+        selectedCard === 1
+          ? "Deposit"
+          : selectedCard === 2
+          ? "Refund"
+          : "Debit",
+      sortBy: sortConfig?.field || "date",
+      sortOrder: sortConfig?.order || "desc",
+      page: 1,
+      limit: 25,
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+      search: searchQuery || "",
+    };
+    try {
+      const response = await fetchAdvancedDepositDashboard(params);
+      setData(response || []);
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+  const patientAdvanceData = async () => {
+    // setLoading(true);
+    const params = {
+      status:
+        selectedCard === 1
+          ? "Deposit"
+          : selectedCard === 2
+          ? "Refund"
+          : "Debit",
+      sortBy: sortConfig?.field || "date",
+      sortOrder: sortConfig?.order || "desc",
+      page: 1,
+      limit: 25,
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+      doctorIds: decodedToken?.result?.user_id,
+      search: searchQuery || "",
+      patientName: patientData?.pm_fullname,
+      patientPhone: patientData?.pm_contact_no,
+    };
+    try {
+      const response = await fetchAdvancedDepositDashboard(params);
+      setData(response || []);
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (patientData) {
+      patientAdvanceData();
+    } else {
+      loadData();
+    }
+  }, [selectedCard, dateRange, searchQuery, doctorList, sortConfig]);
 
   return (
     <div>
@@ -646,10 +738,12 @@ export default function AdvanceDepositTable({patientData}) {
 
           <Table
             className="billing-table px-0"
-            columns={columns}
+            columns={patientData ? patientColumns : columns}
             width="100%"
             dataSource={data}
             pagination={false}
+            scroll={{ y: 300 }}
+            onChange={handleSortChange} // Send sorting data to parent
           />
         </Row>
       </div>

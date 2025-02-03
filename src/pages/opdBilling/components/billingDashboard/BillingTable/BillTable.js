@@ -8,7 +8,7 @@ import imgCloseVisit from '../../../../../assets/images/close-visit.svg';
 import visitEnd from '../../../../../assets/images/end-visit.svg';
 import { MESSAGE_KEY } from "../../../../../utils/constants";
 
-const BillTable = ({ data, isPatientScreen, handleMessageForm3c }) => {
+const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange }) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [billData, setBillData] = useState(null);
@@ -70,25 +70,10 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c }) => {
     },
     {
       title: "BILL NO & DATE",
-      dataIndex: "bill_num_date",
-      key: "bill_num_date",
+      dataIndex: "date",
+      key: "date",
       width: 200,
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
+      sorter: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
           <div className="fs-14 fw-semibold">
@@ -118,50 +103,20 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c }) => {
       : undefined,
     {
       title: "TOTAL AMOUNT",
-      dataIndex: "total_amount",
-      key: "total_amount",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
       ellipsis: true,
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
+      sorter: true,
       onFilter: (value, record) => record.send_on.startsWith(value),
       render: (text, record) => <div> {record.total_amount} </div>,
     },
     {
       title: "PAID AMOUNT",
-      dataIndex: "paid_Amount",
-      key: "paid_Amount",
+      dataIndex: "paidAmount",
+      key: "paidAmount",
       ellipsis: true,
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
-      render: (text, record) => <div> {record.paid_Amount} </div>,
+      sorter: true,
+      render: (text, record) => <div> {record.paidAmount} </div>,
     },
     {
       title: "STATUS",
@@ -224,6 +179,16 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c }) => {
     },
   ]?.filter((item) => item);
 
+  const handleTableChange = (pagination, filters, sorter) => {
+    if (sorter.order) {
+      const order = sorter.order === "ascend" ? "asc" : "desc"; // Convert to API format
+      const field = sorter.field; // Get sorted field
+  
+      // Pass sorting parameters to parent
+      onSortChange(field, order);
+    }
+  };
+
   const getMenuItems = (record) => {
     const items = [
       {
@@ -259,10 +224,13 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c }) => {
     <>
       <Table
         className="billing-table px-0"
+        style={{position:"relative"}}
         columns={columns}
         width="100%"
         dataSource={data}
         pagination={false}
+        scroll={{ y: 300 }}
+        onChange={handleTableChange} // Send sorting data to parent
       />
       {previewBillDrawer && (
         <Drawer
@@ -287,7 +255,7 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c }) => {
           placement="right"
           onClose={handleRefundBillDrawer}
           open={refundBillDrawer}
-          width="50%"
+          width="56%"
         >
           <RefundBill
             handleRefundBillDrawer={handleRefundBillDrawer}

@@ -7,6 +7,7 @@ import {
   DatePicker,
   Button,
   Dropdown,
+  message,
   Drawer,
 } from "antd";
 import moment from "moment";
@@ -81,6 +82,7 @@ export default function BillingTable({ patientData }) {
   const printableRef = useRef(null);
   const [tabLoader, setTabLoader] = useState(false);
 
+  const [sortConfig, setSortConfig] = useState({ field: null, order: null });
   const [data, setData] = useState(null);
   const [cards, setCards] = useState([]);
   const [totalBillCount, setTotalBillCount] = useState(null);
@@ -173,36 +175,36 @@ export default function BillingTable({ patientData }) {
     );
   }, [selectedOptions, data]);
 
+  const handleSortChange = (field, order) => {
+    setSortConfig({ field, order }); // Update state
+  };
+
   const handleDownload = async () => {
-    // if (selectedOptions.length === 0) {
-    //   // message.warning("Please select at least one option or download all sections!");
-    //   return;
-    // }
-
     try {
-      console.log("this is getting called");
-      // Mock API call
-      // const response = await fetch("https://api.example.com/download-data", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ filters: selectedOptions }),
-      // });
-      // const data = await response.json();
-
       handlePrintClick(
         printableRef.current,
         setTabLoader,
         handlePrintWeb,
         "DownloadBill"
       );
-
-      // // Pass the data to downloadView
-      // downloadView(data);
-      // message.success("Download started!");
-      // handleOpenDownloadModal();
     } catch (error) {
-      // message.error("Failed to download. Please try again.");
+      message.error("Failed to download. Please try again.");
     }
+  };
+
+  const handleDownloadAll = () => {
+    const allStatuses = ["PailFully","CarriedForward","Due","Refunded"];
+
+    setDownloadData(
+      data?.bills?.filter((item) =>
+      allStatuses.includes(item.paymentStatus)
+      )
+    );
+
+    // Ensure handleDownload runs after state is updated
+    setTimeout(() => {
+      handleDownload();
+    }, 0);
   };
 
   const disabledDate = (current) => {
@@ -294,8 +296,8 @@ export default function BillingTable({ patientData }) {
         type="link"
         style={{ background: "lightgray" }}
         onClick={() => {
-          // Direct download all data
-          handleDownload();
+          setSelectedOptions(["FullyPaid", "CarriedForward", "Due", "Refunded"])
+          handleDownloadAll();
         }}
       >
         Download All Status
@@ -313,6 +315,7 @@ export default function BillingTable({ patientData }) {
           flexDirection: "column",
           marginBottom: "10px",
         }}
+        value={selectedOptions} // Bind selected checkboxes to state
         onChange={handleCheckboxChange}
       >
         <Checkbox value="FullyPaid">
@@ -358,12 +361,10 @@ export default function BillingTable({ patientData }) {
           : selectedCard === 3
           ? ["Due", "CarriedForward"]
           : ["Refunded"],
-      sortBy: "date",
-      sortOrder: "desc",
+      sortBy: sortConfig?.field || "date",
+      sortOrder: sortConfig?.order || "desc",
       page: 1,
       limit: 25,
-      // startDate: dateRange.startDate,
-      // endDate: dateRange.endDate,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
       doctorIds: decodedToken?.result?.user_id,
@@ -390,8 +391,8 @@ export default function BillingTable({ patientData }) {
           : selectedCard === 3
           ? ["Due", "CarriedForward"]
           : ["Refunded"],
-      sortBy: "date",
-      sortOrder: "desc",
+      sortBy: sortConfig?.field || "date",
+      sortOrder: sortConfig?.order || "desc",
       page: 1,
       limit: 25,
       startDate: dateRange.startDate,
@@ -416,7 +417,14 @@ export default function BillingTable({ patientData }) {
     } else {
       loadData();
     }
-  }, [selectedCard, dateRange, searchQuery, doctorList, form3cTriggered]);
+  }, [
+    selectedCard,
+    dateRange,
+    searchQuery,
+    doctorList,
+    form3cTriggered,
+    sortConfig,
+  ]);
 
   return (
     <div>
@@ -629,6 +637,7 @@ export default function BillingTable({ patientData }) {
             data={data?.bills}
             isPatientScreen={patientData ? true : false}
             handleMessageForm3c={handleMessageForm3c}
+            onSortChange={handleSortChange}
           />
         </Row>
 

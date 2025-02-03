@@ -169,20 +169,24 @@ export const listAdvancedDepositByPatient = async function (params) {
   try {
     // Extract non-array query parameters
     const queryParams = {
+      search: params.search ?? "",
       sortBy: params.sortBy,
       sortOrder: params.sortOrder,
       patientId: params.patientId,
       page: params.page || 1, // Default to page 1 if not provided
       limit: params.limit || 25, // Default to limit 25 if not provided
+      doctorIds: params.doctorIds ?? "",
+      startDate: params.startDate ?? "",
+      endDate: params.endDate ?? "",
     };
 
-    // Handle the 'status' array to create multiple status query parameters
-    const statusParams = params.status
+    const statusParams = Array.isArray(params.status)
       ? params.status
           .map((status) => `status=${encodeURIComponent(status)}`)
           .join("&")
+      : params.status
+      ? `status=${encodeURIComponent(params.status)}`
       : "";
-
     // Combine query parameters into a single query string
     const queryString =
       new URLSearchParams(queryParams).toString() +
@@ -222,7 +226,10 @@ export const fetchBillsByPatient = async function (params) {
     const queryString = new URLSearchParams(queryParams).toString();
 
     // API call
-    res = await api.get(`/api/v1/billing/bill/listByPatient?${queryString}`, baseUrl);
+    res = await api.get(
+      `/api/v1/billing/bill/listByPatient?${queryString}`,
+      baseUrl
+    );
   } catch (e) {
     console.error("Error while fetching bills by patient: ", e);
   }
@@ -235,14 +242,15 @@ export const fetchAdvancedDepositDashboard = async function (params) {
   try {
     const queryParams = {
       status: params.status, // Pass an array, Axios will handle repeated query params
-      sortBy: params.sortBy,
-      sortOrder: params.sortOrder,
+      sortBy: params.sortBy || "date", // Default sorting field
+      sortOrder: params.sortOrder || "desc", // Default sorting order
       page: params.page,
       limit: params.limit,
       startDate: params.startDate,
       endDate: params.endDate,
-      patientName: params.patientName,
-      patientPhone: params.patientPhone,
+      patientName: params.patientName ?? "",
+      patientPhone: params.patientPhone ?? "",
+      search: params.search ?? "",
     };
     res = await api.get(`/api/v1/billing/advancedDeposit/dashboard`, {
       params: queryParams,

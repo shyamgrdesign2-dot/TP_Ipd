@@ -42,7 +42,7 @@ function TableBillingDashboard({ onTabChange, patientData }) {
       label: (
         <div className="d-flex align-items-center">
           <i className="icon-billings"></i>
-          Billing ({10})
+          Billing
         </div>
       ),
     },
@@ -52,7 +52,7 @@ function TableBillingDashboard({ onTabChange, patientData }) {
       label: (
         <div className="d-flex align-items-center">
           <i className="icon-Finished"></i>
-          Advance Deposit ({6})
+          Advance Deposit
         </div>
       ),
     },

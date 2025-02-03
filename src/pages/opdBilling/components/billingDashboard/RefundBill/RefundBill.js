@@ -6,13 +6,24 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { Button, Card, DatePicker, Input, Select, Table, Tooltip } from "antd";
+import {
+  Button,
+  Card,
+  DatePicker,
+  Input,
+  Select,
+  Table,
+  Tooltip,
+  AutoComplete,
+  message,
+} from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import moment from "moment";
 import dayjs from "dayjs";
 import "./RefundBill.scss";
 
 import { useSelector, useDispatch } from "react-redux";
+import { processBillRefund } from "../../../service";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
@@ -26,7 +37,7 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
 
   const [paymentModes, setPaymentModes] = useState([
-    { mode: "Cash", amount: 850, refId: "" },
+    { mode: "Cash", amount: "", refId: "" },
   ]);
 
   const handleModeChange = (value, index, type) => {
@@ -41,9 +52,35 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
     setPaymentModes(updatedModes);
   };
 
-  const handleRefundBill = () => {
-    handleRefundBillDrawer();
-  }
+  const calculateTotalAmount = (modes) => {
+    return modes.reduce((total, mode) => {
+      const amount = parseFloat(mode.amount) || 0; // Ensure amount is a number
+      return total + amount;
+    }, 0);
+  };
+
+  const handleRefundBill = async () => {
+    const totalRefundAmount = calculateTotalAmount(paymentModes);
+    if (totalRefundAmount !== billData?.paidAmount) {
+      message.error(
+        "You can't do partial refund, refund amount should be equal to Total Paid Amount"
+      );
+      return;
+    }
+
+    try {
+      const payload = {
+        billId: billData.id,
+        paymentModes: [...paymentModes],
+      };
+      const response = await processBillRefund(payload);
+      if(response){
+        handleRefundBillDrawer();
+      }
+    } catch (e) {
+      message.error(e);
+    }
+  };
 
   const addPaymentMode = () => {
     setPaymentModes([...paymentModes, { mode: "", amount: 0 }]);
@@ -59,10 +96,11 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
       title: "BILL NO & DATE",
       dataIndex: "bill_num_date",
       key: "bill_num_date",
-      width: 200,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold theme-color">{record?.billNumber}</div>
+          <div className="fs-14 fw-semibold theme-color">
+            {record?.billNumber}
+          </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {record?.date}
           </div>
@@ -76,9 +114,9 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
       ellipsis: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14">{record?.patient_details}</div>
+          <div className="fs-14">{record?.patient?.name}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record?.patientPhone}
+            {record?.patient?.phone}
           </div>
         </div>
       ),
@@ -102,7 +140,6 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
       title: "STATUS",
       dataIndex: "status",
       key: "status",
-      ellipsis: true,
       render: (text, record) => {
         // Determine the class name and display value based on the status
         const getStatusDetails = (status) => {
@@ -117,10 +154,10 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
                 className: "status-due",
                 displayText: `Due: ₹${record?.dueAmount}`,
               };
-            case "refunded":
+            case "carriedforward":
               return {
                 className: "status-refunded",
-                displayText: `Refunded ₹${record?.payableAmount}`,
+                displayText: `Due ₹${record?.dueAmount}`,
               };
             default:
               return {
@@ -131,7 +168,9 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
         };
 
         // Get status details
-        const { className, displayText } = getStatusDetails(record?.paymentStatus);
+        const { className, displayText } = getStatusDetails(
+          record?.paymentStatus
+        );
 
         return <div className={className}>{displayText}</div>;
       },
@@ -155,7 +194,7 @@ function RefundBill({ handleRefundBillDrawer, billData }) {
           <Button className="btn btn-primary3 btn-41 px-4 me-20" onClick={handleRefundBill}>Refund</Button>
         </div>
         <div
-          className="refund-bill-wrapper align-items-center d-flex justify-content-between mx-4 mt-4 "
+          className="billing-table-wrapper align-items-center d-flex justify-content-between mx-4 mt-4 "
           style={{
             border: "1px solid var(--T-Text-10, #E2E2EA)",
             borderRadius: "10px",
