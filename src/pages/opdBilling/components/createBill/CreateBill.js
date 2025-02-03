@@ -27,7 +27,7 @@ import ViewBillPdf from "../viewBillPdf/ViewBillPdf";
 import { useSelector } from "react-redux";
 import { pdf } from "@react-pdf/renderer";
 import PreviewBill from "../../PreviewBill";
-import { printContent } from "../../utils/helper";
+import { calculateTotalAmount, printContent } from "../../utils/helper";
 import moment from "moment";
 import {
   createBill,
@@ -108,26 +108,36 @@ const CreateBill = ({
   const [tokenData, setTokenData] = useState(null);
   const [billData, setBillData] = useState({});
 
-  const subTotal = dataSource.reduce((sum, service) => sum + service.amount, 0);
-  const lineItemDiscount = dataSource.reduce(
-    (sum, service) => sum + service.discount,
-    0
-  );
+  const subTotal = dataSource
+    .reduce((sum, service) => sum + (Number(service.amount) || 0), 0)
+    .toFixed(2);
+
+  const lineItemDiscount = dataSource
+    .reduce((sum, service) => sum + (Number(service.discount) || 0), 0)
+    .toFixed(2);
+
   const applicableGst = dataSource
     .reduce(
       (sum, service) =>
         sum +
-        (Number(service.amount) - Number(service.discount)) *
-          (Number(service.gst) / 100),
+        ((Number(service.amount) || 0) - (Number(service.discount) || 0)) *
+          ((Number(service.gst) || 0) / 100),
       0
     )
     .toFixed(2);
-  const payableAmount =
-    dataSource.reduce((sum, service) => sum + service.totalAmount, 0) -
-    (extraDiscount || 0) +
-    patientDueAmount;
-  const paidAmount =
-    paymentModes.reduce((sum, payment) => sum + payment.amount, 0) || undefined;
+
+  const payableAmount = (
+    dataSource.reduce(
+      (sum, service) => sum + (Number(service.totalAmount) || 0),
+      0
+    ) -
+    (Number(extraDiscount) || 0) +
+    (Number(patientDueAmount) || 0)
+  ).toFixed(2);
+
+  const paidAmount = paymentModes
+    .reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0)
+    .toFixed(2);
 
   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
 
@@ -190,6 +200,15 @@ const CreateBill = ({
       setDisableSaveBtn(true);
     }
   }, [dataSource, paymentModes]);
+
+  useEffect(() => {
+    setDataSource((prevData) =>
+      prevData.map((item) => ({
+        ...item,
+        totalAmount: calculateTotalAmount(item),
+      }))
+    );
+  }, [dataSource]);
 
   const getPatientDueAmount = async () => {
     const patientDueRes = await fetchPatientDueAmount(
@@ -415,13 +434,13 @@ const CreateBill = ({
       render: (_, record, index) => (
         <>
           <Input
-            value={record.discount}
+            value={`${record.discountType === "flat" ? "₹ " : ""}${
+              record.discount
+            }${record.discountType === "flat" ? "" : " %"}`}
             onChange={(e) =>
               handleInputChange(Number(e.target.value), index, "discount")
             }
-            prefix="₹"
             bordered={false}
-            style={{ textAlign: "center" }}
           />
           <div
             style={{
@@ -1021,7 +1040,9 @@ const CreateBill = ({
               {patientDueAmount > 0 && (
                 <div className="d-flex justify-content-between">
                   <span>Due from Previous bill:</span>
-                  <span className="text-scheduled">₹{patientDueAmount}</span>
+                  <span className="text-scheduled">
+                    ₹{patientDueAmount.toFixed(2)}
+                  </span>
                 </div>
               )}
               <Divider style={{ margin: 0 }} />
@@ -1053,7 +1074,7 @@ const CreateBill = ({
                     Total Payment Due:
                   </span>
                   <span className="text-scheduled" style={{ fontWeight: 500 }}>
-                    ₹{payableAmount - paidAmount}
+                    ₹{(Number(payableAmount) - Number(paidAmount)).toFixed(2)}
                   </span>
                 </div>
               )}

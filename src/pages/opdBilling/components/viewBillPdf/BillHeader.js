@@ -1,5 +1,9 @@
 import { Image, Text, View } from "@react-pdf/renderer";
-import { billDataShow, patientDataShow } from "./helper";
+import {
+  billDataShow,
+  getBillInfoTitleToShow,
+  patientDataShow,
+} from "./helper";
 import { PX_TO_PT, styles } from "./constants";
 
 const BillHeader = ({
@@ -237,7 +241,10 @@ const BillHeader = ({
         </View>
         <View style={{ flex: 0.3, marginLeft: PX_TO_PT * 8 }}>
           {billInfo
-            ?.filter((e) => e.enabled)
+            ?.filter(
+              (item, index) =>
+                item.enabled && (!isDepositReceipt || index !== 0)
+            )
             ?.map((item, i) => {
               return (
                 <View
@@ -249,7 +256,11 @@ const BillHeader = ({
                 >
                   <Text
                     style={[styles.displayPatient, { fontWeight: 500 }]}
-                  >{`${item.title}: `}</Text>
+                  >{`${getBillInfoTitleToShow(
+                    item.id,
+                    item.title,
+                    isDepositReceipt
+                  )}: `}</Text>
                   <Text style={[styles.displayPatient, { fontWeight: 400 }]}>
                     {billDataShow(item.id, billData)}
                   </Text>

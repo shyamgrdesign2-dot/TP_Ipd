@@ -10,8 +10,9 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { MenuOutlined } from "@ant-design/icons";
 import { CSS } from "@dnd-kit/utilities";
 import React, { useCallback, useContext, useMemo, useState } from "react";
+import { getBillInfoTitleToShow } from "../viewBillPdf/helper";
 
-const BillingInfo = ({ billInfo, setPrintSettings }) => {
+const BillingInfo = ({ billInfo, setPrintSettings, isDepositReceipt }) => {
   const [patientInfoShowHide, setPatientInfoShowHide] = useState(false);
   const RowContext = React.createContext({});
 
@@ -82,7 +83,9 @@ const BillingInfo = ({ billInfo, setPrintSettings }) => {
           headerFooter: {
             ...prev?.headerFooter,
             billInfo: prev?.headerFooter?.billInfo?.map((info, idx) =>
-              idx === index ? { ...info, enabled: checked } : info
+              (isDepositReceipt && idx - 1 === index) || idx === index
+                ? { ...info, enabled: checked }
+                : info
             ),
           },
         };
@@ -128,7 +131,11 @@ const BillingInfo = ({ billInfo, setPrintSettings }) => {
       colSpan: 0,
       dataIndex: "title",
       key: "title",
-      render: (text, record) => <div>{record.title}</div>,
+      render: (text, record) => (
+        <div>
+          {getBillInfoTitleToShow(record.id, record.title, isDepositReceipt)}
+        </div>
+      ),
     },
     {
       dataIndex: "enabled",

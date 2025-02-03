@@ -3,13 +3,53 @@ import { PX_TO_PT, styles } from "./constants";
 import React from "react";
 
 const DepositDetails = ({ pageFormat, depositData }) => {
+  const {
+    notes,
+    paymentModes = [],
+    totalAmount,
+    transactionType,
+  } = depositData;
   const BillData = [
     {
       items: "Advance Deposit",
-      notes: `This amount was deposited via a refund from Bill no: ${depositData?.billNumber}`,
-      total: `₹${depositData?.total}`,
+      notes: notes,
+      total: `₹${depositData?.totalAmount}`,
     },
   ];
+
+  const advanceReceipt = [
+    {
+      label: "Total Payable Amount:",
+      value: "108.00",
+      bold: true,
+      divider: true,
+    },
+    ...paymentModes?.map((mode, index) => ({
+      label: `Paid Via ${mode.paymentMode}:`,
+      value: `₹${mode.amount.toFixed(2)}`,
+      divider: index === paymentModes.length - 1,
+    })),
+    transactionType === "Refund"
+      ? {
+          label: "Total Refund Amount:",
+          value: `₹${totalAmount}`,
+          color: "#FC5A5A",
+          bold: true,
+        }
+      : {
+          label: "Total Amount Paid:",
+          value: `₹${totalAmount}`,
+          color: "#3D8C40",
+          bold: true,
+        },
+    {
+      label: "Advance Balance:",
+      value: `₹${totalAmount}`,
+      color: "#A461D8",
+      bold: true,
+    },
+  ]?.filter((item) => item);
+
   return (
     <>
       <View style={styles.table}>
@@ -49,7 +89,7 @@ const DepositDetails = ({ pageFormat, depositData }) => {
             style={[
               styles.cell,
               {
-                flex: 1.0,
+                flex: 0.9,
                 fontFamily: pageFormat?.fontFamily,
                 fontSize: PX_TO_PT * pageFormat?.fontSize,
                 fontWeight: 500,
@@ -65,7 +105,7 @@ const DepositDetails = ({ pageFormat, depositData }) => {
             style={[
               styles.cell,
               {
-                flex: 0.4,
+                flex: 0.5,
                 fontFamily: pageFormat?.fontFamily,
                 fontSize: PX_TO_PT * pageFormat?.fontSize,
                 fontWeight: 500,
@@ -111,7 +151,7 @@ const DepositDetails = ({ pageFormat, depositData }) => {
               style={[
                 styles.cell,
                 {
-                  flex: 1.0,
+                  flex: 0.9,
                   color: "#171725",
                   fontFamily: pageFormat?.fontFamily,
                   fontSize: PX_TO_PT * pageFormat?.fontSize,
@@ -127,7 +167,7 @@ const DepositDetails = ({ pageFormat, depositData }) => {
               style={[
                 styles.cell,
                 {
-                  flex: 0.4,
+                  flex: 0.5,
                   color: "#171725",
                   fontFamily: pageFormat?.fontFamily,
                   fontSize: PX_TO_PT * pageFormat?.fontSize,
@@ -150,28 +190,7 @@ const DepositDetails = ({ pageFormat, depositData }) => {
           marginTop: 10,
         }}
       >
-        {[
-          {
-            label: "Total Payable Amount:",
-            value: "108.00",
-            bold: true,
-            divider: true,
-          },
-          { label: "Paid Via “Cash”:", value: "₹10.00" },
-          { label: "Paid Via UPI:", value: "₹10.00", divider: true },
-          {
-            label: "Total Amount Paid:",
-            value: "₹108.00",
-            color: "#3D8C40",
-            bold: true,
-          },
-          {
-            label: "Advance Balance:",
-            value: "₹108.00",
-            color: "#A461D8",
-            bold: true,
-          },
-        ].map((item, index) => (
+        {advanceReceipt?.map((item, index) => (
           <React.Fragment key={index}>
             <View
               style={{

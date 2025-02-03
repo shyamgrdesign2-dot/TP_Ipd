@@ -160,6 +160,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 labParamsData={labParamsData}
                 customModules={customModules}
                 patientBills={props.patientBills}
+                advanceReceipts={props.advanceReceipts}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
             dispatch(setCurrentSessionRx(URL.createObjectURL(blob)));

@@ -28,6 +28,7 @@ const ConfigureBillSettings = ({
   handleDrawerConfigureSettings,
   patientData,
   billData,
+  isDepositReceipt,
 }) => {
   const dispatch = useDispatch();
   const { defaultPrintSettings, profile } = useSelector(
@@ -52,7 +53,119 @@ const ConfigureBillSettings = ({
   const [numPages, setNumPages] = useState();
   const [loadSuccess, setLoadSuccesss] = useState(false);
   const [divWidth, setDivWidth] = useState(0);
+  const [printSettingsDifferFromRx, setPrintSettingsDifferFromRx] = useState(
+    {}
+  );
   const divRef = useRef(null);
+
+  const transformPrintSettings = (defaultPrintSettings) => {
+    const {
+      page_format,
+      header_footer,
+      letterhead_format,
+      qrcode_enable,
+      signature_enable,
+      signature_image,
+      water_mark_enable,
+      water_mark_image,
+      logo_enable,
+      logo_image,
+      header_image,
+    } = defaultPrintSettings;
+
+    const {
+      custom_margin,
+      header,
+      footer,
+      margin,
+      letterhead_margin,
+      other_settings,
+    } = header_footer || {};
+
+    const { clinic_info, doctor_info } = header || {};
+
+    return {
+      headerFooter: {
+        customLetterHeadMargin: {
+          ...custom_margin,
+        },
+        footer: { fontSize: footer?.font_size, title: footer?.title },
+        header: {
+          clinicInfo: {
+            enabled: clinic_info?.enable === "Y",
+            header: clinic_info?.header,
+            position: clinic_info?.place === "R" ? "right" : "left",
+            subheader: clinic_info?.subheader,
+          },
+          doctorInfo: {
+            enabled: doctor_info?.enable === "Y",
+            header: doctor_info?.header,
+            position: doctor_info?.place === "R" ? "right" : "left",
+            subheader: doctor_info?.subheader,
+          },
+          file: header_image,
+          logo: {
+            enabled: logo_enable === "Y",
+            file: logo_image,
+          },
+        },
+        letterHeadFormat: letterhead_format,
+        margin: {
+          ...margin,
+        },
+        otherSettings: {
+          qrCode: {
+            enabled: qrcode_enable === "Y",
+          },
+          signature: {
+            enabled: signature_enable === "Y",
+            doctorNameEnabled: other_settings?.name_of_doctor_enable === "Y",
+            file: signature_image,
+            position:
+              other_settings?.signature_place === "R" ? "right" : "left",
+            qualification: other_settings?.qualification,
+            qualificationEnabled: other_settings?.qualification_enable === "Y",
+            registrationEnabled: other_settings?.registration_no_enable === "Y",
+          },
+          waterMark: {
+            enabled: water_mark_enable === "Y",
+            file: water_mark_image,
+          },
+        },
+        uploadedLetterHeadMargin: {
+          ...letterhead_margin,
+        },
+      },
+      pageFormat: {
+        fontFamily: page_format?.font_family,
+        fontSize: page_format?.font_size,
+      },
+    };
+  };
+
+  const deepCompare = (obj1, obj2) => {
+    let differences = {};
+
+    const compare = (key, value1, value2, path = "") => {
+      if (
+        typeof value1 === "object" &&
+        typeof value2 === "object" &&
+        value1 !== null &&
+        value2 !== null
+      ) {
+        Object.keys(value1).forEach((k) => {
+          compare(k, value1[k], value2?.[k], path ? `${path}.${k}` : k);
+        });
+      } else if (value1 !== value2) {
+        differences[path] = { oldValue: value1, newValue: value2 };
+      }
+    };
+
+    compare("headerFooter", obj1.headerFooter, obj2.headerFooter);
+    compare("pageFormat", obj1.pageFormat, obj2.pageFormat);
+
+    return differences;
+  };
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -70,6 +183,13 @@ const ConfigureBillSettings = ({
     }
   }, [printSettings]);
 
+  useEffect(() => {
+    const transformedPrintSettings =
+      transformPrintSettings(defaultPrintSettings);
+    const differences = deepCompare(transformedPrintSettings, printSettings);
+    setPrintSettingsDifferFromRx(differences);
+  }, [printSettings, defaultPrintSettings]);
+
   const makePDFUrl = async () => {
     const blob = await pdf(
       <ViewBillPdf
@@ -77,6 +197,7 @@ const ConfigureBillSettings = ({
         patientData={patientData}
         profile={profile}
         billData={billData}
+        isDepositReceipt={isDepositReceipt}
       />
     ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));
@@ -187,7 +308,12 @@ const ConfigureBillSettings = ({
         ...prev,
         headerFooter: {
           ...prev.headerFooter,
-          customLetterHeadMargin: { ...custom_margin },
+          customLetterHeadMargin: {
+            bottom: custom_margin?.bottom || 2.5,
+            left: custom_margin?.left || 2,
+            right: custom_margin?.right || 2,
+            top: custom_margin?.top || 3,
+          },
           footer: { ...footer, fontSize: footer?.font_size },
           header: {
             clinicInfo: {
@@ -210,7 +336,12 @@ const ConfigureBillSettings = ({
             },
           },
           letterHeadFormat: letterhead_format,
-          margin: { ...margin },
+          margin: {
+            bottom: margin?.bottom || 2.5,
+            left: margin?.left || 2,
+            right: margin?.right || 3,
+            top: margin?.top || 2,
+          },
           otherSettings: {
             qrCode: {
               enabled: qrcode_enable === "Y",
@@ -224,14 +355,20 @@ const ConfigureBillSettings = ({
               qualification: other_settings?.qualification,
               qualificationEnabled:
                 other_settings?.qualification_enable === "Y",
-              registrationEnabled: other_settings?.registration_no_enable,
+              registrationEnabled:
+                other_settings?.registration_no_enable === "Y",
             },
             waterMark: {
               enabled: water_mark_enable === "Y",
               file: water_mark_image,
             },
           },
-          uploadedLetterHeadMargin: { ...letterhead_margin },
+          uploadedLetterHeadMargin: {
+            bottom: letterhead_margin?.bottom || 2.5,
+            left: letterhead_margin?.left || 2,
+            right: letterhead_margin?.right || 2,
+            top: letterhead_margin?.top || 3,
+          },
         },
         pageFormat: {
           fontFamily: page_format?.font_family,
@@ -369,20 +506,24 @@ const ConfigureBillSettings = ({
                   onChange={onTabChange}
                   className="print-tabs"
                 />
-                <Button
-                  type="button"
-                  className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex m-3"
-                  onClick={handleAutofillFromRx}
-                  icon={<img src={autofill} alt="autofill" />}
-                >
-                  Autofill Details from Rx Print Settings
-                </Button>
+                {printSettingsDifferFromRx &&
+                  Object.keys(printSettingsDifferFromRx)?.length > 0 && (
+                    <Button
+                      type="button"
+                      className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex m-3"
+                      onClick={handleAutofillFromRx}
+                      icon={<img src={autofill} alt="autofill" />}
+                    >
+                      Autofill Details from Rx Print Settings
+                    </Button>
+                  )}
                 {selectedTab === TAB_HEADER_FOOTER &&
                 printSettings &&
                 Object.keys(printSettings).length ? (
                   <BillHeaderFooterLayout
                     headerFooter={printSettings?.headerFooter}
                     setPrintSettings={setPrintSettings}
+                    isDepositReceipt={isDepositReceipt}
                   />
                 ) : (
                   selectedTab === TAB_PAGE_FORMAT && (

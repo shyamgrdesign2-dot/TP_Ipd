@@ -126,11 +126,6 @@ const ViewBillPdf = ({
   const [fileWatermark, setFileWatermark] = useState(null);
   const paddingStyles = calculatePadding(printSettings?.headerFooter);
 
-  const depositData = {
-    billNumber: "INV-2900569",
-    total: 5000,
-  };
-
   return (
     <Document>
       <Page
@@ -150,7 +145,7 @@ const ViewBillPdf = ({
         {isDepositReceipt ? (
           <DepositDetails
             pageFormat={printSettings?.pageFormat}
-            depositData={depositData}
+            depositData={billData}
           />
         ) : (
           <BillDetails

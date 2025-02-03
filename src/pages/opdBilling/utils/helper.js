@@ -109,3 +109,18 @@ const handleInAppClick = async (
     }
   }
 };
+
+export const calculateTotalAmount = (item) => {
+  const price = Number(item.price) || Number(item.amount) || 0;
+  const discount = Number(item.discount) || 0;
+  const quantity = Number(item.quantity) || 0;
+
+  // Ensure discountType is valid
+  const discountAmount =
+    item.discountType === "percentage" ? (discount / 100) * price : discount;
+
+  const priceAfterDiscount = price - discountAmount;
+  const gstMultiplier = 1 + (Number(item.gst) || 0) / 100;
+
+  return (priceAfterDiscount * gstMultiplier * quantity).toFixed(2);
+};

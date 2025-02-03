@@ -75,9 +75,21 @@ export const billDataShow = (id, billData) => {
       ? moment(billData.updatedAt).format("DD/MM/YYYY HH:mm")
       : "-";
   } else if (id == 4) {
-    value = billData?.paymentStatus;
+    value = billData?.paymentStatus || "Paid";
   } else if (id == 5) {
     value = billData?.gstIn ?? "-";
+  }
+  return value;
+};
+
+export const getBillInfoTitleToShow = (id, title, isDepositReceipt) => {
+  var value = "";
+  if (isDepositReceipt && id == 3) {
+    value = "Receipt Date & Time";
+  } else if (isDepositReceipt && id === 4) {
+    value = "Receipt Status";
+  } else {
+    value = `${title}`;
   }
   return value;
 };

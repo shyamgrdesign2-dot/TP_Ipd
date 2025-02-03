@@ -15,6 +15,10 @@ const BillDetails = ({ pageFormat, billData }) => {
     dueFromPreviousBill,
     dueAmount,
     notes,
+    paymentStatus,
+    refundedAmount,
+    refundModes,
+    refundNotes,
   } = billData || {};
 
   const billInfo = [
@@ -58,6 +62,19 @@ const BillDetails = ({ pageFormat, billData }) => {
           bold: true,
         }
       : undefined,
+    paymentStatus === "Refund"
+      ? {
+          label: "Total Refund Amount:",
+          value: `₹${refundedAmount}`,
+          color: "#B73A3A",
+          bold: true,
+          divider: true,
+        }
+      : undefined,
+    ...refundModes?.map((mode) => ({
+      label: `Refunded Via ${mode.paymentMode}:`,
+      value: `₹${mode.amount.toFixed(2)}`,
+    })),
   ]?.filter((item) => item);
 
   return (
@@ -338,6 +355,29 @@ const BillDetails = ({ pageFormat, billData }) => {
           </React.Fragment>
         ))}
       </View>
+
+      {refundNotes && (
+        <Text
+          style={[
+            {
+              fontFamily: pageFormat?.fontFamily,
+              fontSize: (pageFormat?.fontSize || 12) * PX_TO_PT,
+              fontWeight: 500,
+              color: "#000",
+            },
+          ]}
+        >
+          {"\n"}Credit Note:&nbsp;
+          <Text
+            style={{
+              fontFamily: pageFormat?.fontFamily,
+              fontWeight: 400,
+            }}
+          >
+            {refundNotes}
+          </Text>
+        </Text>
+      )}
 
       {notes && (
         <Text

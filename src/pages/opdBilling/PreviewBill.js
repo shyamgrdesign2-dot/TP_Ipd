@@ -339,6 +339,7 @@ const PreviewBill = ({
             handleDrawerConfigureSettings={handleDrawerConfigureSettings}
             patientData={patientData}
             billData={billData}
+            isDepositReceipt={isDepositReceipt}
           />
         </Drawer>
       )}

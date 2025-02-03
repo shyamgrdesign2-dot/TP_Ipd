@@ -4,6 +4,7 @@ import { Button } from "react-bootstrap";
 import { useState } from "react";
 import { upsertBillItem } from "../../service";
 import { useSelector } from "react-redux";
+import { calculateTotalAmount } from "../../utils/helper";
 
 const ServiceItemPopup = ({
   popupType,
@@ -21,7 +22,6 @@ const ServiceItemPopup = ({
     discount: item?.discount || 0,
     discountType: item?.discountType || advancedSettings?.defaultDiscountType,
     gst: item?.gst || 0,
-    totalAmount: item?.totalAmount,
   });
 
   const handleServiceItem = (key, value) => {
@@ -34,12 +34,7 @@ const ServiceItemPopup = ({
   };
 
   const addOrEditServieItem = async () => {
-    serviceItem.totalAmount =
-      (Number(serviceItem.price) -
-        (serviceItem.discountType === "flat"
-          ? Number(serviceItem.discount)
-          : (Number(serviceItem.discount) / 100) * Number(serviceItem.price))) *
-      (1 + Number(serviceItem.gst) / 100);
+    serviceItem.totalAmount = calculateTotalAmount(serviceItem);
     handleServiceItem(serviceItem);
     const billItemRes = await upsertBillItem(serviceItem);
     if (billItemRes?.id) {

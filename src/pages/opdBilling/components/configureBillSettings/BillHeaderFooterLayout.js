@@ -4,7 +4,11 @@ import PatientInfo from "./PatientInfo";
 import HeaderFooter from "./HeaderFooter";
 import BillingInfo from "./BillingInfo";
 
-const BillHeaderFooterLayout = ({ headerFooter, setPrintSettings }) => {
+const BillHeaderFooterLayout = ({
+  headerFooter,
+  setPrintSettings,
+  isDepositReceipt,
+}) => {
   return (
     <div className="px-3 form_addnewpatient">
       <HeaderFooter
@@ -16,8 +20,11 @@ const BillHeaderFooterLayout = ({ headerFooter, setPrintSettings }) => {
         setPrintSettings={setPrintSettings}
       />
       <BillingInfo
-        billInfo={headerFooter?.billInfo}
+        billInfo={headerFooter?.billInfo?.filter(
+          (_, index) => !isDepositReceipt || index !== 0
+        )}
         setPrintSettings={setPrintSettings}
+        isDepositReceipt={isDepositReceipt}
       />
       <OtherSetttings
         otherSettings={headerFooter?.otherSettings}

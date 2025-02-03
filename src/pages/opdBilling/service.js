@@ -178,6 +178,7 @@ export const listAdvancedDepositByPatient = async function (params) {
       doctorIds: params.doctorIds ?? "",
       startDate: params.startDate ?? "",
       endDate: params.endDate ?? "",
+      appointmentId: params.appointmentId,
     };
 
     const statusParams = Array.isArray(params.status)
@@ -210,16 +211,16 @@ export const fetchBillsByPatient = async function (params) {
   try {
     // Construct query parameters dynamically
     const queryParams = {
-      search: params.search,
+      search: params.search ?? "",
       doctorIds: params.doctorIds,
-      startDate: params.startDate,
-      endDate: params.endDate,
+      startDate: params.startDate ?? "",
+      endDate: params.endDate ?? "",
       sortBy: params.sortBy || "date",
       sortOrder: params.sortOrder || "asc",
       page: params.page || 1,
       limit: params.limit || 25,
       patientId: params.patientId,
-      // ...(params.isForm3C ? { isForm3C: params.isForm3C } : {}), // Add only if true
+      appointmentId: params.appointmentId,
     };
 
     // Create query string
