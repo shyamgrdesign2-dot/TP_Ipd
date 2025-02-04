@@ -2645,7 +2645,7 @@ function TabMedicationBox() {
       tourRef?.current?.scrollIntoView({ behavior: 'smooth' });
       setTimeout(() => {
         setTourOpen(true)
-      }, 1000);
+      }, 1500);
     }
   }, [isPillUpAccessableFromGB]);
 
