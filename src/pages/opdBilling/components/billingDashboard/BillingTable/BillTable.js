@@ -1,15 +1,21 @@
-import { Drawer, Dropdown, Table, message} from "antd";
-import moment from "moment";
+import { Drawer, Dropdown, Table, message } from "antd";
 import { useState } from "react";
 import PreviewBill from "../../../PreviewBill";
 import RefundBill from "../RefundBill/RefundBill";
 import { addBillsToForm3C } from "../../../service";
-import imgCloseVisit from '../../../../../assets/images/close-visit.svg';
-import visitEnd from '../../../../../assets/images/end-visit.svg';
+import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
+import visitEnd from "../../../../../assets/images/end-visit.svg";
 import { MESSAGE_KEY } from "../../../../../utils/constants";
 import { formatDateWithOrdinal } from "../../../utils/helper";
+import InfoTooltip from "./InfoToolTip/InfoTooltip";
 
-const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, getPatientBills }) => {
+const BillTable = ({
+  data,
+  isPatientScreen,
+  handleMessageForm3c,
+  onSortChange,
+  getPatientBills,
+}) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [billData, setBillData] = useState(null);
@@ -29,21 +35,25 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
         const payload = { billIds: [record.id] }; // Adjust payload as needed
         const response = await addBillsToForm3C(payload);
         if (response.status === 204) {
-            message.open({
-              key: MESSAGE_KEY,
-              type: '',
-              className: 'message-appointment',
-              content: (
-                  <div className='d-flex align-items-center'>
-                      <img src={visitEnd} className='me-3' />
-                      <div>
-                          <div className='title-common text-start fontroboto'>{`${record.billNumber} Added to Form 3C`}</div>
-                          {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
-                      </div>
-                      <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
-                  </div>
-              ),
-              duration: 5,
+          message.open({
+            key: MESSAGE_KEY,
+            type: "",
+            className: "message-appointment",
+            content: (
+              <div className="d-flex align-items-center">
+                <img src={visitEnd} className="me-3" />
+                <div>
+                  <div className="title-common text-start fontroboto">{`${record.billNumber} Added to Form 3C`}</div>
+                  {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
+                </div>
+                <img
+                  src={imgCloseVisit}
+                  className="ms-3"
+                  onClick={() => message.destroy()}
+                />
+              </div>
+            ),
+            duration: 5,
           });
 
           handleMessageForm3c();
@@ -87,7 +97,7 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
         </div>
       ),
     },
-    !isPatientScreen 
+    !isPatientScreen
       ? {
           title: "PATIENT DETAILS",
           dataIndex: "patient_details",
@@ -142,7 +152,9 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
             case "refunded":
               return {
                 className: "status-refunded",
-                displayText: `Refunded ₹${parseFloat(record.paidAmount).toFixed(2)}`,
+                displayText: `Refunded ₹${parseFloat(record.paidAmount).toFixed(
+                  2
+                )}`,
               };
             case "carriedforward":
               return {
@@ -160,7 +172,23 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
         // Get status details
         const { className, displayText } = getStatusDetails(record.status);
 
-        return <div className={className}>{displayText}</div>;
+        return (
+          <div className="d-flex">
+            <div className={className}>{displayText}</div>
+            {["CarriedForward", "Refunded"].includes(record.paymentStatus) && (
+              <InfoTooltip
+                type={record.paymentStatus}
+                amount={
+                  record.paymentStatus === "Refunded"
+                    ? record.paidAmount
+                    : record.dueAmount
+                }
+                notes={record.notes}
+                billNo={record.billNumber}
+              />
+            )}
+          </div>
+        );
       },
     },
     {
@@ -185,7 +213,7 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
     if (sorter.order) {
       const order = sorter.order === "ascend" ? "asc" : "desc"; // Convert to API format
       const field = sorter.field; // Get sorted field
-  
+
       // Pass sorting parameters to parent
       onSortChange(field, order);
     }
@@ -198,9 +226,9 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
           <div onClick={() => onBillingDetailsClick(1, record)}>View bill</div>
         ),
         key: "view_bill",
-      }
+      },
     ];
-  
+
     // Conditionally add "Add to Form 3C" if isForm3C is false
     if (!record.isForm3C && record.paymentStatus !== "Refunded") {
       items.push({
@@ -224,15 +252,15 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
         key: "refund_bill",
       });
     }
-  
+
     return items;
   };
-  
+
   return (
     <>
       <Table
         className="billing-table px-0"
-        style={{position:"relative"}}
+        style={{ position: "relative" }}
         columns={columns}
         width="100%"
         dataSource={data}

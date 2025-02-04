@@ -28,6 +28,7 @@ import MenuDivider from "antd/es/menu/MenuDivider";
 
 import { addBillsToForm3C, fetchBillingDashboard } from "../../service";
 import { formatDateWithOrdinal } from "../../utils/helper";
+import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip";
 
 const { RangePicker } = DatePicker;
 const dateFormat = "YYYY-MM-DD";
@@ -64,7 +65,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
     doctorList,
     patientCount,
   } = useSelector((state) => state.bulkMessages);
-  const { profile, userId} = useSelector((state) => state.doctors);
+  const { profile, userId } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
@@ -218,7 +219,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
 
   // Handle individual row selection
   const onSelectChange = (selectedKeys, selectedRows) => {
-    setSelectedRowKeys(selectedKeys)
+    setSelectedRowKeys(selectedKeys);
     setSelectedRows(selectedRows);
   };
 
@@ -252,7 +253,9 @@ function AddForm3cBills({ handleAddForm3cBill }) {
       sorter: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold theme-color">{record.billNumber}</div>
+          <div className="fs-14 fw-semibold theme-color">
+            {record.billNumber}
+          </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {formatDateWithOrdinal(record.date)}
           </div>
@@ -326,7 +329,23 @@ function AddForm3cBills({ handleAddForm3cBill }) {
           record.paymentStatus
         );
 
-        return <div className={className}>{displayText}</div>;
+        return (
+          <div className="d-flex">
+            <div className={className}>{displayText}</div>
+            {["CarriedForward", "Refunded"].includes(record.paymentStatus) && (
+              <InfoTooltip
+                type={record.paymentStatus}
+                amount={
+                  record.paymentStatus === "Refunded"
+                    ? record.paidAmount
+                    : record.dueAmount
+                }
+                notes={record.notes}
+                billNo={record.billNumber}
+              />
+            )}
+          </div>
+        );
       },
     },
   ];
@@ -347,8 +366,9 @@ function AddForm3cBills({ handleAddForm3cBill }) {
     try {
       const response = await fetchBillingDashboard(params);
       setData(
-        response?.bills?.filter((item) => item.paymentStatus !== "Refunded" && item.isForm3C !== true) ||
-          []
+        response?.bills?.filter(
+          (item) => item.paymentStatus !== "Refunded" && item.isForm3C !== true
+        ) || []
       );
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -373,7 +393,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
   };
 
   const handleBackAddForm3CDrawer = () => {
-    setForm3cData(0)
+    setForm3cData(0);
     handleAddForm3cDrawer();
   };
 

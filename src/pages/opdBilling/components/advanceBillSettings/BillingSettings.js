@@ -38,7 +38,7 @@ const BillingSettings = () => {
   });
 
   const [filteredInfo, setFilteredInfo] = useState({
-    type: params.type, // Initialize with current type selections
+    type: params.type ? [params.type] : null,
   });
 
   const [sortedInfo, setSortedInfo] = useState({});
@@ -62,7 +62,7 @@ const BillingSettings = () => {
         { text: "Consumables", value: "Consumables" },
       ],
       filteredValue: filteredInfo.type || null,
-      filterMultiple: true, // Enable multiple selection
+      filterMultiple: false,
       onFilter: (value, record) => record.type === value,
     },
     {
@@ -153,17 +153,17 @@ const BillingSettings = () => {
     // Only update filter if it changed
     if (extra.action === "filter") {
       setFilteredInfo(filters);
-      if (filters.type) {
-        newParams.type = filters.type;
+      if (filters.type && filters.type.length > 0) {
+        newParams.type = filters.type[0];
       } else {
-        newParams.type = [];
+        newParams.type = "";
       }
     }
 
     // Only update sort if it changed
     if (extra.action === "sort") {
       setSortedInfo(sorter);
-      if (sorter.sortOrder) newParams.sortBy = sorter.columnKey;
+      newParams.sortBy = sorter.order ? sorter.columnKey : undefined;
       newParams.sortOrder =
         sorter.order === "ascend"
           ? "asc"
@@ -192,11 +192,7 @@ const BillingSettings = () => {
     setError(null);
     try {
       const queryParams = new URLSearchParams();
-      if (params.type?.length)
-        params.type?.forEach((type) => {
-          queryParams.append("type", type);
-        });
-
+      params.type && queryParams.append("type", params.type);
       params?.name && queryParams.set("name", params?.name);
       queryParams.set("page", params.page);
       queryParams.set("limit", params?.limit);

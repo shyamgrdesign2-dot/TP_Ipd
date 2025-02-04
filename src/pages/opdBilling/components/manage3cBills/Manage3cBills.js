@@ -36,10 +36,11 @@ import dayjs from "dayjs";
 // import MenuDivider from "antd/es/menu/MenuDivider";
 import Form3cPrint from "./Form3cPrint.js";
 import { MESSAGE_KEY } from "../../../../utils/constants.js";
-import visitEnd from '../../../../assets/images/end-visit.svg';
-import imgCloseVisit from '../../../../assets/images/close-visit.svg';
+import visitEnd from "../../../../assets/images/end-visit.svg";
+import imgCloseVisit from "../../../../assets/images/close-visit.svg";
 import { fetchBillingDashboard } from "../../service.js";
 import { formatDateWithOrdinal } from "../../utils/helper.js";
+import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip.js";
 
 // import { errorMessage, onlyNumberFormat } from "../../../../utils/utils";
 // import { MESSAGE_KEY } from "../../../../utils/constants";
@@ -150,24 +151,28 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
   };
 
   useEffect(() => {
-      if (form3cData){
-        message.open({
-          key: MESSAGE_KEY,
-          type: '',
-          className: 'message-appointment',
-          content: (
-              <div className='d-flex align-items-center'>
-                  <img src={visitEnd} className='me-3' />
-                  <div>
-                      <div className='title-common text-start fontroboto'>{`${form3cData} Bills added Form 3C.`}</div>
-                      {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
-                  </div>
-                  <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
-              </div>
-          ),
-          duration: 5,
+    if (form3cData) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: "",
+        className: "message-appointment",
+        content: (
+          <div className="d-flex align-items-center">
+            <img src={visitEnd} className="me-3" />
+            <div>
+              <div className="title-common text-start fontroboto">{`${form3cData} Bills added Form 3C.`}</div>
+              {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
+            </div>
+            <img
+              src={imgCloseVisit}
+              className="ms-3"
+              onClick={() => message.destroy()}
+            />
+          </div>
+        ),
+        duration: 5,
       });
-      }
+    }
   }, [form3cData]);
 
   const rangePresets = [
@@ -294,7 +299,7 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
     if (sorter.order) {
       const order = sorter.order === "ascend" ? "asc" : "desc"; // Convert to API format
       const field = sorter.field; // Get sorted field
-  
+
       // Pass sorting parameters to parent
       handleSortChange(field, order);
     }
@@ -330,7 +335,9 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
       sorter: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold theme-color">{record.billNumber}</div>
+          <div className="fs-14 fw-semibold theme-color">
+            {record.billNumber}
+          </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {formatDateWithOrdinal(record.date)}
           </div>
@@ -404,7 +411,23 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
           record.paymentStatus
         );
 
-        return <div className={className}>{displayText}</div>;
+        return (
+          <div className="d-flex">
+            <div className={className}>{displayText}</div>
+            {["CarriedForward", "Refunded"].includes(record.paymentStatus) && (
+              <InfoTooltip
+                type={record.paymentStatus}
+                amount={
+                  record.paymentStatus === "Refunded"
+                    ? record.paidAmount
+                    : record.dueAmount
+                }
+                notes={record.notes}
+                billNo={record.billNumber}
+              />
+            )}
+          </div>
+        );
       },
     },
   ];
@@ -432,11 +455,11 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
     }
   };
 
-  console.log(sortConfig,"sortConfig")
+  console.log(sortConfig, "sortConfig");
 
   useEffect(() => {
     loadData();
-  }, [ dateRange, searchQuery, sortConfig]);
+  }, [dateRange, searchQuery, sortConfig]);
 
   return (
     <div className="manage-3c-bills-wrapper">
@@ -458,7 +481,9 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
             <span>{"Add New Bills to 3C"}</span>
           </Button>
           <Button
-            className={`btn-create-bill ${selectedRows?.length === 0 ? "disabled" : ""} `}
+            className={`btn-create-bill ${
+              selectedRows?.length === 0 ? "disabled" : ""
+            } `}
             onClick={handleForm3cPrint}
             disabled={selectedRows?.length === 0}
           >
@@ -573,7 +598,7 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
         {
           <div style={{ display: "none" }}>
             <div ref={printableRef}>
-              <Form3cPrint rows={selectedRows}/>
+              <Form3cPrint rows={selectedRows} />
             </div>
           </div>
         }
