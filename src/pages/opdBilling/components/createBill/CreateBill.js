@@ -103,12 +103,7 @@ const CreateBill = ({
   ]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOptions, setSearchOptions] = useState([]);
-  const [patientNameAndId, setPatientNameAndId] = useState(
-    patientData.pm_pid
-      ? `${patientData?.pm_fullname}, ${patientData.pm_pid}`
-      : undefined
-  );
-  const [mobileNumber, setMobileNumber] = useState(patientData?.pm_contact_no);
+  const [patientSearchOptions, setPatientSearchOptions] = useState([]);
   const [includeInRx, setIncludeInRx] = useState(false);
   const [shouldAddBillTo3C, setAddBillTo3C] = useState(false);
   const [editIndex, setEditIndex] = useState(-1);
@@ -182,11 +177,16 @@ const CreateBill = ({
     if (billPrintSettings && Object.keys(billPrintSettings).length === 0) {
       getBillPrintSettings();
     }
-    if (patientData?.patient_unique_id) {
-      getPatientDueAmount();
-      getPatientWalletBalance();
-    }
   }, []);
+
+  useEffect(() => {
+    const patientUniqueId =
+      patientData?.patient_unique_id || patientDetails?.patientUniqueId;
+    if (patientUniqueId) {
+      getPatientDueAmount(patientUniqueId);
+      getPatientWalletBalance(patientUniqueId);
+    }
+  }, [patientDetails]);
 
   useEffect(() => {
     const updatedPayableAmount = (
@@ -258,18 +258,16 @@ const CreateBill = ({
     });
   }, [JSON.stringify(dataSource)]);
 
-  const getPatientDueAmount = async () => {
-    const patientDueRes = await fetchPatientDueAmount(
-      patientData?.patient_unique_id
-    );
+  const getPatientDueAmount = async (patientUniqueId) => {
+    const patientDueRes = await fetchPatientDueAmount(patientUniqueId);
     if (patientDueRes?.previousDueAmount) {
       setPatientDueAmount(patientDueRes?.previousDueAmount);
     }
   };
 
-  const getPatientWalletBalance = async () => {
+  const getPatientWalletBalance = async (patientUniqueId) => {
     const patientWalletBalanceRes = await fetchPatientWalletBalance(
-      patientData?.patient_unique_id
+      patientUniqueId
     );
     if (patientWalletBalanceRes?.advanceDepositBalance) {
       setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
@@ -479,13 +477,13 @@ const CreateBill = ({
       render: (_, record, index) => (
         <Input
           value={record.amount}
-          onChange={(e) =>
-            handleInputChange(
-              onlyDecimalFormat(e.target.value),
-              index,
-              "amount"
-            )
-          }
+          inputMode="decimal"
+          onChange={(e) => {
+            const price = onlyDecimalFormat(e.target.value);
+            if (price <= 1000000000) {
+              handleInputChange(price, index, "amount");
+            }
+          }}
           prefix="₹"
           bordered={false}
           style={{ textAlign: "center" }}
@@ -509,7 +507,14 @@ const CreateBill = ({
             inputMode="decimal"
             onChange={(e) => {
               const numericValue = e.target.value.replace(/[^\d.]/g, "");
-              handleInputChange(numericValue, index, "discount");
+              const discount = onlyDecimalFormat(numericValue);
+              if (
+                (record.discountType === "percentage" && discount <= 100) ||
+                (record.discountType === "flat" &&
+                  discount <= Number(record.amount))
+              ) {
+                handleInputChange(discount, index, "discount");
+              }
             }}
             bordered={false}
           />
@@ -560,9 +565,7 @@ const CreateBill = ({
       render: (_, record, index) => (
         <Input
           value={record.gst}
-          onInput={(e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, "");
-          }}
+          inputMode="decimal"
           onChange={(e) => {
             const value = onlyDecimalFormat(e.target.value);
             handleInputChange(value <= 100 ? value : record.gst, index, "gst");
@@ -654,8 +657,16 @@ const CreateBill = ({
       const { masterId, name, quantity, amount, totalAmount } = item;
       return masterId && name && quantity && amount && totalAmount;
     });
+    const updatedPaymentModes = paymentModes?.filter(
+      (item) => item.paymentMode && item.amount > 0
+    );
+    if (updatedPaymentModes?.length !== paymentModes?.length) {
+      message.error("Payment mode and amount cannot be empty.");
+      return;
+    }
     const payload = {
-      patientId: patientData?.patient_unique_id,
+      patientId:
+        patientData?.patient_unique_id || patientDetails?.patientUniqueId,
       doctorId: userId,
       billItems: updatedDataSource,
       paymentModes: paymentModes,
@@ -684,7 +695,9 @@ const CreateBill = ({
             <img src={visitEnd} className="me-3" />
             <div>
               <div className="title-common text-start fontroboto">
-                {`${patientData?.pm_fullname}’s new bill saved successfully`}
+                {`${
+                  patientData?.pm_fullname || patientDetails?.patientName
+                }’s new bill saved successfully`}
               </div>
             </div>
             <img
@@ -794,7 +807,7 @@ const CreateBill = ({
     //     label: AddPatientPlank(),
     //   });
     // }
-    setSearchOptions(data);
+    setPatientSearchOptions(data);
   }, [patients]);
 
   useEffect(() => {
@@ -820,6 +833,7 @@ const CreateBill = ({
       patientName: patient.pm_fullname,
       mobileNumber: patient.pm_contact_no,
       patientUniqueId: patient.patient_unique_id,
+      pmPid: patient.pm_pid,
     });
     setSearchOptions([]);
     setSearchQueryMobile("");
@@ -880,7 +894,8 @@ const CreateBill = ({
                   name={patient.pm_fullname}
                   boldWord={searchQuery}
                 />{" "}
-                ({patient.pm_gender}, {patient.ageYears}y)
+                ({patient.pm_gender}, {patient.ageYears}y,{" "}
+                {patient.pm_contact_no}, {patient.pm_pid})
               </span>
             </div>
           </div>
@@ -1101,12 +1116,12 @@ const CreateBill = ({
                         setSearchQueryName(value);
                         onSearchName(value);
                       }}
-                      options={searchOptions}
+                      options={patientSearchOptions}
                       className="w-100 autocomplete-custom"
-                      open={autoCompleteFlagName}
-                      onFocus={() => setAutoCompleteFlagName(true)}
-                      onBlur={() => setAutoCompleteFlagMobile(false)}
                       popupClassName="autocomplete-dropdown"
+                      dropdownStyle={{
+                        width: 400,
+                      }}
                     >
                       <Input
                         placeholder="Search Patient Name"
@@ -1127,13 +1142,13 @@ const CreateBill = ({
                     <Input
                       value={
                         Object.keys(patientData).length > 0
-                          ? patientData?.pm_fullname
+                          ? `${patientData?.pm_fullname}, ${patientData.pm_pid}`
                           : patientDetails
-                          ? patientDetails?.patientName
+                          ? `${patientDetails?.patientName}, ${patientDetails.pmPid}`
                           : ""
                       }
+                      style={{ height: 38 }}
                       disabled={Object.keys(patientData).length > 0}
-                      // readOnly={patientData}
                       className="patient-input"
                       onClick={() => {
                         setIsEditingName(true);
@@ -1162,15 +1177,15 @@ const CreateBill = ({
                         setSearchQueryMobile(value);
                         onSearchMobile(value);
                       }}
-                      options={searchOptions}
+                      dropdownStyle={{
+                        width: 400,
+                      }}
+                      options={patientSearchOptions}
                       className="w-100 autocomplete-custom"
-                      open={autoCompleteFlagMobile}
-                      onFocus={() => setAutoCompleteFlagMobile(true)}
-                      onBlur={() => setAutoCompleteFlagMobile(false)}
                       popupClassName="autocomplete-dropdown"
                     >
                       <Input
-                        placeholder="Search Mobile Number"
+                        placeholder="Search Mobile No"
                         prefix={<i className="icon-search"></i>}
                         suffix={
                           searchQueryMobile.length > 0 && (
@@ -1193,6 +1208,7 @@ const CreateBill = ({
                           ? patientDetails.mobileNumber
                           : ""
                       }
+                      style={{ height: 38 }}
                       disabled={Object.keys(patientData).length > 0}
                       // readOnly
                       className="patient-input"
@@ -1204,7 +1220,7 @@ const CreateBill = ({
                   <div>Bill Date</div>
                   <Input
                     className="text-main"
-                    style={{ width: 125 }}
+                    style={{ width: 125, height: 38 }}
                     value={moment().format("DD-MM-YYYY")}
                     onInput={(e) => {
                       e.target.value = e.target.value.replace(/[^0-9]/g, "");
@@ -1217,6 +1233,7 @@ const CreateBill = ({
                   <Input
                     className="text-main"
                     value={profile?.um_name}
+                    style={{ height: 38 }}
                     onInput={(e) => {
                       e.target.value = e.target.value.replace(/[^0-9]/g, "");
                     }}
@@ -1233,6 +1250,17 @@ const CreateBill = ({
                 bordered
                 className="customize-table"
               />
+              <div>
+                <Button
+                  type="button"
+                  className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
+                  onClick={() => handleAddRow(dataSource)}
+                  icon={<PlusOutlined />}
+                  style={{ marginTop: 16, width: "fit-content" }}
+                >
+                  <span>Add Another Service</span>
+                </Button>
+              </div>
             </div>
           </Col>
           <Col
@@ -1387,6 +1415,7 @@ const CreateBill = ({
                       const value = onlyDecimalFormat(e.target.value);
                       setExtraDiscount(value);
                     }}
+                    inputMode="decimal"
                     prefix={extraDiscountType === "flat" ? "₹" : "%"}
                     style={{
                       textAlign: "center",

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { upsertBillItem } from "../../service";
 import { useSelector } from "react-redux";
 import { calculateTotalAmount } from "../../utils/helper";
+import { onlyDecimalFormat } from "../../../../utils/utils";
 
 const ServiceItemPopup = ({
   popupType,
@@ -112,10 +113,13 @@ const ServiceItemPopup = ({
                 </label>
                 <Input
                   value={serviceItem.price}
-                  onInput={(e) => {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                  inputMode="decimal"
+                  onChange={(e) => {
+                    const price = onlyDecimalFormat(e.target.value);
+                    if (price <= 1000000000) {
+                      handleServiceItem("price", price);
+                    }
                   }}
-                  onChange={(e) => handleServiceItem("price", e.target.value)}
                   style={{ height: 38 }}
                   prefix={
                     <i style={{ fontFamily: "Roboto", fontSize: 14 }}>₹</i>
@@ -132,12 +136,21 @@ const ServiceItemPopup = ({
                 </label>
                 <Input
                   value={serviceItem.discount}
-                  onInput={(e) => {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                  inputMode="decimal"
+                  onChange={(e) => {
+                    const discount = onlyDecimalFormat(e.target.value);
+                    if (
+                      (serviceItem.discountType === "percentage" &&
+                        discount <= 100) ||
+                      (serviceItem.discountType === "flat" &&
+                        Number(discount) <= Number(serviceItem.price))
+                    ) {
+                      handleServiceItem(
+                        "discount",
+                        onlyDecimalFormat(discount)
+                      );
+                    }
                   }}
-                  onChange={(e) =>
-                    handleServiceItem("discount", e.target.value)
-                  }
                   style={{ height: 38 }}
                 />
                 <div
@@ -183,10 +196,14 @@ const ServiceItemPopup = ({
                 </label>
                 <Input
                   value={serviceItem.gst}
-                  onInput={(e) => {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                  inputMode="decimal"
+                  onChange={(e) => {
+                    const value = onlyDecimalFormat(e.target.value);
+                    handleServiceItem(
+                      "gst",
+                      value > 100 ? serviceItem.gst : value
+                    );
                   }}
-                  onChange={(e) => handleServiceItem("gst", e.target.value)}
                   style={{ height: 38 }}
                   suffix={
                     <i style={{ fontFamily: "Roboto", fontSize: 14 }}>%</i>

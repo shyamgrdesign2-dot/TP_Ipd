@@ -36,7 +36,7 @@ const BillFooter = ({ printSettings, billData }) => {
         style={{
           marginTop: PX_TO_PT * 8,
           marginBottom: PX_TO_PT * 8,
-          color: "#A2A2A8",
+          color: "#6A6A74",
           fontFamily: "Roboto",
           fontSize: PX_TO_PT * footer?.fontSize,
           fontWeight: 400,

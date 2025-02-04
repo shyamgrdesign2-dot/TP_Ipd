@@ -33,13 +33,13 @@ const BillDetails = ({ pageFormat, billData }) => {
     dueFromPreviousBill > 0
       ? {
           label: "Due from Previous bill:",
-          value: `₹${dueFromPreviousBill}`,
+          value: `₹${dueFromPreviousBill?.toFixed(2)}`,
           divider: true,
         }
       : undefined,
     {
       label: "Total Payable Amount:",
-      value: `₹${payableAmount}`,
+      value: `₹${payableAmount?.toFixed(2)}`,
       bold: true,
       divider: true,
     },
@@ -50,14 +50,14 @@ const BillDetails = ({ pageFormat, billData }) => {
     })),
     {
       label: "Total Amount Paid:",
-      value: `₹${paidAmount}`,
+      value: `₹${paidAmount?.toFixed(2)}`,
       color: "#3D8C40",
       bold: true,
     },
     dueAmount > 0
       ? {
           label: "Total Payment Due:",
-          value: `₹${dueAmount}`,
+          value: `₹${dueAmount?.toFixed(2)}`,
           color: "#ED8A00",
           bold: true,
         }
@@ -65,7 +65,7 @@ const BillDetails = ({ pageFormat, billData }) => {
     paymentStatus === "Refunded"
       ? {
           label: "Total Refund Amount:",
-          value: `₹${refundedAmount}`,
+          value: `₹${refundedAmount?.toFixed(2)}`,
           color: "#FC5A5A",
           bold: true,
           divider: true,

@@ -112,7 +112,9 @@ function BillingDashboard({ patientData }) {
                         className="advance-deposite-container mx-4"
                         onClick={handleAddAdvanceDrawer}
                       >
-                        <span className="text-lg">Advance Balance: ₹{totalAdvanceBalance ?? "0"}</span>
+                        <span className="text-lg">
+                          Advance Balance: ₹{totalAdvanceBalance ?? "0"}
+                        </span>
                         <span className="add-advance-icon">
                           <img src={addCircleIcon} alt="add-deposit" />
                         </span>
@@ -227,7 +229,7 @@ function BillingDashboard({ patientData }) {
               handleCreateBillDrawer={handleCreateBillDrawer}
               isBackModalOpen={isBackModalOpen}
               showHideBackModal={showHideBackModal}
-              patientData={{}}
+              patientData={patientData}
               isDashboard={true}
             />
           </Drawer>
