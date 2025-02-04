@@ -455,11 +455,9 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
     }
   };
 
-  console.log(sortConfig, "sortConfig");
-
   useEffect(() => {
     loadData();
-  }, [dateRange, searchQuery, sortConfig]);
+  }, [dateRange, searchQuery, sortConfig, form3cData]);
 
   return (
     <div className="manage-3c-bills-wrapper">
@@ -613,7 +611,7 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
             columns={columns}
             width="100%"
             scroll={{ y: 600 }}
-            dataSource={data.bills}
+            dataSource={data?.bills?.filter((item) => item.paymentStatus !== "Refunded")}
             pagination={false}
             onChange={handleTableChange}
           />

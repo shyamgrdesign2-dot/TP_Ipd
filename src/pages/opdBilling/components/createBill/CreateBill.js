@@ -38,6 +38,7 @@ import {
   fetchPatientDueAmount,
   fetchPatientWalletBalance,
   fetchPrintSetting,
+  listAdvancedDepositByPatient,
   searchBillItem,
 } from "../../service";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
@@ -50,7 +51,7 @@ import {
   setBillPrintSettings,
 } from "../../../../redux/billingSlice";
 import { jwtDecode } from "jwt-decode";
-import { useLocalStorage } from "../../../../utils/localStorage";
+import { getDecodedToken, useLocalStorage } from "../../../../utils/localStorage";
 import {
   MESSAGE_KEY,
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
@@ -61,6 +62,8 @@ import {
   clearSearch,
   searchPatients,
 } from "../../../../redux/appointmentsSlice";
+import addCircleIcon from "../../../../assets/images/add-circle.svg";
+import AddAdvance from "../advanceDeposit/AddAdvance";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -73,6 +76,7 @@ const CreateBill = ({
   const { state } = useLocation();
   const { pam_id } = state || {};
   const dispatch = useDispatch();
+  const decodedToken = getDecodedToken();
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const { profile, userId } = useSelector((state) => state.doctors);
   const { patients, error } = useSelector((state) => state.records);
@@ -117,6 +121,9 @@ const CreateBill = ({
   const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const [tokenData, setTokenData] = useState(null);
   const [billData, setBillData] = useState({});
+  const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
+  const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
+
   // Search patient related states
   const [patientDetails, setPatientDetails] = useState(null);
   const [searchQueryName, setSearchQueryName] = useState("");
@@ -332,6 +339,7 @@ const CreateBill = ({
       });
     setSearchOptions(data);
   };
+
   const handleInputChange = (value, index, column) => {
     const updatedData = dataSource.map((row, i) =>
       i === index ? { ...row, [column]: value } : row
@@ -842,6 +850,16 @@ const CreateBill = ({
     return formattedName;
   };
 
+  // Add Advance Drawer
+  const handleAddAdvanceDrawer = () => {
+    setAddAdvanceDrawer(!addAdvanceDrawer);
+  };
+
+  // Function to update state from child
+  const handleTotalAdvanceUpdate = (newData) => {
+    setTotalAdvanceBalance(newData);
+  };
+
   const PatientPlank = (patient) => {
     return (
       <>
@@ -870,6 +888,37 @@ const CreateBill = ({
       </>
     );
   };
+
+  const patientAdvanceData = async () => {
+    // setLoading(true);
+    const params = {
+      status:"Deposit",
+      sortBy:"date",
+      sortOrder:"desc",
+      page: 1,
+      limit: 25,
+      // startDate: dateRange.startDate,
+      // endDate: dateRange.endDate,
+      doctorIds: decodedToken?.result?.user_id,
+      search: "",
+      patientId: patientData?.patient_unique_id ?? "",
+      appointmentId: patientData?.pam_id
+    };
+    try {
+      const response = await listAdvancedDepositByPatient(params);
+      handleTotalAdvanceUpdate(response?.summary?.totalAdvanceBalance)
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (patientData) {
+      patientAdvanceData();
+    }
+  }, [patientData]);
 
   return (
     <div>
@@ -926,6 +975,28 @@ const CreateBill = ({
                   />
                 </div>
                 <span className="title-digitise-card">Create Bill</span>
+                { patientData && Object.keys(patientData).length !== 0 &&
+                  <>
+                    <div className="billing-dashboard-wraper">
+                      <button
+                        className="advance-deposite-container mx-2"
+                        onClick={handleAddAdvanceDrawer}
+                      >
+                        <span className="text-lg">Advance Balance: ₹{totalAdvanceBalance ?? "0"}</span>
+                        <span className="add-advance-icon">
+                          <img src={addCircleIcon} alt="add-deposit" />
+                        </span>
+                      </button>
+                    </div>
+                    <div className="billing-dashboard-wraper">
+                      <div
+                        className="total-due-container mx-2"
+                      >
+                        <span className="text-lg"> Payment Due: ₹{(Number(payableAmount) - Number(paidAmount)).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </>
+                }
               </div>
             </Col>
             <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
@@ -1483,6 +1554,20 @@ const CreateBill = ({
             handleCreateBillDrawer={handleCreateBillDrawer}
             patientData={patientData}
             billData={billData}
+          />
+        </Drawer>
+      )}
+      {addAdvanceDrawer && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleAddAdvanceDrawer}
+          open={addAdvanceDrawer}
+          width="80%"
+        >
+          <AddAdvance
+            handleAddAdvanceDrawer={handleAddAdvanceDrawer}
+            patientData={patientData}
           />
         </Drawer>
       )}

@@ -44,6 +44,18 @@
         span {
             color: white !important;
         }
+
+        &:disabled {
+            background: var(--P-CTA-100, #7877e5);
+            border-color: #7877e5 !important;
+            box-shadow: none;
+
+            &:hover,
+            &:focus {
+                background: var(--P-CTA-100, #7877e5) !important;
+            }
+
+        }
     }
 
     .search-bar {

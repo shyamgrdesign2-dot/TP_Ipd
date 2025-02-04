@@ -40,9 +40,10 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
   const [dateString, setDateString] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
   const [totalRefundAmount, setTotalRefundAmount] = useState(0);
+  const [hasEmptyPaymentMode, setHasEmptyPaymentMode] = useState(true);
 
   const [paymentModes, setPaymentModes] = useState([
-    { mode: "Cash", amount: "", refId: "" },
+    { paymentMode: "", amount: "", refId: "" },
   ]);
 
   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
@@ -70,9 +71,16 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
       0
     );
     setTotalRefundAmount(total);
+    const hasEmptyPaymentMode = paymentModes.some(mode => !mode.paymentMode.trim());
+    setHasEmptyPaymentMode(hasEmptyPaymentMode)
   }, [paymentModes]);
-
+  
   const handleRefundBill = async () => {
+    if (hasEmptyPaymentMode) {
+      message.error("Please remove or update the missing payment mode before proceeding.");
+      return;
+    }
+
     if (totalRefundAmount !== billData?.paidAmount) {
       message.error(
         "You can't do partial refund OR Refund amount should be equal to Total Paid Amount"
@@ -86,26 +94,22 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
         paymentModes: [...paymentModes],
       };
       const response = await processBillRefund(payload);
-      if (response.status === 200) {
-        message.open({
-          key: MESSAGE_KEY,
-          type: "",
-          className: "message-appointment",
-          content: (
-            <div className="d-flex align-items-center">
-              <img src={visitEnd} className="me-3" />
-              <div>
-                <div className="title-common text-start fontroboto">{`${totalRefundAmount} is refunded`}</div>
-                {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
-              </div>
-              <img
-                src={imgCloseVisit}
-                className="ms-3"
-                onClick={() => message.destroy()}
-              />
-            </div>
-          ),
-          duration: 5,
+      if (response.status === 204) {
+          message.open({
+            key: MESSAGE_KEY,
+            type: '',
+            className: 'message-appointment',
+            content: (
+                <div className='d-flex align-items-center'>
+                    <img src={visitEnd} className='me-3' />
+                    <div>
+                        <div className='title-common text-start fontroboto'>{`${totalRefundAmount} is refunded`}</div>
+                        {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
+                    </div>
+                    <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                </div>
+            ),
+            duration: 5,
         });
         handleRefundBillDrawer();
         handleMessageForm3c();
@@ -118,7 +122,7 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
   };
 
   const addPaymentMode = () => {
-    setPaymentModes([...paymentModes, { mode: "", amount: 0 }]);
+    setPaymentModes([...paymentModes, { paymentMode: "", amount: 0}]);
   };
 
   const removePaymentMode = (index) => {
@@ -272,7 +276,7 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
                             placeholder="Select"
                             value={payment.lable}
                             onChange={(value) =>
-                              handleModeChange(value, index, "mode")
+                              handleModeChange(value, index, "paymentMode")
                             }
                             dropdownStyle={{ width: 180 }}
                             options={filteredOptions}
@@ -292,7 +296,7 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
                             className="show-more-link"
                             onClick={() => setShowRefIdPopup(index)}
                           >
-                            {payment?.refId ?? `Add ${payment.mode} Ref ID`}
+                            {payment?.refId ?? `Add ${payment.paymentMode} Ref ID`}
                           </span>
                         )}
                       </div>
@@ -339,10 +343,14 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
           </span>
            will be Refunded to the patient
         </div>
-        <div className=" mx-4 my-2 p-2 refund-info">
-          <span className="color-red fw-semibold">{500}</span> will be Refunded
-          to the patient
-        </div>
+
+        <button
+          className="btn-refund-bill mx-4 p-2 h-50"
+          onClick={handleRefundBill}
+          // disabled={hasEmptyPaymentMode}
+        >
+          Refund the Bill
+        </button>
       </Card>
     </>
   );

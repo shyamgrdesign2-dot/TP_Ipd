@@ -80,4 +80,62 @@
         align-items: center;
         align-self: stretch;
     }
+
+    .modalCard-header {
+        height: 60px;
+        border-bottom: 1px solid var(--T-Text-10, #E2E2EA);
+        background-color: #ffffff;
+        width: 100%;
+
+        &.h-74 {
+            height: 74px;
+        }
+
+        .btn-delete-prescription {
+            padding-top: 10px;
+
+            i {
+                color: #4B4AD5;
+            }
+        }
+    }
+
+    .payment-methods-container {
+        max-height: 50%;
+        overflow-y: auto;
+    }
+
+    .h-50 {
+        height: 50px !important;
+    }
+
+    .btn-refund-bill {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 62px;
+        flex-shrink: 0;
+        border-radius: 11.718px;
+        background: var(--P-CTA--100, #4B4AD5);
+        color: white !important;
+        border: none;
+        font-family: Poppins;
+        font-size: 18px;
+        font-style: normal;
+        margin-top: 3rem;
+        width: 95%;
+
+        &:disabled {
+            background: var(--P-CTA-100, #7877e5);
+            border-color: #7877e5 !important;
+            box-shadow: none;
+
+            &:hover,
+            &:focus {
+                background: var(--P-CTA-100, #7877e5) !important;
+            }
+
+        }
+    }
+
 }

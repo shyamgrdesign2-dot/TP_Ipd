@@ -416,7 +416,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
         <div className="align-items-center d-flex gap-4 me-4">
           <Button
             className="btn-create-bill"
-            // disabled={true}
+            disabled={!selectedRowKeys.length}
             onClick={handleAddForm3cBill}
           >
             <span>{"Add to Form 3C"}</span>

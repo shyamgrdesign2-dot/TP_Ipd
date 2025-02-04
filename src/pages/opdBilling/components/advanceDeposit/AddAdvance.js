@@ -531,8 +531,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
   ];
 
   const onAdvanceDetailsClick = async (status, record) => {
-    if (status === 2) {
-      setSelectedTab(2);
+    if (status === 1) {
     } else {
     }
   };
@@ -550,7 +549,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
       {
         label: (
           <div onClick={() => onAdvanceDetailsClick(2, record)}>
-            Refund Receipt
+            Print Receipt
           </div>
         ),
         key: "refund_receipt",
