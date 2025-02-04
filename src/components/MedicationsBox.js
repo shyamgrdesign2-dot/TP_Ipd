@@ -1922,8 +1922,8 @@ function MedicationsBox() {
   const PILLUP_CONTENT = useCallback(() => {
     return (
       <div className="p-2">
-        <div className="fs-18 fw-semibold text-black">Pillup Fullfillment <img className="img-fluid ms-2" src={tagNew} /></div>
-        <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfillment for the patient by enabling <br /> the toogle</div>
+        <div className="fs-18 fw-semibold text-black">Pillup Fulfilment <img className="img-fluid ms-2" src={tagNew} /></div>
+        <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
       </div>
     );
   }, [popOver3]);
@@ -1942,8 +1942,8 @@ function MedicationsBox() {
     {
       description:
         <>
-          <div className="fs-18 fw-semibold pt-3 text-black">Pillup Fullfillment <img className="img-fluid ms-2" src={tagNew} /></div>
-          <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfillment for the patient by enabling <br /> the toogle</div>
+          <div className="fs-18 fw-semibold pt-3 text-black">Pillup Fulfilment <img className="img-fluid ms-2" src={tagNew} /></div>
+          <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
         </>,
       target: () => tourRef.current,
       nextButtonProps: {
