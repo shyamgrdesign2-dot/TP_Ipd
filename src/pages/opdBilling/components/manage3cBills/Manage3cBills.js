@@ -39,6 +39,7 @@ import { MESSAGE_KEY } from "../../../../utils/constants.js";
 import visitEnd from '../../../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../../../assets/images/close-visit.svg';
 import { fetchBillingDashboard } from "../../service.js";
+import { formatDateWithOrdinal } from "../../utils/helper.js";
 
 // import { errorMessage, onlyNumberFormat } from "../../../../utils/utils";
 // import { MESSAGE_KEY } from "../../../../utils/constants";
@@ -87,7 +88,7 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
     doctorList,
     patientCount,
   } = useSelector((state) => state.bulkMessages);
-  const { profile } = useSelector((state) => state.doctors);
+  const { profile, userId } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
@@ -107,6 +108,7 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
   const [pickerModal, setPickerModal] = useState(false);
   const printableRef = useRef(null);
   const [tabLoader, setTabLoader] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ field: null, order: null });
 
   const onSearch = useCallback(
     (query) => {
@@ -288,6 +290,20 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
     return {};
   };
 
+  const handleTableChange = (pagination, filters, sorter) => {
+    if (sorter.order) {
+      const order = sorter.order === "ascend" ? "asc" : "desc"; // Convert to API format
+      const field = sorter.field; // Get sorted field
+  
+      // Pass sorting parameters to parent
+      handleSortChange(field, order);
+    }
+  };
+
+  const handleSortChange = (field, order) => {
+    setSortConfig({ field, order }); // Update state
+  };
+
   // Back Model
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
@@ -308,30 +324,15 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
     },
     {
       title: "BILL NO & DATE",
-      dataIndex: "bill_num_date",
-      key: "bill_num_date",
+      dataIndex: "date",
+      key: "date",
       width: 200,
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
+      sorter: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
           <div className="fs-14 fw-semibold theme-color">{record.billNumber}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.date}
+            {formatDateWithOrdinal(record.date)}
           </div>
         </div>
       ),
@@ -352,49 +353,18 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
     },
     {
       title: "TOTAL AMOUNT",
-      dataIndex: "total_amount",
-      key: "total_amount",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
       ellipsis: true,
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
-      onFilter: (value, record) => record.send_on.startsWith(value),
+      sorter: true,
       render: (text, record) => <div> {record.payableAmount} </div>,
     },
     {
       title: "PAID AMOUNT",
-      dataIndex: "paid_Amount",
-      key: "paid_Amount",
+      dataIndex: "paidAmount",
+      key: "paidAmount",
       ellipsis: true,
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
+      sorter: true,
       render: (text, record) => <div> {record.paidAmount} </div>,
     },
     {
@@ -442,13 +412,13 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
   const loadData = async () => {
     // setLoading(true);
     const params = {
-      sortBy: "date",
-      sortOrder: "desc",
+      sortBy: sortConfig?.field || "date",
+      sortOrder: sortConfig?.order || "desc",
       page: 1,
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
-      doctorIds: "514",
+      doctorIds: userId,
       isForm3C: true,
       search: searchQuery || "",
     };
@@ -462,9 +432,11 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
     }
   };
 
+  console.log(sortConfig,"sortConfig")
+
   useEffect(() => {
     loadData();
-  }, [ dateRange, searchQuery]);
+  }, [ dateRange, searchQuery, sortConfig]);
 
   return (
     <div className="manage-3c-bills-wrapper">
@@ -615,8 +587,10 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
             className="px-0"
             columns={columns}
             width="100%"
+            scroll={{ y: 600 }}
             dataSource={data.bills}
             pagination={false}
+            onChange={handleTableChange}
           />
         </div>
       </div>

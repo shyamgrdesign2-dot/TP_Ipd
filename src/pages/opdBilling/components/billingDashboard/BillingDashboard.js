@@ -33,6 +33,8 @@ function BillingDashboard({ patientData }) {
   const [locationPath, setLocationPath] = useState("/");
   const { profile } = useSelector((state) => state.doctors);
   const [selectedTab, setSelectedTab] = useState("billingtable");
+  const [form3cData, setForm3cData] = useState(null);
+  const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
 
   // Drawer states
   const [form3cDrawer, setForm3cDrawer] = useState(false);
@@ -83,8 +85,12 @@ function BillingDashboard({ patientData }) {
 
   // Add Advance Drawer
   const handleAddAdvanceDrawer = () => {
-    console.log("this is getting called");
     setAddAdvanceDrawer(!addAdvanceDrawer);
+  };
+
+  // Function to update state from child
+  const handleTotalAdvanceUpdate = (newData) => {
+    setTotalAdvanceBalance(newData);
   };
 
   return (
@@ -104,9 +110,9 @@ function BillingDashboard({ patientData }) {
                       </div>
                       <button
                         className="advance-deposite-container mx-4"
-                        // onClick={onClick}
+                        onClick={handleAddAdvanceDrawer}
                       >
-                        <span className="text-lg">Advance Balance: ₹1000</span>
+                        <span className="text-lg">Advance Balance: ₹{totalAdvanceBalance ?? "0"}</span>
                         <span className="add-advance-icon">
                           <img src={addCircleIcon} alt="add-deposit" />
                         </span>
@@ -126,25 +132,15 @@ function BillingDashboard({ patientData }) {
                   )}
                 </div>
                 <div className="d-flex gap-1">
-                  {selectedTab === "billingtable" ? (
-                    <div className="d-lg-flex d-block gap-2">
-                      {!patientData && (
-                        <Button
-                          className="btn-manage-bill"
-                          onClick={handleManage3cBill}
-                        >
-                          <span>{"Manage Form 3c Bills"}</span>
-                        </Button>
-                      )}
-                      <Button
-                        className="btn-create-bill"
-                        onClick={handleCreateBillDrawer}
-                      >
-                        <span style={{ fontSize: "22px" }}>{"+"}</span>
-                        <span>{"Create New Bill"}</span>
-                      </Button>
-                    </div>
-                  ) : (
+                  {selectedTab === "billingtable" && !patientData && (
+                    <Button
+                      className="btn-manage-bill"
+                      onClick={handleManage3cBill}
+                    >
+                      <span>Manage Form 3c Bills</span>
+                    </Button>
+                  )}
+                  {selectedTab !== "billingtable" && !patientData && (
                     <Button
                       className="btn-create-bill"
                       onClick={handleAddAdvance}
@@ -153,12 +149,23 @@ function BillingDashboard({ patientData }) {
                       <span>{"Add Advance Deposit"}</span>
                     </Button>
                   )}
+                  <Button
+                    className="btn-create-bill"
+                    onClick={handleCreateBillDrawer}
+                  >
+                    <span style={{ fontSize: "22px" }}>+</span>
+                    <span>Create New Bill</span>
+                  </Button>
                 </div>
               </div>
               <div className="pb-5">&nbsp;</div>
             </div>
           </>
-          <TableBillingDashboard onTabChange={setSelectedTab} patientData={patientData}/>
+          <TableBillingDashboard
+            onTabChange={setSelectedTab}
+            patientData={patientData}
+            handleTotalAdvanceUpdate={handleTotalAdvanceUpdate}
+          />
         </div>
 
         {form3cDrawer && (
@@ -200,7 +207,10 @@ function BillingDashboard({ patientData }) {
             open={addAdvanceDrawer}
             width="80%"
           >
-            <AddAdvance handleAddAdvanceDrawer={handleAddAdvanceDrawer} patientData={patientData}/>
+            <AddAdvance
+              handleAddAdvanceDrawer={handleAddAdvanceDrawer}
+              patientData={patientData}
+            />
           </Drawer>
         )}
         {createBillDrawer && (
@@ -217,7 +227,8 @@ function BillingDashboard({ patientData }) {
               handleCreateBillDrawer={handleCreateBillDrawer}
               isBackModalOpen={isBackModalOpen}
               showHideBackModal={showHideBackModal}
-              patientData={patientData}
+              patientData={{}}
+              isDashboard={true}
             />
           </Drawer>
         )}

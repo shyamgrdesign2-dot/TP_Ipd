@@ -16,7 +16,7 @@ import alertIcon from "./../../../../assets/images/alertIcon.svg";
 import imgCloseVisit from "./../../../../assets/images/close-visit.svg";
 import visitEnd from "./../../../../assets/images/end-visit.svg";
 import { PlusOutlined } from "@ant-design/icons";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import DiagnosisNotes from "../../../obstetric/components/diagnosisNotes/DiagnosisNotes";
 import {
   onlyDecimalFormat,
@@ -57,6 +57,7 @@ import {
 } from "../../../../utils/constants";
 import { useLocation } from "react-router-dom";
 import { PaymentOptions } from "../../utils/constants";
+import { clearSearch, searchPatients } from "../../../../redux/appointmentsSlice";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -71,6 +72,7 @@ const CreateBill = ({
   const dispatch = useDispatch();
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const { profile, userId } = useSelector((state) => state.doctors);
+  const { patients, error } = useSelector((state) => state.records);
   const { billPrintSettings, advancedSettings } = useSelector(
     (state) => state.billing
   );
@@ -112,6 +114,16 @@ const CreateBill = ({
   const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const [tokenData, setTokenData] = useState(null);
   const [billData, setBillData] = useState({});
+  // Search patient related states
+  const [patientDetails, setPatientDetails] = useState(null);
+  const [searchQueryName, setSearchQueryName] = useState("");
+  const [searchQueryMobile, setSearchQueryMobile] = useState("");
+  const [isEditingName, setIsEditingName] = useState(true);
+  const [isEditingMobile, setIsEditingMobile] = useState(true);
+  const [autoCompleteFlagName, setAutoCompleteFlagName] = useState(false);
+  const [autoCompleteFlagMobile, setAutoCompleteFlagMobile] = useState(false);
+  const nameAutoCompleteRef = useRef(null);
+  const mobileAutoCompleteRef = useRef(null);
 
   const subTotal = dataSource
     .reduce((sum, service) => sum + (Number(service.amount) || 0), 0)
@@ -725,6 +737,137 @@ const CreateBill = ({
     return () => checkInFireBase();
   }, [db, deviceUid]);
 
+  // Patient search related logic
+  const onSearchName = useCallback(
+    (query) => {
+      setSearchQueryName(query);
+    },
+    [setSearchQueryName]
+  );
+
+  const onSearchMobile = useCallback(
+    (query) => {
+      // const clinic_name = getClinicName(profile?.hospital_data);
+      // window.Moengage.track_event("TP_Patient_searched", {
+      //   clinic_name,
+      // });
+      setSearchQueryMobile(query);
+    },
+    [setSearchQueryMobile]
+  );
+
+  useEffect(() => {
+    const data = [];
+    if (patients) {
+      if (patients.length === 0 && searchQuery.length > 0) {
+        data.push({
+          key: -2,
+          label: <div>{error}</div>,
+        });
+      } else {
+        patients.map((patient) => {
+          return data.push({
+            key: JSON.stringify(patient),
+            value: patient.pm_pid,
+            label: PatientPlank(patient),
+          });
+        });
+      }
+    }
+    // if (!isMobile) {
+    //   data.push({
+    //     key: -1,
+    //     value: "Add New Patient",
+    //     label: AddPatientPlank(),
+    //   });
+    // }
+    setSearchOptions(data);
+  }, [patients]);
+
+  useEffect(() => {
+    if (searchQueryName || searchQueryMobile) {
+      const timeOutId = setTimeout(() => {
+        dispatch(
+          searchPatients({
+            searchQuery: searchQueryName || searchQueryMobile,
+            company: "",
+          })
+        );
+      }, 500);
+      return () => {
+        clearTimeout(timeOutId);
+      };
+    } else {
+      dispatch(clearSearch());
+    }
+  }, [searchQueryName, searchQueryMobile]);
+
+  const onSelectPatient = (patient) => {
+    setPatientDetails({
+      patientName: patient.pm_fullname,
+      mobileNumber: patient.pm_contact_no,
+      patientUniqueId: patient.patient_unique_id,
+    });
+    setSearchOptions([]);
+    setSearchQueryMobile("");
+    setSearchQueryName("");
+    setIsEditingName(false);
+    setIsEditingMobile(false);
+  };
+
+  const BoldWordInName = ({ name, boldWord }) => {
+    // Split the name into parts based on the bold word
+    const parts = name.split(new RegExp(`(${boldWord})`, "i"));
+
+    // Map through the parts and apply different styles to the bold word
+    const formattedName = parts.map((part, index) => {
+      if (part.toLowerCase() === boldWord.toLowerCase()) {
+        // If the part matches the bold word, render it in bold
+        return (
+          <span key={index} className="fw-medium">
+            {part}
+          </span>
+        );
+      } else {
+        // Otherwise, render it normally
+        return <span key={index}>{part}</span>;
+      }
+    });
+
+    return formattedName;
+  };
+
+  const PatientPlank = (patient) => {
+    return (
+      <>
+        <div className="d-flex align-items-center justify-content-between">
+          <div
+            className="d-flex align-items-center"
+            onClick={() => {
+              setAutoCompleteFlagMobile(false);
+              setAutoCompleteFlagName(false);
+              onSelectPatient(patient);
+            }}
+          >
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-patients backbar me-2"></i>{" "}
+              <span>
+                {patient.pm_salutation && patient.pm_salutation}{" "}
+                <BoldWordInName
+                  name={patient.pm_fullname}
+                  boldWord={searchQuery}
+                />{" "}
+                ({patient.pm_gender}, {patient.ageYears}y)
+              </span>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  
+
   return (
     <div>
       <Navbar className="headerprescription p-0">
@@ -867,18 +1010,65 @@ const CreateBill = ({
               <div className="d-flex gap-3">
                 <div>
                   <div>Patient Name & ID</div>
-                  <Input
+                  {/* <Input
                     className="text-main"
                     style={{ width: 230 }}
                     value={patientNameAndId}
                     placeholder="Search by patient name / ID"
                     onChange={(e) => setPatientNameAndId(e.target.value)}
                     disabled={!isDashboard}
-                  />
+                  /> */}
+                  {isEditingName && (!patientData || Object.keys(patientData).length === 0) ? (
+                    <AutoComplete
+                      ref={nameAutoCompleteRef} // Attach ref for name AutoComplete
+                      value={searchQueryName}
+                      onSearch={(value) => {
+                        setSearchQueryName(value);
+                        onSearchName(value);
+                      }}
+                      options={searchOptions}
+                      className="w-100 autocomplete-custom"
+                      open={autoCompleteFlagName}
+                      onFocus={() => setAutoCompleteFlagName(true)}
+                      onBlur={() => setAutoCompleteFlagMobile(false)}
+                      popupClassName="autocomplete-dropdown"
+                    >
+                      <Input
+                        placeholder="Search Patient Name"
+                        prefix={<i className="icon-search"></i>}
+                        suffix={
+                          searchQueryName.length > 0 && (
+                            <i
+                              className="icon-Cross"
+                              onClick={() => {
+                                setSearchQueryName("");
+                              }}
+                            />
+                          )
+                        }
+                      />
+                    </AutoComplete>
+                  ) : (
+                    <Input
+                      value={
+                        (Object.keys(patientData).length > 0)
+                          ? patientData?.pm_fullname
+                          : patientDetails
+                          ? patientDetails?.patientName
+                          : ""
+                      }
+                      disabled={Object.keys(patientData).length > 0}
+                      // readOnly={patientData}
+                      className="patient-input"
+                      onClick={() => {
+                        setIsEditingName(true);
+                      }}
+                    />
+                  )}
                 </div>
                 <div>
                   <div>Mobile Number</div>
-                  <Input
+                  {/* <Input
                     className="text-main"
                     style={{ width: 130 }}
                     value={mobileNumber}
@@ -887,7 +1077,52 @@ const CreateBill = ({
                       setMobileNumber(e.target.value.replace(/[^0-9]/g, ""));
                     }}
                     disabled={!isDashboard}
-                  />
+                  /> */}
+                  {isEditingMobile && (!patientData || Object.keys(patientData).length === 0) ? (
+                    <AutoComplete
+                      ref={mobileAutoCompleteRef} // Attach ref for mobile AutoComplete
+                      value={searchQueryMobile}
+                      onSearch={(value) => {
+                        setSearchQueryMobile(value);
+                        onSearchMobile(value);
+                      }}
+                      options={searchOptions}
+                      className="w-100 autocomplete-custom"
+                      open={autoCompleteFlagMobile}
+                      onFocus={() => setAutoCompleteFlagMobile(true)}
+                      onBlur={() => setAutoCompleteFlagMobile(false)}
+                      popupClassName="autocomplete-dropdown"
+                    >
+                      <Input
+                        placeholder="Search Mobile Number"
+                        prefix={<i className="icon-search"></i>}
+                        suffix={
+                          searchQueryMobile.length > 0 && (
+                            <i
+                              className="icon-Cross"
+                              onClick={() => {
+                                setSearchQueryMobile("");
+                              }}
+                            />
+                          )
+                        }
+                      />
+                    </AutoComplete>
+                  ) : (
+                    <Input
+                      value={
+                        (Object.keys(patientData).length > 0)
+                          ? patientData?.pm_contact_no
+                          : patientDetails
+                          ? patientDetails.mobileNumber
+                          : ""
+                      }
+                      disabled={Object.keys(patientData).length > 0}
+                      // readOnly
+                      className="patient-input"
+                      onClick={() => setIsEditingMobile(true)} // Switch to editing mode
+                    />
+                  )}
                 </div>
                 <div>
                   <div>Bill Date</div>

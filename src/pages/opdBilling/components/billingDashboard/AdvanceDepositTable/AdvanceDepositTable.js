@@ -10,6 +10,7 @@ import {
   Table,
   Dropdown,
   Drawer,
+  message,
 } from "antd";
 import { useSelector } from "react-redux";
 import moment from "moment";
@@ -24,6 +25,7 @@ import {
 } from "../../../service.js";
 import PreviewBill from "../../../PreviewBill.js";
 import { getDecodedToken } from "../../../../../utils/localStorage.js";
+import { formatDateWithOrdinal } from "../../../utils/helper.js";
 const { RangePicker } = DatePicker;
 
 const cards = [
@@ -61,6 +63,7 @@ export default function AdvanceDepositTable({ patientData }) {
   const [cards, setCards] = useState([]);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [billData, setBillData] = useState(null);
+  const [downloadData, setDownloadData] = useState([]);
   const [advanceData, setAdvanceData] = useState([]);
 
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
@@ -202,7 +205,7 @@ export default function AdvanceDepositTable({ patientData }) {
             {selectedCard === 3 ? record?.billNumber : record?.receiptNumber}
           </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {moment(record?.date).format(showDateFormat)}
+            {formatDateWithOrdinal(record.date)}
           </div>
         </div>
       ),
@@ -227,7 +230,7 @@ export default function AdvanceDepositTable({ patientData }) {
       key: "total_amount",
       ellipsis: true,
       sorter: true,
-      render: (text, record) => <div> {record?.totalAmount} </div>,
+      render: (text, record) => <div> {parseFloat(record?.totalAmount).toFixed(2)}</div>,
     },
     {
       title: "STATUS",
@@ -303,7 +306,7 @@ export default function AdvanceDepositTable({ patientData }) {
             {selectedCard === 3 ? record?.billNumber : record?.receiptNumber}
           </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {moment(record?.date).format(showDateFormat)}
+            {formatDateWithOrdinal(record.date)}
           </div>
         </div>
       ),
@@ -426,36 +429,42 @@ export default function AdvanceDepositTable({ patientData }) {
     setSelectedOptions(checkedValues);
   };
 
+  useEffect(() => {
+    const filteredOptions = selectedOptions;
+
+    setDownloadData(
+      data?.receipts?.filter((item) => {
+        filteredOptions.includes(item.transactionType);
+      })
+    );
+  }, [selectedOptions, data]);
+
   const handleDownload = async () => {
-    // if (selectedOptions.length === 0) {
-    //   // message.warning("Please select at least one option or download all sections!");
-    //   return;
-    // }
-
     try {
-      console.log("this is getting called");
-      // Mock API call
-      // const response = await fetch("https://api.example.com/download-data", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ filters: selectedOptions }),
-      // });
-      // const data = await response.json();
-
       handlePrintClick(
         printableRef.current,
         setTabLoader,
         handlePrintWeb,
         "DownloadBill"
       );
-
-      // // Pass the data to downloadView
-      // downloadView(data);
-      // message.success("Download started!");
-      handleOpenDownloadModal();
     } catch (error) {
-      // message.error("Failed to download. Please try again.");
+      message.error("Failed to download. Please try again.");
     }
+  };
+
+  const handleDownloadAll = () => {
+    const allStatuses = ["Deposit", "Refund", "Debit"];
+
+    setDownloadData(
+      data?.receipts?.filter((item) =>
+        allStatuses.includes(item.transactionType)
+      )
+    );
+
+    // Ensure handleDownload runs after state is updated
+    setTimeout(() => {
+      handleDownload();
+    }, 0);
   };
 
   // Dropdown content
@@ -475,7 +484,8 @@ export default function AdvanceDepositTable({ patientData }) {
         style={{ background: "lightgray" }}
         onClick={() => {
           // Direct download all data
-          handleDownload();
+          setSelectedOptions(["Deposit", "Refund", "Debit"]);
+          handleDownloadAll();
         }}
       >
         Download All Status
@@ -493,16 +503,17 @@ export default function AdvanceDepositTable({ patientData }) {
           flexDirection: "column",
           marginBottom: "10px",
         }}
+        value={selectedOptions} // Bind selected checkboxes to state
         onChange={handleCheckboxChange}
       >
-        <Checkbox value="fullyPaid">
-          <span className="color-paid">Fully Paid</span>
+        <Checkbox value="Deposit">
+          <span className="color-advance">Advance</span>
         </Checkbox>
-        <Checkbox value="due">
-          <span className="color-due">Due</span>
-        </Checkbox>
-        <Checkbox value="refunded">
+        <Checkbox value="Refund">
           <span className="color-refunded">Refunded</span>
+        </Checkbox>
+        <Checkbox value="Debit">
+          <span className="color-debited">Debited</span>
         </Checkbox>
       </Checkbox.Group>
 
@@ -566,11 +577,11 @@ export default function AdvanceDepositTable({ patientData }) {
       endDate: dateRange.endDate,
       doctorIds: decodedToken?.result?.user_id,
       search: searchQuery || "",
-      patientName: patientData?.pm_fullname,
-      patientPhone: patientData?.pm_contact_no,
+      patientId: patientData?.patient_unique_id ?? "",
+      appointmentId: patientData?.pam_id,
     };
     try {
-      const response = await fetchAdvancedDepositDashboard(params);
+      const response = await listAdvancedDepositByPatient(params);
       setData(response || []);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -711,10 +722,8 @@ export default function AdvanceDepositTable({ patientData }) {
                 className={`card ${selectedCard === card.id ? "selected" : ""}`}
                 onClick={() => setSelectedCard(card.id)}
                 style={{
-                  // borderColor: "transprent",
-                  // backgroundImage: `linear-gradient(to bottom, ${card.color} 5%, #FFFFFF 95%)`
-                  boxShadow: `inset 0 10px 20px ${card.color}40` /* Colored inner shadow */,
-                  // background: `linear-gradient(180deg, ${#A461D81A} 0%, ${#A461D800} 100%)`
+                  borderColor: "transprent",
+                  background: `linear-gradient(180deg, ${card.color}4D 0%, ${card.color}00 35%)`,
                 }}
               >
                 <div
@@ -731,7 +740,7 @@ export default function AdvanceDepositTable({ patientData }) {
           {
             <div style={{ display: "none" }}>
               <div ref={printableRef}>
-                <DownloadBill />
+                <DownloadBill downloadData={downloadData} parent={"advance"} />
               </div>
             </div>
           }

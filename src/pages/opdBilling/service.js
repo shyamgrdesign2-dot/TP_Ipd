@@ -173,13 +173,17 @@ export const listAdvancedDepositByPatient = async function (params) {
       sortBy: params.sortBy,
       sortOrder: params.sortOrder,
       patientId: params.patientId,
-      page: params.page || 1, // Default to page 1 if not provided
-      limit: params.limit || 25, // Default to limit 25 if not provided
+      page: params.page || 1,
+      limit: params.limit || 25,
       doctorIds: params.doctorIds ?? "",
       startDate: params.startDate ?? "",
       endDate: params.endDate ?? "",
-      appointmentId: params.appointmentId,
     };
+
+    // Conditionally add isForm3C **only if the key exists in params**
+    if ("appointmentId" in params && params.appointmentId) {
+      queryParams.appointmentId = params.appointmentId;
+    }
 
     const statusParams = Array.isArray(params.status)
       ? params.status
@@ -220,8 +224,12 @@ export const fetchBillsByPatient = async function (params) {
       page: params.page || 1,
       limit: params.limit || 25,
       patientId: params.patientId,
-      appointmentId: params.appointmentId,
     };
+
+    // Conditionally add isForm3C **only if the key exists in params**
+    if ("appointmentId" in params && params.appointmentId) {
+      queryParams.appointmentId = params.appointmentId;
+    }
 
     // Create query string
     const queryString = new URLSearchParams(queryParams).toString();

@@ -7,6 +7,7 @@ import { addBillsToForm3C } from "../../../service";
 import imgCloseVisit from '../../../../../assets/images/close-visit.svg';
 import visitEnd from '../../../../../assets/images/end-visit.svg';
 import { MESSAGE_KEY } from "../../../../../utils/constants";
+import { formatDateWithOrdinal } from "../../../utils/helper";
 
 const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, getPatientBills }) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
@@ -27,7 +28,7 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
       try {
         const payload = { billIds: [record.id] }; // Adjust payload as needed
         const response = await addBillsToForm3C(payload);
-        if (response.status === 200) {
+        if (response.status === 204) {
             message.open({
               key: MESSAGE_KEY,
               type: '',
@@ -81,7 +82,7 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
             <a className="theme-color">{record.billNumber}</a>
           </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.bill_date}
+            {formatDateWithOrdinal(record.date)}
           </div>
         </div>
       ),
@@ -216,7 +217,7 @@ const BillTable = ({ data, isPatientScreen, handleMessageForm3c, onSortChange, g
     if (record.paymentStatus !== "Refunded") {
       items.push({
         label: (
-          <div onClick={() => onBillingDetailsClick(3, record)}>
+          <div onClick={() => onBillingDetailsClick(2, record)}>
             Refund Bill
           </div>
         ),

@@ -19,6 +19,7 @@ import DownloadBill from "../DownloadBill/DownloadBill.js";
 import {
   fetchBillingDashboard,
   fetchBillsByPatient,
+  listAdvancedDepositByPatient,
 } from "../../../service.js";
 import BillTable from "./BillTable.js";
 import { fetchBillingDashboard } from "../../../service.js";
@@ -34,7 +35,7 @@ const cardsStaticData = [
   {
     id: 1,
     title: "Total Paid Bill Amount",
-    color: "#5A6774",
+    color: "#fff",
     fontColor: "#5A6774",
     amountKey: "totalPaidAmount",
     countKey: "count",
@@ -68,7 +69,7 @@ const cardsStaticData = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-export default function BillingTable({ patientData, getPatientBills }) {
+export default function BillingTable({ patientData, getPatientBills, handleTotalAdvanceUpdate }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
   const [selectedDoctors, setSelectedDoctors] = useState([]);
@@ -370,6 +371,7 @@ export default function BillingTable({ patientData, getPatientBills }) {
       doctorIds: decodedToken?.result?.user_id,
       search: searchQuery || "",
     };
+
     try {
       const response = await fetchBillingDashboard(params);
       setData(response || []);
@@ -379,6 +381,37 @@ export default function BillingTable({ patientData, getPatientBills }) {
       // setLoading(false);
     }
   };
+
+  const patientAdvanceData = async () => {
+    // setLoading(true);
+    const params = {
+      status:"Deposit",
+      sortBy: sortConfig?.field || "date",
+      sortOrder: sortConfig?.order || "desc",
+      page: 1,
+      limit: 25,
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+      doctorIds: decodedToken?.result?.user_id,
+      search: searchQuery || "",
+      patientId: patientData?.patient_unique_id ?? "",
+      appointmentId: patientData?.pam_id
+    };
+    try {
+      const response = await listAdvancedDepositByPatient(params);
+      handleTotalAdvanceUpdate(response?.summary?.totalAdvanceBalance)
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (patientData) {
+      patientAdvanceData();
+    }
+  }, []);
 
   const patientBillingData = async () => {
     // setLoading(true);
@@ -400,6 +433,7 @@ export default function BillingTable({ patientData, getPatientBills }) {
       doctorIds: decodedToken?.result?.user_id,
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id,
+      appointmentId: patientData?.pam_id
     };
     try {
       const response = await fetchBillsByPatient(params);
@@ -418,13 +452,10 @@ export default function BillingTable({ patientData, getPatientBills }) {
       loadData();
     }
   }, [
-    selectedCard,
-    dateRange,
-    searchQuery,
-    doctorList,
-    form3cTriggered,
-    sortConfig,
+    selectedCard, dateRange, searchQuery, doctorList, form3cTriggered, sortConfig,
   ]);
+
+  console.log(form3cTriggered,"form3cTriggered")
 
   return (
     <div>
@@ -610,8 +641,7 @@ export default function BillingTable({ patientData, getPatientBills }) {
                 onClick={() => setSelectedCard(card.id)}
                 style={{
                   borderColor: "transprent",
-                  // backgroundImage: `linear-gradient(to bottom, ${card.color} 5%, #FFFFFF 95%)`
-                  boxShadow: `inset 0 10px 20px ${card.color}40` /* Colored inner shadow */,
+                  background: `linear-gradient(180deg, ${card.color}4D 0%, ${card.color}00 35%)`, 
                 }}
               >
                 <div
@@ -645,7 +675,7 @@ export default function BillingTable({ patientData, getPatientBills }) {
         {
           <div style={{ display: "none" }}>
             <div ref={printableRef}>
-              <DownloadBill downloadData={downloadData} />
+              <DownloadBill downloadData={downloadData} parent={"billing"}/>
             </div>
           </div>
         }

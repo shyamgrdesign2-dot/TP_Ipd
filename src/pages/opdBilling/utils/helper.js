@@ -4,6 +4,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
 import { db } from "../../../firebase";
 import { uploadDocsToAzure } from "../../medicalRecords/service";
 import { isChrome, isSafari } from "react-device-detect";
+import moment from "moment";
 
 export const handleDownload = async (
   pdfUrl,
@@ -124,3 +125,11 @@ export const calculateTotalAmount = (item) => {
 
   return (priceAfterDiscount * gstMultiplier * quantity).toFixed(2);
 };
+
+export const formatDateWithOrdinal = (date) => {
+  const day = moment(date).format("D"); // Get day without leading zero
+  const monthYear = moment(date).format("MMM YYYY"); // Format month and year
+  const suffix = moment(date).format("Do").replace(/\d+/g, ''); // Extract suffix from "Do"
+
+  return `${day}${suffix} ${monthYear}`;
+}

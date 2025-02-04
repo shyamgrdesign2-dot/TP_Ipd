@@ -27,6 +27,7 @@ import dayjs from "dayjs";
 import MenuDivider from "antd/es/menu/MenuDivider";
 
 import { addBillsToForm3C, fetchBillingDashboard } from "../../service";
+import { formatDateWithOrdinal } from "../../utils/helper";
 
 const { RangePicker } = DatePicker;
 const dateFormat = "YYYY-MM-DD";
@@ -245,30 +246,15 @@ function AddForm3cBills({ handleAddForm3cBill }) {
     },
     {
       title: "BILL NO & DATE",
-      dataIndex: "bill_num_date",
-      key: "bill_num_date",
+      dataIndex: "date",
+      key: "date",
       width: 200,
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
+      sorter: true,
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
           <div className="fs-14 fw-semibold theme-color">{record.billNumber}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record.date}
+            {formatDateWithOrdinal(record.date)}
           </div>
         </div>
       ),
@@ -292,23 +278,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
       dataIndex: "total_amount",
       key: "total_amount",
       ellipsis: true,
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
-      onFilter: (value, record) => record.send_on.startsWith(value),
+      sorter: true,
       render: (text, record) => <div> {record.payableAmount} </div>,
     },
     {
@@ -316,22 +286,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
       dataIndex: "paid_Amount",
       key: "paid_Amount",
       ellipsis: true,
-      sorter: (a, b) => {
-        const lhsDateTime = `${a.campaign_date} ${a.campaign_time}`;
-        const lhsLongTime = moment(
-          lhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const rhsDateTime = `${b.campaign_date} ${b.campaign_time}`;
-        const rhsLongTime = moment(
-          rhsDateTime,
-          "Do MMM YYYY HH:mm A"
-        ).valueOf();
-
-        const result = lhsLongTime - rhsLongTime;
-        return result;
-      },
+      sorter: true,
       render: (text, record) => <div> {record.paidAmount} </div>,
     },
     {
@@ -407,7 +362,6 @@ function AddForm3cBills({ handleAddForm3cBill }) {
   }, [dateRange, searchQuery]);
 
   const handleAddForm3cBill = () => {
-    console.log(selectedRowKeys,"selectedRowKeys")
     const payload = {
       billIds: [...selectedRowKeys],
     };
@@ -562,6 +516,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
             className="px-0"
             columns={columns}
             width="100%"
+            scroll={{ y: 600 }}
             dataSource={data}
             pagination={false}
           />
