@@ -44,7 +44,7 @@ const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
 const { TextArea } = Input;
 
-function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
+function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
   const { profile } = useSelector((state) => state.doctors);
   const { patients, error } = useSelector((state) => state.records);
 
@@ -588,7 +588,9 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
 
     if (depositDate || patientData?.apDate) {
       // Remove the ordinal suffix (st, nd, rd, th) from the date
-      const cleanDate = patientData?.apDate && patientData?.apDate.replace(/(\d+)(st|nd|rd|th)/, "$1");
+      const cleanDate =
+        patientData?.apDate &&
+        patientData?.apDate.replace(/(\d+)(st|nd|rd|th)/, "$1");
 
       // Combine date and time and parse with moment
       const isoString = moment(
@@ -657,7 +659,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
       patientId:
-        patientData?.patient_unique_id || patientDetails?.patientUniqueId,
+        patientData?.patient_unique_id || billData?.patientId || patientDetails?.patientUniqueId ,
       page: 1,
       limit: 25,
       // startDate: `2024-10-20`,
@@ -674,10 +676,10 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
   };
 
   useEffect(() => {
-    if (patientDetails || patientData) {
+    if (patientDetails || patientData || billData) {
       loadDepositData();
     }
-  }, [patientDetails, advanceTriggered, patientData, sortConfig]);
+  }, [patientDetails, advanceTriggered, patientData, sortConfig, billData]);
 
   function formatDate(date) {
     // Remove ordinal suffix (st, nd, rd, th) using regex
@@ -711,7 +713,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
                   <div className="text-lg font-medium mb-2">
                     Patient Name <span className="color-red">*</span>
                   </div>
-                  {isEditingName && !patientData ? (
+                  {isEditingName && !patientData && !billData ? (
                     <AutoComplete
                       ref={nameAutoCompleteRef} // Attach ref for name AutoComplete
                       value={searchQueryName}
@@ -746,11 +748,13 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
                       value={
                         patientData
                           ? patientData?.pm_fullname
+                          : billData
+                          ? billData?.patient.name
                           : patientDetails
                           ? patientDetails?.patientName
                           : ""
                       }
-                      disabled={patientData}
+                      disabled={patientData || billData}
                       // readOnly={patientData}
                       className="patient-input"
                       onClick={() => {
@@ -767,7 +771,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
                   <div className="text-lg font-medium mb-2">
                     Mobile Number <span className="color-red">*</span>
                   </div>
-                  {isEditingMobile && !patientData ? (
+                  {isEditingMobile && !patientData && !billData ? (
                     <AutoComplete
                       ref={mobileAutoCompleteRef} // Attach ref for mobile AutoComplete
                       value={searchQueryMobile}
@@ -802,11 +806,13 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
                       value={
                         patientData
                           ? patientData?.pm_contact_no
+                          : billData
+                          ? billData.patient.phone
                           : patientDetails
-                          ? patientDetails.mobileNumber
+                          ? patientDetails?.mobileNumber
                           : ""
                       }
-                      disabled={patientData}
+                      disabled={patientData || billData}
                       // readOnly
                       className="patient-input"
                       onClick={() => setIsEditingMobile(true)} // Switch to editing mode
@@ -885,7 +891,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
                 <div className="advance-balance-title">
                   Total Advance Balance
                 </div>
-                {patientDetails || patientData ? (
+                {patientDetails || patientData || billData ? (
                   <div className="advance-balance-value">
                     {data?.summary?.totalAdvanceBalance}
                   </div>

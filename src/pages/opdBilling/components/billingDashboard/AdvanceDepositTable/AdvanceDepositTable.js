@@ -26,6 +26,7 @@ import {
 import PreviewBill from "../../../PreviewBill.js";
 import { getDecodedToken } from "../../../../../utils/localStorage.js";
 import { formatDateWithOrdinal } from "../../../utils/helper.js";
+import AddAdvance from "../../advanceDeposit/AddAdvance.js";
 const { RangePicker } = DatePicker;
 
 const cards = [
@@ -65,6 +66,7 @@ export default function AdvanceDepositTable({ patientData }) {
   const [billData, setBillData] = useState(null);
   const [downloadData, setDownloadData] = useState([]);
   const [advanceData, setAdvanceData] = useState([]);
+  const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
 
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
 
@@ -179,7 +181,8 @@ export default function AdvanceDepositTable({ patientData }) {
     setBillData(record);
     if (status === 1) {
       handleDrawerPreviewBill();
-    } else if (status === 3) {
+    } else if (status === 2) {
+      handleAddAdvanceDrawer();
     } else {
     }
   };
@@ -230,7 +233,9 @@ export default function AdvanceDepositTable({ patientData }) {
       key: "total_amount",
       ellipsis: true,
       sorter: true,
-      render: (text, record) => <div> {parseFloat(record?.totalAmount).toFixed(2)}</div>,
+      render: (text, record) => (
+        <div> {parseFloat(record?.totalAmount).toFixed(2)}</div>
+      ),
     },
     {
       title: "STATUS",
@@ -377,6 +382,11 @@ export default function AdvanceDepositTable({ patientData }) {
     },
   ];
 
+  // Add Advance Drawer
+  const handleAddAdvanceDrawer = () => {
+    setAddAdvanceDrawer(!addAdvanceDrawer);
+  };
+
   const getMenuItems = (record) => {
     const items = [
       {
@@ -390,14 +400,6 @@ export default function AdvanceDepositTable({ patientData }) {
       {
         label: (
           <div onClick={() => onBillingDetailsClick(2, record)}>
-            Refund Receipt
-          </div>
-        ),
-        key: "refund_receipt",
-      },
-      {
-        label: (
-          <div onClick={() => onBillingDetailsClick(3, record)}>
             Refund Advance
           </div>
         ),
@@ -769,6 +771,21 @@ export default function AdvanceDepositTable({ patientData }) {
             handleCreateBillDrawer={handleDrawerPreviewBill}
             isPreviewFromTable={true}
             isDepositReceipt={true}
+            billData={billData}
+          />
+        </Drawer>
+      )}
+
+      {addAdvanceDrawer && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleAddAdvanceDrawer}
+          open={addAdvanceDrawer}
+          width="80%"
+        >
+          <AddAdvance
+            handleAddAdvanceDrawer={handleAddAdvanceDrawer}
             billData={billData}
           />
         </Drawer>
