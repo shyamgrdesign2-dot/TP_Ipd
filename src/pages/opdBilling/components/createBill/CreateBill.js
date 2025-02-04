@@ -51,7 +51,10 @@ import {
   setBillPrintSettings,
 } from "../../../../redux/billingSlice";
 import { jwtDecode } from "jwt-decode";
-import { getDecodedToken, useLocalStorage } from "../../../../utils/localStorage";
+import {
+  getDecodedToken,
+  useLocalStorage,
+} from "../../../../utils/localStorage";
 import {
   MESSAGE_KEY,
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
@@ -907,9 +910,9 @@ const CreateBill = ({
   const patientAdvanceData = async () => {
     // setLoading(true);
     const params = {
-      status:"Deposit",
-      sortBy:"date",
-      sortOrder:"desc",
+      status: "Deposit",
+      sortBy: "date",
+      sortOrder: "desc",
       page: 1,
       limit: 25,
       // startDate: dateRange.startDate,
@@ -917,11 +920,11 @@ const CreateBill = ({
       doctorIds: decodedToken?.result?.user_id,
       search: "",
       patientId: patientData?.patient_unique_id ?? "",
-      appointmentId: patientData?.pam_id
+      appointmentId: patientData?.pam_id,
     };
     try {
       const response = await listAdvancedDepositByPatient(params);
-      handleTotalAdvanceUpdate(response?.summary?.totalAdvanceBalance)
+      handleTotalAdvanceUpdate(response?.summary?.totalAdvanceBalance);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {
@@ -990,28 +993,34 @@ const CreateBill = ({
                   />
                 </div>
                 <span className="title-digitise-card">Create Bill</span>
-                { patientData && Object.keys(patientData).length !== 0 &&
+                {patientData && Object.keys(patientData).length !== 0 && (
                   <>
                     <div className="billing-dashboard-wraper">
                       <button
                         className="advance-deposite-container mx-2"
                         onClick={handleAddAdvanceDrawer}
                       >
-                        <span className="text-lg">Advance Balance: ₹{totalAdvanceBalance ?? "0"}</span>
+                        <span className="text-lg">
+                          Advance Balance: ₹{totalAdvanceBalance ?? "0"}
+                        </span>
                         <span className="add-advance-icon">
                           <img src={addCircleIcon} alt="add-deposit" />
                         </span>
                       </button>
                     </div>
                     <div className="billing-dashboard-wraper">
-                      <div
-                        className="total-due-container mx-2"
-                      >
-                        <span className="text-lg"> Payment Due: ₹{(Number(payableAmount) - Number(paidAmount)).toFixed(2)}</span>
+                      <div className="total-due-container mx-2">
+                        <span className="text-lg">
+                          {" "}
+                          Payment Due: ₹
+                          {(Number(payableAmount) - Number(paidAmount)).toFixed(
+                            2
+                          )}
+                        </span>
                       </div>
                     </div>
                   </>
-                }
+                )}
               </div>
             </Col>
             <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
@@ -1300,8 +1309,18 @@ const CreateBill = ({
                           <div
                             className="d-flex"
                             style={{
-                              border: disableSaveBtn ? "solid 1px red" : "",
-                              borderRadius: disableSaveBtn ? 10 : "",
+                              border:
+                                disableSaveBtn ||
+                                (payment?.paymentMode === "Advance Deposit" &&
+                                  payment?.amount > patientWalletBalance)
+                                  ? "solid 1px red"
+                                  : "",
+                              borderRadius:
+                                disableSaveBtn ||
+                                (payment?.paymentMode === "Advance Deposit" &&
+                                  payment?.amount > patientWalletBalance)
+                                  ? 10
+                                  : "",
                             }}
                           >
                             <Select
@@ -1364,6 +1383,16 @@ const CreateBill = ({
                           </Button>
                         )}
                       </div>
+                      {payment?.paymentMode === "Advance Deposit" &&
+                        payment?.amount > patientWalletBalance && (
+                          <div className="d-flex align-items-start gap-2">
+                            <span className="icon-info fs-18 mt-1 bdg-danger" />
+                            <span className="bdg-danger">
+                              Amount exceeds available balance of ₹
+                              {patientWalletBalance}. Please adjust or add funds
+                            </span>
+                          </div>
+                        )}
                     </div>
                   </div>
                 ))}
@@ -1593,6 +1622,7 @@ const CreateBill = ({
           onClose={handleAddAdvanceDrawer}
           open={addAdvanceDrawer}
           width="80%"
+          push={false}
         >
           <AddAdvance
             handleAddAdvanceDrawer={handleAddAdvanceDrawer}

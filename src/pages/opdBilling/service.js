@@ -82,7 +82,10 @@ export const searchBillItem = async function (searchQuery) {
 export const listBillItem = async function (queryParams) {
   let res = {};
   try {
-    res = await api.get(`/api/v1/billing/billItem/list?${queryParams}`, baseUrl);
+    res = await api.get(
+      `/api/v1/billing/billItem/list?${queryParams}`,
+      baseUrl
+    );
   } catch (e) {
     console.error("Error while fetching bill items: ", e);
   }
@@ -317,7 +320,8 @@ export const updateAdvancedSettings = async function (payload) {
   } catch (e) {
     console.error("Error while updating advanced settings: ", e);
   }
-}
+  return res;
+};
 
 export const updateAdvancedSettings = async function (payload) {
   let res = {};

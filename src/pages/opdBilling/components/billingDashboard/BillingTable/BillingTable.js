@@ -399,7 +399,7 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
     };
     try {
       const response = await listAdvancedDepositByPatient(params);
-      handleTotalAdvanceUpdate(response?.summary?.totalAdvanceBalance)
+      handleTotalAdvanceUpdate(response?.summary?.totalAdvanceBalance);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {
@@ -454,8 +454,6 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
   }, [
     selectedCard, dateRange, searchQuery, doctorList, form3cTriggered, sortConfig,
   ]);
-
-  console.log(form3cTriggered,"form3cTriggered")
 
   return (
     <div>
@@ -641,7 +639,7 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
                 onClick={() => setSelectedCard(card.id)}
                 style={{
                   borderColor: "transprent",
-                  background: `linear-gradient(180deg, ${card.color}4D 0%, ${card.color}00 35%)`, 
+                  background: `linear-gradient(180deg, ${card.color}4D 0%, ${card.color}00 35%)`,
                 }}
               >
                 <div
@@ -664,7 +662,14 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
           </div>
 
           <BillTable
-            data={data?.bills}
+            data={
+              patientData
+                ? data?.bills?.map((item) => ({
+                    ...item,
+                    patient: data?.patient,
+                  }))
+                : data?.bills
+            }
             isPatientScreen={patientData ? true : false}
             handleMessageForm3c={handleMessageForm3c}
             onSortChange={handleSortChange}

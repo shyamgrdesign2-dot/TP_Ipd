@@ -21,6 +21,7 @@ import { handlePrintClick } from "../../../../../utils/utils.js";
 import DownloadBill from "../DownloadBill/DownloadBill.js";
 import {
   fetchAdvancedDepositDashboard,
+  fetchPatientWalletBalance,
   listAdvancedDepositByPatient,
 } from "../../../service.js";
 import PreviewBill from "../../../PreviewBill.js";
@@ -67,6 +68,7 @@ export default function AdvanceDepositTable({ patientData }) {
   const [downloadData, setDownloadData] = useState([]);
   const [advanceData, setAdvanceData] = useState([]);
   const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
+  const [patientWalletBalance, setPatientWalletBalance] = useState(0);
 
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
 
@@ -284,7 +286,10 @@ export default function AdvanceDepositTable({ patientData }) {
           }}
           trigger={["click"]}
         >
-          <i className="icon-More"></i>
+          <i
+            className="icon-More"
+            onClick={() => getPatientWalletBalance(record?.patientId)}
+          />
         </Dropdown>
       ),
     },
@@ -562,6 +567,13 @@ export default function AdvanceDepositTable({ patientData }) {
     }
   };
 
+  const getPatientWalletBalance = async (patientId) => {
+    const patientWalletBalanceRes = await fetchPatientWalletBalance(patientId);
+    if (patientWalletBalanceRes?.advanceDepositBalance) {
+      setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
+    }
+  };
+
   const patientAdvanceData = async () => {
     // setLoading(true);
     const params = {
@@ -772,6 +784,7 @@ export default function AdvanceDepositTable({ patientData }) {
             isPreviewFromTable={true}
             isDepositReceipt={true}
             billData={billData}
+            totalAdvanceBalance={patientWalletBalance}
           />
         </Drawer>
       )}
@@ -783,6 +796,7 @@ export default function AdvanceDepositTable({ patientData }) {
           onClose={handleAddAdvanceDrawer}
           open={addAdvanceDrawer}
           width="80%"
+          push={false}
         >
           <AddAdvance
             handleAddAdvanceDrawer={handleAddAdvanceDrawer}

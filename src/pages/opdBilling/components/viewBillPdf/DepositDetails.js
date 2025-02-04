@@ -2,26 +2,25 @@ import { Text, View } from "@react-pdf/renderer";
 import { PX_TO_PT, styles } from "./constants";
 import React from "react";
 
-const DepositDetails = ({ pageFormat, depositData }) => {
+const DepositDetails = ({ pageFormat, depositData, totalAdvanceBalance }) => {
   const {
     notes,
     paymentModes = [],
     totalAmount,
     transactionType,
-    payableAmount,
   } = depositData;
   const BillData = [
     {
       items: "Advance Deposit",
       notes: notes,
-      total: `₹${depositData?.totalAmount}`,
+      total: `₹${totalAmount}`,
     },
   ];
 
   const advanceReceipt = [
     {
       label: "Total Payable Amount:",
-      value: `₹${payableAmount}`,
+      value: `₹${totalAmount.toFixed(2)}`,
       bold: true,
       divider: true,
     },
@@ -33,19 +32,19 @@ const DepositDetails = ({ pageFormat, depositData }) => {
     transactionType === "Refunded"
       ? {
           label: "Total Refund Amount:",
-          value: `₹${totalAmount}`,
+          value: `₹${totalAmount.toFixed(2)}`,
           color: "#FC5A5A",
           bold: true,
         }
       : {
           label: "Total Amount Paid:",
-          value: `₹${totalAmount}`,
+          value: `₹${totalAmount.toFixed(2)}`,
           color: "#3D8C40",
           bold: true,
         },
     {
       label: "Advance Balance:",
-      value: `₹${totalAmount}`,
+      value: `₹${totalAdvanceBalance?.toFixed(2)}`,
       color: "#A461D8",
       bold: true,
     },

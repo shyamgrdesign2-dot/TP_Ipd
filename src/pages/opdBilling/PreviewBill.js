@@ -23,6 +23,7 @@ const PreviewBill = ({
   isPreviewFromTable,
   isDepositReceipt,
   billData,
+  totalAdvanceBalance,
 }) => {
   const { patient = {} } = billData;
   const patientData = {
@@ -80,6 +81,7 @@ const PreviewBill = ({
         patientData={patientData}
         profile={profile}
         billData={billData}
+        totalAdvanceBalance={totalAdvanceBalance}
       />
     ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));

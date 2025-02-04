@@ -19,6 +19,7 @@ const BillDetails = ({ pageFormat, billData }) => {
     refundedAmount,
     refundModes,
     refundNotes,
+    nextBillNumber,
   } = billData || {};
 
   const billInfo = [
@@ -60,6 +61,7 @@ const BillDetails = ({ pageFormat, billData }) => {
           value: `₹${dueAmount?.toFixed(2)}`,
           color: "#ED8A00",
           bold: true,
+          textDecoration: nextBillNumber,
         }
       : undefined,
     paymentStatus === "Refunded"
@@ -328,6 +330,7 @@ const BillDetails = ({ pageFormat, billData }) => {
                   fontWeight: item.bold ? "500" : "400",
                   textAlign: "left",
                   width: "60%",
+                  textDecoration: item.textDecoration ? "line-through" : "none",
                 }}
               >
                 {item.label}
@@ -341,6 +344,7 @@ const BillDetails = ({ pageFormat, billData }) => {
                   fontWeight: item.bold ? "500" : "400",
                   textAlign: "right",
                   width: "40%",
+                  textDecoration: item.textDecoration ? "line-through" : "none",
                 }}
               >
                 {item.value}
@@ -358,6 +362,28 @@ const BillDetails = ({ pageFormat, billData }) => {
             )}
           </React.Fragment>
         ))}
+        {nextBillNumber && (
+          <Text
+            style={{
+              fontFamily: pageFormat?.fontFamily,
+              fontSize: PX_TO_PT * pageFormat?.fontSize,
+              lineHeight: 1.4,
+              width: "45%",
+              textAlign: "right",
+              backgroundColor: "#F1F1F5",
+              borderRadius: 6,
+              padding: 6,
+              marginTop: 5,
+              textAlign: "left",
+            }}
+          >
+            This due amount of{" "}
+            <Text style={{ fontWeight: 500 }}>₹{dueAmount?.toFixed(2)}</Text>{" "}
+            has been automatically added to the patients next bill (Bill No:{" "}
+            <Text style={{ fontWeight: 500 }}>{nextBillNumber}</Text>
+            ).
+          </Text>
+        )}
       </View>
 
       {refundNotes && (

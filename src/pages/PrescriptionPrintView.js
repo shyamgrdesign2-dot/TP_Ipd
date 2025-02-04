@@ -169,6 +169,12 @@ function PrescriptionPrintView() {
       }
     }, [createBillDrawer]);
 
+
+    useEffect(() => {
+      const encodedData = btoa(selectedLang.toString());
+      setPrintUrl(`${printUrl}&lg=${encodedData}`);
+    }, [patientBills]);
+
     const getPatientBills = async () => {
         const queryParams = {
           doctorIds: userId,

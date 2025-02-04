@@ -208,6 +208,7 @@ function BillingDashboard({ patientData }) {
             onClose={handleAddAdvanceDrawer}
             open={addAdvanceDrawer}
             width="80%"
+            push={false}
           >
             <AddAdvance
               handleAddAdvanceDrawer={handleAddAdvanceDrawer}

@@ -18,6 +18,7 @@ import {
   Tabs,
   Dropdown,
   message,
+  Drawer,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import moment from "moment";
@@ -40,6 +41,11 @@ import { MESSAGE_KEY } from "../../../../utils/constants";
 import { ListGroup } from "react-bootstrap";
 import { PaymentOptions } from "../../utils/constants";
 import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip";
+import PreviewBill from "../../PreviewBill";
+import ViewBillPdf from "../viewBillPdf/ViewBillPdf";
+import { pdf } from "@react-pdf/renderer";
+import { printContent } from "../../utils/helper";
+import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
@@ -48,6 +54,7 @@ const { TextArea } = Input;
 function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
   const { profile } = useSelector((state) => state.doctors);
   const { patients, error } = useSelector((state) => state.records);
+  const { billPrintSettings } = useSelector((state) => state.billing);
 
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
@@ -70,6 +77,9 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
   const [isEditingName, setIsEditingName] = useState(true);
   const [isEditingMobile, setIsEditingMobile] = useState(true);
   const [advanceTriggered, setAdvacneTriggered] = useState(false);
+  const [advaceData, setAdvanceData] = useState(null);
+  const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
+  const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
 
   const nameAutoCompleteRef = useRef(null);
   const mobileAutoCompleteRef = useRef(null);
@@ -530,10 +540,50 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
     },
   ];
 
+  const handleDrawerPreviewBill = () => {
+    setPreviewBillDrawer(!previewBillDrawer);
+  };
+
   const onAdvanceDetailsClick = async (status, record) => {
+    setAdvanceData(record);
     if (status === 1) {
+      handleDrawerPreviewBill();
     } else {
+      const patient = billData?.patient || {};
+      const upadtedPatientData = {
+        pm_pid: patient.id,
+        pm_fullname: patient.name,
+        pm_gender: patient.gender,
+        pm_contact_no: patient.phone,
+        pam_ref_id: patient.refId,
+        ageDays: patient.ageDays,
+        ageMonths: patient.ageMonths,
+        ageYears: patient.ageYears,
+        pm_salutation: patient.salutation,
+        address: patient.address,
+      };
+      const blob = await pdf(
+        <ViewBillPdf
+          printSettings={billPrintSettings}
+          patientData={upadtedPatientData}
+          profile={profile}
+          billData={record}
+          isDepositReceipt={true}
+          totalAdvanceBalance={totalAdvanceBalance}
+        />
+      ).toBlob();
+      printContent(
+        blob,
+        patientData?.patient_unique_id ||
+          billData?.patientId ||
+          patientDetails?.patientUniqueId,
+        setStartLoader
+      );
     }
+  };
+
+  const setStartLoader = () => {
+    dispatch(setLoadingStatus(true));
   };
 
   const getMenuItems = (record) => {
@@ -591,7 +641,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
     const totalAdvanceAmount = calculateTotalAmount(advanceModes);
     const totalRefundAmount = calculateTotalAmount(refundModes);
 
-    if (totalRefundAmount > data?.summary?.totalAdvanceBalance) {
+    if (totalRefundAmount > totalAdvanceBalance) {
       message.error(
         "Refund amount shouldn't be greated than Total Advance Balance"
       );
@@ -611,7 +661,11 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
       ).toISOString();
 
       const payload = {
-        appointmentId: window.location.pathname.includes("prescription_print_view") ? patientData?.pam_id : null,
+        appointmentId: window.location.pathname.includes(
+          "prescription_print_view"
+        )
+          ? patientData?.pam_id
+          : null,
         patientId:
           patientData?.patient_unique_id || patientDetails?.patientUniqueId, // Convert to number
         transactionType: selectedTab === 2 ? "Refund" : "Deposit",
@@ -671,7 +725,9 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
       patientId:
-        patientData?.patient_unique_id || billData?.patientId || patientDetails?.patientUniqueId ,
+        patientData?.patient_unique_id ||
+        billData?.patientId ||
+        patientDetails?.patientUniqueId,
       page: 1,
       limit: 25,
       // startDate: `2024-10-20`,
@@ -679,7 +735,14 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
     };
     try {
       const response = await listAdvancedDepositByPatient(params);
-      setData(response || []);
+      if (response?.receipts?.length > 0) {
+        const receiptsData = response?.receipts?.map((receipt) => ({
+          ...receipt,
+          patient: response?.patient,
+        }));
+        setData(receiptsData);
+      }
+      setTotalAdvanceBalance(response?.summary?.totalAdvanceBalance);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {
@@ -870,7 +933,11 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
             {/* </div> */}
             <div className="d-flex flex-column gap-2 mx-4 my-2 p-2 payment-scroll">
               {selectedTab === 1
-                ? renderPaymentModes("advance", advanceModes, filteredAdvanceOptions)
+                ? renderPaymentModes(
+                    "advance",
+                    advanceModes,
+                    filteredAdvanceOptions
+                  )
                 : renderPaymentModes("refund", refundModes, filteredOptions)}
               <div className="d-flex">
                 <TextArea
@@ -905,7 +972,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                 </div>
                 {patientDetails || patientData || billData ? (
                   <div className="advance-balance-value">
-                    {data?.summary?.totalAdvanceBalance}
+                    {totalAdvanceBalance}
                   </div>
                 ) : (
                   <div className="advance-balance-value">--</div>
@@ -919,7 +986,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                   className="billing-table px-0"
                   columns={columns}
                   width="100%"
-                  dataSource={data?.receipts}
+                  dataSource={data}
                   pagination={false}
                   scroll={{ y: 600 }}
                   onChange={handleSortChange} // Send sorting data to parent
@@ -929,6 +996,24 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
           }
         </div>
       </Card>
+      {previewBillDrawer && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerPreviewBill}
+          open={previewBillDrawer}
+          width="100%"
+          push={false}
+        >
+          <PreviewBill
+            handleCreateBillDrawer={handleDrawerPreviewBill}
+            isPreviewFromTable={true}
+            isDepositReceipt={true}
+            billData={advaceData}
+            totalAdvanceBalance={totalAdvanceBalance}
+          />
+        </Drawer>
+      )}
     </>
   );
 }

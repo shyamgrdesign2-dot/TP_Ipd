@@ -122,6 +122,7 @@ const ViewBillPdf = ({
   patientData,
   profile,
   billData,
+  totalAdvanceBalance,
 }) => {
   const [fileWatermark, setFileWatermark] = useState(null);
   const paddingStyles = calculatePadding(printSettings?.headerFooter);
@@ -146,6 +147,7 @@ const ViewBillPdf = ({
           <DepositDetails
             pageFormat={printSettings?.pageFormat}
             depositData={billData}
+            totalAdvanceBalance={totalAdvanceBalance}
           />
         ) : (
           <BillDetails
