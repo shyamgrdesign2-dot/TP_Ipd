@@ -277,7 +277,7 @@ function TabPrescription() {
       setAllUploadedDocs(mergeDocuments(doctorUploadedDocs, patientUploadedDocs))
     );
     const tokenData = decodedToken?.result;
-    if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
+    if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB && patient_data.mrno != null && patient_data.mrno != undefined) {
       dispatch(zydusDocsList({ mrno: patient_data.mrno }))
     }
   };

@@ -1912,7 +1912,7 @@ function MedicationsBox() {
 
   useEffect(() => {
     if (isPillUpAccessableFromGB && !pillupCheck) {
-      tourRef?.current?.scrollIntoView({ behavior: 'smooth' });
+      tourRef?.current?.scrollIntoView({behavior: "smooth", block: "center"});
       setTimeout(() => {
         setTourOpen(true)
       }, 1000);

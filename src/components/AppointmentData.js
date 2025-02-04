@@ -87,7 +87,7 @@ function AppointmentData({ locationPath }) {
     const from = searchParams.get("from");
     const [modalOpen, setModalOpen] = useState(false);
 
-    const { queueCount, finishedCount, cancelledCount, zydusEncounterCount, zydusAappointmentCount, appointmentsData, caseTypes, loading, setOnLoad } = useSelector((state) => state.records);
+    const { queueCount, finishedCount, cancelledCount, zydusEncounterCount, zydusAappointmentCount, appointmentsData, caseTypes, loading, setOnLoad, finishedData } = useSelector((state) => state.records);
     const dispatch = useDispatch();
 
     const [date, setDate] = useState({
@@ -707,13 +707,14 @@ function AppointmentData({ locationPath }) {
 
     const onPatientDetailsClick = async (record) => {
         if (selectedTab === TAB_FINISHED) {
-            const sendData = {
-                patient_unique_id: record?.patient_unique_id,
-            };
-            const action = await dispatch(viewPatient(sendData));
-            if (action.meta.requestStatus === "fulfilled") {
-                navigate("/patient_details", { state: { patient_data: { ...record, mrno: action?.payload?.pm_reference_id } } })
-            }
+            // const sendData = {
+            //     patient_unique_id: record?.patient_unique_id,
+            // };
+            // const action = await dispatch(viewPatient(sendData));
+            // if (action.meta.requestStatus === "fulfilled") {
+            //     navigate("/patient_details", { state: { patient_data: { ...record, mrno: action?.payload?.pm_reference_id } } })
+            // }
+            navigate("/patient_details", { state: { patient_data: { ...record, mrno: record?.tpml_refrence_id } } })
         } else {
             navigate("/patient_details", { state: { patient_data: record } })
         }
@@ -1065,7 +1066,7 @@ function AppointmentData({ locationPath }) {
                                 </>
                         ) : (
                             <>
-                                {selectedTab !== TAB_CANCELLED && selectedTab != TAB_ZYDUS_APPOINTMENT && (
+                                {selectedTab !== TAB_CANCELLED && selectedTab != TAB_ZYDUS_APPOINTMENT && !finishedData.some((x) => x.pam_ref_id == record.encounterId) && (
                                     <button className="btn btn-outline-primary" onClick={() => selectedTab === TAB_QUEUE ? onConsultClick(record) : selectedTab === TAB_ZYDUS_ENCOUNTER ? onZydusConsultClick(record) : onPrintRxUrlClick(record)}>
                                         {selectedTab === TAB_FINISHED ? "PrintRx" : "Consult"}
                                     </button>
