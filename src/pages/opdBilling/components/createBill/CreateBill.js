@@ -339,7 +339,7 @@ const CreateBill = ({
     setDataSource(updatedData);
   };
 
-  const handleAddRow = (updatedData = dataSource) => {
+  const handleAddRow = (updatedData) => {
     const newRow = {
       masterId: "",
       name: "",
@@ -1166,7 +1166,7 @@ const CreateBill = ({
                 <Button
                   type="button"
                   className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
-                  onClick={handleAddRow}
+                  onClick={() => handleAddRow(dataSource)}
                   icon={<PlusOutlined />}
                   style={{ marginTop: 16, width: "fit-content" }}
                 >

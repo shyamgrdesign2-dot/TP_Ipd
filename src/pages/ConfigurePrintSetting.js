@@ -115,6 +115,8 @@ function ConfigurePrintSetting() {
           sortOrder: "asc",
           page: 1,
           limit: 25,
+          startDate: moment().format("YYYY-MM-DD"),
+          endDate: moment().format("YYYY-MM-DD"),
           patientId: caseManagerData?.patient_data?.patient_unique_id,
           appointmentId: pam_id || caseManagerData?.patient_data?.pam_id,
         };

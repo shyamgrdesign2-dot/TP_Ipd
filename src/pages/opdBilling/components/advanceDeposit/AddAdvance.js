@@ -599,7 +599,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
       ).toISOString();
 
       const payload = {
-        appointmentId: patientData?.pam_id ?? null,
+        appointmentId: window.location.pathname.includes("prescription_print_view") ? patientData?.pam_id : null,
         patientId:
           patientData?.patient_unique_id || patientDetails?.patientUniqueId, // Convert to number
         transactionType: selectedTab === 2 ? "Refund" : "Deposit",
