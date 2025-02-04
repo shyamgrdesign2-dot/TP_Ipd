@@ -36,9 +36,47 @@ const ServiceItemPopup = ({
   const addOrEditServieItem = async () => {
     serviceItem.totalAmount = calculateTotalAmount(serviceItem);
     handleServiceItem(serviceItem);
-    const res = await upsertBillItem(serviceItem);
-    updateItems(res);
-    onCancel();
+    const billItemRes = await upsertBillItem(serviceItem);
+    if (billItemRes?.id) {
+      setDataSource((prev) => {
+        const updatedData = [...prev];
+        const updateIndex = editIndex > -1 ? editIndex : item?.index;
+
+        if (updateIndex > -1 && updatedData[updateIndex]) {
+          updatedData[updateIndex] = {
+            ...updatedData[updateIndex], // Keep existing values
+            masterId: billItemRes?.id,
+            quantity: 1,
+            name: serviceItem?.name,
+            amount: serviceItem?.price,
+            discount: serviceItem?.discount,
+            discountType: serviceItem?.discountType,
+            type: serviceItem?.type,
+            gst: serviceItem?.gst,
+            totalAmount: serviceItem?.totalAmount,
+            createdBy: billItemRes?.createdBy,
+            ...billItemRes,
+          };
+        } else {
+          // If no valid index, add a new item
+          updatedData.push({
+            masterId: billItemRes?.id,
+            quantity: 1,
+            name: serviceItem?.name,
+            amount: serviceItem?.price,
+            discount: serviceItem?.discount,
+            discountType: serviceItem?.discountType,
+            type: serviceItem?.type,
+            gst: serviceItem?.gst,
+            totalAmount: serviceItem?.totalAmount,
+            createdBy: billItemRes?.createdBy,
+            ...billItemRes,
+          });
+        }
+        return updatedData;
+      });
+      onCancel();
+    }
   };
 
   return (

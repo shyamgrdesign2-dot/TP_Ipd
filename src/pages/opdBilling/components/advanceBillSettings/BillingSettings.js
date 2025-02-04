@@ -302,16 +302,6 @@ const BillingSettings = () => {
     );
   }, [isDeleteModuleModalOpen]);
 
-  const updateBillItems = (updatedItem) => {
-    setBillItems((prev) => {
-      if (editIndex === -1) {
-        return [...prev, updatedItem];
-      }
-      prev[editIndex] = updatedItem;
-      return prev;
-    });
-  };
-
   return (
     <div>
       <div className="modalCard-header h-60 align-items-center justify-content-between d-flex position-sticky top-0 z-2">
@@ -385,7 +375,7 @@ const BillingSettings = () => {
           onCancel={closeServiceItemPopup}
           editIndex={editIndex}
           item={billItems[editIndex]}
-          updateItems={updateBillItems}
+          setDataSource={setBillItems}
         />
       )}
       {DELETE_MODULE_MODAL}

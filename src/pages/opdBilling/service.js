@@ -317,5 +317,14 @@ export const updateAdvancedSettings = async function (payload) {
   } catch (e) {
     console.error("Error while updating advanced settings: ", e);
   }
+}
+
+export const updateAdvancedSettings = async function (payload) {
+  let res = {};
+  try {
+    res = await api.post(`/api/v1/billing/advancedSetting`, payload, baseUrl);
+  } catch (e) {
+    console.error("Error while updating advanced settings: ", e);
+  }
   return res;
 };
