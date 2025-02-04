@@ -586,7 +586,16 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
       return;
     }
 
-    if (depositDate) {
+    if (depositDate || patientData?.apDate) {
+      // Remove the ordinal suffix (st, nd, rd, th) from the date
+      const cleanDate = patientData?.apDate && patientData?.apDate.replace(/(\d+)(st|nd|rd|th)/, "$1");
+
+      // Combine date and time and parse with moment
+      const isoString = moment(
+        `${cleanDate} ${patientData?.apTime}`,
+        "D MMM YYYY hh:mm A"
+      ).toISOString();
+
       const payload = {
         appointmentId: patientData?.pam_id ?? null,
         patientId:
@@ -596,7 +605,9 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
         totalAmount: selectedTab === 2 ? totalRefundAmount : totalAdvanceAmount,
         notes: notes,
         includeInRx: true,
-        date: convertToISODateTime(depositDate),
+        date: patientData?.apDate
+          ? isoString
+          : convertToISODateTime(depositDate),
       };
 
       try {
