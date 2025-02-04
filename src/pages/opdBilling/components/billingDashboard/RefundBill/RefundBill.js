@@ -33,14 +33,18 @@ const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
 const { TextArea } = Input;
 
-function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
+function RefundBill({
+  handleRefundBillDrawer,
+  billData,
+  handleMessageForm3c,
+  getPatientBills,
+}) {
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
   const dispatch = useDispatch();
   const [dateString, setDateString] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
   const [totalRefundAmount, setTotalRefundAmount] = useState(0);
-  const [hasEmptyPaymentMode, setHasEmptyPaymentMode] = useState(true);
 
   const [paymentModes, setPaymentModes] = useState([
     { paymentMode: "", amount: "", refId: "" },
@@ -71,16 +75,16 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
       0
     );
     setTotalRefundAmount(total);
-    const hasEmptyPaymentMode = paymentModes.some(mode => !mode.paymentMode.trim());
-    setHasEmptyPaymentMode(hasEmptyPaymentMode)
   }, [paymentModes]);
-  
+
   const handleRefundBill = async () => {
-    if (hasEmptyPaymentMode) {
-      message.error("Please remove or update the missing payment mode before proceeding.");
+    const updatedPaymentModes = paymentModes?.filter(
+      (item) => item.paymentMode && item.amount > 0
+    );
+    if (updatedPaymentModes?.length !== paymentModes?.length) {
+      message.error("Payment mode and amount cannot be empty.");
       return;
     }
-
     if (totalRefundAmount !== billData?.paidAmount) {
       message.error(
         "You can't do partial refund OR Refund amount should be equal to Total Paid Amount"
@@ -95,21 +99,25 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
       };
       const response = await processBillRefund(payload);
       if (response.status === 204) {
-          message.open({
-            key: MESSAGE_KEY,
-            type: '',
-            className: 'message-appointment',
-            content: (
-                <div className='d-flex align-items-center'>
-                    <img src={visitEnd} className='me-3' />
-                    <div>
-                        <div className='title-common text-start fontroboto'>{`${totalRefundAmount} is refunded`}</div>
-                        {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
-                    </div>
-                    <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
-                </div>
-            ),
-            duration: 5,
+        message.open({
+          key: MESSAGE_KEY,
+          type: "",
+          className: "message-appointment",
+          content: (
+            <div className="d-flex align-items-center">
+              <img src={visitEnd} className="me-3" />
+              <div>
+                <div className="title-common text-start fontroboto">{`${totalRefundAmount} is refunded`}</div>
+                {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
+              </div>
+              <img
+                src={imgCloseVisit}
+                className="ms-3"
+                onClick={() => message.destroy()}
+              />
+            </div>
+          ),
+          duration: 5,
         });
         handleRefundBillDrawer();
         handleMessageForm3c();
@@ -122,7 +130,7 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
   };
 
   const addPaymentMode = () => {
-    setPaymentModes([...paymentModes, { paymentMode: "", amount: 0}]);
+    setPaymentModes([...paymentModes, { paymentMode: "", amount: 0 }]);
   };
 
   const removePaymentMode = (index) => {
@@ -296,7 +304,8 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
                             className="show-more-link"
                             onClick={() => setShowRefIdPopup(index)}
                           >
-                            {payment?.refId ?? `Add ${payment.paymentMode} Ref ID`}
+                            {payment?.refId ??
+                              `Add ${payment.paymentMode} Ref ID`}
                           </span>
                         )}
                       </div>
@@ -347,7 +356,6 @@ function RefundBill({ handleRefundBillDrawer, billData, handleMessageForm3c }) {
         <button
           className="btn-refund-bill mx-4 p-2 h-50"
           onClick={handleRefundBill}
-          // disabled={hasEmptyPaymentMode}
         >
           Refund the Bill
         </button>
