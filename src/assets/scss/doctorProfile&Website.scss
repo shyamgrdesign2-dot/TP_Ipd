@@ -42,6 +42,21 @@
     }
 }
 
+.settings-dropdown {
+    .ant-dropdown-menu {
+        border-radius: 12px;
+        .ant-dropdown-menu-item {
+            padding: 4px 14px;
+            margin: 5px 0;
+            span a {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+    }
+}
+
 // Progress bar
 .web-progress-custom {
     .ant-progress {

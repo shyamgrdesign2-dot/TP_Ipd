@@ -22,10 +22,7 @@ import qrIcon from '../assets/images/qr-icon.svg';
 import logoIcom from '../assets/images/text-logo.svg';
 import VideoModal from "./VideoModal";
 import videorotate from '../assets/images/videorotate.gif';
-import upgradeIcon from "../assets/images/upgrade.svg";
-import profileBg from "../assets/images/profile-bg.svg";
-import goldCrown from "../assets/images/gold-crown.svg";
-import crownIcon from "../assets/images/crown.svg";
+import billingsIcon from '../assets/images/billings.svg';
 
 import config from "../config";
 import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds } from "../redux/doctorsSlice";
@@ -983,6 +980,32 @@ function Header({ locationPath }) {
           )}
 
           {SWITCH_TO_OLD_MODAL}
+
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  label: (
+                    <a onClick={() => navigate("/billing-settings")}>
+                      <div className="title-settings me-2 d-flex align-items-center">
+                        <img src={billingsIcon} alt="Billing" width={20} height={20} className="me-2" />
+                        Billing Settings
+                      </div>
+                      <i className="icon-right iconrotate180"></i>
+                    </a>
+                  ),
+                  key: "1",
+                }
+              ]
+            }}
+            trigger={['click']}
+            className="py-0 nav-link cursor-pointer"
+            overlayClassName="settings-dropdown"
+          >
+            <div className="d-flex align-items-center h-24 w-24">
+              <i className="icon-setting me-2"></i>
+            </div>
+          </Dropdown>
 
           <Dropdown
             menu={{

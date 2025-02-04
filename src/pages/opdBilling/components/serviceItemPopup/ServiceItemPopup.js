@@ -6,7 +6,13 @@ import { upsertBillItem } from "../../service";
 import { useSelector } from "react-redux";
 import { calculateTotalAmount } from "../../utils/helper";
 
-const ServiceItemPopup = ({ onCancel, editIndex, item, setDataSource }) => {
+const ServiceItemPopup = ({
+  popupType,
+  onCancel,
+  editIndex,
+  item,
+  updateItems,
+}) => {
   const { advancedSettings } = useSelector((state) => state.billing);
   const [serviceItem, setServiceItem] = useState({
     id: item?.id || item?.masterId,
@@ -30,45 +36,9 @@ const ServiceItemPopup = ({ onCancel, editIndex, item, setDataSource }) => {
   const addOrEditServieItem = async () => {
     serviceItem.totalAmount = calculateTotalAmount(serviceItem);
     handleServiceItem(serviceItem);
-    const billItemRes = await upsertBillItem(serviceItem);
-    if (billItemRes?.id) {
-      setDataSource((prev) => {
-        const updatedData = [...prev];
-        const updateIndex = editIndex > -1 ? editIndex : item?.index;
-
-        if (updateIndex > -1 && updatedData[updateIndex]) {
-          updatedData[updateIndex] = {
-            ...updatedData[updateIndex], // Keep existing values
-            masterId: billItemRes?.id,
-            quantity: 1,
-            name: serviceItem?.name,
-            amount: serviceItem?.price,
-            discount: serviceItem?.discount,
-            discountType: serviceItem?.discountType,
-            type: serviceItem?.type,
-            gst: serviceItem?.gst,
-            totalAmount: serviceItem?.totalAmount,
-            createdBy: billItemRes?.createdBy,
-          };
-        } else {
-          // If no valid index, add a new item
-          updatedData.push({
-            masterId: billItemRes?.id,
-            quantity: 1,
-            name: serviceItem?.name,
-            amount: serviceItem?.price,
-            discount: serviceItem?.discount,
-            discountType: serviceItem?.discountType,
-            type: serviceItem?.type,
-            gst: serviceItem?.gst,
-            totalAmount: serviceItem?.totalAmount,
-            createdBy: billItemRes?.createdBy,
-          });
-        }
-        return updatedData;
-      });
-      onCancel();
-    }
+    const res = await upsertBillItem(serviceItem);
+    updateItems(res);
+    onCancel();
   };
 
   return (
@@ -239,7 +209,7 @@ const ServiceItemPopup = ({ onCancel, editIndex, item, setDataSource }) => {
                     !serviceItem.type || !serviceItem.name || !serviceItem.price
                   }
                 >
-                  <span>{editIndex === -1 ? "Add" : "Save"}</span>
+                  <span>{editIndex === -1 ? "Add" : "Update"}</span>
                 </Button>
               </div>
             </div>

@@ -79,6 +79,16 @@ export const searchBillItem = async function (searchQuery) {
   return res;
 };
 
+export const listBillItem = async function (queryParams) {
+  let res = {};
+  try {
+    res = await api.get(`/api/v1/billing/billItem/list?${queryParams}`, baseUrl);
+  } catch (e) {
+    console.error("Error while fetching bill items: ", e);
+  }
+  return res;
+};
+
 // Function to fetch billing dashboard data
 export const fetchBillingDashboard = async function (params) {
   let res = {};
@@ -300,15 +310,12 @@ export const fetchPatientDueAmount = async function (patientId) {
   return res;
 };
 
-export const fetchPatientWalletBalance = async function (patientId) {
+export const updateAdvancedSettings = async function (payload) {
   let res = {};
   try {
-    res = await api.get(
-      `/api/v1/billing/advancedDeposit/walletBalance?patientId=${patientId}`,
-      baseUrl
-    );
+    res = await api.post(`/api/v1/billing/advancedSetting`, payload, baseUrl);
   } catch (e) {
-    console.error("Error while fetching patient wallet balance: ", e);
+    console.error("Error while updating advanced settings: ", e);
   }
   return res;
 };
