@@ -139,6 +139,8 @@ const ConfigureBillSettings = ({
       pageFormat: {
         fontFamily: page_format?.font_family,
         fontSize: page_format?.font_size,
+        pageType: "A4",
+        patientInfoFontSize: 12,
       },
     };
   };
@@ -374,6 +376,7 @@ const ConfigureBillSettings = ({
           fontFamily: page_format?.font_family,
           fontSize: page_format?.font_size,
           pageType: prev?.pageFormat?.pageType,
+          patientInfoFontSize: 12,
         },
       };
     });

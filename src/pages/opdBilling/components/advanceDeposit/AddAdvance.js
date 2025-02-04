@@ -85,6 +85,12 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
   const [notes, setNotes] = useState(""); // Stores the final notes value
   const notesRef = useRef("");
 
+  const usedAdvanceModes = advanceModes.map((p) => p.paymentMode);
+
+  const filteredAdvanceOptions = PaymentOptions.filter(
+    (option) => !usedAdvanceModes.includes(option.value)
+  );
+
   const usedPaymentModes = refundModes.map((p) => p.paymentMode);
 
   const filteredOptions = PaymentOptions.filter(
@@ -337,7 +343,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
   };
 
   // Render function for modes
-  const renderPaymentModes = (type, modes) => (
+  const renderPaymentModes = (type, modes, filteredOptions) => (
     <div className="d-flex">
       <div style={{ padding: "16px 16px 0px 0px", width: "100%" }}>
         <div className="text-lg font-medium mb-2">
@@ -554,17 +560,17 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
   const convertToISODateTime = (dateString) => {
     const [day, month, year] = dateString.split("-");
     const selectedDate = new Date(`${year}-${month}-${day}`);
-  
+
     // Get today's date in local timezone (without time)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-  
+
     // If selected date is today, return it in local time format with current time
     if (selectedDate.getTime() === today.getTime()) {
       const now = new Date();
       return `${year}-${month}-${day} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
     }
-  
+
     // Otherwise, convert to ISO format for past dates
     return selectedDate.toISOString();
   };
@@ -835,8 +841,8 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData }) {
             {/* </div> */}
             <div className="d-flex flex-column gap-2 mx-4 my-2 p-2 payment-scroll">
               {selectedTab === 1
-                ? renderPaymentModes("advance", advanceModes)
-                : renderPaymentModes("refund", refundModes)}
+                ? renderPaymentModes("advance", advanceModes, filteredAdvanceOptions)
+                : renderPaymentModes("refund", refundModes, filteredOptions)}
               <div className="d-flex">
                 <TextArea
                   className="h-50 align-self-center"

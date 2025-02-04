@@ -57,7 +57,10 @@ import {
 } from "../../../../utils/constants";
 import { useLocation } from "react-router-dom";
 import { PaymentOptions } from "../../utils/constants";
-import { clearSearch, searchPatients } from "../../../../redux/appointmentsSlice";
+import {
+  clearSearch,
+  searchPatients,
+} from "../../../../redux/appointmentsSlice";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -172,8 +175,10 @@ const CreateBill = ({
     if (billPrintSettings && Object.keys(billPrintSettings).length === 0) {
       getBillPrintSettings();
     }
-    getPatientDueAmount();
-    getPatientWalletBalance();
+    if (patientData?.patient_unique_id) {
+      getPatientDueAmount();
+      getPatientWalletBalance();
+    }
   }, []);
 
   useEffect(() => {
@@ -866,8 +871,6 @@ const CreateBill = ({
     );
   };
 
-  
-
   return (
     <div>
       <Navbar className="headerprescription p-0">
@@ -1018,7 +1021,8 @@ const CreateBill = ({
                     onChange={(e) => setPatientNameAndId(e.target.value)}
                     disabled={!isDashboard}
                   /> */}
-                  {isEditingName && (!patientData || Object.keys(patientData).length === 0) ? (
+                  {isEditingName &&
+                  (!patientData || Object.keys(patientData).length === 0) ? (
                     <AutoComplete
                       ref={nameAutoCompleteRef} // Attach ref for name AutoComplete
                       value={searchQueryName}
@@ -1051,7 +1055,7 @@ const CreateBill = ({
                   ) : (
                     <Input
                       value={
-                        (Object.keys(patientData).length > 0)
+                        Object.keys(patientData).length > 0
                           ? patientData?.pm_fullname
                           : patientDetails
                           ? patientDetails?.patientName
@@ -1078,7 +1082,8 @@ const CreateBill = ({
                     }}
                     disabled={!isDashboard}
                   /> */}
-                  {isEditingMobile && (!patientData || Object.keys(patientData).length === 0) ? (
+                  {isEditingMobile &&
+                  (!patientData || Object.keys(patientData).length === 0) ? (
                     <AutoComplete
                       ref={mobileAutoCompleteRef} // Attach ref for mobile AutoComplete
                       value={searchQueryMobile}
@@ -1111,7 +1116,7 @@ const CreateBill = ({
                   ) : (
                     <Input
                       value={
-                        (Object.keys(patientData).length > 0)
+                        Object.keys(patientData).length > 0
                           ? patientData?.pm_contact_no
                           : patientDetails
                           ? patientDetails.mobileNumber
