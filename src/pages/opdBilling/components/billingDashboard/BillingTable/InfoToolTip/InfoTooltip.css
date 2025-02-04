@@ -2,6 +2,7 @@
 .custom-tooltip-container.ant-tooltip .ant-tooltip-inner {
     background-color: white;
     color: #374151;
+    width: max-content;
     max-width: 348px;
     padding: 18px;
     border-radius: 16px;
@@ -18,21 +19,25 @@
   }
   
   .tooltip-header {
-    margin-bottom: 12px;
     font-weight: 500;
   }
   
   .tooltip-header .amount {
     color: #EF4444 !important;
+    font-weight: 500;
   }
   
   .tooltip-notes .notes-label {
-    font-weight: 500;
+    font-weight: 700;
     margin-bottom: 4px;
   }
   
   .tooltip-notes .notes-content {
-    color: #6B7280;
+    color: rgba(69, 69, 81, 1);
+    font-family: "Poppins";
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
   }
   
   .due-amount-text {

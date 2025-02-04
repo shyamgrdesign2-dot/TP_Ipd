@@ -13,10 +13,11 @@ const BillHeader = ({
   billData,
   profile,
 }) => {
-  const { headerFooter } = printSettings;
+  const { headerFooter, pageFormat } = printSettings;
   const { header, otherSettings, patientInfo, billInfo } = headerFooter || {};
   const { clinicInfo, doctorInfo, logo } = header || {};
   const { waterMark } = otherSettings || {};
+  const { patientInfoFontSize } = pageFormat || {};
 
   return (
     <>
@@ -227,12 +228,27 @@ const BillHeader = ({
                   style={{
                     flexDirection: "row",
                     paddingVertical: PX_TO_PT * 3,
+                    flexWrap: "wrap"
                   }}
                 >
                   <Text
-                    style={[styles.displayPatient, { fontWeight: 500 }]}
+                    style={[
+                      styles.displayPatient,
+                      {
+                        fontWeight: 500,
+                        fontSize: patientInfoFontSize * PX_TO_PT,
+                      },
+                    ]}
                   >{`${item.title}: `}</Text>
-                  <Text style={[styles.displayPatient, { fontWeight: 400 }]}>
+                  <Text
+                    style={[
+                      styles.displayPatient,
+                      {
+                        fontWeight: 400,
+                        fontSize: patientInfoFontSize * PX_TO_PT,
+                      },
+                    ]}
+                  >
                     {patientDataShow(item.id, patientData, billData, profile)}
                   </Text>
                 </View>
@@ -252,6 +268,7 @@ const BillHeader = ({
                   style={{
                     flexDirection: "row",
                     paddingVertical: PX_TO_PT * 3,
+                    flexWrap: "wrap"
                   }}
                 >
                   <Text

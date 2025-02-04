@@ -39,6 +39,7 @@ import visitEnd from "../../../../assets/images/end-visit.svg";
 import { MESSAGE_KEY } from "../../../../utils/constants";
 import { ListGroup } from "react-bootstrap";
 import { PaymentOptions } from "../../utils/constants";
+import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
@@ -496,7 +497,19 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
           record.transactionType
         );
 
-        return <div className={className}>{displayText}</div>;
+        return (
+          <div className="d-flex">
+            <div className={className}>{displayText}</div>
+            {["Deposit", "Debit"].includes(record.transactionType) && (
+              <InfoTooltip
+                type={record.transactionType}
+                amount={record.totalAmount}
+                notes={record.notes}
+                billNo={record.billNumber}
+              />
+            )}
+          </div>
+        );
       },
     },
     {

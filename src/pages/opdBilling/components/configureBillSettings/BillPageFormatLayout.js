@@ -6,7 +6,12 @@ import {
 import { isMobile } from "react-device-detect";
 
 const BillPageFormatLayout = ({ pageFormat, setPrintSettings }) => {
-  const { fontFamily, fontSize, pageType = "A5" } = pageFormat || {};
+  const {
+    fontFamily,
+    fontSize,
+    pageType = "A5",
+    patientInfoFontSize,
+  } = pageFormat || {};
   const onSelectPageFormat = (data, key) => {
     setPrintSettings((prev) => {
       return {
@@ -59,6 +64,20 @@ const BillPageFormatLayout = ({ pageFormat, setPrintSettings }) => {
           options={FONTS_SIZE_LIST}
           value={fontSize}
           onSelect={(data) => onSelectPageFormat(data, "fontSize")}
+          allowClear
+        />
+      </Form.Item>
+
+      <Form.Item>
+        <label className="mb-1">Patient Info Font Size</label>
+        <Select
+          className="autocomplete-custom"
+          placeholder="Select font size"
+          options={FONTS_SIZE_LIST}
+          value={patientInfoFontSize}
+          onSelect={(data) =>
+            onSelectPageFormat(data, "patientInfoFontSize")
+          }
           allowClear
         />
       </Form.Item>
