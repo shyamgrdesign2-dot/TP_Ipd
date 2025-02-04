@@ -1162,17 +1162,6 @@ const CreateBill = ({
                 bordered
                 className="customize-table"
               />
-              <div>
-                <Button
-                  type="button"
-                  className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
-                  onClick={() => handleAddRow(dataSource)}
-                  icon={<PlusOutlined />}
-                  style={{ marginTop: 16, width: "fit-content" }}
-                >
-                  <span>Add Another Service</span>
-                </Button>
-              </div>
             </div>
           </Col>
           <Col
