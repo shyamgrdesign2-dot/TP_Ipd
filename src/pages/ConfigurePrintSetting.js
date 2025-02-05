@@ -119,6 +119,7 @@ function ConfigurePrintSetting() {
           endDate: moment().format("YYYY-MM-DD"),
           patientId: caseManagerData?.patient_data?.patient_unique_id,
           appointmentId: pam_id || caseManagerData?.patient_data?.pam_id,
+          includeInRx: true,
         };
         const response = await fetchBillsByPatient(queryParams);
         if (response?.bills?.length > 0) {

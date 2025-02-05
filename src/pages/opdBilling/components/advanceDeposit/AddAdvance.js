@@ -48,12 +48,15 @@ import { printContent } from "../../utils/helper";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
 import { onlyDecimalFormat } from "../../../../utils/utils";
 import { formatDateWithOrdinal } from "../../utils/helper";
+import { useLocation } from "react-router-dom";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
 const { TextArea } = Input;
 
 function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
+  const { state } = useLocation();
+  const { pam_id } = state || {};
   const { profile } = useSelector((state) => state.doctors);
   const { patients, error } = useSelector((state) => state.records);
   const { billPrintSettings } = useSelector((state) => state.billing);
@@ -687,11 +690,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
       ).toISOString();
 
       const payload = {
-        appointmentId: window.location.pathname.includes(
-          "prescription_print_view"
-        )
-          ? patientData?.pam_id
-          : null,
+        appointmentId: pam_id,
         patientId:
           patientData?.patient_unique_id || patientDetails?.patientUniqueId, // Convert to number
         transactionType: selectedTab === 2 ? "Refund" : "Deposit",

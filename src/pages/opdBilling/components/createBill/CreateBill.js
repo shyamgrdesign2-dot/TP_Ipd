@@ -75,6 +75,7 @@ const CreateBill = ({
   isRxPage,
   patientData = {},
   isDashboard,
+  isPreviewFromTable,
 }) => {
   const { state } = useLocation();
   const { pam_id } = state || {};
@@ -188,6 +189,7 @@ const CreateBill = ({
     if (patientUniqueId) {
       getPatientDueAmount(patientUniqueId);
       getPatientWalletBalance(patientUniqueId);
+      patientAdvanceData(patientUniqueId);
     }
   }, [patientDetails]);
 
@@ -250,7 +252,7 @@ const CreateBill = ({
     } else {
       setDisableSaveBtn(false);
     }
-  }, [dataSource, paymentModes]);
+  }, [dataSource, paymentModes, patientDetails]);
 
   useEffect(() => {
     setDataSource((prevData) => {
@@ -342,10 +344,17 @@ const CreateBill = ({
   };
 
   const handleInputChange = (value, index, column) => {
-    const updatedData = dataSource.map((row, i) =>
-      i === index ? { ...row, [column]: value } : row
+    setDataSource((prevData) =>
+      prevData.map((row, i) =>
+        i === index
+          ? {
+              ...row,
+              [column]: value,
+              ...(column === "discountType" && { discount: undefined }),
+            }
+          : row
+      )
     );
-    setDataSource(updatedData);
   };
 
   const handleAddRow = (updatedData) => {
@@ -639,7 +648,10 @@ const CreateBill = ({
   };
 
   const addPaymentMode = () => {
-    setPaymentModes([...paymentModes, { paymentMode: undefined, amount: 0 }]);
+    setPaymentModes([
+      ...paymentModes,
+      { paymentMode: filteredOptions[0]?.value, amount: 0 },
+    ]);
   };
 
   const removePaymentMode = (index) => {
@@ -907,7 +919,7 @@ const CreateBill = ({
     );
   };
 
-  const patientAdvanceData = async () => {
+  const patientAdvanceData = async (patientUniqueId) => {
     // setLoading(true);
     const params = {
       status: "Deposit",
@@ -919,7 +931,7 @@ const CreateBill = ({
       // endDate: dateRange.endDate,
       doctorIds: decodedToken?.result?.user_id,
       search: "",
-      patientId: patientData?.patient_unique_id ?? "",
+      patientId: patientUniqueId,
       appointmentId: patientData?.pam_id,
     };
     try {
@@ -931,12 +943,6 @@ const CreateBill = ({
       // setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (patientData) {
-      patientAdvanceData();
-    }
-  }, [patientData]);
 
   return (
     <div>
@@ -993,7 +999,9 @@ const CreateBill = ({
                   />
                 </div>
                 <span className="title-digitise-card">Create Bill</span>
-                {patientData && Object.keys(patientData).length !== 0 && (
+                {((patientData && Object.keys(patientData).length !== 0) ||
+                  (patientDetails &&
+                    Object.keys(patientDetails)?.length !== 0)) && (
                   <>
                     <div className="billing-dashboard-wraper">
                       <button
@@ -1008,17 +1016,16 @@ const CreateBill = ({
                         </span>
                       </button>
                     </div>
-                    <div className="billing-dashboard-wraper">
-                      <div className="total-due-container mx-2">
-                        <span className="text-lg">
-                          {" "}
-                          Payment Due: ₹
-                          {(Number(payableAmount) - Number(paidAmount)).toFixed(
-                            2
-                          )}
-                        </span>
+                    {Number(patientDueAmount) > 0 && (
+                      <div className="billing-dashboard-wraper">
+                        <div className="total-due-container mx-2">
+                          <span className="text-lg">
+                            {" "}
+                            Payment Due: ₹{patientDueAmount}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </>
                 )}
               </div>
@@ -1052,7 +1059,11 @@ const CreateBill = ({
                       onClick={() => {
                         handleCreateBill("exit");
                       }}
-                      disabled={disableSaveBtn}
+                      disabled={
+                        disableSaveBtn ||
+                        (!patientData?.patient_unique_id &&
+                          !patientDetails?.patientUniqueId)
+                      }
                     >
                       Save & Exit
                     </Button>
@@ -1060,7 +1071,11 @@ const CreateBill = ({
                     <Button
                       className="btn btn-primary3 btn-41 px-4 me-20"
                       onClick={handleCreateBill}
-                      disabled={disableSaveBtn}
+                      disabled={
+                        disableSaveBtn ||
+                        (!patientData?.patient_unique_id &&
+                          !patientDetails?.patientUniqueId)
+                      }
                     >
                       Save & Print
                     </Button>
@@ -1071,7 +1086,11 @@ const CreateBill = ({
                       type="button"
                       className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
                       onClick={handleCreateBill}
-                      disabled={disableSaveBtn}
+                      disabled={
+                        disableSaveBtn ||
+                        (!patientData?.patient_unique_id &&
+                          !patientDetails?.patientUniqueId)
+                      }
                     >
                       Save & Print
                     </Button>
@@ -1081,7 +1100,11 @@ const CreateBill = ({
                       onClick={() => {
                         handleCreateBill("preview");
                       }}
-                      disabled={disableSaveBtn}
+                      disabled={
+                        disableSaveBtn ||
+                        (!patientData?.patient_unique_id &&
+                          !patientDetails?.patientUniqueId)
+                      }
                     >
                       Save & Preview
                     </Button>
@@ -1442,7 +1465,13 @@ const CreateBill = ({
                     value={extraDiscount}
                     onChange={(e) => {
                       const value = onlyDecimalFormat(e.target.value);
-                      setExtraDiscount(value);
+                      if (
+                        (extraDiscountType === "percentage" && value <= 100) ||
+                        (extraDiscountType === "flat" &&
+                          Number(value) <= Number(subTotal))
+                      ) {
+                        setExtraDiscount(value);
+                      }
                     }}
                     inputMode="decimal"
                     prefix={extraDiscountType === "flat" ? "₹" : "%"}
@@ -1463,7 +1492,10 @@ const CreateBill = ({
                     <Radio.Group
                       value={extraDiscountType}
                       style={{ display: "flex", width: "60px" }}
-                      onChange={(e) => setExtraDiscountType(e.target.value)}
+                      onChange={(e) => {
+                        setExtraDiscountType(e.target.value);
+                        setExtraDiscount(undefined);
+                      }}
                     >
                       <Radio.Button
                         value={"percentage"}
@@ -1612,6 +1644,7 @@ const CreateBill = ({
             handleCreateBillDrawer={handleCreateBillDrawer}
             patientData={patientData}
             billData={billData}
+            isPreviewFromTable={isPreviewFromTable}
           />
         </Drawer>
       )}

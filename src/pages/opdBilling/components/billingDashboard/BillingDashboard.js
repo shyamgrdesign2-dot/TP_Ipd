@@ -234,6 +234,7 @@ function BillingDashboard({ patientData }) {
               showHideBackModal={showHideBackModal}
               patientData={patientData}
               isDashboard={true}
+              isPreviewFromTable={true}
             />
           </Drawer>
         )}

@@ -238,11 +238,13 @@ export const fetchBillsByPatient = async function (params) {
       limit: params.limit || 25,
       patientId: params.patientId,
     };
-
-    // Conditionally add isForm3C **only if the key exists in params**
-    if ("appointmentId" in params && params.appointmentId) {
-      queryParams.appointmentId = params.appointmentId;
+    if (params.includeInRx) {
+      queryParams.includeInRx = params.includeInRx;
     }
+      if ("appointmentId" in params && params.appointmentId) {
+        // Conditionally add isForm3C **only if the key exists in params**
+        queryParams.appointmentId = params.appointmentId;
+      }
 
     // Create query string
     const queryString = new URLSearchParams(queryParams).toString();

@@ -30,6 +30,7 @@ const ServiceItemPopup = ({
       return {
         ...prev,
         [key]: value,
+        ...(key === "discountType" && { discount: undefined }),
       };
     });
   };

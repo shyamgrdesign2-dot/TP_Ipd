@@ -26,7 +26,7 @@ import { env } from "../EnvironmentConfig";
 import { setCurrentSessionRx } from "../redux/obstetricSlice";
 import CreateBill from "./opdBilling/components/createBill/CreateBill";
 import RecentBills from "./opdBilling/components/recentBills/RecentBills";
-import { fetchBillsByPatient } from "./opdBilling/service";
+import { fetchBillsByPatient, listAdvancedDepositByPatient } from "./opdBilling/service";
 import moment from "moment";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
@@ -121,6 +121,7 @@ function PrescriptionPrintView() {
     const [recentBillDrawer, setRecentBillDrawer] = useState(false);
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [patientBills, setPatientBills] = useState([]);
+    const [advanceReceipts, setAdvanceReceipts] = useState([]);
     const {isGynaecHistoryAccessable} = useAccess();
 
     const baseUrl = env.lab_params_api_url;
@@ -173,7 +174,7 @@ function PrescriptionPrintView() {
     useEffect(() => {
       const encodedData = btoa(selectedLang.toString());
       setPrintUrl(`${printUrl}&lg=${encodedData}`);
-    }, [patientBills]);
+    }, [patientBills, advanceReceipts]);
 
     const getPatientBills = async () => {
         const queryParams = {
@@ -194,6 +195,12 @@ function PrescriptionPrintView() {
             patient: response?.patient,
           }));
           setPatientBills(billData);
+        }
+        const patientAdvanceDeposit = await listAdvancedDepositByPatient(
+          queryParams
+        );
+        if (patientAdvanceDeposit?.receipts?.length > 0) {
+          setAdvanceReceipts(patientAdvanceDeposit?.receipts);
         }
     };
 
