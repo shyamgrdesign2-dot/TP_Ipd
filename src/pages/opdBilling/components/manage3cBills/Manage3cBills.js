@@ -472,7 +472,7 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
               <i className="icon-right lh-lg"></i>
             </Button>
           </div>
-          <div className="w-100 px-20 fs-16 fw-semibold">Form 3c Bill</div>
+          <div className="w-100 px-20 fs-16 fw-semibold">Form 3C Bill</div>
         </div>
         <div className="align-items-center d-flex gap-4 me-4">
           <Button className="btn-manage-bill" onClick={handleAddForm3cBill}>

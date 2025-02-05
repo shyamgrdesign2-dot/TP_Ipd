@@ -589,10 +589,9 @@ export default function AdvanceDepositTable({ patientData }) {
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
-      doctorIds: decodedToken?.result?.user_id,
+      doctorIds: doctorList.map((doctor) => doctor.um_id),
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id ?? "",
-      appointmentId: patientData?.pam_id,
     };
     try {
       const response = await listAdvancedDepositByPatient(params);

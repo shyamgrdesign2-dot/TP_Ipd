@@ -244,7 +244,8 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                   name={patient.pm_fullname}
                   boldWord={searchQuery}
                 />{" "}
-                ({patient.pm_gender}, {patient.ageYears}y)
+                ({patient.pm_gender}, {patient.ageYears}y,{" "}
+                {patient.pm_contact_no}, {patient.pm_pid})
               </span>
             </div>
           </div>
@@ -355,8 +356,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
     <div className="d-flex">
       <div style={{ padding: "16px 16px 0px 0px", width: "100%" }}>
         <div className="text-lg font-medium mb-2">
-          Enter {`${type === "advance" ? "Advance" : "Refund"}`} Amount{" "}
-          <span className="color-red">*</span>
+          Enter {`${type === "advance" ? "Advance" : "Refund"}`} Amount{" "}  
         </div>
         {modes.map((payment, index) => (
           <div key={index} className="relative" style={{ width: "100%" }}>
@@ -718,9 +718,9 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                 <img src={visitEnd} className="me-3" />
                 <div>
                   {selectedTab === 1 ? (
-                    <div className="title-common text-start fontroboto">{`Advance ${totalRefundAmount} Added successfully`}</div>
+                    <div className="title-common text-start fontroboto">{`Advance ${totalAdvanceAmount} Added successfully`}</div>
                   ) : (
-                    <div className="title-common text-start fontroboto">{`Refunded ${totalAdvanceAmount} successfully`}</div>
+                    <div className="title-common text-start fontroboto">{`Refunded ${totalRefundAmount} successfully`}</div>
                   )}
                   {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
                 </div>
@@ -819,7 +819,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                   </div>
                   {isEditingName && !patientData && !billData ? (
                     <AutoComplete
-                      ref={nameAutoCompleteRef} // Attach ref for name AutoComplete
+                      ref={nameAutoCompleteRef}
                       value={searchQueryName}
                       onSearch={(value) => {
                         setSearchQueryName(value);
@@ -828,12 +828,19 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                       options={patientSearchOptions}
                       className="w-100 autocomplete-custom"
                       open={autoCompleteFlagName}
-                      onFocus={() => setAutoCompleteFlagName(true)}
-                      onBlur={() => setAutoCompleteFlagMobile(false)}
-                      popupClassName="autocomplete-dropdown"
-                      dropdownStyle={{
-                        width: 400,
+                      onFocus={() => {
+                        setAutoCompleteFlagName(true);
+                        setAutoCompleteFlagMobile(false); // Close mobile autocomplete
+                        setIsEditingMobile(false); // Exit mobile editing mode
                       }}
+                      onBlur={() => {
+                        setTimeout(() => {
+                          setAutoCompleteFlagName(false);
+                          setIsEditingName(false);
+                        }, 200);
+                      }}
+                      popupClassName="autocomplete-dropdown"
+                      dropdownStyle={{ width: 400 }}
                     >
                       <Input
                         placeholder="Search Patient Name"
@@ -862,10 +869,12 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                           : ""
                       }
                       disabled={patientData || billData}
-                      // readOnly={patientData}
                       className="patient-input"
                       onClick={() => {
-                        setIsEditingName(true);
+                        if (!patientData && !billData) {
+                          setIsEditingName(true);
+                          setIsEditingMobile(false);
+                        }
                       }}
                     />
                   )}
@@ -876,11 +885,11 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                 {/* Mobile Number */}
                 <div>
                   <div className="text-lg font-medium mb-2">
-                    Mobile Number <span className="color-red">*</span>
+                    Mobile Number
                   </div>
                   {isEditingMobile && !patientData && !billData ? (
                     <AutoComplete
-                      ref={mobileAutoCompleteRef} // Attach ref for mobile AutoComplete
+                      ref={mobileAutoCompleteRef}
                       value={searchQueryMobile}
                       onSearch={(value) => {
                         setSearchQueryMobile(value);
@@ -889,9 +898,21 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                       options={patientSearchOptions}
                       className="w-100 autocomplete-custom"
                       open={autoCompleteFlagMobile}
-                      onFocus={() => setAutoCompleteFlagMobile(true)}
-                      onBlur={() => setAutoCompleteFlagMobile(false)}
+                      onFocus={() => {
+                        setAutoCompleteFlagMobile(true);
+                        setAutoCompleteFlagName(false); // Close name autocomplete
+                        setIsEditingName(false); // Exit name editing mode
+                      }}
+                      onBlur={() => {
+                        setTimeout(() => {
+                          setAutoCompleteFlagMobile(false);
+                          setIsEditingMobile(false);
+                        }, 200);
+                      }}
                       popupClassName="autocomplete-dropdown"
+                      dropdownStyle={{
+                        width: 400,
+                      }}
                     >
                       <Input
                         placeholder="Search Mobile Number"
@@ -920,23 +941,27 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                           : ""
                       }
                       disabled={patientData || billData}
-                      // readOnly
                       className="patient-input"
-                      onClick={() => setIsEditingMobile(true)} // Switch to editing mode
+                      onClick={() => {
+                        if (!patientData && !billData) {
+                          setIsEditingMobile(true);
+                          setIsEditingName(false);
+                        }
+                      }}
                     />
                   )}
                 </div>
                 {/* Advance Deposit Date */}
                 <div>
                   <div className="text-lg font-medium mb-2">
-                    Advance Deposit Date <span className="color-red">*</span>
+                    {selectedTab === 1 ? "Advance Deposit Date" : "Refund Date"}
                   </div>
                   {patientData?.apDate ? (
                     <Input
                       type="text"
                       value={formatDate(patientData?.apDate)}
                       disabled
-                      className="disabled-input" // Optional: Apply styles to match the DatePicker
+                      className="disabled-input patient-input" // Optional: Apply styles to match the DatePicker
                     />
                   ) : (
                     <DatePicker
@@ -1011,7 +1036,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                 )}
               </div>
               <div className="mx-4 mt-4 fs-16 fw-semibold">
-                Patient’s Advance Deposit History
+                Patient's Advance Deposit History
               </div>
               <div className="mx-4 mt-2">
                 <Table

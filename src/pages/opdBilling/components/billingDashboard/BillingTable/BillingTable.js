@@ -69,6 +69,28 @@ const cardsStaticData = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
+const DoctorTags = ({ selectedDoctors, doctorList, handleDoctorSelection }) => {
+  return (
+    <div className="selected-doctors-tags">
+      {selectedDoctors.map(doctorId => {
+        const doctor = doctorList.find(d => d.um_id === doctorId);
+        return (
+          <span key={doctorId} className="doctor-tag">
+            {doctor?.um_name}
+            <i 
+              className="icon-Cross" 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDoctorSelection(doctorId, false);
+              }}
+            />
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+
 export default function BillingTable({ patientData, getPatientBills, handleTotalAdvanceUpdate }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
@@ -107,6 +129,7 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
     }
   }, []);
 
+
   useEffect(() => {
     // Update cards state whenever the summary prop changes
     const updatedCards = cardsStaticData.map((card) => ({
@@ -121,13 +144,9 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
     setCards(updatedCards);
   }, [data]);
 
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      setSelectedDoctors(doctorList.map((doctor) => doctor.um_id));
-    } else {
-      setSelectedDoctors([]);
-    }
-    setSelectAll(checked);
+  const handleSelectAll = () => {
+    setSelectedDoctors(doctorList.map((doctor) => doctor.um_id));
+    setSelectAll(true);
   };
 
   const handleDoctorSelection = (doctorId, checked) => {
@@ -368,7 +387,7 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
-      doctorIds: decodedToken?.result?.user_id,
+      doctorIds: selectedDoctors.length > 0 ? [...selectedDoctors] : doctorList.map((doctor) => doctor.um_id),
       search: searchQuery || "",
     };
 
@@ -392,7 +411,7 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
-      doctorIds: decodedToken?.result?.user_id,
+      doctorIds: selectedDoctors.length > 0 ? [...selectedDoctors] : doctorList.map((doctor) => doctor.um_id),
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id ?? "",
       appointmentId: patientData?.pam_id
@@ -408,7 +427,7 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
   };
 
   useEffect(() => {
-    if (patientData) {
+    if (patientData && doctorList?.length > 0) {
       patientAdvanceData();
     }
   }, []);
@@ -430,7 +449,7 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
-      doctorIds: decodedToken?.result?.user_id,
+      doctorIds: selectedDoctors.length > 0 ? [...selectedDoctors] : doctorList.map((doctor) => doctor.um_id),
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id,
       appointmentId: patientData?.pam_id
@@ -445,15 +464,10 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
     }
   };
 
-  useEffect(() => {
-    if (patientData) {
-      patientBillingData();
-    } else {
-      loadData();
-    }
-  }, [
-    selectedCard, dateRange, searchQuery, doctorList, form3cTriggered, sortConfig,
-  ]);
+  useEffect(() => {  
+    const fetchData = patientData && doctorList?.length > 0 ? patientBillingData : loadData;
+    fetchData();
+  }, [selectedCard, dateRange, searchQuery, selectedDoctors, form3cTriggered, sortConfig, doctorList]);
 
   return (
     <div>
@@ -475,34 +489,27 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
           </div>
           <div className="d-flex flex-row gap-2">
             {isAdmin && doctorList?.length > 0 && (
-              <div className="d-flex align-items-center">
+              <div className="doctor-select-container">
                 <Select
-                  className=""
+                  className="doctor-select"
                   dropdownRender={(menu) => (
-                    <div>
-                      {/* All Doctors Option */}
-                      <div style={{ padding: "10px" }}>
-                        <Checkbox
-                          checked={selectAll}
-                          onChange={(e) => handleSelectAll(e.target.checked)}
+                    <div className="doctor-select-dropdown">
+                      <div className="d-flex justify-content-between align-items-center w-100">
+                        <button 
+                          className="all-doctors-button"
+                          onClick={() => handleSelectAll()}
                         >
                           All Doctors
-                        </Checkbox>
+                        </button>
                       </div>
-                      <div
-                        style={{
-                          borderBottom: "1px solid #e8e8e8",
-                          margin: "8px 0",
-                        }}
-                      />
-                      {/* Custom Doctors */}
-                      <div
-                        style={{
-                          maxHeight: "200px",
-                          overflowY: "auto",
-                          padding: "8px",
-                        }}
-                      >
+                      
+                      <div className="doctor-select-divider">
+                        <span>or</span>
+                      </div>
+                      
+                      <div className="custom-doctors-section">
+                        <div className="section-title">Select Custom Doctors</div>
+                        <div className="doctor-select-list">
                         {doctorList.map((doctor) => (
                           <div key={doctor.um_id} style={{ padding: "4px 0" }}>
                             <Checkbox
@@ -518,19 +525,38 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
                             </Checkbox>
                           </div>
                         ))}
+                        </div>
                       </div>
                     </div>
                   )}
-                  value={
-                    selectAll
-                      ? "All Doctors"
-                      : `Selected (${selectedDoctors.length})`
-                  }
-                  style={{ width: "100%" }}
+                  value="placeholder"
                 >
-                  {/* Empty Option for Placeholder */}
-                  <Option value="placeholder" disabled>
-                    Select Doctors
+                  <Option value="placeholder">
+                    <div className="select-value-content">
+                      { selectedDoctors.length > 0 ? (
+                        <div className="selected-doctors-wrapper">
+                          <div className="selected-doctors-tags">
+                            {selectedDoctors.map(doctorId => {
+                              const doctor = doctorList.find(d => d.um_id === doctorId);
+                              return (
+                                <span key={doctorId} className="doctor-tag">
+                                  {doctor?.um_name}
+                                  <i 
+                                    className="icon-Cross" 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDoctorSelection(doctorId, false);
+                                    }}
+                                  />
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : (
+                        <span>Select Doctors</span>
+                      )}
+                    </div>
                   </Option>
                 </Select>
               </div>

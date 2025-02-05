@@ -92,14 +92,12 @@ export const listBillItem = async function (queryParams) {
   return res;
 };
 
-// Function to fetch billing dashboard data
 export const fetchBillingDashboard = async function (params) {
   let res = {};
   try {
     // Construct query parameters
     const queryParams = {
       search: params.search,
-      doctorIds: params.doctorIds,
       startDate: params.startDate,
       endDate: params.endDate,
       sortBy: params.sortBy || "date", // Default sorting field
@@ -112,6 +110,7 @@ export const fetchBillingDashboard = async function (params) {
     if ("isForm3C" in params) {
       queryParams.isForm3C = params.isForm3C;
     }
+
     // Convert status array into multiple query params
     let statusParams = "";
     if (params.status) {
@@ -120,11 +119,19 @@ export const fetchBillingDashboard = async function (params) {
         .join("&");
     }
 
+    // Convert doctorIds array into multiple query params
+    let doctorIdsParams = "";
+    if (params.doctorIds && Array.isArray(params.doctorIds)) {
+      doctorIdsParams = params.doctorIds
+        .map((id) => `doctorIds=${encodeURIComponent(id)}`)
+        .join("&");
+    }
+
     // Construct the final query string
     const queryString = new URLSearchParams(queryParams).toString();
     const apiUrl = `/api/v1/billing/bill/dashboard?${queryString}${
       statusParams ? `&${statusParams}` : ""
-    }`;
+    }${doctorIdsParams ? `&${doctorIdsParams}` : ""}`;
 
     // Make the API call
     res = await api.get(apiUrl, baseUrl);
@@ -188,10 +195,17 @@ export const listAdvancedDepositByPatient = async function (params) {
       patientId: params.patientId,
       page: params.page || 1,
       limit: params.limit || 25,
-      doctorIds: params.doctorIds ?? "",
       startDate: params.startDate ?? "",
       endDate: params.endDate ?? "",
     };
+
+    // Convert doctorIds array into multiple query params
+    let doctorIdsParams = "";
+    if (params.doctorIds && Array.isArray(params.doctorIds)) {
+      doctorIdsParams = params.doctorIds
+        .map((id) => `doctorIds=${encodeURIComponent(id)}`)
+        .join("&");
+    }
 
     // Conditionally add isForm3C **only if the key exists in params**
     if ("appointmentId" in params && params.appointmentId) {
@@ -208,7 +222,8 @@ export const listAdvancedDepositByPatient = async function (params) {
     // Combine query parameters into a single query string
     const queryString =
       new URLSearchParams(queryParams).toString() +
-      (statusParams ? `&${statusParams}` : "");
+      (statusParams ? `&${statusParams}` : "") +
+      (doctorIdsParams ? `&${doctorIdsParams}` : "");
 
     // Construct the final API URL
     const apiUrl = `/api/v1/billing/advancedDeposit/listByPatient?${queryString}`;
@@ -229,7 +244,6 @@ export const fetchBillsByPatient = async function (params) {
     // Construct query parameters dynamically
     const queryParams = {
       search: params.search ?? "",
-      doctorIds: params.doctorIds,
       startDate: params.startDate ?? "",
       endDate: params.endDate ?? "",
       sortBy: params.sortBy || "date",
@@ -238,8 +252,18 @@ export const fetchBillsByPatient = async function (params) {
       limit: params.limit || 25,
       patientId: params.patientId,
     };
-    if (params.includeInRx) {
-      queryParams.includeInRx = params.includeInRx;
+
+    // Convert doctorIds array into multiple query params
+    let doctorIdsParams = "";
+    if (params.doctorIds && Array.isArray(params.doctorIds)) {
+      doctorIdsParams = params.doctorIds
+        .map((id) => `doctorIds=${encodeURIComponent(id)}`)
+        .join("&");
+    }
+
+    // Conditionally add isForm3C **only if the key exists in params**
+    if ("appointmentId" in params && params.appointmentId) {
+      queryParams.appointmentId = params.appointmentId;
     }
       if ("appointmentId" in params && params.appointmentId) {
         // Conditionally add isForm3C **only if the key exists in params**
@@ -247,7 +271,9 @@ export const fetchBillsByPatient = async function (params) {
       }
 
     // Create query string
-    const queryString = new URLSearchParams(queryParams).toString();
+    const queryString =
+      new URLSearchParams(queryParams).toString() +
+      (doctorIdsParams ? `&${doctorIdsParams}` : "");
 
     // API call
     res = await api.get(
@@ -311,16 +337,6 @@ export const fetchPatientDueAmount = async function (patientId) {
     );
   } catch (e) {
     console.error("Error while fetching patient due amount: ", e);
-  }
-  return res;
-};
-
-export const updateAdvancedSettings = async function (payload) {
-  let res = {};
-  try {
-    res = await api.post(`/api/v1/billing/advancedSetting`, payload, baseUrl);
-  } catch (e) {
-    console.error("Error while updating advanced settings: ", e);
   }
   return res;
 };
