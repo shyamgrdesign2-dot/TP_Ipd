@@ -242,6 +242,17 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                 {patient.pm_contact_no}, {patient.pm_pid})
               </span>
             </div>
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-phone backbar me-2"></i>
+              <BoldWordInName
+                name={patient.pm_contact_no}
+                boldWord={searchQuery}
+              />
+            </div>
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-Id backbar me-2"></i>
+              <BoldWordInName name={patient.pm_pid} boldWord={searchQuery} />
+            </div>
           </div>
         </div>
       </>
@@ -533,14 +544,15 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
         return (
           <div className="d-flex">
             <div className={className}>{displayText}</div>
-            {["Deposit", "Debit"].includes(record.transactionType) && (
-              <InfoTooltip
-                type={record.transactionType}
-                amount={record.totalAmount}
-                notes={record.notes}
-                billNo={record.billNumber}
-              />
-            )}
+            {["Deposit", "Debit"].includes(record.transactionType) &&
+              record.billNumber && (
+                <InfoTooltip
+                  type={record.transactionType}
+                  amount={record.totalAmount}
+                  notes={record.notes}
+                  billNo={record.billNumber}
+                />
+              )}
           </div>
         );
       },
@@ -807,7 +819,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
               <div className="d-flex gap-2 mx-4 p-2">
                 <div style={{ width: "100%" }}>
                   <div className="text-lg font-medium mb-2">
-                    Patient Name & ID
+                    Patient Name, Mobile no & ID
                   </div>
                   {isEditingName && !patientData && !billData ? (
                     <AutoComplete
@@ -820,22 +832,12 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                       options={patientSearchOptions}
                       className="w-100 autocomplete-custom"
                       open={autoCompleteFlagName}
-                      onFocus={() => {
-                        setAutoCompleteFlagName(true);
-                        setAutoCompleteFlagMobile(false); // Close mobile autocomplete
-                        setIsEditingMobile(false); // Exit mobile editing mode
-                      }}
-                      onBlur={() => {
-                        setTimeout(() => {
-                          setAutoCompleteFlagName(false);
-                          setIsEditingName(false);
-                        }, 200);
-                      }}
-                      popupClassName="autocomplete-dropdown"
-                      dropdownStyle={{ width: 400 }}
+                      onFocus={() => setAutoCompleteFlagName(true)}
+                      onBlur={() => setAutoCompleteFlagMobile(false)}
+                      popupClassName="autocomplete-dropdown z-5"
                     >
                       <Input
-                        placeholder="Search Patient Name"
+                        placeholder="Search by Patient’s Name, Mobile number or Id"
                         prefix={<i className="icon-search"></i>}
                         suffix={
                           searchQueryName.length > 0 && (
@@ -850,101 +852,47 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                       />
                     </AutoComplete>
                   ) : (
-                    <Input
-                      value={
-                        patientData
-                          ? patientData?.pm_fullname
-                          : billData
-                          ? billData?.patient.name
-                          : patientDetails
-                          ? patientDetails?.patientName
-                          : ""
-                      }
-                      disabled={patientData || billData}
-                      className="patient-input"
+                    <div
+                      className="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer"
+                      style={{ height: 32 }}
                       onClick={() => {
                         if (!patientData && !billData) {
                           setIsEditingName(true);
                           setIsEditingMobile(false);
                         }
                       }}
-                    />
+                    >
+                      <div className="d-flex align-items-center">
+                        <div className="list-patientName d-flex align-items-center me-4 ml-2">
+                          <i className="icon-patients backbar me-2"></i>{" "}
+                          <span
+                            className="patientInfo"
+                            style={{ width: "max-content" }}
+                          >
+                            {patientDetails?.patientName}
+                          </span>
+                        </div>
+                        <div className="list-patientName d-flex align-items-center me-4">
+                          <i className="icon-phone backbar me-2"></i>
+                          <span className="patientInfo">
+                            {patientDetails?.mobileNumber}
+                          </span>
+                        </div>
+                        <div className="list-patientName d-flex align-items-center me-4">
+                          <i className="icon-Id backbar me-2"></i>
+                          <span className="patientInfo">
+                            {patientDetails?.patientUniqueId}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
 
               <div className="d-flex gap-2 justify-content-between mx-4 p-2">
-                {/* Mobile Number */}
-                <div>
-                  <div className="text-lg font-medium mb-2">
-                    Mobile Number
-                  </div>
-                  {isEditingMobile && !patientData && !billData ? (
-                    <AutoComplete
-                      ref={mobileAutoCompleteRef}
-                      value={searchQueryMobile}
-                      onSearch={(value) => {
-                        setSearchQueryMobile(value);
-                        onSearchMobile(value);
-                      }}
-                      options={patientSearchOptions}
-                      className="w-100 autocomplete-custom"
-                      open={autoCompleteFlagMobile}
-                      onFocus={() => {
-                        setAutoCompleteFlagMobile(true);
-                        setAutoCompleteFlagName(false); // Close name autocomplete
-                        setIsEditingName(false); // Exit name editing mode
-                      }}
-                      onBlur={() => {
-                        setTimeout(() => {
-                          setAutoCompleteFlagMobile(false);
-                          setIsEditingMobile(false);
-                        }, 200);
-                      }}
-                      popupClassName="autocomplete-dropdown"
-                      dropdownStyle={{
-                        width: 400,
-                      }}
-                    >
-                      <Input
-                        placeholder="Search Mobile Number"
-                        prefix={<i className="icon-search"></i>}
-                        suffix={
-                          searchQueryMobile.length > 0 && (
-                            <i
-                              className="icon-Cross"
-                              onClick={() => {
-                                setSearchQueryMobile("");
-                              }}
-                            />
-                          )
-                        }
-                      />
-                    </AutoComplete>
-                  ) : (
-                    <Input
-                      value={
-                        patientData
-                          ? patientData?.pm_contact_no
-                          : billData
-                          ? billData.patient.phone
-                          : patientDetails
-                          ? patientDetails?.mobileNumber
-                          : ""
-                      }
-                      disabled={patientData || billData}
-                      className="patient-input"
-                      onClick={() => {
-                        if (!patientData && !billData) {
-                          setIsEditingMobile(true);
-                          setIsEditingName(false);
-                        }
-                      }}
-                    />
-                  )}
-                </div>
                 {/* Advance Deposit Date */}
-                <div>
+                <div className="w-100">
                   <div className="text-lg font-medium mb-2">
                     {selectedTab === 1 ? "Advance Deposit Date" : "Refund Date"}
                   </div>

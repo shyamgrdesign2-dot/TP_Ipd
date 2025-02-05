@@ -68,6 +68,7 @@ import {
 import addCircleIcon from "../../../../assets/images/add-circle.svg";
 import AddAdvance from "../advanceDeposit/AddAdvance";
 import { isMobile } from "react-device-detect";
+import waveImage from "../../../../assets/images/opd-billing-wave.svg";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -370,7 +371,7 @@ const CreateBill = ({
       totalAmount: "",
       createdBy: "",
     };
-    setDataSource([newRow, ...updatedData]);
+    setDataSource([...updatedData, newRow]);
     setSearchQuery("");
   };
 
@@ -407,7 +408,7 @@ const CreateBill = ({
       );
       setDataSource(updatedData);
       setSearchQuery(selectedData.name);
-      if (index === 0) {
+      if (index === dataSource.length - 1) {
         handleAddRow(updatedData);
       }
     } else {
@@ -623,16 +624,14 @@ const CreateBill = ({
       dataIndex: "action",
       width: "6%",
       render: (_, record, index) => (
-        <>
-          {dataSource?.length > 1 && (
-            <Button
-              className="btn btn-delete-prescription p-0"
-              onClick={() => handleDeleteRow(index)}
-            >
-              <i className="icon-delete" style={{ color: "#454551" }} />
-            </Button>
-          )}
-        </>
+        <Button
+          className={`btn btn-delete-prescription p-0 ${
+            index === dataSource?.length - 1 && "pe-none opacity-25"
+          }`}
+          onClick={() => handleDeleteRow(index)}
+        >
+          <i className="icon-delete" style={{ color: "#454551" }} />
+        </Button>
       ),
     },
   ];
@@ -933,6 +932,17 @@ const CreateBill = ({
                 {patient.pm_contact_no}, {patient.pm_pid})
               </span>
             </div>
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-phone backbar me-2"></i>
+              <BoldWordInName
+                name={patient.pm_contact_no}
+                boldWord={searchQuery}
+              />
+            </div>
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-Id backbar me-2"></i>
+              <BoldWordInName name={patient.pm_pid} boldWord={searchQuery} />
+            </div>
           </div>
         </div>
       </>
@@ -1172,16 +1182,8 @@ const CreateBill = ({
           >
             <div className="d-flex flex-column h-100 gap-2 px-3 py-4">
               <div className="d-flex gap-3">
-                <div>
-                  <div>Patient Name & ID</div>
-                  {/* <Input
-                    className="text-main"
-                    style={{ width: 230 }}
-                    value={patientNameAndId}
-                    placeholder="Search by patient name / ID"
-                    onChange={(e) => setPatientNameAndId(e.target.value)}
-                    disabled={!isDashboard}
-                  /> */}
+                <div style={{ width: "612px" }}>
+                  <div>Patient Name, Mobile no & ID </div>
                   {isEditingName &&
                   (!patientData || Object.keys(patientData).length === 0) ? (
                     <AutoComplete
@@ -1199,7 +1201,7 @@ const CreateBill = ({
                       }}
                     >
                       <Input
-                        placeholder="Search Patient Name"
+                        placeholder="Search by Patient’s Name, Mobile number or Id"
                         prefix={<i className="icon-search"></i>}
                         suffix={
                           searchQueryName.length > 0 && (
@@ -1211,84 +1213,38 @@ const CreateBill = ({
                             />
                           )
                         }
+                        // style={{ width: "612px" }}
                       />
                     </AutoComplete>
                   ) : (
-                    <Input
-                      value={
-                        Object.keys(patientData).length > 0
-                          ? `${patientData?.pm_fullname}, ${patientData.pm_pid}`
-                          : patientDetails
-                          ? `${patientDetails?.patientName}, ${patientDetails.pmPid}`
-                          : ""
-                      }
-                      style={{ height: 38 }}
-                      disabled={Object.keys(patientData).length > 0}
-                      className="patient-input"
+                    <div
+                      className="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer"
+                      style={{ height: 32 }}
                       onClick={() => {
                         setIsEditingName(true);
                       }}
-                    />
-                  )}
-                </div>
-                <div>
-                  <div>Mobile Number</div>
-                  {/* <Input
-                    className="text-main"
-                    style={{ width: 130 }}
-                    value={mobileNumber}
-                    placeholder="Search number"
-                    onInput={(e) => {
-                      setMobileNumber(e.target.value.replace(/[^0-9]/g, ""));
-                    }}
-                    disabled={!isDashboard}
-                  /> */}
-                  {isEditingMobile &&
-                  (!patientData || Object.keys(patientData).length === 0) ? (
-                    <AutoComplete
-                      ref={mobileAutoCompleteRef} // Attach ref for mobile AutoComplete
-                      value={searchQueryMobile}
-                      onSearch={(value) => {
-                        setSearchQueryMobile(value);
-                        onSearchMobile(value);
-                      }}
-                      dropdownStyle={{
-                        width: 400,
-                      }}
-                      options={patientSearchOptions}
-                      className="w-100 autocomplete-custom"
-                      popupClassName="autocomplete-dropdown"
                     >
-                      <Input
-                        placeholder="Search Mobile No"
-                        prefix={<i className="icon-search"></i>}
-                        suffix={
-                          searchQueryMobile.length > 0 && (
-                            <i
-                              className="icon-Cross"
-                              onClick={() => {
-                                setSearchQueryMobile("");
-                              }}
-                            />
-                          )
-                        }
-                      />
-                    </AutoComplete>
-                  ) : (
-                    <Input
-                      value={
-                        Object.keys(patientData).length > 0
-                          ? patientData?.pm_contact_no
-                          : patientDetails
-                          ? patientDetails.mobileNumber
-                          : ""
-                      }
-                      style={{ height: 38 }}
-                      disabled={Object.keys(patientData).length > 0}
-                      // readOnly
-                      className="patient-input"
-                      onClick={() => setIsEditingMobile(true)} // Switch to editing mode
-                    />
+                      <div className="d-flex align-items-center">
+                        <div className="list-patientName d-flex align-items-center me-4 ml-2">
+                          <i className="icon-patients backbar me-2"></i>{" "}
+                          <span className="patientInfo">
+                            {patientDetails?.patientName}
+                          </span>
+                        </div>
+                        <div className="list-patientName d-flex align-items-center me-4">
+                          <i className="icon-phone backbar me-2"></i>
+                          <span className="patientInfo">
+                            {patientDetails?.mobileNumber}
+                          </span>
+                        </div>
+                        <div className="list-patientName d-flex align-items-center me-4">
+                          <i className="icon-Id backbar me-2"></i>
+                          <span className="patientInfo">
+                            {patientDetails?.patientUniqueId}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
                 <div>
@@ -1326,17 +1282,6 @@ const CreateBill = ({
                 className="customize-table"
                 rowClassName={() => "create-bill-table"}
               />
-              <div>
-                <Button
-                  type="button"
-                  className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
-                  onClick={() => handleAddRow(dataSource)}
-                  icon={<PlusOutlined />}
-                  style={{ marginTop: 16, width: "fit-content" }}
-                >
-                  <span>Add Another Service</span>
-                </Button>
-              </div>
             </div>
           </Col>
           <Col
@@ -1487,8 +1432,13 @@ const CreateBill = ({
             </div>
             <Divider />
             <div
-              className="d-flex flex-column gap-3"
-              style={{ background: "white", borderRadius: 16, padding: 14 }}
+              className="d-flex flex-column gap-3 position-relative mb-3"
+              style={{
+                background: "white",
+                borderRadius: 16,
+                padding: 14,
+                boxShadow: "0px 0px 60px 0px rgba(0, 0, 0, 0.04)",
+              }}
             >
               <div className="d-flex justify-content-between">
                 <span>Subtotal:</span>
@@ -1623,6 +1573,7 @@ const CreateBill = ({
                   </span>
                 </div>
               )}
+              <img src={waveImage} className="wave-bottom" />{" "}
             </div>
 
             {patientBillNotes?.length === 0 ? (
