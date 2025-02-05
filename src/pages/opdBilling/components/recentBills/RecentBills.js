@@ -43,6 +43,7 @@ const RecentBills = ({
           data={patientBills}
           isPatientScreen={true}
           getPatientBills={getPatientBills}
+          handleRecentBillDrawer={handleRecentBillDrawer}
         />
       </div>
     </div>

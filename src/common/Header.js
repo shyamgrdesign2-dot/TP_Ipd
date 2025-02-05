@@ -41,6 +41,8 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { env } from "../EnvironmentConfig";
 import CommonModal from "./CommonModal";
 import { useReactToPrint } from 'react-to-print';
+import { fetchAdvanceSetting } from "../pages/opdBilling/service";
+import { setAdvancedSettings } from "../redux/billingSlice";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -101,11 +103,8 @@ function Header({ locationPath }) {
     dispatch(getMedicineType());
     dispatch(getDefaultPrintsettings({ default: false }));
     dispatch(listVideo());
-    const tokenData = decodedToken?.result;
-    if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
-      dispatch(zydusRefIds())
-    }
-  }, [isZydusUserAccessableFromGB]);
+    getAdvanceSettings();
+  }, []);
 
   useEffect(() => {
     if (profile) {
@@ -143,6 +142,13 @@ function Header({ locationPath }) {
       getStorageData()
     }
   }, [clinicOptions]);
+
+  const getAdvanceSettings = async () => {
+    const advanceSettingsResponse = await fetchAdvanceSetting();
+    if (advanceSettingsResponse) {
+      dispatch(setAdvancedSettings(advanceSettingsResponse));
+    }
+  };
 
   const HOSPITAL_DATA = useMemo(() => {
     return (

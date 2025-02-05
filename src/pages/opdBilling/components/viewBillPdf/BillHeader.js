@@ -12,6 +12,7 @@ const BillHeader = ({
   patientData,
   billData,
   profile,
+  gstIn,
 }) => {
   const { headerFooter, pageFormat } = printSettings;
   const { header, otherSettings, patientInfo, billInfo } = headerFooter || {};
@@ -217,7 +218,7 @@ const BillHeader = ({
         </Text>
       </View>
 
-      <View style={{ flexDirection: "row", marginVertical: PX_TO_PT * 15 }}>
+      <View style={{ flexDirection: "row", marginVertical: PX_TO_PT * 5 }}>
         <View style={{ flex: 0.7, marginRight: PX_TO_PT * 8 }}>
           {patientInfo
             ?.filter((e) => e.enabled)
@@ -293,7 +294,7 @@ const BillHeader = ({
                       },
                     ]}
                   >
-                    {billDataShow(item.id, billData)}
+                    {billDataShow(item.id, billData, gstIn)}
                   </Text>
                 </View>
               );

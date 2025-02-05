@@ -66,7 +66,7 @@ export const patientDataShow = (id, patient_data, billData, profile) => {
   return value;
 };
 
-export const billDataShow = (id, billData) => {
+export const billDataShow = (id, billData, gstIn) => {
   var value = "";
   if (id == 1) {
     value = `${billData?.billNumber ?? "-"}`;
@@ -82,7 +82,7 @@ export const billDataShow = (id, billData) => {
   } else if (id == 4) {
     value = billData?.paymentStatus || "Paid";
   } else if (id == 5) {
-    value = billData?.gstIn ?? "-";
+    value = gstIn ?? "-";
   }
   return value;
 };

@@ -206,6 +206,9 @@ function PrescriptionPrintView() {
 
     const handleCreateBillDrawer = useCallback(() => {
         setCreateBillDrawer(!createBillDrawer);
+        if (recentBillDrawer) {
+          setRecentBillDrawer(false);
+        }
     }, [createBillDrawer]);
 
     const handleRecentBillDrawer = useCallback(() => {

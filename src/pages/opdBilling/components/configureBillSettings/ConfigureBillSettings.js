@@ -34,7 +34,9 @@ const ConfigureBillSettings = ({
   const { defaultPrintSettings, profile } = useSelector(
     (state) => state.doctors
   );
-  const { billPrintSettings } = useSelector((state) => state.billing);
+  const { billPrintSettings, advancedSettings } = useSelector(
+    (state) => state.billing
+  );
   const TabsPrintSetting = [
     {
       key: TAB_HEADER_FOOTER,
@@ -200,6 +202,7 @@ const ConfigureBillSettings = ({
         profile={profile}
         billData={billData}
         isDepositReceipt={isDepositReceipt}
+        gstIn={advancedSettings?.GSTIN}
       />
     ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));

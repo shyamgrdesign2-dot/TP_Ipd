@@ -59,7 +59,9 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
   const { pam_id } = state || {};
   const { profile } = useSelector((state) => state.doctors);
   const { patients, error } = useSelector((state) => state.records);
-  const { billPrintSettings } = useSelector((state) => state.billing);
+  const { billPrintSettings, advancedSettings } = useSelector(
+    (state) => state.billing
+  );
 
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
@@ -599,6 +601,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
           billData={record}
           isDepositReceipt={true}
           totalAdvanceBalance={totalAdvanceBalance}
+          gstIn={advancedSettings?.GSTIN}
         />
       ).toBlob();
       printContent(

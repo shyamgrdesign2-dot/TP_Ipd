@@ -123,6 +123,7 @@ const ViewBillPdf = ({
   profile,
   billData,
   totalAdvanceBalance,
+  gstIn,
 }) => {
   const [fileWatermark, setFileWatermark] = useState(null);
   const paddingStyles = calculatePadding(printSettings?.headerFooter);
@@ -142,6 +143,7 @@ const ViewBillPdf = ({
           patientData={patientData}
           billData={billData}
           profile={profile}
+          gstIn={gstIn}
         />
         {isDepositReceipt ? (
           <DepositDetails

@@ -40,7 +40,9 @@ const PreviewBill = ({
   };
   const dispatch = useDispatch();
   const deviceUid = localStorage.getItem("app_device_unique_id");
-  const { billPrintSettings } = useSelector((state) => state.billing);
+  const { billPrintSettings, advancedSettings } = useSelector(
+    (state) => state.billing
+  );
   const { profile } = useSelector((state) => state.doctors);
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
@@ -82,6 +84,7 @@ const PreviewBill = ({
         profile={profile}
         billData={billData}
         totalAdvanceBalance={totalAdvanceBalance}
+        gstIn={advancedSettings?.GSTIN}
       />
     ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));

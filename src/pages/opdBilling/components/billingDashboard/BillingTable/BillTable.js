@@ -15,6 +15,7 @@ const BillTable = ({
   handleMessageForm3c,
   onSortChange,
   getPatientBills,
+  handleRecentBillDrawer,
 }) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
@@ -22,6 +23,9 @@ const BillTable = ({
 
   const handleDrawerPreviewBill = () => {
     setPreviewBillDrawer(!previewBillDrawer);
+    if (previewBillDrawer) {
+      handleRecentBillDrawer && handleRecentBillDrawer();
+    }
   };
 
   const onBillingDetailsClick = async (status, record) => {

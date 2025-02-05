@@ -67,6 +67,7 @@ import {
 } from "../../../../redux/appointmentsSlice";
 import addCircleIcon from "../../../../assets/images/add-circle.svg";
 import AddAdvance from "../advanceDeposit/AddAdvance";
+import { isMobile } from "react-device-detect";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -425,7 +426,7 @@ const CreateBill = ({
     {
       title: "ITEMS",
       dataIndex: "name",
-      width: "27%",
+      width: "26%",
       render: (_, record, index) => (
         <>
           <AutoComplete
@@ -466,7 +467,7 @@ const CreateBill = ({
     {
       title: "QTY",
       dataIndex: "quantity",
-      width: "11%",
+      width: "8%",
       render: (_, record, index) => (
         <Input
           value={record.quantity}
@@ -485,7 +486,7 @@ const CreateBill = ({
     {
       title: "PRICE PER UNIT",
       dataIndex: "amount",
-      width: "13%",
+      width: "14%",
       render: (_, record, index) => (
         <Input
           value={record.amount}
@@ -505,12 +506,14 @@ const CreateBill = ({
     {
       title: "DISCOUNT",
       dataIndex: "discount",
-      width: "15%",
+      width: "22%",
       render: (_, record, index) => (
         <>
           <Input
             value={
-              record.discount !== undefined && record.discount !== null
+              record.discount !== undefined &&
+              record.discount !== null &&
+              record.discount !== ""
                 ? `${record.discountType === "flat" ? "₹ " : ""}${
                     record.discount
                   }${record.discountType === "flat" ? "" : " %"}`
@@ -534,8 +537,9 @@ const CreateBill = ({
             style={{
               position: "absolute",
               right: "18px",
-              bottom: "18px",
+              bottom: "12px",
               zIndex: 10,
+              marginTop: 10,
             }}
           >
             <Radio.Group
@@ -617,7 +621,7 @@ const CreateBill = ({
     {
       title: "ACTION",
       dataIndex: "action",
-      width: "10%",
+      width: "6%",
       render: (_, record, index) => (
         <>
           {dataSource?.length > 1 && (
@@ -733,9 +737,25 @@ const CreateBill = ({
         const blob = await pdf(
           <ViewBillPdf
             printSettings={billPrintSettings}
-            patientData={patientData}
+            patientData={
+              patientData && Object.keys(patientData).length > 0
+                ? patientData
+                : {
+                    pm_pid: createRes?.patient?.id,
+                    pm_fullname: createRes?.patient?.name,
+                    pm_gender: createRes?.patient?.gender,
+                    pm_contact_no: createRes?.patient?.phone,
+                    pam_ref_id: createRes?.patient?.refId,
+                    ageDays: createRes?.patient?.ageDays,
+                    ageMonths: createRes?.patient?.ageMonths,
+                    ageYears: createRes?.patient?.ageYears,
+                    pm_salutation: createRes?.patient?.salutation,
+                    address: createRes?.patient?.address,
+                  }
+            }
             profile={profile}
             billData={createRes}
+            gstIn={advancedSettings?.GSTIN}
           />
         ).toBlob();
         printContent(blob, patientData.patient_unique_id, setStartLoader);
@@ -950,7 +970,11 @@ const CreateBill = ({
         <Container fluid className="h-100 gx-0 w-100">
           <Row className="h-100 align-items-center w-100 justify-content-between">
             <Col sm="auto" md="auto" lg="auto" className="h-100 w-auto">
-              <div className="align-items-center d-flex h-100 gap-2">
+              <div
+                className={`align-items-center d-flex h-100 ${
+                  isMobile ? "gap-1" : "gap-2"
+                }`}
+              >
                 <div className="border-end h-100 text-center">
                   <div
                     onClick={handleCreateBillDrawer}
@@ -1005,11 +1029,14 @@ const CreateBill = ({
                   <>
                     <div className="billing-dashboard-wraper">
                       <button
-                        className="advance-deposite-container mx-2"
+                        className={`advance-deposite-container ${
+                          isMobile ? "mx-1" : "mx-2"
+                        }`}
                         onClick={handleAddAdvanceDrawer}
                       >
                         <span className="text-lg">
-                          Advance Balance: ₹{totalAdvanceBalance ?? "0"}
+                          {isMobile ? "Advance" : "Advance Balance"}: ₹
+                          {totalAdvanceBalance ?? "0"}
                         </span>
                         <span className="add-advance-icon">
                           <img src={addCircleIcon} alt="add-deposit" />
@@ -1018,10 +1045,14 @@ const CreateBill = ({
                     </div>
                     {Number(patientDueAmount) > 0 && (
                       <div className="billing-dashboard-wraper">
-                        <div className="total-due-container mx-2">
+                        <div
+                          className={`total-due-container ${
+                            isMobile ? "mx-1" : "mx-2"
+                          }`}
+                        >
                           <span className="text-lg">
-                            {" "}
-                            Payment Due: ₹{patientDueAmount}
+                            {isMobile ? "Due" : "Payment Due"}: ₹
+                            {patientDueAmount}
                           </span>
                         </div>
                       </div>
@@ -1030,8 +1061,12 @@ const CreateBill = ({
                 )}
               </div>
             </Col>
-            <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
-              <div className="align-items-center d-flex h-100 gap-4">
+            <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto p-0">
+              <div
+                className={`align-items-center d-flex h-100 ${
+                  isMobile ? "gap-3" : "gap-4"
+                }`}
+              >
                 <div>
                   <Checkbox
                     className="me-2"
@@ -1055,7 +1090,9 @@ const CreateBill = ({
                   <>
                     <Button
                       type="button"
-                      className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
+                      className={`btn-41 btn ant-btn-text btn-input align-items-center d-flex ${
+                        isMobile ? "" : "px-4"
+                      }`}
                       onClick={() => {
                         handleCreateBill("exit");
                       }}
@@ -1069,7 +1106,9 @@ const CreateBill = ({
                     </Button>
 
                     <Button
-                      className="btn btn-primary3 btn-41 px-4 me-20"
+                      className={`btn btn-primary3 btn-41 ${
+                        isMobile ? "me-1" : "px-4 me-20"
+                      }`}
                       onClick={handleCreateBill}
                       disabled={
                         disableSaveBtn ||
@@ -1084,7 +1123,9 @@ const CreateBill = ({
                   <>
                     <Button
                       type="button"
-                      className="btn-41 btn px-4 ant-btn-text btn-input align-items-center d-flex"
+                      className={`btn-41 btn ant-btn-text btn-input align-items-center d-flex ${
+                        isMobile ? "" : "px-4"
+                      }`}
                       onClick={handleCreateBill}
                       disabled={
                         disableSaveBtn ||
@@ -1096,7 +1137,9 @@ const CreateBill = ({
                     </Button>
 
                     <Button
-                      className="btn btn-primary3 btn-41 px-4 me-20"
+                      className={`btn btn-primary3 btn-41 ${
+                        isMobile ? "me-1" : "px-4 me-20"
+                      }`}
                       onClick={() => {
                         handleCreateBill("preview");
                       }}
@@ -1281,6 +1324,7 @@ const CreateBill = ({
                 rowKey="key"
                 bordered
                 className="customize-table"
+                rowClassName={() => "create-bill-table"}
               />
               <div>
                 <Button
@@ -1462,21 +1506,38 @@ const CreateBill = ({
                 <span>Extra Discount:</span>
                 <div style={{ position: "relative", width: "50%" }}>
                   <Input
-                    value={extraDiscount}
+                    value={
+                      extraDiscount !== undefined && extraDiscount !== null
+                        ? `${
+                            extraDiscountType === "flat" ? "₹ " : ""
+                          }${extraDiscount}${
+                            extraDiscountType === "flat" ? "" : " %"
+                          }`
+                        : ""
+                    }
                     onChange={(e) => {
-                      const value = onlyDecimalFormat(e.target.value);
+                      const numericValue = e.target.value.replace(
+                        /[^\d.]/g,
+                        ""
+                      );
+                      const value = onlyDecimalFormat(numericValue);
                       if (
                         (extraDiscountType === "percentage" && value <= 100) ||
                         (extraDiscountType === "flat" &&
-                          Number(value) <= Number(subTotal))
+                          Number(value) <=
+                            dataSource.reduce(
+                              (sum, service) =>
+                                sum + (Number(service.totalAmount) || 0),
+                              0
+                            ) -
+                              (Number(patientDueAmount) || 0))
                       ) {
                         setExtraDiscount(value);
                       }
                     }}
                     inputMode="decimal"
-                    prefix={extraDiscountType === "flat" ? "₹" : "%"}
                     style={{
-                      textAlign: "center",
+                      textAlign: "left",
                       width: "100%",
                       height: "38px",
                     }}
