@@ -264,22 +264,26 @@ export const fetchBillsByPatient = async function (params) {
     // Conditionally add isForm3C **only if the key exists in params**
     if ("appointmentId" in params && params.appointmentId) {
       queryParams.appointmentId = params.appointmentId;
-    }
+
+      if (params.includeInRx) {
+        queryParams.includeInRx = params.includeInRx;
+      }
       if ("appointmentId" in params && params.appointmentId) {
         // Conditionally add isForm3C **only if the key exists in params**
         queryParams.appointmentId = params.appointmentId;
       }
 
-    // Create query string
-    const queryString =
-      new URLSearchParams(queryParams).toString() +
-      (doctorIdsParams ? `&${doctorIdsParams}` : "");
+      // Create query string
+      const queryString =
+        new URLSearchParams(queryParams).toString() +
+        (doctorIdsParams ? `&${doctorIdsParams}` : "");
 
-    // API call
-    res = await api.get(
-      `/api/v1/billing/bill/listByPatient?${queryString}`,
-      baseUrl
-    );
+      // API call
+      res = await api.get(
+        `/api/v1/billing/bill/listByPatient?${queryString}`,
+        baseUrl
+      );
+    }
   } catch (e) {
     console.error("Error while fetching bills by patient: ", e);
   }

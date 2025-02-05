@@ -23,7 +23,7 @@ import dayjs from "dayjs";
 import "./RefundBill.scss";
 
 import { useSelector, useDispatch } from "react-redux";
-import { fetchPatientWalletBalance, processBillRefund } from "../../../service";
+import { processBillRefund } from "../../../service";
 import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
 import visitEnd from "../../../../../assets/images/end-visit.svg";
 import { MESSAGE_KEY } from "../../../../../utils/constants";
@@ -51,26 +51,14 @@ function RefundBill({
   const [dateString, setDateString] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
   const [totalRefundAmount, setTotalRefundAmount] = useState(0);
-  const [patientWalletBalance, setPatientWalletBalance] = useState(0);
   const [paymentModes, setPaymentModes] = useState([
     { paymentMode: "Cash", amount: billData?.paidAmount, refId: "" },
   ]);
   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
 
   const filteredOptions = PaymentOptions.filter(
-    (option) =>
-      !usedPaymentModes.includes(option.value) &&
-      (option.value !== "Advance Deposit" || patientWalletBalance > 0)
+    (option) => !usedPaymentModes.includes(option.value)
   );
-
-  const getPatientWalletBalance = async (patientUniqueId) => {
-    const patientWalletBalanceRes = await fetchPatientWalletBalance(
-      patientUniqueId
-    );
-    if (patientWalletBalanceRes?.advanceDepositBalance) {
-      setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
-    }
-  };
 
   const handleModeChange = (value, index, type) => {
     const updatedModes = [...paymentModes];

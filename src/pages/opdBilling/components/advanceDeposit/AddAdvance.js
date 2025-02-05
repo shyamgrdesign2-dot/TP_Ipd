@@ -95,10 +95,10 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
   // const [searchOptionsMobile, setPatientSearchOptionsMobile] = useState([]);  const [depositDate, setDepositDate] = useState("");
 
   const [advanceModes, setAdvanceModes] = useState([
-    { paymentMode: undefined, amount:0},
+    { paymentMode: undefined, amount: 0 },
   ]);
   const [refundModes, setRefundModes] = useState([
-    { paymentMode: undefined, amount:0},
+    { paymentMode: undefined, amount: 0 },
   ]);
   const [notes, setNotes] = useState(""); // Stores the final notes value
   const notesRef = useRef("");
@@ -106,13 +106,17 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
   const usedAdvanceModes = advanceModes.map((p) => p.paymentMode);
 
   const filteredAdvanceOptions = PaymentOptions.filter(
-    (option) => !usedAdvanceModes.includes(option.value)
+    (option) =>
+      !usedAdvanceModes.includes(option.value) &&
+      option.value !== "Advance Deposit"
   );
 
   const usedPaymentModes = refundModes.map((p) => p.paymentMode);
 
   const filteredOptions = PaymentOptions.filter(
-    (option) => !usedPaymentModes.includes(option.value)
+    (option) =>
+      !usedPaymentModes.includes(option.value) &&
+      option.value !== "Advance Deposit"
   );
 
   const calculateTotalAmount = (modes) => {
@@ -182,23 +186,13 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
 
   // Function to update modes (either advance or refund)
   const handleModeChange = (type, value, index, key) => {
-    console.log(value,"value")
-    if (value <= 1000000000) {
-      const updatedModes =
-        type === "advance" ? [...advanceModes] : [...refundModes];
-      updatedModes[index][key] = onlyDecimalFormat(value);
-
-      type === "advance"
-        ? setAdvanceModes(updatedModes)
-        : setRefundModes(updatedModes);
-    }
+    const updatedModes =
+      type === "advance" ? [...advanceModes] : [...refundModes];
+    updatedModes[index][key] = value;
+    type === "advance"
+      ? setAdvanceModes(updatedModes)
+      : setRefundModes(updatedModes);
   };
-
-  // const handleAmountChange = (value, index) => {
-  //   const updatedModes = [...advanceModes];
-  //   updatedModes[index].amount = parseFloat(value) || 0;
-  //   setAdvanceModes(updatedModes);
-  // };
 
   const handleAddAdvance = () => {
     handleAddAdvanceDrawer();
@@ -338,16 +332,16 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
 
   // const getFilteredOptions = (type, paymentModes) => {
   //   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
-  
+
   //   return PaymentOptions.filter((option) => {
   //     // Prevent duplicate payment modes
   //     if (usedPaymentModes.includes(option.value)) return false;
-  
+
   //     // // Special condition for "Refund"
   //     // if (option.value === "Refund" && type !== "refund") {
   //     //   return false;
   //     // }
-  
+
   //     return true;
   //   });
   // };
@@ -398,14 +392,12 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                       type="numeric"
                       prefix="₹"
                       value={payment.amount}
-                      onChange={(e) =>
-                        handleModeChange(
-                          type,
-                          e.target.value,
-                          index,
-                          "amount"
-                        )
-                      }
+                      onChange={(e) => {
+                        const value = onlyDecimalFormat(e.target.value);
+                        if (value <= 1000000000) {
+                          handleModeChange(type, value, index, "amount");
+                        }
+                      }}
                       className="w-40 payment-input"
                     />
                   </div>

@@ -1,7 +1,10 @@
 import React from "react";
 import { Table } from "antd";
+import { useSelector } from "react-redux";
 
 const DownloadBill = ({downloadData, parent}) => {
+
+  const { profile } = useSelector((state) => state.doctors);
 
   // Define the columns
   const columns = [

@@ -41,8 +41,8 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { env } from "../EnvironmentConfig";
 import CommonModal from "./CommonModal";
 import { useReactToPrint } from 'react-to-print';
-import { fetchAdvanceSetting } from "../pages/opdBilling/service";
-import { setAdvancedSettings } from "../redux/billingSlice";
+import { fetchAdvanceSetting, fetchPrintSetting } from "../pages/opdBilling/service";
+import { setAdvancedSettings, setBillPrintSettings } from "../redux/billingSlice";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -104,6 +104,7 @@ function Header({ locationPath }) {
     dispatch(getDefaultPrintsettings({ default: false }));
     dispatch(listVideo());
     getAdvanceSettings();
+    getBillPrintSettings();
   }, []);
 
   useEffect(() => {
@@ -147,6 +148,13 @@ function Header({ locationPath }) {
     const advanceSettingsResponse = await fetchAdvanceSetting();
     if (advanceSettingsResponse) {
       dispatch(setAdvancedSettings(advanceSettingsResponse));
+    }
+  };
+
+  const getBillPrintSettings = async () => {
+    const printSettingsResponse = await fetchPrintSetting();
+    if (printSettingsResponse) {
+      dispatch(setBillPrintSettings(printSettingsResponse));
     }
   };
 

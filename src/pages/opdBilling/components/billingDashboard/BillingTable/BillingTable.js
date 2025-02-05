@@ -72,13 +72,13 @@ const showDateFormat = "DD MMM YYYY";
 const DoctorTags = ({ selectedDoctors, doctorList, handleDoctorSelection }) => {
   return (
     <div className="selected-doctors-tags">
-      {selectedDoctors.map(doctorId => {
-        const doctor = doctorList.find(d => d.um_id === doctorId);
+      {selectedDoctors.map((doctorId) => {
+        const doctor = doctorList.find((d) => d.um_id === doctorId);
         return (
           <span key={doctorId} className="doctor-tag">
             {doctor?.um_name}
-            <i 
-              className="icon-Cross" 
+            <i
+              className="icon-Cross"
               onClick={(e) => {
                 e.stopPropagation();
                 handleDoctorSelection(doctorId, false);
@@ -91,7 +91,11 @@ const DoctorTags = ({ selectedDoctors, doctorList, handleDoctorSelection }) => {
   );
 };
 
-export default function BillingTable({ patientData, getPatientBills, handleTotalAdvanceUpdate }) {
+export default function BillingTable({
+  patientData,
+  getPatientBills,
+  handleTotalAdvanceUpdate,
+}) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
   const [selectedDoctors, setSelectedDoctors] = useState([]);
@@ -128,7 +132,6 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
       dispatch(listDoctor());
     }
   }, []);
-
 
   useEffect(() => {
     // Update cards state whenever the summary prop changes
@@ -213,12 +216,10 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
   };
 
   const handleDownloadAll = () => {
-    const allStatuses = ["PailFully","CarriedForward","Due","Refunded"];
+    const allStatuses = ["PailFully", "CarriedForward", "Due", "Refunded"];
 
     setDownloadData(
-      data?.bills?.filter((item) =>
-      allStatuses.includes(item.paymentStatus)
-      )
+      data?.bills?.filter((item) => allStatuses.includes(item.paymentStatus))
     );
 
     // Ensure handleDownload runs after state is updated
@@ -316,7 +317,12 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
         type="link"
         style={{ background: "lightgray" }}
         onClick={() => {
-          setSelectedOptions(["FullyPaid", "CarriedForward", "Due", "Refunded"])
+          setSelectedOptions([
+            "FullyPaid",
+            "CarriedForward",
+            "Due",
+            "Refunded",
+          ]);
           handleDownloadAll();
         }}
       >
@@ -387,7 +393,10 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
-      doctorIds: selectedDoctors.length > 0 ? [...selectedDoctors] : doctorList.map((doctor) => doctor.um_id),
+      doctorIds:
+        selectedDoctors.length > 0
+          ? [...selectedDoctors]
+          : doctorList.map((doctor) => doctor.um_id),
       search: searchQuery || "",
     };
 
@@ -404,17 +413,20 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
   const patientAdvanceData = async () => {
     // setLoading(true);
     const params = {
-      status:"Deposit",
+      status: "Deposit",
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
       page: 1,
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
-      doctorIds: selectedDoctors.length > 0 ? [...selectedDoctors] : doctorList.map((doctor) => doctor.um_id),
+      doctorIds:
+        selectedDoctors.length > 0
+          ? [...selectedDoctors]
+          : doctorList.map((doctor) => doctor.um_id),
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id ?? "",
-      appointmentId: patientData?.pam_id
+      appointmentId: patientData?.pam_id,
     };
     try {
       const response = await listAdvancedDepositByPatient(params);
@@ -449,10 +461,13 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
-      doctorIds: selectedDoctors.length > 0 ? [...selectedDoctors] : doctorList.map((doctor) => doctor.um_id),
+      doctorIds:
+        selectedDoctors.length > 0
+          ? [...selectedDoctors]
+          : doctorList.map((doctor) => doctor.um_id),
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id,
-      appointmentId: patientData?.pam_id
+      appointmentId: patientData?.pam_id,
     };
     try {
       const response = await fetchBillsByPatient(params);
@@ -464,10 +479,20 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
     }
   };
 
-  useEffect(() => {  
-    const fetchData = patientData && doctorList?.length > 0 ? patientBillingData : loadData;
-    fetchData();
-  }, [selectedCard, dateRange, searchQuery, selectedDoctors, form3cTriggered, sortConfig, doctorList]);
+  useEffect(() => {
+    if (doctorList?.length > 0) {
+      const fetchData = patientData ? patientBillingData : loadData;
+      fetchData();
+    }
+  }, [
+    selectedCard,
+    dateRange,
+    searchQuery,
+    selectedDoctors,
+    form3cTriggered,
+    sortConfig,
+    doctorList,
+  ]);
 
   return (
     <div>
@@ -495,36 +520,41 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
                   dropdownRender={(menu) => (
                     <div className="doctor-select-dropdown">
                       <div className="d-flex justify-content-between align-items-center w-100">
-                        <button 
+                        <button
                           className="all-doctors-button"
                           onClick={() => handleSelectAll()}
                         >
                           All Doctors
                         </button>
                       </div>
-                      
+
                       <div className="doctor-select-divider">
                         <span>or</span>
                       </div>
-                      
+
                       <div className="custom-doctors-section">
-                        <div className="section-title">Select Custom Doctors</div>
+                        <div className="section-title">
+                          Select Custom Doctors
+                        </div>
                         <div className="doctor-select-list">
-                        {doctorList.map((doctor) => (
-                          <div key={doctor.um_id} style={{ padding: "4px 0" }}>
-                            <Checkbox
-                              checked={selectedDoctors.includes(doctor.um_id)}
-                              onChange={(e) =>
-                                handleDoctorSelection(
-                                  doctor.um_id,
-                                  e.target.checked
-                                )
-                              }
+                          {doctorList.map((doctor) => (
+                            <div
+                              key={doctor.um_id}
+                              style={{ padding: "4px 0" }}
                             >
-                              {doctor.um_name}
-                            </Checkbox>
-                          </div>
-                        ))}
+                              <Checkbox
+                                checked={selectedDoctors.includes(doctor.um_id)}
+                                onChange={(e) =>
+                                  handleDoctorSelection(
+                                    doctor.um_id,
+                                    e.target.checked
+                                  )
+                                }
+                              >
+                                {doctor.um_name}
+                              </Checkbox>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -533,16 +563,18 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
                 >
                   <Option value="placeholder">
                     <div className="select-value-content">
-                      { selectedDoctors.length > 0 ? (
+                      {selectedDoctors.length > 0 ? (
                         <div className="selected-doctors-wrapper">
                           <div className="selected-doctors-tags">
-                            {selectedDoctors.map(doctorId => {
-                              const doctor = doctorList.find(d => d.um_id === doctorId);
+                            {selectedDoctors.map((doctorId) => {
+                              const doctor = doctorList.find(
+                                (d) => d.um_id === doctorId
+                              );
                               return (
                                 <span key={doctorId} className="doctor-tag">
                                   {doctor?.um_name}
-                                  <i 
-                                    className="icon-Cross" 
+                                  <i
+                                    className="icon-Cross"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleDoctorSelection(doctorId, false);
@@ -679,7 +711,8 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
                   {parseFloat(card.amount).toFixed(2)}
                   {card.id === 1 && data && (
                     <span>
-                      {"/"} {parseFloat(data?.summary?.totalBillAmount).toFixed(2)}
+                      {"/"}{" "}
+                      {parseFloat(data?.summary?.totalBillAmount).toFixed(2)}
                     </span>
                   )}
                 </div>
@@ -706,7 +739,7 @@ export default function BillingTable({ patientData, getPatientBills, handleTotal
         {
           <div style={{ display: "none" }}>
             <div ref={printableRef}>
-              <DownloadBill downloadData={downloadData} parent={"billing"}/>
+              <DownloadBill downloadData={downloadData} parent={"billing"} />
             </div>
           </div>
         }

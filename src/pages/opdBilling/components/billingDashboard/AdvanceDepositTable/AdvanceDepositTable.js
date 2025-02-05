@@ -26,8 +26,10 @@ import {
 } from "../../../service.js";
 import PreviewBill from "../../../PreviewBill.js";
 import { getDecodedToken } from "../../../../../utils/localStorage.js";
-import { formatDateWithOrdinal } from "../../../utils/helper.js";
+import { formatDateWithOrdinal, printContent } from "../../../utils/helper.js";
 import AddAdvance from "../../advanceDeposit/AddAdvance.js";
+import ViewBillPdf from "../../viewBillPdf/ViewBillPdf.js";
+import { pdf } from "@react-pdf/renderer";
 const { RangePicker } = DatePicker;
 
 const cards = [
@@ -51,6 +53,10 @@ const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
 export default function AdvanceDepositTable({ patientData }) {
+  const { billPrintSettings, advancedSettings } = useSelector(
+    (state) => state.billing
+  );
+  const { profile } = useSelector((state) => state.doctors);
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
   const [pageNo, setPageNo] = useState(0);
@@ -180,11 +186,60 @@ export default function AdvanceDepositTable({ patientData }) {
   };
 
   const onBillingDetailsClick = async (status, record) => {
-    setBillData(record);
+    if (patientData && Object.keys(patientData)?.length > 0) {
+      setBillData({
+        ...record,
+        patient: {
+          id: patientData?.pm_pid,
+          name: patientData?.pm_fullname,
+          gender: patientData?.pm_gender,
+          phone: patientData?.pm_contact_no,
+          refId: patientData?.pam_ref_id,
+          ageDays: patientData?.ageDays,
+          ageMonths: patientData?.ageMonths,
+          ageYears: patientData?.ageYears,
+          salutation: patientData?.pm_salutation,
+          address: patientData?.address,
+        },
+      });
+    } else {
+      setBillData({
+        ...record,
+        patient: {
+          ...record?.patient,
+        },
+      });
+    }
     if (status === 1) {
       handleDrawerPreviewBill();
     } else if (status === 2) {
-      handleAddAdvanceDrawer();
+      const blob = await pdf(
+        <ViewBillPdf
+          printSettings={billPrintSettings}
+          patientData={
+            patientData && Object.keys(patientData)?.length > 0
+              ? patientData
+              : {
+                  pm_pid: record?.patient?.id,
+                  pm_fullname: record?.patient?.name,
+                  pm_gender: record?.patient?.gender,
+                  pm_contact_no: record?.patient?.phone,
+                  pam_ref_id: record?.patient?.refId,
+                  ageDays: record?.patient?.ageDays,
+                  ageMonths: record?.patient?.ageMonths,
+                  ageYears: record?.patient?.ageYears,
+                  pm_salutation: record?.patient?.salutation,
+                  address: record?.patient?.address,
+                }
+          }
+          profile={profile}
+          billData={record}
+          isDepositReceipt={true}
+          totalAdvanceBalance={patientWalletBalance}
+          gstIn={advancedSettings?.GSTIN}
+        />
+      ).toBlob();
+      printContent(blob, patientData?.patient_unique_id);
     } else {
     }
   };
@@ -405,7 +460,7 @@ export default function AdvanceDepositTable({ patientData }) {
       {
         label: (
           <div onClick={() => onBillingDetailsClick(2, record)}>
-            Refund Advance
+            Print Receipt
           </div>
         ),
         key: "add_to_3c",
