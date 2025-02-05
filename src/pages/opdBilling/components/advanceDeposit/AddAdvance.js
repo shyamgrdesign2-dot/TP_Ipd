@@ -46,6 +46,8 @@ import ViewBillPdf from "../viewBillPdf/ViewBillPdf";
 import { pdf } from "@react-pdf/renderer";
 import { printContent } from "../../utils/helper";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
+import { onlyDecimalFormat } from "../../../../utils/utils";
+import { formatDateWithOrdinal } from "../../utils/helper";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
@@ -68,7 +70,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
   const [data, setData] = useState(null);
   const [clickedPatient, setClickedPatient] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchOptions, setSearchOptions] = useState([]);
+  const [patientSearchOptions, setPatientSearchOptions] = useState([]);
   const [autoCompleteFlagName, setAutoCompleteFlagName] = useState(false);
   const [autoCompleteFlagMobile, setAutoCompleteFlagMobile] = useState(false);
   const [depositDate, setDepositDate] = useState(null);
@@ -84,14 +86,14 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
   const nameAutoCompleteRef = useRef(null);
   const mobileAutoCompleteRef = useRef(null);
 
-  // const [searchOptionsName, setSearchOptionsName] = useState([]);
-  // const [searchOptionsMobile, setSearchOptionsMobile] = useState([]);  const [depositDate, setDepositDate] = useState("");
+  // const [searchOptionsName, setPatientSearchOptionsName] = useState([]);
+  // const [searchOptionsMobile, setPatientSearchOptionsMobile] = useState([]);  const [depositDate, setDepositDate] = useState("");
 
   const [advanceModes, setAdvanceModes] = useState([
-    { paymentMode: "Cash", amount: "", refId: "" },
+    { paymentMode: undefined, amount:0},
   ]);
   const [refundModes, setRefundModes] = useState([
-    { paymentMode: "Cash", amount: "", refId: "" },
+    { paymentMode: undefined, amount:0},
   ]);
   const [notes, setNotes] = useState(""); // Stores the final notes value
   const notesRef = useRef("");
@@ -175,20 +177,23 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
 
   // Function to update modes (either advance or refund)
   const handleModeChange = (type, value, index, key) => {
-    const updatedModes =
-      type === "advance" ? [...advanceModes] : [...refundModes];
-    updatedModes[index][key] = value;
+    console.log(value,"value")
+    if (value <= 1000000000) {
+      const updatedModes =
+        type === "advance" ? [...advanceModes] : [...refundModes];
+      updatedModes[index][key] = onlyDecimalFormat(value);
 
-    type === "advance"
-      ? setAdvanceModes(updatedModes)
-      : setRefundModes(updatedModes);
+      type === "advance"
+        ? setAdvanceModes(updatedModes)
+        : setRefundModes(updatedModes);
+    }
   };
 
-  const handleAmountChange = (value, index) => {
-    const updatedModes = [...advanceModes];
-    updatedModes[index].amount = parseFloat(value) || 0;
-    setAdvanceModes(updatedModes);
-  };
+  // const handleAmountChange = (value, index) => {
+  //   const updatedModes = [...advanceModes];
+  //   updatedModes[index].amount = parseFloat(value) || 0;
+  //   setAdvanceModes(updatedModes);
+  // };
 
   const handleAddAdvance = () => {
     handleAddAdvanceDrawer();
@@ -196,7 +201,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
 
   // Function to add a new payment mode
   const addPaymentMode = (type) => {
-    const newMode = { paymentMode: "", amount: 0, refId: "" };
+    const newMode = { paymentMode: undefined, amount: 0 };
     type === "advance"
       ? setAdvanceModes([...advanceModes, newMode])
       : setRefundModes([...refundModes, newMode]);
@@ -243,25 +248,8 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
     );
   };
 
-  // const AddPatientPlank = () => {
-  //   return (
-  //     <Button
-  //       type="text"
-  //       className="btn btn-primary1 btn-41 align-items-center d-flex"
-  //       icon={<i className="icon-Add"></i>}
-  //       onClick={goToAddPatient}
-  //     >
-  //       Add New Patient
-  //     </Button>
-  //   );
-  // };
-
   const onSearchName = useCallback(
     (query) => {
-      // const clinic_name = getClinicName(profile?.hospital_data);
-      // window.Moengage.track_event("TP_Patient_searched", {
-      //   clinic_name,
-      // });
       setSearchQueryName(query);
     },
     [setSearchQueryName]
@@ -269,10 +257,6 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
 
   const onSearchMobile = useCallback(
     (query) => {
-      // const clinic_name = getClinicName(profile?.hospital_data);
-      // window.Moengage.track_event("TP_Patient_searched", {
-      //   clinic_name,
-      // });
       setSearchQueryMobile(query);
     },
     [setSearchQueryMobile]
@@ -314,14 +298,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
         });
       }
     }
-    // if (!isMobile) {
-    //   data.push({
-    //     key: -1,
-    //     value: "Add New Patient",
-    //     label: AddPatientPlank(),
-    //   });
-    // }
-    setSearchOptions(data);
+    setPatientSearchOptions(data);
   }, [patients]);
 
   const onSelect = (patient) => {
@@ -330,7 +307,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
       mobileNumber: patient.pm_contact_no,
       patientUniqueId: patient.patient_unique_id,
     });
-    setSearchOptions([]);
+    setPatientSearchOptions([]);
     setSearchQueryMobile("");
     setSearchQueryName("");
     setIsEditingName(false);
@@ -353,15 +330,32 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
     }));
   };
 
-  // Render function for modes
+  // const getFilteredOptions = (type, paymentModes) => {
+  //   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
+  
+  //   return PaymentOptions.filter((option) => {
+  //     // Prevent duplicate payment modes
+  //     if (usedPaymentModes.includes(option.value)) return false;
+  
+  //     // // Special condition for "Refund"
+  //     // if (option.value === "Refund" && type !== "refund") {
+  //     //   return false;
+  //     // }
+  
+  //     return true;
+  //   });
+  // };
+
   const renderPaymentModes = (type, modes, filteredOptions) => (
     <div className="d-flex">
       <div style={{ padding: "16px 16px 0px 0px", width: "100%" }}>
         <div className="text-lg font-medium mb-2">
-          Enter Advance Amount <span className="color-red">*</span>
+          Enter {`${type === "advance" ? "Advance" : "Refund"}`} Amount{" "}
+          <span className="color-red">*</span>
         </div>
         {modes.map((payment, index) => (
           <div key={index} className="relative" style={{ width: "100%" }}>
+            {/* "And" separator when more than one payment mode exists */}
             {index > 0 && (
               <div className="flex items-center gap-2 mb-2 relative">
                 <span className="text-gray-500 text-sm font-medium z-10 bg-white px-2">
@@ -371,9 +365,19 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
               </div>
             )}
             <div className="flex align-items-center gap-4 mb-3">
-              <div className="d-flex align-items-center">
+              <div
+                className="d-flex align-items-center"
+                style={{ width: "100%" }}
+              >
                 <div className="d-flex flex-column" style={{ width: "100%" }}>
-                  <div className="d-flex">
+                  <div
+                    className="d-flex"
+                    style={{
+                      background: "rgba(75, 74, 213, 0.06)",
+                      borderRadius: 10,
+                    }}
+                  >
+                    {/* Payment Mode Select */}
                     <Select
                       placeholder="Select"
                       value={payment.paymentMode}
@@ -382,15 +386,17 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                       }
                       dropdownStyle={{ width: 180 }}
                       options={filteredOptions}
+                      className="payment-mode"
                     />
+                    {/* Amount Input */}
                     <Input
-                      type="number"
+                      type="numeric"
                       prefix="₹"
                       value={payment.amount}
                       onChange={(e) =>
                         handleModeChange(
                           type,
-                          parseFloat(e.target.value) || 0,
+                          e.target.value,
                           index,
                           "amount"
                         )
@@ -398,15 +404,32 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                       className="w-40 payment-input"
                     />
                   </div>
-                  {payment.paymentMode !== "Cash" && (
+                  {/* Ref ID Section (If Payment Mode is Not Cash) */}
+                  {payment.paymentMode && payment.paymentMode !== "Cash" && (
                     <span
                       className="show-more-link"
+                      style={{
+                        textAlign: payment?.refId ? "" : "center",
+                        textDecoration: payment?.refId ? "none" : "underline",
+                        borderRadius: "0 0 10px 10px",
+                        minHeight: 25,
+                        cursor: "pointer",
+                        wordBreak: "break-word",
+                      }}
                       onClick={() => setShowRefIdPopup(index)}
                     >
-                      {payment?.refId ?? `Add ${payment.paymentMode} Ref ID`}
+                      {payment?.refId ? (
+                        <div className="d-flex align-items-center justify-content-between px-2">
+                          <span>Ref ID: {payment?.refId}</span>
+                          <span className="icon-Edit fs-18" />
+                        </div>
+                      ) : (
+                        <span>{`Add ${payment.paymentMode} Ref ID`}</span>
+                      )}
                     </span>
                   )}
                 </div>
+                {/* Remove Button (Only if More than One Payment Mode Exists) */}
                 {modes.length > 1 && (
                   <Button
                     className="btn btn-delete-prescription p-0"
@@ -422,16 +445,19 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
             </div>
           </div>
         ))}
-        <div className="flex items-center gap-2">
-          <Button
-            type="link"
-            icon={<PlusOutlined />}
-            onClick={() => addPaymentMode(type)}
-            className="payment-btn"
-          >
-            Payment mode
-          </Button>
-        </div>
+        {/* Add Payment Mode Button (Limit to 4 Modes) */}
+        {modes.length < 4 && (
+          <div className="flex items-center gap-2">
+            <Button
+              type="link"
+              icon={<PlusOutlined />}
+              onClick={() => addPaymentMode(type)}
+              className="payment-btn"
+            >
+              Payment mode
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -457,7 +483,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
             {record.receiptNumber}
           </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {moment(record.date).format(showDateFormat)}
+            {formatDateWithOrdinal(record.date)}
           </div>
         </div>
       ),
@@ -689,7 +715,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
               <div className="d-flex align-items-center">
                 <img src={visitEnd} className="me-3" />
                 <div>
-                  {selectedTab === 2 ? (
+                  {selectedTab === 1 ? (
                     <div className="title-common text-start fontroboto">{`Advance ${totalRefundAmount} Added successfully`}</div>
                   ) : (
                     <div className="title-common text-start fontroboto">{`Refunded ${totalAdvanceAmount} successfully`}</div>
@@ -709,6 +735,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
           setAdvanceModes([{ paymentMode: "Cash", amount: "", refId: "" }]);
           setRefundModes([{ paymentMode: "Cash", amount: "", refId: "" }]);
           setAdvacneTriggered((prev) => !prev);
+          setNotes("");
         }
       } catch (error) {
         console.error("Failed to create deposit:", error);
@@ -761,7 +788,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
     let cleanDate = date.replace(/(\d+)(st|nd|rd|th)/, "$1");
 
     // Parse and format the date using Moment.js
-    return moment(cleanDate, "D MMM YYYY").format("YYYY-MM-DD");
+    return moment(cleanDate, "D MMM YYYY").format("DD-MM-YYYY");
   }
 
   return (
@@ -786,7 +813,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
               <div className="d-flex gap-2 mx-4 p-2">
                 <div style={{ width: "100%" }}>
                   <div className="text-lg font-medium mb-2">
-                    Patient Name <span className="color-red">*</span>
+                    Patient Name & ID
                   </div>
                   {isEditingName && !patientData && !billData ? (
                     <AutoComplete
@@ -796,12 +823,15 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                         setSearchQueryName(value);
                         onSearchName(value);
                       }}
-                      options={searchOptions}
+                      options={patientSearchOptions}
                       className="w-100 autocomplete-custom"
                       open={autoCompleteFlagName}
                       onFocus={() => setAutoCompleteFlagName(true)}
                       onBlur={() => setAutoCompleteFlagMobile(false)}
                       popupClassName="autocomplete-dropdown"
+                      dropdownStyle={{
+                        width: 400,
+                      }}
                     >
                       <Input
                         placeholder="Search Patient Name"
@@ -854,7 +884,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                         setSearchQueryMobile(value);
                         onSearchMobile(value);
                       }}
-                      options={searchOptions}
+                      options={patientSearchOptions}
                       className="w-100 autocomplete-custom"
                       open={autoCompleteFlagMobile}
                       onFocus={() => setAutoCompleteFlagMobile(true)}

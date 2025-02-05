@@ -151,13 +151,15 @@ function BillingDashboard({ patientData }) {
                       <span>{"Add Advance Deposit"}</span>
                     </Button>
                   )}
-                  <Button
-                    className="btn-create-bill"
-                    onClick={handleCreateBillDrawer}
-                  >
-                    <span style={{ fontSize: "22px" }}>+</span>
-                    <span>Create New Bill</span>
-                  </Button>
+                  {(selectedTab === "billingtable" || patientData) && (
+                    <Button
+                      className="btn-create-bill"
+                      onClick={handleCreateBillDrawer}
+                    >
+                      <span style={{ fontSize: "22px" }}>+</span>
+                      <span>Create New Bill</span>
+                    </Button>
+                  )}
                 </div>
               </div>
               <div className="pb-5">&nbsp;</div>

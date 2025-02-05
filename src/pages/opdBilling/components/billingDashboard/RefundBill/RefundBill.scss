@@ -124,6 +124,7 @@
         font-style: normal;
         margin-top: 3rem;
         width: 95%;
+        cursor: pointer !important;
 
         &:disabled {
             background: var(--P-CTA-100, #7877e5);

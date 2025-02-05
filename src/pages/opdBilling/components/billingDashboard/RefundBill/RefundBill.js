@@ -23,11 +23,17 @@ import dayjs from "dayjs";
 import "./RefundBill.scss";
 
 import { useSelector, useDispatch } from "react-redux";
-import { processBillRefund } from "../../../service";
+import { fetchPatientWalletBalance, processBillRefund } from "../../../service";
 import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
 import visitEnd from "../../../../../assets/images/end-visit.svg";
 import { MESSAGE_KEY } from "../../../../../utils/constants";
 import { PaymentOptions } from "../../../utils/constants";
+import { formatDateWithOrdinal } from "../../../utils/helper";
+import RefIdPopup from "../../refIdPopup/RefIdPopup";
+import {
+  onlyDecimalFormat,
+  removeBeforeWhiteSpace,
+} from "../../../../../utils/utils";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
@@ -45,16 +51,26 @@ function RefundBill({
   const [dateString, setDateString] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
   const [totalRefundAmount, setTotalRefundAmount] = useState(0);
-
+  const [patientWalletBalance, setPatientWalletBalance] = useState(0);
   const [paymentModes, setPaymentModes] = useState([
-    { paymentMode: "", amount: "", refId: "" },
+    { paymentMode: "Cash", amount: billData?.paidAmount, refId: "" },
   ]);
-
   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
 
   const filteredOptions = PaymentOptions.filter(
-    (option) => !usedPaymentModes.includes(option.value)
+    (option) =>
+      !usedPaymentModes.includes(option.value) &&
+      (option.value !== "Advance Deposit" || patientWalletBalance > 0)
   );
+
+  const getPatientWalletBalance = async (patientUniqueId) => {
+    const patientWalletBalanceRes = await fetchPatientWalletBalance(
+      patientUniqueId
+    );
+    if (patientWalletBalanceRes?.advanceDepositBalance) {
+      setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
+    }
+  };
 
   const handleModeChange = (value, index, type) => {
     const updatedModes = [...paymentModes];
@@ -63,9 +79,11 @@ function RefundBill({
   };
 
   const handleAmountChange = (value, index) => {
-    const updatedModes = [...paymentModes];
-    updatedModes[index].amount = parseFloat(value) || 0;
-    setPaymentModes(updatedModes);
+    if (value <= 1000000000) {
+      const updatedModes = [...paymentModes];
+      updatedModes[index].amount = onlyDecimalFormat(value);
+      setPaymentModes(updatedModes);
+    }
   };
 
   // Calculate total refund whenever paymentModes change
@@ -130,7 +148,7 @@ function RefundBill({
   };
 
   const addPaymentMode = () => {
-    setPaymentModes([...paymentModes, { paymentMode: "", amount: 0 }]);
+    setPaymentModes([...paymentModes, { paymentMode: undefined, amount: 0 }]);
   };
 
   const removePaymentMode = (index) => {
@@ -149,7 +167,7 @@ function RefundBill({
             {record?.billNumber}
           </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
-            {record?.date}
+            {formatDateWithOrdinal(record?.date)}
           </div>
         </div>
       ),
@@ -277,20 +295,33 @@ function RefundBill({
                     </div>
                   )}
                   <div className="flex align-items-center gap-4 mb-3">
-                    <div className="d-flex align-items-center">
-                      <div className="d-flex flex-column">
-                        <div className="d-flex">
+                    <div className="d-flex align-items-center gap-1">
+                      <div
+                        className="d-flex flex-column"
+                        style={{
+                          background: "rgba(75, 74, 213, 0.06)",
+                          borderRadius: 10,
+                        }}
+                      >
+                        <div
+                          className="d-flex"
+                          // style={{
+                          //   border: disableSaveBtn ? "solid 1px red" : "",
+                          //   borderRadius: disableSaveBtn ? 10 : "",
+                          // }}
+                        >
                           <Select
                             placeholder="Select"
-                            value={payment.lable}
+                            value={payment.paymentMode}
                             onChange={(value) =>
                               handleModeChange(value, index, "paymentMode")
                             }
+                            className="payment-mode"
                             dropdownStyle={{ width: 180 }}
                             options={filteredOptions}
                           />
                           <Input
-                            type="number"
+                            inputMode="numeric"
                             prefix="₹"
                             value={payment.amount}
                             onChange={(e) =>
@@ -299,23 +330,44 @@ function RefundBill({
                             className="w-40 payment-input"
                           />
                         </div>
-                        {payment.lable !== "Cash" && (
-                          <span
-                            className="show-more-link"
-                            onClick={() => setShowRefIdPopup(index)}
-                          >
-                            {payment?.refId ??
-                              `Add ${payment.paymentMode} Ref ID`}
-                          </span>
-                        )}
+                        {payment?.paymentMode &&
+                          payment.paymentMode !== "Cash" && (
+                            <span
+                              style={{
+                                textAlign: payment?.refId ? "" : "center",
+                                textDecoration: payment?.refId
+                                  ? "none"
+                                  : "underline",
+                                borderRadius: "0 0 10px 10px",
+                                minHeight: 25,
+                                cursor: "pointer",
+                                wordBreak: "break-word",
+                              }}
+                              onClick={() => setShowRefIdPopup(index)}
+                            >
+                              {payment?.refId ? (
+                                <div className="d-flex align-items-center justify-content-between px-2">
+                                  <span>Ref ID: {payment?.refId}</span>
+                                  <span className="icon-Edit fs-18" />
+                                </div>
+                              ) : (
+                                <span className="show-more-link">
+                                  {`Add ${payment.paymentMode} Ref ID`}
+                                </span>
+                              )}
+                            </span>
+                          )}
                       </div>
-                      {payment.lable !== "Cash" && (
-                        <span
-                          className="show-more-link"
-                          onClick={() => setShowRefIdPopup(index)}
+                      {paymentModes.length > 1 && (
+                        <Button
+                          className="btn btn-delete-prescription p-2 d-flex align-items-center justify-content-center"
+                          onClick={() => removePaymentMode(index)}
                         >
-                          {payment?.refId ?? `Add ${payment.mode} Ref ID`}
-                        </span>
+                          <i
+                            className="icon-delete"
+                            style={{ color: "#454551" }}
+                          />
+                        </Button>
                       )}
                     </div>
                     {paymentModes.length > 1 && (
@@ -332,16 +384,17 @@ function RefundBill({
                   </div>
                 </div>
               ))}
-              <div className="flex items-center gap-2">
-                <Button
-                  type="link"
-                  icon={<PlusOutlined />}
-                  onClick={addPaymentMode}
-                  className="payment-btn"
-                >
-                  Payment mode
-                </Button>
-              </div>
+              {paymentModes.length < 4 && (
+                <div className="flex align-items-center gap-2">
+                  <button
+                    className="btn d-flex align-items-center btn-text"
+                    onClick={addPaymentMode}
+                  >
+                    <i className={`icon-Add me-1 fs-5 text-primary`} />
+                    <span className="text-primary">Payment mode</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -359,6 +412,15 @@ function RefundBill({
         >
           Refund the Bill
         </button>
+
+        {shouldShowRefIdPopup !== null && shouldShowRefIdPopup >= 0 && (
+          <RefIdPopup
+            index={shouldShowRefIdPopup}
+            refId={paymentModes[shouldShowRefIdPopup]?.refId}
+            showHideModal={() => setShowRefIdPopup(-1)}
+            handleModeChange={handleModeChange}
+          />
+        )}
       </Card>
     </>
   );
