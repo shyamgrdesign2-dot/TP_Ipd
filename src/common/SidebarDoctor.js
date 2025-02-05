@@ -169,6 +169,7 @@ function SidebarDoctor() {
         Payment_Status: planDetails?.currentPlanStatus,
       });
       const token = await getToken();
+      
 
       const response = await axios.post(
         `${baseUrl}/api/v1/practice/tatva-ai-token`,

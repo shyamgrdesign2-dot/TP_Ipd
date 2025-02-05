@@ -231,8 +231,12 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
             style={{ width: "100%", height: "38px" }}
             options={[
               { value: "Cash", label: "Cash" },
-              { value: "Card", label: "Card" },
+              { value: "Credit Card", label: "Credit Card" },
+              { value: "Debit Card", label: "Debit Card" },
               { value: "UPI", label: "UPI" },
+              { value: "Cheque", label: "Cheque" },
+              { value: "Advance Deposit", label: "Advance Deposit" },
+              { value: "Others", label: "Others" },
             ]}
             onChange={handleDefaultPaymentMode}
           />
