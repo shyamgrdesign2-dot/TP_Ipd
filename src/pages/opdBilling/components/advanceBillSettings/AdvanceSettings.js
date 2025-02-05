@@ -7,6 +7,7 @@ import SequenceSettings from "./SequenceSettings";
 import { updateAdvancedSettings } from "../../service";
 import { errorMessage } from "../../../../utils/utils";
 import dayjs from "dayjs";
+import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip";
 
 const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
   const [settings, setSettings] = useState({});
@@ -14,6 +15,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
 
   const [billModalOpen, setBillModalOpen] = useState(false);
   const [receiptModalOpen, setReceiptModalOpen] = useState(false);
+  const [advanceReceiptModalOpen, setAdvanceReceiptModalOpen] = useState(false);
 
   useEffect(() => {
     if (advancedSettings) setSettings(advancedSettings);
@@ -33,6 +35,13 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
     });
   };
 
+  const handleAdvancedReceiptSequence = (settings) => {
+    updateSettings({
+      ...advancedSettings,
+      advancedReceiptSequence: settings,
+    });
+  };
+
   const updateSettings = async (payload) => {
     try {
       const res = await updateAdvancedSettings(payload);
@@ -40,6 +49,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
         getAdvanceSettings();
         setBillModalOpen(false);
         setReceiptModalOpen(false);
+        setAdvanceReceiptModalOpen(false);
         onClose();
       } else {
         errorMessage(res?.message || "Error while updating sequence settings");
@@ -69,9 +79,9 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
     setSettings({ ...settings, [e.target.name]: e.target.value === "Checked" });
   };
 
-  const handleEnabledForReceptionist = (e) => {
-    setSettings({ ...settings, [e.target.name]: e.target.value === "Allow" });
-  };
+  // const handleEnabledForReceptionist = (e) => {
+  //   setSettings({ ...settings, [e.target.name]: e.target.value === "Allow" });
+  // };
 
   const handleChangeGstin = (e) => {
     setSettings({ ...settings, GSTIN: e.target.value });
@@ -138,9 +148,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
         <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
             <label>Bill No. Sequence</label>
-            {/* <Tooltip title="Help information"> */}
-            <InfoCircleOutlined className={styles.infoIcon} />
-            {/* </Tooltip> */}
+            <InfoTooltip type={"BillNumber"} />
           </div>
           <Input
             value={generatePreview(settings.billSequence)}
@@ -161,9 +169,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
         <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
             <label>Receipt No. Sequence</label>
-            {/* <Tooltip title="Help information"> */}
-            <InfoCircleOutlined className={styles.infoIcon} />
-            {/* </Tooltip> */}
+            <InfoTooltip type={"BillReceiptNumber"} />
           </div>
           <Input
             value={generatePreview(settings.receiptSequence)}
@@ -181,13 +187,32 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
             style={{ height: "38px" }}
           />
         </div>
-
+        <div className={styles.formItem}>
+          <div className={styles.inputWithIcon}>
+            <label>Advance Receipt No. Sequence</label>
+            <InfoTooltip type={"AdvanceReceiptNumber"} />
+          </div>
+          <Input
+            value={generatePreview(settings.advancedReceiptSequence)}
+            suffix={
+              <span
+                style={{ cursor: "pointer" }}
+                onClick={() =>
+                  advancedSettings?.advancedReceiptSequence &&
+                  setAdvanceReceiptModalOpen(true)
+                }
+              >
+                <i className="icon-Edit" />
+              </span>
+            }
+            disabled
+            style={{ height: "38px" }}
+          />
+        </div>
         <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
             <label>GSTIN number</label>
-            {/* <Tooltip title="Help information"> */}
-            <InfoCircleOutlined className={styles.infoIcon} />
-            {/* </Tooltip> */}
+            <InfoTooltip type={"GSTIN"} />
           </div>
           <Input
             value={settings.GSTIN}
@@ -199,9 +224,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
         <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
             <label>Select Default Payment mode</label>
-            {/* <Tooltip title="Help information"> */}
-            <InfoCircleOutlined className={styles.infoIcon} />
-            {/* </Tooltip> */}
+            <InfoTooltip type={"DefaultPaymentMode"} />
           </div>
           <Select
             value={settings.defaultPaymentMode}
@@ -218,9 +241,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
         <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
             <label>Billing/Unbilled Status in Appointment Screen</label>
-            {/* <Tooltip title="Help information"> */}
-            <InfoCircleOutlined className={styles.infoIcon} />
-            {/* </Tooltip> */}
+            <InfoTooltip type={"BillingStatus"} />
           </div>
 
           <Radio.Group
@@ -250,9 +271,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
         <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
             <label>Set Default Discount Type as</label>
-            {/* <Tooltip title="Help information"> */}
-            <InfoCircleOutlined className={styles.infoIcon} />
-            {/* </Tooltip> */}
+            <InfoTooltip type={"DefaultDiscountType"} />
           </div>
           <Radio.Group
             value={settings.defaultDiscountType}
@@ -284,9 +303,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
         <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
             <label>Add Bill to Form 3C (Checkbox Default State)</label>
-            {/* <Tooltip title="Help information"> */}
-            <InfoCircleOutlined className={styles.infoIcon} />
-            {/* </Tooltip> */}
+            <InfoTooltip type={"Form3c"} />
           </div>
           <Radio.Group
             value={settings.defaultForm3cFlag ? "Checked" : "Unchecked"}
@@ -318,9 +335,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
         <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
             <label>Include in Rx (Checkbox Default State)</label>
-            {/* <Tooltip title="Help information"> */}
-            <InfoCircleOutlined className={styles.infoIcon} />
-            {/* </Tooltip> */}
+            <InfoTooltip type={"AdvanceInRx"} />
           </div>
           <Radio.Group
             value={settings.defaultRxFlag ? "Checked" : "Unchecked"}
@@ -349,12 +364,10 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
           </Radio.Group>
         </div>
 
-        <div className={styles.formItem}>
+        {/* <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
             <label>Receptionist Access Control</label>
-            {/* <Tooltip title="Help information"> */}
-            <InfoCircleOutlined className={styles.infoIcon} />
-            {/* </Tooltip> */}
+            <InfoTooltip type={"ReceptionistAccessControl"} />
           </div>
 
           <Radio.Group
@@ -379,6 +392,36 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
               );
             })}
           </Radio.Group>
+        </div> */}
+
+        <div className={styles.formItem}>
+          <div className={styles.inputWithIcon}>
+            <label>Bill Created by/date in Bill Print</label>
+            <InfoTooltip type={"BillInfoInPrint"} />
+          </div>
+
+          <Radio.Group
+            value={settings.enableCreatedByInRx ? "Show" : "Hide"}
+            style={{ display: "flex", marginTop: 10 }}
+            onChange={handleBillingStatusInAppointmentScreen}
+            name="enableCreatedByInRx"
+          >
+            {["Hide", "Show"].map((value, i) => {
+              return (
+                <Radio.Button
+                  key={i}
+                  value={value}
+                  style={{
+                    width: "50%",
+                    height: "38px",
+                  }}
+                  className="custom-radio-button d-flex align-items-center justify-content-center"
+                >
+                  {value}
+                </Radio.Button>
+              );
+            })}
+          </Radio.Group>
         </div>
       </div>
       <SequenceSettings
@@ -394,6 +437,13 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
         onClose={() => setReceiptModalOpen(false)}
         onSave={handleSaveReceiptSequence}
         initialValues={advancedSettings.receiptSequence}
+      />
+      <SequenceSettings
+        type="advanceReceipt"
+        open={advanceReceiptModalOpen}
+        onClose={() => setAdvanceReceiptModalOpen(false)}
+        onSave={handleAdvancedReceiptSequence}
+        initialValues={advancedSettings.advancedReceiptSequence}
       />
     </Drawer>
   );

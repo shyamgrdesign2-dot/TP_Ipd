@@ -228,7 +228,7 @@ const BillHeader = ({
                   style={{
                     flexDirection: "row",
                     paddingVertical: PX_TO_PT * 3,
-                    flexWrap: "wrap"
+                    flexWrap: "wrap",
                   }}
                 >
                   <Text
@@ -268,17 +268,31 @@ const BillHeader = ({
                   style={{
                     flexDirection: "row",
                     paddingVertical: PX_TO_PT * 3,
-                    flexWrap: "wrap"
+                    flexWrap: "wrap",
                   }}
                 >
                   <Text
-                    style={[styles.displayPatient, { fontWeight: 500 }]}
+                    style={[
+                      styles.displayPatient,
+                      {
+                        fontWeight: 500,
+                        fontSize: patientInfoFontSize * PX_TO_PT,
+                      },
+                    ]}
                   >{`${getBillInfoTitleToShow(
                     item.id,
                     item.title,
                     isDepositReceipt
                   )}: `}</Text>
-                  <Text style={[styles.displayPatient, { fontWeight: 400 }]}>
+                  <Text
+                    style={[
+                      styles.displayPatient,
+                      {
+                        fontWeight: 400,
+                        fontSize: patientInfoFontSize * PX_TO_PT,
+                      },
+                    ]}
+                  >
                     {billDataShow(item.id, billData)}
                   </Text>
                 </View>

@@ -360,7 +360,7 @@ const CreateBill = ({
       totalAmount: "",
       createdBy: "",
     };
-    setDataSource([...updatedData, newRow]);
+    setDataSource([newRow, ...updatedData]);
     setSearchQuery("");
   };
 
@@ -397,7 +397,7 @@ const CreateBill = ({
       );
       setDataSource(updatedData);
       setSearchQuery(selectedData.name);
-      if (index === dataSource?.length - 1) {
+      if (index === 0) {
         handleAddRow(updatedData);
       }
     } else {

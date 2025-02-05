@@ -37,7 +37,11 @@ const ServiceItemPopup = ({
   const addOrEditServieItem = async () => {
     serviceItem.totalAmount = calculateTotalAmount(serviceItem);
     handleServiceItem(serviceItem);
-    const billItemRes = await upsertBillItem(serviceItem);
+    const billItemRes = await upsertBillItem({
+      ...serviceItem,
+      discount: serviceItem?.discount || undefined,
+      gst: serviceItem?.gst || undefined,
+    });
     if (billItemRes?.id) {
       setDataSource((prev) => {
         const updatedData = [...prev];

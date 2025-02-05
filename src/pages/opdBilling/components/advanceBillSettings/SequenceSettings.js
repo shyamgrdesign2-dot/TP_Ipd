@@ -97,7 +97,13 @@ const SequenceSettings = ({
       isModalOpen={open}
       onCancel={onClose}
       modalWidth={500}
-      title={`Set ${type === "bill" ? "Bill" : "Receipt"} No. Sequence`}
+      title={`Set ${
+        type === "bill"
+          ? "Bill"
+          : type === "receipt"
+          ? "Receipt"
+          : "Advance Receipt"
+      } No. Sequence`}
       modalBody={
         <>
           <div className={styles.sequenceCard}>

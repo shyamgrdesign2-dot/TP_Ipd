@@ -71,7 +71,7 @@ const BillingSettings = () => {
       key: "price",
       sorter: true,
       sortOrder: sortedInfo.columnKey === "price" && sortedInfo.order,
-      render: (value) => `₹${value}`,
+      render: (value) => (value ? `₹${value}` : "-"),
     },
     {
       title: "DISCOUNT",
@@ -87,7 +87,7 @@ const BillingSettings = () => {
       key: "gst",
       sorter: true,
       sortOrder: sortedInfo.columnKey === "gst" && sortedInfo.order,
-      render: (value) => `${value}%`,
+      render: (value) => (value ? `${value}%` : "-"),
     },
     {
       title: "TOTAL AMOUNT",
@@ -95,7 +95,7 @@ const BillingSettings = () => {
       key: "totalAmount",
       sorter: true,
       sortOrder: sortedInfo.columnKey === "totalAmount" && sortedInfo.order,
-      render: (value) => `₹${value}`,
+      render: (value) => (value ? `₹${value}` : "-"),
     },
     {
       title: "ACTION",
@@ -125,23 +125,32 @@ const BillingSettings = () => {
     },
   ];
 
-  const debouncedSearch = debounce(searchBillItemByName, 500);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value) => {
+        if (value.trim()) {
+          searchBillItemByName(value);
+        } else {
+          fetchBillItems();
+        }
+      }, 500),
+    [searchText] // Include the functions in dependencies
+  );
 
   // Cleanup debounce on unmount
   useEffect(() => {
     getAdvanceSettings();
-    return () => {
-      debouncedSearch.cancel();
-    };
   }, []);
 
   useEffect(() => {
-    if (searchText.trim()) {
-      debouncedSearch();
-    } else {
-      fetchBillItems();
-    }
-  }, [searchText]);
+    // Execute the search
+    debouncedSearch(searchText);
+
+    // Cleanup
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [searchText, debouncedSearch]);
 
   useEffect(() => {
     fetchBillItems();

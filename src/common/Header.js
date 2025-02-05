@@ -981,31 +981,33 @@ function Header({ locationPath }) {
 
           {SWITCH_TO_OLD_MODAL}
 
-          <Dropdown
-            menu={{
-              items: [
-                {
-                  label: (
-                    <a onClick={() => navigate("/billing-settings")}>
-                      <div className="title-settings me-2 d-flex align-items-center">
-                        <img src={billingsIcon} alt="Billing" width={20} height={20} className="me-2" />
-                        Billing Settings
-                      </div>
-                      <i className="icon-right iconrotate180"></i>
-                    </a>
-                  ),
-                  key: "1",
-                }
-              ]
-            }}
-            trigger={['click']}
-            className="py-0 nav-link cursor-pointer"
-            overlayClassName="settings-dropdown"
-          >
-            <div className="d-flex align-items-center h-24 w-24">
-              <i className="icon-setting me-2"></i>
-            </div>
-          </Dropdown>
+          {tokenData?.admin && 
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    label: (
+                      <a onClick={() => navigate("/billing-settings")}>
+                        <div className="title-settings me-2 d-flex align-items-center">
+                          <img src={billingsIcon} alt="Billing" width={20} height={20} className="me-2" />
+                          Billing Settings
+                        </div>
+                        <i className="icon-right iconrotate180"></i>
+                      </a>
+                    ),
+                    key: "1",
+                  }
+                ]
+              }}
+              trigger={['click']}
+              className="py-0 nav-link cursor-pointer"
+              overlayClassName="settings-dropdown"
+            >
+              <div className="d-flex align-items-center h-24 w-24">
+                <i className="icon-setting me-2"></i>
+              </div>
+            </Dropdown>
+          }
 
           <Dropdown
             menu={{
