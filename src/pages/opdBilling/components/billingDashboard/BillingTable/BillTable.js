@@ -179,7 +179,8 @@ const BillTable = ({
         return (
           <div className="d-flex">
             <div className={className}>{displayText}</div>
-            {["CarriedForward", "Refunded"].includes(record.paymentStatus) && (
+            {("CarriedForward" === record.paymentStatus ||
+              ("Refunded" === record.paymentStatus && record.notes)) && (
               <InfoTooltip
                 type={record.paymentStatus}
                 amount={
@@ -188,7 +189,7 @@ const BillTable = ({
                     : record.dueAmount
                 }
                 notes={record.notes}
-                billNo={record.billNumber}
+                billNo={record.nextBillNumber}
               />
             )}
           </div>

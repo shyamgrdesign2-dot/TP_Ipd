@@ -69,8 +69,8 @@ const InfoTooltip = ({ type = "Refunded", amount, billNo, notes }) => {
       return (
         <div className="custom-tooltip-content">
           <div className="due-amount-text">
-            Set the format for
-            <span style={{ fontWeight: 700 }}>Advance Receipt Numbers</span> .
+            Set the format for{" "}
+            <span style={{ fontWeight: 700 }}>Advance Receipt Numbers</span>.
             This sequence appears on Advance Deposit Receipts issued to
             patients. Example: ADV_202401001.
           </div>

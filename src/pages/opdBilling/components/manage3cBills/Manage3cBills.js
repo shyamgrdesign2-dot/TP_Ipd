@@ -414,7 +414,8 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
         return (
           <div className="d-flex">
             <div className={className}>{displayText}</div>
-            {["CarriedForward", "Refunded"].includes(record.paymentStatus) && (
+            {("CarriedForward" === record.paymentStatus ||
+              ("Refunded" === record.paymentStatus && record.notes)) && (
               <InfoTooltip
                 type={record.paymentStatus}
                 amount={
@@ -423,7 +424,7 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
                     : record.dueAmount
                 }
                 notes={record.notes}
-                billNo={record.billNumber}
+                billNo={record.nextBillNumber}
               />
             )}
           </div>

@@ -398,7 +398,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
           </Radio.Group>
         </div> */}
 
-        <div className={styles.formItem}>
+        <div className={styles.formItem} style={{ marginBottom: 50 }}>
           <div className={styles.inputWithIcon}>
             <label>Bill Created by/date in Bill Print</label>
             <InfoTooltip type={"BillInfoInPrint"} />
