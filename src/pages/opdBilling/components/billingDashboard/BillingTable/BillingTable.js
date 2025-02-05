@@ -479,20 +479,12 @@ export default function BillingTable({
     }
   };
 
-  useEffect(() => {
-    if (doctorList?.length > 0) {
+  useEffect(() => {  
+    if(doctorList?.length > 0){
       const fetchData = patientData ? patientBillingData : loadData;
       fetchData();
     }
-  }, [
-    selectedCard,
-    dateRange,
-    searchQuery,
-    selectedDoctors,
-    form3cTriggered,
-    sortConfig,
-    doctorList,
-  ]);
+  }, [selectedCard, dateRange, searchQuery, selectedDoctors, form3cTriggered, sortConfig, doctorList]);
 
   return (
     <div>

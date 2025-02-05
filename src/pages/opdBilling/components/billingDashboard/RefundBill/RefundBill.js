@@ -44,6 +44,7 @@ function RefundBill({
   billData,
   handleMessageForm3c,
   getPatientBills,
+  onRefundSuccess,
 }) {
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
@@ -111,27 +112,29 @@ function RefundBill({
           className: "message-appointment",
           content: (
             <div className="d-flex align-items-center">
-              <img src={visitEnd} className="me-3" />
+              <img src={visitEnd} className="me-3" alt="visit-end" />
               <div>
                 <div className="title-common text-start fontroboto">{`${totalRefundAmount} is refunded`}</div>
-                {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
               </div>
               <img
                 src={imgCloseVisit}
                 className="ms-3"
                 onClick={() => message.destroy()}
+                alt="close"
               />
             </div>
           ),
           duration: 5,
         });
         handleRefundBillDrawer();
-        handleMessageForm3c();
+        getPatientBills && getPatientBills();
+        handleMessageForm3c && handleMessageForm3c();
+        onRefundSuccess && onRefundSuccess();
       } else {
         throw new Error(response.error || "Failed to refund the bill.");
       }
-    } catch (e) {
-      message.error(e);
+    } catch (error) {
+      message.error(error.message || "Failed to refund the bill");
     }
   };
 

@@ -51,6 +51,7 @@ const PreviewBill = ({
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
+  const [isRefunded, setIsRefunded] = useState(billData?.paymentStatus === "Refunded");
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -137,6 +138,10 @@ const PreviewBill = ({
 
   const handleRefundBillDrawer = () => {
     setRefundBillDrawer(!refundBillDrawer);
+  };
+
+  const handleRefundSuccess = () => {
+    setIsRefunded(true);
   };
 
   return (
@@ -249,16 +254,16 @@ const PreviewBill = ({
                   <i className="icon-right iconrotate180 ms-auto"></i>
                 </Button>
                 {!isDepositReceipt && (
-                  <Button
-                    type="text"
-                    className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
-                    icon={<i className="icon-Edit" />}
-                    onClick={() => handleRefundBillDrawer()}
-                    disabled={billData?.paymentStatus === "Refunded"}
-                  >
-                    <span className="fw-semibold">Refund</span>
-                    <i className="icon-right iconrotate180 ms-auto"></i>
-                  </Button>
+                <Button
+                  type="text"
+                  className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
+                  icon={<i className="icon-Edit" />}
+                  onClick={() => handleRefundBillDrawer()}
+                  disabled={isRefunded || billData?.paymentStatus === "Refunded"}
+                >
+                  <span className="fw-semibold">Refund</span>
+                  <i className="icon-right iconrotate180 ms-auto"></i>
+                </Button>
                 )}
               </div>
             </div>
@@ -366,7 +371,7 @@ const PreviewBill = ({
           <RefundBill
             handleRefundBillDrawer={handleRefundBillDrawer}
             billData={billData}
-            // handleMessageForm3c={handleMessageForm3c}
+            onRefundSuccess={handleRefundSuccess}
           />
         </Drawer>
       )}
