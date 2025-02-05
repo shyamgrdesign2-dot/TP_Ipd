@@ -220,11 +220,7 @@ const PreviewBill = ({
                   className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                   icon={<i className="icon-Print" />}
                   onClick={() =>
-                    printContent(
-                      printBlob,
-                      patientData?.patient_unique_id,
-                      setStartLoader
-                    )
+                    printContent(printBlob, billData?.patientId, setStartLoader)
                   }
                 >
                   <span className="fw-semibold">
@@ -240,7 +236,7 @@ const PreviewBill = ({
                     handleDownload(
                       pdfUrl,
                       printBlob,
-                      patientData?.patient_unique_id,
+                      billData?.patientId,
                       setStartLoader
                     )
                   }
