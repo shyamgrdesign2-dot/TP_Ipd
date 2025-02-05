@@ -511,15 +511,7 @@ const CreateBill = ({
       render: (_, record, index) => (
         <>
           <Input
-            value={
-              record.discount !== undefined &&
-              record.discount !== null &&
-              record.discount !== ""
-                ? `${record.discountType === "flat" ? "₹ " : ""}${
-                    record.discount
-                  }${record.discountType === "flat" ? "" : " %"}`
-                : ""
-            }
+            value={record.discount}
             inputMode="decimal"
             onChange={(e) => {
               const numericValue = e.target.value.replace(/[^\d.]/g, "");
@@ -1109,7 +1101,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId)
+                          !patientDetails?.patientUniqueId) ||
+                        Number(payableAmount) === 0
                       }
                     >
                       Save & Exit
@@ -1123,7 +1116,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId)
+                          !patientDetails?.patientUniqueId) ||
+                        Number(payableAmount) === 0
                       }
                     >
                       Save & Print
@@ -1140,7 +1134,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId)
+                          !patientDetails?.patientUniqueId) ||
+                        Number(payableAmount) === 0
                       }
                     >
                       Save & Print
@@ -1156,7 +1151,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId)
+                          !patientDetails?.patientUniqueId) ||
+                        Number(payableAmount) === 0
                       }
                     >
                       Save & Preview
@@ -1456,15 +1452,7 @@ const CreateBill = ({
                 <span>Extra Discount:</span>
                 <div style={{ position: "relative", width: "50%" }}>
                   <Input
-                    value={
-                      extraDiscount !== undefined && extraDiscount !== null
-                        ? `${
-                            extraDiscountType === "flat" ? "₹ " : ""
-                          }${extraDiscount}${
-                            extraDiscountType === "flat" ? "" : " %"
-                          }`
-                        : ""
-                    }
+                    value={extraDiscount}
                     onChange={(e) => {
                       const numericValue = e.target.value.replace(
                         /[^\d.]/g,

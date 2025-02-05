@@ -71,7 +71,10 @@ export const billDataShow = (id, billData, gstIn) => {
   if (id == 1) {
     value = `${billData?.billNumber ?? "-"}`;
   } else if (id == 2) {
-    value = billData?.receiptNumber ?? "-";
+    value =
+      billData?.transactionType === "Debit"
+        ? billData?.billNumber ?? "-"
+        : billData?.receiptNumber ?? "-";
   } else if (id == 3) {
     value =
       billData?.updatedAt || billData?.createdAt

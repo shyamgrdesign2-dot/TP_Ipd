@@ -214,7 +214,7 @@ const BillHeader = ({
         }}
       >
         <Text style={[styles.subTitle, { fontWeight: 700 }]}>
-          {isDepositReceipt ? "Deposit Receipt" : "Bill Cum Receipt"}
+          {isDepositReceipt ? "Advance Deposit Receipt" : "Bill Cum Receipt"}
         </Text>
       </View>
 
@@ -230,6 +230,7 @@ const BillHeader = ({
                     flexDirection: "row",
                     paddingVertical: PX_TO_PT * 3,
                     flexWrap: "wrap",
+                    width: "65%",
                   }}
                 >
                   <Text

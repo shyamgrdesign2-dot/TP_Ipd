@@ -91,7 +91,13 @@ const BillTable = ({
       width: 200,
       sorter: true,
       render: (text, record) => (
-        <div className="cursor-pointer" onClick={async () => {}}>
+        <div
+          className="cursor-pointer"
+          onClick={() => {
+            setBillData(record);
+            handleDrawerPreviewBill();
+          }}
+        >
           <div className="fs-14 fw-semibold">
             <a className="theme-color">{record.billNumber}</a>
           </div>
@@ -108,7 +114,7 @@ const BillTable = ({
           key: "patient_details",
           ellipsis: true,
           render: (text, record) => (
-            <div className="cursor-pointer" onClick={async () => {}}>
+            <div>
               <div className="fs-14">{record?.patient?.name}</div>
               <div className="fs-14 fw-normal text-truncate-twolines">
                 {record?.patient?.phone}

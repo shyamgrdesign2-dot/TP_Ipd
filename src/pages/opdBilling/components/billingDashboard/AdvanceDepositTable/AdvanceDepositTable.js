@@ -187,21 +187,7 @@ export default function AdvanceDepositTable({ patientData }) {
 
   const onBillingDetailsClick = async (status, record) => {
     if (patientData && Object.keys(patientData)?.length > 0) {
-      setBillData({
-        ...record,
-        patient: {
-          id: patientData?.pm_pid,
-          name: patientData?.pm_fullname,
-          gender: patientData?.pm_gender,
-          phone: patientData?.pm_contact_no,
-          refId: patientData?.pam_ref_id,
-          ageDays: patientData?.ageDays,
-          ageMonths: patientData?.ageMonths,
-          ageYears: patientData?.ageYears,
-          salutation: patientData?.pm_salutation,
-          address: patientData?.address,
-        },
-      });
+      setBillData(record);
     } else {
       setBillData({
         ...record,
@@ -260,10 +246,21 @@ export default function AdvanceDepositTable({ patientData }) {
       width: 250,
       sorter: true,
       render: (text, record) => (
-        <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold theme-color">
+        <div
+          className="cursor-pointer"
+          onClick={() => {
+            setBillData({
+              ...record,
+              patient: {
+                ...record?.patient,
+              },
+            });
+            handleDrawerPreviewBill();
+          }}
+        >
+          <a className="fs-14 fw-semibold theme-color">
             {selectedCard === 3 ? record?.billNumber : record?.receiptNumber}
-          </div>
+          </a>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {formatDateWithOrdinal(record.date)}
           </div>
@@ -276,7 +273,7 @@ export default function AdvanceDepositTable({ patientData }) {
       key: "patient_details",
       ellipsis: true,
       render: (text, record) => (
-        <div className="cursor-pointer" onClick={async () => {}}>
+        <div>
           <div className="fs-14">{record?.patient?.name}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {record?.patient?.phone}
@@ -366,10 +363,16 @@ export default function AdvanceDepositTable({ patientData }) {
       width: 250,
       sorter: true,
       render: (text, record) => (
-        <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold theme-color">
+        <div
+          className="cursor-pointer"
+          onClick={() => {
+            setBillData(record);
+            handleDrawerPreviewBill();
+          }}
+        >
+          <a className="fs-14 fw-semibold theme-color">
             {selectedCard === 3 ? record?.billNumber : record?.receiptNumber}
-          </div>
+          </a>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {formatDateWithOrdinal(record.date)}
           </div>
@@ -651,6 +654,15 @@ export default function AdvanceDepositTable({ patientData }) {
     try {
       const response = await listAdvancedDepositByPatient(params);
       setData(response || []);
+      let updatedReceipts = [];
+      if (response?.receipts?.length > 0) {
+        updatedReceipts = response.receipts.map((item) => ({
+          ...item,
+          patient: response.patient,
+        }));
+      }
+
+      setData({ ...response, receipts: updatedReceipts });
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {

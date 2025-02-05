@@ -178,7 +178,7 @@ function PrescriptionPrintView() {
 
     const getPatientBills = async () => {
         const queryParams = {
-          doctorIds: userId,
+          doctorIds: [userId],
           startDate: moment().format("YYYY-MM-DD"),
           endDate: moment().format("YYYY-MM-DD"),
           sortBy: "date",

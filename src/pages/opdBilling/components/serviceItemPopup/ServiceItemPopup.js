@@ -18,7 +18,7 @@ const ServiceItemPopup = ({
   const [serviceItem, setServiceItem] = useState({
     id: item?.id || item?.masterId,
     name: item?.name,
-    type: item?.type,
+    type: item?.type || "Service",
     price: item?.price || item?.amount,
     discount: item?.discount,
     discountType: item?.discountType || advancedSettings?.defaultDiscountType,

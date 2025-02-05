@@ -110,7 +110,7 @@ function ConfigurePrintSetting() {
 
     const getPatientBills = async () => {
         const queryParams = {
-          doctorIds: userId,
+          doctorIds: [userId],
           sortBy: "date",
           sortOrder: "asc",
           page: 1,
