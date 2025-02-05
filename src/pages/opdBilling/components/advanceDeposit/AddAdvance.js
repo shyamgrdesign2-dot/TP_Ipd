@@ -317,6 +317,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
       patientName: patient.pm_fullname,
       mobileNumber: patient.pm_contact_no,
       patientUniqueId: patient.patient_unique_id,
+      patientId: patient.pm_pid,
     });
     setPatientSearchOptions([]);
     setSearchQueryMobile("");
@@ -361,7 +362,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
     <div className="d-flex">
       <div style={{ padding: "16px 16px 0px 0px", width: "100%" }}>
         <div className="text-lg font-medium mb-2">
-          Enter {`${type === "advance" ? "Advance" : "Refund"}`} Amount{" "}  
+          Enter {`${type === "advance" ? "Advance" : "Refund"}`} Amount{" "}
         </div>
         {modes.map((payment, index) => (
           <div key={index} className="relative" style={{ width: "100%" }}>
@@ -516,7 +517,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
             case "deposit":
               return {
                 className: "status-advance",
-                displayText: `Advance`,
+                displayText: `Deposit`,
               };
             case "refund":
               return {
@@ -774,6 +775,8 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
           patient: response?.patient,
         }));
         setData(receiptsData);
+      } else {
+        setData(null);
       }
       setTotalAdvanceBalance(response?.summary?.totalAdvanceBalance);
     } catch (error) {
@@ -796,6 +799,23 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
     // Parse and format the date using Moment.js
     return moment(cleanDate, "D MMM YYYY").format("DD-MM-YYYY");
   }
+
+  // Add this validation function
+  const isFormValid = () => {
+    if (selectedTab === 1) {
+      // Advance
+      // Check if any advance mode is empty or has 0 amount
+      return advanceModes.every((mode) => mode.paymentMode && mode.amount > 0);
+      // ) && (depositDate || patientData?.apDate) &&
+      // (patientDetails || patientData || billData);
+    } else {
+      // Refund
+      // Check if any refund mode is empty or has 0 amount
+      return refundModes.every((mode) => mode.paymentMode && mode.amount > 0);
+      //   (depositDate || patientData?.apDate) &&
+      // (patientDetails || patientData || billData);
+    }
+  };
 
   return (
     <>
@@ -891,10 +911,78 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
               </div>
 
               <div className="d-flex gap-2 justify-content-between mx-4 p-2">
+                {/* Mobile Number */}
+                <div>
+                  <div className="text-lg font-medium mb-2">Mobile Number</div>
+                  {isEditingMobile && !patientData && !billData ? (
+                    <AutoComplete
+                      ref={mobileAutoCompleteRef}
+                      value={searchQueryMobile}
+                      onSearch={(value) => {
+                        setSearchQueryMobile(value);
+                        onSearchMobile(value);
+                      }}
+                      options={patientSearchOptions}
+                      className="w-100 autocomplete-custom"
+                      open={autoCompleteFlagMobile}
+                      onFocus={() => {
+                        setAutoCompleteFlagMobile(true);
+                        setAutoCompleteFlagName(false); // Close name autocomplete
+                        setIsEditingName(false); // Exit name editing mode
+                      }}
+                      onBlur={() => {
+                        setTimeout(() => {
+                          setAutoCompleteFlagMobile(false);
+                          setIsEditingMobile(false);
+                        }, 200);
+                      }}
+                      popupClassName="autocomplete-dropdown"
+                      dropdownStyle={{
+                        width: 400,
+                      }}
+                    >
+                      <Input
+                        style={{ width: "12rem" }}
+                        placeholder="Search Mobile Number"
+                        prefix={<i className="icon-search"></i>}
+                        suffix={
+                          searchQueryMobile.length > 0 && (
+                            <i
+                              className="icon-Cross"
+                              onClick={() => {
+                                setSearchQueryMobile("");
+                              }}
+                            />
+                          )
+                        }
+                      />
+                    </AutoComplete>
+                  ) : (
+                    <Input
+                      value={
+                        patientData
+                          ? patientData?.pm_contact_no
+                          : billData
+                          ? billData.patient.phone
+                          : patientDetails
+                          ? patientDetails?.mobileNumber
+                          : ""
+                      }
+                      placeholder="Search Mobile Number"
+                      disabled={patientData || billData}
+                      style={{ height: 38, width: "12rem" }}
+                      className="patient-input"
+                      onClick={() => {
+                        setIsEditingMobile(true);
+                        setIsEditingName(false);
+                      }}
+                    />
+                  )}
+                </div>
                 {/* Advance Deposit Date */}
                 <div className="w-100">
                   <div className="text-lg font-medium mb-2">
-                    {selectedTab === 1 ? "Advance Deposit Date" : "Refund Date"}
+                    Advance Deposit Date
                   </div>
                   {patientData?.apDate ? (
                     <Input
@@ -956,8 +1044,19 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
               <Button
                 className="btn btn-primary3 w-100 h-50"
                 onClick={handleAddAdvanceClick}
+                disabled={!isFormValid()}
               >
-                {selectedTab === 1 ? "Add Advance" : "Refund"}
+                {selectedTab === 1
+                  ? `Add Advance${
+                      calculateTotalAmount(advanceModes) > 0
+                        ? ` ${calculateTotalAmount(advanceModes)}`
+                        : ""
+                    }`
+                  : `Refund${
+                      calculateTotalAmount(refundModes) > 0
+                        ? ` ${calculateTotalAmount(refundModes)}`
+                        : ""
+                    }`}
               </Button>
             </div>
           </div>
