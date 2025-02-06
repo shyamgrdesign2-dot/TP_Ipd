@@ -115,6 +115,7 @@ export default function BillingTable({
   const [cards, setCards] = useState([]);
   const [totalBillCount, setTotalBillCount] = useState(null);
   const [form3cTriggered, setForm3cTriggered] = useState(false);
+  const { userId } = useSelector((state) => state.doctors);
 
   // Drawer states
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
@@ -126,6 +127,7 @@ export default function BillingTable({
   const [dateStatus, setDateStatus] = useState(1);
 
   const { doctorList } = useSelector((state) => state.bulkMessages);
+  const doctorIds = doctorList.map((doctor) => doctor.um_id).length > 0 ? doctorList.map((doctor) => doctor.um_id) : [userId];
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -397,7 +399,7 @@ export default function BillingTable({
       doctorIds:
         selectedDoctors.length > 0
           ? [...selectedDoctors]
-          : doctorList.map((doctor) => doctor.um_id),
+          : [...doctorIds],
       search: searchQuery || "",
     };
 
@@ -424,7 +426,7 @@ export default function BillingTable({
       doctorIds:
         selectedDoctors.length > 0
           ? [...selectedDoctors]
-          : doctorList.map((doctor) => doctor.um_id),
+          : [...doctorIds],
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id ?? "",
       appointmentId: patientData?.pam_id,
@@ -480,8 +482,8 @@ export default function BillingTable({
     }
   };
 
-  useEffect(() => {  
-    if(doctorList?.length > 0){
+  useEffect(() => {
+    if (doctorList?.length > 0 || userId) {
       const fetchData = patientData ? patientBillingData : loadData;
       fetchData();
     }
@@ -499,7 +501,9 @@ export default function BillingTable({
             <Input
               value={searchQuery}
               placeholder={
-                patientData ? "Search by bill number" : "Search by patient name / phone no / bill no"
+                patientData
+                  ? "Search by bill number"
+                  : "Search by patient name / phone no / bill no"
               }
               className="inputheight38"
               prefix={<i className="icon-search" />}
@@ -614,7 +618,7 @@ export default function BillingTable({
                 <i className="mx-2 fs-18 icon-calendar"></i>
               </div>
               <RangePicker
-                disabledDate={(current) => disabledDate(current) }
+                disabledDate={(current) => disabledDate(current)}
                 open={pickerModal}
                 presets={rangePresets}
                 format={showDateFormat}
