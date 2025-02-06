@@ -114,7 +114,7 @@ const handleInAppClick = async (
 export const calculateTotalAmount = (item) => {
   const price = Number(item.price) || Number(item.amount) || 0;
   const discount = Number(item.discount) || 0;
-  const quantity = Number(item.quantity) || 0;
+  const quantity = Number(item.quantity) || 1;
 
   // Ensure discountType is valid
   const discountAmount =
