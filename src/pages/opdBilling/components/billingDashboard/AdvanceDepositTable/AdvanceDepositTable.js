@@ -709,7 +709,9 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
             <Input
               value={searchQuery}
               placeholder={
-                patientData ? "Search by receipt number" : "Search by patient name / phone no / receipt no"
+                patientData
+                  ? "Search by receipt number"
+                  : "Search by patient name / phone no / receipt no"
               }
               className="inputheight38"
               prefix={<i className="icon-search" />}
@@ -835,7 +837,9 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
                   className="card-title"
                   style={{ "--dynamic-color": card.fontColor }}
                 >
-                  {card.title}
+                  {card.title} {"("}
+                  {card.count}
+                  {")"}
                 </div>
                 <div className="card-amount">{card.amount}</div>
               </div>
@@ -845,7 +849,11 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
           {
             <div style={{ display: "none" }}>
               <div ref={printableRef}>
-                <DownloadBill downloadData={downloadData} parent={"advance"} />
+                <DownloadBill
+                  downloadData={downloadData}
+                  parent={"advance"}
+                  dateRange={dateRange}
+                />
               </div>
             </div>
           }

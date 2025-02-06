@@ -133,11 +133,16 @@ const CreateBill = ({
   const [isEditingMobile, setIsEditingMobile] = useState(true);
   const [autoCompleteFlagName, setAutoCompleteFlagName] = useState(false);
   const [autoCompleteFlagMobile, setAutoCompleteFlagMobile] = useState(false);
+  const [isPaymentModeItemMissing, setPaymentModeItemMissing] = useState(false);
   const nameAutoCompleteRef = useRef(null);
   const mobileAutoCompleteRef = useRef(null);
 
   const subTotal = dataSource
-    .reduce((sum, service) => sum + (Number(service.amount) || 0), 0)
+    .reduce(
+      (sum, service) =>
+        sum + (Number(service.amount) * Number(service.quantity) || 0),
+      0
+    )
     .toFixed(2);
 
   const lineItemDiscount = dataSource
@@ -521,7 +526,11 @@ const CreateBill = ({
                 (record.discountType === "flat" &&
                   discount <= Number(record.amount))
               ) {
-                handleInputChange(discount, index, "discount");
+                handleInputChange(
+                  discount ? Number(discount) : undefined,
+                  index,
+                  "discount"
+                );
               }
             }}
             bordered={false}
@@ -671,7 +680,7 @@ const CreateBill = ({
       (item) => item.paymentMode && item.amount > 0
     );
     if (updatedPaymentModes?.length !== paymentModes?.length) {
-      message.error("Payment mode and amount cannot be empty.");
+      setPaymentModeItemMissing(true);
       return;
     }
     const payload = {
@@ -1179,7 +1188,10 @@ const CreateBill = ({
             <div className="d-flex flex-column h-100 gap-2 px-3 py-4">
               <div className="d-flex gap-3">
                 <div style={{ width: "612px" }}>
-                  <div>Patient Name, Mobile no & ID </div>
+                  <div>
+                    Patient Name, Mobile no & ID
+                    <span className="color-red">*</span>
+                  </div>
                   {isEditingName &&
                   (!patientData || Object.keys(patientData).length === 0) ? (
                     <AutoComplete
@@ -1220,19 +1232,22 @@ const CreateBill = ({
                         <div className="list-patientName d-flex align-items-center me-4 ml-2">
                           <i className="icon-patients backbar me-2"></i>{" "}
                           <span className="patientInfo">
-                            {patientDetails?.patientName || patientData?.pm_fullname}
+                            {patientDetails?.patientName ||
+                              patientData?.pm_fullname}
                           </span>
                         </div>
                         <div className="list-patientName d-flex align-items-center me-4">
                           <i className="icon-phone backbar me-2"></i>
                           <span className="patientInfo">
-                            {patientDetails?.mobileNumber || patientData?.pm_contact_no}
+                            {patientDetails?.mobileNumber ||
+                              patientData?.pm_contact_no}
                           </span>
                         </div>
                         <div className="list-patientName d-flex align-items-center me-4">
                           <i className="icon-Id backbar me-2"></i>
                           <span className="patientInfo">
-                            {patientDetails?.patientUniqueId || patientData?.patient_unique_id}
+                            {patientDetails?.patientUniqueId ||
+                              patientData?.patient_unique_id}
                           </span>
                         </div>
                       </div>
@@ -1315,12 +1330,16 @@ const CreateBill = ({
                             style={{
                               border:
                                 disableSaveBtn ||
+                                (isPaymentModeItemMissing &&
+                                  payment?.amount === 0) ||
                                 (payment?.paymentMode === "Advance Deposit" &&
                                   payment?.amount > patientWalletBalance)
                                   ? "solid 1px red"
                                   : "",
                               borderRadius:
                                 disableSaveBtn ||
+                                (isPaymentModeItemMissing &&
+                                  payment?.amount === 0) ||
                                 (payment?.paymentMode === "Advance Deposit" &&
                                   payment?.amount > patientWalletBalance)
                                   ? 10
@@ -1341,9 +1360,12 @@ const CreateBill = ({
                               inputMode="numeric"
                               prefix="₹"
                               value={payment.amount}
-                              onChange={(e) =>
-                                handleAmountChange(e.target.value, index)
-                              }
+                              onChange={(e) => {
+                                handleAmountChange(e.target.value, index);
+                                if (isPaymentModeItemMissing) {
+                                  setPaymentModeItemMissing(false);
+                                }
+                              }}
                               className="w-40 payment-input"
                             />
                           </div>
@@ -1387,6 +1409,18 @@ const CreateBill = ({
                           </Button>
                         )}
                       </div>
+                      {isPaymentModeItemMissing && payment?.amount === 0 && (
+                        <div className="d-flex align-items-start gap-2">
+                          <span className="icon-info fs-18 mt-1 bdg-danger" />
+                          <span className="bdg-danger">
+                            Please enter an amount for the{" "}
+                            <b style={{ fontWeight: 600 }}>
+                              {payment?.paymentMode}
+                            </b>{" "}
+                            payment mode to proceed
+                          </span>
+                        </div>
+                      )}
                       {payment?.paymentMode === "Advance Deposit" &&
                         payment?.amount > patientWalletBalance && (
                           <div className="d-flex align-items-start gap-2">
@@ -1655,7 +1689,9 @@ const CreateBill = ({
         >
           <AddAdvance
             handleAddAdvanceDrawer={handleAddAdvanceDrawer}
-            patientData={patientData?.pm_fullname ? patientData : patientDetails}
+            patientData={
+              patientData?.pm_fullname ? patientData : patientDetails
+            }
           />
         </Drawer>
       )}

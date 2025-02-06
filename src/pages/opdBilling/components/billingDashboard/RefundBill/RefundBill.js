@@ -255,7 +255,7 @@ function RefundBill({
           </Button>
         </div>
         <div
-          className="billing-table-wrapper align-items-center d-flex justify-content-between mx-4 mt-4 "
+          className="billing-table-wrapper align-items-center d-flex justify-content-between mt-4 table-wrapper"
           style={{
             border: "1px solid var(--T-Text-10, #E2E2EA)",
             borderRadius: "10px",
@@ -271,7 +271,7 @@ function RefundBill({
         </div>
         <div className="payment-methods-container">
           <div className="d-flex gap-2 mx-4 my-2 p-2">
-            <div style={{ padding: "16px 16px 0px 0px" }}>
+            <div style={{ padding: "16px 0px 0px 0px", width: "100%" }}>
               <div className="text-lg font-medium mb-2">
                 Paid Amount <span className="color-red">*</span>
               </div>
@@ -286,16 +286,16 @@ function RefundBill({
                     </div>
                   )}
                   <div className="flex align-items-center gap-4 mb-3">
-                    <div className="d-flex align-items-center gap-1">
+                    <div className="d-flex align-items-center gap-1 w-100">
                       <div
-                        className="d-flex flex-column"
+                        className="d-flex flex-column w-100"
                         style={{
                           background: "rgba(75, 74, 213, 0.06)",
                           borderRadius: 10,
                         }}
                       >
                         <div
-                          className="d-flex"
+                          className="d-flex w-100"
                           // style={{
                           //   border: disableSaveBtn ? "solid 1px red" : "",
                           //   borderRadius: disableSaveBtn ? 10 : "",
@@ -318,7 +318,7 @@ function RefundBill({
                             onChange={(e) =>
                               handleAmountChange(e.target.value, index)
                             }
-                            className="w-40 payment-input"
+                            className="payment-input w-100"
                           />
                         </div>
                         {payment?.paymentMode &&
@@ -387,6 +387,19 @@ function RefundBill({
                 </div>
               )}
             </div>
+          </div>
+          <div className="d-flex gap-2 mx-4 my-2 p-2">
+            <TextArea
+              className="h-100 align-self-center"
+              placeholder="Add Notes(optional)"
+              // defaultValue={item.tmm_remarks}
+              // value={item.tmm_remarks}
+              autoSize={{
+                minRows: 1,
+                maxRows: 2,
+              }}
+              // onChange={(e) => onChangeNoteChild()}
+            />
           </div>
         </div>
 

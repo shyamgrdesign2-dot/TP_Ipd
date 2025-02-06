@@ -705,14 +705,16 @@ export default function BillingTable({
                   className="card-title"
                   style={{ "--dynamic-color": card.fontColor }}
                 >
-                  {card.title} {"("}{" "}
-                  {card.id === 1 && data ? totalBillCount : card.count} {")"}
+                  {card.title}
+                  {"("}
+                  {card.id === 1 && data ? totalBillCount : card.count}
+                  {")"}
                 </div>
                 <div className="card-amount">
-                  {parseFloat(card.amount).toFixed(2)}
+                  ₹{parseFloat(card.amount).toFixed(2)}
                   {card.id === 1 && data && (
-                    <span>
-                      {"/"}{" "}
+                    <span style={{ fontSize: "16px", fontWeight: 500 }}>
+                      {"/"}₹
                       {parseFloat(data?.summary?.totalBillAmount).toFixed(2)}
                     </span>
                   )}
@@ -740,7 +742,11 @@ export default function BillingTable({
         {
           <div style={{ display: "none" }}>
             <div ref={printableRef}>
-              <DownloadBill downloadData={downloadData} parent={"billing"} />
+              <DownloadBill
+                downloadData={downloadData}
+                parent={"billing"}
+                dateRange={dateRange}
+              />
             </div>
           </div>
         }

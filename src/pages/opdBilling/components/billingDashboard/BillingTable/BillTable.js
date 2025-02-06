@@ -91,14 +91,14 @@ const BillTable = ({
       dataIndex: "srno",
       key: "srno",
       ellipsis: true,
-      width: 50,
+      width: "6%",
       render: (text, record, index) => <div className="fs-14">{index + 1}</div>,
     },
     {
       title: "BILL NO & DATE",
       dataIndex: "date",
       key: "date",
-      width: 200,
+      width: "16%",
       sorter: true,
       render: (text, record) => (
         <div
@@ -123,6 +123,7 @@ const BillTable = ({
           dataIndex: "patient_details",
           key: "patient_details",
           ellipsis: true,
+          width: "21%",
           render: (text, record) => (
             <div>
               <div className="dashboard-table-font-style">{record?.patient?.name}</div>
@@ -138,6 +139,7 @@ const BillTable = ({
       dataIndex: "totalAmount",
       key: "totalAmount",
       ellipsis: true,
+      width: "13%",
       sorter: true,
       onFilter: (value, record) => record.send_on.startsWith(value),
       render: (text, record) => <div className="dashboard-table-font-style"> {record.payableAmount} </div>,
@@ -146,14 +148,16 @@ const BillTable = ({
       title: "PAID AMOUNT",
       dataIndex: "paidAmount",
       key: "paidAmount",
+      width: "13%",
       ellipsis: true,
       sorter: true,
       render: (text, record) => <div className="dashboard-table-font-style"> {record.paidAmount} </div>,
     },
     {
       title: "STATUS",
-      dataIndex: "status",
-      key: "status",
+      width: "21%",
+      dataIndex: "paymentStatus",
+      key: "paymentStatus",
       ellipsis: true,
       render: (text, record) => {
         // Determine the class name and display value based on the status
@@ -215,7 +219,7 @@ const BillTable = ({
     {
       title: "Action",
       key: "action",
-      width: 80,
+      width: "10%",
       render: (text, record) => (
         <Dropdown
           className="cursor-pointer"
