@@ -52,7 +52,9 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
         setAdvanceReceiptModalOpen(false);
         onClose();
       } else {
-        errorMessage(res?.message || "Error while updating sequence settings");
+        errorMessage(
+          res?.data?.message || "Error while updating sequence settings"
+        );
       }
     } catch (err) {
       errorMessage(err?.message || "Error while updating sequence settings");

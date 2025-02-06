@@ -130,12 +130,10 @@ const CreateBill = ({
   const [searchQueryName, setSearchQueryName] = useState("");
   const [searchQueryMobile, setSearchQueryMobile] = useState("");
   const [isEditingName, setIsEditingName] = useState(true);
-  const [isEditingMobile, setIsEditingMobile] = useState(true);
   const [autoCompleteFlagName, setAutoCompleteFlagName] = useState(false);
   const [autoCompleteFlagMobile, setAutoCompleteFlagMobile] = useState(false);
   const [isPaymentModeItemMissing, setPaymentModeItemMissing] = useState(false);
   const nameAutoCompleteRef = useRef(null);
-  const mobileAutoCompleteRef = useRef(null);
 
   const subTotal = dataSource
     .reduce(
@@ -221,6 +219,12 @@ const CreateBill = ({
       setPaymentModes(updatedPaymentModes);
     }
   }, [extraDiscount, patientDueAmount, dataSource]);
+
+  useEffect(() => {
+    if (isEditingName && nameAutoCompleteRef.current) {
+      nameAutoCompleteRef.current.focus();
+    }
+  }, [isEditingName]);
 
   const getBillPrintSettings = async () => {
     const printSettingsResponse = await fetchPrintSetting();
@@ -874,7 +878,6 @@ const CreateBill = ({
     setSearchQueryMobile("");
     setSearchQueryName("");
     setIsEditingName(false);
-    setIsEditingMobile(false);
   };
 
   const BoldWordInName = ({ name, boldWord }) => {
@@ -916,7 +919,6 @@ const CreateBill = ({
           <div
             className="d-flex align-items-center"
             onClick={() => {
-              setAutoCompleteFlagMobile(false);
               setAutoCompleteFlagName(false);
               onSelectPatient(patient);
             }}
@@ -929,8 +931,7 @@ const CreateBill = ({
                   name={patient.pm_fullname}
                   boldWord={searchQuery}
                 />{" "}
-                ({patient.pm_gender}, {patient.ageYears}y,{" "}
-                {patient.pm_contact_no}, {patient.pm_pid})
+                ({patient.pm_gender}, {patient.ageYears}y)
               </span>
             </div>
             <div className="list-patientName d-flex align-items-center me-4">
@@ -1187,11 +1188,8 @@ const CreateBill = ({
           >
             <div className="d-flex flex-column h-100 gap-2 px-3 py-4">
               <div className="d-flex gap-3">
-                <div style={{ width: "612px" }}>
-                  <div>
-                    Patient Name, Mobile no & ID
-                    <span className="color-red">*</span>
-                  </div>
+                <div className="w-100">
+                  <div>Patient Name, Mobile no & ID </div>
                   {isEditingName &&
                   (!patientData || Object.keys(patientData).length === 0) ? (
                     <AutoComplete
@@ -1202,6 +1200,15 @@ const CreateBill = ({
                         onSearchName(value);
                       }}
                       options={patientSearchOptions}
+                      onFocus={() => {
+                        setAutoCompleteFlagName(true);
+                      }}
+                      onBlur={() => {
+                        setTimeout(() => {
+                          setAutoCompleteFlagName(false);
+                          setIsEditingName(true);
+                        }, 200);
+                      }}
                       className="w-100 autocomplete-custom"
                       popupClassName="autocomplete-dropdown"
                     >
@@ -1222,34 +1229,34 @@ const CreateBill = ({
                     </AutoComplete>
                   ) : (
                     <div
-                      className="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer"
-                      style={{ height: 40 }}
+                      className={`d-flex align-items-center justify-content-between flex-wrap border rounded cursor-pointer w-100 ${
+                        patientData?.patient_unique_id && "pe-none disabled"
+                      }`}
                       onClick={() => {
                         setIsEditingName(true);
                       }}
+                      style={{ padding: "5px 10px" }}
                     >
-                      <div className="d-flex align-items-center">
-                        <div className="list-patientName d-flex align-items-center me-4 ml-2">
-                          <i className="icon-patients backbar me-2"></i>{" "}
-                          <span className="patientInfo">
-                            {patientDetails?.patientName ||
-                              patientData?.pm_fullname}
-                          </span>
-                        </div>
-                        <div className="list-patientName d-flex align-items-center me-4">
-                          <i className="icon-phone backbar me-2"></i>
-                          <span className="patientInfo">
-                            {patientDetails?.mobileNumber ||
-                              patientData?.pm_contact_no}
-                          </span>
-                        </div>
-                        <div className="list-patientName d-flex align-items-center me-4">
-                          <i className="icon-Id backbar me-2"></i>
-                          <span className="patientInfo">
-                            {patientDetails?.patientUniqueId ||
-                              patientData?.patient_unique_id}
-                          </span>
-                        </div>
+                      <div className="list-patientName d-flex align-items-center me-4 ml-2">
+                        <i className="icon-patients backbar me-2"></i>{" "}
+                        <span className="patientInfo">
+                          {patientDetails?.patientName ||
+                            patientData?.pm_fullname}
+                        </span>
+                      </div>
+                      <div className="list-patientName d-flex align-items-center me-4">
+                        <i className="icon-phone backbar me-2"></i>
+                        <span className="patientInfo">
+                          {patientDetails?.mobileNumber ||
+                            patientData?.pm_contact_no}
+                        </span>
+                      </div>
+                      <div className="list-patientName d-flex align-items-center me-4">
+                        <i className="icon-Id backbar me-2"></i>
+                        <span className="patientInfo">
+                          {patientDetails?.patientUniqueId ||
+                            patientData?.patient_unique_id}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -1458,11 +1465,11 @@ const CreateBill = ({
             </div>
             <Divider />
             <div
-              className="d-flex flex-column gap-3 position-relative mb-3"
+              className="d-flex flex-column gap-3 position-relative mb-4"
               style={{
                 background: "white",
-                borderRadius: 16,
-                padding: 14,
+                borderRadius: "16px 16px 0 0",
+                padding: "14px 14px 24px 14px",
                 boxShadow: "0px 0px 60px 0px rgba(0, 0, 0, 0.04)",
               }}
             >
@@ -1591,7 +1598,9 @@ const CreateBill = ({
                   </span>
                 </div>
               )}
-              <img src={waveImage} className="wave-bottom" />{" "}
+              <div className="wave-container">
+                <img src={waveImage} className="wave-bottom" alt="wave" />
+              </div>
             </div>
 
             {patientBillNotes?.length === 0 ? (

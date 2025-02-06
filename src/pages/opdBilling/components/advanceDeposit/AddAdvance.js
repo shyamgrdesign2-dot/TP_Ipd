@@ -56,7 +56,12 @@ const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
 const { TextArea } = Input;
 
-function AddAdvance({ handleAddAdvanceDrawer, patientData, billData, onSuccess }) {
+function AddAdvance({
+  handleAddAdvanceDrawer,
+  patientData,
+  billData,
+  onSuccess,
+}) {
   const { state } = useLocation();
   const { pam_id } = state || {};
   const { profile } = useSelector((state) => state.doctors);
@@ -252,8 +257,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData, onSuccess }
                   name={patient.pm_fullname}
                   boldWord={searchQuery}
                 />{" "}
-                ({patient.pm_gender}, {patient.ageYears}y,{" "}
-                {patient.pm_contact_no}, {patient.pm_pid})
+                ({patient.pm_gender}, {patient.ageYears}y)
               </span>
             </div>
             <div className="list-patientName d-flex align-items-center me-4">
@@ -878,8 +882,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData, onSuccess }
                           setIsEditingName(true);
                         }, 200);
                       }}
-                      popupClassName="autocomplete-dropdown"
-                      dropdownStyle={{ width: 550 }}
+                      popupClassName="autocomplete-dropdown w-50"
                     >
                       <Input
                         placeholder="Search by Patient’s Name, Mobile number or Id"
@@ -898,42 +901,42 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData, onSuccess }
                     </AutoComplete>
                   ) : (
                     <div
-                      className="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer"
-                      style={{ height: 32 }}
+                      className={`d-flex align-items-center justify-content-between flex-wrap border rounded cursor-pointer w-100 ${
+                        patientData && "pe-none disabled"
+                      }`}
                       onClick={() => {
                         if (!patientData && !billData) {
                           setIsEditingName(true);
                         }
                       }}
+                      style={{ padding: "5px 10px" }}
                     >
-                      <div className="d-flex align-items-center">
-                        <div className="list-patientName d-flex align-items-center me-4 ml-2">
-                          <i className="icon-patients backbar me-2"></i>{" "}
-                          <span
-                            className="patientInfo"
-                            style={{ width: "max-content" }}
-                          >
-                            {patientData?.pm_fullname ||
-                              patientData?.patientName ||
-                              patientDetails?.patientName}
-                          </span>
-                        </div>
-                        <div className="list-patientName d-flex align-items-center me-4">
-                          <i className="icon-phone backbar me-2"></i>
-                          <span className="patientInfo">
-                            {patientData?.pm_contact_no ||
-                              patientData?.mobileNumber ||
-                              patientDetails?.mobileNumber}
-                          </span>
-                        </div>
-                        <div className="list-patientName d-flex align-items-center me-4">
-                          <i className="icon-Id backbar me-2"></i>
-                          <span className="patientInfo">
-                            {patientData?.pm_id ||
-                              patientData?.patientUniqueId ||
-                              patientDetails?.patientUniqueId}
-                          </span>
-                        </div>
+                      <div className="list-patientName d-flex align-items-center me-4 ml-2">
+                        <i className="icon-patients backbar me-2"></i>{" "}
+                        <span
+                          className="patientInfo"
+                          style={{ width: "max-content" }}
+                        >
+                          {patientData?.pm_fullname ||
+                            patientData?.patientName ||
+                            patientDetails?.patientName}
+                        </span>
+                      </div>
+                      <div className="list-patientName d-flex align-items-center me-4">
+                        <i className="icon-phone backbar me-2"></i>
+                        <span className="patientInfo">
+                          {patientData?.pm_contact_no ||
+                            patientData?.mobileNumber ||
+                            patientDetails?.mobileNumber}
+                        </span>
+                      </div>
+                      <div className="list-patientName d-flex align-items-center me-4">
+                        <i className="icon-Id backbar me-2"></i>
+                        <span className="patientInfo">
+                          {patientData?.pm_id ||
+                            patientData?.patientUniqueId ||
+                            patientDetails?.patientUniqueId}
+                        </span>
                       </div>
                     </div>
                   )}
