@@ -64,7 +64,7 @@
   }
 
   .theme-color {
-    color: #4B4AD5;
+    color: #4B4AD5 !important;
   }
 
   .billing-table {
@@ -359,7 +359,7 @@
 }
 
 .dashboard-table-font-style {
-  color: var(--T-Text-80, #454551) !important;
+  color: var(--T-Text-80, #454551);
   font-feature-settings: 'liga' off, 'clig' off;
   font-family: Inter;
   font-size: 16px;
