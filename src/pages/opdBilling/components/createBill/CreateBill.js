@@ -1206,13 +1206,12 @@ const CreateBill = ({
                             />
                           )
                         }
-                        // style={{ width: "612px" }}
                       />
                     </AutoComplete>
                   ) : (
                     <div
                       className="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer"
-                      style={{ height: 32 }}
+                      style={{ height: 40 }}
                       onClick={() => {
                         setIsEditingName(true);
                       }}
@@ -1221,19 +1220,19 @@ const CreateBill = ({
                         <div className="list-patientName d-flex align-items-center me-4 ml-2">
                           <i className="icon-patients backbar me-2"></i>{" "}
                           <span className="patientInfo">
-                            {patientDetails?.patientName}
+                            {patientDetails?.patientName || patientData?.pm_fullname}
                           </span>
                         </div>
                         <div className="list-patientName d-flex align-items-center me-4">
                           <i className="icon-phone backbar me-2"></i>
                           <span className="patientInfo">
-                            {patientDetails?.mobileNumber}
+                            {patientDetails?.mobileNumber || patientData?.pm_contact_no}
                           </span>
                         </div>
                         <div className="list-patientName d-flex align-items-center me-4">
                           <i className="icon-Id backbar me-2"></i>
                           <span className="patientInfo">
-                            {patientDetails?.patientUniqueId}
+                            {patientDetails?.patientUniqueId || patientData?.patient_unique_id}
                           </span>
                         </div>
                       </div>
