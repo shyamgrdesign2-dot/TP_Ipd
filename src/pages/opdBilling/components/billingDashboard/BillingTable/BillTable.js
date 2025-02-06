@@ -1,5 +1,5 @@
 import { Drawer, Dropdown, Table, message } from "antd";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import PreviewBill from "../../../PreviewBill";
 import RefundBill from "../RefundBill/RefundBill";
 import { addBillsToForm3C } from "../../../service";
@@ -8,6 +8,7 @@ import visitEnd from "../../../../../assets/images/end-visit.svg";
 import { MESSAGE_KEY } from "../../../../../utils/constants";
 import { formatDateWithOrdinal } from "../../../utils/helper";
 import InfoTooltip from "./InfoToolTip/InfoTooltip";
+import { isMobile } from 'react-device-detect';
 
 const BillTable = ({
   data,
@@ -75,6 +76,15 @@ const BillTable = ({
     setRefundBillDrawer(!refundBillDrawer);
   };
 
+  const handleRefundComplete = useCallback(() => {
+
+    // If getPatientBills exists, call it, otherwise do nothing
+    if (getPatientBills) {
+      getPatientBills();
+    }
+    setRefundBillDrawer(false);
+  }, [getPatientBills]);
+
   const columns = [
     {
       title: "#",
@@ -99,7 +109,7 @@ const BillTable = ({
           }}
         >
           <div className="fs-14 fw-semibold">
-            <a className="theme-color">{record.billNumber}</a>
+            <a className="theme-color dashboard-table-font-style">{record.billNumber}</a>
           </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {formatDateWithOrdinal(record.date)}
@@ -115,7 +125,7 @@ const BillTable = ({
           ellipsis: true,
           render: (text, record) => (
             <div>
-              <div className="fs-14">{record?.patient?.name}</div>
+              <div className="dashboard-table-font-style">{record?.patient?.name}</div>
               <div className="fs-14 fw-normal text-truncate-twolines">
                 {record?.patient?.phone}
               </div>
@@ -130,7 +140,7 @@ const BillTable = ({
       ellipsis: true,
       sorter: true,
       onFilter: (value, record) => record.send_on.startsWith(value),
-      render: (text, record) => <div> {record.total_amount} </div>,
+      render: (text, record) => <div className="dashboard-table-font-style"> {record.payableAmount} </div>,
     },
     {
       title: "PAID AMOUNT",
@@ -138,7 +148,7 @@ const BillTable = ({
       key: "paidAmount",
       ellipsis: true,
       sorter: true,
-      render: (text, record) => <div> {record.paidAmount} </div>,
+      render: (text, record) => <div className="dashboard-table-font-style"> {record.paidAmount} </div>,
     },
     {
       title: "STATUS",
@@ -302,12 +312,14 @@ const BillTable = ({
           placement="right"
           onClose={handleRefundBillDrawer}
           open={refundBillDrawer}
-          width="56%"
+          width={isMobile ? "80%" : "60%"} // Adjust width based on device type
         >
           <RefundBill
             handleRefundBillDrawer={handleRefundBillDrawer}
             billData={billData}
             handleMessageForm3c={handleMessageForm3c}
+            getPatientBills={getPatientBills}
+            onRefundSuccess={handleRefundComplete}
           />
         </Drawer>
       )}

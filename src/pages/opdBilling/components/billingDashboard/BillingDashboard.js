@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { isMobile } from "react-device-detect";
 
@@ -26,6 +26,7 @@ import imgCloseVisit from "../../../../assets/images/close-visit.svg";
 import { clearSearch } from "../../../../redux/appointmentsSlice";
 import AddAdvance from "../advanceDeposit/AddAdvance";
 import CreateBill from "../createBill/CreateBill";
+import { fetchPatientWalletBalance } from "../../service";
 
 function BillingDashboard({ patientData }) {
   const dispatch = useDispatch();
@@ -33,7 +34,6 @@ function BillingDashboard({ patientData }) {
   const [locationPath, setLocationPath] = useState("/");
   const { profile } = useSelector((state) => state.doctors);
   const [selectedTab, setSelectedTab] = useState("billingtable");
-  const [form3cData, setForm3cData] = useState(null);
   const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
 
   // Drawer states
@@ -42,6 +42,11 @@ function BillingDashboard({ patientData }) {
   const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
   const [createBillDrawer, setCreateBillDrawer] = useState(false);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+
+  // Add a ref to store the refresh function
+  const billingTableRef = useRef(null);
+  const manage3cBillsRef = useRef(null);
+  const [form3cData, setForm3cData] = useState(null);
 
   useEffect(() => {
     setLocationPath(location.pathname);
@@ -80,17 +85,48 @@ function BillingDashboard({ patientData }) {
   // Add form 3c drawer
   const handleAddForm3cDrawer = () => {
     setAddform3cDrawer(!addForm3cDrawer);
-    setForm3cDrawer(!form3cDrawer);
   };
 
-  // Add Advance Drawer
+  // Modify the Add Advance Drawer handler
   const handleAddAdvanceDrawer = () => {
     setAddAdvanceDrawer(!addAdvanceDrawer);
+    // If drawer is closing and we have a refresh function, call it
+    if (addAdvanceDrawer && billingTableRef.current?.refreshData) {
+      billingTableRef.current.refreshData();
+    }
+  };
+
+  // Function to handle successful advance operations
+  const handleAdvanceSuccess = () => {
+    handleAddAdvanceDrawer();
+    // Refresh the total advance balance
+    if (patientData?.patient_unique_id) {
+      fetchPatientWalletBalance(patientData.patient_unique_id)
+        .then((response) => {
+          // Extract the balance value from the response object
+          const balance = response?.advanceDepositBalance || 0;
+          setTotalAdvanceBalance(balance);
+        })
+        .catch(console.error);
+    }
   };
 
   // Function to update state from child
   const handleTotalAdvanceUpdate = (newData) => {
     setTotalAdvanceBalance(newData);
+  };
+
+  const handleForm3cSuccess = () => {
+    // Refresh billing table
+    if (billingTableRef.current?.refreshData) {
+      billingTableRef.current.refreshData();
+    }
+    // Refresh manage3c bills table
+    if (manage3cBillsRef.current?.refreshData) {
+      manage3cBillsRef.current.refreshData();
+    }
+    // Close the drawer
+    handleAddForm3cDrawer();
   };
 
   return (
@@ -113,7 +149,7 @@ function BillingDashboard({ patientData }) {
                         onClick={handleAddAdvanceDrawer}
                       >
                         <span className="text-lg">
-                          Advance Balance: ₹{totalAdvanceBalance ?? "0"}
+                          Advance Balance: ₹{totalAdvanceBalance || "0"}
                         </span>
                         <span className="add-advance-icon">
                           <img src={addCircleIcon} alt="add-deposit" />
@@ -166,6 +202,7 @@ function BillingDashboard({ patientData }) {
             </div>
           </>
           <TableBillingDashboard
+            ref={billingTableRef}
             onTabChange={setSelectedTab}
             patientData={patientData}
             handleTotalAdvanceUpdate={handleTotalAdvanceUpdate}
@@ -199,6 +236,7 @@ function BillingDashboard({ patientData }) {
             <AddForm3cBills
               handleAddForm3cDrawer={handleAddForm3cDrawer}
               setForm3cData={setForm3cData}
+              onSuccess={handleForm3cSuccess}
             />
           </Drawer>
         )}
@@ -209,11 +247,11 @@ function BillingDashboard({ patientData }) {
             placement="right"
             onClose={handleAddAdvanceDrawer}
             open={addAdvanceDrawer}
-            width="80%"
+            width="85%"
             push={false}
           >
             <AddAdvance
-              handleAddAdvanceDrawer={handleAddAdvanceDrawer}
+              handleAddAdvanceDrawer={handleAdvanceSuccess}
               patientData={patientData}
             />
           </Drawer>

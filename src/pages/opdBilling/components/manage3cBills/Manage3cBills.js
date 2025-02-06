@@ -4,6 +4,8 @@ import React, {
   useCallback,
   useMemo,
   useRef,
+  forwardRef,
+  useImperativeHandle,
 } from "react";
 import {
   Button,
@@ -23,7 +25,6 @@ import {
 import { Col, Container, Row } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import "./Manage3cBills.scss";
-import AddForm3cBills from "../manage3cBills/AddForm3cBills.js";
 import { useReactToPrint } from "react-to-print";
 import { handlePrintClick } from "../../../../utils/utils.js";
 
@@ -41,30 +42,11 @@ import imgCloseVisit from "../../../../assets/images/close-visit.svg";
 import { fetchBillingDashboard } from "../../service.js";
 import { formatDateWithOrdinal } from "../../utils/helper.js";
 import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip.js";
-
-// import { errorMessage, onlyNumberFormat } from "../../../../utils/utils";
-// import { MESSAGE_KEY } from "../../../../utils/constants";
-
-// import VideoModal from "../../../../common/VideoModal";
-// import messageCorner from "../../../../assets/images/message-corner.svg";
-// import CreditImg from "../../../../assets/images/credit_icon.svg";
-// import tutorial from "../../../../assets/images/tutorial-icon.svg";
-// import messageCornerGrey from "../../../../assets/images/message-corner-grey.svg";
-// import alertIcon from "../../../../assets/images/alertIcon.svg";
-// import AvailableCredits from "../../../../components/bulk_messages/AvailableCredits";
-// import CommonModal from "../../../../common/CommonModal";
+import PreviewBill from "../../PreviewBill.js";
 
 const { RangePicker } = DatePicker;
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
-
-const dateTimeFormat = "YYYY-MM-DD HH:mm:ss";
-const dateFormat1 = "YYYY-MM-DD";
-const timeFormat1 = "HH:mm:ss";
-
-const showDateTimeFormat = "DD MMM YYYY hh:mm A";
-const showDateFormat1 = "DD MMM YYYY";
-const showTimeFormat1 = "hh:mm A";
 
 const SELECT_AFTER = [
   {
@@ -79,7 +61,7 @@ const SELECT_AFTER = [
 
 const GENDER = ["Male", "Female", "Other"];
 
-function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
+const Manage3cBills = forwardRef(({ handleForm3cBill, handleAddForm3cDrawer, form3cData }, ref) => {
   const {
     loading,
     userCreditObj,
@@ -110,6 +92,12 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
   const printableRef = useRef(null);
   const [tabLoader, setTabLoader] = useState(false);
   const [sortConfig, setSortConfig] = useState({ field: null, order: null });
+  const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
+  const [billData, setBillData] = useState(null);
+
+  const handleDrawerPreviewBill = () => {
+    setPreviewBillDrawer(!previewBillDrawer);
+  };
 
   const onSearch = useCallback(
     (query) => {
@@ -184,13 +172,13 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
     },
     {
       label: (
-        <div className={`${dateStatus === 2 ? "active" : ""}`}>Last week</div>
+        <div className={`${dateStatus === 2 ? "active" : ""}`}>Last 7 days</div>
       ),
       value: [dayjs().add(-7, "d"), dayjs()],
     },
     {
       label: (
-        <div className={`${dateStatus === 3 ? "active" : ""}`}>Last month</div>
+        <div className={`${dateStatus === 3 ? "active" : ""}`}>Last 30</div>
       ),
       value: [dayjs().add(-1, "M"), dayjs()],
     },
@@ -271,13 +259,7 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
   };
 
   const disabledDate = (current) => {
-    // Disable dates before today and after 3 months from today
-    const today = moment().startOf("day");
-    const threeMonthsFromToday = today.clone().add(3, "months").endOf("day");
-    return (
-      current &&
-      (current.isBefore(today) || current.isAfter(threeMonthsFromToday))
-    );
+    return current && current > dayjs().endOf("day");
   };
 
   const disabledTime = (current) => {
@@ -334,12 +316,18 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
       width: 200,
       sorter: true,
       render: (text, record) => (
-        <div className="cursor-pointer" onClick={async () => {}}>
-          <div className="fs-14 fw-semibold theme-color">
-            {record.billNumber}
-          </div>
-          <div className="fs-14 fw-normal text-truncate-twolines">
-            {formatDateWithOrdinal(record.date)}
+        <div
+          className="cursor-pointer"
+          onClick={() => {
+            setBillData(record);
+            handleDrawerPreviewBill();
+          }}
+        >
+          <div className="cursor-pointer " onClick={async () => {}}>
+            <a className="theme-color">{record.billNumber}</a>
+            <div className="fs-14 fw-normal text-truncate-twolines">
+              {formatDateWithOrdinal(record.date)}
+            </div>
           </div>
         </div>
       ),
@@ -434,7 +422,6 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
   ];
 
   const loadData = async () => {
-    // setLoading(true);
     const params = {
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
@@ -442,7 +429,7 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
-      doctorIds: userId,
+      doctorIds: [userId],
       isForm3C: true,
       search: searchQuery || "",
     };
@@ -451,10 +438,15 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
       setData(response || []);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
-    } finally {
-      // setLoading(false);
     }
   };
+
+  // Expose the refresh method via ref
+  useImperativeHandle(ref, () => ({
+    refreshData: () => {
+      loadData();
+    }
+  }));
 
   useEffect(() => {
     loadData();
@@ -533,9 +525,7 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
                   <i className="mx-2 fs-18 icon-calendar"></i>
                 </div>
                 <RangePicker
-                  // disabledDate={(current) =>
-                  //   selectedTab !== TAB_CAMPAIGN ? disabledDate(current) : null
-                  // }
+                  disabledDate={(current) => disabledDate(current) }
                   open={pickerModal}
                   presets={rangePresets}
                   format={showDateFormat}
@@ -601,6 +591,22 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
             </div>
           </div>
         }
+        {previewBillDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleDrawerPreviewBill}
+            open={previewBillDrawer}
+            width="100%"
+            push={false}
+          >
+            <PreviewBill
+              handleCreateBillDrawer={handleDrawerPreviewBill}
+              isPreviewFromTable={true}
+              billData={billData}
+            />
+          </Drawer>
+        )}
         <div className="justify-content-between align-items-center px-4 my-2 billing-table-wrapper">
           <Table
             rowKey="id"
@@ -612,7 +618,9 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
             columns={columns}
             width="100%"
             scroll={{ y: 600 }}
-            dataSource={data?.bills?.filter((item) => item.paymentStatus !== "Refunded")}
+            dataSource={data?.bills?.filter(
+              (item) => item.paymentStatus !== "Refunded"
+            )}
             pagination={false}
             onChange={handleTableChange}
           />
@@ -620,6 +628,6 @@ function Manage3cBill({ handleForm3cBill, handleAddForm3cBill }) {
       </div>
     </div>
   );
-}
+});
 
-export default Manage3cBill;
+export default React.memo(Manage3cBills);

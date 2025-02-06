@@ -49,12 +49,13 @@ import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
 import { onlyDecimalFormat } from "../../../../utils/utils";
 import { formatDateWithOrdinal } from "../../utils/helper";
 import { useLocation } from "react-router-dom";
+import { isMobile } from 'react-device-detect';
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
 const { TextArea } = Input;
 
-function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
+function AddAdvance({ handleAddAdvanceDrawer, patientData, billData, onSuccess }) {
   const { state } = useLocation();
   const { pam_id } = state || {};
   const { profile } = useSelector((state) => state.doctors);
@@ -159,7 +160,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
       label: (
         <div className="d-flex align-items-center">
           <i className="icon-billings"></i>
-          Add Advance Deposit
+          {isMobile ? "Add Advance" : "Add Advance Deposit"}
         </div>
       ),
     },
@@ -169,7 +170,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
       label: (
         <div className="d-flex align-items-center">
           <i className="icon-Finished"></i>
-          Refund Advance
+          {isMobile ? "Refund" : "Refund Advance"}
         </div>
       ),
     },
@@ -194,9 +195,9 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
       : setRefundModes(updatedModes);
   };
 
-  const handleAddAdvance = () => {
-    handleAddAdvanceDrawer();
-  };
+  // const handleAddAdvance = () => {
+  //   handleAddAdvanceDrawer();
+  // };
 
   // Function to add a new payment mode
   const addPaymentMode = (type) => {
@@ -503,13 +504,14 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
       key: "totalAmount",
       ellipsis: true,
       sorter: true,
+      width: 150,
       render: (text, record) => <div> {record.totalAmount} </div>,
     },
     {
       title: "STATUS",
       dataIndex: "transactionType",
       key: "transactionType",
-      align: "center",
+      width: 150,
       render: (text, record) => {
         // Determine the class name and display value based on the status
         const getStatusDetails = (status) => {
@@ -743,6 +745,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
           setRefundModes([{ paymentMode: "Cash", amount: "", refId: "" }]);
           setAdvacneTriggered((prev) => !prev);
           setNotes("");
+          onSuccess();
         }
       } catch (error) {
         console.error("Failed to create deposit:", error);
@@ -910,7 +913,7 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData }) {
                 </div>
               </div>
 
-              <div className="d-flex gap-2 justify-content-between mx-4 p-2">
+              <div className={`mx-4 p-2 ${isMobile ? "" : "d-flex gap-2 justify-content-between mx-4 p-2"}`}>
                 {/* Mobile Number */}
                 <div>
                   <div className="text-lg font-medium mb-2">Mobile Number</div>

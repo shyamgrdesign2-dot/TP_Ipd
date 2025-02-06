@@ -69,32 +69,33 @@ const cardsStaticData = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-const DoctorTags = ({ selectedDoctors, doctorList, handleDoctorSelection }) => {
-  return (
-    <div className="selected-doctors-tags">
-      {selectedDoctors.map((doctorId) => {
-        const doctor = doctorList.find((d) => d.um_id === doctorId);
-        return (
-          <span key={doctorId} className="doctor-tag">
-            {doctor?.um_name}
-            <i
-              className="icon-Cross"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDoctorSelection(doctorId, false);
-              }}
-            />
-          </span>
-        );
-      })}
-    </div>
-  );
-};
+// const DoctorTags = ({ selectedDoctors, doctorList, handleDoctorSelection }) => {
+//   return (
+//     <div className="selected-doctors-tags">
+//       {selectedDoctors.map((doctorId) => {
+//         const doctor = doctorList.find((d) => d.um_id === doctorId);
+//         return (
+//           <span key={doctorId} className="doctor-tag">
+//             {doctor?.um_name}
+//             <i
+//               className="icon-Cross"
+//               onClick={(e) => {
+//                 e.stopPropagation();
+//                 handleDoctorSelection(doctorId, false);
+//               }}
+//             />
+//           </span>
+//         );
+//       })}
+//     </div>
+//   );
+// };
 
 export default function BillingTable({
   patientData,
   getPatientBills,
   handleTotalAdvanceUpdate,
+  handleRefundComplete,
 }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
@@ -486,6 +487,10 @@ export default function BillingTable({
     }
   }, [selectedCard, dateRange, searchQuery, selectedDoctors, form3cTriggered, sortConfig, doctorList]);
 
+  const handleRefundSuccess = () => {
+    handleRefundComplete && handleRefundComplete();
+  };
+
   return (
     <div>
       <div className="appointment-data billing-table-wrapper">
@@ -493,7 +498,9 @@ export default function BillingTable({
           <div>
             <Input
               value={searchQuery}
-              placeholder="Search by patient name / phone no / bill no"
+              placeholder={
+                patientData ? "Search by bill number" : "Search by patient name / phone no / bill no"
+              }
               className="inputheight38"
               prefix={<i className="icon-search" />}
               suffix={
@@ -505,7 +512,7 @@ export default function BillingTable({
             />
           </div>
           <div className="d-flex flex-row gap-2">
-            {isAdmin && doctorList?.length > 0 && (
+            {isAdmin && doctorList?.length > 1 && (
               <div className="doctor-select-container">
                 <Select
                   className="doctor-select"
@@ -607,9 +614,7 @@ export default function BillingTable({
                 <i className="mx-2 fs-18 icon-calendar"></i>
               </div>
               <RangePicker
-                // disabledDate={(current) =>
-                //   selectedTab !== TAB_CAMPAIGN ? disabledDate(current) : null
-                // }
+                disabledDate={(current) => disabledDate(current) }
                 open={pickerModal}
                 presets={rangePresets}
                 format={showDateFormat}

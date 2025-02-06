@@ -55,7 +55,7 @@ const SELECT_AFTER = [
 
 const GENDER = ["Male", "Female", "Other"];
 
-function AddForm3cBills({ handleAddForm3cBill }) {
+function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
   const {
     loading,
     userCreditObj,
@@ -104,13 +104,15 @@ function AddForm3cBills({ handleAddForm3cBill }) {
     },
     {
       label: (
-        <div className={`${dateStatus === 2 ? "active" : ""}`}>Last week</div>
+        <div className={`${dateStatus === 2 ? "active" : ""}`}>Last 7 days</div>
       ),
       value: [dayjs().add(-7, "d"), dayjs()],
     },
     {
       label: (
-        <div className={`${dateStatus === 3 ? "active" : ""}`}>Last month</div>
+        <div className={`${dateStatus === 3 ? "active" : ""}`}>
+          Last 30 days
+        </div>
       ),
       value: [dayjs().add(-1, "M"), dayjs()],
     },
@@ -188,13 +190,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
   };
 
   const disabledDate = (current) => {
-    // Disable dates before today and after 3 months from today
-    const today = moment().startOf("day");
-    const threeMonthsFromToday = today.clone().add(3, "months").endOf("day");
-    return (
-      current &&
-      (current.isBefore(today) || current.isAfter(threeMonthsFromToday))
-    );
+    return current && current > dayjs().endOf("day");
   };
 
   const disabledTime = (current) => {
@@ -360,7 +356,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
-      doctorIds: userId,
+      doctorIds: [userId],
       isForm3C: false,
       search: searchQuery || "",
     };
@@ -382,15 +378,25 @@ function AddForm3cBills({ handleAddForm3cBill }) {
     loadData();
   }, [dateRange, searchQuery]);
 
-  const handleAddForm3cBill = () => {
-    const payload = {
-      billIds: [...selectedRowKeys],
-    };
-    const res = addBillsToForm3C(payload);
-    if (res) {
-      setForm3cData(selectedRowKeys.length);
+  const handleAddForm3cBill = async () => {
+    try {
+      const payload = {
+        billIds: [...selectedRowKeys],
+      };
+      const response = await addBillsToForm3C(payload);
+
+      if (response.status === 200 || response.status === 204) {
+        message.success("Bills added to Form 3C successfully");
+        // Update the count in parent
+        setForm3cData(selectedRowKeys.length);
+        // Call the success handler which will refresh tables and close drawer
+        onSuccess && onSuccess();
+      } else {
+        throw new Error("Failed to add bills to Form 3C");
+      }
+    } catch (error) {
+      message.error(error.message || "Failed to add bills to Form 3C");
     }
-    handleAddForm3cDrawer();
   };
 
   const handleBackAddForm3CDrawer = () => {
@@ -467,9 +473,7 @@ function AddForm3cBills({ handleAddForm3cBill }) {
                   <i className="mx-2 fs-18 icon-calendar"></i>
                 </div>
                 <RangePicker
-                  // disabledDate={(current) =>
-                  //   selectedTab !== TAB_CAMPAIGN ? disabledDate(current) : null
-                  // }
+                  disabledDate={(current) => disabledDate(current)}
                   open={pickerModal}
                   presets={rangePresets}
                   format={showDateFormat}

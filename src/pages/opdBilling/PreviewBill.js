@@ -370,7 +370,7 @@ const PreviewBill = ({
           placement="right"
           onClose={handleRefundBillDrawer}
           open={refundBillDrawer}
-          width="56%"
+          width={isMobile ? "80%" : "60%"}
         >
           <RefundBill
             handleRefundBillDrawer={handleRefundBillDrawer}

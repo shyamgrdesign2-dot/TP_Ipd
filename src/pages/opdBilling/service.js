@@ -253,6 +253,14 @@ export const fetchBillsByPatient = async function (params) {
       patientId: params.patientId,
     };
 
+    const statusParams = Array.isArray(params.status)
+      ? params.status
+          .map((status) => `status=${encodeURIComponent(status)}`)
+          .join("&")
+      : params.status
+      ? `status=${encodeURIComponent(params.status)}`
+      : "";
+
     // Convert doctorIds array into multiple query params
     let doctorIdsParams = "";
     if (params.doctorIds && Array.isArray(params.doctorIds)) {
@@ -272,7 +280,8 @@ export const fetchBillsByPatient = async function (params) {
     // Create query string
     const queryString =
       new URLSearchParams(queryParams).toString() +
-      (doctorIdsParams ? `&${doctorIdsParams}` : "");
+      (doctorIdsParams ? `&${doctorIdsParams}` : "") +
+      (statusParams ? `&${statusParams}` : "");
 
     // API call
     res = await api.get(

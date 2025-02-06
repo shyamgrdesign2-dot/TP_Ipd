@@ -1654,7 +1654,7 @@ const CreateBill = ({
           placement="right"
           onClose={handleAddAdvanceDrawer}
           open={addAdvanceDrawer}
-          width="80%"
+          width="85%"
           push={false}
         >
           <AddAdvance

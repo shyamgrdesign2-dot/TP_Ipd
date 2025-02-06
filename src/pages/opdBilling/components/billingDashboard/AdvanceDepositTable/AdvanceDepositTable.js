@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef, useImperativeHandle } from "react";
 import {
   Select,
   Checkbox,
@@ -52,7 +52,7 @@ const cards = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-export default function AdvanceDepositTable({ patientData }) {
+const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
   const { billPrintSettings, advancedSettings } = useSelector(
     (state) => state.billing
   );
@@ -670,6 +670,17 @@ export default function AdvanceDepositTable({ patientData }) {
     }
   };
 
+  // Add a refresh function
+  const refreshData = useCallback(() => {
+    if (patientData) {
+      patientAdvanceData();
+      // Also refresh wallet balance if needed
+      getPatientWalletBalance(patientData?.patient_unique_id);
+    } else {
+      loadData();
+    }
+  }, [patientData]);
+
   useEffect(() => {
     if (patientData) {
       patientAdvanceData();
@@ -678,6 +689,18 @@ export default function AdvanceDepositTable({ patientData }) {
     }
   }, [selectedCard, dateRange, searchQuery, doctorList, sortConfig]);
 
+  // Expose the refresh function via ref
+  useImperativeHandle(ref, () => ({
+    refreshData: () => {
+      if (patientData) {
+        patientAdvanceData();
+        getPatientWalletBalance(patientData?.patient_unique_id);
+      } else {
+        loadData();
+      }
+    }
+  }));
+
   return (
     <div>
       <div className="appointment-data advance-table-wrapper">
@@ -685,7 +708,9 @@ export default function AdvanceDepositTable({ patientData }) {
           <Col xl={7} sm={5}>
             <Input
               value={searchQuery}
-              placeholder="Search by patient name / phone no / receipt no"
+              placeholder={
+                patientData ? "Search by receipt number" : "Search by patient name / phone no / receipt no"
+              }
               className="inputheight38"
               prefix={<i className="icon-search" />}
               suffix={
@@ -861,15 +886,18 @@ export default function AdvanceDepositTable({ patientData }) {
           placement="right"
           onClose={handleAddAdvanceDrawer}
           open={addAdvanceDrawer}
-          width="80%"
+          width="85%"
           push={false}
         >
           <AddAdvance
             handleAddAdvanceDrawer={handleAddAdvanceDrawer}
             billData={billData}
+            onSuccess={refreshData} // Pass the refresh function
           />
         </Drawer>
       )}
     </div>
   );
-}
+});
+
+export default React.memo(AdvanceDepositTable);

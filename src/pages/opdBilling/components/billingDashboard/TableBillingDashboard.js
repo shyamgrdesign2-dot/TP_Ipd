@@ -4,6 +4,8 @@ import React, {
   useMemo,
   useState,
   useRef,
+  useImperativeHandle,
+  forwardRef,
 } from "react";
 import moment from "moment";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -20,7 +22,7 @@ import BillingTable from "./BillingTable/BillingTable";
 import AdvanceDeposit from "./AdvanceDepositTable/AdvanceDepositTable";
 import AdvanceDepositTable from "./AdvanceDepositTable/AdvanceDepositTable";
 
-function TableBillingDashboard({ onTabChange, patientData, getPatientBills, handleTotalAdvanceUpdate }) {
+const TableBillingDashboard = forwardRef(({ onTabChange, patientData, getPatientBills, handleTotalAdvanceUpdate }, ref) => {
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,6 +60,18 @@ function TableBillingDashboard({ onTabChange, patientData, getPatientBills, hand
     },
   ]);
 
+  // Create a ref for the AdvanceDepositTable
+  const advanceTableRef = useRef(null);
+
+  // Expose the refresh function to parent
+  useImperativeHandle(ref, () => ({
+    refreshData: () => {
+      if (advanceTableRef.current?.refreshData) {
+        advanceTableRef.current.refreshData();
+      }
+    }
+  }));
+
   const onChange = useCallback(
     (key) => {
       setPageNo(0);
@@ -88,12 +102,15 @@ function TableBillingDashboard({ onTabChange, patientData, getPatientBills, hand
             {
                 selectedTab === 1 ?
                 <BillingTable patientData={patientData} getPatientBills={getPatientBills} handleTotalAdvanceUpdate={handleTotalAdvanceUpdate}/> :
-                <AdvanceDepositTable patientData={patientData}/>
+                <AdvanceDepositTable 
+                  ref={advanceTableRef}
+                  patientData={patientData}
+                />
             }
         </div>
       </div>
     </>
   );
-}
+});
 
 export default React.memo(TableBillingDashboard);
