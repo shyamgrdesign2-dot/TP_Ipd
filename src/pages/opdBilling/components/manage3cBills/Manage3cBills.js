@@ -178,7 +178,7 @@ const Manage3cBills = forwardRef(({ handleForm3cBill, handleAddForm3cDrawer, for
     },
     {
       label: (
-        <div className={`${dateStatus === 3 ? "active" : ""}`}>Last 30</div>
+        <div className={`${dateStatus === 3 ? "active" : ""}`}>Last 30 days</div>
       ),
       value: [dayjs().add(-1, "M"), dayjs()],
     },

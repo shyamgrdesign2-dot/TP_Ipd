@@ -242,13 +242,13 @@ export default function BillingTable({
     },
     {
       label: (
-        <div className={`${dateStatus === 2 ? "active" : ""}`}>Last week</div>
+        <div className={`${dateStatus === 2 ? "active" : ""}`}>Last 7 days</div>
       ),
       value: [dayjs().add(-7, "d"), dayjs()],
     },
     {
       label: (
-        <div className={`${dateStatus === 3 ? "active" : ""}`}>Last month</div>
+        <div className={`${dateStatus === 3 ? "active" : ""}`}>Last 30 days</div>
       ),
       value: [dayjs().add(-1, "M"), dayjs()],
     },
@@ -467,7 +467,7 @@ export default function BillingTable({
       doctorIds:
         selectedDoctors.length > 0
           ? [...selectedDoctors]
-          : doctorList.map((doctor) => doctor.um_id),
+          : [...doctorIds],
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id,
       appointmentId: patientData?.pam_id,

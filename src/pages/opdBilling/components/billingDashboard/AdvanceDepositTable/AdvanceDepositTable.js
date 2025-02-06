@@ -109,13 +109,13 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
     },
     {
       label: (
-        <div className={`${dateStatus === 2 ? "active" : ""}`}>Last week</div>
+        <div className={`${dateStatus === 2 ? "active" : ""}`}>Last 7 days</div>
       ),
       value: [dayjs().add(-7, "d"), dayjs()],
     },
     {
       label: (
-        <div className={`${dateStatus === 3 ? "active" : ""}`}>Last month</div>
+        <div className={`${dateStatus === 3 ? "active" : ""}`}>Last 30 days</div>
       ),
       value: [dayjs().add(-1, "M"), dayjs()],
     },
@@ -258,7 +258,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
             handleDrawerPreviewBill();
           }}
         >
-          <a className="fs-14 fw-semibold theme-color">
+          <a className="fs-16 fw-500 theme-color">
             {selectedCard === 3 ? record?.billNumber : record?.receiptNumber}
           </a>
           <div className="fs-14 fw-normal text-truncate-twolines">
@@ -274,7 +274,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
       ellipsis: true,
       render: (text, record) => (
         <div>
-          <div className="fs-14">{record?.patient?.name}</div>
+          <div className="fs-16 fw-500">{record?.patient?.name}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {record?.patient?.phone}
           </div>
@@ -288,7 +288,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
       ellipsis: true,
       sorter: true,
       render: (text, record) => (
-        <div> {parseFloat(record?.totalAmount).toFixed(2)}</div>
+        <div className="fs-16 fw-500"> {parseFloat(record?.totalAmount).toFixed(2)}</div>
       ),
     },
     {
@@ -323,7 +323,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
           record?.transactionType
         );
 
-        return <div className={className}>{displayText}</div>;
+        return <div className={`${className} fs-16 fw-500`}>{displayText}</div>;
       },
     },
     {
