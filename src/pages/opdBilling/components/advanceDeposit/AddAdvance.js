@@ -78,12 +78,10 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData, onSuccess }
   const [searchQuery, setSearchQuery] = useState("");
   const [patientSearchOptions, setPatientSearchOptions] = useState([]);
   const [autoCompleteFlagName, setAutoCompleteFlagName] = useState(false);
-  const [autoCompleteFlagMobile, setAutoCompleteFlagMobile] = useState(false);
   const [depositDate, setDepositDate] = useState(null);
   const [searchQueryName, setSearchQueryName] = useState("");
   const [searchQueryMobile, setSearchQueryMobile] = useState("");
   const [isEditingName, setIsEditingName] = useState(true);
-  const [isEditingMobile, setIsEditingMobile] = useState(true);
   const [advanceTriggered, setAdvacneTriggered] = useState(false);
   const [advaceData, setAdvanceData] = useState(null);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
@@ -226,7 +224,6 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData, onSuccess }
           <div
             className="d-flex align-items-center"
             onClick={() => {
-              setAutoCompleteFlagMobile(false);
               setAutoCompleteFlagName(false);
               onSelect(patient);
             }}
@@ -324,17 +321,13 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData, onSuccess }
     setSearchQueryMobile("");
     setSearchQueryName("");
     setIsEditingName(false);
-    setIsEditingMobile(false);
   };
 
   useEffect(() => {
     if (isEditingName && nameAutoCompleteRef.current) {
       nameAutoCompleteRef.current.focus();
     }
-    if (isEditingMobile && mobileAutoCompleteRef.current) {
-      mobileAutoCompleteRef.current.focus();
-    }
-  }, [isEditingName, isEditingMobile]);
+  }, [isEditingName]);
 
   const handleFieldChange = (field, value) => {
     setPatientDetails((prev) => ({
@@ -702,7 +695,9 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData, onSuccess }
       const payload = {
         appointmentId: pam_id,
         patientId:
-          patientData?.patient_unique_id || patientDetails?.patientUniqueId, // Convert to number
+          patientDetails?.patientUniqueId ||
+          patientData?.patientUniqueId ||
+          patientData?.patient_unique_id,
         transactionType: selectedTab === 2 ? "Refund" : "Deposit",
         paymentModes: selectedTab === 2 ? [...refundModes] : [...advanceModes],
         totalAmount: selectedTab === 2 ? totalRefundAmount : totalAdvanceAmount,
@@ -855,9 +850,17 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData, onSuccess }
                       options={patientSearchOptions}
                       className="w-100 autocomplete-custom"
                       open={autoCompleteFlagName}
-                      onFocus={() => setAutoCompleteFlagName(true)}
-                      onBlur={() => setAutoCompleteFlagMobile(false)}
-                      popupClassName="autocomplete-dropdown z-5"
+                      onFocus={() => {
+                        setAutoCompleteFlagName(true);
+                      }}
+                      onBlur={() => {
+                        setTimeout(() => {
+                          setAutoCompleteFlagName(false);
+                          setIsEditingName(true);
+                        }, 200);
+                      }}
+                      popupClassName="autocomplete-dropdown"
+                      dropdownStyle={{ width: 550 }}
                     >
                       <Input
                         placeholder="Search by Patient’s Name, Mobile number or Id"
@@ -881,7 +884,6 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData, onSuccess }
                       onClick={() => {
                         if (!patientData && !billData) {
                           setIsEditingName(true);
-                          setIsEditingMobile(false);
                         }
                       }}
                     >
@@ -892,19 +894,25 @@ function AddAdvance({ handleAddAdvanceDrawer, patientData, billData, onSuccess }
                             className="patientInfo"
                             style={{ width: "max-content" }}
                           >
-                            {patientDetails?.patientName}
+                            {patientData?.pm_fullname ||
+                              patientData?.patientName ||
+                              patientDetails?.patientName}
                           </span>
                         </div>
                         <div className="list-patientName d-flex align-items-center me-4">
                           <i className="icon-phone backbar me-2"></i>
                           <span className="patientInfo">
-                            {patientDetails?.mobileNumber}
+                            {patientData?.pm_contact_no ||
+                              patientData?.mobileNumber ||
+                              patientDetails?.mobileNumber}
                           </span>
                         </div>
                         <div className="list-patientName d-flex align-items-center me-4">
                           <i className="icon-Id backbar me-2"></i>
                           <span className="patientInfo">
-                            {patientDetails?.patientUniqueId}
+                            {patientData?.pm_id ||
+                              patientData?.patientUniqueId ||
+                              patientDetails?.patientUniqueId}
                           </span>
                         </div>
                       </div>

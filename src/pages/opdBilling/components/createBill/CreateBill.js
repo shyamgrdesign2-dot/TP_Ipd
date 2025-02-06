@@ -1192,9 +1192,6 @@ const CreateBill = ({
                       options={patientSearchOptions}
                       className="w-100 autocomplete-custom"
                       popupClassName="autocomplete-dropdown"
-                      dropdownStyle={{
-                        width: 400,
-                      }}
                     >
                       <Input
                         placeholder="Search by Patient’s Name, Mobile number or Id"
@@ -1659,7 +1656,7 @@ const CreateBill = ({
         >
           <AddAdvance
             handleAddAdvanceDrawer={handleAddAdvanceDrawer}
-            patientData={patientData}
+            patientData={patientData?.pm_fullname ? patientData : patientDetails}
           />
         </Drawer>
       )}
