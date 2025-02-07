@@ -126,9 +126,7 @@ const ServiceItemPopup = ({
                     }
                   }}
                   style={{ height: 38 }}
-                  prefix={
-                    <i style={{ fontFamily: "Roboto", fontSize: 14 }}>₹</i>
-                  }
+                  prefix={<i style={{ fontSize: 14 }}>₹</i>}
                 />
               </div>
 

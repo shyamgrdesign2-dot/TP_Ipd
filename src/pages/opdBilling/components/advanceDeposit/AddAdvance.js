@@ -626,13 +626,7 @@ function AddAdvance({
           gstIn={advancedSettings?.GSTIN}
         />
       ).toBlob();
-      printContent(
-        blob,
-        patientData?.patient_unique_id ||
-          billData?.patientId ||
-          patientDetails?.patientUniqueId,
-        setStartLoader
-      );
+      printContent(blob, billData?.patientId, setStartLoader);
     }
   };
 

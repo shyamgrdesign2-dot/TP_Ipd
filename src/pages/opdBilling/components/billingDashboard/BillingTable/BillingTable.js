@@ -7,14 +7,10 @@ import {
   DatePicker,
   Button,
   Dropdown,
-  message,
-  Drawer,
 } from "antd";
 import moment from "moment";
 import dayjs from "dayjs";
 import "./BillingTable.scss";
-import { useReactToPrint } from "react-to-print";
-import { handlePrintClick } from "../../../../../utils/utils.js";
 import DownloadBill from "../DownloadBill/DownloadBill.js";
 import {
   fetchBillingDashboard,
@@ -27,6 +23,9 @@ import { listDoctor } from "../../../../../redux/bulkMessagesSlice.js";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { getDecodedToken } from "../../../../../utils/localStorage.js";
+import { setLoadingStatus } from "../../../../../redux/uploadDocSlice.js";
+import { handleDownload } from "../../../utils/helper.js";
+import html2pdf from "html2pdf.js";
 const { RangePicker } = DatePicker;
 
 const { Option } = Select;
@@ -127,7 +126,10 @@ export default function BillingTable({
   const [dateStatus, setDateStatus] = useState(1);
 
   const { doctorList } = useSelector((state) => state.bulkMessages);
-  const doctorIds = doctorList.map((doctor) => doctor.um_id).length > 0 ? doctorList.map((doctor) => doctor.um_id) : [userId];
+  const doctorIds =
+    doctorList.map((doctor) => doctor.um_id).length > 0
+      ? doctorList.map((doctor) => doctor.um_id)
+      : [userId];
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -182,21 +184,16 @@ export default function BillingTable({
   };
 
   const handleCheckboxChange = (checkedValues) => {
+    if (checkedValues?.includes("Due")) {
+      checkedValues = ["CarriedForward", ...checkedValues];
+    }
     setSelectedOptions(checkedValues);
   };
 
-  const handlePrintWeb = useReactToPrint({
-    content: () => printableRef.current,
-  });
-
   useEffect(() => {
-    const filteredOptions = selectedOptions.includes("Due")
-      ? ["CarriedForward", ...selectedOptions]
-      : selectedOptions;
-
     setDownloadData(
       data?.bills?.filter((item) =>
-        filteredOptions.includes(item.paymentStatus)
+        selectedOptions.includes(item.paymentStatus)
       )
     );
   }, [selectedOptions, data]);
@@ -205,17 +202,30 @@ export default function BillingTable({
     setSortConfig({ field, order }); // Update state
   };
 
-  const handleDownload = async () => {
-    try {
-      handlePrintClick(
-        printableRef.current,
-        setTabLoader,
-        handlePrintWeb,
-        "DownloadBill"
-      );
-    } catch (error) {
-      message.error("Failed to download. Please try again.");
-    }
+  const handleDownloadData = () => {
+    const element = printableRef.current;
+    const options = {
+      filename: `billing_${userId || "report"}.pdf`,
+      image: { type: "jpeg", quality: 0.8 },
+      html2canvas: { scale: 1 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    };
+
+    html2pdf()
+      ?.from(element)
+      ?.set(options)
+      ?.output("blob")
+      ?.then((blob) => {
+        const url = URL.createObjectURL(blob);
+        handleDownload(url, blob, userId, setStartLoader);
+      })
+      .catch((err) => {
+        console.error("Error generating PDF:", err);
+      });
+  };
+
+  const setStartLoader = () => {
+    dispatch(setLoadingStatus(true));
   };
 
   const handleDownloadAll = () => {
@@ -227,8 +237,8 @@ export default function BillingTable({
 
     // Ensure handleDownload runs after state is updated
     setTimeout(() => {
-      handleDownload();
-    }, 0);
+      handleDownloadData();
+    }, 50);
   };
 
   const disabledDate = (current) => {
@@ -248,7 +258,9 @@ export default function BillingTable({
     },
     {
       label: (
-        <div className={`${dateStatus === 3 ? "active" : ""}`}>Last 30 days</div>
+        <div className={`${dateStatus === 3 ? "active" : ""}`}>
+          Last 30 days
+        </div>
       ),
       value: [dayjs().add(-1, "M"), dayjs()],
     },
@@ -366,7 +378,7 @@ export default function BillingTable({
           width: "100%",
           display: `${selectedOptions.length > 0 ? "" : "none"}`,
         }}
-        onClick={handleDownload}
+        onClick={handleDownloadData}
       >
         Download
         <i class="icon-download fs-8" />
@@ -397,9 +409,7 @@ export default function BillingTable({
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
       doctorIds:
-        selectedDoctors.length > 0
-          ? [...selectedDoctors]
-          : [...doctorIds],
+        selectedDoctors.length > 0 ? [...selectedDoctors] : [...doctorIds],
       search: searchQuery || "",
     };
 
@@ -424,9 +434,7 @@ export default function BillingTable({
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
       doctorIds:
-        selectedDoctors.length > 0
-          ? [...selectedDoctors]
-          : [...doctorIds],
+        selectedDoctors.length > 0 ? [...selectedDoctors] : [...doctorIds],
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id ?? "",
       appointmentId: patientData?.pam_id,
@@ -465,9 +473,7 @@ export default function BillingTable({
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
       doctorIds:
-        selectedDoctors.length > 0
-          ? [...selectedDoctors]
-          : [...doctorIds],
+        selectedDoctors.length > 0 ? [...selectedDoctors] : [...doctorIds],
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id,
       appointmentId: patientData?.pam_id,

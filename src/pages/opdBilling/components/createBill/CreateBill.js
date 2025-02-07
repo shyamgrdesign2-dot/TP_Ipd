@@ -762,7 +762,7 @@ const CreateBill = ({
             gstIn={advancedSettings?.GSTIN}
           />
         ).toBlob();
-        printContent(blob, patientData.patient_unique_id, setStartLoader);
+        printContent(blob, createRes.patientId, setStartLoader);
         handleCreateBillDrawer();
       }
     }

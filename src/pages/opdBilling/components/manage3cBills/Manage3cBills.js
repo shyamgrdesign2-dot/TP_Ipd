@@ -40,9 +40,11 @@ import { MESSAGE_KEY } from "../../../../utils/constants.js";
 import visitEnd from "../../../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../../../assets/images/close-visit.svg";
 import { fetchBillingDashboard } from "../../service.js";
-import { formatDateWithOrdinal } from "../../utils/helper.js";
+import { formatDateWithOrdinal, handleDownload, printContent } from "../../utils/helper.js";
 import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip.js";
 import PreviewBill from "../../PreviewBill.js";
+import html2pdf from "html2pdf.js";
+import { setLoadingStatus } from "../../../../redux/uploadDocSlice.js";
 
 const { RangePicker } = DatePicker;
 const dateFormat = "YYYY-MM-DD";
@@ -123,6 +125,31 @@ const Manage3cBills = forwardRef(({ handleForm3cBill, handleAddForm3cDrawer, for
       "DownloadBill"
     );
   };
+
+    const handlePrintData = () => {
+      const element = printableRef.current;
+      const options = {
+        filename: `billing_${userId || "report"}.pdf`,
+        image: { type: "jpeg", quality: 0.8 },
+        html2canvas: { scale: 1 },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      };
+
+      html2pdf()
+        ?.from(element)
+        ?.set(options)
+        ?.output("blob")
+        ?.then((blob) => {
+          printContent(blob, userId, setStartLoader);
+        })
+        .catch((err) => {
+          console.error("Error generating PDF:", err);
+        });
+    };
+
+    const setStartLoader = () => {
+      dispatch(setLoadingStatus(true));
+    };
 
   // Handle individual row selection
   const onSelectChange = (selectedKeys, selectedRows) => {
@@ -475,7 +502,7 @@ const Manage3cBills = forwardRef(({ handleForm3cBill, handleAddForm3cDrawer, for
             className={`btn-create-bill ${
               selectedRows?.length === 0 ? "disabled" : ""
             } `}
-            onClick={handleForm3cPrint}
+            onClick={handlePrintData}
             disabled={selectedRows?.length === 0}
           >
             <span>{"Print Form 3C"}</span>
@@ -525,7 +552,7 @@ const Manage3cBills = forwardRef(({ handleForm3cBill, handleAddForm3cDrawer, for
                   <i className="mx-2 fs-18 icon-calendar"></i>
                 </div>
                 <RangePicker
-                  disabledDate={(current) => disabledDate(current) }
+                  disabledDate={(current) => disabledDate(current)}
                   open={pickerModal}
                   presets={rangePresets}
                   format={showDateFormat}

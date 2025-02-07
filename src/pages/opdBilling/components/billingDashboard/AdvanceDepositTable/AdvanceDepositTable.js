@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useEffect, useRef, useImperativeHandle } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useImperativeHandle,
+} from "react";
 import {
   Select,
   Checkbox,
@@ -17,7 +23,6 @@ import moment from "moment";
 import dayjs from "dayjs";
 import "../AdvanceDepositTable/AdvanceDepositTable.scss";
 import { useReactToPrint } from "react-to-print";
-import { handlePrintClick } from "../../../../../utils/utils.js";
 import DownloadBill from "../DownloadBill/DownloadBill.js";
 import {
   fetchAdvancedDepositDashboard,
@@ -26,10 +31,17 @@ import {
 } from "../../../service.js";
 import PreviewBill from "../../../PreviewBill.js";
 import { getDecodedToken } from "../../../../../utils/localStorage.js";
-import { formatDateWithOrdinal, printContent } from "../../../utils/helper.js";
+import {
+  formatDateWithOrdinal,
+  handleDownload,
+  printContent,
+} from "../../../utils/helper.js";
 import AddAdvance from "../../advanceDeposit/AddAdvance.js";
 import ViewBillPdf from "../../viewBillPdf/ViewBillPdf.js";
 import { pdf } from "@react-pdf/renderer";
+import { setLoadingStatus } from "../../../../../redux/uploadDocSlice.js";
+import { useDispatch } from "react-redux";
+import html2pdf from "html2pdf.js";
 const { RangePicker } = DatePicker;
 
 const cards = [
@@ -53,10 +65,11 @@ const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
 const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
+  const dispatch = useDispatch();
   const { billPrintSettings, advancedSettings } = useSelector(
     (state) => state.billing
   );
-  const { profile } = useSelector((state) => state.doctors);
+  const { profile, userId } = useSelector((state) => state.doctors);
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
   const [pageNo, setPageNo] = useState(0);
@@ -115,7 +128,9 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
     },
     {
       label: (
-        <div className={`${dateStatus === 3 ? "active" : ""}`}>Last 30 days</div>
+        <div className={`${dateStatus === 3 ? "active" : ""}`}>
+          Last 30 days
+        </div>
       ),
       value: [dayjs().add(-1, "M"), dayjs()],
     },
@@ -225,9 +240,13 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
           gstIn={advancedSettings?.GSTIN}
         />
       ).toBlob();
-      printContent(blob, patientData?.patient_unique_id);
+      printContent(blob, record?.patientId, setStartLoader);
     } else {
     }
+  };
+
+  const setStartLoader = () => {
+    dispatch(setLoadingStatus(true));
   };
 
   const columns = [
@@ -288,7 +307,10 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
       ellipsis: true,
       sorter: true,
       render: (text, record) => (
-        <div className="fs-16 fw-500"> {parseFloat(record?.totalAmount).toFixed(2)}</div>
+        <div className="fs-16 fw-500">
+          {" "}
+          {parseFloat(record?.totalAmount).toFixed(2)}
+        </div>
       ),
     },
     {
@@ -488,30 +510,40 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
   };
 
   const handleCheckboxChange = (checkedValues) => {
+    if (checkedValues?.includes("Due")) {
+      checkedValues = ["CarriedForward", ...checkedValues];
+    }
     setSelectedOptions(checkedValues);
   };
 
   useEffect(() => {
-    const filteredOptions = selectedOptions;
-
     setDownloadData(
-      data?.receipts?.filter((item) => {
-        filteredOptions.includes(item.transactionType);
-      })
+      data?.receipts?.filter((item) =>
+        selectedOptions.includes(item.transactionType)
+      )
     );
   }, [selectedOptions, data]);
 
-  const handleDownload = async () => {
-    try {
-      handlePrintClick(
-        printableRef.current,
-        setTabLoader,
-        handlePrintWeb,
-        "DownloadBill"
-      );
-    } catch (error) {
-      message.error("Failed to download. Please try again.");
-    }
+  const handleDownloadData = () => {
+    const element = printableRef.current;
+    const options = {
+      filename: `billing_${userId || "report"}.pdf`,
+      image: { type: "jpeg", quality: 0.8 },
+      html2canvas: { scale: 1 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    };
+
+    html2pdf()
+      ?.from(element)
+      ?.set(options)
+      ?.output("blob")
+      ?.then((blob) => {
+        const url = URL.createObjectURL(blob);
+        handleDownload(url, blob, userId, setStartLoader);
+      })
+      .catch((err) => {
+        console.error("Error generating PDF:", err);
+      });
   };
 
   const handleDownloadAll = () => {
@@ -525,8 +557,8 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
 
     // Ensure handleDownload runs after state is updated
     setTimeout(() => {
-      handleDownload();
-    }, 0);
+      handleDownloadData();
+    }, 50);
   };
 
   // Dropdown content
@@ -587,7 +619,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
           width: "100%",
           display: `${selectedOptions.length > 0 ? "" : "none"}`,
         }}
-        onClick={handleDownload}
+        onClick={handleDownloadData}
       >
         Download
         <i class="icon-download fs-8" />
@@ -695,7 +727,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
       } else {
         loadData();
       }
-    }
+    },
   }));
 
   return (
