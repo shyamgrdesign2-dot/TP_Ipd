@@ -29,9 +29,9 @@ const DepositDetails = ({ pageFormat, depositData, totalAdvanceBalance }) => {
       value: `₹${mode.amount.toFixed(2)}`,
       divider: index === paymentModes.length - 1,
     })),
-    transactionType === "Refunded"
+    transactionType === "Refund"
       ? {
-          label: "Total Refund Amount:",
+          label: "Refunded Amount:",
           value: `₹${totalAmount.toFixed(2)}`,
           color: "#FC5A5A",
           bold: true,

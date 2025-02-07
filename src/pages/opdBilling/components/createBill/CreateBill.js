@@ -144,7 +144,22 @@ const CreateBill = ({
     .toFixed(2);
 
   const lineItemDiscount = dataSource
-    .reduce((sum, service) => sum + (Number(service.discount) || 0), 0)
+    .reduce((sum, service) => {
+      const baseAmount =
+        (Number(service.amount) || 0) * (Number(service.quantity) || 1);
+      let discountAmount = 0;
+
+      if (service.discountType === "percentage") {
+        // Calculate percentage-based discount
+        discountAmount = (baseAmount * (Number(service.discount) || 0)) / 100;
+      } else {
+        // Calculate rupee-based discount
+        discountAmount =
+          (Number(service.discount) || 0) * (Number(service.quantity) || 1);
+      }
+
+      return sum + discountAmount;
+    }, 0)
     .toFixed(2);
 
   const applicableGst = dataSource
@@ -157,12 +172,19 @@ const CreateBill = ({
     )
     .toFixed(2);
 
+  const totalBillAmount = dataSource.reduce(
+    (sum, service) => sum + (Number(service.totalAmount) || 0),
+    0
+  );
+
+  const extraDiscountAmount =
+    extraDiscountType === "percentage"
+      ? (totalBillAmount * (Number(extraDiscount) || 0)) / 100 // Percentage based
+      : Number(extraDiscount) || 0; // Flat/Rupee based
+
   const payableAmount = (
-    dataSource.reduce(
-      (sum, service) => sum + (Number(service.totalAmount) || 0),
-      0
-    ) -
-    (Number(extraDiscount) || 0) +
+    totalBillAmount -
+    extraDiscountAmount +
     (Number(patientDueAmount) || 0)
   ).toFixed(2);
 
@@ -523,19 +545,18 @@ const CreateBill = ({
             value={record.discount}
             inputMode="decimal"
             onChange={(e) => {
-              const numericValue = e.target.value.replace(/[^\d.]/g, "");
-              const discount = onlyDecimalFormat(numericValue);
-              if (
+              const discount = onlyDecimalFormat(e.target.value);
+              handleInputChange(
                 (record.discountType === "percentage" && discount <= 100) ||
-                (record.discountType === "flat" &&
-                  discount <= Number(record.amount))
-              ) {
-                handleInputChange(
-                  discount ? Number(discount) : undefined,
-                  index,
-                  "discount"
-                );
-              }
+                  (record.discountType === "flat" &&
+                    discount <= Number(record.amount))
+                  ? discount
+                    ? discount
+                    : undefined
+                  : record.discount,
+                index,
+                "discount"
+              );
             }}
             bordered={false}
           />
@@ -1175,7 +1196,7 @@ const CreateBill = ({
           </Row>
         </Container>
       </Navbar>
-      <div className="scrollableContainer">
+      <div className="scrollableContainer pb-5">
         <Row className="h-100 align-items-start w-100">
           <Col
             className="h-100"

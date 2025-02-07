@@ -97,7 +97,7 @@ export const fetchBillingDashboard = async function (params) {
   try {
     // Construct query parameters
     const queryParams = {
-      search: params.search,
+      search: params.search ?? "",
       startDate: params.startDate,
       endDate: params.endDate,
       sortBy: params.sortBy || "date", // Default sorting field

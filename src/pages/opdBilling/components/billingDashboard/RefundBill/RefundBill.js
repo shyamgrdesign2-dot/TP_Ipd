@@ -420,8 +420,8 @@ function RefundBill({
                     <span className="bdg-danger">
                       Refund amount should be{" "}
                       <b style={{ fontWeight: 600 }}>₹{billData?.paidAmount}</b>
-                      . Amounts less or greater than the bill amount are not
-                      allowed
+                      {` (Amount less or greater than the bill amount are not
+                      allowed)`}
                     </span>
                   </div>
                 )}

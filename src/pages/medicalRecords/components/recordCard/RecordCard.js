@@ -12,7 +12,7 @@ import { deleteDocById, fetchAllPatientDocs } from "../../service";
 import { setAllUploadedDocs } from "../../../../redux/uploadDocSlice";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { isChrome, isSafari } from "react-device-detect";
+import { isBrowser } from "react-device-detect";
 import axios from "axios";
 import { saveAs } from "file-saver";
 import CommonModal from "../../../../common/CommonModal";
@@ -193,7 +193,7 @@ const RecordCard = ({
         label: (
           <div
             onClick={() =>
-              !isChrome && !isSafari ? handleInAppDownload() : handleDownload()
+              !isBrowser ? handleInAppDownload() : handleDownload()
             }
           >
             <img src={download} alt="download" className="me-2" />
