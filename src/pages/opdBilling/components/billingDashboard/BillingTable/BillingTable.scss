@@ -4,6 +4,10 @@
     width: 200px !important;
   }
 
+  :where(.css-dev-only-do-not-override-1okl62o).ant-dropdown {
+    width: 13rem;
+  }
+
   .theme-color {
     color: #4b4ad5 !important;
   }
@@ -164,10 +168,28 @@
   .color-debited {
     color: #ed8a00 !important;
   }
+
+  .ant-btn {
+    padding: 0.5rem;
+    overflow: hidden !important;
+    width: 16rem;
+    height: 2.8rem;
+    z-index: 0;
+    background: #F1F1F5 !important;
+    font-size: 1rem !important;
+    font-weight: 400 !important;
+    color: var(--T-Text-80, #454551) !important;
+  }
 }
 
 .table-wrapper {
   margin: 0 38px 0 32px !important;
+}
+
+.download-all-status {
+  background: #f1f1f5 !important;
+  border-radius: 0 !important;
+  font-size: 1rem !important;
 }
 
 .doctor-select-container {
@@ -197,7 +219,7 @@
 
     .ant-select-arrow {
       position: absolute;
-      right: 6%;
+      right: -44%;
       top: 60%;
     }
   }
@@ -236,10 +258,10 @@
       margin-right: 10px;
       padding: 0px 12px;
       background: #f0f0ff;
-      border: 1px solid #e6e6ff;
+      border: 1px solid #4b4ad5;
       border-radius: 16px;
       font-size: 14px;
-      color: #4b4ad5;
+      color: #4b4ad5 !important;
 
       .icon-Cross {
         cursor: pointer;
@@ -310,9 +332,9 @@
 
   .custom-doctors-section {
     .section-title {
-      color: #666;
+      color: #A2A2A8 !important;
       font-size: 14px;
-      padding: 8px 16px;
+      padding: 6px 8px 0 8px;
     }
   }
 
@@ -335,9 +357,9 @@
   padding: 10px;
 }
 
-.doctor-select-divider {
-  margin: 8px 0;
-}
+// .doctor-select-divider {
+//   margin: 8px 0;
+// }
 
 .doctor-select-list {
   max-height: 200px;
@@ -377,4 +399,37 @@
 
 .theme-color {
   color: #4b4ad5 !important;
+}
+
+.section-title-color {
+  color: #A2A2A8 !important;
+}
+
+.doctor-select-divider {
+  position: relative;
+  text-align: center;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 20px);
+    height: 1px;
+    background: #e8e8e8;
+  }
+
+  &::before {
+    left: 0;
+  }
+
+  &::after {
+    right: 0;
+  }
+
+  span {
+    color: #999;
+    font-size: 12px;
+    padding: 0 8px;
+  }
 }

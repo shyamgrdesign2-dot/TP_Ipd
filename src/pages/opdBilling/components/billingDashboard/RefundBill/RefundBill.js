@@ -55,6 +55,7 @@ function RefundBill({
   const [paymentModes, setPaymentModes] = useState([
     { paymentMode: "Cash", amount: billData?.paidAmount, refId: "" },
   ]);
+  const [isPaymentModeItemMissing, setPaymentModeItemMissing] = useState(false);
   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
   const paymentMethodsRef = useRef(null);
 
@@ -90,13 +91,7 @@ function RefundBill({
       (item) => item.paymentMode && item.amount > 0
     );
     if (updatedPaymentModes?.length !== paymentModes?.length) {
-      message.error("Payment mode and amount cannot be empty.");
-      return;
-    }
-    if (totalRefundAmount !== billData?.paidAmount) {
-      message.error(
-        "You can't do partial refund OR Refund amount should be equal to Total Paid Amount"
-      );
+      setPaymentModeItemMissing(true);
       return;
     }
 
@@ -142,16 +137,16 @@ function RefundBill({
   const addPaymentMode = () => {
     const newPaymentModes = [
       ...paymentModes,
-      { paymentMode: undefined, amount: "", refId: "" },
+      { paymentMode: filteredOptions[0]?.value, amount: "", refId: "" },
     ];
     setPaymentModes(newPaymentModes);
 
     // Add scroll behavior
     setTimeout(() => {
       if (paymentMethodsRef.current) {
-        paymentMethodsRef.current.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'end'
+        paymentMethodsRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
         });
       }
     }, 100);
@@ -312,10 +307,22 @@ function RefundBill({
                         >
                           <div
                             className="d-flex w-100"
-                            // style={{
-                            //   border: disableSaveBtn ? "solid 1px red" : "",
-                            //   borderRadius: disableSaveBtn ? 10 : "",
-                            // }}
+                            style={{
+                              border:
+                                totalRefundAmount !== billData?.paidAmount ||
+                                (isPaymentModeItemMissing &&
+                                  (payment?.amount === 0 ||
+                                    payment?.amount === ""))
+                                  ? "solid 1px red"
+                                  : "",
+                              borderRadius:
+                                totalRefundAmount !== billData?.paidAmount ||
+                                (isPaymentModeItemMissing &&
+                                  (payment?.amount === 0 ||
+                                    payment?.amount === ""))
+                                  ? 10
+                                  : "",
+                            }}
                           >
                             <Select
                               placeholder="Select"
@@ -331,9 +338,12 @@ function RefundBill({
                               inputMode="numeric"
                               prefix="₹"
                               value={payment.amount}
-                              onChange={(e) =>
-                                handleAmountChange(e.target.value, index)
-                              }
+                              onChange={(e) => {
+                                handleAmountChange(e.target.value, index);
+                                if (isPaymentModeItemMissing) {
+                                  setPaymentModeItemMissing(false);
+                                }
+                              }}
                               className="payment-input w-100"
                             />
                           </div>
@@ -377,6 +387,19 @@ function RefundBill({
                           </Button>
                         )}
                       </div>
+                      {isPaymentModeItemMissing &&
+                        (payment?.amount === 0 || payment?.amount === "") && (
+                          <div className="d-flex align-items-start gap-2">
+                            <span className="icon-info fs-18 mt-1 bdg-danger" />
+                            <span className="bdg-danger">
+                              Please enter an amount for the{" "}
+                              <b style={{ fontWeight: 600 }}>
+                                {payment?.paymentMode}
+                              </b>{" "}
+                              payment mode to proceed
+                            </span>
+                          </div>
+                        )}
                     </div>
                     {paymentModes.length > 1 && (
                       <Button
@@ -391,6 +414,17 @@ function RefundBill({
                     )}
                   </div>
                 ))}
+                {totalRefundAmount !== billData?.paidAmount && (
+                  <div className="d-flex align-items-start gap-2">
+                    <span className="icon-info fs-18 mt-1 bdg-danger" />
+                    <span className="bdg-danger">
+                      Refund amount should be{" "}
+                      <b style={{ fontWeight: 600 }}>₹{billData?.paidAmount}</b>
+                      . Amounts less or greater than the bill amount are not
+                      allowed
+                    </span>
+                  </div>
+                )}
                 {paymentModes.length < 4 && (
                   <div className="flex align-items-center gap-2">
                     <button
@@ -424,7 +458,7 @@ function RefundBill({
           <span className="color-red fw-semibold">
             {totalRefundAmount ? totalRefundAmount : 0}
           </span>
-           will be Refunded to the patient
+          &nbsp;will be Refunded to the patient
         </div>
 
         <button

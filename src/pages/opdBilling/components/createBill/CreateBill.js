@@ -1279,7 +1279,7 @@ const CreateBill = ({
                   <Input
                     className="input-create-bill"
                     value={profile?.um_name}
-                    style={{ height: 38 }}
+                    style={{ height: 38, width: "12rem" }}
                     onInput={(e) => {
                       e.target.value = e.target.value.replace(/[^0-9]/g, "");
                     }}

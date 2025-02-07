@@ -80,20 +80,10 @@ const Form3cPrint = ({ rows }) => {
     >
       {/* Header Section */}
       <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: "12px",
-          }}
-        >
-          <span>20/12/2024, 10:15</span>
-          <span>Form 3C</span>
-        </div>
         <h2 style={{ fontWeight: "bold", margin: "10px 0" }}>FORM NO. 3C</h2>
         <p style={{ fontSize: "12px", margin: "5px 0" }}>
           <a
-            href="https://www.incometaxindia.gov.in/Rules/Income-Tax-Rules/103120000000007197.htm"
+            // href="https://www.incometaxindia.gov.in/Rules/Income-Tax-Rules/103120000000007197.htm"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: "#4B4AD5", textDecoration: "underline" }}
@@ -121,18 +111,6 @@ const Form3cPrint = ({ rows }) => {
         size="small"
         tableLayout="fixed"
       />
-
-      {/* Footer Section */}
-      <div
-        style={{
-          marginTop: "20px",
-          fontSize: "12px",
-          textAlign: "right",
-          color: "#888",
-        }}
-      >
-        https://docon.co.in/exam/reports &nbsp;&nbsp; | &nbsp;&nbsp; 1/1
-      </div>
     </div>
   );
 };

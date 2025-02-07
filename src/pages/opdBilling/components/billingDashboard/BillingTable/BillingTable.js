@@ -321,7 +321,6 @@ export default function BillingTable({
     <div
       className="download-options-container billing-table-wrapper"
       style={{
-        padding: "10px",
         background: "#fff",
         borderRadius: "8px",
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
@@ -330,7 +329,7 @@ export default function BillingTable({
       {/* Download All Sections */}
       <Button
         type="link"
-        style={{ background: "lightgray" }}
+        className="download-all-status mt-3"
         onClick={() => {
           setSelectedOptions([
             "FullyPaid",
@@ -344,45 +343,49 @@ export default function BillingTable({
         Download All Status
       </Button>
 
-      <div style={{ textAlign: "center", margin: "10px 0" }}>
-        ---------- or ----------
+      <div className="doctor-select-divider">
+        <span>or</span>
       </div>
 
-      {/* Checkboxes */}
-      <Checkbox.Group
-        className="bil"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          marginBottom: "10px",
-        }}
-        value={selectedOptions} // Bind selected checkboxes to state
-        onChange={handleCheckboxChange}
-      >
-        <Checkbox value="FullyPaid">
-          <span className="color-paid">Fully Paid</span>
-        </Checkbox>
-        <Checkbox value="Due">
-          <span className="color-due">Due</span>
-        </Checkbox>
-        <Checkbox value="Refunded">
-          <span className="color-refunded">Refunded</span>
-        </Checkbox>
-      </Checkbox.Group>
+      <div className="custom-doctors-section" style={{ margin: "20px 15px", paddingBottom: "15px"}}>
+        <div className="section-title mb-2 fs-16 section-title-color">Select specified status</div>
+        {/* Checkboxes */}
+        <Checkbox.Group
+          className="bil"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            marginBottom: "10px",
+            gap: "10px",
+          }}
+          value={selectedOptions} // Bind selected checkboxes to state
+          onChange={handleCheckboxChange}
+        >
+          <Checkbox value="FullyPaid">
+            <span className="color-paid">Fully Paid</span>
+          </Checkbox>
+          <Checkbox value="Due">
+            <span className="color-due">Due</span>
+          </Checkbox>
+          <Checkbox value="Refunded">
+            <span className="color-refunded">Refunded</span>
+          </Checkbox>
+        </Checkbox.Group>
 
-      {/* Download Now Button */}
-      <Button
-        type="primary"
-        // className="justify-content-center align-items-center"
-        style={{
-          width: "100%",
-          display: `${selectedOptions.length > 0 ? "" : "none"}`,
-        }}
-        onClick={handleDownloadData}
-      >
-        Download
-        <i class="icon-download fs-8" />
-      </Button>
+        {/* Download Now Button */}
+        <Button
+          type="primary"
+          // className="justify-content-center align-items-center"
+          style={{
+            width: "100%",
+            display: `${selectedOptions.length > 0 ? "" : "none"}`,
+          }}
+          onClick={handleDownloadData}
+        >
+          Download
+          <i class="icon-download fs-8" />
+        </Button>
+      </div>
     </div>
   );
 
@@ -487,6 +490,7 @@ export default function BillingTable({
       // setLoading(false);
     }
   };
+  console.log(doctorIds, "doctorIds");
 
   useEffect(() => {
     if (doctorList?.length > 0 || userId) {
@@ -542,14 +546,14 @@ export default function BillingTable({
                       </div>
 
                       <div className="custom-doctors-section">
-                        <div className="section-title">
+                        <div className="section-title fs-16">
                           Select Custom Doctors
                         </div>
                         <div className="doctor-select-list">
                           {doctorList.map((doctor) => (
                             <div
                               key={doctor.um_id}
-                              style={{ padding: "4px 0" }}
+                              style={{ padding: "8px 0" }}
                             >
                               <Checkbox
                                 checked={selectedDoctors.includes(doctor.um_id)}
