@@ -46,7 +46,7 @@
         }
 
         &:disabled {
-            background: var(--P-CTA-100, #7877e5);
+            background: var(--P-CTA-100, #7877e5) !important;
             border-color: #7877e5 !important;
             box-shadow: none;
 

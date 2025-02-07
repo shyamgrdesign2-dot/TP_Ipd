@@ -56,6 +56,7 @@ function RefundBill({
     { paymentMode: "Cash", amount: billData?.paidAmount, refId: "" },
   ]);
   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
+  const paymentMethodsRef = useRef(null);
 
   const filteredOptions = PaymentOptions.filter(
     (option) => !usedPaymentModes.includes(option.value)
@@ -139,7 +140,21 @@ function RefundBill({
   };
 
   const addPaymentMode = () => {
-    setPaymentModes([...paymentModes, { paymentMode: undefined, amount: 0 }]);
+    const newPaymentModes = [
+      ...paymentModes,
+      { paymentMode: undefined, amount: "", refId: "" },
+    ];
+    setPaymentModes(newPaymentModes);
+
+    // Add scroll behavior
+    setTimeout(() => {
+      if (paymentMethodsRef.current) {
+        paymentMethodsRef.current.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'end'
+        });
+      }
+    }, 100);
   };
 
   const removePaymentMode = (index) => {
@@ -275,91 +290,93 @@ function RefundBill({
               <div className="text-lg font-medium mb-2">
                 Paid Amount <span className="color-red">*</span>
               </div>
-              {paymentModes.map((payment, index) => (
-                <div key={index} className="relative">
-                  {index > 0 && (
-                    <div className="flex items-center gap-2 mb-2 relative">
-                      <span className="text-gray-500 text-sm font-medium z-10 bg-white px-2">
-                        And
-                      </span>
-                      <div className="absolute left-0 top-1/2 w-full h-0.5 bg-gray-300 -z-10"></div>
-                    </div>
-                  )}
-                  <div className="flex align-items-center gap-4 mb-3">
-                    <div className="d-flex align-items-center gap-1 w-100">
-                      <div
-                        className="d-flex flex-column w-100"
-                        style={{
-                          background: "rgba(75, 74, 213, 0.06)",
-                          borderRadius: 10,
-                        }}
-                      >
-                        <div
-                          className="d-flex w-100"
-                          // style={{
-                          //   border: disableSaveBtn ? "solid 1px red" : "",
-                          //   borderRadius: disableSaveBtn ? 10 : "",
-                          // }}
-                        >
-                          <Select
-                            placeholder="Select"
-                            value={payment.paymentMode}
-                            onChange={(value) =>
-                              handleModeChange(value, index, "paymentMode")
-                            }
-                            className="payment-mode"
-                            dropdownStyle={{ width: 180 }}
-                            options={filteredOptions}
-                          />
-                          <Input
-                            inputMode="numeric"
-                            prefix="₹"
-                            value={payment.amount}
-                            onChange={(e) =>
-                              handleAmountChange(e.target.value, index)
-                            }
-                            className="payment-input w-100"
-                          />
-                        </div>
-                        {payment?.paymentMode &&
-                          payment.paymentMode !== "Cash" && (
-                            <span
-                              style={{
-                                textAlign: payment?.refId ? "" : "center",
-                                textDecoration: payment?.refId
-                                  ? "none"
-                                  : "underline",
-                                borderRadius: "0 0 10px 10px",
-                                minHeight: 25,
-                                cursor: "pointer",
-                                wordBreak: "break-word",
-                              }}
-                              onClick={() => setShowRefIdPopup(index)}
-                            >
-                              {payment?.refId ? (
-                                <div className="d-flex align-items-center justify-content-between px-2">
-                                  <span>Ref ID: {payment?.refId}</span>
-                                  <span className="icon-Edit fs-18" />
-                                </div>
-                              ) : (
-                                <span className="show-more-link">
-                                  {`Add ${payment.paymentMode} Ref ID`}
-                                </span>
-                              )}
-                            </span>
-                          )}
+              <div ref={paymentMethodsRef}>
+                {paymentModes.map((payment, index) => (
+                  <div key={index} className="relative">
+                    {index > 0 && (
+                      <div className="flex items-center gap-2 mb-2 relative">
+                        <span className="text-gray-500 text-sm font-medium z-10 bg-white px-2">
+                          And
+                        </span>
+                        <div className="absolute left-0 top-1/2 w-full h-0.5 bg-gray-300 -z-10"></div>
                       </div>
-                      {paymentModes.length > 1 && (
-                        <Button
-                          className="btn btn-delete-prescription p-2 d-flex align-items-center justify-content-center"
-                          onClick={() => removePaymentMode(index)}
+                    )}
+                    <div className="flex align-items-center gap-4 mb-3">
+                      <div className="d-flex align-items-center gap-1 w-100">
+                        <div
+                          className="d-flex flex-column w-100"
+                          style={{
+                            background: "rgba(75, 74, 213, 0.06)",
+                            borderRadius: 10,
+                          }}
                         >
-                          <i
-                            className="icon-delete"
-                            style={{ color: "#454551" }}
-                          />
-                        </Button>
-                      )}
+                          <div
+                            className="d-flex w-100"
+                            // style={{
+                            //   border: disableSaveBtn ? "solid 1px red" : "",
+                            //   borderRadius: disableSaveBtn ? 10 : "",
+                            // }}
+                          >
+                            <Select
+                              placeholder="Select"
+                              value={payment.paymentMode}
+                              onChange={(value) =>
+                                handleModeChange(value, index, "paymentMode")
+                              }
+                              className="payment-mode"
+                              dropdownStyle={{ width: 180 }}
+                              options={filteredOptions}
+                            />
+                            <Input
+                              inputMode="numeric"
+                              prefix="₹"
+                              value={payment.amount}
+                              onChange={(e) =>
+                                handleAmountChange(e.target.value, index)
+                              }
+                              className="payment-input w-100"
+                            />
+                          </div>
+                          {payment?.paymentMode &&
+                            payment.paymentMode !== "Cash" && (
+                              <span
+                                style={{
+                                  textAlign: payment?.refId ? "" : "center",
+                                  textDecoration: payment?.refId
+                                    ? "none"
+                                    : "underline",
+                                  borderRadius: "0 0 10px 10px",
+                                  minHeight: 25,
+                                  cursor: "pointer",
+                                  wordBreak: "break-word",
+                                }}
+                                onClick={() => setShowRefIdPopup(index)}
+                              >
+                                {payment?.refId ? (
+                                  <div className="d-flex align-items-center justify-content-between px-2">
+                                    <span>Ref ID: {payment?.refId}</span>
+                                    <span className="icon-Edit fs-18" />
+                                  </div>
+                                ) : (
+                                  <span className="show-more-link">
+                                    {`Add ${payment.paymentMode} Ref ID`}
+                                  </span>
+                                )}
+                              </span>
+                            )}
+                        </div>
+                        {paymentModes.length > 1 && (
+                          <Button
+                            className="btn btn-delete-prescription p-2 d-flex align-items-center justify-content-center"
+                            onClick={() => removePaymentMode(index)}
+                          >
+                            <i
+                              className="icon-delete"
+                              style={{ color: "#454551" }}
+                            />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     {paymentModes.length > 1 && (
                       <Button
@@ -373,19 +390,19 @@ function RefundBill({
                       </Button>
                     )}
                   </div>
-                </div>
-              ))}
-              {paymentModes.length < 4 && (
-                <div className="flex align-items-center gap-2">
-                  <button
-                    className="btn d-flex align-items-center btn-text"
-                    onClick={addPaymentMode}
-                  >
-                    <i className={`icon-Add me-1 fs-5 text-primary`} />
-                    <span className="text-primary">Payment mode</span>
-                  </button>
-                </div>
-              )}
+                ))}
+                {paymentModes.length < 4 && (
+                  <div className="flex align-items-center gap-2">
+                    <button
+                      className="btn d-flex align-items-center btn-text"
+                      onClick={addPaymentMode}
+                    >
+                      <i className={`icon-Add me-1 fs-5 text-primary`} />
+                      <span className="text-primary">Payment mode</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <div className="d-flex gap-2 mx-4 my-2 p-2">

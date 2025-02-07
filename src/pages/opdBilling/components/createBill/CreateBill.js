@@ -720,7 +720,7 @@ const CreateBill = ({
               <div className="title-common text-start fontroboto">
                 {`${
                   patientData?.pm_fullname || patientDetails?.patientName
-                }’s new bill saved successfully`}
+                }'s new bill saved successfully`}
               </div>
             </div>
             <img
@@ -1210,10 +1210,11 @@ const CreateBill = ({
                         }, 200);
                       }}
                       className="w-100 autocomplete-custom"
+                      style={{ padding: "5px 10px"}}
                       popupClassName="autocomplete-dropdown"
                     >
                       <Input
-                        placeholder="Search by Patient’s Name, Mobile number or Id"
+                        placeholder="Search by Patient's Name, Mobile number or Id"
                         prefix={<i className="icon-search"></i>}
                         suffix={
                           searchQueryName.length > 0 && (
@@ -1229,13 +1230,13 @@ const CreateBill = ({
                     </AutoComplete>
                   ) : (
                     <div
-                      className={`d-flex align-items-center justify-content-between flex-wrap border rounded cursor-pointer w-100 ${
+                      className={`d-flex align-items-center flex-wrap border border-radius-10 cursor-pointer w-100 ${
                         patientData?.patient_unique_id && "pe-none disabled"
                       }`}
                       onClick={() => {
                         setIsEditingName(true);
                       }}
-                      style={{ padding: "5px 10px" }}
+                      style={{ padding: "5px 10px"}}
                     >
                       <div className="list-patientName d-flex align-items-center me-4 ml-2">
                         <i className="icon-patients backbar me-2"></i>{" "}
@@ -1262,9 +1263,9 @@ const CreateBill = ({
                   )}
                 </div>
                 <div>
-                  <div>Bill Date</div>
+                  <div style={{paddingBottom: "5px"}}>Bill Date</div>
                   <Input
-                    className="text-main"
+                    className="input-create-bill"
                     style={{ width: 125, height: 38 }}
                     value={moment().format("DD-MM-YYYY")}
                     onInput={(e) => {
@@ -1274,9 +1275,9 @@ const CreateBill = ({
                   />
                 </div>
                 <div>
-                  <div>Doctor Name</div>
+                  <div style={{paddingBottom: "5px"}}>Doctor Name</div>
                   <Input
-                    className="text-main"
+                    className="input-create-bill"
                     value={profile?.um_name}
                     style={{ height: 38 }}
                     onInput={(e) => {
@@ -1617,12 +1618,26 @@ const CreateBill = ({
               </button>
             ) : (
               <div
-                className="d-flex justify-content-between"
+                className="d-flex justify-content-between align-items-start"
                 style={{ padding: "25px 0px 25px 14px" }}
               >
-                <div className="d-flex gap-1">
-                  <span style={{ fontWeight: "600" }}>Notes: </span>
-                  <ReadMore text={patientBillNotes} textLimit={60} />
+                <div style={{ maxWidth: '80%' }}>
+                  <p className="mb-0 d-flex" style={{ lineHeight: '1.5' }}>
+                    <span style={{ 
+                      fontWeight: "600",
+                      flexShrink: 0,  // Prevents the "Notes:" from shrinking
+                      marginRight: '4px'
+                    }}>Notes:</span>
+                    <span>  {/* Wrapper for ReadMore to control text flow */}
+                      <ReadMore 
+                        text={patientBillNotes} 
+                        textLimit={60} 
+                        style={{ 
+                          display: 'inline'
+                        }} 
+                      />
+                    </span>
+                  </p>
                 </div>
                 <div onClick={handleDrawerDiagnosisNotes}>
                   <i className="icon-Edit text-primary fs-16 cursor-pointer" />

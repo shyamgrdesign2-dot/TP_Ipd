@@ -352,16 +352,15 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
       title: "#",
       dataIndex: "srno",
       key: "srno",
-      ellipsis: true,
-      width: 50,
+      width: 100,
       render: (text, record, index) => <div className="fs-14">{index + 1}</div>,
     },
     {
       title: "RECEIPT NO & DATE",
       dataIndex: "receipt_no_date",
       key: "receipt_no_date",
-      width: 250,
       sorter: true,
+      width: 300,
       render: (text, record) => (
         <div
           className="cursor-pointer"
@@ -383,7 +382,6 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
       title: "TOTAL AMOUNT",
       dataIndex: "totalAmount",
       key: "totalAmount",
-      ellipsis: true,
       sorter: true,
       render: (text, record) => <div> {record?.totalAmount} </div>,
     },
@@ -391,7 +389,6 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
       title: "STATUS",
       dataIndex: "transactionType",
       key: "transactionType",
-      ellipsis: true,
       render: (text, record) => {
         // Determine the class name and display value based on the status
         const getStatusDetails = (status) => {
@@ -430,7 +427,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
     {
       title: "Action",
       key: "action",
-      width: 80,
+      width: 150,
       render: (text, record) => (
         <Dropdown
           className="cursor-pointer"
