@@ -77,6 +77,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const doctorId = decodedToken?.result?.user_id;
   const [audioBlob, setAudioBlob] = useState(null);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const { TextArea } = Input;
 
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
@@ -94,6 +95,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const dispatch = useDispatch();
 
   const animations = useContext(AnimationContext);
+
+  const textAreaRef = useRef(null);
 
   useEffect(() => {
     if (caseManagerData?.smart_prescription_filename) getGenRxDetails();
@@ -432,6 +435,15 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         }, 0);
       }
     }
+  };
+
+  const handleKeyPress = (e) => {
+    // If only Enter is pressed (without Shift), call API
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault(); // Prevent default new line
+      handleSend();
+    }
+    // If Shift + Enter is pressed, let the default behavior happen (new line)
   };
 
   // Handle lineItem input change for editing
@@ -1253,45 +1265,39 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                           <p className={styles.tapText}>Tap to Speak</p>
                         </div>
                       )}
-                      <div style={{ padding: 24 }}>
-                        <Input
-                          placeholder={isTyping ? "" : "Or type here instead"}
-                          className={styles.textInput}
-                          value={inputText}
-                          onChange={(e) => setInputText(e.target.value)}
-                          onClick={() => setIsTyping(true)}
-                          onBlur={() => setIsTyping(false)}
-                          autoFocus
-                          suffix={
-                            isTyping && (
-                              <div
-                                className={styles.controlButtons}
-                                onMouseDown={(e) => e.preventDefault()}
-                              >
-                                <div
-                                  role="button"
-                                  className="mt-1"
-                                  onClick={handleStartRecording}
-                                >
-                                  <img src={genRxRecordIcon} alt="MIC" />
-                                </div>
-                                <div
-                                  role="button"
-                                  onClick={handleSend}
-                                  style={{ width: 32 }}
-                                >
-                                  {animations.genRxSendCta && (
-                                    <Lottie
-                                      animationData={animations.genRxSendCta}
-                                      loop={true}
-                                    />
-                                  )}
-                                </div>
+                      <div style={{ padding: "24px 15px" }}>
+                        <div className={styles.inputContainerChat}>
+                          <TextArea
+                            ref={textAreaRef}
+                            value={inputText}
+                            onChange={(e) => setInputText(e.target.value)}
+                            onKeyDown={handleKeyPress}
+                            onClick={() => setIsTyping(true)}
+                            onBlur={() => setIsTyping(false)}
+                            placeholder={isTyping ? "" : "Or type here instead"}
+                            className={styles.textArea}
+                            autoSize={{ minRows: 1, maxRows: 6 }}
+                          />
+                          {isTyping && (
+                            <div className={styles.controls}>
+                              <div role="button" onClick={handleStartRecording}>
+                                <img src={genRxRecordIcon} alt="MIC" />
                               </div>
-                            )
-                          }
-                          onPressEnter={handleSend}
-                        />
+                              <div
+                                role="button"
+                                onClick={handleSend}
+                                style={{ width: 32 }}
+                              >
+                                {animations.genRxSendCta && (
+                                  <Lottie
+                                    animationData={animations.genRxSendCta}
+                                    loop={true}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </>
                   )}
@@ -1415,38 +1421,40 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                             <div
                               style={{ marginTop: "auto", paddingRight: 20 }}
                             >
-                              <Input
-                                placeholder="Start speaking or typing..."
-                                className={styles.textInput}
-                                onChange={(e) => setInputText(e.target.value)}
-                                value={inputText}
-                                suffix={
-                                  <div className={styles.controlButtons}>
-                                    <div
-                                      role="button"
-                                      onClick={handleStartRecording}
-                                      className="mt-1"
-                                    >
-                                      <img src={genRxRecordIcon} alt="MIC" />
-                                    </div>
-                                    <div
-                                      role="button"
-                                      onClick={handleSend}
-                                      style={{ width: 32 }}
-                                    >
-                                      {animations.genRxSendCta && (
-                                        <Lottie
-                                          animationData={
-                                            animations.genRxSendCta
-                                          }
-                                          loop={true}
-                                        />
-                                      )}
-                                    </div>
+                              <div className={styles.inputContainerChat}>
+                                <TextArea
+                                  ref={textAreaRef}
+                                  value={inputText}
+                                  onChange={(e) => setInputText(e.target.value)}
+                                  onKeyDown={handleKeyPress}
+                                  onClick={() => setIsTyping(true)}
+                                  onBlur={() => setIsTyping(false)}
+                                  placeholder={"Start speaking or typing..."}
+                                  className={styles.textArea}
+                                  autoSize={{ minRows: 1, maxRows: 6 }}
+                                />
+
+                                <div className={styles.controls}>
+                                  <div
+                                    role="button"
+                                    onClick={handleStartRecording}
+                                  >
+                                    <img src={genRxRecordIcon} alt="MIC" />
                                   </div>
-                                }
-                                onPressEnter={handleSend}
-                              />
+                                  <div
+                                    role="button"
+                                    onClick={handleSend}
+                                    style={{ width: 32 }}
+                                  >
+                                    {animations.genRxSendCta && (
+                                      <Lottie
+                                        animationData={animations.genRxSendCta}
+                                        loop={true}
+                                      />
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           )}
                         </>
