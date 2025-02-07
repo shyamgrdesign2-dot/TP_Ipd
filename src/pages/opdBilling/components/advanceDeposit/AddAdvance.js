@@ -51,6 +51,7 @@ import { formatDateWithOrdinal } from "../../utils/helper";
 import { useLocation } from "react-router-dom";
 import { isMobile } from "react-device-detect";
 import RefIdPopup from "../refIdPopup/RefIdPopup";
+import { throttle } from "lodash";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
@@ -92,6 +93,9 @@ function AddAdvance({
   const [advaceData, setAdvanceData] = useState(null);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const tableRef = useRef(null);
 
   const nameAutoCompleteRef = useRef(null);
   const mobileAutoCompleteRef = useRef(null);
@@ -624,6 +628,7 @@ function AddAdvance({
           isDepositReceipt={true}
           totalAdvanceBalance={totalAdvanceBalance}
           gstIn={advancedSettings?.GSTIN}
+          showCreatedBy={advancedSettings?.enableCreatedByInRx}
         />
       ).toBlob();
       printContent(blob, billData?.patientId, setStartLoader);
@@ -766,7 +771,7 @@ function AddAdvance({
     }
   };
 
-  const loadDepositData = async () => {
+  const loadDepositData = async (resetData = true) => {
     // setLoading(true);
     const params = {
       status: ["Deposit", "Refund", "Debit"],
@@ -776,7 +781,7 @@ function AddAdvance({
         patientData?.patient_unique_id ||
         billData?.patientId ||
         patientDetails?.patientUniqueId,
-      page: 1,
+      page: resetData ? 1 : page,
       limit: 25,
       // startDate: `2024-10-20`,
       // endDate: dateRange.endDate,
@@ -788,7 +793,11 @@ function AddAdvance({
           ...receipt,
           patient: response?.patient,
         }));
-        setData(receiptsData);
+        setPage(resetData ? 2 : page + 1);
+        setHasMore(receiptsData.length >= 25);
+        setData((prev) =>
+          resetData ? receiptsData : [...(prev || []), ...receiptsData]
+        );
       } else {
         setData(null);
       }
@@ -801,6 +810,7 @@ function AddAdvance({
   };
 
   useEffect(() => {
+    resetTableScroll();
     if (patientDetails || patientData || billData) {
       loadDepositData();
     }
@@ -828,6 +838,28 @@ function AddAdvance({
       return refundModes.every((mode) => mode.paymentMode && mode.amount > 0);
       //   (depositDate || patientData?.apDate) &&
       // (patientDetails || patientData || billData);
+    }
+  };
+
+  const handleTableScroll = throttle((e) => {
+    const { target } = e;
+    if (
+      Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <=
+        5 &&
+      hasMore
+    ) {
+      loadDepositData(false);
+    }
+  }, 500);
+
+  const resetTableScroll = () => {
+    // Using document.querySelector with a more specific selector
+    const tableBody = document.querySelector(".billing-table .ant-table-body");
+    if (tableBody) {
+      tableBody.scrollTo({
+        top: 0,
+        behavior: "smooth", // Optional: adds smooth scrolling
+      });
     }
   };
 
@@ -905,7 +937,7 @@ function AddAdvance({
                       }}
                       style={{ padding: "5px 10px" }}
                     >
-                      <div className="list-patientName d-flex align-items-center me-4 ml-2">
+                      <div className="list-patientName d-flex align-items-center me-4 ml-2 my-1">
                         <i className="icon-patients backbar me-2"></i>{" "}
                         <span
                           className="patientInfo"
@@ -916,7 +948,7 @@ function AddAdvance({
                             patientDetails?.patientName}
                         </span>
                       </div>
-                      <div className="list-patientName d-flex align-items-center me-4">
+                      <div className="list-patientName d-flex align-items-center me-4 my-1">
                         <i className="icon-phone backbar me-2"></i>
                         <span className="patientInfo">
                           {patientData?.pm_contact_no ||
@@ -924,12 +956,12 @@ function AddAdvance({
                             patientDetails?.mobileNumber}
                         </span>
                       </div>
-                      <div className="list-patientName d-flex align-items-center me-4">
+                      <div className="list-patientName d-flex align-items-center me-4 my-1">
                         <i className="icon-Id backbar me-2"></i>
                         <span className="patientInfo">
-                          {patientData?.pm_id ||
-                            patientData?.patientUniqueId ||
-                            patientDetails?.patientUniqueId}
+                          {patientData?.pm_pid ||
+                            patientData?.pmPid ||
+                            patientDetails?.pmPid}
                         </span>
                       </div>
                     </div>
@@ -1107,13 +1139,15 @@ function AddAdvance({
               </div>
               <div className="mx-4 mt-2">
                 <Table
+                  ref={tableRef}
                   className="billing-table px-0"
                   columns={columns}
                   width="100%"
                   dataSource={data}
                   pagination={false}
-                  scroll={{ y: 600 }}
+                  scroll={{ y: 500 }}
                   onChange={handleSortChange} // Send sorting data to parent
+                  onScroll={handleTableScroll}
                 />
               </div>
             </div>

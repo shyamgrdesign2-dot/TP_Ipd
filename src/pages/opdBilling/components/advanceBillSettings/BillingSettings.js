@@ -274,7 +274,7 @@ const BillingSettings = () => {
         isModalOpen={isDeleteModuleModalOpen}
         onCancel={toggleDeleteModuleModal}
         modalWidth={550}
-        title={"Are you sure you want to delete this module?"}
+        title={"Are you sure you want to delete this item?"}
         modalBody={
           <>
             <div className="d-flex align-items-start alert-warning rounded-10px p-3 patient-details">

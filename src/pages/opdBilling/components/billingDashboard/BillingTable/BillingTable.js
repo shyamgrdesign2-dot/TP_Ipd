@@ -115,6 +115,9 @@ export default function BillingTable({
   const [totalBillCount, setTotalBillCount] = useState(null);
   const [form3cTriggered, setForm3cTriggered] = useState(false);
   const { userId } = useSelector((state) => state.doctors);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const tableRef = useRef(null);
 
   // Drawer states
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
@@ -394,8 +397,9 @@ export default function BillingTable({
     setForm3cTriggered((prev) => !prev); // Toggle state to trigger useEffect
   };
 
-  const loadData = async () => {
+  const loadData = async (resetData = true) => {
     // setLoading(true);
+    if (!hasMore && !resetData) return;
     const params = {
       status:
         selectedCard === 1
@@ -407,7 +411,7 @@ export default function BillingTable({
           : ["Refunded"],
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
-      page: 1,
+      page: resetData ? 1 : page,
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
@@ -418,7 +422,13 @@ export default function BillingTable({
 
     try {
       const response = await fetchBillingDashboard(params);
-      setData(response || []);
+      setPage(resetData ? 2 : page + 1);
+      setHasMore(response.bills.length >= 25);
+      setData((prev) =>
+        resetData
+          ? response
+          : { ...response, bills: [...(prev?.bills || []), ...response.bills] }
+      );
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {
@@ -458,8 +468,9 @@ export default function BillingTable({
     }
   }, []);
 
-  const patientBillingData = async () => {
-    // setLoading(true);
+  const patientBillingData = async (resetData = true) => {
+    if (!hasMore && !resetData) return;
+
     const params = {
       status:
         selectedCard === 1
@@ -471,7 +482,7 @@ export default function BillingTable({
           : ["Refunded"],
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
-      page: 1,
+      page: resetData ? 1 : page,
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
@@ -483,7 +494,13 @@ export default function BillingTable({
     };
     try {
       const response = await fetchBillsByPatient(params);
-      setData(response || []);
+      setPage(resetData ? 2 : page + 1);
+      setHasMore(response.bills.length >= 25);
+      setData((prev) =>
+        resetData
+          ? response
+          : { ...response, bills: [...(prev?.bills || []), ...response.bills] }
+      );
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {
@@ -493,6 +510,7 @@ export default function BillingTable({
   console.log(doctorIds, "doctorIds");
 
   useEffect(() => {
+    resetTableScroll();
     if (doctorList?.length > 0 || userId) {
       const fetchData = patientData ? patientBillingData : loadData;
       fetchData();
@@ -501,6 +519,17 @@ export default function BillingTable({
 
   const handleRefundSuccess = () => {
     handleRefundComplete && handleRefundComplete();
+  };
+
+  const resetTableScroll = () => {
+    // Using document.querySelector with a more specific selector
+    const tableBody = document.querySelector(".billing-table .ant-table-body");
+    if (tableBody) {
+      tableBody.scrollTo({
+        top: 0,
+        behavior: "smooth", // Optional: adds smooth scrolling
+      });
+    }
   };
 
   return (
@@ -746,6 +775,9 @@ export default function BillingTable({
             handleMessageForm3c={handleMessageForm3c}
             onSortChange={handleSortChange}
             getPatientBills={getPatientBills}
+            loadData={loadData}
+            hasMore={hasMore}
+            tableRef={tableRef}
           />
         </Row>
 

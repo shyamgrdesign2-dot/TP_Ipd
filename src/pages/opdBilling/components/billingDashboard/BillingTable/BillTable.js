@@ -8,7 +8,8 @@ import visitEnd from "../../../../../assets/images/end-visit.svg";
 import { MESSAGE_KEY } from "../../../../../utils/constants";
 import { formatDateWithOrdinal } from "../../../utils/helper";
 import InfoTooltip from "./InfoToolTip/InfoTooltip";
-import { isMobile } from 'react-device-detect';
+import { isMobile } from "react-device-detect";
+import { throttle } from "lodash";
 
 const BillTable = ({
   data,
@@ -17,6 +18,9 @@ const BillTable = ({
   onSortChange,
   getPatientBills,
   handleRecentBillDrawer,
+  loadData,
+  hasMore,
+  tableRef,
 }) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
@@ -77,7 +81,6 @@ const BillTable = ({
   };
 
   const handleRefundComplete = useCallback(() => {
-
     // If getPatientBills exists, call it, otherwise do nothing
     if (getPatientBills) {
       getPatientBills();
@@ -109,7 +112,9 @@ const BillTable = ({
           }}
         >
           <div className="fs-14 fw-semibold">
-            <a className="theme-color dashboard-table-font-style">{record.billNumber}</a>
+            <a className="theme-color dashboard-table-font-style">
+              {record.billNumber}
+            </a>
           </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {formatDateWithOrdinal(record.date)}
@@ -126,7 +131,9 @@ const BillTable = ({
           width: "21%",
           render: (text, record) => (
             <div>
-              <div className="dashboard-table-font-style">{record?.patient?.name}</div>
+              <div className="dashboard-table-font-style">
+                {record?.patient?.name}
+              </div>
               <div className="fs-14 fw-normal text-truncate-twolines">
                 {record?.patient?.phone}
               </div>
@@ -142,7 +149,12 @@ const BillTable = ({
       width: "13%",
       sorter: true,
       onFilter: (value, record) => record.send_on.startsWith(value),
-      render: (text, record) => <div className="dashboard-table-font-style"> {record.payableAmount} </div>,
+      render: (text, record) => (
+        <div className="dashboard-table-font-style">
+          {" "}
+          {record.payableAmount}{" "}
+        </div>
+      ),
     },
     {
       title: "PAID AMOUNT",
@@ -151,7 +163,9 @@ const BillTable = ({
       width: "13%",
       ellipsis: true,
       sorter: true,
-      render: (text, record) => <div className="dashboard-table-font-style"> {record.paidAmount} </div>,
+      render: (text, record) => (
+        <div className="dashboard-table-font-style"> {record.paidAmount} </div>
+      ),
     },
     {
       title: "STATUS",
@@ -281,17 +295,30 @@ const BillTable = ({
     return items;
   };
 
+  const handleTableScroll = throttle((e) => {
+    const { target } = e;
+    if (
+      Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <=
+        5 &&
+      hasMore
+    ) {
+      loadData(false);
+    }
+  }, 500);
+
   return (
     <>
       <Table
+        ref={tableRef}
         className="billing-table px-0"
         style={{ position: "relative" }}
         columns={columns}
         width="100%"
         dataSource={data}
         pagination={false}
-        scroll={{ y: 300 }}
+        scroll={{ y: 500 }}
         onChange={handleTableChange} // Send sorting data to parent
+        onScroll={handleTableScroll}
       />
       {previewBillDrawer && (
         <Drawer

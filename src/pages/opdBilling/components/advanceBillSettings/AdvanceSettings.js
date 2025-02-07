@@ -244,7 +244,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
           />
         </div>
 
-        <div className={styles.formItem}>
+        {/* <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
             <label>Billing/Unbilled Status in Appointment Screen</label>
             <InfoTooltip type={"BillingStatus"} />
@@ -272,7 +272,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
               );
             })}
           </Radio.Group>
-        </div>
+        </div> */}
 
         <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>

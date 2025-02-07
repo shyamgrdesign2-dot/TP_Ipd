@@ -3,7 +3,7 @@ import { getMarginByFormat } from "./helper";
 import { PX_TO_PT } from "./constants";
 import moment from "moment";
 
-const BillFooter = ({ printSettings, billData }) => {
+const BillFooter = ({ printSettings, billData, showCreatedBy }) => {
   const { headerFooter } = printSettings;
   const { footer } = headerFooter || {};
 
@@ -32,7 +32,7 @@ const BillFooter = ({ printSettings, billData }) => {
       }}
       fixed
     >
-      <Text
+      {showCreatedBy && <Text
         style={{
           marginTop: PX_TO_PT * 8,
           marginBottom: PX_TO_PT * 8,
@@ -47,7 +47,7 @@ const BillFooter = ({ printSettings, billData }) => {
         {billData?.createdAt
           ? moment(billData.createdAt).format("DD/MM/YYYY")
           : "-"}
-      </Text>
+      </Text>}
 
       {headerFooter?.letterHeadFormat === 0 ? (
         <View>

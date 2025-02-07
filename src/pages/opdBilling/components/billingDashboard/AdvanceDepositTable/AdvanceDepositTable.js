@@ -42,6 +42,7 @@ import { pdf } from "@react-pdf/renderer";
 import { setLoadingStatus } from "../../../../../redux/uploadDocSlice.js";
 import { useDispatch } from "react-redux";
 import html2pdf from "html2pdf.js";
+import { throttle } from "lodash";
 const { RangePicker } = DatePicker;
 
 const cards = [
@@ -98,6 +99,9 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
     endDate: moment().format(dateFormat),
   });
   const [dateStatus, setDateStatus] = useState(1);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const tableRef = useRef(null);
 
   const onSearch = useCallback(
     (query) => {
@@ -238,6 +242,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
           isDepositReceipt={true}
           totalAdvanceBalance={patientWalletBalance}
           gstIn={advancedSettings?.GSTIN}
+          showCreatedBy={advancedSettings?.enableCreatedByInRx}
         />
       ).toBlob();
       printContent(blob, record?.patientId, setStartLoader);
@@ -627,7 +632,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
     </div>
   );
 
-  const loadData = async () => {
+  const loadData = async (resetData = true) => {
     // setLoading(true);
     const params = {
       status:
@@ -638,7 +643,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
           : "Debit",
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
-      page: 1,
+      page: resetData ? 1 : page,
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
@@ -646,7 +651,16 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
     };
     try {
       const response = await fetchAdvancedDepositDashboard(params);
-      setData(response || []);
+      setPage(resetData ? 2 : page + 1);
+      setHasMore(response.receipts.length >= 25);
+      setData((prev) =>
+        resetData
+          ? response
+          : {
+              ...response,
+              receipts: [...(prev?.receipts || []), ...response.receipts],
+            }
+      );
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {
@@ -661,7 +675,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
     }
   };
 
-  const patientAdvanceData = async () => {
+  const patientAdvanceData = async (resetData = true) => {
     // setLoading(true);
     const params = {
       status:
@@ -672,7 +686,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
           : "Debit",
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
-      page: 1,
+      page: resetData ? 1 : page,
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
@@ -682,7 +696,6 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
     };
     try {
       const response = await listAdvancedDepositByPatient(params);
-      setData(response || []);
       let updatedReceipts = [];
       if (response?.receipts?.length > 0) {
         updatedReceipts = response.receipts.map((item) => ({
@@ -690,8 +703,16 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
           patient: response.patient,
         }));
       }
-
-      setData({ ...response, receipts: updatedReceipts });
+      setPage(resetData ? 2 : page + 1);
+      setHasMore(response.receipts.length >= 25);
+      setData((prev) =>
+        resetData
+          ? { ...response, receipts: updatedReceipts }
+          : {
+              ...response,
+              receipts: [...(prev?.receipts || []), ...updatedReceipts],
+            }
+      );
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {
@@ -701,6 +722,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
 
   // Add a refresh function
   const refreshData = useCallback(() => {
+    resetTableScroll();
     if (patientData) {
       patientAdvanceData();
       // Also refresh wallet balance if needed
@@ -711,6 +733,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
   }, [patientData]);
 
   useEffect(() => {
+    resetTableScroll();
     if (patientData) {
       patientAdvanceData();
     } else {
@@ -729,6 +752,28 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
       }
     },
   }));
+
+  const handleTableScroll = throttle((e) => {
+    const { target } = e;
+    if (
+      Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <=
+        5 &&
+      hasMore
+    ) {
+      loadData(false);
+    }
+  }, 500);
+
+  const resetTableScroll = () => {
+    // Using document.querySelector with a more specific selector
+    const tableBody = document.querySelector(".billing-table .ant-table-body");
+    if (tableBody) {
+      tableBody.scrollTo({
+        top: 0,
+        behavior: "smooth", // Optional: adds smooth scrolling
+      });
+    }
+  };
 
   return (
     <div>
@@ -888,13 +933,15 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
           }
 
           <Table
+            ref={tableRef}
             className="billing-table px-0"
             columns={patientData ? patientColumns : columns}
             width="100%"
             dataSource={data}
             pagination={false}
-            scroll={{ y: 300 }}
+            scroll={{ y: 500 }}
             onChange={handleSortChange} // Send sorting data to parent
+            onScroll={handleTableScroll}
           />
         </Row>
       </div>

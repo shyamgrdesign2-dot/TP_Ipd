@@ -88,6 +88,7 @@ const PreviewBill = ({
         billData={billData}
         totalAdvanceBalance={totalAdvanceBalance}
         gstIn={advancedSettings?.GSTIN}
+        showCreatedBy={advancedSettings?.enableCreatedByInRx}
       />
     ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));

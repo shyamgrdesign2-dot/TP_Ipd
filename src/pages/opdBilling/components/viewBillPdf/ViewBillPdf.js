@@ -124,6 +124,7 @@ const ViewBillPdf = ({
   billData,
   totalAdvanceBalance,
   gstIn,
+  showCreatedBy
 }) => {
   const [fileWatermark, setFileWatermark] = useState(null);
   const paddingStyles = calculatePadding(printSettings?.headerFooter);
@@ -158,7 +159,7 @@ const ViewBillPdf = ({
           />
         )}
         <BillOtherSettings printSettings={printSettings} profile={profile} />
-        <BillFooter printSettings={printSettings} billData={billData} />
+        <BillFooter printSettings={printSettings} billData={billData} showCreatedBy={showCreatedBy} />
       </Page>
     </Document>
   );

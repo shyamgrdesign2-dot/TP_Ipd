@@ -203,6 +203,7 @@ const ConfigureBillSettings = ({
         billData={billData}
         isDepositReceipt={isDepositReceipt}
         gstIn={advancedSettings?.GSTIN}
+        showCreatedBy={advancedSettings?.enableCreatedByInRx}
       />
     ).toBlob();
     setPdfUrl(URL.createObjectURL(blob));

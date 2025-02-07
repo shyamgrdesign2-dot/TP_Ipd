@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   Button,
   Drawer,
@@ -29,6 +29,7 @@ import MenuDivider from "antd/es/menu/MenuDivider";
 import { addBillsToForm3C, fetchBillingDashboard } from "../../service";
 import { formatDateWithOrdinal } from "../../utils/helper";
 import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip";
+import { throttle } from "lodash";
 
 const { RangePicker } = DatePicker;
 const dateFormat = "YYYY-MM-DD";
@@ -82,6 +83,10 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
   const [selectedRows, setSelectedRows] = useState([]); // Store selected row objects
   const [searchQuery, setSearchQuery] = useState("");
   const [pickerModal, setPickerModal] = useState(false);
+  const [data, setData] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const tableRef = useRef(null);
 
   const onSearch = useCallback(
     (query) => {
@@ -347,12 +352,12 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
     },
   ];
 
-  const loadData = async () => {
+  const loadData = async (resetData = true) => {
     // setLoading(true);
     const params = {
       sortBy: "date",
       sortOrder: "desc",
-      page: 1,
+      page: resetData ? 1 : page,
       limit: 25,
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
@@ -362,11 +367,12 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
     };
     try {
       const response = await fetchBillingDashboard(params);
-      setData(
-        response?.bills?.filter(
-          (item) => item.paymentStatus !== "Refunded" && item.isForm3C !== true
-        ) || []
+      const bills = response?.bills?.filter(
+        (item) => item.paymentStatus !== "Refunded" && item.isForm3C !== true
       );
+      setPage(resetData ? 2 : page + 1);
+      setHasMore(bills.length >= 25);
+      setData((prev) => (resetData ? bills : [...(prev || []), ...bills]));
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {
@@ -375,6 +381,7 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
   };
 
   useEffect(() => {
+    resetTableScroll();
     loadData();
   }, [dateRange, searchQuery]);
 
@@ -402,6 +409,30 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
   const handleBackAddForm3CDrawer = () => {
     setForm3cData(0);
     handleAddForm3cDrawer();
+  };
+
+  const handleTableScroll = throttle((e) => {
+    const { target } = e;
+    if (
+      Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <=
+        5 &&
+      hasMore
+    ) {
+      loadData(false);
+    }
+  }, 500);
+
+  const resetTableScroll = () => {
+    // Using document.querySelector with a more specific selector
+    const tableBody = document.querySelector(
+      ".add-form3c-table .ant-table-body"
+    );
+    if (tableBody) {
+      tableBody.scrollTo({
+        top: 0,
+        behavior: "smooth", // Optional: adds smooth scrolling
+      });
+    }
   };
 
   return (
@@ -533,17 +564,19 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
         </div>
         <div className="justify-content-between align-items-center px-4 my-2 billing-table-wrapper">
           <Table
+            ref={tableRef}
             rowKey="id"
             rowSelection={{
               selectedRowKeys: selectedRows.map((row) => row.id),
               onChange: onSelectChange,
             }}
-            className="px-0"
+            className="add-form3c-table px-0"
             columns={columns}
             width="100%"
             scroll={{ y: 600 }}
             dataSource={data}
             pagination={false}
+            onScroll={handleTableScroll}
           />
         </div>
       </div>

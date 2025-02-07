@@ -760,6 +760,7 @@ const CreateBill = ({
             profile={profile}
             billData={createRes}
             gstIn={advancedSettings?.GSTIN}
+            showCreatedBy={advancedSettings?.enableCreatedByInRx}
           />
         ).toBlob();
         printContent(blob, createRes.patientId, setStartLoader);
@@ -1189,7 +1190,7 @@ const CreateBill = ({
             <div className="d-flex flex-column h-100 gap-2 px-3 py-4">
               <div className="d-flex gap-3">
                 <div className="w-100">
-                  <div>Patient Name, Mobile no & ID </div>
+                  <div className="mb-1">Patient Name, Mobile no & ID </div>
                   {isEditingName &&
                   (!patientData || Object.keys(patientData).length === 0) ? (
                     <AutoComplete
@@ -1210,7 +1211,6 @@ const CreateBill = ({
                         }, 200);
                       }}
                       className="w-100 autocomplete-custom"
-                      style={{ padding: "5px 10px"}}
                       popupClassName="autocomplete-dropdown"
                     >
                       <Input
@@ -1236,7 +1236,7 @@ const CreateBill = ({
                       onClick={() => {
                         setIsEditingName(true);
                       }}
-                      style={{ padding: "5px 10px"}}
+                      style={{ padding: "5px 10px" }}
                     >
                       <div className="list-patientName d-flex align-items-center me-4 ml-2">
                         <i className="icon-patients backbar me-2"></i>{" "}
@@ -1244,7 +1244,7 @@ const CreateBill = ({
                           {patientDetails?.patientName ||
                             patientData?.pm_fullname}
                         </span>
-                      </div>
+                      </div>  
                       <div className="list-patientName d-flex align-items-center me-4">
                         <i className="icon-phone backbar me-2"></i>
                         <span className="patientInfo">
@@ -1255,15 +1255,14 @@ const CreateBill = ({
                       <div className="list-patientName d-flex align-items-center me-4">
                         <i className="icon-Id backbar me-2"></i>
                         <span className="patientInfo">
-                          {patientDetails?.patientUniqueId ||
-                            patientData?.patient_unique_id}
+                          {patientDetails?.pmPid || patientData?.pm_pid}
                         </span>
                       </div>
                     </div>
                   )}
                 </div>
                 <div>
-                  <div style={{paddingBottom: "5px"}}>Bill Date</div>
+                  <div style={{ paddingBottom: "5px" }}>Bill Date</div>
                   <Input
                     className="input-create-bill"
                     style={{ width: 125, height: 38 }}
@@ -1275,7 +1274,7 @@ const CreateBill = ({
                   />
                 </div>
                 <div>
-                  <div style={{paddingBottom: "5px"}}>Doctor Name</div>
+                  <div style={{ paddingBottom: "5px" }}>Doctor Name</div>
                   <Input
                     className="input-create-bill"
                     value={profile?.um_name}
@@ -1621,20 +1620,26 @@ const CreateBill = ({
                 className="d-flex justify-content-between align-items-start"
                 style={{ padding: "25px 0px 25px 14px" }}
               >
-                <div style={{ maxWidth: '80%' }}>
-                  <p className="mb-0 d-flex" style={{ lineHeight: '1.5' }}>
-                    <span style={{ 
-                      fontWeight: "600",
-                      flexShrink: 0,  // Prevents the "Notes:" from shrinking
-                      marginRight: '4px'
-                    }}>Notes:</span>
-                    <span>  {/* Wrapper for ReadMore to control text flow */}
-                      <ReadMore 
-                        text={patientBillNotes} 
-                        textLimit={60} 
-                        style={{ 
-                          display: 'inline'
-                        }} 
+                <div style={{ maxWidth: "80%" }}>
+                  <p className="mb-0 d-flex" style={{ lineHeight: "1.5" }}>
+                    <span
+                      style={{
+                        fontWeight: "600",
+                        flexShrink: 0, // Prevents the "Notes:" from shrinking
+                        marginRight: "4px",
+                      }}
+                    >
+                      Notes:
+                    </span>
+                    <span>
+                      {" "}
+                      {/* Wrapper for ReadMore to control text flow */}
+                      <ReadMore
+                        text={patientBillNotes}
+                        textLimit={60}
+                        style={{
+                          display: "inline",
+                        }}
                       />
                     </span>
                   </p>
