@@ -961,7 +961,7 @@ function AddAdvance({
                         <span className="patientInfo">
                           {patientData?.pm_pid ||
                             patientData?.pmPid ||
-                            patientDetails?.pmPid}
+                            patientDetails?.patientId}
                         </span>
                       </div>
                     </div>
