@@ -218,10 +218,14 @@
   .recordingStatus {
     flex-grow: 1; /* Takes up available space */
     text-align: center; /* Centers text within its space */
-    color: #6B7280;
     font-size: 14px;
-    margin-top: 8px;
     white-space: nowrap; /* Prevents the text from wrapping into multiple lines */
+    font-family: "Poppins";
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0%;
+    color: rgba(61, 72, 84, 0.6) !important;
   }
   
   
@@ -425,6 +429,13 @@
 .controlButtons {
   display: flex;
   gap: 12px;
+  margin-top: 10px;
+  font-family: "Poppins";
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0%;
+  color: rgba(61, 72, 84, 0.6) !important;
 }
 
 .prescriptionSection h3 {

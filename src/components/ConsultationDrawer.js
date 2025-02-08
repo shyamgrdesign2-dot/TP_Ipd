@@ -1229,7 +1229,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                           </div>
                         </div>
                       </div>
-                      <div className={styles.controls}>
+                      <div className={styles.controlButtons}>
                         <div
                           role="button"
                           onClick={handleStopRecording}
@@ -1273,19 +1273,26 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                             onChange={(e) => setInputText(e.target.value)}
                             onKeyDown={handleKeyPress}
                             onClick={() => setIsTyping(true)}
-                            onBlur={() => setIsTyping(false)}
+                            onBlur={() =>
+                              setTimeout(() => setIsTyping(false), 200)
+                            }
                             placeholder={isTyping ? "" : "Or type here instead"}
                             className={styles.textArea}
                             autoSize={{ minRows: 1, maxRows: 6 }}
                           />
                           {isTyping && (
                             <div className={styles.controls}>
-                              <div role="button" onClick={handleStartRecording}>
+                              <div
+                                role="button"
+                                onMouseDown={handleStartRecording}
+                                onTouchStart={handleStartRecording}
+                              >
                                 <img src={genRxRecordIcon} alt="MIC" />
                               </div>
                               <div
                                 role="button"
-                                onClick={handleSend}
+                                onMouseDown={handleSend}
+                                onTouchStart={handleSend}
                                 style={{ width: 32 }}
                               >
                                 {animations.genRxSendCta && (
@@ -1402,7 +1409,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                   </div>
                                 </div>
                               </div>
-                              <div className={styles.controls}>
+                              <div className={styles.controlButtons}>
                                 <div
                                   role="button"
                                   onClick={handleStopRecording}
