@@ -65,7 +65,7 @@ const cards = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
+const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateRange, totalAdvanceBalance }, ref) => {
   const dispatch = useDispatch();
   const { billPrintSettings, advancedSettings } = useSelector(
     (state) => state.billing
@@ -94,10 +94,6 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
 
   const { doctorList } = useSelector((state) => state.bulkMessages);
 
-  const [dateRange, setDateRange] = useState({
-    startDate: moment().format(dateFormat),
-    endDate: moment().format(dateFormat),
-  });
   const [dateStatus, setDateStatus] = useState(1);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -240,7 +236,9 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
           profile={profile}
           billData={record}
           isDepositReceipt={true}
-          totalAdvanceBalance={patientWalletBalance}
+          totalAdvanceBalance={
+            patientData ? totalAdvanceBalance : patientWalletBalance
+          }
           gstIn={advancedSettings?.GSTIN}
           showCreatedBy={advancedSettings?.enableCreatedByInRx}
         />
@@ -367,7 +365,11 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
         >
           <i
             className="icon-More"
-            onClick={() => getPatientWalletBalance(record?.patientId)}
+            onClick={() => {
+              if (!patientData) {
+                getPatientWalletBalance(record?.patientId);
+              }
+            }}
           />
         </Dropdown>
       ),
@@ -959,7 +961,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData }, ref) => {
             isPreviewFromTable={true}
             isDepositReceipt={true}
             billData={billData}
-            totalAdvanceBalance={patientWalletBalance}
+            totalAdvanceBalance={patientData ? totalAdvanceBalance : patientWalletBalance}
           />
         </Drawer>
       )}

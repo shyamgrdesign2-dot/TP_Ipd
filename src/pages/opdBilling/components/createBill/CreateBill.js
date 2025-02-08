@@ -1265,7 +1265,7 @@ const CreateBill = ({
                           {patientDetails?.patientName ||
                             patientData?.pm_fullname}
                         </span>
-                      </div>  
+                      </div>
                       <div className="list-patientName d-flex align-items-center me-4">
                         <i className="icon-phone backbar me-2"></i>
                         <span className="patientInfo">
@@ -1330,31 +1330,31 @@ const CreateBill = ({
             }}
           >
             <div className="d-flex gap-2">
-              <div>
+              <div className="w-100">
                 <div className="text-lg font-medium mb-2">
                   Paid Amount <span className="lab-params-warning">*</span>
                 </div>
                 {paymentModes.map((payment, index) => (
-                  <div key={index} className="relative">
+                  <div key={index} className="relative w-100">
                     {index > 0 && (
-                      <div className="flex items-center gap-2 mb-2 relative">
-                        <span className="text-gray-500 text-sm font-medium z-10 bg-white px-2">
+                      <div className="flex items-center gap-2 mb-3 relative">
+                        <span className="text-gray-500 text-sm font-medium z-10 px-2">
                           And
                         </span>
                         <div className="absolute left-0 top-1/2 w-full h-0.5 bg-gray-300 -z-10"></div>
                       </div>
                     )}
-                    <div className="flex align-items-center gap-4 mb-3">
-                      <div className="d-flex align-items-center gap-1">
+                    <div className="flex align-items-center gap-4 mb-3 w-100">
+                      <div className="d-flex align-items-center gap-1 w-100">
                         <div
-                          className="d-flex flex-column"
+                          className="d-flex flex-column w-100"
                           style={{
                             background: "rgba(75, 74, 213, 0.06)",
                             borderRadius: 10,
                           }}
                         >
                           <div
-                            className="d-flex"
+                            className="d-flex w-100"
                             style={{
                               border:
                                 disableSaveBtn ||
@@ -1394,7 +1394,7 @@ const CreateBill = ({
                                   setPaymentModeItemMissing(false);
                                 }
                               }}
-                              className="w-40 payment-input"
+                              className="w-100 payment-input"
                             />
                           </div>
                           {payment?.paymentMode &&
@@ -1641,29 +1641,12 @@ const CreateBill = ({
                 className="d-flex justify-content-between align-items-start"
                 style={{ padding: "25px 0px 25px 14px" }}
               >
-                <div style={{ maxWidth: "80%" }}>
-                  <p className="mb-0 d-flex" style={{ lineHeight: "1.5" }}>
-                    <span
-                      style={{
-                        fontWeight: "600",
-                        flexShrink: 0, // Prevents the "Notes:" from shrinking
-                        marginRight: "4px",
-                      }}
-                    >
-                      Notes:
-                    </span>
-                    <span>
-                      {" "}
-                      {/* Wrapper for ReadMore to control text flow */}
-                      <ReadMore
-                        text={patientBillNotes}
-                        textLimit={60}
-                        style={{
-                          display: "inline",
-                        }}
-                      />
-                    </span>
-                  </p>
+                <div style={{ maxWidth: "92%" }}>
+                  <ReadMore
+                    title={"Notes: "}
+                    text={patientBillNotes}
+                    textLimit={60}
+                  />
                 </div>
                 <div onClick={handleDrawerDiagnosisNotes}>
                   <i className="icon-Edit text-primary fs-16 cursor-pointer" />

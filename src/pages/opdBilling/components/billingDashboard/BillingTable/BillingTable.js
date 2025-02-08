@@ -95,10 +95,13 @@ export default function BillingTable({
   getPatientBills,
   handleTotalAdvanceUpdate,
   handleRefundComplete,
+  dateRange,
+  setDateRange,
+  selectedDoctors,
+  setSelectedDoctors,
 }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
-  const [selectedDoctors, setSelectedDoctors] = useState([]);
   const [selectAll, setSelectAll] = useState(true);
   const [pageNo, setPageNo] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -122,10 +125,6 @@ export default function BillingTable({
   // Drawer states
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
 
-  const [dateRange, setDateRange] = useState({
-    startDate: moment().format(dateFormat),
-    endDate: moment().format(dateFormat),
-  });
   const [dateStatus, setDateStatus] = useState(1);
 
   const { doctorList } = useSelector((state) => state.bulkMessages);
@@ -350,8 +349,13 @@ export default function BillingTable({
         <span>or</span>
       </div>
 
-      <div className="custom-doctors-section" style={{ margin: "20px 15px", paddingBottom: "15px"}}>
-        <div className="section-title mb-2 fs-16 section-title-color">Select specified status</div>
+      <div
+        className="custom-doctors-section"
+        style={{ margin: "20px 15px", paddingBottom: "15px" }}
+      >
+        <div className="section-title mb-2 fs-16 section-title-color">
+          Select specified status
+        </div>
         {/* Checkboxes */}
         <Checkbox.Group
           className="bil"

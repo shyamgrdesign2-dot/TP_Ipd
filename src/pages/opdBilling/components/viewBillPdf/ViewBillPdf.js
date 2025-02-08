@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Font, Page, Document } from "@react-pdf/renderer";
+import { Font, Page, Document, View } from "@react-pdf/renderer";
 import { calculatePadding } from "./helper";
 import BillHeader from "./BillHeader";
 import BillFooter from "./BillFooter";
 import BillOtherSettings from "./BillOtherSettings";
 import BillDetails from "./BillDetails";
 import DepositDetails from "./DepositDetails";
+import { PX_TO_PT } from "./constants";
 
 // Roboto
 Font.register({
@@ -124,7 +125,7 @@ const ViewBillPdf = ({
   billData,
   totalAdvanceBalance,
   gstIn,
-  showCreatedBy
+  showCreatedBy,
 }) => {
   const [fileWatermark, setFileWatermark] = useState(null);
   const paddingStyles = calculatePadding(printSettings?.headerFooter);
@@ -133,33 +134,45 @@ const ViewBillPdf = ({
     <Document>
       <Page
         size={printSettings?.pageFormat?.pageType || "A5"}
-        style={paddingStyles}
+        style={{
+          ...paddingStyles,
+          display: "flex",
+          flexDirection: "column",
+          paddingBottom: PX_TO_PT * 80, // Increase bottom padding to accommodate footer
+        }}
         wrap={true}
       >
-        <BillHeader
-          fileWatermark={fileWatermark}
-          setFileWatermark={setFileWatermark}
-          printSettings={printSettings}
-          isDepositReceipt={isDepositReceipt}
-          patientData={patientData}
-          billData={billData}
-          profile={profile}
-          gstIn={gstIn}
-        />
-        {isDepositReceipt ? (
-          <DepositDetails
-            pageFormat={printSettings?.pageFormat}
-            depositData={billData}
-            totalAdvanceBalance={totalAdvanceBalance}
-          />
-        ) : (
-          <BillDetails
-            pageFormat={printSettings?.pageFormat}
+        <View style={{ flex: 1 }}>
+          <BillHeader
+            fileWatermark={fileWatermark}
+            setFileWatermark={setFileWatermark}
+            printSettings={printSettings}
+            isDepositReceipt={isDepositReceipt}
+            patientData={patientData}
             billData={billData}
+            profile={profile}
+            gstIn={gstIn}
           />
-        )}
-        <BillOtherSettings printSettings={printSettings} profile={profile} />
-        <BillFooter printSettings={printSettings} billData={billData} showCreatedBy={showCreatedBy} />
+
+          {isDepositReceipt ? (
+            <DepositDetails
+              pageFormat={printSettings?.pageFormat}
+              depositData={billData}
+              totalAdvanceBalance={totalAdvanceBalance}
+            />
+          ) : (
+            <BillDetails
+              pageFormat={printSettings?.pageFormat}
+              billData={billData}
+            />
+          )}
+          <BillOtherSettings printSettings={printSettings} profile={profile} />
+        </View>
+        <BillFooter
+          printSettings={printSettings}
+          billData={billData}
+          showCreatedBy={showCreatedBy}
+        />
       </Page>
     </Document>
   );

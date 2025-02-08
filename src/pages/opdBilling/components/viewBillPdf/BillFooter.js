@@ -32,22 +32,26 @@ const BillFooter = ({ printSettings, billData, showCreatedBy }) => {
       }}
       fixed
     >
-      {showCreatedBy && <Text
-        style={{
-          marginTop: PX_TO_PT * 8,
-          marginBottom: PX_TO_PT * 8,
-          color: "#6A6A74",
-          fontFamily: "Roboto",
-          fontSize: PX_TO_PT * footer?.fontSize,
-          fontWeight: 400,
-          maxLines: 1,
-        }}
-      >
-        Bill Created By : {billData?.createdByName} | Created on :{" "}
-        {billData?.createdAt
-          ? moment(billData.createdAt).format("DD/MM/YYYY")
-          : "-"}
-      </Text>}
+      {showCreatedBy && (
+        <View>
+          <Text
+            style={{
+              marginTop: PX_TO_PT * 8,
+              marginBottom: PX_TO_PT * 8,
+              color: "#6A6A74",
+              fontFamily: "Roboto",
+              fontSize: PX_TO_PT * footer?.fontSize,
+              fontWeight: 400,
+              maxLines: 1,
+            }}
+          >
+            Bill Created By : {billData?.createdByName} | Created on :{" "}
+            {billData?.createdAt
+              ? moment(billData.createdAt).format("DD/MM/YYYY")
+              : "-"}
+          </Text>
+        </View>
+      )}
 
       {headerFooter?.letterHeadFormat === 0 ? (
         <View>

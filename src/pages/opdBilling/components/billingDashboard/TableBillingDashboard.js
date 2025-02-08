@@ -23,11 +23,29 @@ import AdvanceDeposit from "./AdvanceDepositTable/AdvanceDepositTable";
 import AdvanceDepositTable from "./AdvanceDepositTable/AdvanceDepositTable";
 import depositIcon from "./../../../../assets/images/deposit-icon.svg";
 import depositSelectedIcon from "./../../../../assets/images/deposit-selected-icon.svg";
+import {
+  fetchAdvancedDepositDashboard,
+  fetchBillingDashboard,
+  fetchBillsByPatient,
+  listAdvancedDepositByPatient,
+} from "../../service";
+import { useSelector } from "react-redux";
 
+const dateFormat = "YYYY-MM-DD";
 const TableBillingDashboard = forwardRef(
-  ({ onTabChange, patientData, getPatientBills, handleTotalAdvanceUpdate }, ref) => {
+  (
+    {
+      onTabChange,
+      patientData,
+      getPatientBills,
+      handleTotalAdvanceUpdate,
+      totalAdvanceBalance,
+    },
+    ref
+  ) => {
     const navigate = useNavigate();
-
+    const { doctorList } = useSelector((state) => state.bulkMessages);
+    const { userId } = useSelector((state) => state.doctors);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedTab, setSelectedTab] = useState(1);
     const [isAdvanceDepositTab, setIsAdvanceDepositTab] = useState(false);
@@ -35,45 +53,105 @@ const TableBillingDashboard = forwardRef(
     const [pageNo, setPageNo] = useState(0);
     const [visitTypeFilters, setVisitTypeFilters] = useState("");
     const [isHovered, setIsHovered] = useState(false);
+    const [billingCount, setBillingCount] = useState(0);
+    const [advanceCount, setAdvanceCount] = useState(0);
+    const [dateRange, setDateRange] = useState({
+      startDate: moment().format(dateFormat),
+      endDate: moment().format(dateFormat),
+    });
+    const [selectedDoctors, setSelectedDoctors] = useState([]);
+    const doctorIds =
+      doctorList.map((doctor) => doctor.um_id).length > 0
+        ? doctorList.map((doctor) => doctor.um_id)
+        : [userId];
     //   const [date, setDate] = useState({
     //     startDate: moment().format(dateFormat),
     //     endDate: moment().format(dateFormat),
     //   });
 
+    useEffect(() => {
+      getBillAndAdvanceCount();
+    }, [dateRange]);
+
+    const getBillAndAdvanceCount = async () => {
+      const billParams = {
+        page: 1,
+        limit: 25,
+        sortBy: "date",
+        sortOrder: "desc",
+        startDate: dateRange.startDate,
+        endDate: dateRange.endDate,
+        doctorIds:
+          selectedDoctors.length > 0 ? [...selectedDoctors] : [...doctorIds],
+        patientId: patientData?.patient_unique_id
+          ? patientData?.patient_unique_id
+          : "",
+      };
+      const advanceParams = {
+        page: 1,
+        limit: 25,
+        sortBy: "date",
+        sortOrder: "desc",
+        startDate: dateRange.startDate,
+        endDate: dateRange.endDate,
+        doctorIds: doctorList.map((doctor) => doctor.um_id),
+        patientId: patientData?.patient_unique_id
+          ? patientData?.patient_unique_id
+          : "",
+      };
+      const billResponse = patientData
+        ? await fetchBillsByPatient(billParams)
+        : await fetchBillingDashboard(billParams);
+      const advanceResponse = patientData
+        ? await listAdvancedDepositByPatient(advanceParams)
+        : await fetchAdvancedDepositDashboard(advanceParams);
+      setBillingCount(billResponse?.summary?.count);
+      setAdvanceCount(
+        advanceResponse?.summary?.totalCount || advanceResponse?.summary?.count
+      );
+    };
+
     // Move items into the component body and make them depend on selectedTab
-    const items = useMemo(() => [
-      {
-        key: 1,
-        label: (
-          <div className="d-flex align-items-center">
-            <i className="icon-billings"></i>
-            Billing
-          </div>
-        ),
-      },
-      {
-        key: 2,
-        label: (
-          <div 
-            className="d-flex align-items-center"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <img 
-              src={(selectedTab === 2 || isHovered) ? depositSelectedIcon : depositIcon}
-              className="me-2"
-              alt={selectedTab === 2 ? "selected-deposit" : "default-deposit"}
-              style={{
-                width: '20px',
-                height: '20px',
-                display: 'block'
-              }}
-            />
-            Advance Deposit
-          </div>
-        ),
-      },
-    ], [selectedTab, isHovered]); // Add isHovered as dependency
+    const items = useMemo(
+      () => [
+        {
+          key: 1,
+          label: (
+            <div className="d-flex align-items-center">
+              <i className="icon-billings"></i>
+              {`Billing (${billingCount})`}
+            </div>
+          ),
+        },
+        {
+          key: 2,
+          label: (
+            <div
+              className="d-flex align-items-center"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <img
+                src={
+                  selectedTab === 2 || isHovered
+                    ? depositSelectedIcon
+                    : depositIcon
+                }
+                className="me-2"
+                alt={selectedTab === 2 ? "selected-deposit" : "default-deposit"}
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  display: "block",
+                }}
+              />
+              {`Advance Deposit (${advanceCount})`}
+            </div>
+          ),
+        },
+      ],
+      [selectedTab, isHovered, billingCount, advanceCount]
+    ); // Add isHovered as dependency
 
     // Create a ref for the AdvanceDepositTable
     const advanceTableRef = useRef(null);
@@ -119,11 +197,20 @@ const TableBillingDashboard = forwardRef(
                 patientData={patientData}
                 getPatientBills={getPatientBills}
                 handleTotalAdvanceUpdate={handleTotalAdvanceUpdate}
+                setBillingCount={setBillingCount}
+                setAdvanceCount={setAdvanceCount}
+                dateRange={dateRange}
+                setDateRange={setDateRange}
+                selectedDoctors={selectedDoctors}
+                setSelectedDoctors={setSelectedDoctors}
               />
             ) : (
               <AdvanceDepositTable
                 ref={advanceTableRef}
                 patientData={patientData}
+                dateRange={dateRange}
+                setDateRange={setDateRange}
+                totalAdvanceBalance={totalAdvanceBalance}
               />
             )}
           </div>

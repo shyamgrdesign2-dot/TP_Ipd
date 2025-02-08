@@ -101,13 +101,22 @@ function BillingDashboard({ patientData }) {
     handleAddAdvanceDrawer();
     // Refresh the total advance balance
     if (patientData?.patient_unique_id) {
-      fetchPatientWalletBalance(patientData.patient_unique_id)
-        .then((response) => {
-          // Extract the balance value from the response object
-          const balance = response?.advanceDepositBalance || 0;
-          setTotalAdvanceBalance(balance);
-        })
-        .catch(console.error);
+      getPatientWalletBalance();
+    }
+  };
+
+  useEffect(() => {
+    if (patientData?.patient_unique_id) {
+      getPatientWalletBalance();
+    }
+  }, []);
+
+  const getPatientWalletBalance = async () => {
+    const patientWalletBalanceRes = await fetchPatientWalletBalance(
+      patientData.patient_unique_id
+    );
+    if (patientWalletBalanceRes?.advanceDepositBalance) {
+      setTotalAdvanceBalance(patientWalletBalanceRes?.advanceDepositBalance);
     }
   };
 
@@ -206,6 +215,7 @@ function BillingDashboard({ patientData }) {
             onTabChange={setSelectedTab}
             patientData={patientData}
             handleTotalAdvanceUpdate={handleTotalAdvanceUpdate}
+            totalAdvanceBalance={totalAdvanceBalance}
           />
         </div>
 
