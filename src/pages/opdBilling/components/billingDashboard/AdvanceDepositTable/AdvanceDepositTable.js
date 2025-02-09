@@ -39,26 +39,36 @@ import {
 import AddAdvance from "../../advanceDeposit/AddAdvance.js";
 import ViewBillPdf from "../../viewBillPdf/ViewBillPdf.js";
 import { pdf } from "@react-pdf/renderer";
+import { throttle } from "lodash";
 import { setLoadingStatus } from "../../../../../redux/uploadDocSlice.js";
 import { useDispatch } from "react-redux";
 import html2pdf from "html2pdf.js";
-import { throttle } from "lodash";
 const { RangePicker } = DatePicker;
 
-const cards = [
+const cardsStaticData = [
   {
     id: 1,
-    title: "Total Advance Received (3)",
-    amount: "₹2000",
+    title: "Total Advance Received",
     color: "#A461D8",
     fontColor: "#A461D8",
+    amountKey: "totalAdvanceReceived",
+    countKey: "advanceReceivedCount",
   },
   {
     id: 2,
-    title: "Total Advance Refunded (1)",
-    amount: "₹800",
+    title: "Total Advance Refunded",
     color: "#EF9A9A",
     fontColor: "#B73A3A",
+    amountKey: "totalAdvanceRefunded",
+    countKey: "advanceRefundedCount",
+  },
+  {
+    id: 3,
+    title: "Total Advance Debited",
+    color: "#FDF7D7",
+    fontColor: "#ED8A00",
+    amountKey: "totalAdvanceDebited",
+    countKey: "advanceDebitedCount",
   },
 ];
 
@@ -98,6 +108,16 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const tableRef = useRef(null);
+
+  useEffect(() => {
+    // Update cards state whenever the summary prop changes
+    const updatedCards = cardsStaticData.map((card) => ({
+      ...card,
+      amount: data?.summary[card.amountKey] || 0,
+      count: data?.summary[card.countKey] || 0,
+    }));
+    setCards(updatedCards);
+  }, [data]);
 
   const onSearch = useCallback(
     (query) => {
@@ -305,8 +325,8 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
     },
     {
       title: "TOTAL AMOUNT",
-      dataIndex: "total_amount",
-      key: "total_amount",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
       ellipsis: true,
       sorter: true,
       render: (text, record) => (
@@ -318,22 +338,27 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
     },
     {
       title: "STATUS",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "transactionType",
+      key: "transactionType",
       ellipsis: true,
       render: (text, record) => {
         // Determine the class name and display value based on the status
         const getStatusDetails = (status) => {
           switch (status.toLowerCase()) {
-            case "advance":
+            case "deposit":
               return {
                 className: "status-advance",
                 displayText: `Advance`,
               };
-            case "refunded":
+            case "refund":
               return {
                 className: "status-refunded",
                 displayText: `Refunded`,
+              };
+            case "debit":
+              return {
+                className: "status-debited",
+                displayText: `Debited`,
               };
             default:
               return {
@@ -939,7 +964,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
             className="billing-table px-0"
             columns={patientData ? patientColumns : columns}
             width="100%"
-            dataSource={data}
+            dataSource={data?.receipts}
             pagination={false}
             scroll={{ y: 500 }}
             onChange={handleSortChange} // Send sorting data to parent

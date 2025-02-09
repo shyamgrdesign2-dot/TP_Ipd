@@ -7,13 +7,7 @@ import { useSelector } from "react-redux";
 import { calculateTotalAmount } from "../../utils/helper";
 import { onlyDecimalFormat } from "../../../../utils/utils";
 
-const ServiceItemPopup = ({
-  popupType,
-  onCancel,
-  editIndex,
-  item,
-  updateItems,
-}) => {
+const ServiceItemPopup = ({ onCancel, editIndex, item, setDataSource }) => {
   const { advancedSettings } = useSelector((state) => state.billing);
   const [serviceItem, setServiceItem] = useState({
     id: item?.id || item?.masterId,
@@ -267,7 +261,7 @@ const ServiceItemPopup = ({
                     !serviceItem.type || !serviceItem.name || !serviceItem.price
                   }
                 >
-                  <span>{editIndex === -1 ? "Add" : "Update"}</span>
+                  <span>{editIndex === -1 ? "Add" : "Save"}</span>
                 </Button>
               </div>
             </div>

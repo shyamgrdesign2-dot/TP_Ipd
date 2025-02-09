@@ -105,9 +105,12 @@ const TableBillingDashboard = forwardRef(
       const advanceResponse = patientData
         ? await listAdvancedDepositByPatient(advanceParams)
         : await fetchAdvancedDepositDashboard(advanceParams);
+
       setBillingCount(billResponse?.summary?.count);
       setAdvanceCount(
-        advanceResponse?.summary?.totalCount || advanceResponse?.summary?.count
+        advanceResponse?.summary?.totalCount ||
+          advanceResponse?.summary?.count ||
+          0
       );
     };
 

@@ -40,7 +40,11 @@ import { MESSAGE_KEY } from "../../../../utils/constants.js";
 import visitEnd from "../../../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../../../assets/images/close-visit.svg";
 import { fetchBillingDashboard } from "../../service.js";
-import { formatDateWithOrdinal, handleDownload, printContent } from "../../utils/helper.js";
+import {
+  formatDateWithOrdinal,
+  handleDownload,
+  printContent,
+} from "../../utils/helper.js";
 import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip.js";
 import PreviewBill from "../../PreviewBill.js";
 import html2pdf from "html2pdf.js";
@@ -114,6 +118,23 @@ const Manage3cBills = forwardRef(
       [searchQuery]
     );
 
+    const handlePickerModal = useCallback(() => {
+      setPickerModal(!pickerModal);
+    }, [pickerModal]);
+
+    const handlePrintWeb = useReactToPrint({
+      content: () => printableRef.current,
+    });
+
+    const handleForm3cPrint = () => {
+      handlePrintClick(
+        printableRef.current,
+        setTabLoader,
+        handlePrintWeb,
+        "DownloadBill"
+      );
+    };
+
     const handlePrintData = () => {
       const element = printableRef.current;
       const options = {
@@ -137,27 +158,6 @@ const Manage3cBills = forwardRef(
 
     const setStartLoader = () => {
       dispatch(setLoadingStatus(true));
-    };
-
-  // Handle individual row selection
-  const onSelectChange = (selectedKeys, selectedRows) => {
-    setSelectedRows(selectedRows);
-  };
-    const handlePickerModal = useCallback(() => {
-      setPickerModal(!pickerModal);
-    }, [pickerModal]);
-
-    const handlePrintWeb = useReactToPrint({
-      content: () => printableRef.current,
-    });
-
-    const handleForm3cPrint = () => {
-      handlePrintClick(
-        printableRef.current,
-        setTabLoader,
-        handlePrintWeb,
-        "DownloadBill"
-      );
     };
 
     // Handle individual row selection
@@ -235,53 +235,6 @@ const Manage3cBills = forwardRef(
       },
     ];
 
-  const onRangeChange = (dates, dateStrings) => {
-    if (dates) {
-      // console.log('From: ', dates[0], ', to: ', dates[1]);
-      // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
-
-      if (
-        dayjs().format(dateFormat) ==
-          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
-        dayjs().format(dateFormat) ==
-          moment(dateStrings[1], showDateFormat).format(dateFormat)
-      ) {
-        setDateStatus(1);
-      } else if (
-        dayjs().add(-7, "d").format(dateFormat) ==
-          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
-        dayjs().format(dateFormat) ==
-          moment(dateStrings[1], showDateFormat).format(dateFormat)
-      ) {
-        setDateStatus(2);
-      } else if (
-        dayjs().add(-1, "M").format(dateFormat) ==
-          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
-        dayjs().format(dateFormat) ==
-          moment(dateStrings[1], showDateFormat).format(dateFormat)
-      ) {
-        setDateStatus(3);
-      } else if (
-        dayjs().add(-3, "M").format(dateFormat) ==
-          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
-        dayjs().format(dateFormat) ==
-          moment(dateStrings[1], showDateFormat).format(dateFormat)
-      ) {
-        setDateStatus(4);
-      } else if (
-        dayjs().add(-6, "M").format(dateFormat) ==
-          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
-        dayjs().format(dateFormat) ==
-          moment(dateStrings[1], showDateFormat).format(dateFormat)
-      ) {
-        setDateStatus(5);
-      } else if (
-        dayjs().add(-1, "y").format(dateFormat) ==
-          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
-        dayjs().format(dateFormat) ==
-          moment(dateStrings[1], showDateFormat).format(dateFormat)
-      ) {
-        setDateStatus(6);
     const onRangeChange = (dates, dateStrings) => {
       if (dates) {
         if (
@@ -562,9 +515,7 @@ const Manage3cBills = forwardRef(
 
     const resetTableScroll = () => {
       // Using document.querySelector with a more specific selector
-      const tableBody = document.querySelector(
-        ".form3c-table .ant-table-body"
-      );
+      const tableBody = document.querySelector(".bills-table .ant-table-body");
       if (tableBody) {
         tableBody.scrollTo({
           top: 0,
@@ -596,7 +547,7 @@ const Manage3cBills = forwardRef(
               className={`btn-create-bill ${
                 selectedRows?.length === 0 ? "disabled" : ""
               } `}
-              onClick={handleForm3cPrint}
+              onClick={handlePrintData}
               disabled={selectedRows?.length === 0}
             >
               <span>{"Print Form 3C"}</span>
@@ -736,7 +687,7 @@ const Manage3cBills = forwardRef(
                 selectedRowKeys: selectedRows.map((row) => row.id),
                 onChange: onSelectChange,
               }}
-              className="form3c-table px-0"
+              className="bills-table px-0"
               columns={columns}
               width="100%"
               scroll={{ y: 600 }}

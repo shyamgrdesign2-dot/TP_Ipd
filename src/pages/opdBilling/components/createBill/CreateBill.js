@@ -65,10 +65,10 @@ import {
   clearSearch,
   searchPatients,
 } from "../../../../redux/appointmentsSlice";
+import waveImage from "../../../../assets/images/opd-billing-wave.svg";
 import addCircleIcon from "../../../../assets/images/add-circle.svg";
 import AddAdvance from "../advanceDeposit/AddAdvance";
 import { isMobile } from "react-device-detect";
-import waveImage from "../../../../assets/images/opd-billing-wave.svg";
 
 const CreateBill = ({
   handleCreateBillDrawer,

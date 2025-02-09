@@ -15,7 +15,7 @@ import { jwtDecode } from "jwt-decode";
 import { setUserId } from "../../../../redux/doctorsSlice";
 import { getClinicName } from "../../../../utils/utils";
 import TableBillingDashboard from "./TableBillingDashboard";
-import { Button, Drawer } from "antd";
+import { Button, Drawer, message } from "antd";
 import "./BillingDashboard.scss";
 import Vaccination from "../../../vaccination/Vaccination";
 import Manage3cBill from "../manage3cBills/Manage3cBills";
@@ -190,7 +190,7 @@ function BillingDashboard({ patientData }) {
                   {selectedTab !== "billingtable" && !patientData && (
                     <Button
                       className="btn-create-bill"
-                      onClick={handleAddAdvance}
+                      onClick={handleAddAdvanceDrawer}
                     >
                       <span style={{ fontSize: "22px" }}>{"+"}</span>
                       <span>{"Add Advance Deposit"}</span>

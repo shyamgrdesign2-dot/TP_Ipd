@@ -41,13 +41,13 @@ import { MESSAGE_KEY } from "../../../../utils/constants";
 import { ListGroup } from "react-bootstrap";
 import { PaymentOptions } from "../../utils/constants";
 import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip";
+import { onlyDecimalFormat } from "../../../../utils/utils";
+import { formatDateWithOrdinal } from "../../utils/helper";
 import PreviewBill from "../../PreviewBill";
 import ViewBillPdf from "../viewBillPdf/ViewBillPdf";
 import { pdf } from "@react-pdf/renderer";
 import { printContent } from "../../utils/helper";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
-import { onlyDecimalFormat } from "../../../../utils/utils";
-import { formatDateWithOrdinal } from "../../utils/helper";
 import { useLocation } from "react-router-dom";
 import { isMobile } from "react-device-detect";
 import RefIdPopup from "../refIdPopup/RefIdPopup";
@@ -969,75 +969,7 @@ function AddAdvance({
                 </div>
               </div>
 
-              <div className={`mx-4 p-2 ${isMobile ? "" : "d-flex gap-2 justify-content-between mx-4 p-2"}`}>
-                {/* Mobile Number */}
-                <div>
-                  <div className="text-lg font-medium mb-2">Mobile Number</div>
-                  {isEditingMobile && !patientData && !billData ? (
-                    <AutoComplete
-                      ref={mobileAutoCompleteRef}
-                      value={searchQueryMobile}
-                      onSearch={(value) => {
-                        setSearchQueryMobile(value);
-                        onSearchMobile(value);
-                      }}
-                      options={patientSearchOptions}
-                      className="w-100 autocomplete-custom"
-                      open={autoCompleteFlagMobile}
-                      onFocus={() => {
-                        setAutoCompleteFlagMobile(true);
-                        setAutoCompleteFlagName(false); // Close name autocomplete
-                        setIsEditingName(false); // Exit name editing mode
-                      }}
-                      onBlur={() => {
-                        setTimeout(() => {
-                          setAutoCompleteFlagMobile(false);
-                          setIsEditingMobile(false);
-                        }, 200);
-                      }}
-                      popupClassName="autocomplete-dropdown"
-                      dropdownStyle={{
-                        width: 400,
-                      }}
-                    >
-                      <Input
-                        style={{ width: "12rem" }}
-                        placeholder="Search Mobile Number"
-                        prefix={<i className="icon-search"></i>}
-                        suffix={
-                          searchQueryMobile.length > 0 && (
-                            <i
-                              className="icon-Cross"
-                              onClick={() => {
-                                setSearchQueryMobile("");
-                              }}
-                            />
-                          )
-                        }
-                      />
-                    </AutoComplete>
-                  ) : (
-                    <Input
-                      value={
-                        patientData
-                          ? patientData?.pm_contact_no
-                          : billData
-                          ? billData.patient.phone
-                          : patientDetails
-                          ? patientDetails?.mobileNumber
-                          : ""
-                      }
-                      placeholder="Search Mobile Number"
-                      disabled={patientData || billData}
-                      style={{ height: 38, width: "12rem" }}
-                      className="patient-input"
-                      onClick={() => {
-                        setIsEditingMobile(true);
-                        setIsEditingName(false);
-                      }}
-                    />
-                  )}
-                </div>
+              <div className="d-flex gap-2 justify-content-between mx-4 p-2">
                 {/* Advance Deposit Date */}
                 <div className="w-100">
                   <div className="text-lg font-medium mb-2">

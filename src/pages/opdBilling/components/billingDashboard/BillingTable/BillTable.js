@@ -177,7 +177,7 @@ const BillTable = ({
         // Determine the class name and display value based on the status
         const getStatusDetails = (status) => {
           switch (status.toLowerCase()) {
-            case "paid fully":
+            case "fullypaid":
               return {
                 className: "status-paid-fully",
                 displayText: "Paid Fully",
@@ -208,7 +208,9 @@ const BillTable = ({
         };
 
         // Get status details
-        const { className, displayText } = getStatusDetails(record.status);
+        const { className, displayText } = getStatusDetails(
+          record.paymentStatus
+        );
 
         return (
           <div className="d-flex">

@@ -23,6 +23,8 @@ import logoIcom from '../assets/images/text-logo.svg';
 import VideoModal from "./VideoModal";
 import videorotate from '../assets/images/videorotate.gif';
 import billingsIcon from '../assets/images/billings.svg';
+import upgradeIcon from "../assets/images/upgrade.svg";
+import crownIcon from "../assets/images/crown.svg";
 
 import config from "../config";
 import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds } from "../redux/doctorsSlice";

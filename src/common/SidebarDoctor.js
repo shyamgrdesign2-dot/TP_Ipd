@@ -33,7 +33,6 @@ function SidebarDoctor() {
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
   const { profile } = useSelector((state) => state.doctors);
-  const { planDetails } = useSelector((state) => state.subscription);
   const [tokenData, setTokenData] = useState(null);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [tatvaHovered, SetTatvaHovered] = useState(null);
@@ -75,18 +74,23 @@ function SidebarDoctor() {
 
   const clickOldModule = (moduleName) => {
     SSO_TO_PM().then(async (data) => {
-      if (data.success == 200) {
-        if (!isChrome && !isSafari) {
-          navigate(`/?url=${data.url}&module=${moduleName}&key=phpRedirect`, {
-            replace: true,
-          });
-          navigate(0, { replace: true });
-        } else {
-          await window.open(`${data.url}&module=${moduleName}`);
+      if (moduleName === "opd_billing") {
+        navigate("/billing-dashboard");
+      } else {
+        if (data.success == 200) {
+          if (!isChrome && !isSafari) {
+            navigate(`/?url=${data.url}&module=${moduleName}&key=phpRedirect`, {
+              replace: true,
+            });
+            navigate(0, { replace: true });
+          } else {
+            await window.open(`${data.url}&module=${moduleName}`);
+          }
         }
       }
     });
   };
+
   async function SSO_TO_PM() {
     try {
       const sendData = {
@@ -161,15 +165,7 @@ function SidebarDoctor() {
   const handleTatvaAi = async () => {
     try {
       setLoading(true);
-      window.Moengage.track_event("TP_TatvaAI_Open", {
-        Doctor_Name: profile?.um_name,
-        Doctor_Number: profile?.um_contact,
-        Doctor_Unique_Id: profile?.doctor_unique_id,
-        Doctor_Um_Id: tokenData?.user_id,
-        Payment_Status: planDetails?.currentPlanStatus,
-      });
       const token = await getToken();
-      
 
       const response = await axios.post(
         `${baseUrl}/api/v1/practice/tatva-ai-token`,
@@ -274,7 +270,10 @@ function SidebarDoctor() {
                   onClick={() => clickOldModule(item.type)}
                   replace={true}
                   className={({ isActive, isPending }) =>
-                    isHovered
+                    item.type === "opd_billing" &&
+                    window.location.pathname === "/billing-dashboard"
+                      ? "active"
+                      : isHovered
                       ? ""
                       : isPending
                       ? "pending"
@@ -320,10 +319,11 @@ function SidebarDoctor() {
 
         {loading && <FullPageLoader />}
 
-        {profile?.ownerDoctor === 1 && (
+        {process.env.REACT_APP_ENV !== "prod" && (
           <NavLink
             to="/bulk_messages"
             replace={true}
+            style={{ marginTop: "8px" }}
             className={({ isActive, isPending }) =>
               isPending ? "pending" : isActive ? "active" : ""
             }
@@ -346,7 +346,6 @@ function SidebarDoctor() {
             </div>
           </NavLink>
         )}
-
         <div>
           <Button
             className="btn btn-delete-prescription mx-auto d-block p-0 mt-2"

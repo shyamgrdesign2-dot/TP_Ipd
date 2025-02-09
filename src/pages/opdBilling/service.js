@@ -151,12 +151,13 @@ export const upsertBillItem = async function (payload) {
   return res;
 };
 
-export const deleteBillItem = async function (itemId) {
+// Function to add bills to Form 3C
+export const addBillsToForm3C = async function (payload) {
   let res = {};
   try {
     res = await api.post(`api/v1/billing/bill/addToForm3C`, payload, baseUrl);
   } catch (e) {
-    console.error("Error while fetching patient due amount: ", e);
+    console.error("Error while adding bills to Form 3C: ", e);
   }
   return res;
 };
@@ -336,6 +337,16 @@ export const addToForm3C = async function (billIds) {
   return res;
 };
 
+export const deleteBillItem = async function (itemId) {
+  let res = {};
+  try {
+    res = await api.delete(`/api/v1/billing/billItem/${itemId}`, baseUrl);
+  } catch (e) {
+    console.error("Error while deleting the bill item: ", e);
+  }
+  return res;
+};
+
 export const fetchPatientDueAmount = async function (patientId) {
   let res = {};
   try {
@@ -345,6 +356,19 @@ export const fetchPatientDueAmount = async function (patientId) {
     );
   } catch (e) {
     console.error("Error while fetching patient due amount: ", e);
+  }
+  return res;
+};
+
+export const fetchPatientWalletBalance = async function (patientId) {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/billing/advancedDeposit/walletBalance?patientId=${patientId}`,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching patient wallet balance: ", e);
   }
   return res;
 };

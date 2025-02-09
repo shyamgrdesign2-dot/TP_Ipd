@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   Select,
   Checkbox,
@@ -18,7 +18,6 @@ import {
   listAdvancedDepositByPatient,
 } from "../../../service.js";
 import BillTable from "./BillTable.js";
-import { fetchBillingDashboard } from "../../../service.js";
 import { listDoctor } from "../../../../../redux/bulkMessagesSlice.js";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
@@ -519,7 +518,15 @@ export default function BillingTable({
       const fetchData = patientData ? patientBillingData : loadData;
       fetchData();
     }
-  }, [selectedCard, dateRange, searchQuery, selectedDoctors, form3cTriggered, sortConfig, doctorList]);
+  }, [
+    selectedCard,
+    dateRange,
+    searchQuery,
+    selectedDoctors,
+    form3cTriggered,
+    sortConfig,
+    doctorList,
+  ]);
 
   const handleRefundSuccess = () => {
     handleRefundComplete && handleRefundComplete();
