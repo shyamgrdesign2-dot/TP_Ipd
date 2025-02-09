@@ -462,6 +462,7 @@ const Manage3cBills = forwardRef(
 
     const loadData = async (resetData = true) => {
       const params = {
+        status:["FullyPaid","Due","CarriedForward"],
         sortBy: sortConfig?.field || "date",
         sortOrder: sortConfig?.order || "desc",
         page: resetData ? 1 : page,
@@ -691,9 +692,7 @@ const Manage3cBills = forwardRef(
               columns={columns}
               width="100%"
               scroll={{ y: 600 }}
-              dataSource={data?.bills?.filter(
-                (item) => item.paymentStatus !== "Refunded"
-              )}
+              dataSource={data?.bills}
               pagination={false}
               onChange={handleTableChange}
               onScroll={handleTableScroll}

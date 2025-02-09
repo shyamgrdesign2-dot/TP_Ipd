@@ -90,6 +90,7 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [pickerModal, setPickerModal] = useState(false);
   const [data, setData] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ field: null, order: null });
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const tableRef = useRef(null);
@@ -285,16 +286,16 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
     },
     {
       title: "TOTAL AMOUNT",
-      dataIndex: "total_amount",
-      key: "total_amount",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
       ellipsis: true,
       sorter: true,
       render: (text, record) => <div> {record.payableAmount} </div>,
     },
     {
       title: "PAID AMOUNT",
-      dataIndex: "paid_Amount",
-      key: "paid_Amount",
+      dataIndex: "paidAmount",
+      key: "paidAmount",
       ellipsis: true,
       sorter: true,
       render: (text, record) => <div> {record.paidAmount} </div>,
@@ -361,8 +362,8 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
   const loadData = async (resetData = true) => {
     // setLoading(true);
     const params = {
-      sortBy: "date",
-      sortOrder: "desc",
+      sortBy: sortConfig?.field || "date",
+      sortOrder: sortConfig?.order || "desc",
       page: resetData ? 1 : page,
       limit: 25,
       startDate: dateRange.startDate,
@@ -389,7 +390,7 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
   useEffect(() => {
     resetTableScroll();
     loadData();
-  }, [dateRange, searchQuery]);
+  }, [dateRange, searchQuery, sortConfig]);
 
   const handleAddForm3cBill = async () => {
     try {
@@ -415,6 +416,21 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
   const handleBackAddForm3CDrawer = () => {
     setForm3cData(0);
     handleAddForm3cDrawer();
+  };
+
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    if (sorter.order) {
+      const order = sorter.order === "ascend" ? "asc" : "desc"; // Convert to API format
+      const field = sorter.field; // Get sorted field
+
+      // Pass sorting parameters to parent
+      handleSortChange(field, order);
+    }
+  };
+
+  const handleSortChange = (field, order) => {
+    setSortConfig({ field, order }); // Update state
   };
 
   const handleTableScroll = throttle((e) => {
@@ -582,6 +598,7 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
             scroll={{ y: 600 }}
             dataSource={data}
             pagination={false}
+            onChange={handleTableChange}
             onScroll={handleTableScroll}
           />
         </div>
