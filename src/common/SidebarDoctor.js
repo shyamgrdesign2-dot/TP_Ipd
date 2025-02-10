@@ -26,7 +26,8 @@ import followUpActiveIcon from "../assets/images/follow-up-active.svg";
 import tatvaAiActiveIcon from "../assets/images/website-images/tatvaAiActiveIcon.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { errorMessage } from "../utils/utils";
-import FullPageLoader from "../pages/vaccination/components/Loader";
+import FullPageLoader from '../pages/vaccination/components/Loader';
+import { useOpdBilling } from '../pages/opdBilling/useOpdBilling';
 
 function SidebarDoctor() {
   const [getToken, setToken] = useLocalStorage(
@@ -39,6 +40,7 @@ function SidebarDoctor() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+    const { isOpdBillingAccessable } = useOpdBilling();
 
   const isApolloConsultationsEnabled = useFeatureIsOn("apollo-consultations");
 
@@ -74,7 +76,7 @@ function SidebarDoctor() {
 
   const clickOldModule = (moduleName) => {
     SSO_TO_PM().then(async (data) => {
-      if (moduleName === "opd_billing") {
+      if (moduleName === "opd_billing" && isOpdBillingAccessable) {
         navigate("/billing-dashboard");
       } else {
         if (data.success == 200) {

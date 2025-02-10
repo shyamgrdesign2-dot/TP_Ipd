@@ -17,7 +17,7 @@ const BillDetails = ({ pageFormat, billData }) => {
     notes,
     paymentStatus,
     refundedAmount,
-    refundModes,
+    refundModes = [],
     refundNotes,
     nextBillNumber,
   } = billData || {};
@@ -73,14 +73,10 @@ const BillDetails = ({ pageFormat, billData }) => {
           divider: true,
         }
       : undefined,
-    refundModes
-      ? {
-          ...refundModes?.map((mode) => ({
-            label: `Refunded Via ${mode.paymentMode}:`,
-            value: `₹${mode.amount.toFixed(2)}`,
-          })),
-        }
-      : undefined,
+    ...refundModes?.map((mode) => ({
+      label: `Refunded Via ${mode.paymentMode}:`,
+      value: `₹${mode.amount.toFixed(2)}`,
+    })),
   ]?.filter((item) => item);
 
   return (

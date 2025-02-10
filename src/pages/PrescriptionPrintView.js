@@ -28,6 +28,7 @@ import CreateBill from "./opdBilling/components/createBill/CreateBill";
 import RecentBills from "./opdBilling/components/recentBills/RecentBills";
 import { fetchBillsByPatient, listAdvancedDepositByPatient } from "./opdBilling/service";
 import moment from "moment";
+import { useOpdBilling } from "./opdBilling/useOpdBilling";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -99,6 +100,7 @@ function PrescriptionPrintView() {
     } = useSelector((state) => state.caseManager);
     const { userId } = useSelector((state) => state.doctors);
     const { currentSessionRx } = useSelector((state) => state.obstetric);
+    const { isOpdBillingAccessable } = useOpdBilling();
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
@@ -348,7 +350,7 @@ function PrescriptionPrintView() {
                                     <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                                 </div>
                                 }
-                                 <Button
+                                 {isOpdBillingAccessable && (<Button
 
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
@@ -357,7 +359,7 @@ function PrescriptionPrintView() {
                                 >
                                     <span className="fw-semibold">{patientBills?.length > 0 ? "Create/ View Bill" : "Create Bill"}</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
-                                </Button>
+                                </Button>)}
                                 <Button
                                     type="text"
                                     onClick={() => {

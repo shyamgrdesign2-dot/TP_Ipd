@@ -388,3 +388,16 @@ export const updateAdvancedSettings = async function (payload) {
   }
   return res;
 };
+
+export const fetchBillDetailsByBillNumber = async function (billNumber) {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/billing/bill/getByBillNumber?billNumber=${billNumber}`,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching Bill details by bill number: ", e);
+  }
+  return res;
+};

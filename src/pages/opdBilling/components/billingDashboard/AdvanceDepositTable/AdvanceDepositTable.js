@@ -631,7 +631,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
         style={{ margin: "20px 15px", paddingBottom: "15px" }}
       >
         <div className="section-title mb-2 fs-16 section-title-color">
-          Select specified status
+          Select specific status
         </div>
         {/* Checkboxes */}
         <Checkbox.Group
