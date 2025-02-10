@@ -908,7 +908,7 @@ function AddAdvance({
                           setIsEditingName(true);
                         }, 200);
                       }}
-                      popupClassName="autocomplete-dropdown w-50"
+                      popupClassName="autocomplete-dropdown"
                     >
                       <Input
                         placeholder="Search by Patient’s Name, Mobile number or Id"
