@@ -151,8 +151,7 @@ const BillTable = ({
       onFilter: (value, record) => record.send_on.startsWith(value),
       render: (text, record) => (
         <div className="dashboard-table-font-style">
-          {" "}
-          {record.payableAmount}{" "}
+          ₹{record.payableAmount}
         </div>
       ),
     },
@@ -164,7 +163,7 @@ const BillTable = ({
       ellipsis: true,
       sorter: true,
       render: (text, record) => (
-        <div className="dashboard-table-font-style"> {record.paidAmount} </div>
+        <div className="dashboard-table-font-style"> ₹{record.paidAmount} </div>
       ),
     },
     {

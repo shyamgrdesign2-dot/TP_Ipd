@@ -67,12 +67,14 @@ export const deleteDocById = async function (id) {
 };
 
 export const deleteDocsUploadedFromAndroid = async function (
-  patient_unique_id
+  patient_unique_id,
 ) {
   let res = [];
   try {
     res = await api.delete(
-      `/api/v1/docs/cleanup-temp?patient_unique_id=${patient_unique_id}`,
+      patient_unique_id
+        ? "/api/v1/docs/cleanup-temp"
+        : `/api/v1/docs/cleanup-temp?patient_unique_id=${patient_unique_id}`,
       baseUrl
     );
   } catch (e) {

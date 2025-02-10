@@ -196,9 +196,15 @@ export const listAdvancedDepositByPatient = async function (params) {
       patientId: params.patientId,
       page: params.page || 1,
       limit: params.limit || 25,
-      startDate: params.startDate ?? "",
-      endDate: params.endDate ?? "",
     };
+
+    if (params.startDate) {
+      queryParams.startDate = params.startDate;
+    }
+
+    if (params.endDate) {
+      queryParams.endDate = params.endDate;
+    }
 
     // Convert doctorIds array into multiple query params
     let doctorIdsParams = "";

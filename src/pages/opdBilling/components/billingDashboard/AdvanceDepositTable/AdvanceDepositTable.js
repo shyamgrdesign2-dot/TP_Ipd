@@ -331,8 +331,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
       sorter: true,
       render: (text, record) => (
         <div className="fs-16 fw-500">
-          {" "}
-          {parseFloat(record?.totalAmount).toFixed(2)}
+          ₹{parseFloat(record?.totalAmount).toFixed(2)}
         </div>
       ),
     },
@@ -437,7 +436,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
       dataIndex: "totalAmount",
       key: "totalAmount",
       sorter: true,
-      render: (text, record) => <div> {record?.totalAmount} </div>,
+      render: (text, record) => <div> ₹{record?.totalAmount} </div>,
     },
     {
       title: "STATUS",
@@ -571,7 +570,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
       ?.output("blob")
       ?.then((blob) => {
         const url = URL.createObjectURL(blob);
-        handleDownload(url, blob, userId, setStartLoader);
+        handleDownload(url, blob, userId, setStartLoader, !patientData);
       })
       .catch((err) => {
         console.error("Error generating PDF:", err);

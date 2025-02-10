@@ -149,7 +149,7 @@ const Manage3cBills = forwardRef(
         ?.set(options)
         ?.output("blob")
         ?.then((blob) => {
-          printContent(blob, userId, setStartLoader);
+          printContent(blob, userId, setStartLoader, true);
         })
         .catch((err) => {
           console.error("Error generating PDF:", err);

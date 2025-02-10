@@ -30,6 +30,11 @@ import {
   listAdvancedDepositByPatient,
 } from "../../service";
 import { useSelector } from "react-redux";
+import { db } from "../../../../firebase";
+import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { useDispatch } from "react-redux";
+import { deleteDocsUploadedFromAndroid } from "../../../medicalRecords/service";
+import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
 
 const dateFormat = "YYYY-MM-DD";
 const TableBillingDashboard = forwardRef(
@@ -44,6 +49,7 @@ const TableBillingDashboard = forwardRef(
     ref
   ) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const { doctorList } = useSelector((state) => state.bulkMessages);
     const { userId } = useSelector((state) => state.doctors);
     const [searchQuery, setSearchQuery] = useState("");
@@ -64,6 +70,7 @@ const TableBillingDashboard = forwardRef(
       doctorList.map((doctor) => doctor.um_id).length > 0
         ? doctorList.map((doctor) => doctor.um_id)
         : [userId];
+    const deviceUid = localStorage.getItem("app_device_unique_id");
     //   const [date, setDate] = useState({
     //     startDate: moment().format(dateFormat),
     //     endDate: moment().format(dateFormat),
@@ -72,6 +79,38 @@ const TableBillingDashboard = forwardRef(
     useEffect(() => {
       getBillAndAdvanceCount();
     }, [dateRange]);
+
+    useEffect(() => {
+      const checkInFireBase = async () => {
+        if (deviceUid) {
+          const docCapturedImage = doc(db, "billing", deviceUid);
+          try {
+            const docCapturedImageSnap = await getDoc(docCapturedImage);
+            if (docCapturedImageSnap.exists()) {
+              onSnapshot(
+                doc(db, "billing", deviceUid),
+                async (docSnapshotOfCapturedImage) => {
+                  const res = docSnapshotOfCapturedImage?.data();
+                  if (res?.clicked === "no") {
+                    dispatch(setLoadingStatus(false));
+                    deleteDoc(doc(db, "billing", deviceUid));
+                    deleteDocsUploadedFromAndroid(
+                      patientData ? patientData?.patient_unique_id : ""
+                    );
+                  }
+                }
+              );
+            }
+          } catch (error) {
+            console.error("Error updating document:", error);
+          }
+        } else {
+          console.error("Device UID not found");
+        }
+      };
+
+      return () => checkInFireBase();
+    }, [db, deviceUid]);
 
     const getBillAndAdvanceCount = async () => {
       const billParams = {

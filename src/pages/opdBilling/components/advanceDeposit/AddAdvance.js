@@ -434,30 +434,32 @@ function AddAdvance({
                     />
                   </div>
                   {/* Ref ID Section (If Payment Mode is Not Cash) */}
-                  {payment?.paymentMode && payment.paymentMode !== "Cash" && (
-                    <span
-                      style={{
-                        textAlign: payment?.refId ? "" : "center",
-                        textDecoration: payment?.refId ? "none" : "underline",
-                        borderRadius: "0 0 10px 10px",
-                        minHeight: 25,
-                        cursor: "pointer",
-                        wordBreak: "break-word",
-                      }}
-                      onClick={() => setShowRefIdPopup(index)}
-                    >
-                      {payment?.refId ? (
-                        <div className="d-flex align-items-center justify-content-between px-2">
-                          <span>Ref ID: {payment?.refId}</span>
-                          <span className="icon-Edit fs-18" />
-                        </div>
-                      ) : (
-                        <span className="show-more-link">
-                          {`Add ${payment.paymentMode} Ref ID`}
-                        </span>
-                      )}
-                    </span>
-                  )}
+                  {payment?.paymentMode &&
+                    payment.paymentMode !== "Cash" &&
+                    payment.paymentMode !== "Advance Deposit" && (
+                      <span
+                        style={{
+                          textAlign: payment?.refId ? "" : "center",
+                          textDecoration: payment?.refId ? "none" : "underline",
+                          borderRadius: "0 0 10px 10px",
+                          minHeight: 25,
+                          cursor: "pointer",
+                          wordBreak: "break-word",
+                        }}
+                        onClick={() => setShowRefIdPopup(index)}
+                      >
+                        {payment?.refId ? (
+                          <div className="d-flex align-items-center justify-content-between px-2">
+                            <span>Ref ID: {payment?.refId}</span>
+                            <span className="icon-Edit fs-18" />
+                          </div>
+                        ) : (
+                          <span className="show-more-link">
+                            {`Add ${payment.paymentMode} Ref ID`}
+                          </span>
+                        )}
+                      </span>
+                    )}
                 </div>
                 {/* Remove Button (Only if More than One Payment Mode Exists) */}
                 {modes.length > 1 && (
@@ -524,7 +526,7 @@ function AddAdvance({
       ellipsis: true,
       sorter: true,
       width: 150,
-      render: (text, record) => <div> {record.totalAmount} </div>,
+      render: (text, record) => <div> ₹{record.totalAmount} </div>,
     },
     {
       title: "STATUS",
@@ -1039,9 +1041,9 @@ function AddAdvance({
                 disabled={!isFormValid()}
               >
                 {selectedTab === 1
-                  ? `Add Advance ₹${
+                  ? `Add Advance ${
                       calculateTotalAmount(advanceModes) > 0
-                        ? ` ${calculateTotalAmount(advanceModes)}`
+                        ? `₹ ${calculateTotalAmount(advanceModes)}`
                         : ""
                     }`
                   : `Refund ₹${
@@ -1060,7 +1062,7 @@ function AddAdvance({
                 </div>
                 {patientDetails || patientData || billData ? (
                   <div className="advance-balance-value">
-                    {totalAdvanceBalance}
+                    ₹{totalAdvanceBalance}
                   </div>
                 ) : (
                   <div className="advance-balance-value">--</div>

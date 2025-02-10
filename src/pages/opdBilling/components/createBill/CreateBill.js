@@ -163,13 +163,26 @@ const CreateBill = ({
     .toFixed(2);
 
   const applicableGst = dataSource
-    .reduce(
-      (sum, service) =>
-        sum +
-        ((Number(service.amount) || 0) - (Number(service.discount) || 0)) *
-          ((Number(service.gst) || 0) / 100),
-      0
-    )
+    .reduce((sum, service) => {
+      const baseAmount =
+        (Number(service.amount) || 0) * (Number(service.quantity) || 1);
+      let discountAmount = 0;
+
+      // Calculate discount based on type
+      if (service.discountType === "percentage") {
+        discountAmount = (baseAmount * (Number(service.discount) || 0)) / 100;
+      } else {
+        discountAmount =
+          (Number(service.discount) || 0) * (Number(service.quantity) || 1);
+      }
+
+      // Calculate GST on amount after discount
+      const amountAfterDiscount = baseAmount - discountAmount;
+      const gstAmount =
+        amountAfterDiscount * ((Number(service.gst) || 0) / 100);
+
+      return sum + gstAmount;
+    }, 0)
     .toFixed(2);
 
   const totalBillAmount = dataSource.reduce(
@@ -226,7 +239,7 @@ const CreateBill = ({
         (sum, service) => sum + (Number(service.totalAmount) || 0),
         0
       ) -
-      (Number(extraDiscount) || 0) +
+      (Number(extraDiscountAmount) || 0) +
       (Number(patientDueAmount) || 0)
     ).toFixed(2);
 
@@ -1398,7 +1411,8 @@ const CreateBill = ({
                             />
                           </div>
                           {payment?.paymentMode &&
-                            payment.paymentMode !== "Cash" && (
+                            payment.paymentMode !== "Cash" &&
+                            payment.paymentMode !== "Advance Deposit" && (
                               <span
                                 style={{
                                   textAlign: payment?.refId ? "" : "center",

@@ -2,7 +2,9 @@ import { saveAs } from "file-saver";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
 import { db } from "../../../firebase";
-import { uploadDocsToAzure } from "../../medicalRecords/service";
+import {
+  uploadDocsToAzure,
+} from "../../medicalRecords/service";
 import { isChrome, isSafari } from "react-device-detect";
 import moment from "moment";
 
@@ -10,7 +12,8 @@ export const handleDownload = async (
   pdfUrl,
   printBlob,
   patientUniqueId,
-  setStartLoader
+  setStartLoader,
+  isDoctor = false
 ) => {
   if (!isChrome && !isSafari) {
     const file = new File([printBlob], "billingFile.pdf", {
@@ -18,7 +21,9 @@ export const handleDownload = async (
     });
     const formData = new FormData();
     formData.append(file?.name, file);
-    formData.append("patient_unique_id", patientUniqueId);
+    if (!isDoctor) {
+      formData.append("patient_unique_id", patientUniqueId);
+    }
     const res = await uploadDocsToAzure(formData);
     if (res?.length > 0) {
       handleInAppClick(
@@ -40,7 +45,8 @@ export const handleDownload = async (
 export const printContent = async (
   printBlob,
   patientUniqueId,
-  setStartLoader
+  setStartLoader,
+  isDoctor
 ) => {
   if (!isChrome && !isSafari) {
     const file = new File([printBlob], "billingFile.pdf", {
@@ -48,7 +54,9 @@ export const printContent = async (
     });
     const formData = new FormData();
     formData.append(file?.name, file);
-    formData.append("patient_unique_id", patientUniqueId);
+    if (!isDoctor) {
+      formData.append("patient_unique_id", patientUniqueId);
+    }
     const res = await uploadDocsToAzure(formData);
     if (res?.length > 0) {
       handleInAppClick(patientUniqueId, "print", res?.[0]?.url, setStartLoader);
@@ -129,7 +137,7 @@ export const calculateTotalAmount = (item) => {
 export const formatDateWithOrdinal = (date) => {
   const day = moment(date).format("D"); // Get day without leading zero
   const monthYear = moment(date).format("MMM YYYY"); // Format month and year
-  const suffix = moment(date).format("Do").replace(/\d+/g, ''); // Extract suffix from "Do"
+  const suffix = moment(date).format("Do").replace(/\d+/g, ""); // Extract suffix from "Do"
 
   return `${day}${suffix} ${monthYear}`;
-}
+};

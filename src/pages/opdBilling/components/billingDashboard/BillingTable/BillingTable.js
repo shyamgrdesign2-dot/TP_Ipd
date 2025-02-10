@@ -218,7 +218,7 @@ export default function BillingTable({
       ?.output("blob")
       ?.then((blob) => {
         const url = URL.createObjectURL(blob);
-        handleDownload(url, blob, userId, setStartLoader);
+        handleDownload(url, blob, userId, setStartLoader, !patientData);
       })
       .catch((err) => {
         console.error("Error generating PDF:", err);

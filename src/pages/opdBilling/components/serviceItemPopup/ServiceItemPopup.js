@@ -44,6 +44,7 @@ const ServiceItemPopup = ({ onCancel, editIndex, item, setDataSource }) => {
 
         if (updateIndex > -1 && updatedData[updateIndex]) {
           updatedData[updateIndex] = {
+            ...billItemRes,
             ...updatedData[updateIndex], // Keep existing values
             masterId: billItemRes?.id,
             quantity: 1,
@@ -55,7 +56,6 @@ const ServiceItemPopup = ({ onCancel, editIndex, item, setDataSource }) => {
             gst: serviceItem?.gst,
             totalAmount: serviceItem?.totalAmount,
             createdBy: billItemRes?.createdBy,
-            ...billItemRes,
           };
         } else {
           // If no valid index, add a new item

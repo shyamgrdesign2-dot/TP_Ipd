@@ -348,7 +348,8 @@ function RefundBill({
                             />
                           </div>
                           {payment?.paymentMode &&
-                            payment.paymentMode !== "Cash" && (
+                            payment.paymentMode !== "Cash" &&
+                            payment.paymentMode !== "Advance Deposit" && (
                               <span
                                 style={{
                                   textAlign: payment?.refId ? "" : "center",
