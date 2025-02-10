@@ -75,6 +75,8 @@ function Welcome(props) {
                 <h1>Start Walk-In Consultation</h1>
               ) : locationPath == "/bulk_messages" ? (
                 <h1>Messages</h1>
+              ) : locationPath == "/billing-dashboard" ? (
+                <h1>OPD Billing</h1>
               ) : (
                 <h1>Welcome Dr. {profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')}!</h1>
               )}

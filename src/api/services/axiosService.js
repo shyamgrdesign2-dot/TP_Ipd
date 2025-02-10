@@ -56,6 +56,7 @@ instance.interceptors.response.use(
             notificationParam.message = 'Authentication Fail'
             notificationParam.description = 'Please login again'
             console.log('Entry Route')
+            return error.response;
         }
 
         if (error.response.status === 404) {

@@ -2,56 +2,7 @@ import React, { useCallback, useContext } from "react";
 import { Form, Select } from "antd";
 
 import PrintSettingsContext from '../../context/PrintSettingsContext';
-
-const FONTS_FAMILY_LIST = [
-    // {
-    //     value: 'Arial',
-    //     label: (<div className="fontarial">Arial</div>),
-    // },
-    {
-        value: 'Times-Roman',
-        label: (<div className="fonttimesroman">Times Roman</div>),
-    },
-    {
-        value: 'Verdana',
-        label: (<div className="fontverdana">Verdana</div>),
-    },
-    {
-        value: 'Calibri',
-        label: (<div className="fontcalibri">Calibri</div>),
-    },
-    {
-        value: 'Tahoma',
-        label: (<div className="fonttahoma">Tahoma</div>),
-    },
-    {
-        value: 'Roboto',
-        label: (<div className="fontroboto">Roboto</div>),
-    }
-]
-
-const FONTS_SIZE_LIST = [
-    {
-        value: 8,
-        label: '8',
-    },
-    {
-        value: 10,
-        label: '10',
-    },
-    {
-        value: 12,
-        label: '12',
-    },
-    {
-        value: 14,
-        label: '14',
-    },
-    {
-        value: 16,
-        label: '16',
-    }
-]
+import { FONTS_FAMILY_LIST, FONTS_SIZE_LIST } from "../../utils/constants";
 
 function PageFormatLayout() {
 

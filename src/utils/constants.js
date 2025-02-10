@@ -78,3 +78,48 @@ export const MISCARRIAGE = "Miscarriage";
 export const IS_DDX_DIAGNOSIS_OPEN = "isDdxDiagnosisOpen";
 export const IS_DDX_LAB_INVESTIGATION_OPEN = "isDdxLabInvestigationOpen";
 
+export const FONTS_FAMILY_LIST = [
+  {
+    value: "Times-Roman",
+    label: <div className="fonttimesroman">Times Roman</div>,
+  },
+  {
+    value: "Verdana",
+    label: <div className="fontverdana">Verdana</div>,
+  },
+  {
+    value: "Calibri",
+    label: <div className="fontcalibri">Calibri</div>,
+  },
+  {
+    value: "Tahoma",
+    label: <div className="fonttahoma">Tahoma</div>,
+  },
+  {
+    value: "Roboto",
+    label: <div className="fontroboto">Roboto</div>,
+  },
+];
+
+export const FONTS_SIZE_LIST = [
+  {
+    value: 8,
+    label: "8",
+  },
+  {
+    value: 10,
+    label: "10",
+  },
+  {
+    value: 12,
+    label: "12",
+  },
+  {
+    value: 14,
+    label: "14",
+  },
+  {
+    value: 16,
+    label: "16",
+  },
+];

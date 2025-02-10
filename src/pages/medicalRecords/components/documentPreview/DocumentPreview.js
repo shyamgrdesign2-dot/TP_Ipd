@@ -13,7 +13,7 @@ import {
   useControls,
 } from "react-zoom-pan-pinch";
 import { useSelector } from "react-redux";
-import { isChrome, isSafari } from "react-device-detect";
+import { isBrowser } from "react-device-detect";
 import dayjs from "dayjs";
 import config from "../../../../config";
 import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../../../../utils/constants";
@@ -232,9 +232,7 @@ const DocumentPreview = ({
                 className="icon-download"
                 style={{ cursor: "pointer", color: "white" }}
                 onClick={() =>
-                  !isChrome && !isSafari
-                    ? handleInAppDownload()
-                    : handleDownload()
+                  !isBrowser ? handleInAppDownload() : handleDownload()
                 }
               />
 

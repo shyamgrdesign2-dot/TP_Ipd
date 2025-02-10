@@ -22,6 +22,7 @@ function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHan
         { key: 1, icon_name: 'icon-Visit-Summary-Fill', short_title: 'Visit', long_title: 'Visit Summary' },
         { key: 2, icon_name: 'icon-Medical-Certificate', short_title: 'Certificate', long_title: 'Certificate' },
         { key: 3, icon_name: 'icon-Report', short_title: 'Records', long_title: `Medical Records ${allUploadedDocs?.length > 0 ? `(${allUploadedDocs?.length})` : "" }` },
+        { key: 4, icon_name: 'icon-Visit-Summary-Fill', short_title: 'Add Bill', long_title: 'Add Bill/Payment' },
         // { icon_name: 'icon-Discharge-Summary', short_title: 'Discharge', long_title: 'Discharge Summary' },
         // { icon_name: 'icon-Medical-Certificate', short_title: 'Certificate', long_title: 'Medical Certificate' },
         // { icon_name: 'icon-billings', short_title: 'Add Bill', long_title: 'Add Bill/Payment' },
