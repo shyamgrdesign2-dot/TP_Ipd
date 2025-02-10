@@ -741,9 +741,9 @@ function AddAdvance({
                 <img src={visitEnd} className="me-3" />
                 <div>
                   {selectedTab === 1 ? (
-                    <div className="title-common text-start fontroboto">{`Advance ${totalAdvanceAmount} Added successfully`}</div>
+                    <div className="title-common text-start fontroboto">{`Advance ₹${totalAdvanceAmount} Added successfully`}</div>
                   ) : (
-                    <div className="title-common text-start fontroboto">{`Refunded ${totalRefundAmount} successfully`}</div>
+                    <div className="title-common text-start fontroboto">{`Refunded ₹${totalRefundAmount} successfully`}</div>
                   )}
                   {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
                 </div>
@@ -1039,12 +1039,12 @@ function AddAdvance({
                 disabled={!isFormValid()}
               >
                 {selectedTab === 1
-                  ? `Add Advance${
+                  ? `Add Advance ₹${
                       calculateTotalAmount(advanceModes) > 0
                         ? ` ${calculateTotalAmount(advanceModes)}`
                         : ""
                     }`
-                  : `Refund${
+                  : `Refund ₹${
                       calculateTotalAmount(refundModes) > 0
                         ? ` ${calculateTotalAmount(refundModes)}`
                         : ""

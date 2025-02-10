@@ -202,7 +202,7 @@ const Manage3cBills = forwardRef(
     const rangePresets = [
       {
         label: (
-          <div className={`${dateStatus === 1 ? "active" : ""}`}>Till date</div>
+          <div className={`${dateStatus === 1 ? "active" : ""}`}>Today</div>
         ),
         value: [dayjs(), dayjs().endOf("day")],
       },

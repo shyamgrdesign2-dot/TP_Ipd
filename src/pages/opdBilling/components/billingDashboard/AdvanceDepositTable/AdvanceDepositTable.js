@@ -598,7 +598,6 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
     <div
       className="download-options-container billing-table-wrapper"
       style={{
-        padding: "10px",
         background: "#fff",
         borderRadius: "8px",
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
@@ -608,6 +607,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
       <Button
         type="link"
         style={{ background: "lightgray" }}
+        className="download-all-status ant-btn-all-section mt-3"
         onClick={() => {
           // Direct download all data
           setSelectedOptions(["Deposit", "Refund", "Debit"]);
@@ -617,45 +617,54 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
         Download All Status
       </Button>
 
-      <div style={{ textAlign: "center", margin: "10px 0" }}>
-        ---------- or ----------
+      <div className="doctor-select-divider">
+        <span>or</span>
       </div>
 
-      {/* Checkboxes */}
-      <Checkbox.Group
-        className="bil"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          marginBottom: "10px",
-        }}
-        value={selectedOptions} // Bind selected checkboxes to state
-        onChange={handleCheckboxChange}
+      <div
+        className="custom-doctors-section"
+        style={{ margin: "20px 15px", paddingBottom: "15px" }}
       >
-        <Checkbox value="Deposit">
-          <span className="color-advance">Advance</span>
-        </Checkbox>
-        <Checkbox value="Refund">
-          <span className="color-refunded">Refunded</span>
-        </Checkbox>
-        <Checkbox value="Debit">
-          <span className="color-debited">Debited</span>
-        </Checkbox>
-      </Checkbox.Group>
+        <div className="section-title mb-2 fs-16 section-title-color">
+          Select specified status
+        </div>
+        {/* Checkboxes */}
+        <Checkbox.Group
+          className="bil"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            marginBottom: "10px",
+            gap: "10px",
+          }}
+          value={selectedOptions} // Bind selected checkboxes to state
+          onChange={handleCheckboxChange}
+        >
+          <Checkbox value="Deposit">
+            <span className="color-advance">Advance</span>
+          </Checkbox>
+          <Checkbox value="Refund">
+            <span className="color-refunded">Refunded</span>
+          </Checkbox>
+          <Checkbox value="Debit">
+            <span className="color-debited">Debited</span>
+          </Checkbox>
+        </Checkbox.Group>
 
-      {/* Download Now Button */}
-      <Button
-        type="primary"
-        // className="justify-content-center align-items-center"
-        style={{
-          width: "100%",
-          display: `${selectedOptions.length > 0 ? "" : "none"}`,
-        }}
-        onClick={handleDownloadData}
-      >
-        Download
-        <i class="icon-download fs-8" />
-      </Button>
+        {/* Download Now Button */}
+        <Button
+          type="primary"
+          className="ant-btn-download"
+          style={{
+            width: "100%",
+            display: `${selectedOptions.length > 0 ? "" : "none"}`,
+          }}
+          onClick={handleDownloadData}
+        >
+          Download
+          <i class="icon-download fs-18" style={{padding: "10px 6px"}}/>
+        </Button>
+      </div>
     </div>
   );
 
@@ -930,8 +939,8 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
                 className={`card ${selectedCard === card.id ? "selected" : ""}`}
                 onClick={() => setSelectedCard(card.id)}
                 style={{
-                  borderColor: "transprent",
-                  background: `linear-gradient(180deg, ${card.color}4D 0%, ${card.color}00 35%)`,
+                  borderColor: "transparent",
+                  background: `linear-gradient(180deg, ${card.color}4D 0%, ${card.color}00 35%)`
                 }}
               >
                 <div

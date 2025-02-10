@@ -176,17 +176,17 @@ function PrescriptionPrintView() {
       setPrintUrl(`${printUrl}&lg=${encodedData}`);
     }, [patientBills, advanceReceipts]);
 
-    const getPatientBills = async () => {
+    const getPatientBills = async (_, sortParams = {}) => {
         const queryParams = {
-          doctorIds: [userId],
-          startDate: moment().format("YYYY-MM-DD"),
-          endDate: moment().format("YYYY-MM-DD"),
-          sortBy: "date",
-          sortOrder: "asc",
-          page: 1,
-          limit: 25,
-          patientId: patient_data?.patient_unique_id,
-          appointmentId: pam_id || patient_data?.pam_id,
+            doctorIds: [userId],
+            sortBy: sortParams.field || "date",
+            sortOrder: sortParams.order || "asc",
+            page: 1,
+            limit: 25,
+            startDate: moment().format("YYYY-MM-DD"),
+            endDate: moment().format("YYYY-MM-DD"),
+            patientId: patient_data?.patient_unique_id,
+            appointmentId: pam_id || patient_data?.pam_id,
         };
         const response = await fetchBillsByPatient(queryParams);
         if (response?.bills?.length > 0) {
@@ -473,7 +473,12 @@ function PrescriptionPrintView() {
                     width="77%"
                     push={false}
                     >
-                    <RecentBills handleRecentBillDrawer={handleRecentBillDrawer} handleCreateBillDrawer={handleCreateBillDrawer} patientBills={patientBills} getPatientBills={getPatientBills} />
+                    <RecentBills 
+                        handleRecentBillDrawer={handleRecentBillDrawer} 
+                        handleCreateBillDrawer={handleCreateBillDrawer} 
+                        patientBills={patientBills} 
+                        getPatientBills={getPatientBills}
+                    />
                 </Drawer>
             }
             </div>

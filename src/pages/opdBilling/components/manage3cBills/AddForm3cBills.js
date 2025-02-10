@@ -110,7 +110,7 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
   const rangePresets = [
     {
       label: (
-        <div className={`${dateStatus === 1 ? "active" : ""}`}>Till date</div>
+        <div className={`${dateStatus === 1 ? "active" : ""}`}>Today</div>
       ),
       value: [dayjs(), dayjs().endOf("day")],
     },
@@ -400,7 +400,6 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
       const response = await addBillsToForm3C(payload);
 
       if (response.status === 200 || response.status === 204) {
-        message.success("Bills added to Form 3C successfully");
         // Update the count in parent
         setForm3cData(selectedRowKeys.length);
         // Call the success handler which will refresh tables and close drawer

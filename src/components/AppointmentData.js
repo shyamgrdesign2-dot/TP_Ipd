@@ -974,7 +974,7 @@ function AppointmentData({ locationPath }) {
                     ? "There are no patients in your queue right now!"
                     : selectedTab === TAB_FINISHED
                         ? "You haven't finished any consultations or ended the visit yet."
-                        : "Nothing here! You haven’t cancelled any appointments here."}
+                        : "Nothing here! You haven't cancelled any appointments here."}
             </div>
         </div>
     );
@@ -1060,18 +1060,19 @@ function AppointmentData({ locationPath }) {
         [endVisitReason]
     );
 
-     const getPatientBills = async (record) => {
+     const getPatientBills = async (record, sortParams = {}) => {
        const queryParams = {
          doctorIds: [userId],
-         sortBy: "date",
-         sortOrder: "asc",
+         sortBy: sortParams.field || "date",  // Default sort by date
+         sortOrder: sortParams.order || "asc", // Default ascending order
          page: 1,
          limit: 25,
          startDate: moment().format("YYYY-MM-DD"),
          endDate: moment().format("YYYY-MM-DD"),
-         patientId: record?.patient_unique_id,
-         appointmentId: record?.pam_id,
+         patientId: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id,
+         appointmentId: record?.pam_id || appointmentSelectedFromMenu?.pam_id,
        };
+
        const response = await fetchBillsByPatient(queryParams);
        if (response?.bills?.length > 0) {
          const billData = response?.bills?.map((bill) => ({
@@ -1652,7 +1653,7 @@ function AppointmentData({ locationPath }) {
                 >
                     <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientData={appointmentSelectedFromMenu} />
                 </Drawer>)}
-            {recentBillDrawer &&
+            {recentBillDrawer && (
                 <Drawer
                     closeIcon={false}
                     placement="right"
@@ -1660,10 +1661,15 @@ function AppointmentData({ locationPath }) {
                     onClose={handleRecentBillDrawer}
                     width="77%"
                     push={false}
-                    >
-                    <RecentBills handleRecentBillDrawer={handleRecentBillDrawer} handleCreateBillDrawer={handleCreateBillDrawer} patientBills={patientBills} getPatientBills={getPatientBills} />
+                >
+                    <RecentBills 
+                        handleRecentBillDrawer={handleRecentBillDrawer} 
+                        handleCreateBillDrawer={handleCreateBillDrawer} 
+                        patientBills={patientBills} 
+                        getPatientBills={getPatientBills}
+                    />
                 </Drawer>
-            }
+            )}
             {addAdvanceDrawer &&
                 <Drawer
                     closeIcon={false}

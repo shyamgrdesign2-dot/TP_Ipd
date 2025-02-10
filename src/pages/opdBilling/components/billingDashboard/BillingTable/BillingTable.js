@@ -330,7 +330,7 @@ export default function BillingTable({
       {/* Download All Sections */}
       <Button
         type="link"
-        className="download-all-status mt-3"
+        className="download-all-status ant-btn-all-section mt-3"
         onClick={() => {
           setSelectedOptions([
             "FullyPaid",
@@ -381,7 +381,7 @@ export default function BillingTable({
         {/* Download Now Button */}
         <Button
           type="primary"
-          // className="justify-content-center align-items-center"
+          className="ant-btn-download"
           style={{
             width: "100%",
             display: `${selectedOptions.length > 0 ? "" : "none"}`,
@@ -389,7 +389,7 @@ export default function BillingTable({
           onClick={handleDownloadData}
         >
           Download
-          <i class="icon-download fs-8" />
+          <i class="icon-download fs-18" style={{padding: "10px 6px"}}/>
         </Button>
       </div>
     </div>
@@ -510,7 +510,6 @@ export default function BillingTable({
       // setLoading(false);
     }
   };
-  console.log(doctorIds, "doctorIds");
 
   useEffect(() => {
     resetTableScroll();
@@ -747,8 +746,9 @@ export default function BillingTable({
                 className={`card ${selectedCard === card.id ? "selected" : ""}`}
                 onClick={() => setSelectedCard(card.id)}
                 style={{
-                  borderColor: "transprent",
+                  borderColor: "transparent",
                   background: `linear-gradient(180deg, ${card.color}4D 0%, ${card.color}00 35%)`,
+                  position: 'relative'
                 }}
               >
                 <div
@@ -769,6 +769,24 @@ export default function BillingTable({
                     </span>
                   )}
                 </div>
+                {selectedCard === card.id && (
+                  <div 
+                    className="arrow-down"
+                    style={{
+                      position: 'absolute',
+                      bottom: '-10px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: 0,
+                      height: 0,
+                      borderLeft: '10px solid transparent',
+                      borderRight: '10px solid transparent',
+                      borderTop: '10px solid #fff',
+                      filter: 'drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.1))',
+                      zIndex: 1
+                    }}
+                  />
+                )}
               </div>
             ))}
           </div>

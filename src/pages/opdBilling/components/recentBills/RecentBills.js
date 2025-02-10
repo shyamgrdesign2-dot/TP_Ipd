@@ -1,5 +1,6 @@
 import { Button } from "antd";
 import BillTable from "../billingDashboard/BillingTable/BillTable";
+import { useState, useCallback } from 'react';
 
 const RecentBills = ({
   handleRecentBillDrawer,
@@ -7,6 +8,14 @@ const RecentBills = ({
   patientBills,
   getPatientBills,
 }) => {
+  const [sortConfig, setSortConfig] = useState({ field: null, order: null });
+
+  const handleSortChange = useCallback((field, order) => {
+    setSortConfig({ field, order });
+    // Call getPatientBills with new sort parameters
+    getPatientBills(undefined, { field, order });
+  }, [getPatientBills]);
+
   return (
     <div>
       <div
@@ -26,7 +35,7 @@ const RecentBills = ({
           >
             <i className="icon-Cross fs-3"></i>
           </Button>
-          <div className="modal-title">Patient’s Recent Bills</div>
+          <div className="modal-title">Patient's Recent Bills</div>
         </div>
         <Button
           type="button"
@@ -44,6 +53,7 @@ const RecentBills = ({
           isPatientScreen={true}
           getPatientBills={getPatientBills}
           handleRecentBillDrawer={handleRecentBillDrawer}
+          onSortChange={handleSortChange}
         />
       </div>
     </div>
