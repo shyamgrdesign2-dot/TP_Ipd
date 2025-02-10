@@ -3,7 +3,12 @@ import { Divider, Table } from "antd";
 import { useSelector } from "react-redux";
 import moment from "moment";
 
-const DownloadBill = ({ downloadData, parent, dateRange }) => {
+const DownloadBill = ({
+  downloadData,
+  parent,
+  dateRange,
+  isDoctorDashboard,
+}) => {
   const { profile } = useSelector((state) => state.doctors);
 
   const hospitalData = profile?.hospital_data?.[0] || {};
@@ -32,29 +37,33 @@ const DownloadBill = ({ downloadData, parent, dateRange }) => {
       key: "date",
       align: "center",
     },
-    {
-      title: "PATIENT DETAILS",
-      dataIndex: "patientName",
-      key: "patientName",
-      width: 150,
-      align: "left",
-      render: (text, record) => (
-        <div className="cursor-pointer">
-          <div className="fs-14">{record?.patient?.name}</div>
-        </div>
-      ),
-    },
-    {
-      title: "PATIENT DETAILS",
-      dataIndex: "patientDetails",
-      key: "patientDetails",
-      align: "center",
-      render: (text, record) => (
-        <div>
-          <span style={{ color: "#888" }}>{record?.patient?.phone}</span>
-        </div>
-      ),
-    },
+    isDoctorDashboard
+      ? {
+          title: "Patient Name",
+          dataIndex: "patientName",
+          key: "patientName",
+          width: 150,
+          align: "left",
+          render: (text, record) => (
+            <div className="cursor-pointer">
+              <div className="fs-14">{record?.patient?.name}</div>
+            </div>
+          ),
+        }
+      : undefined,
+    isDoctorDashboard
+      ? {
+          title: "Mobile Number",
+          dataIndex: "patientDetails",
+          key: "patientDetails",
+          align: "center",
+          render: (text, record) => (
+            <div>
+              <span style={{ color: "#888" }}>{record?.patient?.phone}</span>
+            </div>
+          ),
+        }
+      : undefined,
     {
       title: "TOTAL AMOUNT",
       dataIndex: "payableAmount",
@@ -76,7 +85,7 @@ const DownloadBill = ({ downloadData, parent, dateRange }) => {
         <span style={{ color: "#888" }}>{record?.paymentStatus}</span>
       ),
     },
-  ];
+  ]?.filter((item) => item);
 
   const advanceColumns = [
     {
