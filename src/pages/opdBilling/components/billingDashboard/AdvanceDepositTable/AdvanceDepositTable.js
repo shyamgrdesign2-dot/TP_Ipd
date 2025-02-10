@@ -570,7 +570,13 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
       ?.output("blob")
       ?.then((blob) => {
         const url = URL.createObjectURL(blob);
-        handleDownload(url, blob, userId, setStartLoader, !patientData);
+        handleDownload(
+          url,
+          blob,
+          patientData ? patientData.patient_unique_id : userId,
+          setStartLoader,
+          !patientData
+        );
       })
       .catch((err) => {
         console.error("Error generating PDF:", err);
@@ -939,7 +945,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
                 onClick={() => setSelectedCard(card.id)}
                 style={{
                   borderColor: "transparent",
-                  background: `linear-gradient(180deg, ${card.color}4D 0%, ${card.color}00 35%)`
+                  background: `linear-gradient(180deg, ${card.color}4D 0%, ${card.color}00 35%)`,
                 }}
               >
                 <div
@@ -962,6 +968,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
                   downloadData={downloadData}
                   parent={"advance"}
                   dateRange={dateRange}
+                  isDoctorDashboard={!patientData}
                 />
               </div>
             </div>
@@ -994,7 +1001,9 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
             isPreviewFromTable={true}
             isDepositReceipt={true}
             billData={billData}
-            totalAdvanceBalance={patientData ? totalAdvanceBalance : patientWalletBalance}
+            totalAdvanceBalance={
+              patientData ? totalAdvanceBalance : patientWalletBalance
+            }
           />
         </Drawer>
       )}

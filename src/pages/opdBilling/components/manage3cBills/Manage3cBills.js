@@ -391,7 +391,7 @@ const Manage3cBills = forwardRef(
         key: "totalAmount",
         ellipsis: true,
         sorter: true,
-        render: (text, record) => <div> {record.payableAmount} </div>,
+        render: (text, record) => <div> ₹{record.payableAmount} </div>,
       },
       {
         title: "PAID AMOUNT",
@@ -399,7 +399,7 @@ const Manage3cBills = forwardRef(
         key: "paidAmount",
         ellipsis: true,
         sorter: true,
-        render: (text, record) => <div> {record.paidAmount} </div>,
+        render: (text, record) => <div> ₹{record.paidAmount} </div>,
       },
       {
         title: "STATUS",

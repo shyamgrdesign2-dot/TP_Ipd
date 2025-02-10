@@ -1079,6 +1079,7 @@ const CreateBill = ({
                         className={`advance-deposite-container ${
                           isMobile ? "mx-1" : "mx-2"
                         }`}
+                        style={{ width: "100%" }}
                         onClick={handleAddAdvanceDrawer}
                       >
                         <span className="text-lg">

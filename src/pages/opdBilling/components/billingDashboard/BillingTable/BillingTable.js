@@ -218,7 +218,13 @@ export default function BillingTable({
       ?.output("blob")
       ?.then((blob) => {
         const url = URL.createObjectURL(blob);
-        handleDownload(url, blob, userId, setStartLoader, !patientData);
+        handleDownload(
+          url,
+          blob,
+          patientData ? patientData.patient_unique_id : userId,
+          setStartLoader,
+          !patientData
+        );
       })
       .catch((err) => {
         console.error("Error generating PDF:", err);
@@ -389,7 +395,7 @@ export default function BillingTable({
           onClick={handleDownloadData}
         >
           Download
-          <i class="icon-download fs-18" style={{padding: "10px 6px"}}/>
+          <i class="icon-download fs-18" style={{ padding: "10px 6px" }} />
         </Button>
       </div>
     </div>
@@ -748,7 +754,7 @@ export default function BillingTable({
                 style={{
                   borderColor: "transparent",
                   background: `linear-gradient(180deg, ${card.color}4D 0%, ${card.color}00 35%)`,
-                  position: 'relative'
+                  position: "relative",
                 }}
               >
                 <div
@@ -770,20 +776,20 @@ export default function BillingTable({
                   )}
                 </div>
                 {selectedCard === card.id && (
-                  <div 
+                  <div
                     className="arrow-down"
                     style={{
-                      position: 'absolute',
-                      bottom: '-10px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
+                      position: "absolute",
+                      bottom: "-10px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
                       width: 0,
                       height: 0,
-                      borderLeft: '10px solid transparent',
-                      borderRight: '10px solid transparent',
-                      borderTop: '10px solid #fff',
-                      filter: 'drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.1))',
-                      zIndex: 1
+                      borderLeft: "10px solid transparent",
+                      borderRight: "10px solid transparent",
+                      borderTop: "10px solid #fff",
+                      filter: "drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.1))",
+                      zIndex: 1,
                     }}
                   />
                 )}
@@ -817,6 +823,7 @@ export default function BillingTable({
                 downloadData={downloadData}
                 parent={"billing"}
                 dateRange={dateRange}
+                isDoctorDashboard={!patientData}
               />
             </div>
           </div>

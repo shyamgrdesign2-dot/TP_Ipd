@@ -135,10 +135,6 @@ function AddAdvance({
     }, 0);
   };
 
-  const handleBlur = () => {
-    setNotes(notesRef.current);
-  };
-
   const BoldWordInName = ({ name, boldWord }) => {
     // Split the name into parts based on the bold word
     const parts = name.split(new RegExp(`(${boldWord})`, "i"));
@@ -913,7 +909,7 @@ function AddAdvance({
                       popupClassName="autocomplete-dropdown"
                     >
                       <Input
-                        placeholder="Search by Patient’s Name, Mobile number or Id"
+                        placeholder="Search by Patient's Name, Mobile number or Id"
                         prefix={<i className="icon-search"></i>}
                         suffix={
                           searchQueryName.length > 0 && (
@@ -1026,11 +1022,11 @@ function AddAdvance({
                     minRows: 1,
                     maxRows: 2,
                   }}
-                  defaultValue={notes} // Set initial value
+                  value={notes}
                   onChange={(e) => {
-                    notesRef.current = e.target.value; // Update ref without re-rendering
+                    notesRef.current = e.target.value;
+                    setNotes(e.target.value);
                   }}
-                  onBlur={handleBlur} // Trigger state update on blur
                 />
               </div>
             </div>

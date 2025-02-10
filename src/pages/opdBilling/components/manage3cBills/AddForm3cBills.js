@@ -290,7 +290,7 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
       key: "totalAmount",
       ellipsis: true,
       sorter: true,
-      render: (text, record) => <div> {record.payableAmount} </div>,
+      render: (text, record) => <div> ₹{record.payableAmount} </div>,
     },
     {
       title: "PAID AMOUNT",
@@ -298,7 +298,7 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
       key: "paidAmount",
       ellipsis: true,
       sorter: true,
-      render: (text, record) => <div> {record.paidAmount} </div>,
+      render: (text, record) => <div> ₹{record.paidAmount} </div>,
     },
     {
       title: "STATUS",
