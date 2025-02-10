@@ -7,7 +7,14 @@ import { useSelector } from "react-redux";
 import { calculateTotalAmount } from "../../utils/helper";
 import { onlyDecimalFormat } from "../../../../utils/utils";
 
-const ServiceItemPopup = ({ onCancel, editIndex, item, setDataSource }) => {
+const ServiceItemPopup = ({
+  onCancel,
+  editIndex,
+  item,
+  setDataSource,
+  addRow,
+  setSearchQuery,
+}) => {
   const { advancedSettings } = useSelector((state) => state.billing);
   const [serviceItem, setServiceItem] = useState({
     id: item?.id || item?.masterId,
@@ -57,6 +64,19 @@ const ServiceItemPopup = ({ onCancel, editIndex, item, setDataSource }) => {
             totalAmount: serviceItem?.totalAmount,
             createdBy: billItemRes?.createdBy,
           };
+          addRow &&
+            updateIndex === prev?.length - 1 &&
+            updatedData.push({
+              masterId: "",
+              name: "",
+              quantity: "",
+              amount: "",
+              discount: "",
+              discountType: "",
+              gst: "",
+              totalAmount: "",
+              createdBy: "",
+            });
         } else {
           // If no valid index, add a new item
           updatedData.push({
@@ -75,6 +95,7 @@ const ServiceItemPopup = ({ onCancel, editIndex, item, setDataSource }) => {
         }
         return updatedData;
       });
+      setSearchQuery && setSearchQuery("");
       onCancel();
     }
   };
