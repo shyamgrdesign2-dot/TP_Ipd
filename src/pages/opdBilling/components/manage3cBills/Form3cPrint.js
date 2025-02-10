@@ -7,66 +7,83 @@ const Form3cPrint = ({ rows }) => {
   // Define the columns
   const columns = [
     {
-      title: <i>Date</i>,
+      title: (
+        <div className="header-cell">
+          <div className="header-text">DATE</div>
+          <div className="header-number">(1)</div>
+        </div>
+      ),
       dataIndex: "date",
-      key: "date",
       width: 120,
       align: "center",
       render: (text, record) => moment(record.date).format("DD/MM/YYYY"),
     },
     {
-      title: <i>Sl. No.</i>,
+      title: (
+        <div className="header-cell">
+          <div className="header-text">SL. NO.</div>
+          <div className="header-number">(2)</div>
+        </div>
+      ),
       dataIndex: "slNo",
-      key: "slNo",
-      width: 160,
+      width: 100,
       align: "center",
-      render: (text, record) => (record.billNumber),
+      render: (text, record) => record.billNumber,
     },
     {
-      title: <i>Patient's name</i>,
+      title: (
+        <div className="header-cell">
+          <div className="header-text">PATIENT'S NAME</div>
+          <div className="header-number">(3)</div>
+        </div>
+      ),
       dataIndex: "patientName",
-      key: "patientName",
       width: 150,
       align: "left",
       render: (text, record) => (
-        <div className="cursor-pointer">
-          <div className="fs-14">{record?.patient?.name}</div>
+        <div>
+          <div>{record?.patient?.name}</div>
         </div>
       ),
     },
     {
       title: (
-        <i>
-          Nature of professional services rendered, i.e., general consultation,
-          surgery, injection, visit, etc.
-        </i>
+        <div className="header-cell">
+          <div className="header-text">
+            NATURE OF PROFESSIONAL SERVICES RENDERED, I.E., GENERAL CONSULTATION, SURGERY, INJECTION, VISIT, ETC.
+          </div>
+          <div className="header-number">(4)</div>
+        </div>
       ),
       dataIndex: "servicesRendered",
-      key: "servicesRendered",
-      align: "left",
       width: 280,
+      align: "left",
       render: (text, record) => (
-        <div className="fs-14">
+        <div>
           {record?.billItems?.map((item) => item.name).join(", ") || "-"}
         </div>
       ),
     },
     {
-      title: <i>Fees received</i>,
-      dataIndex: "feesReceived",
-      key: "feesReceived",
-      width: 100,
-      align: "right",
-      render: (text, record) => (
-        <div className="cursor-pointer">
-          <div className="fs-14">{record?.paidAmount}</div>
+      title: (
+        <div className="header-cell">
+          <div className="header-text">FEES RECEIVED</div>
+          <div className="header-number">(5)</div>
         </div>
       ),
+      dataIndex: "feesReceived",
+      width: 100,
+      align: "right",
+      render: (text, record) => `₹${record?.paidAmount}`,
     },
     {
-      title: <i>Date of receipt</i>,
+      title: (
+        <div className="header-cell">
+          <div className="header-text">DATE OF RECEIPT</div>
+          <div className="header-number">(6)</div>
+        </div>
+      ),
       dataIndex: "receiptDate",
-      key: "receiptDate",
       width: 120,
       align: "center",
       render: (text, record) => moment(record.date).format("DD/MM/YYYY"),
@@ -74,31 +91,18 @@ const Form3cPrint = ({ rows }) => {
   ];
 
   return (
-    <div
-      className="form-3c-print-wrapper"
-      style={{ padding: "20px", backgroundColor: "#fff" }}
-    >
+    <div className="form-3c-print-wrapper">
       {/* Header Section */}
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <h2 style={{ fontWeight: "bold", margin: "10px 0" }}>FORM NO. 3C</h2>
-        <p style={{ fontSize: "12px", margin: "5px 0" }}>
-          <a
-            // href="https://www.incometaxindia.gov.in/Rules/Income-Tax-Rules/103120000000007197.htm"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "#4B4AD5", textDecoration: "underline" }}
-          >
+      <div className="form-header">
+        <h2 className="form-title">FORM NO. 3C</h2>
+        <p className="form-rule">
+          <a href="#" target="_blank" rel="noopener noreferrer">
             [See rule 6F(3)]
           </a>
         </p>
-        <h6 style={{ fontWeight: "500", margin: "10px 0" }}>
-          Form of daily case register
-        </h6>
-
-        <p style={{ fontSize: "12px", margin: "5px 0" }}>
-          [TO BE MAINTAINED BY PRACTITIONERS OF ANY SYSTEM OF MEDICINE, I.E.,
-          PHYSICIANS, SURGEONS, DENTISTS, PATHOLOGISTS, RADIOLOGISTS, VAIDS,
-          HAKIMS, ETC.]
+        <h3 className="form-subtitle">Form of daily case register</h3>
+        <p className="form-description">
+          [TO BE MAINTAINED BY PRACTITIONERS OF ANY SYSTEM OF MEDICINE, I.E., PHYSICIANS, SURGEONS, DENTISTS, PATHOLOGISTS, RADIOLOGISTS, VAIDS, HAKIMS, ETC.]
         </p>
       </div>
 
@@ -109,7 +113,7 @@ const Form3cPrint = ({ rows }) => {
         pagination={false}
         bordered
         size="small"
-        tableLayout="fixed"
+        className="form3c-table"
       />
     </div>
   );

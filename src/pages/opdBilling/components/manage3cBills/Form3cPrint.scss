@@ -1,31 +1,87 @@
 .form-3c-print-wrapper {
+  padding: 20px;
+  background-color: #fff;
 
-    .ant-table thead.ant-table-thead th:first-child,
-    body .ant-table thead.ant-table-thead td:first-child {
-        border-bottom-left-radius: 0 !important;
-        border-top-left-radius: 0 !important;
+  .form-header {
+    text-align: center;
+    margin-bottom: 20px;
+
+    .form-title {
+      font-weight: bold;
+      margin: 10px 0;
+      font-size: 24px;
     }
 
-    .ant-table thead.ant-table-thead th:last-child,
-    body .ant-table thead.ant-table-thead td:last-child {
-        border-bottom-right-radius: 0 !important;
-        border-top-right-radius: 0 !important;
+    .form-rule {
+      font-size: 12px;
+      margin: 5px 0;
+      
+      a {
+        color: #4B4AD5;
+        text-decoration: underline;
+      }
     }
 
-    .ant-table-thead>tr>th {
-        background-color: #f8cf9c !important;
-        text-align: center !important;
-        color: #000;
+    .form-subtitle {
+      font-weight: 500;
+      margin: 10px 0;
+      font-size: 18px;
     }
 
-    .ant-table-tbody>tr>td {
-        background-color: #ffffb6 !important;
-        text-align: center;
+    .form-description {
+      font-size: 12px;
+      margin: 5px 0;
+      color: #454551;
+    }
+  }
+
+  .form3c-table {
+    // .ant-table {
+    // //   border: 1px solid #1a1a1a;
+    // }
+
+    .ant-table-thead > tr > th {
+      padding: 0 !important;
+      background-color: #fdf5e6;
+      border: 1px solid #1a1a1a;
+      
+      .header-cell {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        
+        .header-text {
+          padding: 8px;
+          font-weight: normal;
+          min-height: 110px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          background-color: #f8dcbd;
+        }
+        
+        .header-number {
+          padding: 4px;
+          border-top: 1px solid #1a1a1a;
+          background-color: #f8dcbd;
+          font-size: 12px;
+          color: #666;
+          text-align: center;
+        }
+      }
     }
 
-    .ant-table-bordered .ant-table-cell {
-        border-color: #d9d9d9;
-        border: 1px solid #000;
-    }
+    .ant-table-tbody > tr {
+      td {
+        padding: 8px;
+        border: 1px solid #1a1a1a;
+        background-color: #faf6b4;
+      }
 
+      &:hover > td {
+        background-color: #faf6b4;
+      }
+    }
+  }
 }
