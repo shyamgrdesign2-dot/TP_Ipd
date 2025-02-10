@@ -95,7 +95,7 @@ const ServiceItemPopup = ({
         }
         return updatedData;
       });
-      setSearchQuery("");
+      setSearchQuery && setSearchQuery("");
       onCancel();
     }
   };
