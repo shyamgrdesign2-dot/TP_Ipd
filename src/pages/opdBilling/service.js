@@ -418,3 +418,16 @@ export const fetchBillDetailsByBillNumber = async function (billNumber) {
   }
   return res;
 };
+
+export const checkToShowOpdBilling = async function () {
+  let res = {};
+  try {
+    res = await api.get(`api/v1/billing/bill/isV2Enabled`, baseUrl);
+  } catch (e) {
+    console.error(
+      "Error while fetching to check whether to show opd billing: ",
+      e
+    );
+  }
+  return res;
+};

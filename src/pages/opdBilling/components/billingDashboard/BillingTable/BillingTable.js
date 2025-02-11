@@ -615,7 +615,7 @@ export default function BillingTable({
             />
           </div>
           <div className="d-flex flex-row gap-2">
-            {isAdmin && doctorList?.length > 1 && (
+            {isAdmin && doctorList?.length > 1 ? (
               <div className="doctor-select-container">
                 <Select
                   className="doctor-select"
@@ -694,7 +694,7 @@ export default function BillingTable({
                   </Option>
                 </Select>
               </div>
-            )}
+            ) : null}
             <div className="massage-date-wrapper">
               <div
                 className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between"
@@ -862,15 +862,15 @@ export default function BillingTable({
 
         {
           <div style={{ display: "none" }}>
-          <div ref={printableRef}>
-            <DownloadBill
-              downloadData={downloadData}
-              parent={"billing"}
-              dateRange={dateRange}
-              isDoctorDashboard={!patientData}
-              paymentSummary={data?.summary?.paymentModeSummary}
-            />
-          </div>
+            <div ref={printableRef}>
+              <DownloadBill
+                downloadData={downloadData}
+                parent={"billing"}
+                dateRange={dateRange}
+                isDoctorDashboard={!patientData}
+                paymentSummary={data?.summary?.paymentModeSummary}
+              />
+            </div>
           </div>
         }
       </div>
