@@ -240,7 +240,6 @@ const TableBillingDashboard = forwardRef(
                 getPatientBills={getPatientBills}
                 handleTotalAdvanceUpdate={handleTotalAdvanceUpdate}
                 setBillingCount={setBillingCount}
-                setAdvanceCount={setAdvanceCount}
                 dateRange={dateRange}
                 setDateRange={setDateRange}
                 selectedDoctors={selectedDoctors}

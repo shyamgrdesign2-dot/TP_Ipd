@@ -62,6 +62,7 @@ function AddAdvance({
   patientData,
   billData,
   onSuccess,
+  updateTotalAdvanceBalance,
 }) {
   const { state } = useLocation();
   const { pam_id } = state || {};
@@ -800,6 +801,8 @@ function AddAdvance({
         setData(null);
       }
       setTotalAdvanceBalance(response?.summary?.totalAdvanceBalance);
+      updateTotalAdvanceBalance &&
+        updateTotalAdvanceBalance(response?.summary?.totalAdvanceBalance);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {

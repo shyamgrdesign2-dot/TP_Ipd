@@ -1087,7 +1087,13 @@ const CreateBill = ({
                           {totalAdvanceBalance ?? "0"}
                         </span>
                         <span className="add-advance-icon">
-                          <img src={addCircleIcon} alt="add-deposit" />
+                          <img
+                            src={addCircleIcon}
+                            alt="add-deposit"
+                            style={{
+                              marginLeft: totalAdvanceBalance ? "" : "-6px",
+                            }}
+                          />
                         </span>
                       </button>
                     </div>
@@ -1742,6 +1748,7 @@ const CreateBill = ({
             patientData={
               patientData?.pm_fullname ? patientData : patientDetails
             }
+            updateTotalAdvanceBalance={setTotalAdvanceBalance}
           />
         </Drawer>
       )}

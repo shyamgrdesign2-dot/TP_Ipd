@@ -316,7 +316,9 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
       ellipsis: true,
       render: (text, record) => (
         <div>
-          <div className="fs-16 fw-500">{record?.patient?.name}</div>
+          <div className="fs-16 fw-500 patient-name-cell">
+            {record?.patient?.name}
+          </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {record?.patient?.phone}
           </div>
@@ -631,7 +633,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
         style={{ margin: "20px 15px", paddingBottom: "15px" }}
       >
         <div className="section-title mb-2 fs-16 section-title-color">
-          Select specified status
+          Select specific status
         </div>
         {/* Checkboxes */}
         <Checkbox.Group
@@ -862,9 +864,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
                   <i className="mx-2 fs-18 icon-calendar"></i>
                 </div>
                 <RangePicker
-                  // disabledDate={(current) =>
-                  //   selectedTab !== TAB_CAMPAIGN ? disabledDate(current) : null
-                  // }
+                  disabledDate={(current) => disabledDate(current)}
                   open={pickerModal}
                   presets={rangePresets}
                   format={showDateFormat}

@@ -67,6 +67,7 @@ import CreateBill from "../pages/opdBilling/components/createBill/CreateBill";
 import { fetchBillsByPatient } from "../pages/opdBilling/service";
 import RecentBills from "../pages/opdBilling/components/recentBills/RecentBills";
 import AddAdvance from "../pages/opdBilling/components/advanceDeposit/AddAdvance";
+import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 
 const { TextArea } = Input;
 
@@ -85,6 +86,7 @@ function AppointmentData({ locationPath }) {
     (state) => state.uploadDoc
     );
     const { isLoading } = useSelector((state) => state.uploadDoc);
+    const { isOpdBillingAccessable } = useOpdBilling();
 
     const [searchParams, setSearchParams] = useSearchParams();
     const from = searchParams.get("from");
@@ -569,7 +571,7 @@ function AppointmentData({ locationPath }) {
                 label: <Link to="/patient_details" state={{ patient_data: record }}>Patient Details</Link>,
             key: "patientdetails",
           },
-          {
+          isOpdBillingAccessable ? {
                 label: <div
                     onClick={() => {
                         setAppointmentSelectedFromMenu(record);
@@ -580,15 +582,15 @@ function AppointmentData({ locationPath }) {
                         }
                     }}>{patientBills?.length === 0 ? "Create Bill" : "View/Create Bill"}</div>,
                 key: "createbill",
-          },
-          {
+          } : undefined,
+          isOpdBillingAccessable ? {
                 label: <div
                     onClick={() => {
                         setAppointmentSelectedFromMenu(record);
                         handleAddAdvanceDrawer();
                     }}>Advance Deposit</div>,
                 key: "advancebill",
-          },
+          } : undefined,
           {
                 label: <span
                     onClick={() => {
@@ -653,7 +655,7 @@ function AppointmentData({ locationPath }) {
             ),
             key: "uploadDoc",
           },
-        ];
+        ]?.filter((item) => item);
 
         if (selectedTab === TAB_QUEUE) {
             return items.filter((item) => item.key !== "endvisitreason");

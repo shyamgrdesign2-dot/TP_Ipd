@@ -7,7 +7,7 @@ import { Document, Page } from "react-pdf";
 import ViewBillPdf from "./components/viewBillPdf/ViewBillPdf";
 import { pdf } from "@react-pdf/renderer";
 import { useSelector } from "react-redux";
-import { fetchPrintSetting } from "./service";
+import { fetchBillDetailsByBillNumber, fetchPrintSetting } from "./service";
 import { setBillPrintSettings } from "../../redux/billingSlice";
 import { useDispatch } from "react-redux";
 import { Container, Navbar } from "react-bootstrap";
@@ -25,7 +25,8 @@ const PreviewBill = ({
   billData,
   totalAdvanceBalance,
 }) => {
-  const { patient = {} } = billData || {};
+  const [billDetails, setBillDetails] = useState(billData);
+  const { patient = {} } = billDetails || {};
   const patientData = {
     pm_pid: patient.id,
     pm_fullname: patient.name,
@@ -51,9 +52,6 @@ const PreviewBill = ({
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
-  const [isRefunded, setIsRefunded] = useState(
-    billData?.paymentStatus === "Refunded"
-  );
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -63,7 +61,7 @@ const PreviewBill = ({
     if (billPrintSettings && Object.keys(billPrintSettings).length > 0) {
       makePDFUrl();
     }
-  }, [billPrintSettings]);
+  }, [billPrintSettings, billDetails]);
 
   useEffect(() => {
     if (billPrintSettings && Object.keys(billPrintSettings).length === 0) {
@@ -85,7 +83,7 @@ const PreviewBill = ({
         isDepositReceipt={isDepositReceipt}
         patientData={patientData}
         profile={profile}
-        billData={billData}
+        billData={billDetails}
         totalAdvanceBalance={totalAdvanceBalance}
         gstIn={advancedSettings?.GSTIN}
         showCreatedBy={advancedSettings?.enableCreatedByInRx}
@@ -143,8 +141,11 @@ const PreviewBill = ({
     setRefundBillDrawer(!refundBillDrawer);
   };
 
-  const handleRefundSuccess = () => {
-    setIsRefunded(true);
+  const handleRefundSuccess = async () => {
+    const billDetailsRes = await fetchBillDetailsByBillNumber(
+      billDetails?.billNumber
+    );
+    setBillDetails(billDetailsRes);
   };
 
   return (
@@ -228,7 +229,11 @@ const PreviewBill = ({
                   className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                   icon={<i className="icon-Print" />}
                   onClick={() =>
-                    printContent(printBlob, billData?.patientId, setStartLoader)
+                    printContent(
+                      printBlob,
+                      billDetails?.patientId,
+                      setStartLoader
+                    )
                   }
                 >
                   <span className="fw-semibold">
@@ -244,7 +249,7 @@ const PreviewBill = ({
                     handleDownload(
                       pdfUrl,
                       printBlob,
-                      billData?.patientId,
+                      billDetails?.patientId,
                       setStartLoader
                     )
                   }
@@ -256,20 +261,18 @@ const PreviewBill = ({
                   </span>
                   <i className="icon-right iconrotate180 ms-auto"></i>
                 </Button>
-                {!isDepositReceipt && (
-                  <Button
-                    type="text"
-                    className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
-                    icon={<i className="icon-Edit" />}
-                    onClick={() => handleRefundBillDrawer()}
-                    disabled={
-                      isRefunded || billData?.paymentStatus === "Refunded"
-                    }
-                  >
-                    <span className="fw-semibold">Refund</span>
-                    <i className="icon-right iconrotate180 ms-auto"></i>
-                  </Button>
-                )}
+                {!isDepositReceipt &&
+                  billDetails?.paymentStatus !== "Refunded" && (
+                    <Button
+                      type="text"
+                      className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
+                      icon={<i className="icon-Edit" />}
+                      onClick={() => handleRefundBillDrawer()}
+                    >
+                      <span className="fw-semibold">Refund</span>
+                      <i className="icon-right iconrotate180 ms-auto"></i>
+                    </Button>
+                  )}
               </div>
             </div>
           </Col>
@@ -359,7 +362,7 @@ const PreviewBill = ({
             showConfigureSettings={showConfigureSettings}
             handleDrawerConfigureSettings={handleDrawerConfigureSettings}
             patientData={patientData}
-            billData={billData}
+            billData={billDetails}
             isDepositReceipt={isDepositReceipt}
           />
         </Drawer>
@@ -375,7 +378,7 @@ const PreviewBill = ({
         >
           <RefundBill
             handleRefundBillDrawer={handleRefundBillDrawer}
-            billData={billData}
+            billData={billDetails}
             onRefundSuccess={handleRefundSuccess}
           />
         </Drawer>

@@ -106,10 +106,10 @@ function BillingDashboard({ patientData }) {
   };
 
   useEffect(() => {
-    if (patientData?.patient_unique_id) {
+    if (patientData?.patient_unique_id && !createBillDrawer) {
       getPatientWalletBalance();
     }
-  }, []);
+  }, [createBillDrawer]);
 
   const getPatientWalletBalance = async () => {
     const patientWalletBalanceRes = await fetchPatientWalletBalance(

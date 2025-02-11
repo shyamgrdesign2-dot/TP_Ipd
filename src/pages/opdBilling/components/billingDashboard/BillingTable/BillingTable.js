@@ -359,7 +359,7 @@ export default function BillingTable({
         style={{ margin: "20px 15px", paddingBottom: "15px" }}
       >
         <div className="section-title mb-2 fs-16 section-title-color">
-          Select specified status
+          Select specific status
         </div>
         {/* Checkboxes */}
         <Checkbox.Group
@@ -499,7 +499,6 @@ export default function BillingTable({
         selectedDoctors.length > 0 ? [...selectedDoctors] : [...doctorIds],
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id,
-      appointmentId: patientData?.pam_id,
     };
     try {
       const response = await fetchBillsByPatient(params);
@@ -818,14 +817,15 @@ export default function BillingTable({
 
         {
           <div style={{ display: "none" }}>
-            <div ref={printableRef}>
-              <DownloadBill
-                downloadData={downloadData}
-                parent={"billing"}
-                dateRange={dateRange}
-                isDoctorDashboard={!patientData}
-              />
-            </div>
+          <div ref={printableRef}>
+            <DownloadBill
+              downloadData={downloadData}
+              parent={"billing"}
+              dateRange={dateRange}
+              isDoctorDashboard={!patientData}
+              paymentSummary={data?.summary?.paymentModeSummary}
+            />
+          </div>
           </div>
         }
       </div>

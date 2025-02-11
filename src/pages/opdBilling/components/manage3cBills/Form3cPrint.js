@@ -50,7 +50,8 @@ const Form3cPrint = ({ rows }) => {
       title: (
         <div className="header-cell">
           <div className="header-text">
-            NATURE OF PROFESSIONAL SERVICES RENDERED, I.E., GENERAL CONSULTATION, SURGERY, INJECTION, VISIT, ETC.
+            NATURE OF PROFESSIONAL SERVICES RENDERED, I.E., GENERAL
+            CONSULTATION, SURGERY, INJECTION, VISIT, ETC.
           </div>
           <div className="header-number">(4)</div>
         </div>
@@ -74,7 +75,7 @@ const Form3cPrint = ({ rows }) => {
       dataIndex: "feesReceived",
       width: 100,
       align: "right",
-      render: (text, record) => `₹${record?.paidAmount}`,
+      render: (text, record) => <div>{`₹${record?.paidAmount}`}</div>,
     },
     {
       title: (
@@ -102,19 +103,23 @@ const Form3cPrint = ({ rows }) => {
         </p>
         <h3 className="form-subtitle">Form of daily case register</h3>
         <p className="form-description">
-          [TO BE MAINTAINED BY PRACTITIONERS OF ANY SYSTEM OF MEDICINE, I.E., PHYSICIANS, SURGEONS, DENTISTS, PATHOLOGISTS, RADIOLOGISTS, VAIDS, HAKIMS, ETC.]
+          [TO BE MAINTAINED BY PRACTITIONERS OF ANY SYSTEM OF MEDICINE, I.E.,
+          PHYSICIANS, SURGEONS, DENTISTS, PATHOLOGISTS, RADIOLOGISTS, VAIDS,
+          HAKIMS, ETC.]
         </p>
       </div>
 
       {/* Table */}
-      <Table
-        dataSource={rows}
-        columns={columns}
-        pagination={false}
-        bordered
-        size="small"
-        className="form3c-table"
-      />
+      <div style={{ width: "95%" }}>
+        <Table
+          dataSource={rows}
+          columns={columns}
+          pagination={false}
+          bordered
+          size="small"
+          className="form3c-table"
+        />
+      </div>
     </div>
   );
 };
