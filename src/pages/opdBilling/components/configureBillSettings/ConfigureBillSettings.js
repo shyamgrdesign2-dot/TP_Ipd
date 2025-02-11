@@ -76,11 +76,11 @@ const ConfigureBillSettings = ({
     } = defaultPrintSettings;
 
     const {
-      custom_margin,
+      custom_margin = {},
       header,
       footer,
-      margin,
-      letterhead_margin,
+      margin = {},
+      letterhead_margin = {},
       other_settings,
     } = header_footer || {};
 
@@ -89,10 +89,10 @@ const ConfigureBillSettings = ({
     return {
       headerFooter: {
         customLetterHeadMargin: {
-          top: parseFloat(custom_margin.top),
-          left: parseFloat(custom_margin.left),
-          right: parseFloat(custom_margin.right),
-          bottom: parseFloat(custom_margin.bottom),
+          top: parseFloat(custom_margin.top) || 3,
+          left: parseFloat(custom_margin.left || 2),
+          right: parseFloat(custom_margin.right) || 2,
+          bottom: parseFloat(custom_margin.bottom) || 2.5,
         },
         footer: { fontSize: footer?.font_size, title: footer?.title },
         header: {
@@ -141,10 +141,10 @@ const ConfigureBillSettings = ({
           },
         },
         uploadedLetterHeadMargin: {
-          top: parseFloat(letterhead_margin.top),
-          left: parseFloat(letterhead_margin.left),
-          right: parseFloat(letterhead_margin.right),
-          bottom: parseFloat(letterhead_margin.bottom),
+          top: parseFloat(letterhead_margin.top) || 3,
+          left: parseFloat(letterhead_margin.left) || 2,
+          right: parseFloat(letterhead_margin.right) || 2,
+          bottom: parseFloat(letterhead_margin.bottom) || 2.5,
         },
       },
       pageFormat: {
