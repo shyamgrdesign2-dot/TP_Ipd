@@ -22,8 +22,10 @@ import qrIcon from '../assets/images/qr-icon.svg';
 import logoIcom from '../assets/images/text-logo.svg';
 import VideoModal from "./VideoModal";
 import videorotate from '../assets/images/videorotate.gif';
-import billingsIcon from '../assets/images/billings.svg';
+import billingsIcon from "../assets/images/billings.svg";
 import upgradeIcon from "../assets/images/upgrade.svg";
+import profileBg from "../assets/images/profile-bg.svg";
+import goldCrown from "../assets/images/gold-crown.svg";
 import crownIcon from "../assets/images/crown.svg";
 
 import config from "../config";
@@ -105,6 +107,13 @@ function Header({ locationPath }) {
     dispatch(getMedicineType());
     dispatch(getDefaultPrintsettings({ default: false }));
     dispatch(listVideo());
+    const tokenData = decodedToken?.result;
+    if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
+      dispatch(zydusRefIds())
+    }
+  }, [isZydusUserAccessableFromGB]);
+
+  useEffect(() => {
     getAdvanceSettings();
     getBillPrintSettings();
   }, []);
