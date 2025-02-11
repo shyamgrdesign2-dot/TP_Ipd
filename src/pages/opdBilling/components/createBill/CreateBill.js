@@ -1686,6 +1686,8 @@ const CreateBill = ({
           editIndex={editIndex}
           item={searchItemSelected}
           setDataSource={setDataSource}
+          addRow
+          setSearchQuery={setSearchQuery}
         />
       )}
       {shouldShowRefIdPopup !== null && shouldShowRefIdPopup >= 0 && (
