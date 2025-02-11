@@ -218,17 +218,21 @@
   .recordingStatus {
     flex-grow: 1; /* Takes up available space */
     text-align: center; /* Centers text within its space */
-    color: #6B7280;
     font-size: 14px;
-    margin-top: 8px;
     white-space: nowrap; /* Prevents the text from wrapping into multiple lines */
+    font-family: "Poppins";
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0%;
+    color: rgba(61, 72, 84, 0.6) !important;
   }
   
   
   
   /* Text Input */
   .textInput {
-    height: 58px;    
+    min-height: 58px;    
     width: 100%;
     padding: 12px 16px;
     border: 1px solid #E2E2EA;
@@ -425,6 +429,13 @@
 .controlButtons {
   display: flex;
   gap: 12px;
+  margin-top: 10px;
+  font-family: "Poppins";
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0%;
+  color: rgba(61, 72, 84, 0.6) !important;
 }
 
 .prescriptionSection h3 {
@@ -636,6 +647,45 @@
     position: relative;
     opacity: 0.8;
   }
+
+  .inputContainerChat {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    margin-top: auto; /* Push to bottom */
+  }
+  
+  .textArea {
+    min-height: 58px;    
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #E2E2EA;
+    border-radius: 16px;
+    font-size: 14px;
+    color: #1C1C1C4D;
+    background: #F7F9FB;
+    resize: none;
+  } 
+  
+  .textArea:focus {
+    box-shadow: none;
+    border-color: #1677ff;
+    color: rgba(69, 69, 81, 1);
+  }
+
+  .textArea::placeholder {
+    color: #9CA3AF;
+  }
+  
+  .controls {
+    position: absolute;
+    right: 20px;
+    bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
   
 
   
