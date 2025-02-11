@@ -20,7 +20,7 @@ import {
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 
-import { errorMessage } from "../utils/utils";
+import { errorMessage, getClinic, trackEvent } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
 
 import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FETCH_SMART_RX, UNFINISHED_RX_CASE, GB_SMARTSYNC_CVT, TAB_ZYDUS_ENCOUNTER, TAB_ZYDUS_APPOINTMENT, GB_ZYDUS_USER } from "../utils/constants";
@@ -122,6 +122,7 @@ function AppointmentData({ locationPath }) {
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [patientData, setPatientData] = useState(null);
     const fileInputRef = useRef(null);
+    const {planDetails} = useSelector(state => state.subscription);
 
     const handleDrawerUploadDoc = () => {
         setUploadDocDrawer(!uploadDocDrawer);
@@ -637,6 +638,18 @@ function AppointmentData({ locationPath }) {
                     onClick={() => {
                         setAppointmentSelectedFromMenu(record);
                         if (patientBills?.length === 0) {
+                            const clinic = getClinic();
+                            trackEvent("TP_Billing_CreateBill", {
+                                patientName: record.pm_fullname,
+                                patientId: record?.patient_unique_id,
+                                doctorSpeciality: profile?.dp_name,
+                                doctorId: profile?.doctor_unique_id,
+                                doctorContact: profile?.um_contact,
+                                source: selectedTab === TAB_QUEUE ? "appointment_queue" : selectedTab === TAB_FINISHED ? "appointment_finished" : "",
+                                city: clinic?.hm_city,
+                                pincode: clinic?.hm_pincode,
+                                subscriptionStatus: planDetails?.currentPlanStatus
+                            })
                             handleCreateBillDrawer()
                         } else {
                             handleRecentBillDrawer();

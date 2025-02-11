@@ -51,7 +51,7 @@ import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
 import { fetchObstetricDetails } from "./obstetric/service";
 import { addObstetricDetails } from "../redux/obstetricSlice";
-import { getClinicName } from "../utils/utils";
+import { getClinicName, trackEvent } from "../utils/utils";
 import UploadDocument from "./medicalRecords/UploadDocument";
 import MedicalRecords from "./medicalRecords/MedicalRecords";
 import {
@@ -1073,11 +1073,23 @@ const handleTatvaAiKnowMore = () => {
   })
 }
 
+const handleGenRx = () => {
+  setIsGenRxDrawerVisible(true);
+  const clinic_name = getClinicName(profile?.hospital_data);
+  trackEvent("TP_VoiceRx_Start", {
+    patient_contact: patient_data?.pm_contact_no || "",
+    patient_id: patient_data?.patient_unique_id || "",
+    doctor_speciality: profile?.dp_name,
+    doctor_unique_id: profile?.doctor_unique_id,
+    clinic_name
+  });
+}
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <AnimationProvider>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} handleGenRx={() => setIsGenRxDrawerVisible(true)} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} handleGenRx={handleGenRx} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">

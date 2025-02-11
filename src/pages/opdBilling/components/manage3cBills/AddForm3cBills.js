@@ -36,6 +36,7 @@ import { addBillsToForm3C, fetchBillingDashboard } from "../../service";
 import { formatDateWithOrdinal } from "../../utils/helper";
 import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip";
 import { throttle } from "lodash";
+import { getClinic, trackEvent } from "../../../../utils/utils";
 
 const { RangePicker } = DatePicker;
 const dateFormat = "YYYY-MM-DD";
@@ -109,9 +110,7 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
 
   const rangePresets = [
     {
-      label: (
-        <div className={`${dateStatus === 1 ? "active" : ""}`}>Today</div>
-      ),
+      label: <div className={`${dateStatus === 1 ? "active" : ""}`}>Today</div>,
       value: [dayjs(), dayjs().endOf("day")],
     },
     {
@@ -413,10 +412,17 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
   };
 
   const handleBackAddForm3CDrawer = () => {
+    const clinic = getClinic();
+    trackEvent("TP_billing_addnewbillstoform3C", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+    });
     setForm3cData(0);
     handleAddForm3cDrawer();
   };
-
 
   const handleTableChange = (pagination, filters, sorter) => {
     if (sorter.order) {

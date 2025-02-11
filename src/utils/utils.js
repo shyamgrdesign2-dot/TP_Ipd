@@ -629,6 +629,13 @@ export const getClinicCity = (hospitalData) => {
   return clinic ? clinic.hm_city : "";
 }
 
+export const getClinic = (hospitalData) => {
+  const decodedToken = getDecodedToken();
+  const clinicId = decodedToken?.result?.clinic_id;
+  const clinic = hospitalData?.find((e) => e?.hm_id == clinicId);
+  return clinic || "";
+}
+
 export const getTokenData = () => {
   const decodedToken = getDecodedToken();
   const result = decodedToken?.result;
@@ -689,4 +696,8 @@ export const fetchDocumentAsFile = async (url, fileName) => {
 
 export const isValidMongoId = (id) => {
   return typeof id === 'string' && id.length === 24 && /^[a-f\d]{24}$/i.test(id);
+}
+
+export const trackEvent = (eventName, attributes) => {
+  window.Moengage.track_event(eventName, attributes);
 }

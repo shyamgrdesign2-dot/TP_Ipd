@@ -233,7 +233,7 @@ function PatientDetails() {
                             </div>
                         ) : (
                             <div className="vh-100">
-                                <BillingDashboard patientData={patient_data} />
+                                <BillingDashboard patientData={patient_data} fromPath="patientDetails" />
                             </div>
                         )}
                     </div>
