@@ -990,8 +990,8 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             "doctorCode": patient_data?.employeeId,
                             "storeCode": "PHOS", // hardcoded value
                             "duplicateCheck": 1, // hardcoded value
-                            "investigationList": actionIM?.payload?.investigation.filter(item => item.hasOwnProperty('objectID')).map(item => item.objectID),
-                            "medicineList": actionIM?.payload?.medicine.map(({ tmm_id, tmm_remarks }) => ({ objectId: tmm_id, instruction: tmm_remarks }))
+                            "investigationList": actionIM?.payload?.investigation.map(item => item.investigation_name),
+                            "medicineList": actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks }))
                         }
                         dispatch(placeIctOrder(zydusSendData))
                     }
