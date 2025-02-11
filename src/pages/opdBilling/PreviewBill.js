@@ -17,6 +17,7 @@ import { db } from "../../firebase";
 import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { deleteDocsUploadedFromAndroid } from "../medicalRecords/service";
 import RefundBill from "./components/billingDashboard/RefundBill/RefundBill";
+import { getClinic, trackEvent } from "../../utils/utils";
 
 const PreviewBill = ({
   handleCreateBillDrawer,
@@ -52,6 +53,10 @@ const PreviewBill = ({
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
+  const [isRefunded, setIsRefunded] = useState(
+    billData?.paymentStatus === "Refunded"
+  );
+  const { planDetails } = useSelector((state) => state.subscription);
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -138,6 +143,14 @@ const PreviewBill = ({
   }, [db, deviceUid]);
 
   const handleRefundBillDrawer = () => {
+    const clinic = getClinic();
+    trackEvent("TP_refundbill_billpreviewpage Settings_save", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+    });
     setRefundBillDrawer(!refundBillDrawer);
   };
 
@@ -228,13 +241,21 @@ const PreviewBill = ({
                   type="text"
                   className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                   icon={<i className="icon-Print" />}
-                  onClick={() =>
+                  onClick={() => {
+                    const clinic = getClinic();
+                    trackEvent("TP_printbill_billpreviewpage Settings_save", {
+                      doctorSpeciality: profile?.dp_name,
+                      doctorId: profile?.doctor_unique_id,
+                      doctorContact: profile?.um_contact,
+                      city: clinic?.hm_city,
+                      pincode: clinic?.hm_pincode,
+                    });
                     printContent(
                       printBlob,
-                      billDetails?.patientId,
+                      billData?.patientId,
                       setStartLoader
-                    )
-                  }
+                    );
+                  }}
                 >
                   <span className="fw-semibold">
                     {isDepositReceipt ? "Print Deposit Receipt" : "Print Bill"}
@@ -245,14 +266,25 @@ const PreviewBill = ({
                   type="text"
                   className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                   icon={<i className="icon-download" />}
-                  onClick={() =>
+                  onClick={() => {
+                    const clinic = getClinic();
+                    trackEvent("TP_Billing_DownloadBill", {
+                      patientName: patient?.name || "",
+                      patientId: patient?.id || "",
+                      doctorSpeciality: profile?.dp_name,
+                      doctorId: profile?.doctor_unique_id,
+                      doctorContact: profile?.um_contact,
+                      city: clinic?.hm_city,
+                      pincode: clinic?.hm_pincode,
+                      subscriptionStatus: planDetails?.currentPlanStatus,
+                    });
                     handleDownload(
                       pdfUrl,
                       printBlob,
                       billDetails?.patientId,
                       setStartLoader
-                    )
-                  }
+                    );
+                  }}
                 >
                   <span className="fw-semibold">
                     {isDepositReceipt

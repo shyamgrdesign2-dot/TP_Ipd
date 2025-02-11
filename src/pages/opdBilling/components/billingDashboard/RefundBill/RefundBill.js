@@ -31,8 +31,9 @@ import { PaymentOptions } from "../../../utils/constants";
 import { formatDateWithOrdinal } from "../../../utils/helper";
 import RefIdPopup from "../../refIdPopup/RefIdPopup";
 import {
+  getClinic,
   onlyDecimalFormat,
-  removeBeforeWhiteSpace,
+  trackEvent,
 } from "../../../../../utils/utils";
 
 const dateFormat = "YYYY-MM-DD";
@@ -58,6 +59,8 @@ function RefundBill({
   const [isPaymentModeItemMissing, setPaymentModeItemMissing] = useState(false);
   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
   const paymentMethodsRef = useRef(null);
+  const {planDetails} = useSelector(state => state.subscription);
+  const {profile} = useSelector(state => state.doctors);
 
   const filteredOptions = PaymentOptions.filter(
     (option) => !usedPaymentModes.includes(option.value)
@@ -135,11 +138,21 @@ function RefundBill({
   };
 
   const addPaymentMode = () => {
+    const clinic = getClinic();
     const newPaymentModes = [
       ...paymentModes,
       { paymentMode: filteredOptions[0]?.value, amount: "", refId: "" },
     ];
     setPaymentModes(newPaymentModes);
+    trackEvent("TP_Billing_AddPaymentMode", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+      subscriptionStatus: planDetails?.currentPlanStatus,
+      paymentModes: JSON.stringify(newPaymentModes),
+    });
 
     // Add scroll behavior
     setTimeout(() => {

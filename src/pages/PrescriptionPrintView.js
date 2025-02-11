@@ -9,7 +9,7 @@ import { useReactToPrint } from 'react-to-print';
 
 // import { PDFReader } from 'reactjs-pdf-reader';
 
-import { errorMessage } from "../utils/utils";
+import { errorMessage, getClinic, trackEvent } from "../utils/utils";
 
 import messageSent from '../assets/images/message-sent.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
@@ -98,7 +98,7 @@ function PrescriptionPrintView() {
     const {
         loading,
     } = useSelector((state) => state.caseManager);
-    const { userId } = useSelector((state) => state.doctors);
+    const { userId, profile } = useSelector((state) => state.doctors);
     const { currentSessionRx } = useSelector((state) => state.obstetric);
     const { isOpdBillingAccessable } = useOpdBilling();
     const dispatch = useDispatch();
@@ -125,6 +125,7 @@ function PrescriptionPrintView() {
     const [patientBills, setPatientBills] = useState([]);
     const [advanceReceipts, setAdvanceReceipts] = useState([]);
     const {isGynaecHistoryAccessable} = useAccess();
+    const {planDetails} = useSelector(state => state.subscription);
 
     const baseUrl = env.lab_params_api_url;
 
@@ -207,6 +208,18 @@ function PrescriptionPrintView() {
     };
 
     const handleCreateBillDrawer = useCallback(() => {
+        const clinic = getClinic();
+        trackEvent("TP_Billing_CreateBill", {
+            patientName: patient_data?.pm_fullname,
+            patientId: patient_data?.patient_unique_id,
+            doctorSpeciality: profile?.dp_name,
+            doctorId: profile?.doctor_unique_id,
+            doctorContact: profile?.um_contact,
+            source: "rx_preview",
+            city: clinic?.hm_city,
+            pincode: clinic?.hm_pincode,
+            subscriptionStatus: planDetails?.currentPlanStatus
+        })
         setCreateBillDrawer(!createBillDrawer);
         if (recentBillDrawer) {
           setRecentBillDrawer(false);

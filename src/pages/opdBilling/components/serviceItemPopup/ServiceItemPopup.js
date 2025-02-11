@@ -5,7 +5,11 @@ import { useState } from "react";
 import { upsertBillItem } from "../../service";
 import { useSelector } from "react-redux";
 import { calculateTotalAmount } from "../../utils/helper";
-import { onlyDecimalFormat } from "../../../../utils/utils";
+import {
+  getClinic,
+  onlyDecimalFormat,
+  trackEvent,
+} from "../../../../utils/utils";
 
 const ServiceItemPopup = ({
   onCancel,
@@ -25,6 +29,8 @@ const ServiceItemPopup = ({
     discountType: item?.discountType || advancedSettings?.defaultDiscountType,
     gst: item?.gst,
   });
+  const { profile } = useSelector((state) => state.doctors);
+  const { planDetails } = useSelector((state) => state.subscription);
 
   const handleServiceItem = (key, value) => {
     setServiceItem((prev) => {
@@ -37,6 +43,17 @@ const ServiceItemPopup = ({
   };
 
   const addOrEditServieItem = async () => {
+    if (editIndex === -1) {
+      const clinic = getClinic();
+      trackEvent("TP_Billing_Addnewseriviceadd", {
+        doctorSpeciality: profile?.dp_name,
+        doctorId: profile?.doctor_unique_id,
+        doctorContact: profile?.um_contact,
+        city: clinic?.hm_city,
+        pincode: clinic?.hm_pincode,
+        subscriptionStatus: planDetails?.currentPlanStatus,
+      });
+    }
     serviceItem.totalAmount = calculateTotalAmount(serviceItem);
     handleServiceItem(serviceItem);
     const billItemRes = await upsertBillItem({

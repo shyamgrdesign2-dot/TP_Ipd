@@ -20,6 +20,8 @@ import alertIcon from "../../../../assets/images/alertIcon.svg";
 import { debounce } from "lodash";
 import { setAdvancedSettings } from "../../../../redux/billingSlice";
 import { useDispatch } from "react-redux";
+import { getClinic, trackEvent } from "../../../../utils/utils";
+import { useSelector } from "react-redux";
 
 const { Title } = Typography;
 
@@ -46,6 +48,7 @@ const BillingSettings = () => {
   const [error, setError] = useState(null);
   const [editIndex, setEditIndex] = useState(-1);
   const dispatch = useDispatch();
+  const { profile } = useSelector((state) => state.doctors);
 
   const columns = [
     {
@@ -236,6 +239,14 @@ const BillingSettings = () => {
   };
 
   const handleAddNewBillItem = () => {
+    const clinic = getClinic();
+    trackEvent("TP_billing_servicemasteraddition", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+    });
     setActionType("add");
     setEditIndex(-1);
   };

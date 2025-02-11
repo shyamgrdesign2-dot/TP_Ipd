@@ -13,7 +13,7 @@ import {
 } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { setUserId } from "../../../../redux/doctorsSlice";
-import { getClinicName } from "../../../../utils/utils";
+import { getClinic, getClinicName, trackEvent } from "../../../../utils/utils";
 import TableBillingDashboard from "./TableBillingDashboard";
 import { Button, Drawer, message } from "antd";
 import "./BillingDashboard.scss";
@@ -28,7 +28,7 @@ import AddAdvance from "../advanceDeposit/AddAdvance";
 import CreateBill from "../createBill/CreateBill";
 import { fetchPatientWalletBalance } from "../../service";
 
-function BillingDashboard({ patientData }) {
+function BillingDashboard({ patientData, fromPath }) {
   const dispatch = useDispatch();
   let location = useLocation();
   const [locationPath, setLocationPath] = useState("/");
@@ -42,6 +42,7 @@ function BillingDashboard({ patientData }) {
   const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
   const [createBillDrawer, setCreateBillDrawer] = useState(false);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const { planDetails } = useSelector((state) => state.subscription);
 
   // Add a ref to store the refresh function
   const billingTableRef = useRef(null);
@@ -70,11 +71,29 @@ function BillingDashboard({ patientData }) {
 
   // Drawer form 3c
   const handleManage3cBill = () => {
+    const clinic = getClinic();
+    trackEvent("TP_billing_ManageForm3C", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+    });
     setForm3cDrawer(!form3cDrawer);
     setForm3cData(null);
   };
 
   const handleCreateBillDrawer = useCallback(() => {
+    const clinic = getClinic();
+    trackEvent("TP_Billing_CreateBill", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      source: fromPath || "billing_page",
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+      subscriptionStatus: planDetails?.currentPlanStatus,
+    });
     setCreateBillDrawer(!createBillDrawer);
   }, [createBillDrawer]);
 
@@ -89,6 +108,15 @@ function BillingDashboard({ patientData }) {
 
   // Modify the Add Advance Drawer handler
   const handleAddAdvanceDrawer = () => {
+    const clinic = getClinic();
+    trackEvent("TP_billing_addadvance", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+      source: fromPath || "billing_page",
+    });
     setAddAdvanceDrawer(!addAdvanceDrawer);
     // If drawer is closing and we have a refresh function, call it
     if (addAdvanceDrawer && billingTableRef.current?.refreshData) {

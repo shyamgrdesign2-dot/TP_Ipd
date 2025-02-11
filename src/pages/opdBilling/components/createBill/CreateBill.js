@@ -19,8 +19,10 @@ import { PlusOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import DiagnosisNotes from "../../../obstetric/components/diagnosisNotes/DiagnosisNotes";
 import {
+  getClinic,
   onlyDecimalFormat,
   removeBeforeWhiteSpace,
+  trackEvent,
 } from "../../../../utils/utils";
 import ServiceItemPopup from "../serviceItemPopup/ServiceItemPopup";
 import "./CreateBill.scss";
@@ -134,6 +136,7 @@ const CreateBill = ({
   const [autoCompleteFlagMobile, setAutoCompleteFlagMobile] = useState(false);
   const [isPaymentModeItemMissing, setPaymentModeItemMissing] = useState(false);
   const nameAutoCompleteRef = useRef(null);
+  const { planDetails } = useSelector((state) => state.subscription);
 
   const subTotal = dataSource
     .reduce(
@@ -427,6 +430,18 @@ const CreateBill = ({
   const onSelect = (value, option, index) => {
     const selectedData = option?.key && JSON.parse(option.key);
     if (option?.isCustom) {
+      const clinic = getClinic();
+      trackEvent("TP_Billing_AddNewService", {
+        patientName: patientDetails?.patientName || "",
+        patientId: patientDetails?.patientUniqueId || "",
+        doctorSpeciality: profile?.dp_name,
+        doctorId: profile?.doctor_unique_id,
+        doctorContact: profile?.um_contact,
+        city: clinic?.hm_city,
+        pincode: clinic?.hm_pincode,
+        subscriptionStatus: planDetails?.currentPlanStatus,
+        source: "billing_page"
+      });
       setSearchItemSelected({
         ...selectedData,
         isCustom: option.isCustom,
@@ -694,6 +709,17 @@ const CreateBill = ({
   };
 
   const addPaymentMode = () => {
+    const clinic = getClinic();
+    trackEvent("TP_Billing_AddPaymentMode", {
+      patientName: patientDetails?.patientName || "",
+      patientId: patientDetails?.patientUniqueId || "",
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+      subscriptionStatus: planDetails?.currentPlanStatus,
+    });
     setPaymentModes([
       ...paymentModes,
       { paymentMode: filteredOptions[0]?.value, amount: 0 },
@@ -706,6 +732,17 @@ const CreateBill = ({
   };
 
   const handleDrawerDiagnosisNotes = () => {
+    const clinic = getClinic();
+    trackEvent("TP_Billing_AddNotes", {
+      patientName: patientDetails?.patientName || "",
+      patientId: patientDetails?.patientUniqueId || "",
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+      subscriptionStatus: planDetails?.currentPlanStatus,
+    });
     setBillNotesDrawer(!billNotesDrawer);
   };
 
@@ -714,6 +751,30 @@ const CreateBill = ({
   };
 
   const handleCreateBill = async (type) => {
+    const clinic = getClinic();
+    if (!type) {
+      trackEvent("TP_Billing_SaveAndPrint", {
+        patientName: patientDetails?.patientName || "",
+        patientId: patientDetails?.patientUniqueId || "",
+        doctorSpeciality: profile?.dp_name,
+        doctorId: profile?.doctor_unique_id,
+        doctorContact: profile?.um_contact,
+        city: clinic?.hm_city,
+        pincode: clinic?.hm_pincode,
+        subscriptionStatus: planDetails?.currentPlanStatus,
+      });
+    } else if (type === "preview") {
+      trackEvent("TP_Billing_SaveandPreview", {
+        patientName: patientDetails?.patientName || "",
+        patientId: patientDetails?.patientUniqueId || "",
+        doctorSpeciality: profile?.dp_name,
+        doctorId: profile?.doctor_unique_id,
+        doctorContact: profile?.um_contact,
+        city: clinic?.hm_city,
+        pincode: clinic?.hm_pincode,
+        subscriptionStatus: planDetails?.currentPlanStatus,
+      });
+    }
     const updatedDataSource = dataSource.filter((item) => {
       const { masterId, name, quantity, amount, totalAmount } = item;
       return masterId && name && quantity && amount && totalAmount;
@@ -1129,7 +1190,20 @@ const CreateBill = ({
                   <Checkbox
                     className="me-2"
                     checked={shouldAddBillTo3C}
-                    onChange={(e) => setAddBillTo3C(e.target.checked)}
+                    onChange={(e) => {
+                      const clinic = getClinic();
+                      trackEvent("TP_Billing_AddBilltoForm3C", {
+                        patientName: patientDetails?.patientName || "",
+                        patientId: patientDetails?.patientUniqueId || "",
+                        doctorSpeciality: profile?.dp_name,
+                        doctorId: profile?.doctor_unique_id,
+                        doctorContact: profile?.um_contact,
+                        city: clinic?.hm_city,
+                        pincode: clinic?.hm_pincode,
+                        subscriptionStatus: planDetails?.currentPlanStatus,
+                      });
+                      setAddBillTo3C(e.target.checked);
+                    }}
                   />
                   Add bill for Form 3C
                 </div>
@@ -1138,7 +1212,20 @@ const CreateBill = ({
                     <Checkbox
                       className="me-2"
                       checked={includeInRx}
-                      onChange={(e) => setIncludeInRx(e.target.checked)}
+                      onChange={(e) => {
+                        const clinic = getClinic();
+                        trackEvent("TP_Billing_IncludeinRx", {
+                          patientName: patientDetails?.patientName || "",
+                          patientId: patientDetails?.patientUniqueId || "",
+                          doctorSpeciality: profile?.dp_name,
+                          doctorId: profile?.doctor_unique_id,
+                          doctorContact: profile?.um_contact,
+                          city: clinic?.hm_city,
+                          pincode: clinic?.hm_pincode,
+                          subscriptionStatus: planDetails?.currentPlanStatus,
+                        });
+                        setIncludeInRx(e.target.checked);
+                      }}
                     />
                     Include in RX
                   </div>
@@ -1435,7 +1522,22 @@ const CreateBill = ({
                                   cursor: "pointer",
                                   wordBreak: "break-word",
                                 }}
-                                onClick={() => setShowRefIdPopup(index)}
+                                onClick={() => {
+                                  if (payment.paymentMode === "UPI") {
+                                    const clinic = getClinic();
+                                    trackEvent("TP_Billing_UPIRefID", {
+                                      patientName:
+                                        patientDetails?.patientName || "",
+                                      patientId:
+                                        patientDetails?.patientUniqueId || "",
+                                      doctorId: profile?.doctor_unique_id,
+                                      doctorContact: profile?.um_contact,
+                                      city: clinic?.hm_city,
+                                      pincode: clinic?.hm_pincode,
+                                    });
+                                  }
+                                  setShowRefIdPopup(index);
+                                }}
                               >
                                 {payment?.refId ? (
                                   <div className="d-flex align-items-center justify-content-between px-2">

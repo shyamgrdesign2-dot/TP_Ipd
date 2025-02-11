@@ -41,7 +41,11 @@ import { MESSAGE_KEY } from "../../../../utils/constants";
 import { ListGroup } from "react-bootstrap";
 import { PaymentOptions } from "../../utils/constants";
 import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip";
-import { onlyDecimalFormat } from "../../../../utils/utils";
+import {
+  getClinic,
+  onlyDecimalFormat,
+  trackEvent,
+} from "../../../../utils/utils";
 import { formatDateWithOrdinal } from "../../utils/helper";
 import PreviewBill from "../../PreviewBill";
 import ViewBillPdf from "../viewBillPdf/ViewBillPdf";
@@ -128,6 +132,7 @@ function AddAdvance({
       !usedPaymentModes.includes(option.value) &&
       option.value !== "Advance Deposit"
   );
+  const { planDetails } = useSelector((state) => state.subscription);
 
   const calculateTotalAmount = (modes) => {
     return modes.reduce((total, mode) => {
@@ -218,6 +223,18 @@ function AddAdvance({
 
   // Function to add a new payment mode
   const addPaymentMode = (type) => {
+    const clinic = getClinic();
+    trackEvent("TP_Billing_AddPaymentMode", {
+      patientName: patientDetails?.patientName || "",
+      patientId: patientDetails?.patientUniqueId || "",
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+      subscriptionStatus: planDetails?.currentPlanStatus,
+      paymentModes: JSON.stringify([...advanceModes, newMode]),
+    });
     const newMode = {
       paymentMode: filteredOptions[0]?.value,
       amount: undefined,
@@ -690,6 +707,18 @@ function AddAdvance({
   };
 
   const handleAddAdvanceClick = async () => {
+    const clinic = getClinic();
+    trackEvent(
+      selectedTab === 2 ? "TP_billing_refundadvance" : "TP_billing_addadvance",
+      {
+        doctorSpeciality: profile?.dp_name,
+        doctorId: profile?.doctor_unique_id,
+        doctorContact: profile?.um_contact,
+        city: clinic?.hm_city,
+        pincode: clinic?.hm_pincode,
+        source: "add_advance",
+      }
+    );
     const totalAdvanceAmount = calculateTotalAmount(advanceModes);
     const totalRefundAmount = calculateTotalAmount(refundModes);
 

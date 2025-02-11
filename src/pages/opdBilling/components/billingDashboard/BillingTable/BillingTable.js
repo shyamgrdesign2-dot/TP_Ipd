@@ -26,6 +26,7 @@ import { getDecodedToken } from "../../../../../utils/localStorage.js";
 import { setLoadingStatus } from "../../../../../redux/uploadDocSlice.js";
 import { handleDownload } from "../../../utils/helper.js";
 import html2pdf from "html2pdf.js";
+import { getClinic, trackEvent } from "../../../../../utils/utils.js";
 const { RangePicker } = DatePicker;
 
 const { Option } = Select;
@@ -111,6 +112,7 @@ export default function BillingTable({
       ? doctorList.map((doctor) => doctor.um_id)
       : [userId];
   const dispatch = useDispatch();
+  const { profile } = useSelector((state) => state.doctors);
 
   useEffect(() => {
     if (isAdmin) {
@@ -230,6 +232,14 @@ export default function BillingTable({
   };
 
   const handleDownloadAll = async () => {
+    const clinic = getClinic();
+    trackEvent("TP_download_report", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+    });
     dispatch(setLoadingStatus(true));
     try {
       const allStatuses = ["FullyPaid", "CarriedForward", "Due", "Refunded"];

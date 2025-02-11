@@ -5,7 +5,7 @@ import styles from "./AdvanceBillSettings.module.css";
 import { useSelector } from "react-redux";
 import SequenceSettings from "./SequenceSettings";
 import { updateAdvancedSettings } from "../../service";
-import { errorMessage } from "../../../../utils/utils";
+import { errorMessage, getClinic, trackEvent } from "../../../../utils/utils";
 import dayjs from "dayjs";
 import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip";
 
@@ -16,6 +16,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
   const [billModalOpen, setBillModalOpen] = useState(false);
   const [receiptModalOpen, setReceiptModalOpen] = useState(false);
   const [advanceReceiptModalOpen, setAdvanceReceiptModalOpen] = useState(false);
+  const {profile} = useSelector(state => state.doctors);
 
   useEffect(() => {
     if (advancedSettings) setSettings(advancedSettings);
@@ -126,6 +127,14 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
   };
 
   const handleAdvancedSettings = () => {
+    const clinic = getClinic();
+    trackEvent("TP_billing_savesettings", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+    });
     updateSettings({ ...advancedSettings, ...settings });
   };
 

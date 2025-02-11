@@ -30,7 +30,7 @@ import { v4 as uuidv4 } from "uuid";
 import CashManagerContext from "../context/CashManagerContext";
 import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
 import { useDispatch } from "react-redux";
-import { errorMessage } from "../utils/utils";
+import { errorMessage, getClinicName, trackEvent } from "../utils/utils";
 import { CheckOutlined, CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import deleteModuleIcon from "../assets/images/delete-icon-blue.svg";
 import alertIcon from "../assets/images/alertIcon.svg";
@@ -40,6 +40,7 @@ import Lottie from "lottie-react";
 import VoiceWaveVisualizer from "./WaveVisualizer";
 import GenRXLoaders from "./GenRxLoaders";
 import { AnimationContext } from "../context/AnimationContext";
+import { useSelector } from "react-redux";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -77,6 +78,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const doctorId = decodedToken?.result?.user_id;
   const [audioBlob, setAudioBlob] = useState(null);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const { profile } = useSelector((state) => state.doctors);
 
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
@@ -175,6 +177,15 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   const handleStopRecording = () => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    trackEvent("TP_VoiceRx_Paused", {
+      patient_contact: patient_data?.pm_contact_no || "",
+      patient_id: patient_data?.patient_unique_id || "",
+      doctor_speciality: profile?.dp_name,
+      doctor_unique_id: profile?.doctor_unique_id,
+      clinic_name,
+      rx_id: genRxDetails?._id || "",
+    });
     if (
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state !== "inactive"
@@ -191,7 +202,17 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
   const handleSend = async () => {
     if (!isRecording && !(inputText || editableQuery)) return;
-
+    if (genRxDetails?._id) {
+      const clinic_name = getClinicName(profile?.hospital_data);
+      trackEvent("TP_VoiceRx_editRx", {
+        patient_contact: patient_data?.pm_contact_no || "",
+        patient_id: patient_data?.patient_unique_id || "",
+        doctor_speciality: profile?.dp_name,
+        doctor_unique_id: profile?.doctor_unique_id,
+        clinic_name,
+        rx_id: genRxDetails?._id,
+      });
+    }
     setShowPrescription(true);
     setRecordingTime(0);
     setIsProcessing(true);

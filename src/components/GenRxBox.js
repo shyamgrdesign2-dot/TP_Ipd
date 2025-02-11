@@ -4,9 +4,15 @@ import tryGenRxIcon from "../assets/images/try-gen-rx.svg";
 import genRxMic from "../assets/images/gen-rx-mic.svg";
 
 import { useState } from "react";
+import { getClinicName, trackEvent } from "../utils/utils";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 const GenRxBox = ({ handleGenRxKnowMore, setIsGenRxDrawerVisible }) => {
   const [isCollapseActive, setIsCollapseActive] = useState(true);
+  const { profile } = useSelector((state) => state.doctors);
+  const { state } = useLocation();
+  const { patient_data } = state;
 
   const handlePanelChange = () => {
     setIsCollapseActive((prev) => !prev);
@@ -61,7 +67,17 @@ const GenRxBox = ({ handleGenRxKnowMore, setIsGenRxDrawerVisible }) => {
             <Button
               className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center justify-content-center"
               style={{ gap: 10 }}
-              onClick={() => setIsGenRxDrawerVisible(true)}
+              onClick={() => {
+                const clinic_name = getClinicName(profile?.hospital_data);
+                trackEvent("TP_VoiceRx_Start", {
+                  patient_contact: patient_data?.pm_contact_no || "",
+                  patient_id: patient_data?.patient_unique_id || "",
+                  doctor_speciality: profile?.dp_name,
+                  doctor_unique_id: profile?.doctor_unique_id,
+                  clinic_name,
+                });
+                setIsGenRxDrawerVisible(true);
+              }}
             >
               <img src={tryGenRxIcon} alt="genrx-icon" />
               <span>Try Voice Rx</span>

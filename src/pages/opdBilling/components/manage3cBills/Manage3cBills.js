@@ -26,7 +26,11 @@ import { Col, Container, Row } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import "./Manage3cBills.scss";
 import { useReactToPrint } from "react-to-print";
-import { handlePrintClick } from "../../../../utils/utils.js";
+import {
+  getClinic,
+  handlePrintClick,
+  trackEvent,
+} from "../../../../utils/utils.js";
 
 import locale from "antd/es/date-picker/locale/en_US";
 
@@ -136,6 +140,14 @@ const Manage3cBills = forwardRef(
     };
 
     const handlePrintData = () => {
+      const clinic = getClinic();
+      trackEvent("TP_billing_printform3C", {
+        doctorSpeciality: profile?.dp_name,
+        doctorId: profile?.doctor_unique_id,
+        doctorContact: profile?.um_contact,
+        city: clinic?.hm_city,
+        pincode: clinic?.hm_pincode,
+      });
       const element = printableRef.current;
       const options = {
         filename: `billing_${userId || "report"}.pdf`,
@@ -462,7 +474,7 @@ const Manage3cBills = forwardRef(
 
     const loadData = async (resetData = true) => {
       const params = {
-        status:["FullyPaid","Due","CarriedForward"],
+        status: ["FullyPaid", "Due", "CarriedForward"],
         sortBy: sortConfig?.field || "date",
         sortOrder: sortConfig?.order || "desc",
         page: resetData ? 1 : page,

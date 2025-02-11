@@ -2,12 +2,15 @@ import { Button, Input } from "antd";
 import CommonModal from "../../../../common/CommonModal";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
 import { useCallback, useState } from "react";
+import { getClinic, trackEvent } from "../../../../utils/utils";
+import { useSelector } from "react-redux";
 
 const { TextArea } = Input;
 
 const RefIdPopup = ({ index, refId, showHideModal, handleModeChange }) => {
   const [refIdData, setRefId] = useState(refId);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const {profile} = useSelector(state => state.subscription);
 
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
@@ -58,6 +61,14 @@ const RefIdPopup = ({ index, refId, showHideModal, handleModeChange }) => {
                 </div>
                 <Button
                   onClick={() => {
+                    const clinic = getClinic();
+                    trackEvent("TP_Billing_AddinUPIRef", {
+                      doctorSpeciality: profile?.dp_name,
+                      doctorId: profile?.doctor_unique_id,
+                      doctorContact: profile?.um_contact,
+                      city: clinic?.hm_city,
+                      pincode: clinic?.hm_pincode,
+                    });
                     handleModeChange(refIdData, index, "refId");
                     showHideModal();
                   }}
