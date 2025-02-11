@@ -89,7 +89,10 @@ const ConfigureBillSettings = ({
     return {
       headerFooter: {
         customLetterHeadMargin: {
-          ...custom_margin,
+          top: parseFloat(custom_margin.top),
+          left: parseFloat(custom_margin.left),
+          right: parseFloat(custom_margin.right),
+          bottom: parseFloat(custom_margin.bottom),
         },
         footer: { fontSize: footer?.font_size, title: footer?.title },
         header: {
@@ -113,7 +116,10 @@ const ConfigureBillSettings = ({
         },
         letterHeadFormat: letterhead_format,
         margin: {
-          ...margin,
+          top: parseFloat(margin.top),
+          left: parseFloat(margin.left),
+          right: parseFloat(margin.right),
+          bottom: parseFloat(margin.bottom),
         },
         otherSettings: {
           qrCode: {
@@ -135,13 +141,16 @@ const ConfigureBillSettings = ({
           },
         },
         uploadedLetterHeadMargin: {
-          ...letterhead_margin,
+          top: parseFloat(letterhead_margin.top),
+          left: parseFloat(letterhead_margin.left),
+          right: parseFloat(letterhead_margin.right),
+          bottom: parseFloat(letterhead_margin.bottom),
         },
       },
       pageFormat: {
         fontFamily: page_format?.font_family,
         fontSize: page_format?.font_size,
-        pageType: "A4",
+        pageType: printSettings?.pageFormat?.pageType,
         patientInfoFontSize: 12,
       },
     };
@@ -315,10 +324,12 @@ const ConfigureBillSettings = ({
         headerFooter: {
           ...prev.headerFooter,
           customLetterHeadMargin: {
-            bottom: custom_margin?.bottom || 2.5,
-            left: custom_margin?.left || 2,
-            right: custom_margin?.right || 2,
-            top: custom_margin?.top || 3,
+            bottom: custom_margin?.bottom
+              ? parseFloat(custom_margin?.bottom)
+              : 2.5,
+            left: custom_margin?.left ? parseFloat(custom_margin?.left) : 2,
+            right: custom_margin?.right ? parseFloat(custom_margin?.right) : 2,
+            top: custom_margin?.top ? parseFloat(custom_margin?.top) : 3,
           },
           footer: { ...footer, fontSize: footer?.font_size },
           header: {
@@ -343,10 +354,10 @@ const ConfigureBillSettings = ({
           },
           letterHeadFormat: letterhead_format,
           margin: {
-            bottom: margin?.bottom || 2.5,
-            left: margin?.left || 2,
-            right: margin?.right || 3,
-            top: margin?.top || 2,
+            bottom: margin?.bottom ? parseFloat(margin?.bottom) : 2.5,
+            left: margin?.left ? parseFloat(margin?.left) : 2,
+            right: margin?.right ? parseFloat(margin?.right) : 3,
+            top: margin?.top ? parseFloat(margin?.top) : 2,
           },
           otherSettings: {
             qrCode: {
@@ -370,10 +381,18 @@ const ConfigureBillSettings = ({
             },
           },
           uploadedLetterHeadMargin: {
-            bottom: letterhead_margin?.bottom || 2.5,
-            left: letterhead_margin?.left || 2,
-            right: letterhead_margin?.right || 2,
-            top: letterhead_margin?.top || 3,
+            bottom: letterhead_margin?.bottom
+              ? parseFloat(letterhead_margin?.bottom)
+              : 2.5,
+            left: letterhead_margin?.left
+              ? parseFloat(letterhead_margin?.left)
+              : 2,
+            right: letterhead_margin?.right
+              ? parseFloat(letterhead_margin?.right)
+              : 2,
+            top: letterhead_margin?.top
+              ? parseFloat(letterhead_margin?.top)
+              : 3,
           },
         },
         pageFormat: {
