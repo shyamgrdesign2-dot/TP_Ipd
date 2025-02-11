@@ -7,6 +7,7 @@ import {
   DatePicker,
   Button,
   Dropdown,
+  message,
 } from "antd";
 import moment from "moment";
 import dayjs from "dayjs";
@@ -67,28 +68,6 @@ const cardsStaticData = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-// const DoctorTags = ({ selectedDoctors, doctorList, handleDoctorSelection }) => {
-//   return (
-//     <div className="selected-doctors-tags">
-//       {selectedDoctors.map((doctorId) => {
-//         const doctor = doctorList.find((d) => d.um_id === doctorId);
-//         return (
-//           <span key={doctorId} className="doctor-tag">
-//             {doctor?.um_name}
-//             <i
-//               className="icon-Cross"
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//                 handleDoctorSelection(doctorId, false);
-//               }}
-//             />
-//           </span>
-//         );
-//       })}
-//     </div>
-//   );
-// };
-
 export default function BillingTable({
   patientData,
   getPatientBills,
@@ -96,6 +75,8 @@ export default function BillingTable({
   handleRefundComplete,
   dateRange,
   setDateRange,
+  dateStatus,
+  setDateStatus,
   selectedDoctors,
   setSelectedDoctors,
 }) {
@@ -124,8 +105,6 @@ export default function BillingTable({
   // Drawer states
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
 
-  const [dateStatus, setDateStatus] = useState(1);
-
   const { doctorList } = useSelector((state) => state.bulkMessages);
   const doctorIds =
     doctorList.map((doctor) => doctor.um_id).length > 0
@@ -138,6 +117,7 @@ export default function BillingTable({
       dispatch(listDoctor());
     }
   }, []);
+
 
   useEffect(() => {
     // Update cards state whenever the summary prop changes
@@ -184,11 +164,25 @@ export default function BillingTable({
     setOpenDownloadModal(!openDownloadModal);
   };
 
-  const handleCheckboxChange = (checkedValues) => {
+  const handleCheckboxChange = async (checkedValues) => {
     if (checkedValues?.includes("Due")) {
       checkedValues = ["CarriedForward", ...checkedValues];
     }
     setSelectedOptions(checkedValues);
+
+    // Only fetch all data if there are selected options
+    if (checkedValues.length > 0) {
+      dispatch(setLoadingStatus(true));
+      try {
+        const allBills = await fetchAllData(checkedValues);
+        setDownloadData([...allBills]);
+      } catch (error) {
+        console.error("Error fetching all bills for download:", error);
+        message.error("Failed to prepare download data. Please try again.");
+      } finally {
+        dispatch(setLoadingStatus(false));
+      }
+    }
   };
 
   useEffect(() => {
@@ -235,17 +229,24 @@ export default function BillingTable({
     dispatch(setLoadingStatus(true));
   };
 
-  const handleDownloadAll = () => {
-    const allStatuses = ["PailFully", "CarriedForward", "Due", "Refunded"];
+  const handleDownloadAll = async () => {
+    dispatch(setLoadingStatus(true));
+    try {
+      const allStatuses = ["FullyPaid", "CarriedForward", "Due", "Refunded"];
+      const allBills = await fetchAllData(allStatuses);
 
-    setDownloadData(
-      data?.bills?.filter((item) => allStatuses.includes(item.paymentStatus))
-    );
+      setDownloadData([...allBills]);
 
-    // Ensure handleDownload runs after state is updated
-    setTimeout(() => {
-      handleDownloadData();
-    }, 50);
+      // Ensure handleDownload runs after state is updated
+      setTimeout(() => {
+        handleDownloadData();
+      }, 50);
+    } catch (error) {
+      console.error("Error in downloading all data:", error);
+      message.error("Failed to download data. Please try again.");
+    } finally {
+      dispatch(setLoadingStatus(false));
+    }
   };
 
   const disabledDate = (current) => {
@@ -459,7 +460,7 @@ export default function BillingTable({
         selectedDoctors.length > 0 ? [...selectedDoctors] : [...doctorIds],
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id ?? "",
-      appointmentId: patientData?.pam_id,
+      // appointmentId: patientData?.pam_id,
     };
     try {
       const response = await listAdvancedDepositByPatient(params);
@@ -499,6 +500,7 @@ export default function BillingTable({
         selectedDoctors.length > 0 ? [...selectedDoctors] : [...doctorIds],
       search: searchQuery || "",
       patientId: patientData?.patient_unique_id,
+      // appointmentId: patientData?.pam_id,
     };
     try {
       const response = await fetchBillsByPatient(params);
@@ -545,6 +547,49 @@ export default function BillingTable({
         behavior: "smooth", // Optional: adds smooth scrolling
       });
     }
+  };
+
+  // Add this new function to fetch all data
+  const fetchAllData = async (selectedOptions) => {
+    let allBills = [];
+    let currentPage = 1;
+    let hasMoreData = true;
+
+    while (hasMoreData) {
+      const params = {
+        status: selectedOptions,
+        sortBy: sortConfig?.field || "date",
+        sortOrder: sortConfig?.order || "desc",
+        page: currentPage,
+        limit: 100, // Maximum limit per page
+        startDate: dateRange.startDate,
+        endDate: dateRange.endDate,
+        doctorIds:
+          selectedDoctors.length > 0 ? [...selectedDoctors] : [...doctorIds],
+        search: searchQuery || "",
+      };
+
+      try {
+        const response = patientData
+          ? await fetchBillsByPatient({
+              ...params,
+              patientId: patientData?.patient_unique_id,
+            })
+          : await fetchBillingDashboard(params);
+        if (response?.bills?.length > 0) {
+          allBills = [...allBills, ...response.bills];
+          currentPage += 1;
+          hasMoreData = response.bills.length === 100; // Check if we got maximum records
+        } else {
+          hasMoreData = false;
+        }
+      } catch (error) {
+        console.error("Error fetching all bills:", error);
+        hasMoreData = false;
+      }
+    }
+
+    return allBills;
   };
 
   return (

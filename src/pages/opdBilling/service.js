@@ -306,7 +306,6 @@ export const fetchAdvancedDepositDashboard = async function (params) {
   let res = {};
   try {
     const queryParams = {
-      status: params.status, // Pass an array, Axios will handle repeated query params
       sortBy: params.sortBy || "date", // Default sorting field
       sortOrder: params.sortOrder || "desc", // Default sorting order
       page: params.page,
@@ -317,10 +316,28 @@ export const fetchAdvancedDepositDashboard = async function (params) {
       patientPhone: params.patientPhone ?? "",
       search: params.search ?? "",
     };
-    res = await api.get(`/api/v1/billing/advancedDeposit/dashboard`, {
-      params: queryParams,
+
+    const statusParams = Array.isArray(params.status)
+      ? params.status
+          .map((status) => `status=${encodeURIComponent(status)}`)
+          .join("&")
+      : params.status
+      ? `status=${encodeURIComponent(params.status)}`
+      : "";
+
+    // Combine query parameters into a single query string
+    const queryString =
+      new URLSearchParams(queryParams).toString() +
+      (statusParams ? `&${statusParams}` : "");
+
+    // Construct the final API URL
+    const apiUrl = `/api/v1/billing/advancedDeposit/dashboard?${queryString}`;
+
+    // Perform the API request
+    res = await api.get(apiUrl, {
       customBaseUrl: baseUrl.customBaseUrl,
     });
+
   } catch (e) {
     console.error("Error while fetching advanced deposit dashboard data: ", e);
   }
