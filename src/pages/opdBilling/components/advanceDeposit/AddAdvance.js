@@ -525,7 +525,7 @@ function AddAdvance({
       render: (text, record) => (
         <div className="cursor-pointer" onClick={async () => {}}>
           <div className="fs-14 fw-semibold theme-color">
-            {record.receiptNumber}
+            {record?.billNumber || record.receiptNumber}
           </div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {formatDateWithOrdinal(record.date)}
@@ -647,7 +647,11 @@ function AddAdvance({
           showCreatedBy={advancedSettings?.enableCreatedByInRx}
         />
       ).toBlob();
-      printContent(blob, billData?.patientId, setStartLoader);
+      printContent(
+        blob,
+        billData?.patientId || patientDetails?.patientUniqueId,
+        setStartLoader
+      );
     }
   };
 
