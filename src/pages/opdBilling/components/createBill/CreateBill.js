@@ -624,7 +624,11 @@ const CreateBill = ({
           inputMode="decimal"
           onChange={(e) => {
             const value = onlyDecimalFormat(e.target.value);
-            handleInputChange(value <= 100 ? value : record.gst, index, "gst");
+            handleInputChange(
+              value <= 100 ? (value === "" ? undefined : value) : record.gst,
+              index,
+              "gst"
+            );
           }}
           suffix="%"
           bordered={false}

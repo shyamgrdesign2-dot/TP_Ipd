@@ -120,6 +120,8 @@ function ConfigurePrintSetting() {
           patientId: caseManagerData?.patient_data?.patient_unique_id,
           appointmentId: pam_id || caseManagerData?.patient_data?.pam_id,
           includeInRx: true,
+          status: "Deposit",
+          status: "Refund",
         };
         const response = await fetchBillsByPatient(queryParams);
         if (response?.bills?.length > 0) {

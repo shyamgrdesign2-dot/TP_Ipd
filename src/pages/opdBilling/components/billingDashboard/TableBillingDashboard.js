@@ -61,6 +61,7 @@ const TableBillingDashboard = forwardRef(
     const [isHovered, setIsHovered] = useState(false);
     const [billingCount, setBillingCount] = useState(0);
     const [advanceCount, setAdvanceCount] = useState(0);
+    const [dateStatus, setDateStatus] = useState(1);
     const [dateRange, setDateRange] = useState({
       startDate: moment().format(dateFormat),
       endDate: moment().format(dateFormat),
@@ -80,6 +81,7 @@ const TableBillingDashboard = forwardRef(
       getBillAndAdvanceCount();
     }, [dateRange]);
 
+    
     useEffect(() => {
       const checkInFireBase = async () => {
         if (deviceUid) {
@@ -242,6 +244,8 @@ const TableBillingDashboard = forwardRef(
                 setBillingCount={setBillingCount}
                 dateRange={dateRange}
                 setDateRange={setDateRange}
+                dateStatus={dateStatus}
+                setDateStatus={setDateStatus}
                 selectedDoctors={selectedDoctors}
                 setSelectedDoctors={setSelectedDoctors}
               />
@@ -251,6 +255,8 @@ const TableBillingDashboard = forwardRef(
                 patientData={patientData}
                 dateRange={dateRange}
                 setDateRange={setDateRange}
+                dateStatus={dateStatus}
+                setDateStatus={setDateStatus}
                 totalAdvanceBalance={totalAdvanceBalance}
               />
             )}

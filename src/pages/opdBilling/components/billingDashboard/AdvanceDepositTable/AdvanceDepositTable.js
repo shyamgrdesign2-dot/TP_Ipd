@@ -75,7 +75,7 @@ const cardsStaticData = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateRange, totalAdvanceBalance }, ref) => {
+const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateRange, totalAdvanceBalance, dateStatus, setDateStatus }, ref) => {
   const dispatch = useDispatch();
   const { billPrintSettings, advancedSettings } = useSelector(
     (state) => state.billing
@@ -103,8 +103,6 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
 
   const { doctorList } = useSelector((state) => state.bulkMessages);
-
-  const [dateStatus, setDateStatus] = useState(1);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const tableRef = useRef(null);
@@ -542,20 +540,84 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
     setOpenDownloadModal(!openDownloadModal);
   };
 
-  const handleCheckboxChange = (checkedValues) => {
-    if (checkedValues?.includes("Due")) {
-      checkedValues = ["CarriedForward", ...checkedValues];
-    }
+  const handleCheckboxChange = async (checkedValues) => {
+
+    console.log(checkedValues,"checkedValues")
     setSelectedOptions(checkedValues);
+    if (checkedValues.length > 0) {
+      try {
+        const allReceipts = await fetchAllData(checkedValues);
+        setDownloadData([...allReceipts]);
+      } catch (error) {
+        console.error("Error fetching all bills for download:", error);
+        message.error("Failed to prepare download data. Please try again.");
+      } finally {
+        // dispatch(setLoadingStatus(false));
+      }
+    }
   };
 
-  useEffect(() => {
-    setDownloadData(
-      data?.receipts?.filter((item) =>
-        selectedOptions.includes(item.transactionType)
-      )
-    );
-  }, [selectedOptions, data]);
+  const fetchAllData = async (selectedStatuses) => {
+    // setStartLoader(true);
+    let allReceipts = [];
+    let currentPage = 1;
+    let hasMoreData = true;
+
+    try {
+      while (hasMoreData) {
+        const params = {
+          status: [...selectedStatuses],
+          sortBy: sortConfig?.field || "date",
+          sortOrder: sortConfig?.order || "desc",
+          page: currentPage,
+          limit: 100,
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate,
+          doctorIds: doctorList.map((doctor) => doctor.um_id),
+          search: searchQuery || "",
+        };
+
+        const response = patientData
+          ? await listAdvancedDepositByPatient({
+              ...params,
+              patientId: patientData?.patient_unique_id,
+            })
+          : await fetchAdvancedDepositDashboard(params);
+
+        if (response?.receipts?.length > 0) {
+          const updatedReceipts = patientData
+            ? response.receipts.map((item) => ({
+                ...item,
+                patient: response.patient,
+              }))
+            : response.receipts;
+
+          allReceipts = [...allReceipts, ...updatedReceipts];
+          currentPage += 1;
+          hasMoreData = response.receipts.length === 100;
+        } else {
+          hasMoreData = false;
+        }
+      }
+
+      return allReceipts;
+    } catch (error) {
+      console.error("Error fetching all data:", error);
+      message.error("Failed to fetch all data for download");
+      return [];
+    }
+  };
+
+  const handleDownloadAll = async () => {
+    const allStatuses = ["Deposit", "Refund", "Debit"];
+    const allReceipts = await fetchAllData(allStatuses);
+    setDownloadData([...allReceipts]);
+
+    // Ensure handleDownload runs after state is updated
+    setTimeout(() => {
+      handleDownloadData();
+    }, 50);
+  };
 
   const handleDownloadData = () => {
     const element = printableRef.current;
@@ -583,21 +645,6 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
       .catch((err) => {
         console.error("Error generating PDF:", err);
       });
-  };
-
-  const handleDownloadAll = () => {
-    const allStatuses = ["Deposit", "Refund", "Debit"];
-
-    setDownloadData(
-      data?.receipts?.filter((item) =>
-        allStatuses.includes(item.transactionType)
-      )
-    );
-
-    // Ensure handleDownload runs after state is updated
-    setTimeout(() => {
-      handleDownloadData();
-    }, 50);
   };
 
   // Dropdown content

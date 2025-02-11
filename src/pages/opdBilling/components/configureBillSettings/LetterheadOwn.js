@@ -1,5 +1,6 @@
 import { Col, Input, Row } from "antd";
 import rxDisplayArea from "./../../../../assets/images/rx-display-area.svg";
+import { onlyDecimalFormat } from "../../../../utils/utils";
 
 const LetterheadOwn = ({ headerFooter, setPrintSettings, marginType }) => {
   //Own Letterhead
@@ -41,8 +42,12 @@ const LetterheadOwn = ({ headerFooter, setPrintSettings, marginType }) => {
           <Input
             className="inputheight41-group"
             value={headerFooter?.[marginType]?.top}
-            onChange={(e) => onMarginChange(e.target.value, "top")}
+            onChange={(e) => {
+              const value = onlyDecimalFormat(e.target.value);
+              onMarginChange(value ? parseFloat(value) : 0, "top");
+            }}
             style={{ width: 70 }}
+            inputMode="decimal"
           />
         </div>
         <Row className="align-items-center justify-content-around form_addnewpatient mb-1">
@@ -52,8 +57,12 @@ const LetterheadOwn = ({ headerFooter, setPrintSettings, marginType }) => {
               <Input
                 className="inputheight41-group"
                 value={headerFooter?.[marginType]?.left}
-                onChange={(e) => onMarginChange(e.target.value, "left")}
+                onChange={(e) => {
+                  const value = onlyDecimalFormat(e.target.value);
+                  onMarginChange(value ? parseFloat(value) : 0, "left");
+                }}
                 style={{ width: 70 }}
+                inputMode="decimal"
               />
             </div>
           </Col>
@@ -66,8 +75,12 @@ const LetterheadOwn = ({ headerFooter, setPrintSettings, marginType }) => {
               <Input
                 className="inputheight41-group"
                 value={headerFooter?.[marginType]?.right}
-                onChange={(e) => onMarginChange(e.target.value, "right")}
+                onChange={(e) => {
+                  const value = onlyDecimalFormat(e.target.value);
+                  onMarginChange(value ? parseFloat(value) : 0, "right");
+                }}
                 style={{ width: 70 }}
+                inputMode="decimal"
               />
             </div>
           </Col>
@@ -76,8 +89,12 @@ const LetterheadOwn = ({ headerFooter, setPrintSettings, marginType }) => {
           <Input
             className="inputheight41-group"
             value={headerFooter?.[marginType]?.bottom}
-            onChange={(e) => onMarginChange(e.target.value, "bottom")}
+            onChange={(e) => {
+              const value = onlyDecimalFormat(e.target.value);
+              onMarginChange(value ? parseFloat(value) : 0, "bottom");
+            }}
             style={{ width: 70 }}
+            inputMode="decimal"
           />
           <br />
           <label className="mb-1">Bottom (cm)</label>

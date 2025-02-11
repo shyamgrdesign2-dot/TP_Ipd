@@ -47,6 +47,7 @@ import CommonModal from "./CommonModal";
 import { useReactToPrint } from 'react-to-print';
 import { fetchAdvanceSetting, fetchPrintSetting } from "../pages/opdBilling/service";
 import { setAdvancedSettings, setBillPrintSettings } from "../redux/billingSlice";
+import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -55,6 +56,7 @@ function Header({ locationPath }) {
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
   const [videoDrawer, setvideoDrawer] = useState(false);
+  const { isOpdBillingAccessable } = useOpdBilling();
 
   const isOpdPlansAccessableFromGB = useFeatureIsOn(
     "opd-plans"
@@ -1006,7 +1008,7 @@ function Header({ locationPath }) {
 
           {SWITCH_TO_OLD_MODAL}
 
-          {tokenData?.admin && 
+          {!!tokenData?.admin && isOpdBillingAccessable && 
             <Dropdown
               menu={{
                 items: [
