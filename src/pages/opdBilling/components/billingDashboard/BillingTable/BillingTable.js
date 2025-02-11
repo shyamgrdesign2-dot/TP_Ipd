@@ -71,7 +71,6 @@ const showDateFormat = "DD MMM YYYY";
 
 export default function BillingTable({
   patientData,
-  getPatientBills,
   handleTotalAdvanceUpdate,
   handleRefundComplete,
   dateRange,
@@ -80,6 +79,7 @@ export default function BillingTable({
   setDateStatus,
   selectedDoctors,
   setSelectedDoctors,
+  createBillDrawer,
 }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
@@ -119,7 +119,6 @@ export default function BillingTable({
       dispatch(listDoctor());
     }
   }, []);
-
 
   useEffect(() => {
     // Update cards state whenever the summary prop changes
@@ -542,6 +541,7 @@ export default function BillingTable({
     form3cTriggered,
     sortConfig,
     doctorList,
+    createBillDrawer,
   ]);
 
   const handleRefundSuccess = () => {
@@ -863,7 +863,7 @@ export default function BillingTable({
             isPatientScreen={patientData ? true : false}
             handleMessageForm3c={handleMessageForm3c}
             onSortChange={handleSortChange}
-            getPatientBills={getPatientBills}
+            getPatientBills={patientData ? patientBillingData : loadData}
             loadData={loadData}
             hasMore={hasMore}
             tableRef={tableRef}

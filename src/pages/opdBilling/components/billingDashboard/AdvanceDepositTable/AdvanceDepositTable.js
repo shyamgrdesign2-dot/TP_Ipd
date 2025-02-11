@@ -347,7 +347,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
             case "deposit":
               return {
                 className: "status-advance",
-                displayText: `Advance`,
+                displayText: `Deposit`,
               };
             case "refund":
               return {
@@ -449,7 +449,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
             case "deposit":
               return {
                 className: "status-advance",
-                displayText: `Advance`,
+                displayText: `Deposit`,
               };
             case "refund":
               return {
