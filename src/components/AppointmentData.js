@@ -816,7 +816,7 @@ function AppointmentData({ locationPath }) {
                                 departmentId: record.departmentId,
                                 visitId: record.visitId,
                                 encounterId: record.encounterId,
-                                employeeId: record.employeeId,
+                                employeeId: empNo[empNo.length - 1],
                             }
                         }
                     })
