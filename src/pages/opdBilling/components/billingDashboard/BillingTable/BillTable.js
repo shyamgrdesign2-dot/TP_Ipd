@@ -131,7 +131,7 @@ const BillTable = ({
           width: "21%",
           render: (text, record) => (
             <div>
-              <div className="dashboard-table-font-style">
+              <div className="dashboard-table-font-style patient-name-cell">
                 {record?.patient?.name}
               </div>
               <div className="fs-14 fw-normal text-truncate-twolines">

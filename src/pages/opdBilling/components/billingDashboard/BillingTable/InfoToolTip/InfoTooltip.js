@@ -194,7 +194,7 @@ const InfoTooltip = ({ type = "Refunded", amount, billNo, notes }) => {
       overlayClassName="custom-tooltip-container"
       title={renderContent()}
       color="white"
-      placement="bottom"
+      placement={type === "Debit" ? "bottomRight" : "bottom"}
     >
       <InfoCircleOutlined className="info-icon" />
     </Tooltip>

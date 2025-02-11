@@ -1,7 +1,10 @@
 .billing-table-wrapper {
   :where(.css-dev-only-do-not-override-1okl62o).ant-select-single {
     height: 36px !important;
-    width: 200px !important;
+    width: 100% !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   :where(.css-dev-only-do-not-override-1okl62o).ant-dropdown {
@@ -45,7 +48,7 @@
         0px 2px 12px 0px rgba(0, 0, 0, 0.04);
 
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         bottom: -15px;
         left: 50%;
@@ -209,7 +212,7 @@
     font-weight: 400 !important;
     color: var(--T-Text-80, #454551) !important;
   }
-  .ant-btn-download{
+  .ant-btn-download {
     padding: 0.5rem;
     overflow: hidden !important;
     width: 16rem;
@@ -242,7 +245,7 @@
       min-height: 38px;
       max-width: 350px;
       min-width: 300px;
-      margin-right: 1rem;
+      margin-right: 0px;
       padding: 4px 8px !important;
       border-radius: 8px !important;
 
@@ -256,9 +259,8 @@
     }
 
     .ant-select-arrow {
-      position: absolute;
-      right: -44%;
-      top: 60%;
+      display: flex;
+      align-items: center;
     }
   }
 }
@@ -470,4 +472,13 @@
     font-size: 12px;
     padding: 0 8px;
   }
+}
+
+.patient-name-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
+  margin-bottom: 4px;
 }

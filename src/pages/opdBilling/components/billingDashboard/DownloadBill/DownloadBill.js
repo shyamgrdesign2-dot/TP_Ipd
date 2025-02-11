@@ -152,29 +152,37 @@ const DownloadBill = ({
       render: (text, record) =>
         record.date ? moment(record.date)?.format("DD MMM YYYY") : "",
     },
-    {
-      title: "PATIENT DETAILS",
-      dataIndex: "patientName",
-      key: "patientName",
-      width: 150,
-      align: "left",
-      render: (text, record) => (
-        <div className="cursor-pointer">
-          <div className="fs-14">{record?.patient?.name}</div>
-        </div>
-      ),
-    },
-    {
-      title: "PATIENT DETAILS",
-      dataIndex: "patientDetails",
-      key: "patientDetails",
-      align: "center",
-      render: (text, record) => (
-        <div>
-          <span style={{ color: "#888" }}>{record?.patient?.phone}</span>
-        </div>
-      ),
-    },
+    isDoctorDashboard
+      ? {
+          title: "PATIENT NAME",
+          dataIndex: "patientName",
+          key: "patientName",
+          width: 150,
+          align: "left",
+          render: (text, record) => (
+            <div className="cursor-pointer">
+              <div className="fs-14 patient-name-cell">
+                {record?.patient?.name}
+              </div>
+            </div>
+          ),
+        }
+      : undefined,
+    isDoctorDashboard
+      ? {
+          title: "MOBILE NUMBER",
+          dataIndex: "patientDetails",
+          key: "patientDetails",
+          align: "center",
+          render: (text, record) => (
+            <div>
+              <span className="patient-name-cell" style={{ color: "#888" }}>
+                {record?.patient?.phone}
+              </span>
+            </div>
+          ),
+        }
+      : undefined,
     {
       title: "TOTAL AMOUNT",
       dataIndex: "totalAmount",
@@ -195,7 +203,7 @@ const DownloadBill = ({
         <span style={{ color: "#888" }}>{record?.transactionType}</span>
       ),
     },
-  ];
+  ]?.filter((item) => item);
 
   const summaryColumns = [
     {

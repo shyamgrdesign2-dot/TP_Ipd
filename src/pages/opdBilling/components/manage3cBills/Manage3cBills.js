@@ -378,7 +378,7 @@ const Manage3cBills = forwardRef(
         ellipsis: true,
         render: (text, record) => (
           <div className="cursor-pointer" onClick={async () => {}}>
-            <div className="fs-14">{record.patient.name}</div>
+            <div className="fs-14 patient-name-cell">{record.patient.name}</div>
             <div className="fs-14 fw-normal text-truncate-twolines">
               {record.patient.phone}
             </div>
