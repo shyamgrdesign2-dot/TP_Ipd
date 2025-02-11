@@ -67,7 +67,8 @@
     "siriwave": "^2.4.0",
     "slick-carousel": "^1.8.1",
     "uuid": "^9.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

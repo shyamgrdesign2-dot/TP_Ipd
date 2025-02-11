@@ -9,11 +9,18 @@ export const fetchApolloConsultations = async function ({
   endDate,
   umIds,
   search,
+  download
 }) {
   let consultations = [];
+
+  let query=''
+  if(download !== undefined){
+    query=`&download=${download}`
+  }
+
   try {
     consultations = await api.get(
-      `api/v1/apollo/owner?page=${page}&startdate=${startDate}&enddate=${endDate}&um_ids=${umIds}&search=${search}`,
+      `api/v1/apollo/owner?page=${page}&startdate=${startDate}&enddate=${endDate}&um_ids=${umIds}&search=${search}${query}`,
       baseUrl
     );
   } catch (e) {

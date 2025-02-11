@@ -23,6 +23,9 @@ import Header from "../../common/Header";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { throttle, debounce } from "lodash";
 
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+
 const { Text } = Typography;
 
 const ConsultationDetailsPage = () => {
@@ -379,6 +382,70 @@ const ConsultationDetailsPage = () => {
     []
   );
 
+  const exportToExcel = async () => {
+    try {
+      const params = {
+        page: 1,
+        startDate: filters.startDate?.format("YYYY-MM-DD"),
+        endDate: filters.endDate?.format("YYYY-MM-DD"),
+        umIds:
+          filters?.selectedDoctors?.length > 0
+            ? filters.selectedDoctors?.join(",")
+            : doctors?.map((doc) => doc.value)?.join(","),
+        search: filters.search || "",
+        download: true
+      };
+      const { consultationsList } = await fetchApolloConsultations(params);
+      const workSheetColumnNames = [
+        'Patient Name',
+        'Apollo ID',
+        'Consultation Date & Time',
+        'Doctor Name',
+        'Investigations',
+        'Vaccinations',
+        'Surgeries',
+        'Cross Consult',
+        'Vaccination Packages',
+        'Remaks'
+      ]
+      const data = consultationsList.map(e => {
+        let crossConsultList = [], vaccinationPackagesList = []
+        const crossConsultData = e?.dynamicModules?.find((item) => item?.name === "Cross Consult / Referred to")
+        if (crossConsultData?.content?.length > 0) {
+          crossConsultList = crossConsultData?.content?.map((item) => item.title)
+        }
+        const vaccinationPackageData = e?.dynamicModules?.find((item) => item?.name === "Vaccination Packages");
+        if (vaccinationPackageData?.content?.length > 0) {
+          vaccinationPackagesList = vaccinationPackageData?.content?.map((item) => item.title)
+        }
+        return [
+          e?.patientName,
+          e?.apolloId,
+          moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
+          e?.doctorName,
+          e?.investigations.join(', '),
+          e?.vaccinations.join(', '),
+          e?.surgeries.join(', '),
+          crossConsultList.join(', '),
+          vaccinationPackagesList.join(', '),
+          e?.remarks
+        ]
+      })
+      const workSheetData = [
+        workSheetColumnNames,
+        ...data
+      ];
+      const worksheet = XLSX.utils.aoa_to_sheet(workSheetData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+      saveAs(blob, `Apollo.xlsx`);
+    } catch (error) {
+      message.error("Failed to fetch consultations");
+    }
+  };
+
   return (
     isApolloConsultationsEnabled && (
       <>
@@ -425,6 +492,9 @@ const ConsultationDetailsPage = () => {
                     }
                   />
                   <b>Total Count: {totalRecords}</b>
+                  <Button onClick={exportToExcel} className="btn btn-input rounded-1 px-2 ms-2" disabled={filters?.startDate && filters?.endDate && dayjs(filters?.endDate).diff(dayjs(filters?.startDate), 'days') <= 7 ? false : true}>
+                    <i className="icon-download"></i>
+                  </Button>
                 </Space>
                 <Input
                   placeholder="Search by Patient Name or Apollo ID"
