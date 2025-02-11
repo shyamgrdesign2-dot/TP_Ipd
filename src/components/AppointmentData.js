@@ -746,7 +746,40 @@ function AppointmentData({ locationPath }) {
             // if (action.meta.requestStatus === "fulfilled") {
             //     navigate("/patient_details", { state: { patient_data: { ...record, mrno: action?.payload?.pm_reference_id } } })
             // }
-            navigate("/patient_details", { state: { patient_data: { ...record, mrno: record?.tpml_refrence_id } } })
+            const decodedToken = getDecodedToken();
+            const tokenData = decodedToken?.result;
+            if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
+                var sendZydusData = {
+                    siteId: siteId,
+                    empNo: empNo.toString(),
+                    date: moment(date.startDate).format(showDateFormat),
+                    apStatue: TAB_ZYDUS_ENCOUNTER,
+                    page: 0,
+                    filterVisitType: visitTypeFilters,
+                }
+                const action = await dispatch(zydusConsultAppoint(sendZydusData))
+                if (action.meta.requestStatus === "fulfilled") {
+                    const data = action?.payload?.find(e => e?.encounterId == record?.pam_ref_id)
+                    if (data !== undefined) {
+                        navigate("/patient_details", {
+                            state: {
+                                patient_data: {
+                                    ...record,
+                                    mrno: data.mrno,
+                                    departmentId: data.departmentId,
+                                    visitId: data.visitId,
+                                    encounterId: data.encounterId,
+                                    employeeId: empNo[empNo.length - 1]
+                                }
+                            }
+                        })
+                    } else {
+                        navigate("/patient_details", { state: { patient_data: record } })
+                    }
+                }
+            } else {
+                navigate("/patient_details", { state: { patient_data: record } })
+            }
         } else {
             navigate("/patient_details", { state: { patient_data: record } })
         }
