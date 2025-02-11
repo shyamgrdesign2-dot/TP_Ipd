@@ -970,8 +970,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                 if (tokenData?.hospital_business_id == env.zydus_business_id
                     && isZydusUserAccessableFromGB
                     && patient_data?.mrno !== undefined
-                    && medicationData.length > 0
-                    && investigationData.length > 0
+                    && (medicationData.length > 0 || investigationData.length > 0)
                 ) {
                     let sendInvestigationAndMedicine = {
                         patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
@@ -990,8 +989,8 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             "doctorCode": patient_data?.employeeId,
                             "storeCode": "PHOS", // hardcoded value
                             "duplicateCheck": 1, // hardcoded value
-                            "investigationList": actionIM?.payload?.investigation.filter(item => item.hasOwnProperty('objectID')).map(item => item.objectID),
-                            "medicineList": actionIM?.payload?.medicine.map(({ tmm_id, tmm_remarks }) => ({ objectId: tmm_id, instruction: tmm_remarks }))
+                            "investigationList": investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name) : [],
+                            "medicineList": medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })) : []
                         }
                         dispatch(placeIctOrder(zydusSendData))
                     }
