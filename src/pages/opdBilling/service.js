@@ -429,5 +429,5 @@ export const checkToShowOpdBilling = async function () {
       e
     );
   }
-  return res;
+  return res?.data;
 };
