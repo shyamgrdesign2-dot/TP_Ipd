@@ -1162,6 +1162,7 @@ function AppointmentData({ locationPath }) {
                                 <a
                                     onClick={(e) => {
                                         e.preventDefault();
+                                        getPatientBills(record);
                                     }}
                                 >
                                     <i className="icon-More" />

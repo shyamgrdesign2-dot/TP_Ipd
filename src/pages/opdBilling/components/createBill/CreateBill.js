@@ -440,7 +440,7 @@ const CreateBill = ({
         city: clinic?.hm_city,
         pincode: clinic?.hm_pincode,
         subscriptionStatus: planDetails?.currentPlanStatus,
-        source: "billing_page"
+        source: "billing_page",
       });
       setSearchItemSelected({
         ...selectedData,

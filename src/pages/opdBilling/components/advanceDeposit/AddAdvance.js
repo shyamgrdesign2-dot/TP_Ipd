@@ -816,6 +816,7 @@ function AddAdvance({
       patientId:
         patientData?.patient_unique_id ||
         billData?.patientId ||
+        patientData?.patientUniqueId ||
         patientDetails?.patientUniqueId,
       page: resetData ? 1 : page,
       limit: 25,
