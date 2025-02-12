@@ -142,13 +142,14 @@ const DownloadBill = ({
       dataIndex: "receiptNumber",
       key: "receiptNumber",
       align: "center",
-      render: (text, record) => record.receiptNumber,
+      render: (text, record) => record?.billNumber || record?.receiptNumber,
     },
     {
       title: "DATE",
       dataIndex: "date",
       key: "date",
       align: "center",
+      width: 150,
       render: (text, record) =>
         record.date ? moment(record.date)?.format("DD MMM YYYY") : "",
     },
