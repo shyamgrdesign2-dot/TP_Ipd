@@ -396,7 +396,7 @@ function RefundBill({
                           >
                             <i
                               className="icon-delete"
-                              style={{ color: "#454551" }}
+                              style={{ color: "#454551", marginLeft: 10 }}
                             />
                           </Button>
                         )}
@@ -415,17 +415,6 @@ function RefundBill({
                           </div>
                         )}
                     </div>
-                    {paymentModes.length > 1 && (
-                      <Button
-                        className="btn btn-delete-prescription p-0"
-                        onClick={() => removePaymentMode(index)}
-                      >
-                        <i
-                          className="icon-delete"
-                          style={{ color: "#454551", marginLeft: 10 }}
-                        />
-                      </Button>
-                    )}
                   </div>
                 ))}
                 {totalRefundAmount !== billData?.paidAmount && (

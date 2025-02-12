@@ -83,7 +83,7 @@ function BillingDashboard({ patientData, fromPath }) {
     setForm3cData(null);
   };
 
-  const handleCreateBillDrawer = useCallback(() => {
+  const handleCreateBillDrawer = useCallback(() => {  
     const clinic = getClinic();
     trackEvent("TP_Billing_CreateBill", {
       doctorSpeciality: profile?.dp_name,
@@ -244,6 +244,8 @@ function BillingDashboard({ patientData, fromPath }) {
             patientData={patientData}
             handleTotalAdvanceUpdate={handleTotalAdvanceUpdate}
             totalAdvanceBalance={totalAdvanceBalance}
+            createBillDrawer={createBillDrawer}
+            addAdvanceDrawer={addAdvanceDrawer}
           />
         </div>
 

@@ -10,7 +10,7 @@ export const useOpdBilling = () => {
   const { shouldShowOpdBilling, isOpdBillChecked } = useSelector(
     (state) => state.billing
   );
-  
+
   useEffect(() => {
     if (!isOpdBillChecked) {
       getShowOpdBilling();
@@ -19,7 +19,7 @@ export const useOpdBilling = () => {
 
   const getShowOpdBilling = async () => {
     const res = await checkToShowOpdBilling();
-    dispatch(setShouldShowOpdBilling(res?.data));
+    dispatch(setShouldShowOpdBilling(res));
   };
 
   const isOpdBillingAccessableFromGB = useFeatureIsOn("new-opd-billing");

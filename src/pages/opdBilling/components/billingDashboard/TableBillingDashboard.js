@@ -42,9 +42,10 @@ const TableBillingDashboard = forwardRef(
     {
       onTabChange,
       patientData,
-      getPatientBills,
       handleTotalAdvanceUpdate,
       totalAdvanceBalance,
+      createBillDrawer,
+      addAdvanceDrawer,
     },
     ref
   ) => {
@@ -78,10 +79,11 @@ const TableBillingDashboard = forwardRef(
     //   });
 
     useEffect(() => {
-      getBillAndAdvanceCount();
-    }, [dateRange]);
+      if (!createBillDrawer || !addAdvanceDrawer) {
+        getBillAndAdvanceCount();
+      }
+    }, [dateRange, createBillDrawer, addAdvanceDrawer]);
 
-    
     useEffect(() => {
       const checkInFireBase = async () => {
         if (deviceUid) {
@@ -239,7 +241,6 @@ const TableBillingDashboard = forwardRef(
             {selectedTab === 1 ? (
               <BillingTable
                 patientData={patientData}
-                getPatientBills={getPatientBills}
                 handleTotalAdvanceUpdate={handleTotalAdvanceUpdate}
                 setBillingCount={setBillingCount}
                 dateRange={dateRange}
@@ -248,6 +249,7 @@ const TableBillingDashboard = forwardRef(
                 setDateStatus={setDateStatus}
                 selectedDoctors={selectedDoctors}
                 setSelectedDoctors={setSelectedDoctors}
+                createBillDrawer={createBillDrawer}
               />
             ) : (
               <AdvanceDepositTable
