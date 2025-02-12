@@ -336,6 +336,8 @@ const BillTable = ({
             isPreviewFromTable={true}
             billData={billData}
             patientAdvanceData={patientAdvanceData}
+            handleMessageForm3c={handleMessageForm3c}
+            getPatientBills={getPatientBills}
           />
         </Drawer>
       )}

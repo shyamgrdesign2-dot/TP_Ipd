@@ -26,6 +26,8 @@ const PreviewBill = ({
   billData,
   totalAdvanceBalance,
   patientAdvanceData,
+  handleMessageForm3c,
+  getPatientBills,
 }) => {
   const [billDetails, setBillDetails] = useState(billData);
   const { patient = {} } = billDetails || {};
@@ -412,6 +414,8 @@ const PreviewBill = ({
             billData={billDetails}
             onRefundSuccess={handleRefundSuccess}
             patientAdvanceData={patientAdvanceData}
+            handleMessageForm3c={handleMessageForm3c}
+            getPatientBills={getPatientBills}
           />
         </Drawer>
       )}
