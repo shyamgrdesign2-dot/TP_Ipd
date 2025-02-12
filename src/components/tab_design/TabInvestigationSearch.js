@@ -3,6 +3,7 @@ import { Button, Card, Row, Col, Input, Tour } from 'antd';
 
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import {
@@ -18,6 +19,9 @@ import tagNew from '../../../src/assets/images/tag-new.svg'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { getClinicName } from "../../utils/utils";
 import { useLocation } from "react-router-dom";
+import { getDecodedToken } from "../../utils/localStorage";
+import { GB_ZYDUS_USER } from "../../utils/constants";
+import { env } from "../../EnvironmentConfig";
 
 function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
 
@@ -38,6 +42,10 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
     const [childSearchOptions, setChildSearchOptions] = useState([]);
 
     const [selectedIndex, setSelectedIndex] = useState(passIndex);
+
+    const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+    const decodedToken = getDecodedToken();
+    const tokenData = decodedToken?.result;
 
     //Parent AutoComplete
     useEffect(() => {
@@ -62,7 +70,7 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
             });
         });
         if (searchChildQuery.length > 0) {
-            searchChildQuery && childOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 &&
+            searchChildQuery && childOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 && tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB &&
                 data.push({
                     key: JSON.stringify({
                         unique_id: uuidv4(),
