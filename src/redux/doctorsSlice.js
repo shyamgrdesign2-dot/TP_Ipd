@@ -24,6 +24,7 @@ const initialState = {
   dragDrop: {},
   siteId: null,
   empNo: [],
+  storeCode: null,
   pillupCheck: false
 };
 
@@ -549,11 +550,13 @@ const doctorsSlice = createSlice({
         if (action.payload.siteId !== undefined) {
           state.siteId = action.payload.siteId;
           state.empNo = action.payload.empNo;
+          state.storeCode = action.payload.storeCode; 
         }
       })
       .addCase(zydusRefIds.rejected, (state) => {
         state.siteId = null;
         state.empNo = [];
+        state.storeCode = null;
       });
   },
 });
