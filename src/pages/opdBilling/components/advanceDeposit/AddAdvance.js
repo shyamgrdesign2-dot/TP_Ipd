@@ -223,6 +223,13 @@ function AddAdvance({
 
   // Function to add a new payment mode
   const addPaymentMode = (type) => {
+    const newMode = {
+      paymentMode: filteredOptions[0]?.value,
+      amount: undefined,
+    };
+    type === "advance"
+      ? setAdvanceModes([...advanceModes, newMode])
+      : setRefundModes([...refundModes, newMode]);
     const clinic = getClinic();
     trackEvent("TP_Billing_AddPaymentMode", {
       patientName: patientDetails?.patientName || "",
@@ -233,15 +240,12 @@ function AddAdvance({
       city: clinic?.hm_city,
       pincode: clinic?.hm_pincode,
       subscriptionStatus: planDetails?.currentPlanStatus,
-      paymentModes: JSON.stringify([...advanceModes, newMode]),
+      paymentModes: JSON.stringify(
+        type === "advance"
+          ? setAdvanceModes([...advanceModes, newMode])
+          : setRefundModes([...refundModes, newMode])
+      ),
     });
-    const newMode = {
-      paymentMode: filteredOptions[0]?.value,
-      amount: undefined,
-    };
-    type === "advance"
-      ? setAdvanceModes([...advanceModes, newMode])
-      : setRefundModes([...refundModes, newMode]);
   };
 
   // Function to remove a payment mode
