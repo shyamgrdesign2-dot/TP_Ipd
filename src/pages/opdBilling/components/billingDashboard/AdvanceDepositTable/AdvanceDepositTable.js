@@ -1003,7 +1003,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
                   {card.count}
                   {")"}
                 </div>
-                <div className="card-amount">{card.amount}</div>
+                <div className="card-amount">₹{card.amount}</div>
               </div>
             ))}
           </div>

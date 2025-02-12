@@ -330,28 +330,26 @@ const PreviewBill = ({
                         />
                       }
                       error={
-                        <div
-                          style={{
-                            position: "absolute",
-                            zIndex: 0,
-                            left: "42%",
-                            top: "50%",
-                          }}
-                        >
-                          {"Failed to load PDF file."}
-                        </div>
-                      }
-                      noData={
-                        <div
+                        <Spin
                           style={{
                             position: "absolute",
                             zIndex: 0,
                             left: "50%",
                             top: "50%",
                           }}
-                        >
-                          {"No PDF file specified."}
-                        </div>
+                          tip="Loading PDF..."
+                        />
+                      }
+                      noData={
+                        <Spin
+                          style={{
+                            position: "absolute",
+                            zIndex: 0,
+                            left: "50%",
+                            top: "50%",
+                          }}
+                          tip="Loading PDF..."
+                        />
                       }
                       file={pdfUrl}
                       onLoadSuccess={onDocumentLoadSuccess}
