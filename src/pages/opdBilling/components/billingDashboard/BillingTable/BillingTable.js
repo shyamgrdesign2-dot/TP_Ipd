@@ -867,6 +867,7 @@ export default function BillingTable({
             loadData={loadData}
             hasMore={hasMore}
             tableRef={tableRef}
+            patientAdvanceData={patientData ? patientAdvanceData : ""}
           />
         </Row>
 
