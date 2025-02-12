@@ -243,7 +243,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
                   pm_fullname: record?.patient?.name,
                   pm_gender: record?.patient?.gender,
                   pm_contact_no: record?.patient?.phone,
-                  pam_ref_id: record?.patient?.refId,
+                  tpml_refrence_id: record?.patient?.refId,
                   ageDays: record?.patient?.ageDays,
                   ageMonths: record?.patient?.ageMonths,
                   ageYears: record?.patient?.ageYears,

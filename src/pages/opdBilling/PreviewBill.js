@@ -25,6 +25,7 @@ const PreviewBill = ({
   isDepositReceipt,
   billData,
   totalAdvanceBalance,
+  patientAdvanceData,
 }) => {
   const [billDetails, setBillDetails] = useState(billData);
   const { patient = {} } = billDetails || {};
@@ -33,7 +34,7 @@ const PreviewBill = ({
     pm_fullname: patient.name,
     pm_gender: patient.gender,
     pm_contact_no: patient.phone,
-    pam_ref_id: patient.refId,
+    tpml_refrence_id: patient.refId,
     ageDays: patient.ageDays,
     ageMonths: patient.ageMonths,
     ageYears: patient.ageYears,
@@ -410,6 +411,7 @@ const PreviewBill = ({
             handleRefundBillDrawer={handleRefundBillDrawer}
             billData={billDetails}
             onRefundSuccess={handleRefundSuccess}
+            patientAdvanceData={patientAdvanceData}
           />
         </Drawer>
       )}

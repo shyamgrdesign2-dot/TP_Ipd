@@ -46,6 +46,7 @@ function RefundBill({
   handleMessageForm3c,
   getPatientBills,
   onRefundSuccess,
+  patientAdvanceData,
 }) {
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
@@ -59,8 +60,8 @@ function RefundBill({
   const [isPaymentModeItemMissing, setPaymentModeItemMissing] = useState(false);
   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
   const paymentMethodsRef = useRef(null);
-  const {planDetails} = useSelector(state => state.subscription);
-  const {profile} = useSelector(state => state.doctors);
+  const { planDetails } = useSelector((state) => state.subscription);
+  const { profile } = useSelector((state) => state.doctors);
 
   const filteredOptions = PaymentOptions.filter(
     (option) => !usedPaymentModes.includes(option.value)
@@ -105,6 +106,12 @@ function RefundBill({
       };
       const response = await processBillRefund(payload);
       if (response.status === 204) {
+        const isAdvanceDeposit = !!paymentModes?.find(
+          (item) => item.paymentMode === "Advance Deposit"
+        );
+        if (isAdvanceDeposit && patientAdvanceData) {
+          patientAdvanceData();
+        }
         message.open({
           key: MESSAGE_KEY,
           type: "",

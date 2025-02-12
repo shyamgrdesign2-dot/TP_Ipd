@@ -848,7 +848,7 @@ const CreateBill = ({
                     pm_fullname: createRes?.patient?.name,
                     pm_gender: createRes?.patient?.gender,
                     pm_contact_no: createRes?.patient?.phone,
-                    pam_ref_id: createRes?.patient?.refId,
+                    tpml_refrence_id: createRes?.patient?.refId,
                     ageDays: createRes?.patient?.ageDays,
                     ageMonths: createRes?.patient?.ageMonths,
                     ageYears: createRes?.patient?.ageYears,
