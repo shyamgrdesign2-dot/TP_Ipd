@@ -170,7 +170,7 @@ const obsHistoryCheckboxOptions = [
   },
 ];
 
-function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetails }) {
+function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetails, patientBills }) {
   const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions, labParamsData, customModules } = useContext(PrintSettingsContext);
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
@@ -449,15 +449,15 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                 onChange={(e) => onCaseOptionChange(e, "radio", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
                 value={record.format}
               >
-                <Radio.Button className="w-100 text-center" value="inline">
+                <Radio.Button className="w-100 text-center" value="inline" disabled={record?.id === 17}>
                   {record?.id === 12 ? "Graph View" : "Inline"}
                 </Radio.Button>
                 {record?.id !== 12 &&
-                  <Radio.Button className="w-100 text-center" value="listview">
+                  <Radio.Button className="w-100 text-center" value="listview" disabled={record?.id === 17}>
                     List View
                   </Radio.Button>
                 }
-                <Radio.Button className="w-100 text-center" value="table">
+                <Radio.Button className="w-100 text-center" value="table" disabled={record?.id === 17}>
                   Table
                 </Radio.Button>
               </Radio.Group>
@@ -611,8 +611,10 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                             : (caseManagerData.labParamsData?.length > 0 && option.id === 15) ? ({ ...option, key: option.id })
                                              : (caseManagerData?.surgeries?.length > 0 && option.id === 16) ?
                                                 ({ ...option, key: option.id })
-                                                : (option.is_custom_module === true && customModulesRxData?.find((e) => e?.module_id === option?.id)?.content?.length > 0) &&
+                                                : (option.is_custom_module === true && customModulesRxData?.find((e) => e?.module_id === option?.id)?.content?.length > 0) ?
                                                   ({ ...option, key: option.id })
+                                                  : (patientBills?.length > 0 && option.id === 17) &&
+                                                    ({ ...option, key: option.id })
               )}
               showHeader={false}
             />

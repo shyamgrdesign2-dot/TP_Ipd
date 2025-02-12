@@ -8,6 +8,12 @@ import ApiMedicalCertificate from "../api/services/ApiMedicalCertificate";
 
 const initialState = {
   sort_order: 'ascend',
+  // sort_bill: {
+  //   billDateSort: 'desc',
+  //   totalAmountSort: 'desc',
+  //   paidAmountSort: 'desc',
+  //   clickedSort: 'billDateSort'
+  // },
   profile: null,
   loading: false,
   error: null,

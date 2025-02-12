@@ -20,7 +20,7 @@ import {
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 
-import { errorMessage } from "../utils/utils";
+import { errorMessage, getClinic, trackEvent } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
 
 import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FETCH_SMART_RX, UNFINISHED_RX_CASE, GB_SMARTSYNC_CVT, TAB_ZYDUS_ENCOUNTER, TAB_ZYDUS_APPOINTMENT, GB_ZYDUS_USER } from "../utils/constants";
@@ -67,6 +67,11 @@ import LabParams from "./LabParams";
 import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/UploadDocPopup";
 import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
 import { resetDDxState } from "../redux/ddxSlice";
+import CreateBill from "../pages/opdBilling/components/createBill/CreateBill";
+import { fetchBillsByPatient } from "../pages/opdBilling/service";
+import RecentBills from "../pages/opdBilling/components/recentBills/RecentBills";
+import AddAdvance from "../pages/opdBilling/components/advanceDeposit/AddAdvance";
+import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 
 const { TextArea } = Input;
 
@@ -77,11 +82,14 @@ function AppointmentData({ locationPath }) {
 
     const navigate = useNavigate();
 
-    const { sort_order, profile, siteId, empNo } = useSelector((state) => state.doctors);
+    const { sort_order, profile, siteId, empNo, userId } = useSelector(
+      (state) => state.doctors
+    );
     const { uploadDocCategories } = useSelector(
         (state) => state.uploadDoc
     );
     const { isLoading } = useSelector((state) => state.uploadDoc);
+    const { isOpdBillingAccessable } = useOpdBilling();
 
     const [searchParams, setSearchParams] = useSearchParams();
     const from = searchParams.get("from");
@@ -114,6 +122,7 @@ function AppointmentData({ locationPath }) {
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [patientData, setPatientData] = useState(null);
     const fileInputRef = useRef(null);
+    const {planDetails} = useSelector(state => state.subscription);
 
     const handleDrawerUploadDoc = () => {
         setUploadDocDrawer(!uploadDocDrawer);
@@ -380,6 +389,10 @@ function AppointmentData({ locationPath }) {
     const [endVisitReason, setEndVisitReason] = useState('');
     const [noDetailsModal, setNoDetailsModal] = useState(false);
     const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
+    const [createBillDrawer, setCreateBillDrawer] = useState(false);
+    const [recentBillDrawer, setRecentBillDrawer] = useState(false);
+    const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
+    const [patientBills, setPatientBills] = useState([]);
 
     const showHideBackModal = () => {
         setIsBackModalOpen(!isBackModalOpen);
@@ -620,6 +633,38 @@ function AppointmentData({ locationPath }) {
                 label: <span onClick={()=>onPatientDetailsClick(record)}>Patient Details</span>,
                 key: "patientdetails",
             },
+          isOpdBillingAccessable ? {
+                label: <div
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
+                        if (patientBills?.length === 0) {
+                            const clinic = getClinic();
+                            trackEvent("TP_Billing_CreateBill", {
+                                patientName: record.pm_fullname,
+                                patientId: record?.patient_unique_id,
+                                doctorSpeciality: profile?.dp_name,
+                                doctorId: profile?.doctor_unique_id,
+                                doctorContact: profile?.um_contact,
+                                source: selectedTab === TAB_QUEUE ? "appointment_queue" : selectedTab === TAB_FINISHED ? "appointment_finished" : "",
+                                city: clinic?.hm_city,
+                                pincode: clinic?.hm_pincode,
+                                subscriptionStatus: planDetails?.currentPlanStatus
+                            })
+                            handleCreateBillDrawer()
+                        } else {
+                            handleRecentBillDrawer();
+                        }
+                    }}>{patientBills?.length === 0 ? "Create Bill" : "View/Create Bill"}</div>,
+                key: "createbill",
+          } : undefined,
+          isOpdBillingAccessable ? {
+                label: <div
+                    onClick={() => {
+                        setAppointmentSelectedFromMenu(record);
+                        handleAddAdvanceDrawer();
+                    }}>Advance Deposit</div>,
+                key: "advancebill",
+          } : undefined,
             {
                 label: <span
                     onClick={() => {
@@ -684,7 +729,7 @@ function AppointmentData({ locationPath }) {
                 ),
                 key: "uploadDoc",
             },
-        ];
+        ]?.filter((item) => item);
 
         if (selectedTab === TAB_QUEUE) {
             return items.filter((item) => item.key !== "endvisitreason");
@@ -1117,6 +1162,7 @@ function AppointmentData({ locationPath }) {
                                 <a
                                     onClick={(e) => {
                                         e.preventDefault();
+                                        getPatientBills(record);
                                     }}
                                 >
                                     <i className="icon-More" />
@@ -1193,6 +1239,27 @@ function AppointmentData({ locationPath }) {
         [addlabparamsDrawer]
     );
 
+    const handleCreateBillDrawer = useCallback(
+        () => {
+            setCreateBillDrawer(!createBillDrawer);
+            if (recentBillDrawer) {
+              setRecentBillDrawer(false);
+            }
+        },
+        [createBillDrawer]
+    );
+
+    const handleAddAdvanceDrawer = useCallback(
+        () => {
+            setAddAdvanceDrawer(!addAdvanceDrawer)
+        },
+        [addAdvanceDrawer]
+    );
+
+    const handleRecentBillDrawer = useCallback(() => {
+        setRecentBillDrawer(!recentBillDrawer);
+    }, [recentBillDrawer]);
+
     const handleLabParamsUpdate = (() => {
         // setAddlabparamsDrawer(!addlabparamsDrawer)
     });
@@ -1210,6 +1277,29 @@ function AppointmentData({ locationPath }) {
         },
         [endVisitReason]
     );
+
+     const getPatientBills = async (record, sortParams = {}) => {
+       const queryParams = {
+         doctorIds: [userId],
+         sortBy: sortParams.field || "date",  // Default sort by date
+         sortOrder: sortParams.order || "asc", // Default ascending order
+         page: 1,
+         limit: 25,
+         startDate: moment().format("YYYY-MM-DD"),
+         endDate: moment().format("YYYY-MM-DD"),
+         patientId: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id,
+         appointmentId: record?.pam_id || appointmentSelectedFromMenu?.pam_id,
+       };
+
+       const response = await fetchBillsByPatient(queryParams);
+       if (response?.bills?.length > 0) {
+         const billData = response?.bills?.map((bill) => ({
+           ...bill,
+           patient: response?.patient,
+         }));
+         setPatientBills(billData);
+       }
+     };
 
     const NO_DETAILS_MODAL = useMemo(() => {
         return (
@@ -1774,6 +1864,46 @@ function AppointmentData({ locationPath }) {
                     }
                 />
             ) : null}
+            {createBillDrawer &&(<Drawer
+                closeIcon={false}
+                placement="right"
+                bodyStyle={{ backgroundColor: "white" }}
+                open={createBillDrawer}
+                onClose={showHideBackModal}
+                width="100%"
+                push={false}
+                >
+                    <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientData={appointmentSelectedFromMenu} />
+                </Drawer>)}
+            {recentBillDrawer && (
+                <Drawer
+                    closeIcon={false}
+                    placement="right"
+                    open={recentBillDrawer}
+                    onClose={handleRecentBillDrawer}
+                    width="77%"
+                    push={false}
+                >
+                    <RecentBills 
+                        handleRecentBillDrawer={handleRecentBillDrawer} 
+                        handleCreateBillDrawer={handleCreateBillDrawer} 
+                        patientBills={patientBills} 
+                        getPatientBills={getPatientBills}
+                    />
+                </Drawer>
+            )}
+            {addAdvanceDrawer &&
+                <Drawer
+                    closeIcon={false}
+                    placement="right"
+                    open={addAdvanceDrawer}
+                    onClose={handleAddAdvanceDrawer}
+                    width="85%"
+                    push={false}
+                    >
+                    <AddAdvance handleAddAdvanceDrawer={handleAddAdvanceDrawer} patientData={appointmentSelectedFromMenu} />
+                </Drawer>
+            }
         </>
     );
 }

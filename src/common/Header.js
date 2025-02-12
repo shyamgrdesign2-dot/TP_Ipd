@@ -22,6 +22,7 @@ import qrIcon from '../assets/images/qr-icon.svg';
 import logoIcom from '../assets/images/text-logo.svg';
 import VideoModal from "./VideoModal";
 import videorotate from '../assets/images/videorotate.gif';
+import billingsIcon from "../assets/images/billings.svg";
 import upgradeIcon from "../assets/images/upgrade.svg";
 import profileBg from "../assets/images/profile-bg.svg";
 import goldCrown from "../assets/images/gold-crown.svg";
@@ -44,6 +45,9 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { env } from "../EnvironmentConfig";
 import CommonModal from "./CommonModal";
 import { useReactToPrint } from 'react-to-print';
+import { fetchAdvanceSetting, fetchPrintSetting } from "../pages/opdBilling/service";
+import { setAdvancedSettings, setBillPrintSettings } from "../redux/billingSlice";
+import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -52,6 +56,7 @@ function Header({ locationPath }) {
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
   const [videoDrawer, setvideoDrawer] = useState(false);
+  const { isOpdBillingAccessable } = useOpdBilling();
 
   const isOpdPlansAccessableFromGB = useFeatureIsOn(
     "opd-plans"
@@ -111,6 +116,11 @@ function Header({ locationPath }) {
   }, [isZydusUserAccessableFromGB]);
 
   useEffect(() => {
+    getAdvanceSettings();
+    getBillPrintSettings();
+  }, []);
+
+  useEffect(() => {
     if (profile) {
       if (profile.moengage_b2c_send === undefined) {
         window.Moengage.add_unique_user_id(profile?.b2c)
@@ -146,6 +156,20 @@ function Header({ locationPath }) {
       getStorageData()
     }
   }, [clinicOptions]);
+
+  const getAdvanceSettings = async () => {
+    const advanceSettingsResponse = await fetchAdvanceSetting();
+    if (advanceSettingsResponse) {
+      dispatch(setAdvancedSettings(advanceSettingsResponse));
+    }
+  };
+
+  const getBillPrintSettings = async () => {
+    const printSettingsResponse = await fetchPrintSetting();
+    if (printSettingsResponse) {
+      dispatch(setBillPrintSettings(printSettingsResponse));
+    }
+  };
 
   const HOSPITAL_DATA = useMemo(() => {
     return (
@@ -983,6 +1007,34 @@ function Header({ locationPath }) {
           )}
 
           {SWITCH_TO_OLD_MODAL}
+
+          {!!tokenData?.admin && isOpdBillingAccessable && 
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    label: (
+                      <a onClick={() => navigate("/billing-settings")}>
+                        <div className="title-settings me-2 d-flex align-items-center">
+                          <img src={billingsIcon} alt="Billing" width={20} height={20} className="me-2" />
+                          Billing Settings
+                        </div>
+                        <i className="icon-right iconrotate180"></i>
+                      </a>
+                    ),
+                    key: "1",
+                  }
+                ]
+              }}
+              trigger={['click']}
+              className="py-0 nav-link cursor-pointer"
+              overlayClassName="settings-dropdown"
+            >
+              <div className="d-flex align-items-center h-24 w-24">
+                <i className="icon-setting me-2"></i>
+              </div>
+            </Dropdown>
+          }
 
           <Dropdown
             menu={{

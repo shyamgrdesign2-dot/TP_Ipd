@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 // import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
-import { Col, Row, Select, Button, message, Spin } from "antd";
+import { Col, Row, Select, Button, message, Spin, Drawer } from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
@@ -9,7 +9,7 @@ import { useReactToPrint } from 'react-to-print';
 
 // import { PDFReader } from 'reactjs-pdf-reader';
 
-import { errorMessage } from "../utils/utils";
+import { errorMessage, getClinic, trackEvent } from "../utils/utils";
 
 import messageSent from '../assets/images/message-sent.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
@@ -24,6 +24,11 @@ import { getGynecDetails } from "../api/services/ApiGynec";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { env } from "../EnvironmentConfig";
 import { setCurrentSessionRx } from "../redux/obstetricSlice";
+import CreateBill from "./opdBilling/components/createBill/CreateBill";
+import RecentBills from "./opdBilling/components/recentBills/RecentBills";
+import { fetchBillsByPatient, listAdvancedDepositByPatient } from "./opdBilling/service";
+import moment from "moment";
+import { useOpdBilling } from "./opdBilling/useOpdBilling";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -93,18 +98,19 @@ function PrescriptionPrintView() {
     const {
         loading,
     } = useSelector((state) => state.caseManager);
-    const { userId } = useSelector((state) => state.doctors);
+    const { userId, profile } = useSelector((state) => state.doctors);
     const { currentSessionRx } = useSelector((state) => state.obstetric);
+    const { isOpdBillingAccessable } = useOpdBilling();
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
 
     const { state } = useLocation();
-    const { patient_data } = state
+    const { patient_data, pam_id } = state;
 
     const [selectedLang, setSelectedLang] = useState(1);
 
-    const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}` : null);
+    const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}&pam_id=${pam_id}` : null);
     const [printRxUrl, setPrintRxUrl] = useState(state !== undefined ? `${state.print_rx_url}` : null);
 
     const [divWidth, setDivWidth] = useState(0);
@@ -113,7 +119,13 @@ function PrescriptionPrintView() {
 
     const [gynecHistoryData, setGynecHistoryData] = useState(null);
     const [labParamsData, setLabParamsData] = useState([]);
+    const [createBillDrawer, setCreateBillDrawer] = useState(false);
+    const [recentBillDrawer, setRecentBillDrawer] = useState(false);
+    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+    const [patientBills, setPatientBills] = useState([]);
+    const [advanceReceipts, setAdvanceReceipts] = useState([]);
     const {isGynaecHistoryAccessable} = useAccess();
+    const {planDetails} = useSelector(state => state.subscription);
 
     const baseUrl = env.lab_params_api_url;
 
@@ -154,6 +166,73 @@ function PrescriptionPrintView() {
     useEffect(() => {
         getLabParams();
     },[])
+
+    useEffect(() => {
+      if (!createBillDrawer) {
+        getPatientBills();
+      }
+    }, [createBillDrawer]);
+
+
+    useEffect(() => {
+      const encodedData = btoa(selectedLang.toString());
+      setPrintUrl(`${printUrl}&lg=${encodedData}`);
+    }, [patientBills, advanceReceipts]);
+
+    const getPatientBills = async (_, sortParams = {}) => {
+        const queryParams = {
+            doctorIds: [userId],
+            sortBy: sortParams.field || "date",
+            sortOrder: sortParams.order || "asc",
+            page: 1,
+            limit: 25,
+            startDate: moment().format("YYYY-MM-DD"),
+            endDate: moment().format("YYYY-MM-DD"),
+            patientId: patient_data?.patient_unique_id,
+            appointmentId: pam_id || patient_data?.pam_id,
+        };
+        const response = await fetchBillsByPatient(queryParams);
+        if (response?.bills?.length > 0) {
+          const billData = response?.bills?.map((bill) => ({
+            ...bill,
+            patient: response?.patient,
+          }));
+          setPatientBills(billData);
+        }
+        const patientAdvanceDeposit = await listAdvancedDepositByPatient(
+          queryParams
+        );
+        if (patientAdvanceDeposit?.receipts?.length > 0) {
+          setAdvanceReceipts(patientAdvanceDeposit?.receipts);
+        }
+    };
+
+    const handleCreateBillDrawer = useCallback(() => {
+        const clinic = getClinic();
+        trackEvent("TP_Billing_CreateBill", {
+            patientName: patient_data?.pm_fullname,
+            patientId: patient_data?.patient_unique_id,
+            doctorSpeciality: profile?.dp_name,
+            doctorId: profile?.doctor_unique_id,
+            doctorContact: profile?.um_contact,
+            source: "rx_preview",
+            city: clinic?.hm_city,
+            pincode: clinic?.hm_pincode,
+            subscriptionStatus: planDetails?.currentPlanStatus
+        })
+        setCreateBillDrawer(!createBillDrawer);
+        if (recentBillDrawer) {
+          setRecentBillDrawer(false);
+        }
+    }, [createBillDrawer]);
+
+    const handleRecentBillDrawer = useCallback(() => {
+      setRecentBillDrawer(!recentBillDrawer);
+    }, [recentBillDrawer]);
+
+    const showHideBackModal = () => {
+      setIsBackModalOpen(!isBackModalOpen);
+    };
 
     // const printContent = useReactToPrint({
     //     content: () => printRef.current,
@@ -257,7 +336,7 @@ function PrescriptionPrintView() {
         }
         const action = await dispatch(viewCaseManager(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate('/configure_print_setting', { state: { caseManagerData: {...action.payload, patient_data: {...action.payload.patient_data, pm_id: patient_data?.pm_id}, gynecHistoryData, labParamsData} } })
+            navigate('/configure_print_setting', { state: { caseManagerData: {...action.payload, patient_data: {...action.payload.patient_data, pm_id: patient_data?.pm_id}, gynecHistoryData, labParamsData}, pam_id: pam_id } })
         } else {
             errorMessage(action.error)
         }
@@ -269,7 +348,7 @@ function PrescriptionPrintView() {
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
-                    <Col md={7} sm={7} xl={5}>
+                    <Col md={7} sm={7} xl={6}>
 
                         {isMobile ? '' : <div className="d-flex align-items-center justify-content-end h-38" onClick={configurePrintUrl}>
                             <i className="icon-setting me-2"></i>
@@ -284,6 +363,16 @@ function PrescriptionPrintView() {
                                     <span className="text-decoration-underline fw-medium cursor-pointer"> Configure Print Setting </span>
                                 </div>
                                 }
+                                 {isOpdBillingAccessable && (<Button
+
+                                    type="text"
+                                    className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
+                                    icon={<i className="icon-billings"></i>}
+                                    onClick={patientBills?.length === 0 ? handleCreateBillDrawer : handleRecentBillDrawer}
+                                >
+                                    <span className="fw-semibold">{patientBills?.length > 0 ? "Create/ View Bill" : "Create Bill"}</span>
+                                    <i className="icon-right iconrotate180 ms-auto"></i>
+                                </Button>)}
                                 <Button
                                     type="text"
                                     onClick={() => {
@@ -295,25 +384,16 @@ function PrescriptionPrintView() {
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-Print"></i>}
                                 >
-                                    <span className="fw-semibold">Print</span>
+                                    <span className="fw-semibold">Print Prescription</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
-                                {/* <Button
-
-                                    type="text"
-                                    className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
-                                    icon={<i className="icon-billings"></i>}
-                                >
-                                    <span className="fw-semibold">Create Bill</span>
-                                    <i className="icon-right iconrotate180 ms-auto"></i>
-                                </Button> */}
                                 <Button
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-download"></i>}
                                     onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
                                 >
-                                    <span className="fw-semibold">Download</span>
+                                    <span className="fw-semibold">Download Prescription</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
                                 <Button
@@ -388,6 +468,34 @@ function PrescriptionPrintView() {
                         </div>
                     </Col>
                 </Row>
+                {createBillDrawer &&(<Drawer
+                    closeIcon={false}
+                    placement="right"
+                    bodyStyle={{ backgroundColor: "white" }}
+                    open={createBillDrawer}
+                    onClose={showHideBackModal}
+                    width="100%"
+                    push={false}
+                >
+                    <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} isRxPage={true} patientData={patient_data} />
+                </Drawer>)}
+                {recentBillDrawer &&
+                <Drawer
+                    closeIcon={false}
+                    placement="right"
+                    open={recentBillDrawer}
+                    onClose={handleRecentBillDrawer}
+                    width="77%"
+                    push={false}
+                    >
+                    <RecentBills 
+                        handleRecentBillDrawer={handleRecentBillDrawer} 
+                        handleCreateBillDrawer={handleCreateBillDrawer} 
+                        patientBills={patientBills} 
+                        getPatientBills={getPatientBills}
+                    />
+                </Drawer>
+            }
             </div>
         </>
     );

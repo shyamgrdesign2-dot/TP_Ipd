@@ -1,0 +1,324 @@
+import React, { useCallback, useEffect, useState, useRef } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { isMobile } from "react-device-detect";
+
+import Header from "../../../../common/Header";
+import SidebarDoctor from "../../../../common/SidebarDoctor";
+import Welcome from "../../../../common/Welcome";
+
+import { useSelector, useDispatch } from "react-redux";
+import {
+  MESSAGE_KEY,
+  PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+} from "../../../../utils/constants";
+import { jwtDecode } from "jwt-decode";
+import { setUserId } from "../../../../redux/doctorsSlice";
+import { getClinic, getClinicName, trackEvent } from "../../../../utils/utils";
+import TableBillingDashboard from "./TableBillingDashboard";
+import { Button, Drawer, message } from "antd";
+import "./BillingDashboard.scss";
+import Vaccination from "../../../vaccination/Vaccination";
+import Manage3cBill from "../manage3cBills/Manage3cBills";
+import AddForm3cBills from "../manage3cBills/AddForm3cBills";
+import addCircleIcon from "../../../../assets/images/add-circle.svg";
+import visitEnd from "../../../../assets/images/end-visit.svg";
+import imgCloseVisit from "../../../../assets/images/close-visit.svg";
+import { clearSearch } from "../../../../redux/appointmentsSlice";
+import AddAdvance from "../advanceDeposit/AddAdvance";
+import CreateBill from "../createBill/CreateBill";
+import { fetchPatientWalletBalance } from "../../service";
+
+function BillingDashboard({ patientData, fromPath }) {
+  const dispatch = useDispatch();
+  let location = useLocation();
+  const [locationPath, setLocationPath] = useState("/");
+  const { profile } = useSelector((state) => state.doctors);
+  const [selectedTab, setSelectedTab] = useState("billingtable");
+  const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
+
+  // Drawer states
+  const [form3cDrawer, setForm3cDrawer] = useState(false);
+  const [addForm3cDrawer, setAddform3cDrawer] = useState(false);
+  const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
+  const [createBillDrawer, setCreateBillDrawer] = useState(false);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const { planDetails } = useSelector((state) => state.subscription);
+
+  // Add a ref to store the refresh function
+  const billingTableRef = useRef(null);
+  const manage3cBillsRef = useRef(null);
+  const [form3cData, setForm3cData] = useState(null);
+
+  useEffect(() => {
+    setLocationPath(location.pathname);
+  }, [location]);
+
+  useEffect(() => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    window.Moengage.track_event("TP_Appointment_Page_Landing", {
+      clinic_name,
+    });
+    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+    try {
+      const decoded = jwtDecode(token);
+      if (decoded?.result?.user_id) {
+        dispatch(setUserId(decoded.result));
+      }
+    } catch (e) {
+      console.error("Error while token decoding: ", e);
+    }
+  }, []);
+
+  // Drawer form 3c
+  const handleManage3cBill = () => {
+    const clinic = getClinic();
+    trackEvent("TP_billing_ManageForm3C", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+    });
+    setForm3cDrawer(!form3cDrawer);
+    setForm3cData(null);
+  };
+
+  const handleCreateBillDrawer = useCallback(() => {  
+    const clinic = getClinic();
+    trackEvent("TP_Billing_CreateBill", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      source: fromPath || "billing_page",
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+      subscriptionStatus: planDetails?.currentPlanStatus,
+    });
+    setCreateBillDrawer(!createBillDrawer);
+  }, [createBillDrawer]);
+
+  const showHideBackModal = () => {
+    setIsBackModalOpen(!isBackModalOpen);
+  };
+
+  // Add form 3c drawer
+  const handleAddForm3cDrawer = () => {
+    setAddform3cDrawer(!addForm3cDrawer);
+  };
+
+  // Modify the Add Advance Drawer handler
+  const handleAddAdvanceDrawer = () => {
+    const clinic = getClinic();
+    trackEvent("TP_billing_addadvance", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+      source: fromPath || "billing_page",
+    });
+    setAddAdvanceDrawer(!addAdvanceDrawer);
+    // If drawer is closing and we have a refresh function, call it
+    if (addAdvanceDrawer && billingTableRef.current?.refreshData) {
+      billingTableRef.current.refreshData();
+    }
+  };
+
+  // Function to handle successful advance operations
+  const handleAdvanceSuccess = () => {
+    handleAddAdvanceDrawer();
+    // Refresh the total advance balance
+    if (patientData?.patient_unique_id) {
+      getPatientWalletBalance();
+    }
+  };
+
+  useEffect(() => {
+    if (patientData?.patient_unique_id && !createBillDrawer) {
+      getPatientWalletBalance();
+    }
+  }, [createBillDrawer]);
+
+  const getPatientWalletBalance = async () => {
+    const patientWalletBalanceRes = await fetchPatientWalletBalance(
+      patientData.patient_unique_id
+    );
+    if (patientWalletBalanceRes?.advanceDepositBalance) {
+      setTotalAdvanceBalance(patientWalletBalanceRes?.advanceDepositBalance);
+    }
+  };
+
+  // Function to update state from child
+  const handleTotalAdvanceUpdate = (newData) => {
+    setTotalAdvanceBalance(newData);
+  };
+
+  const handleForm3cSuccess = () => {
+    // Refresh billing table
+    if (billingTableRef.current?.refreshData) {
+      billingTableRef.current.refreshData();
+    }
+    // Refresh manage3c bills table
+    if (manage3cBillsRef.current?.refreshData) {
+      manage3cBillsRef.current.refreshData();
+    }
+    // Close the drawer
+    handleAddForm3cDrawer();
+  };
+
+  return (
+    <>
+      {!patientData && <Header locationPath={locationPath} />}
+      <div className="d-flex billing-dashboard-wraper">
+        {!patientData && <SidebarDoctor activeItem={"opd-billing"} />}
+        <div className="w-100 bg-body wrapper">
+          <>
+            <div className="welcomesection position-relative mb-3">
+              <div className="bg-welcome d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center">
+                  {patientData ? (
+                    <>
+                      <div>
+                        <h1>Billing History</h1>
+                      </div>
+                      <button
+                        className="advance-deposite-container mx-4"
+                        onClick={handleAddAdvanceDrawer}
+                      >
+                        <span className="text-lg">
+                          Advance Balance: ₹{totalAdvanceBalance || "0"}
+                        </span>
+                        <span className="add-advance-icon">
+                          <img src={addCircleIcon} alt="add-deposit" />
+                        </span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <h1>OPD Billing</h1>
+                      </div>
+                      <img
+                        src={require("../../../../assets/images/bg-welcome.png")}
+                        className="welcomeig d-inline-block align-top"
+                        alt="Welcome"
+                      />
+                    </>
+                  )}
+                </div>
+                <div className="d-flex gap-1">
+                  {selectedTab === "billingtable" && !patientData && (
+                    <Button
+                      className="btn-manage-bill"
+                      onClick={handleManage3cBill}
+                    >
+                      <span>Manage Form 3c Bills</span>
+                    </Button>
+                  )}
+                  {selectedTab !== "billingtable" && !patientData && (
+                    <Button
+                      className="btn-create-bill"
+                      onClick={handleAddAdvanceDrawer}
+                    >
+                      <span style={{ fontSize: "22px" }}>{"+"}</span>
+                      <span>{"Add Advance Deposit"}</span>
+                    </Button>
+                  )}
+                  {(selectedTab === "billingtable" || patientData) && (
+                    <Button
+                      className="btn-create-bill"
+                      onClick={handleCreateBillDrawer}
+                    >
+                      <span style={{ fontSize: "22px" }}>+</span>
+                      <span>Create New Bill</span>
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <div className="pb-5">&nbsp;</div>
+            </div>
+          </>
+          <TableBillingDashboard
+            ref={billingTableRef}
+            onTabChange={setSelectedTab}
+            patientData={patientData}
+            handleTotalAdvanceUpdate={handleTotalAdvanceUpdate}
+            totalAdvanceBalance={totalAdvanceBalance}
+            createBillDrawer={createBillDrawer}
+            addAdvanceDrawer={addAdvanceDrawer}
+          />
+        </div>
+
+        {form3cDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleManage3cBill}
+            open={form3cDrawer}
+            width="100%"
+          >
+            <Manage3cBill
+              handleForm3cBill={handleManage3cBill}
+              handleAddForm3cDrawer={handleAddForm3cDrawer}
+              form3cData={form3cData}
+            />
+          </Drawer>
+        )}
+
+        {addForm3cDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleAddForm3cDrawer}
+            open={addForm3cDrawer}
+            width="100%"
+          >
+            <AddForm3cBills
+              handleAddForm3cDrawer={handleAddForm3cDrawer}
+              setForm3cData={setForm3cData}
+              onSuccess={handleForm3cSuccess}
+            />
+          </Drawer>
+        )}
+
+        {addAdvanceDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleAddAdvanceDrawer}
+            open={addAdvanceDrawer}
+            width="85%"
+            push={false}
+          >
+            <AddAdvance
+              handleAddAdvanceDrawer={handleAdvanceSuccess}
+              patientData={patientData}
+            />
+          </Drawer>
+        )}
+        {createBillDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            bodyStyle={{ backgroundColor: "white" }}
+            open={createBillDrawer}
+            onClose={showHideBackModal}
+            width="100%"
+            push={false}
+          >
+            <CreateBill
+              handleCreateBillDrawer={handleCreateBillDrawer}
+              isBackModalOpen={isBackModalOpen}
+              showHideBackModal={showHideBackModal}
+              patientData={patientData}
+              isDashboard={true}
+              isPreviewFromTable={true}
+            />
+          </Drawer>
+        )}
+      </div>
+    </>
+  );
+}
+
+export default BillingDashboard;
