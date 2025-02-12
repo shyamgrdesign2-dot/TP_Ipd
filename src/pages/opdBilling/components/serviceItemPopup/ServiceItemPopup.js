@@ -182,7 +182,7 @@ const ServiceItemPopup = ({
                     ) {
                       handleServiceItem(
                         "discount",
-                        onlyDecimalFormat(discount)
+                        discount ? discount : undefined
                       );
                     }
                   }}
@@ -236,7 +236,7 @@ const ServiceItemPopup = ({
                     const value = onlyDecimalFormat(e.target.value);
                     handleServiceItem(
                       "gst",
-                      value > 100 ? serviceItem.gst : value
+                      value > 100 ? serviceItem.gst : value ? value : undefined
                     );
                   }}
                   style={{ height: 38 }}
