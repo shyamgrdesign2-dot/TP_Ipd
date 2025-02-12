@@ -50,7 +50,7 @@ var oneClickCosultationTemplateId = 0
 
 function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecHistory, labParamsData, handleGenRx }) {
 
-    const { profile, siteId } = useSelector((state) => state.doctors);
+    const { profile, siteId, storeCode } = useSelector((state) => state.doctors);
 
     const { frequencyList, timingList, videoList } = useSelector((state) => state.doctors);
     const vaccines = useSelector((state) => state.vaccines);
@@ -987,7 +987,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             "encounterId": patient_data?.encounterId,
                             "mrno": patient_data?.mrno,
                             "doctorCode": patient_data?.employeeId,
-                            "storeCode": "PHOS", // hardcoded value
+                            "storeCode": storeCode, // hardcoded value
                             "duplicateCheck": 1, // hardcoded value
                             "investigationList": investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name) : [],
                             "medicineList": medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })) : []
