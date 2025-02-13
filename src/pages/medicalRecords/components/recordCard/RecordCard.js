@@ -169,14 +169,25 @@ const RecordCard = ({
 
   const handleDownload = async () => {
     try {
-      const response = await axios({
+      const payload = {
         url: url,
         method: "GET",
         responseType: "blob",
-        headers: url?.startsWith(config.zydus_proxy_url) && {
-          Authorization: `Bearer ${localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN))}`,
-        }
-      });
+      };
+
+      if (url?.startsWith(config.zydus_proxy_url)) {
+        payload.headers = {
+          Authorization: `Bearer ${
+            localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN) == null
+              ? null
+              : JSON.parse(
+                  localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN)
+                )
+          }`,
+        };
+      }
+
+      const response = await axios(payload);
 
       const blob = new Blob([response.data], {
         type: response.headers["content-type"],
