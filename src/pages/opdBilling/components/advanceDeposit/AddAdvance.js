@@ -108,14 +108,25 @@ function AddAdvance({
   // const [searchOptionsName, setPatientSearchOptionsName] = useState([]);
   // const [searchOptionsMobile, setPatientSearchOptionsMobile] = useState([]);  const [depositDate, setDepositDate] = useState("");
 
-  const [advanceModes, setAdvanceModes] = useState([
-    { paymentMode: "Cash", amount: undefined },
-  ]);
-  const [refundModes, setRefundModes] = useState([
-    { paymentMode: "Cash", amount: undefined },
-  ]);
+  const [advanceModes, setAdvanceModes] = useState([]);
+  const [refundModes, setRefundModes] = useState([]);
   const [notes, setNotes] = useState(""); // Stores the final notes value
   const notesRef = useRef("");
+
+  useEffect(() => {
+    setAdvanceModes([
+      {
+        paymentMode: advancedSettings.defaultPaymentMode,
+        amount: undefined,
+      },
+    ]);
+    setRefundModes([
+      {
+        paymentMode: advancedSettings.defaultPaymentMode,
+        amount: undefined,
+      },
+    ]);
+  }, [advancedSettings]);
 
   const usedAdvanceModes = advanceModes.map((p) => p.paymentMode);
 
@@ -224,7 +235,10 @@ function AddAdvance({
   // Function to add a new payment mode
   const addPaymentMode = (type) => {
     const newMode = {
-      paymentMode: filteredOptions[0]?.value,
+      paymentMode:
+        type === "advance"
+          ? filteredAdvanceOptions[0]?.value
+          : filteredOptions[0]?.value,
       amount: undefined,
     };
     type === "advance"
@@ -632,7 +646,7 @@ function AddAdvance({
         pm_fullname: patient.name,
         pm_gender: patient.gender,
         pm_contact_no: patient.phone,
-        pam_ref_id: patient.refId,
+        tpml_refrence_id: patient?.refId,
         ageDays: patient.ageDays,
         ageMonths: patient.ageMonths,
         ageYears: patient.ageYears,
@@ -653,7 +667,9 @@ function AddAdvance({
       ).toBlob();
       printContent(
         blob,
-        billData?.patientId || patientDetails?.patientUniqueId,
+        billData?.patientId ||
+          patientDetails?.patientUniqueId ||
+          record?.patientId,
         setStartLoader
       );
     }
@@ -793,8 +809,20 @@ function AddAdvance({
             duration: 5,
           });
           // Reset payment modes
-          setAdvanceModes([{ paymentMode: "Cash", amount: "", refId: "" }]);
-          setRefundModes([{ paymentMode: "Cash", amount: "", refId: "" }]);
+          setAdvanceModes([
+            {
+              paymentMode: advancedSettings.defaultPaymentMode,
+              amount: "",
+              refId: "",
+            },
+          ]);
+          setRefundModes([
+            {
+              paymentMode: advancedSettings.defaultPaymentMode,
+              amount: "",
+              refId: "",
+            },
+          ]);
           setAdvacneTriggered((prev) => !prev);
           setNotes("");
           onSuccess();
@@ -816,6 +844,7 @@ function AddAdvance({
       patientId:
         patientData?.patient_unique_id ||
         billData?.patientId ||
+        patientData?.patientUniqueId ||
         patientDetails?.patientUniqueId,
       page: resetData ? 1 : page,
       limit: 25,

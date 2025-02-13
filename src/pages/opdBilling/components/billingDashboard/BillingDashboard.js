@@ -83,7 +83,7 @@ function BillingDashboard({ patientData, fromPath }) {
     setForm3cData(null);
   };
 
-  const handleCreateBillDrawer = useCallback(() => {  
+  const handleCreateBillDrawer = useCallback(() => {
     const clinic = getClinic();
     trackEvent("TP_Billing_CreateBill", {
       doctorSpeciality: profile?.dp_name,
@@ -143,9 +143,7 @@ function BillingDashboard({ patientData, fromPath }) {
     const patientWalletBalanceRes = await fetchPatientWalletBalance(
       patientData.patient_unique_id
     );
-    if (patientWalletBalanceRes?.advanceDepositBalance) {
-      setTotalAdvanceBalance(patientWalletBalanceRes?.advanceDepositBalance);
-    }
+    setTotalAdvanceBalance(patientWalletBalanceRes?.advanceDepositBalance);
   };
 
   // Function to update state from child

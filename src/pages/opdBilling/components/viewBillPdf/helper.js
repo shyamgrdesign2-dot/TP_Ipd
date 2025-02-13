@@ -83,7 +83,10 @@ export const billDataShow = (id, billData, gstIn) => {
           )
         : "-";
   } else if (id == 4) {
-    value = billData?.paymentStatus || "Paid";
+    value =
+      (billData?.paymentStatus === "FullyPaid"
+        ? "Paid Fully"
+        : billData?.paymentStatus) || "Paid";
   } else if (id == 5) {
     value = gstIn ?? "-";
   }

@@ -21,6 +21,7 @@ const BillTable = ({
   loadData,
   hasMore,
   tableRef,
+  patientAdvanceData,
 }) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
@@ -334,6 +335,9 @@ const BillTable = ({
             handleCreateBillDrawer={handleDrawerPreviewBill}
             isPreviewFromTable={true}
             billData={billData}
+            patientAdvanceData={patientAdvanceData}
+            handleMessageForm3c={handleMessageForm3c}
+            getPatientBills={getPatientBills}
           />
         </Drawer>
       )}
@@ -352,6 +356,7 @@ const BillTable = ({
             handleMessageForm3c={handleMessageForm3c}
             getPatientBills={getPatientBills}
             onRefundSuccess={handleRefundComplete}
+            patientAdvanceData={patientAdvanceData}
           />
         </Drawer>
       )}

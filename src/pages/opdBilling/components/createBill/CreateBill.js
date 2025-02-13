@@ -440,7 +440,7 @@ const CreateBill = ({
         city: clinic?.hm_city,
         pincode: clinic?.hm_pincode,
         subscriptionStatus: planDetails?.currentPlanStatus,
-        source: "billing_page"
+        source: "billing_page",
       });
       setSearchItemSelected({
         ...selectedData,
@@ -848,7 +848,7 @@ const CreateBill = ({
                     pm_fullname: createRes?.patient?.name,
                     pm_gender: createRes?.patient?.gender,
                     pm_contact_no: createRes?.patient?.phone,
-                    pam_ref_id: createRes?.patient?.refId,
+                    tpml_refrence_id: createRes?.patient?.refId,
                     ageDays: createRes?.patient?.ageDays,
                     ageMonths: createRes?.patient?.ageMonths,
                     ageYears: createRes?.patient?.ageYears,

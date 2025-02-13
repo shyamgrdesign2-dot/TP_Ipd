@@ -82,7 +82,13 @@ const TableBillingDashboard = forwardRef(
       if (!createBillDrawer || !addAdvanceDrawer) {
         getBillAndAdvanceCount();
       }
-    }, [dateRange, createBillDrawer, addAdvanceDrawer]);
+    }, [
+      dateRange,
+      createBillDrawer,
+      addAdvanceDrawer,
+      selectedDoctors,
+      doctorList,
+    ]);
 
     useEffect(() => {
       const checkInFireBase = async () => {
