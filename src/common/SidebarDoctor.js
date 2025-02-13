@@ -34,6 +34,7 @@ function SidebarDoctor() {
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
   const { profile } = useSelector((state) => state.doctors);
+  const { planDetails } = useSelector((state) => state.subscription);
   const [tokenData, setTokenData] = useState(null);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [tatvaHovered, SetTatvaHovered] = useState(null);
@@ -167,6 +168,13 @@ function SidebarDoctor() {
   const handleTatvaAi = async () => {
     try {
       setLoading(true);
+      window.Moengage.track_event("TP_TatvaAI_Open", {
+        Doctor_Name: profile?.um_name,
+        Doctor_Number: profile?.um_contact,
+        Doctor_Unique_Id: profile?.doctor_unique_id,
+        Doctor_Um_Id: tokenData?.user_id,
+        Payment_Status: planDetails?.currentPlanStatus,
+      });
       const token = await getToken();
 
       const response = await axios.post(
@@ -321,7 +329,7 @@ function SidebarDoctor() {
 
         {loading && <FullPageLoader />}
 
-        {process.env.REACT_APP_ENV !== "prod" && (
+        {profile?.ownerDoctor === 1 && (
           <NavLink
             to="/bulk_messages"
             replace={true}
