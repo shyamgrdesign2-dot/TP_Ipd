@@ -159,7 +159,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
 
         case "Doctor is inactive":
           setError(
-            "Your account has been locked by Admin. Please contact support@tatvacare.in/9974062363"
+            "Your account has been locked by Admin. Please contact support@tatvacare.in/9974042363"
           );
           setIsButtonDisabled(false);
           break;
@@ -335,7 +335,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
 
               case "Doctor is inactive":
                 setError(
-                  "Your account has been locked by Admin. Please contact support@tatvacare.in / 9974062363"
+                  "Your account has been locked by Admin. Please contact support@tatvacare.in / 9974042363"
                 );
                 break;
 
