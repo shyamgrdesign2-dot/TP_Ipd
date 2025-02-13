@@ -52,6 +52,7 @@ const ServiceItemPopup = ({
         city: clinic?.hm_city,
         pincode: clinic?.hm_pincode,
         subscriptionStatus: planDetails?.currentPlanStatus,
+        type: serviceItem?.type
       });
     }
     serviceItem.totalAmount = calculateTotalAmount(serviceItem);
