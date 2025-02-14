@@ -370,7 +370,7 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
                                                                 {item.value}
                                                             </Button>
                                                         )}
-                                                        {JSON.parse(item.key)?.hm_type === 1 && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
+                                                        {(JSON.parse(item.key)?.hm_type === 1 && JSON.parse(item.key)?.um_id === 1) && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
                                                     </div>
                                                 )
                                             })
@@ -380,7 +380,7 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
                                                 return (
                                                     <div className="position-relative">
                                                         <Button key={i} type="text" style={{ width: item.investigation_name.length > 26 && '250px' }} className={`${item.investigation_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.investigation_name}</Button>
-                                                        {item?.hm_type === 1 && <span className="position-absolute align-items-center small fs-12-1 lh-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
+                                                        {(item?.hm_type === 1 && item?.um_id === 0) && <span className="position-absolute align-items-center small fs-12-1 lh-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
                                                     </div>
                                                 )
                                             })
