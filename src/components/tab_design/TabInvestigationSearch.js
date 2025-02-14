@@ -345,37 +345,43 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
                                     <div className="title2">
                                         {searchChildQuery.length > 0 ? 'Search Results' : 'Frequently Used'}
                                     </div>
-                                    <div className="mt-3">
+                                    <div className="mt-3 d-flex flex-wrap">
                                         {searchChildQuery.length > 0 ? (
                                             childSearchOptions.length > 0 &&
                                             childSearchOptions.filter(e => ![...investigationData.map(e1 => e1.investigation_name)].includes(e.value)).map((item, i) => {
                                                 return (
-                                                    // i === childSearchOptions.length - 1 ? (
-                                                    JSON.parse(item.key).change === 1 ? (
-                                                        <Button
-                                                            key={i}
-                                                            type="text"
-                                                            className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
-                                                            onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                                                            "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a>
-                                                        </Button>
-                                                    ) : (
-                                                        <Button
-                                                            key={i}
-                                                            type="text"
-                                                            style={{ width: item.value.length > 26 && '250px' }}
-                                                            className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
-                                                            onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                                                            {item.value}
-                                                        </Button>
-                                                    )
+                                                    <div className="position-relative">
+                                                        {/* i === childSearchOptions.length - 1 ? ( */}
+                                                        {JSON.parse(item.key).change === 1 ? (
+                                                            <Button
+                                                                key={i}
+                                                                type="text"
+                                                                className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
+                                                                onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                                                                "{item.value}" <i className="icon-Add mx-2 fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a>
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                key={i}
+                                                                type="text"
+                                                                style={{ width: item.value.length > 26 && '250px' }}
+                                                                className={`${item.value.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`}
+                                                                onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                                                                {item.value}
+                                                            </Button>
+                                                        )}
+                                                        {JSON.parse(item.key)?.hm_type === 1 && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
+                                                    </div>
                                                 )
                                             })
                                         ) : (
                                             parentOptionsList.length > 0 &&
                                             parentOptionsList.filter(e => ![...investigationData.map(e1 => e1.investigation_name)].includes(e.investigation_name)).map((item, i) => {
                                                 return (
-                                                    <Button key={i} type="text" style={{ width: item.investigation_name.length > 26 && '250px' }} className={`${item.investigation_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.investigation_name}</Button>
+                                                    <div className="position-relative">
+                                                        <Button key={i} type="text" style={{ width: item.investigation_name.length > 26 && '250px' }} className={`${item.investigation_name.length > 26 && 'chips-custom-break'} btn btn-primary2 chips-custom mb-14 me-14`} onClick={() => onSelectParent({ ...item, unique_id: uuidv4() })}>{item.investigation_name}</Button>
+                                                        {item?.hm_type === 1 && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
+                                                    </div>
                                                 )
                                             })
                                         )}
