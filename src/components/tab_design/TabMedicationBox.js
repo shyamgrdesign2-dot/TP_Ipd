@@ -2842,7 +2842,7 @@ function TabMedicationBox() {
                     >
                       {`${item.tmm_medicine_name}`}
                     </Button>
-                    {item?.tmm_hm_type === 1 && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
+                    {(item?.tmm_hm_type === 1 && item?.um_id === 0) && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
                   </div>
                 );
               })}

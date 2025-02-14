@@ -150,7 +150,7 @@ function MedicationsBox() {
       return data.push({
         key: JSON.stringify({ ...e, unique_id: uuidv4() }),
         value: e.tmm_medicine_name,
-        label: <div><span className="fw-medium">{e.tmm_medicine_name}</span>, <span>{e.tmm_generic}</span>  {e?.tmm_hm_type === 1 && <span className="align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2'}}>Z</span>}</div>,
+        label: <div><span className="fw-medium">{e.tmm_medicine_name}</span>, <span>{e.tmm_generic}</span>  {(e?.tmm_hm_type === 1 && e?.um_id === 0) && <span className="align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2'}}>Z</span>}</div>,
       });
     });
     if (doseCalculatorDrawer) {
