@@ -2833,14 +2833,17 @@ function TabMedicationBox() {
                   ].includes(e.tmm_medicine_name)
               ).map((item, i) => {
                 return (
-                  <Button
-                    key={i}
-                    type="text"
-                    className="btn btn-primary2 chips-custom mb-14 me-14"
-                    onClick={() => onSelectParent(item)}
-                  >
-                    {`${item.tmm_medicine_name}`}
-                  </Button>
+                  <div className="position-relative">
+                    <Button
+                      key={i}
+                      type="text"
+                      className="btn btn-primary2 chips-custom mb-14 me-14"
+                      onClick={() => onSelectParent(item)}
+                    >
+                      {`${item.tmm_medicine_name}`}
+                    </Button>
+                    {item?.tmm_hm_type === 1 && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
+                  </div>
                 );
               })}
         </div>
