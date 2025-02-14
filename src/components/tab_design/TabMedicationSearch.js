@@ -2161,38 +2161,44 @@ function TabMedicationSearch({ passIndex, onClose }) {
                       childSearchOptions.length > 0 &&
                       childSearchOptions.filter((e) => ![...medicationData.map((e1) => e1.tmm_medicine_name)].includes(e.value)).map((item, i) => {
                         return (
-                          JSON.parse(item.key).tmm_id === 0 ? (
-                            <Button
-                              key={i}
-                              type="text"
-                              className="btn btn-primary2 chips-custom mb-14 me-14 d-flex align-items-center chips-addCustom"
-                              onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                              {JSON.parse(item.key).tmm_medicine_name} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
-                            </Button>
-                          ) : (
-                            <Button
-                              key={i}
-                              type="text"
-                              style={{ width: item.value.length > 26 && "250px" }}
-                              className={`${item.value.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
-                              onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
-                              {item.value}
-                            </Button>
-                          )
+                          <div className="position-relative">
+                            {JSON.parse(item.key).tmm_id === 0 ? (
+                              <Button
+                                key={i}
+                                type="text"
+                                className="btn btn-primary2 chips-custom mb-14 me-14 d-flex align-items-center chips-addCustom"
+                                onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                                {JSON.parse(item.key).tmm_medicine_name} <i className="icon-Add mx-1 fs-6"></i> <a className="text-decoration-underline"> Add Custom</a>
+                              </Button>
+                            ) : (
+                              <Button
+                                key={i}
+                                type="text"
+                                style={{ width: item.value.length > 26 && "250px" }}
+                                className={`${item.value.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
+                                onClick={() => onSelectParent({ ...JSON.parse(item.key) })}>
+                                {item.value}
+                              </Button>
+                            )}
+                            {JSON.parse(item.key)?.tmm_hm_type === 1 && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
+                          </div>
                         )
                       })
                     ) : (
                       parentOptionsList.length > 0 &&
                       parentOptionsList.filter((e) => ![...medicationData.map((e1) => e1.tmm_medicine_name)].includes(e.tmm_medicine_name)).map((item, i) => {
                         return (
-                          <Button
-                            key={i}
-                            type="text"
-                            style={{ width: item.tmm_medicine_name.length > 26 && "250px" }}
-                            className={`${item.tmm_medicine_name.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
-                            onClick={() => onSelectParent(item)}>
-                            {item.tmm_medicine_name}
-                          </Button>
+                          <div className="position-relative">
+                            <Button
+                              key={i}
+                              type="text"
+                              style={{ width: item.tmm_medicine_name.length > 26 && "250px" }}
+                              className={`${item.tmm_medicine_name.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
+                              onClick={() => onSelectParent(item)}>
+                              {item.tmm_medicine_name}
+                            </Button>
+                            {item?.tmm_hm_type === 1 && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
+                          </div>
                         )
                       })
                     )}
