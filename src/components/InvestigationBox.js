@@ -158,7 +158,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
       return data.push({
         key: JSON.stringify({ ...e, unique_id: uuidv4() }),
         value: e.investigation_name,
-        label: <div>{e.investigation_name}</div>,
+        label: <div>{e.investigation_name} {e?.hm_type === 1 && <span className="align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2'}}>Z</span>}</div>,
       });
     });
     if (searchParentQuery.length === 0) {
