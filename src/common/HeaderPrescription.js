@@ -998,8 +998,8 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             clinic_name,
                             patient_id: patient_data?.patient_unique_id,
                             status: 'suceess',
-                            investigationList: investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name) : [],
-                            medicineList: medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })) : []
+                            investigationList: investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name).toString() : [],
+                            medicineList: medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })).toString() : []
                         })
 
                         let zydusSendData = {
@@ -1017,7 +1017,20 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             "medicineList": medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })) : []
                         }
 
-                        window.Moengage.track_event("Z_placeIctOrder_API_before_call", zydusSendData)
+                        window.Moengage.track_event("Z_placeIctOrder_API_before_call", {
+                            "action": tcmId == 0 ? 'add' : 'edit',
+                            "tcmId": action?.payload?.tcm_id,
+                            "siteId": siteId,
+                            "departmentId": patient_data?.departmentId,
+                            "visitId": patient_data?.visitId,
+                            "encounterId": patient_data?.encounterId,
+                            "mrno": patient_data?.mrno,
+                            "doctorCode": patient_data?.employeeId,
+                            "storeCode": storeCode, // hardcoded value
+                            "duplicateCheck": 1, // hardcoded value
+                            "investigationList": investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name).toString() : [],
+                            "medicineList": medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })).toString() : []
+                        })
 
                         const actionPIO = await dispatch(placeIctOrder(zydusSendData))
                         if (actionPIO.payload.status !== 400) {
