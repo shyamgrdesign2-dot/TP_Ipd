@@ -262,10 +262,7 @@ function SmartPrescription() {
   const baseUrlLabParams = env.lab_params_api_url;
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchObstetricDetails(
-      patient_data.patient_unique_id,
-      userId
-    );
+    const obstetricResponse = await fetchObstetricDetails(patient_data.patient_unique_id);
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
     }

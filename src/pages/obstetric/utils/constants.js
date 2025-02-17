@@ -15,9 +15,9 @@ export const ExaminationColumns = [
     width: "8%",
   },
   {
-    title: "BMI",
+    title: "Body Index",
     key: "mothersBMI",
-    width: "7%",
+    width: "12%",
   },
   {
     title: "BP",
@@ -47,7 +47,7 @@ export const ExaminationColumns = [
   {
     title: "Note",
     key: "note",
-    width: "20%",
+    width: "15%",
   },
   {
     title: "Action",

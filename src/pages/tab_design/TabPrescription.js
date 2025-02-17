@@ -254,10 +254,7 @@ function TabPrescription() {
   const [tatvaAiKnowMoreDrawer, setTatvaAiKnowMoreDrawer] = useState(false);
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchObstetricDetails(
-      patient_data.patient_unique_id,
-      userId
-    );
+    const obstetricResponse = await fetchObstetricDetails(patient_data.patient_unique_id);
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
     }
