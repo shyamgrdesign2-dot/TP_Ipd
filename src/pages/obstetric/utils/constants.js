@@ -68,6 +68,16 @@ export const obstetricTabListColumns = [
     siUnit: "",
   },
   {
+    title: "Height",
+    key: "mothersHeight",
+    siUnit: " cm",
+  },
+  {
+    title: "Weight",
+    key: "mothersWeight",
+    siUnit: " kg",
+  },
+  {
     title: "BMI",
     key: "mothersBMI",
     siUnit: " kg/m2",
@@ -282,6 +292,16 @@ export const visitColumn = [
     title: "Oedema",
     key: "oedema",
     siUnit: "",
+  },
+  {
+    title: "Mother's Height",
+    key: "mothersHeight",
+    siUnit: " cm",
+  },
+  {
+    title: "Mother's Weight",
+    key: "mothersWeight",
+    siUnit: " kg",
   },
   {
     title: "Mother's BMI",
