@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { Button, Tooltip } from "antd";
 import "./../pregnancyHistory/PregnancyHistory.scss";
 import examination from "../../../../assets/images/obs-examination.svg";
 import "./Examination.scss";
@@ -6,6 +6,7 @@ import moment from "moment";
 import { useSelector } from "react-redux";
 import { ExaminationColumns } from "../../utils/constants";
 import ReadMore from "../../../../common/ReadMore";
+import { useState } from "react";
 
 const Examination = ({
   examinationHistory,
@@ -15,6 +16,8 @@ const Examination = ({
   bottomRef,
   isPreviousPregnancyOverview,
 }) => {
+  const [open, setOpen] = useState(false);
+  const [openTooltipIndex, setOpenTooltipIndex] = useState(null);
   const tableColumns = isPreviousPregnancyOverview
     ? ExaminationColumns?.slice(0, -1)
     : ExaminationColumns;
@@ -53,7 +56,68 @@ const Examination = ({
         liquor,
         foetalHeartRate,
         notes = "-",
+        mothersHeight,
+        mothersWeight,
       } = item;
+      const getBMI = () => {
+        const measurements = [
+          { key: "Mother's Weight: ", value: `${mothersWeight} kg` },
+          { key: "Mother's Height: ", value: `${mothersHeight} cm` },
+          { key: "BMI: ", value: `${mothersBMI} kg/m²` },
+        ];
+        return (
+          <div>
+            {"BMI: "}
+            <Tooltip
+              open={openTooltipIndex === i}
+              onOpenChange={(visible) => {
+                setOpenTooltipIndex(visible ? i : null);
+              }}
+              overlayInnerStyle={{
+                backgroundColor: "white",
+                color: "black",
+                boxShadow:
+                  "0 3px 6px -4px rgba(0,0,0,.12), 0 6px 16px 0 rgba(0,0,0,.08)",
+                padding: "12px",
+                borderRadius: 16,
+              }}
+              overlayStyle={{
+                "--antd-arrow-background-color": "white",
+              }}
+              title={
+                <div style={{ width: 218, padding: 12 }}>
+                  <div style={{ marginBottom: "8px" }}>
+                    {measurements?.map((item) => {
+                      return (
+                        <div className="d-flex gap-2 mb-2">
+                          <div style={{ fontSize: 14 }}>{item.key}</div>
+                          <div style={{ fontSize: 14, fontWeight: 600 }}>
+                            {item.value}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <Button
+                    type="primary"
+                    className="gotItBtn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenTooltipIndex(null);
+                    }}
+                  >
+                    Got it
+                  </Button>
+                </div>
+              }
+            >
+              <span className="text-primary text-decoration-underline cursor-pointer">
+                {mothersBMI} kg/m²
+              </span>
+            </Tooltip>
+          </div>
+        );
+      };
       return (
         <tr key={i}>
           <td className="obstetricTcell">
@@ -69,7 +133,10 @@ const Examination = ({
             {typeof oedema === "boolean" ? (oedema ? "Yes" : "No") : "-"}
           </td>
           <td className="obstetricTcell">
-            {mothersBMI ? mothersBMI + " kg/m2" : "-"}
+            {mothersBMI ? getBMI() : ""}
+            {mothersWeight && !mothersBMI ? `Weight: ${mothersWeight} kg` : ""}
+            {mothersHeight && !mothersBMI ? `Height: ${mothersHeight} cm` : ""}
+            {!mothersBMI && !mothersWeight && !mothersHeight ? "-" : ""}
           </td>
           <td className="obstetricTcell">
             {systolic && diastolic ? systolic + "/" + diastolic + " mmHg" : "-"}
