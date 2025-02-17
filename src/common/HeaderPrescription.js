@@ -965,6 +965,14 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     duration: 5,
                 });
 
+                window.Moengage.track_event("Z_enter_getInvestigationAndMedicine", {
+                    clinic_name,
+                    patient_id: patient_data?.patient_unique_id,
+                    mrno: patient_data?.mrno,
+                    isInvestigationList: investigationData.length > 0 ? true : false,
+                    isMedicineList: medicationData.length > 0 ? true : false
+                })
+
                 const decodedToken = getDecodedToken();
                 const tokenData = decodedToken?.result;
                 if (tokenData?.hospital_business_id == env.zydus_business_id
@@ -972,12 +980,28 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     && patient_data?.mrno !== undefined
                     && (medicationData.length > 0 || investigationData.length > 0)
                 ) {
+
+                    window.Moengage.track_event("Z_getInvestigationAndMedicine_API_before_call", {
+                        clinic_name,
+                        patient_id: patient_data?.patient_unique_id,
+                        tcm_id: action?.payload?.tcm_id,
+                    })
+
                     let sendInvestigationAndMedicine = {
                         patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
                         tcm_id: action?.payload?.tcm_id
                     }
                     const actionIM = await dispatch(getInvestigationAndMedicine(sendInvestigationAndMedicine))
                     if (actionIM.meta.requestStatus === "fulfilled") {
+
+                        window.Moengage.track_event("Z_getInvestigationAndMedicine_API_Response", {
+                            clinic_name,
+                            patient_id: patient_data?.patient_unique_id,
+                            status: 'suceess',
+                            investigationList: investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name) : [],
+                            medicineList: medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })) : []
+                        })
+
                         let zydusSendData = {
                             "action": tcmId == 0 ? 'add' : 'edit',
                             "tcmId": action?.payload?.tcm_id,
@@ -992,7 +1016,27 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             "investigationList": investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name) : [],
                             "medicineList": medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })) : []
                         }
-                        dispatch(placeIctOrder(zydusSendData))
+
+                        window.Moengage.track_event("Z_placeIctOrder_API_before_call", zydusSendData)
+
+                        const actionPIO = await dispatch(placeIctOrder(zydusSendData))
+                        if (actionPIO.payload.status !== 400) {
+                            window.Moengage.track_event("Z_placeIctOrder_API_Response", {
+                                status: 'suceess'
+                            })
+                        } else {
+                            window.Moengage.track_event("Z_placeIctOrder_API_Response", {
+                                status: 'failure',
+                                reason:actionPIO.payload.data.message
+                            })
+                        }
+
+                    } else {
+                        window.Moengage.track_event("Z_getInvestigationAndMedicine_API_Response", {
+                            clinic_name,
+                            status: 'failure',
+                            reason:action.error
+                        })
                     }
                 }
 
