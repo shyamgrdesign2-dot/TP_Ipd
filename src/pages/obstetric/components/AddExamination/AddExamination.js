@@ -231,8 +231,11 @@ function AddExamination({
             }}
             disabledDate={disabledDate}
             value={
-              examinationData.date ? dayjs(moment(examinationData.date)) : ""
+              examinationData.date
+                ? dayjs(moment(examinationData.date))
+                : dayjs(moment())
             }
+            allowClear={false}
             style={{ width: "170px", height: "41px" }}
             format={{
               format: "DD-MM-YYYY",

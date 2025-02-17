@@ -1303,6 +1303,7 @@ function ObsHistoryTableView({
                         fontWeight: 500,
                         color: "#000",
                         textAlign: "center",
+                        height: "100%"
                       },
                     ]}
                   >
@@ -1319,6 +1320,7 @@ function ObsHistoryTableView({
                         fontWeight: 500,
                         color: "#000",
                         textAlign: "center",
+                        height: "100%"
                       },
                     ]}
                   >
@@ -1352,6 +1354,7 @@ function ObsHistoryTableView({
                         fontWeight: 500,
                         color: "#000",
                         textAlign: "center",
+                        height: "100%"
                       },
                     ]}
                   >
@@ -1368,6 +1371,7 @@ function ObsHistoryTableView({
                         fontWeight: 500,
                         color: "#000",
                         textAlign: "center",
+                        height: "100%"
                       },
                     ]}
                   >
@@ -1384,6 +1388,7 @@ function ObsHistoryTableView({
                         fontWeight: 500,
                         color: "#000",
                         textAlign: "center",
+                        height: "100%"
                       },
                     ]}
                   >
@@ -1400,6 +1405,7 @@ function ObsHistoryTableView({
                         fontWeight: 500,
                         color: "#000",
                         textAlign: "center",
+                        height: "100%"
                       },
                     ]}
                   >
@@ -1416,6 +1422,7 @@ function ObsHistoryTableView({
                         fontWeight: 500,
                         color: "#000",
                         textAlign: "center",
+                        height: "100%"
                       },
                     ]}
                   >
@@ -1432,6 +1439,7 @@ function ObsHistoryTableView({
                         fontWeight: 500,
                         color: "#000",
                         textAlign: "center",
+                        height: "100%"
                       },
                     ]}
                   >
@@ -1448,6 +1456,7 @@ function ObsHistoryTableView({
                         fontWeight: 500,
                         color: "#000",
                         textAlign: "center",
+                        height: "100%"
                       },
                     ]}
                   >
@@ -1464,6 +1473,7 @@ function ObsHistoryTableView({
                         fontWeight: 500,
                         color: "#000",
                         textAlign: "center",
+                        height: "100%"
                       },
                     ]}
                   >
