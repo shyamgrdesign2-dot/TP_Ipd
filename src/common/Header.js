@@ -760,14 +760,10 @@ function Header({ locationPath }) {
         },
         {
           label: (
-            <>
-              <a onClick={handleLogout}>
-                <div className="title-common me-5 d-flex align-items-center">
-                  <i className="icon-exit me-3 color-red"></i>
-                  <span className="color-red">Log Out</span>
-                </div>
-              </a>
-            </>
+              <button className="title-common me-5 d-flex align-items-center border-background-none" onClick={handleLogout}>
+                <i className="icon-exit me-3 color-red"></i>
+                <span className="color-red">Log Out</span>
+              </button>
           ),
           key: "8",
         },
