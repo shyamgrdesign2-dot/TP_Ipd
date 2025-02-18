@@ -200,8 +200,8 @@ const AddCustomModule = () => {
       message.error("Module name already exists.");
       return;
     }
-    if (customModules.length >= 5) {
-      message.error("You can only add up to 5 custom modules.");
+    if (customModules.length >= 10) {
+      message.error("You can only add up to 10 custom modules.");
       return;
     }
 
@@ -281,14 +281,14 @@ const AddCustomModule = () => {
           type="link"
           icon={<PlusOutlined />}
           className="add-custom-module-link"
-          disabled={customModules.length >= 5}
+          disabled={customModules.length >= 10}
         >
           Add Custom Module
         </Button>
         <div className="module-info">
-          <span className="module-count">{`${customModules.length}/5 modules added`}</span>
+          <span className="module-count">{`${customModules.length}/10 modules added`}</span>
           <Tooltip
-            title="You can create up to 5 custom modules. If you’ve reached the limit, delete an existing custom module to add a new one."
+            title="You can create up to 10 custom modules. If you’ve reached the limit, delete an existing custom module to add a new one."
             placement="top"
             className="info-tooltip"
           >
