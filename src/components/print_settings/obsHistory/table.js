@@ -1330,7 +1330,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 0.7,
+                        flex: 0.8,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1364,7 +1364,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 0.6,
+                        flex: 0.7,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1398,7 +1398,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 1.1,
+                        flex: 0.9,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1449,7 +1449,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 0.7,
+                        flex: 0.8,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1466,7 +1466,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 0.8,
+                        flex: 0.7,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1525,7 +1525,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 0.7,
+                        flex: 0.8,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1554,13 +1554,13 @@ function ObsHistoryTableView({
                     ]}
                   >
                     {"mothersHeight" in item ? item?.mothersHeight : ``}
-                    {"mothersHeight" in item ? `cm` : `-`}
+                    {"mothersHeight" in item ? ` cm` : `-`}
                   </Text>
                   <Text
                     style={[
                       styles.cell,
                       {
-                        flex: 0.6,
+                        flex: 0.7,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1572,7 +1572,7 @@ function ObsHistoryTableView({
                     ]}
                   >
                     {"mothersWeight" in item ? item?.mothersWeight : ``}
-                    {"mothersWeight" in item ? `kg` : `-`}
+                    {"mothersWeight" in item ? ` kg` : `-`}
                   </Text>
                   <Text
                     style={[
@@ -1590,13 +1590,13 @@ function ObsHistoryTableView({
                     ]}
                   >
                     {"mothersBMI" in item ? item?.mothersBMI : ``}
-                    {"mothersBMI" in item ? `kg/m2` : `-`}
+                    {"mothersBMI" in item ? ` kg/m2` : `-`}
                   </Text>
                   <Text
                     style={[
                       styles.cell,
                       {
-                        flex: 1.1,
+                        flex: 0.9,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1629,7 +1629,7 @@ function ObsHistoryTableView({
                   >
                     {"heightOfFundus" in item ? item?.heightOfFundus : ``}
                     {"heightOfFundus" in item && "heightOfFundusUnit" in item
-                      ? item?.heightOfFundusUnit
+                      ? ` ${item?.heightOfFundusUnit}`
                       : `-`}
                   </Text>
                   <Text
@@ -1653,7 +1653,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 0.7,
+                        flex: 0.8,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
@@ -1670,7 +1670,7 @@ function ObsHistoryTableView({
                     style={[
                       styles.cell,
                       {
-                        flex: 0.8,
+                        flex: 0.7,
                         fontFamily: printSettings?.page_format?.font_family,
                         fontSize:
                           PX_TO_PT * printSettings?.page_format?.font_size,
