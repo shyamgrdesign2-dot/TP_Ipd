@@ -453,7 +453,7 @@ function Header({ locationPath }) {
   }, [popOverVideo]);
 
   //Video Componet
-  const VIDEO_CONTENT = useCallback(() => {
+  const VIDEO_CONTENT = useCallback((categoryId) => {
     return (
       <>
         <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
@@ -464,9 +464,9 @@ function Header({ locationPath }) {
               <i className="icon-Cross" />
             </Button>
           </div>
-          {videoList?.filter(e => e.category_id === 3)[0]?.video?.map((item1, i1) => {
+          {videoList?.filter(e => e.category_id === categoryId)[0]?.video?.map((item1, i1) => {
             return (
-              <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 3)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
+              <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === categoryId)[0]?.video?.length - 1 && 'pb-3 mb-15 border-bottom'}`}>
                 <div className="tutorial-play me-14">
                   <button type="button"
                     onClick={() => {
@@ -941,11 +941,25 @@ function Header({ locationPath }) {
             <div onClick={handleDrawervideo} className="cursor-pointer me-2 video-animat">
               <img src={playIcon} />
               <img src={videorotate} />
-            </div>) : (
+            </div> ) : locationPath == "/billing-dashboard" ? (
             <Popover
               open={popOverVideo}
               onOpenChange={showHideVideoListPopover}
-              content={VIDEO_CONTENT}
+              content={VIDEO_CONTENT(16)}
+              trigger="click"
+              overlayClassName="pop-430 pp-0 videoTutorial"
+              placement="bottom"
+            >
+              <div className="cursor-pointer me-2 video-animat">
+                <img src={playIcon} />
+                <img src={videorotate} />
+              </div>
+            </Popover>
+          ) : (
+            <Popover
+              open={popOverVideo}
+              onOpenChange={showHideVideoListPopover}
+              content={VIDEO_CONTENT(3)}
               trigger="click"
               overlayClassName="pop-430 pp-0 videoTutorial"
               placement="bottom"
