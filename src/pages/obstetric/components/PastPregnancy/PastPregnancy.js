@@ -107,7 +107,11 @@ function PastPregnancy({
       const newData = {
         ...prevData,
         [field]:
-          field !== "remarks" && value === prevData[field] ? undefined : value,
+          field !== "remarks" &&
+          field !== "dateOfDelivery" &&
+          value === prevData[field]
+            ? undefined
+            : value,
         ...temp,
         modifiedAt: new Date().toISOString(),
       };

@@ -65,6 +65,18 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
                   {visitItem.mothersBMI ? " | " : ""}
                 </>
               ) : null}
+              {visitItem.mothersHeight ? (
+                <>
+                  <span>Height : </span>
+                  <label>{visitItem.mothersHeight} cm</label>
+                </>
+              ) : null}
+              {visitItem.mothersWeight ? (
+                <>
+                  <span>Weight : </span>
+                  <label>{visitItem.mothersWeight} kg</label>
+                </>
+              ) : null}
               {visitItem.mothersBMI ? (
                 <>
                   <span>BMI : </span>

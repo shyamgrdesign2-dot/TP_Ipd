@@ -313,7 +313,7 @@ const BillTable = ({
       <Table
         ref={tableRef}
         className="billing-table px-0"
-        style={{ position: "relative" }}
+        style={{ position: "relative",overflow:"hidden" }}
         columns={columns}
         width="100%"
         dataSource={data}

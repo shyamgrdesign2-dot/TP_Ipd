@@ -1740,6 +1740,8 @@ function ObsHistoryListView({
                 {("pallor" in item ||
                   "oedema" in item ||
                   "mothersBMI" in item ||
+                  "mothersHeight" in item ||
+                  "mothersWeight" in item ||
                   "diastolic" in item ||
                   "systolic" in item ||
                   "heightOfFundus" in item ||
@@ -1775,7 +1777,7 @@ function ObsHistoryListView({
 
                     {("pallor" in item ||
                       "oedema" in item ||
-                      "mothersBMI" in item) && (
+                      "mothersBMI" in item || "mothersHeight" in item || "mothersWeight" in item) && (
                       <Text
                         style={{
                           color: "#171725",
@@ -1813,7 +1815,7 @@ function ObsHistoryListView({
                         >
                           {Boolean(item?.pallor) ? `Yes` : `No`}
                         </Text>
-                        {("oedema" in item || "mothersBMI" in item) && (
+                        {("oedema" in item || "mothersBMI" in item || "mothersHeight" in item || "mothersWeight" in item) && (
                           <Text
                             style={{
                               color: "#171725",
@@ -1855,7 +1857,91 @@ function ObsHistoryListView({
                         >
                           {Boolean(item?.oedema) ? `Yes` : `No`}
                         </Text>
-                        {"mothersBMI" in item && (
+                        {("mothersBMI" in item || "mothersHeight" in item || "mothersWeight" in item) && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                            }}
+                          >
+                            &nbsp;|&nbsp;
+                          </Text>
+                        )}
+                      </>
+                    )}
+
+                    {"mothersHeight" in item && (
+                      <>
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                          }}
+                        >
+                          Mother's Height&nbsp;:&nbsp;
+                        </Text>
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                          }}
+                        >
+                          {item?.mothersHeight}{"cm"}
+                        </Text>
+                        {("mothersBMI" in item || "mothersWeight" in item) && (
+                          <Text
+                            style={{
+                              color: "#171725",
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 400,
+                            }}
+                          >
+                            &nbsp;|&nbsp;
+                          </Text>
+                        )}
+                      </>
+                    )}
+
+                    {"mothersWeight" in item && (
+                      <>
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 500,
+                          }}
+                        >
+                          Mother's Weight&nbsp;:&nbsp;
+                        </Text>
+                        <Text
+                          style={{
+                            color: "#171725",
+                            fontFamily: printSettings?.page_format?.font_family,
+                            fontSize:
+                              PX_TO_PT * printSettings?.page_format?.font_size,
+                            fontWeight: 400,
+                          }}
+                        >
+                          {item?.mothersWeight}{"kg"}
+                        </Text>
+                        {("mothersBMI" in item) && (
                           <Text
                             style={{
                               color: "#171725",
@@ -1903,6 +1989,8 @@ function ObsHistoryListView({
 
                     {("pallor" in item ||
                       "oedema" in item ||
+                      "mothersHeight" in item ||
+                      "mothersWeight" in item ||
                       "mothersBMI" in item) && (
                       <Text
                         style={{
