@@ -79,6 +79,8 @@ function SidebarDoctor() {
     SSO_TO_PM().then(async (data) => {
       if (moduleName === "opd_billing" && isOpdBillingAccessable) {
         navigate("/billing-dashboard");
+      } else if (moduleName === "all_patients") {
+        navigate("/all-patients");
       } else {
         if (data.success == 200) {
           if (!isChrome && !isSafari) {
