@@ -191,8 +191,8 @@ const TabAddCustomModule = () => {
       message.error("Module name cannot be empty.");
       return;
     }
-    if (customModules.length >= 5) {
-      message.error("You can only add up to 5 custom modules.");
+    if (customModules.length >= 10) {
+      message.error("You can only add up to 10 custom modules.");
       return;
     }
 
