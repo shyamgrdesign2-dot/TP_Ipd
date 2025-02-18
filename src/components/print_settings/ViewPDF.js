@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 6,
         borderRight: '1px solid #171725',
+        height: "100%"
     },
     headerRow: {
         flexDirection: 'row',
