@@ -998,8 +998,8 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             clinic_name,
                             patient_id: patient_data?.patient_unique_id,
                             status: 'suceess',
-                            investigationList: investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name).toString() : [],
-                            medicineList: medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })).toString() : []
+                            investigationList: investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name).join(', ') : [],
+                            medicineList: medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => JSON.stringify({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })).join(', ') : []
                         })
 
                         let zydusSendData = {
@@ -1028,8 +1028,8 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             "doctorCode": patient_data?.employeeId,
                             "storeCode": storeCode, // hardcoded value
                             "duplicateCheck": 1, // hardcoded value
-                            "investigationList": investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name).toString() : [],
-                            "medicineList": medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })).toString() : []
+                            "investigationList": investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name).join(', ') : [],
+                            "medicineList": medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => JSON.stringify({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })).join(', ') : []
                         })
 
                         const actionPIO = await dispatch(placeIctOrder(zydusSendData))
