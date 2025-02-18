@@ -272,7 +272,7 @@ const TabAddCustomModule = () => {
           type="link"
           icon={<PlusOutlined />}
           className="add-custom-module-link"
-          disabled={customModules.length >= 5}
+          disabled={customModules.length >= 10}
         >
           Add Custom Module
         </Button>
