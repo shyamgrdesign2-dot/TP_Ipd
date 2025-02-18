@@ -15,9 +15,9 @@ export const ExaminationColumns = [
     width: "8%",
   },
   {
-    title: "BMI",
+    title: "Body Index",
     key: "mothersBMI",
-    width: "7%",
+    width: "12%",
   },
   {
     title: "BP",
@@ -47,7 +47,7 @@ export const ExaminationColumns = [
   {
     title: "Note",
     key: "note",
-    width: "20%",
+    width: "15%",
   },
   {
     title: "Action",
@@ -66,6 +66,16 @@ export const obstetricTabListColumns = [
     title: "Oedema",
     key: "oedema",
     siUnit: "",
+  },
+  {
+    title: "Height",
+    key: "mothersHeight",
+    siUnit: " cm",
+  },
+  {
+    title: "Weight",
+    key: "mothersWeight",
+    siUnit: " kg",
   },
   {
     title: "BMI",
@@ -282,6 +292,16 @@ export const visitColumn = [
     title: "Oedema",
     key: "oedema",
     siUnit: "",
+  },
+  {
+    title: "Mother's Height",
+    key: "mothersHeight",
+    siUnit: " cm",
+  },
+  {
+    title: "Mother's Weight",
+    key: "mothersWeight",
+    siUnit: " kg",
   },
   {
     title: "Mother's BMI",

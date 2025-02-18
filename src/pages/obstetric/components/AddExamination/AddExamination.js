@@ -94,7 +94,9 @@ function AddExamination({
       const newData = {
         ...prevData,
         [field]:
-          field !== "notes" && value === prevData[field] ? undefined : value,
+          field !== "notes" && field !== "date" && value === prevData[field]
+            ? undefined
+            : value,
         ...(["mothersWeight", "mothersHeight"].includes(field) && {
           ...bmi,
         }),
@@ -233,6 +235,7 @@ function AddExamination({
             value={
               examinationData.date ? dayjs(moment(examinationData.date)) : ""
             }
+            allowClear={false}
             style={{ width: "170px", height: "41px" }}
             format={{
               format: "DD-MM-YYYY",
