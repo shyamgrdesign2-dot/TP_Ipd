@@ -182,7 +182,7 @@ function BillingDashboard({ patientData, fromPath }) {
   const VIDEO_CONTENT = useCallback(() => {
     return (
       <>
-        <div className="video-contant rounded-4 p-20 zindex-99999" key="oneclickrx-video">
+        <div className="video-contant rounded-4 p-20 zindex-10" key="oneclickrx-video">
           <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
             <div className="title-common lh-base">Video Tutorial</div>
             <Button
