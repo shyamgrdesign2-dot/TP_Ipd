@@ -77,3 +77,16 @@
 .disabled {
   background: rgba(0, 0, 0, 0.04) !important;
 }
+
+.opd-billing{
+  .video-animat {
+    img:nth-child(2) {
+      position: absolute;
+      left: -7px;
+      top: -7px;
+      width: 62px;
+      height: 62px;
+      z-index: 1;
+  }
+}
+}

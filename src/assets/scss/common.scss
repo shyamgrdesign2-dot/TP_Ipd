@@ -1034,3 +1034,10 @@ body {
         }
     }
 }
+
+.border-background-none{
+    width: 100% !important;
+    border: none !important;
+    background-color: transparent !important;
+    padding: 0 93px 0 0;
+}

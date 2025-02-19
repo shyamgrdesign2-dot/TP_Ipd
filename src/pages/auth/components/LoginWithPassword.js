@@ -90,7 +90,7 @@ const LoginWithPassword = ({ handleView, number }) => {
 
         case "Doctor is inactive":
           setMessage(
-            "Your account has been locked by Admin. Please contact support@tatvacare.in/9974062363"
+            "Your account has been locked by Admin. Please contact support@tatvacare.in/9974042363"
           );
           break;
 
