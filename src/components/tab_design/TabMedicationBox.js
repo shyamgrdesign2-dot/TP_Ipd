@@ -85,7 +85,7 @@ import DoseCalculator from "../dose_calculator/doseCalculator";
 import { changePillupStatus } from "../../redux/doctorsSlice";
 
 function TabMedicationBox() {
-  const { profile, frequencyList, timingList, medicineTypeList, pillupCheck } = useSelector((state) => state.doctors);
+  const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     dosesList,
     selectedMedicationList,
@@ -2641,7 +2641,7 @@ function TabMedicationBox() {
   const tourRef = useRef(null);
 
   useEffect(() => {
-    if (isPillUpAccessableFromGB && !pillupCheck) {
+    if (isPillUpAccessableFromGB && profile?.pillupFlag == 0) {
       tourRef?.current?.scrollIntoView({ behavior: 'smooth' });
       setTimeout(() => {
         setTourOpen(true)
@@ -2665,7 +2665,7 @@ function TabMedicationBox() {
   }, [popOver3]);
 
   const onTourHandle = () => {
-    dispatch(changePillupStatus())
+    dispatch(changePillupStatus({ pillup_flag: 1 }))
     setTourOpen(!tourOpen)
   }
 
@@ -2701,7 +2701,7 @@ function TabMedicationBox() {
                 <Popover
                   open={popOver3}
                   onOpenChange={showHidePillUpPopover}
-                  content={pillupCheck ? PILLUP_CONTENT() : null}
+                  content={profile?.pillupFlag == 1 ? PILLUP_CONTENT() : null}
                   trigger="hover"
                   placement="bottom"
                 >

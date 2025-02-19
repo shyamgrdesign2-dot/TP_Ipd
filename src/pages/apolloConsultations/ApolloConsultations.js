@@ -408,7 +408,9 @@ const ConsultationDetailsPage = () => {
         'Vaccination Packages',
         'Remaks'
       ]
-      const data = consultationsList.map(e => {
+
+      const data = []
+      consultationsList.map(e => {
         let crossConsultList = [], vaccinationPackagesList = []
         const crossConsultData = e?.dynamicModules?.find((item) => item?.name === "Cross Consult / Referred to")
         if (crossConsultData?.content?.length > 0) {
@@ -418,19 +420,110 @@ const ConsultationDetailsPage = () => {
         if (vaccinationPackageData?.content?.length > 0) {
           vaccinationPackagesList = vaccinationPackageData?.content?.map((item) => item.title)
         }
-        return [
-          e?.patientName,
-          e?.apolloId,
-          moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
-          e?.doctorName,
-          e?.investigations.join(', '),
-          e?.vaccinations.join(', '),
-          e?.surgeries.join(', '),
-          crossConsultList.join(', '),
-          vaccinationPackagesList.join(', '),
-          e?.remarks
-        ]
+
+        const sizes = [
+          { name: "investigation", size: e?.investigations?.length },
+          { name: "vaccination", size: e?.vaccinations?.length },
+          { name: "surgerie", size: e?.surgeries?.length },
+          { name: "crossConsult", size: crossConsultList?.length },
+          { name: "vaccinationPackages", size: vaccinationPackagesList?.length }
+        ];
+
+        const largest = sizes.reduce((max, current) => current.size > max.size ? current : max);
+
+        if (largest?.size > 0) {
+          if (largest?.name === "investigation") {
+            e?.investigations.map((item, index) => {
+              data.push([
+                e?.patientName,
+                e?.apolloId,
+                moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
+                e?.doctorName,
+                item,
+                e?.vaccinations[index] !== undefined ? e?.vaccinations[index] : '',
+                e?.surgeries[index] !== undefined ? e?.surgeries[index] : '',
+                crossConsultList[index] !== undefined ? crossConsultList[index] : '',
+                vaccinationPackagesList[index] !== undefined ? vaccinationPackagesList[index] : '',
+                e?.remarks
+              ])
+            })
+          } else if (largest?.name === "vaccination") {
+            e?.vaccinations.map((item, index) => {
+              data.push([
+                e?.patientName,
+                e?.apolloId,
+                moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
+                e?.doctorName,
+                e?.investigations[index] !== undefined ? e?.investigations[index] : '',
+                item,
+                e?.surgeries[index] !== undefined ? e?.surgeries[index] : '',
+                crossConsultList[index] !== undefined ? crossConsultList[index] : '',
+                vaccinationPackagesList[index] !== undefined ? vaccinationPackagesList[index] : '',
+                e?.remarks
+              ])
+            })
+          } else if (largest?.name === "surgerie") {
+            e?.vaccinations.map((item, index) => {
+              data.push([
+                e?.patientName,
+                e?.apolloId,
+                moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
+                e?.doctorName,
+                e?.investigations[index] !== undefined ? e?.investigations[index] : '',
+                e?.vaccinations[index] !== undefined ? e?.vaccinations[index] : '',
+                item,
+                crossConsultList[index] !== undefined ? crossConsultList[index] : '',
+                vaccinationPackagesList[index] !== undefined ? vaccinationPackagesList[index] : '',
+                e?.remarks
+              ])
+            })
+          } else if (largest?.name === "crossConsult") {
+            crossConsultList.map((item, index) => {
+              data.push([
+                e?.patientName,
+                e?.apolloId,
+                moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
+                e?.doctorName,
+                e?.investigations[index] !== undefined ? e?.investigations[index] : '',
+                e?.vaccinations[index] !== undefined ? e?.vaccinations[index] : '',
+                e?.surgeries[index] !== undefined ? e?.surgeries[index] : '',
+                item,
+                vaccinationPackagesList[index] !== undefined ? vaccinationPackagesList[index] : '',
+                e?.remarks
+              ])
+            })
+          } else if (largest?.name === "vaccinationPackages") {
+            vaccinationPackagesList.map((item, index) => {
+              data.push([
+                e?.patientName,
+                e?.apolloId,
+                moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
+                e?.doctorName,
+                e?.investigations[index] !== undefined ? e?.investigations[index] : '',
+                e?.vaccinations[index] !== undefined ? e?.vaccinations[index] : '',
+                e?.surgeries[index] !== undefined ? e?.surgeries[index] : '',
+                crossConsultList[index] !== undefined ? crossConsultList[index] : '',
+                item,
+                e?.remarks
+              ])
+            })
+          }
+        } else {
+          data.push([
+            e?.patientName,
+            e?.apolloId,
+            moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
+            e?.doctorName,
+            e?.investigations.join(', '),
+            e?.vaccinations.join(', '),
+            e?.surgeries.join(', '),
+            crossConsultList.join(', '),
+            vaccinationPackagesList.join(', '),
+            e?.remarks
+          ])
+        }
       })
+
       const workSheetData = [
         workSheetColumnNames,
         ...data
@@ -441,6 +534,7 @@ const ConsultationDetailsPage = () => {
       const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
       const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
       saveAs(blob, `Apollo.xlsx`);
+
     } catch (error) {
       message.error("Failed to fetch consultations");
     }
