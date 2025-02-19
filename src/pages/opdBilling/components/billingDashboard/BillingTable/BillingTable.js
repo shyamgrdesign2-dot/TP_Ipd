@@ -604,7 +604,7 @@ export default function BillingTable({
 
   return (
     <div>
-      <div className="appointment-data billing-table-wrapper">
+      <div className="billing-table-wrapper">
         <Row className="justify-content-between align-items-center my-2 px-4">
           <div>
             <Input

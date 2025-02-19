@@ -23,6 +23,7 @@ import {
   onlyDecimalFormat,
   removeBeforeWhiteSpace,
   trackEvent,
+  getClinicName,
 } from "../../../../utils/utils";
 import ServiceItemPopup from "../serviceItemPopup/ServiceItemPopup";
 import "./CreateBill.scss";
@@ -71,6 +72,12 @@ import waveImage from "../../../../assets/images/opd-billing-wave.svg";
 import addCircleIcon from "../../../../assets/images/add-circle.svg";
 import AddAdvance from "../advanceDeposit/AddAdvance";
 import { isMobile } from "react-device-detect";
+
+import playIcons from '../../../../assets/images/tube-icon.svg';
+import tutorial from '../../../../assets/images/tutorial-icon.svg';
+import videorotate from '../../../../assets/images/videorotate.gif';
+import VideoModal from "../../../../common/VideoModal";
+import { Popover } from "antd";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -137,6 +144,10 @@ const CreateBill = ({
   const [isPaymentModeItemMissing, setPaymentModeItemMissing] = useState(false);
   const nameAutoCompleteRef = useRef(null);
   const { planDetails } = useSelector((state) => state.subscription);
+
+  const [popOverVideo, setPopOverVideo] = useState(false);
+  const [videoLink, setVideoLink] = useState(null);
+  const { videoList } = useSelector((state) => state.doctors);
 
   const subTotal = dataSource
     .reduce(
@@ -1076,6 +1087,68 @@ const CreateBill = ({
     }
   };
 
+  //PopOverVideo function
+  const showHideVideoListPopover = useCallback(() => {
+    setPopOverVideo(!popOverVideo);
+  }, [popOverVideo]);
+
+  //Video Componet
+  const VIDEO_CONTENT = useCallback(() => {
+    return (
+      <>
+        <div className="video-contant rounded-4 p-20 zindex-99999" key="oneclickrx-video">
+          <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+            <div className="title-common lh-base">Video Tutorial</div>
+            <Button
+              className="btn btn-videoClose p-0"
+              onClick={showHideVideoListPopover}
+            >
+              <i className="icon-Cross" />
+            </Button>
+          </div>
+          {videoList[15]?.video?.slice(2, 3).map((item1, i1) => {
+            return (
+              <div
+                key={i1}
+                className={`d-flex ${
+                  i1 !== videoList[15]?.video.length - 1 &&
+                  "pb-3 mb-15 border-bottom"
+                }`}
+              >
+                <div className="tutorial-play me-14">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVideoLink(item1);
+                      const clinic_name = getClinicName(profile?.hospital_data);
+                      window.Moengage.track_event("TP_Tutorial_Viewed", {
+                        clinic_name,
+                        tutorial_type: videoList[15]?.category,
+                      });
+                    }}
+                  >
+                    <img src={playIcons} />
+                  </button>
+                  <span className="tutorial-thumb">
+                    <img src={item1.thumbnail} />
+                  </span>
+                </div>
+                <div>
+                  <h3 className="title-common text-welcome">
+                    {item1?.tmv_title}
+                  </h3>
+                  <div className="fs-12 fontroboto fw-normal text-main">
+                    {item1?.tmv_description}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </>
+    );
+  }, [popOverVideo]);
+
   return (
     <div>
       <Navbar className="headerprescription p-0">
@@ -1231,6 +1304,32 @@ const CreateBill = ({
                   </div>
                 )}
 
+                {
+                  <div className="d-sm-flex d-block">
+                    <Popover
+                      open={popOverVideo}
+                      onOpenChange={showHideVideoListPopover}
+                      content={VIDEO_CONTENT}
+                      trigger="click"
+                      overlayClassName="pop-430 pp-0 videoTutorial"
+                      placement="bottom"
+                    >
+                      <button className="btn d-flex align-items-center btn-text tutorial p-0 opd-billing">
+                        <div className="cursor-pointer video-animat">
+                          <img src={tutorial} />
+                          <img src={videorotate} />
+                        </div>
+                      </button>
+                    </Popover>
+                    {videoLink && (
+                      <VideoModal
+                        videoLink={videoLink}
+                        onCancel={() => setVideoLink(null)}
+                      />
+                    )}
+                  </div>
+                }
+                
                 {isRxPage ? (
                   <>
                     <Button

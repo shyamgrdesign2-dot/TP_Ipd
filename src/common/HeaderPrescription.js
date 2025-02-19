@@ -1016,7 +1016,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             "investigationList": investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name) : [],
                             "medicineList": medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })) : []
                         }
-
+                        
                         window.Moengage.track_event("Z_placeIctOrder_API_before_call", {
                             "action": tcmId == 0 ? 'add' : 'edit',
                             "tcmId": action?.payload?.tcm_id,
