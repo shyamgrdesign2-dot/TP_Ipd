@@ -30,8 +30,7 @@ const initialState = {
   dragDrop: {},
   siteId: null,
   empNo: [],
-  storeCode: null,
-  pillupCheck: false
+  storeCode: null
 };
 
 export const getProfile = createAsyncThunk(
@@ -317,6 +316,22 @@ export const zydusRefIds = createAsyncThunk(
   }
 );
 
+export const changePillupStatus = createAsyncThunk(
+  "records/changePillupStatus",
+  async (data) => {
+    try {
+      const result = await ApiAppointments.changePillupStatus(data);
+      if (result.status) {
+        return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      throw Error(error);
+    }
+  }
+);
+
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
@@ -356,9 +371,6 @@ const doctorsSlice = createSlice({
         state.dragDrop = {}
       }
     },
-    changePillupStatus: (state) => {
-      state.pillupCheck = true
-    }
   },
   extraReducers: (builder) => {
     builder
@@ -552,6 +564,9 @@ const doctorsSlice = createSlice({
           state.loading = false;
         }
       })
+      .addCase(changePillupStatus.fulfilled, (state, action) => {
+          state.profile = { ...state.profile, pillupFlag: 1 }
+      })
       .addCase(zydusRefIds.fulfilled, (state, action) => {
         if (action.payload.siteId !== undefined) {
           state.siteId = action.payload.siteId;
@@ -567,5 +582,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop, changePillupStatus } = doctorsSlice.actions
+export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop } = doctorsSlice.actions
 export default doctorsSlice.reducer;

@@ -98,6 +98,10 @@ ApiAppointments.navigatetoTatvaPedia = function () {
   return api.post(`/api/v1/appointment/navigatetoTatvaPedia`, {}, baseUrl);
 };
 
+ApiAppointments.changePillupStatus = function (data) {
+  return api.post(`/api/v1/appointment/upsertPillupFlag`, data, baseUrl);
+};
+
 ApiAppointments.synczyduspatient = function (body) {
   return api.post(`/appointment/synczyduspatient`, body, baseZydusUrl);
 };
