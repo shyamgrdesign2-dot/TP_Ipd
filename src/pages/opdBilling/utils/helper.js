@@ -14,23 +14,23 @@ export const handleDownload = async (
   isDoctor = false
 ) => {
   if (!isChrome && !isSafari) {
-  const file = new File([printBlob], "billingFile.pdf", {
-    type: "application/pdf",
-  });
-  const formData = new FormData();
-  formData.append(file?.name, file);
-  if (!isDoctor) {
-    formData.append("patient_unique_id", patientUniqueId);
-  }
-  const res = await uploadDocsToAzure(formData);
-  if (res?.length > 0) {
-    handleInAppClick(
-      patientUniqueId,
-      "download",
-      res?.[0]?.url,
-      setStartLoader
-    );
-  }
+    const file = new File([printBlob], "billingFile.pdf", {
+      type: "application/pdf",
+    });
+    const formData = new FormData();
+    formData.append(file?.name, file);
+    if (!isDoctor) {
+      formData.append("patient_unique_id", patientUniqueId);
+    }
+    const res = await uploadDocsToAzure(formData);
+    if (res?.length > 0) {
+      handleInAppClick(
+        patientUniqueId,
+        "download",
+        res?.[0]?.url,
+        setStartLoader
+      );
+    }
   } else {
     try {
       saveAs(pdfUrl, `${Date.now()}.pdf`);
@@ -80,7 +80,7 @@ export const printContent = async (
   }
 };
 
-const handleInAppClick = async (
+export const handleInAppClick = async (
   patientUniqueId,
   actionType,
   url,

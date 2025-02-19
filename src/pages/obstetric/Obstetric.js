@@ -120,7 +120,17 @@ const Obstetric = ({
   let adjustedLmpDate = null;
   let gestationDays = null;
 
-  if (lmp) {
+  if (ceed) {
+    const gestationAge =
+      40 * 7 -
+      Math.ceil(
+        Math.abs(new Date(ceed) - new Date(today)) / (1000 * 60 * 60 * 24)
+      );
+
+    // Convert to weeks and days
+    gestationWeeks = Math.floor(gestationAge / 7);
+    gestationDays = gestationAge % 7;
+  } else if (lmp) {
     gestationWeeks = today.diff(lmpValue, "weeks");
     adjustedLmpDate = lmpValue.clone().add(gestationWeeks, "weeks");
     gestationDays = today.diff(adjustedLmpDate, "days");
@@ -294,8 +304,6 @@ const Obstetric = ({
               ?.trim()
           : prefillObstetricResponse.bloodGroup || blood,
       maritialStatus: prefillObstetricResponse.marriedStatus || maritialStatus,
-      gestationWeeks: gestationInWeeks || gestationWeeks,
-      gestationDays: gestationInDays || gestationDays,
     });
   };
 

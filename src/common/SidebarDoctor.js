@@ -11,14 +11,14 @@ import { useLocalStorage } from "../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import newGif from "../assets/images/new-gif.gif";
 import ipdIcon from "../assets/images/ipd.svg";
-import patientsIcon from "../assets/images/patients.svg";
+import patientsIcon from "../assets/images/all-patients.svg";
 import analyticsIcon from "../assets/images/analytics.svg";
 import pharmacyIcon from "../assets/images/pharmacy.svg";
 import billingsIcon from "../assets/images/billings.svg";
 import followUpIcon from "../assets/images/followup-home.svg";
 import ipdActiveIcon from "../assets/images/ipd-active.svg";
 import tatvaAiIcon from "../assets/images/website-images/tatvaAiIcon.svg";
-import patientsActiveIcon from "../assets/images/patients-active.svg";
+import patientsActiveIcon from "../assets/images/all-patients-active.svg";
 import analyticsActiveIcon from "../assets/images/analytics-active.svg";
 import pharmacyActiveIcon from "../assets/images/pharmacy-active.svg";
 import billingsActiveIcon from "../assets/images/billings-active.svg";
@@ -26,8 +26,8 @@ import followUpActiveIcon from "../assets/images/follow-up-active.svg";
 import tatvaAiActiveIcon from "../assets/images/website-images/tatvaAiActiveIcon.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { errorMessage } from "../utils/utils";
-import FullPageLoader from '../pages/vaccination/components/Loader';
-import { useOpdBilling } from '../pages/opdBilling/useOpdBilling';
+import FullPageLoader from "../pages/vaccination/components/Loader";
+import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 
 function SidebarDoctor() {
   const [getToken, setToken] = useLocalStorage(
@@ -41,7 +41,7 @@ function SidebarDoctor() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-    const { isOpdBillingAccessable } = useOpdBilling();
+  const { isOpdBillingAccessable } = useOpdBilling();
 
   const isApolloConsultationsEnabled = useFeatureIsOn("apollo-consultations");
 
