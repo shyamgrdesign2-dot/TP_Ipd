@@ -117,7 +117,7 @@
   
   /* Mic Button */
   .tapToSpeak {
-    margin: 48px auto;
+    margin: 95px auto 0px auto;
     text-align: center;
     cursor: pointer;
   }

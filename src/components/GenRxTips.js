@@ -24,7 +24,7 @@ const carouselItemStyle = {
   padding: "20px",
   height: "168px",
   width: "480px",
-  margin: "0 auto",
+  // margin: "0 auto",
   transition: "transform 0.3s ease",
 };
 
@@ -124,13 +124,13 @@ const GenRxTips = ({ isKnowMore }) => {
   const tips = useMemo(
     () => [
       {
-        title: "Mention Headings",
+        title: <span className="main-color">Mention Headings</span>,
         description:
           "While dictating Rx include headings like 'Symptoms', 'Medication' etc. to keep information organised.",
         animationData: genRxMentionHeadings,
       },
       {
-        title: "Stay Focused",
+        title: <span className="main-color">Stay Focused</span>,
         description:
           "Stick to only prescription details. Avoid irrelevant information for clear and precise dictation.",
         animationData: genRxFocused,
@@ -267,7 +267,7 @@ const GenRxTips = ({ isKnowMore }) => {
         }
       >
         {tips.map((tip, index) => (
-          <div key={index} style={carouselItemStyle}>
+          <div key={index} style={{...carouselItemStyle, margin: isKnowMore ? "0" : "0 auto"}}>
             <div style={columnStyle}>
               <div style={tipStyle}>
                 <img src={tipIcon} alt="tip-icon" style={tipIconStyle} />

@@ -32,7 +32,7 @@ const DDxList = ({
   const { state } = useLocation();
   const { patient_data } = state;
 
-  const [isCollapseActive, setIsCollapseActive] = useState(true);
+  const [isCollapseActive, setIsCollapseActive] = useState(false);
 
   const handlePanelChange = () => {
     setIsCollapseActive((prev) => !prev);
@@ -297,7 +297,7 @@ const DDxList = ({
         <div>
           <Collapse
             items={accordionItems}
-            defaultActiveKey={["1"]}
+            // defaultActiveKey={["1"]}
             onChange={handlePanelChange}
             className="tatvaAi-accordian cdss-collapse"
             expandIconPosition={"end"}
