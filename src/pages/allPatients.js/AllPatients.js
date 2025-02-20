@@ -466,7 +466,7 @@ const AllPatients = () => {
 
   const handleDownloadPatientData = async () => {
     // Get today's date in YYYY-MM-DD format
-    const today = new Date().toISOString().split("T")[0];
+    const today = moment().format("DDMMYYYY");
 
     const excelData = allPatientsData?.patients?.map((patient) => ({
       "Patient Name": `${
@@ -505,28 +505,26 @@ const AllPatients = () => {
     XLSX.writeFile(workbook, `patient_data_${today}.xlsx`);
 
     if (!isChrome && !isSafari) {
-      // Generate Excel buffer
-      const excelBuffer = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
-      });
+    // Generate Excel buffer
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
 
-      const excelBlob = new Blob([excelBuffer], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
+    const excelBlob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
 
-      // Create File object
-      const file = new File([excelBlob], `patient_data_${today}.xlsx`, {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      const formData = new FormData();
-      formData.append(file?.name, file);
-      const res = await uploadDocsToAzure(formData);
-      if (res?.length > 0) {
-        handleInAppClick(userId, "download", res?.[0]?.url, setStartLoader);
-      }
-    } else {
-      // else part already working in top
+    // Create File object
+    const file = new File([excelBlob], `patient_data_${today}.xlsx`, {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const formData = new FormData();
+    formData.append(file?.name, file);
+    const res = await uploadDocsToAzure(formData);
+    if (res?.length > 0) {
+      handleInAppClick(userId, "download", res?.[0]?.url, setStartLoader);
+    }
     }
   };
 
