@@ -83,7 +83,7 @@ function AppointmentData({ locationPath }) {
     const navigate = useNavigate();
 
     const { sort_order, profile, siteId, empNo, userId } = useSelector(
-      (state) => state.doctors
+        (state) => state.doctors
     );
     const { uploadDocCategories } = useSelector(
         (state) => state.uploadDoc
@@ -122,7 +122,7 @@ function AppointmentData({ locationPath }) {
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [patientData, setPatientData] = useState(null);
     const fileInputRef = useRef(null);
-    const {planDetails} = useSelector(state => state.subscription);
+    const { planDetails } = useSelector(state => state.subscription);
 
     const handleDrawerUploadDoc = () => {
         setUploadDocDrawer(!uploadDocDrawer);
@@ -431,16 +431,16 @@ function AppointmentData({ locationPath }) {
                 // console.log(sendData)
                 dispatch(getAllAppointment(sendData));
             } else {
-                if(siteId){
+                if (siteId) {
                     let sendData = {
                         startDate: date.startDate,
                         endDate: date.endDate,
                         apStatue: TAB_FINISHED,
                         page: 0
                     }
-    
+
                     await dispatch(copyGetAllAppointment(sendData))
-    
+
                     var sendZydusData = {
                         siteId: siteId,
                         empNo: empNo.toString(),
@@ -630,10 +630,10 @@ function AppointmentData({ locationPath }) {
     const getMenuItems = (record) => {
         const items = [
             {
-                label: <span onClick={()=>onPatientDetailsClick(record)}>Patient Details</span>,
+                label: <span onClick={() => onPatientDetailsClick(record)}>Patient Details</span>,
                 key: "patientdetails",
             },
-          isOpdBillingAccessable ? {
+            isOpdBillingAccessable ? {
                 label: <div
                     onClick={() => {
                         setAppointmentSelectedFromMenu(record);
@@ -656,15 +656,15 @@ function AppointmentData({ locationPath }) {
                         }
                     }}>{patientBills?.length === 0 ? "Create Bill" : "View/Create Bill"}</div>,
                 key: "createbill",
-          } : undefined,
-          isOpdBillingAccessable ? {
+            } : undefined,
+            isOpdBillingAccessable ? {
                 label: <div
                     onClick={() => {
                         setAppointmentSelectedFromMenu(record);
                         handleAddAdvanceDrawer();
                     }}>Advance Deposit</div>,
                 key: "advancebill",
-          } : undefined,
+            } : undefined,
             {
                 label: <span
                     onClick={() => {
@@ -747,51 +747,80 @@ function AppointmentData({ locationPath }) {
             "doctor_id": profile?.doctor_unique_id,
             "patient_id": record?.patient_unique_id
         });
-        navigate("/prescription", { state: { patient_data: record } })
+        const decodedToken = getDecodedToken();
+        const tokenData = decodedToken?.result;
+        if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
+            var sendZydusData = {
+                siteId: siteId,
+                empNo: empNo.toString(),
+                date: moment(date.startDate).format(showDateFormat),
+                apStatue: TAB_ZYDUS_ENCOUNTER,
+                page: 0,
+                filterVisitType: visitTypeFilters,
+            }
+            const action = await dispatch(zydusConsultAppoint(sendZydusData))
+            if (action.meta.requestStatus === "fulfilled") {
+                const data = action?.payload?.find(e => e?.encounterId == record?.pam_ref_id)
+                if (data !== undefined) {
+                    navigate("/patient_details", {
+                        state: {
+                            patient_data: {
+                                ...record,
+                                mrno: data.mrno,
+                                departmentId: data.departmentId,
+                                visitId: data.visitId,
+                                encounterId: data.encounterId,
+                                employeeId: empNo[empNo.length - 1]
+                            }
+                        }
+                    })
+                } else {
+                    navigate("/patient_details", { state: { patient_data: record } })
+                }
+            }
+        } else {
+            navigate("/patient_details", { state: { patient_data: record } })
+        }
     }
 
     const onPatientDetailsClick = async (record) => {
-        if (selectedTab === TAB_FINISHED) {
-            // const sendData = {
-            //     patient_unique_id: record?.patient_unique_id,
-            // };
-            // const action = await dispatch(viewPatient(sendData));
-            // if (action.meta.requestStatus === "fulfilled") {
-            //     navigate("/patient_details", { state: { patient_data: { ...record, mrno: action?.payload?.pm_reference_id } } })
-            // }
-            const decodedToken = getDecodedToken();
-            const tokenData = decodedToken?.result;
-            if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
-                var sendZydusData = {
-                    siteId: siteId,
-                    empNo: empNo.toString(),
-                    date: moment(date.startDate).format(showDateFormat),
-                    apStatue: TAB_ZYDUS_ENCOUNTER,
-                    page: 0,
-                    filterVisitType: visitTypeFilters,
-                }
-                const action = await dispatch(zydusConsultAppoint(sendZydusData))
-                if (action.meta.requestStatus === "fulfilled") {
-                    const data = action?.payload?.find(e => e?.encounterId == record?.pam_ref_id)
-                    if (data !== undefined) {
-                        navigate("/patient_details", {
-                            state: {
-                                patient_data: {
-                                    ...record,
-                                    mrno: data.mrno,
-                                    departmentId: data.departmentId,
-                                    visitId: data.visitId,
-                                    encounterId: data.encounterId,
-                                    employeeId: empNo[empNo.length - 1]
-                                }
+        // const sendData = {
+        //     patient_unique_id: record?.patient_unique_id,
+        // };
+        // const action = await dispatch(viewPatient(sendData));
+        // if (action.meta.requestStatus === "fulfilled") {
+        //     navigate("/patient_details", { state: { patient_data: { ...record, mrno: action?.payload?.pm_reference_id } } })
+        // }
+        const decodedToken = getDecodedToken();
+        const tokenData = decodedToken?.result;
+        if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
+            var sendZydusData = {
+                siteId: siteId,
+                empNo: empNo.toString(),
+                date: moment(date.startDate).format(showDateFormat),
+                apStatue: TAB_ZYDUS_ENCOUNTER,
+                page: 0,
+                filterVisitType: visitTypeFilters,
+            }
+            const action = await dispatch(zydusConsultAppoint(sendZydusData))
+            if (action.meta.requestStatus === "fulfilled") {
+                const data = action?.payload?.find(e => e?.encounterId == record?.pam_ref_id)
+                if (data !== undefined) {
+                    navigate("/patient_details", {
+                        state: {
+                            patient_data: {
+                                ...record,
+                                mrno: data.mrno,
+                                departmentId: data.departmentId,
+                                visitId: data.visitId,
+                                encounterId: data.encounterId,
+                                employeeId: empNo[empNo.length - 1]
                             }
-                        })
-                    } else {
-                        navigate("/patient_details", { state: { patient_data: record } })
-                    }
+                        }
+                    })
+                } else {
+                    navigate("/patient_details", { state: { patient_data: record } })
                 }
-            } else {
-                navigate("/patient_details", { state: { patient_data: record } })
             }
         } else {
             navigate("/patient_details", { state: { patient_data: record } })
@@ -1065,7 +1094,7 @@ function AppointmentData({ locationPath }) {
             )
         },
         {
-            title:selectedTab !== TAB_ZYDUS_APPOINTMENT ? "Visit Type" : "Status",
+            title: selectedTab !== TAB_ZYDUS_APPOINTMENT ? "Visit Type" : "Status",
             dataIndex: selectedTab !== TAB_ZYDUS_APPOINTMENT ? "toct_type" : "appointmentStatus",
             key: selectedTab !== TAB_ZYDUS_APPOINTMENT ? "toct_type" : "appointmentStatus",
             ellipsis: true,
@@ -1243,7 +1272,7 @@ function AppointmentData({ locationPath }) {
         () => {
             setCreateBillDrawer(!createBillDrawer);
             if (recentBillDrawer) {
-              setRecentBillDrawer(false);
+                setRecentBillDrawer(false);
             }
         },
         [createBillDrawer]
@@ -1278,28 +1307,28 @@ function AppointmentData({ locationPath }) {
         [endVisitReason]
     );
 
-     const getPatientBills = async (record, sortParams = {}) => {
-       const queryParams = {
-         doctorIds: [userId],
-         sortBy: sortParams.field || "date",  // Default sort by date
-         sortOrder: sortParams.order || "asc", // Default ascending order
-         page: 1,
-         limit: 25,
-         startDate: moment().format("YYYY-MM-DD"),
-         endDate: moment().format("YYYY-MM-DD"),
-         patientId: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id,
-         appointmentId: record?.pam_id || appointmentSelectedFromMenu?.pam_id,
-       };
+    const getPatientBills = async (record, sortParams = {}) => {
+        const queryParams = {
+            doctorIds: [userId],
+            sortBy: sortParams.field || "date",  // Default sort by date
+            sortOrder: sortParams.order || "asc", // Default ascending order
+            page: 1,
+            limit: 25,
+            startDate: moment().format("YYYY-MM-DD"),
+            endDate: moment().format("YYYY-MM-DD"),
+            patientId: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id,
+            appointmentId: record?.pam_id || appointmentSelectedFromMenu?.pam_id,
+        };
 
-       const response = await fetchBillsByPatient(queryParams);
-       if (response?.bills?.length > 0) {
-         const billData = response?.bills?.map((bill) => ({
-           ...bill,
-           patient: response?.patient,
-         }));
-         setPatientBills(billData);
-       }
-     };
+        const response = await fetchBillsByPatient(queryParams);
+        if (response?.bills?.length > 0) {
+            const billData = response?.bills?.map((bill) => ({
+                ...bill,
+                patient: response?.patient,
+            }));
+            setPatientBills(billData);
+        }
+    };
 
     const NO_DETAILS_MODAL = useMemo(() => {
         return (
@@ -1864,7 +1893,7 @@ function AppointmentData({ locationPath }) {
                     }
                 />
             ) : null}
-            {createBillDrawer &&(<Drawer
+            {createBillDrawer && (<Drawer
                 closeIcon={false}
                 placement="right"
                 bodyStyle={{ backgroundColor: "white" }}
@@ -1872,9 +1901,9 @@ function AppointmentData({ locationPath }) {
                 onClose={showHideBackModal}
                 width="100%"
                 push={false}
-                >
-                    <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientData={appointmentSelectedFromMenu} />
-                </Drawer>)}
+            >
+                <CreateBill handleCreateBillDrawer={handleCreateBillDrawer} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} patientData={appointmentSelectedFromMenu} />
+            </Drawer>)}
             {recentBillDrawer && (
                 <Drawer
                     closeIcon={false}
@@ -1884,10 +1913,10 @@ function AppointmentData({ locationPath }) {
                     width="77%"
                     push={false}
                 >
-                    <RecentBills 
-                        handleRecentBillDrawer={handleRecentBillDrawer} 
-                        handleCreateBillDrawer={handleCreateBillDrawer} 
-                        patientBills={patientBills} 
+                    <RecentBills
+                        handleRecentBillDrawer={handleRecentBillDrawer}
+                        handleCreateBillDrawer={handleCreateBillDrawer}
+                        patientBills={patientBills}
                         getPatientBills={getPatientBills}
                     />
                 </Drawer>
@@ -1900,7 +1929,7 @@ function AppointmentData({ locationPath }) {
                     onClose={handleAddAdvanceDrawer}
                     width="85%"
                     push={false}
-                    >
+                >
                     <AddAdvance handleAddAdvanceDrawer={handleAddAdvanceDrawer} patientData={appointmentSelectedFromMenu} />
                 </Drawer>
             }
