@@ -1,14 +1,16 @@
-import React, { useState, useEffect, lazy, useContext } from "react";
-import Lottie from "lottie-react";
+import React, { useState, useEffect } from "react";
 import SkeletonScreen from "./SkeletonScreen";
 import styles from "./VoiceRxLoaders.module.css";
 import GradientProgressBar from "./GradientProgressbar";
-import { AnimationContext } from "../context/AnimationContext";
+import genRxInputProcessing from "../assets/lotties/genRxInputProcessing.lottie";
+import genRxConvertingData from "../assets/lotties/genRxConvertingData.lottie";
+import genRxStructuringData from "../assets/lotties/genRxStructuringData.lottie";
+import genRxFinalizingRx from "../assets/lotties/genRxFinalizingRx.lottie";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const GenRXLoaders = ({ isProcessing }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [showSkeleton, setShowSkeleton] = useState(false);
-  const animations = useContext(AnimationContext);
 
   useEffect(() => {
     if (isProcessing) {
@@ -47,12 +49,11 @@ const GenRXLoaders = ({ isProcessing }) => {
       <div className="d-flex justify-content-center align-items-center flex-column z-3">
         {currentStep === 0 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
-            <Lottie
-              animationData={animations.genRxInputProcessing}
-              loop={true}
-              style={{
-                width: "167.97px",
-              }}
+            <DotLottieReact
+              src={genRxInputProcessing}
+              loop
+              autoplay
+              style={{ width: "167.97px", height: "140px" }}
             />
             <div className={styles.genRxLoadingText}>
               Your input is being processed in the backend...
@@ -61,13 +62,13 @@ const GenRXLoaders = ({ isProcessing }) => {
         )}
         {currentStep === 1 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
-            <Lottie
-              animationData={animations.genRxConvertingData}
-              loop={true}
-              style={{
-                width: "167.97px",
-              }}
+            <DotLottieReact
+              src={genRxConvertingData}
+              loop
+              autoplay
+              style={{ width: "167.97px", height: "140px" }}
             />
+
             <div className={styles.genRxLoadingText}>
               Converting your input data...
             </div>
@@ -75,13 +76,13 @@ const GenRXLoaders = ({ isProcessing }) => {
         )}
         {currentStep === 2 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
-            <Lottie
-              animationData={animations.genRxStructuringData}
-              loop={true}
-              style={{
-                width: "167.97px",
-              }}
+            <DotLottieReact
+              src={genRxStructuringData}
+              loop
+              autoplay
+              style={{ width: "167.97px", height: "140px" }}
             />
+
             <div className={styles.genRxLoadingText}>
               Structuring your input data...
             </div>
@@ -89,13 +90,13 @@ const GenRXLoaders = ({ isProcessing }) => {
         )}
         {currentStep === 3 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
-            <Lottie
-              animationData={animations.genRxFinalizingRx}
-              loop={true}
-              style={{
-                width: "167.97px",
-              }}
+            <DotLottieReact
+              src={genRxFinalizingRx}
+              loop
+              autoplay
+              style={{ width: "167.97px", height: "140px" }}
             />
+
             <div className={styles.genRxLoadingText}>
               Finalizing your structured prescription...
             </div>

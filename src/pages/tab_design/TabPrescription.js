@@ -101,7 +101,6 @@ import Carousel from "react-multi-carousel";
 import GenRxBanner from "../../components/GenRxBanner";
 import TatvaAiBanner from "../../components/TatvaAiBanner";
 import TatvaAiKnowMore from "../../components/TatvaAiKnowMore";
-import { AnimationProvider } from "../../context/AnimationProvider";
 
 function TabPrescription() {
   const {
@@ -844,7 +843,6 @@ function TabPrescription() {
 
   return (
     <CashManagerContext.Provider value={contextApi}>
-      <AnimationProvider>
       <>
         <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} handleGenRx={() => setIsGenRxDrawerVisible(true)}/>
         <div className="w-100 bg-body wrapper2 prescription-wrapper p-0">
@@ -1726,7 +1724,6 @@ function TabPrescription() {
           }
         />
       ) : null}
-      </AnimationProvider>
     </CashManagerContext.Provider>
   );
 }

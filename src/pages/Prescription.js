@@ -72,8 +72,6 @@ import axios from 'axios';
 import { env } from "../EnvironmentConfig";
 import LabParams from "../components/LabParams";
 import ViewLabParam from "../components/ViewLabParams";
-import ApexAIPopup from "../components/ApexAIPopup";
-import GenRxBanner from "../components/GenRxBanner";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import DDxKnowMore from "../components/DDxKnowMore";
 import TabPane from "antd/es/tabs/TabPane";
@@ -88,12 +86,7 @@ import SurgicalBox from "../components/SurgicalBox";
 import AddCustomModule from "../components/AddCustomModule";
 import CustomModule from "../components/CustomModule";
 
-// import GenRxKnowMore from "../components/GenRxKnowMore";
-import TatvaAiBanner from "../components/TatvaAiBanner";
-// import ConsultationDrawer from "../components/ConsultationDrawer";
-import Carousel from "react-multi-carousel";
 import TatvaAiKnowMore from "../components/TatvaAiKnowMore";
-import { AnimationProvider } from "../context/AnimationProvider";
 import GenRxBox from "../components/GenRxBox";
 import GenRxKnowMore from "../components/GenRxKnowMore";
 import ConsultationDrawer from "../components/ConsultationDrawer";
@@ -1087,7 +1080,6 @@ const handleGenRx = () => {
 
   return (
     <CashManagerContext.Provider value={contextApi}>
-      <AnimationProvider>
       <>
         <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} handleGenRx={handleGenRx} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
@@ -1451,7 +1443,6 @@ const handleGenRx = () => {
           </Drawer>
         )}
       </>
-      </AnimationProvider>
     </CashManagerContext.Provider>
   );
 }
