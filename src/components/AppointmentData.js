@@ -747,51 +747,80 @@ function AppointmentData({ locationPath }) {
             "doctor_id": profile?.doctor_unique_id,
             "patient_id": record?.patient_unique_id
         });
-        navigate("/prescription", { state: { patient_data: record } })
+        const decodedToken = getDecodedToken();
+        const tokenData = decodedToken?.result;
+        if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
+            var sendZydusData = {
+                siteId: siteId,
+                empNo: empNo.toString(),
+                date: moment(date.startDate).format(showDateFormat),
+                apStatue: TAB_ZYDUS_ENCOUNTER,
+                page: 0,
+                filterVisitType: visitTypeFilters,
+            }
+            const action = await dispatch(zydusConsultAppoint(sendZydusData))
+            if (action.meta.requestStatus === "fulfilled") {
+                const data = action?.payload?.find(e => e?.encounterId == record?.pam_ref_id)
+                if (data !== undefined) {
+                    navigate("/patient_details", {
+                        state: {
+                            patient_data: {
+                                ...record,
+                                mrno: data.mrno,
+                                departmentId: data.departmentId,
+                                visitId: data.visitId,
+                                encounterId: data.encounterId,
+                                employeeId: empNo[empNo.length - 1]
+                            }
+                        }
+                    })
+                } else {
+                    navigate("/patient_details", { state: { patient_data: record } })
+                }
+            }
+        } else {
+            navigate("/patient_details", { state: { patient_data: record } })
+        }
     }
 
     const onPatientDetailsClick = async (record) => {
-        if (selectedTab === TAB_FINISHED) {
-            // const sendData = {
-            //     patient_unique_id: record?.patient_unique_id,
-            // };
-            // const action = await dispatch(viewPatient(sendData));
-            // if (action.meta.requestStatus === "fulfilled") {
-            //     navigate("/patient_details", { state: { patient_data: { ...record, mrno: action?.payload?.pm_reference_id } } })
-            // }
-            const decodedToken = getDecodedToken();
-            const tokenData = decodedToken?.result;
-            if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
-                var sendZydusData = {
-                    siteId: siteId,
-                    empNo: empNo.toString(),
-                    date: moment(date.startDate).format(showDateFormat),
-                    apStatue: TAB_ZYDUS_ENCOUNTER,
-                    page: 0,
-                    filterVisitType: visitTypeFilters,
-                }
-                const action = await dispatch(zydusConsultAppoint(sendZydusData))
-                if (action.meta.requestStatus === "fulfilled") {
-                    const data = action?.payload?.find(e => e?.encounterId == record?.pam_ref_id)
-                    if (data !== undefined) {
-                        navigate("/patient_details", {
-                            state: {
-                                patient_data: {
-                                    ...record,
-                                    mrno: data.mrno,
-                                    departmentId: data.departmentId,
-                                    visitId: data.visitId,
-                                    encounterId: data.encounterId,
-                                    employeeId: empNo[empNo.length - 1]
-                                }
+        // const sendData = {
+        //     patient_unique_id: record?.patient_unique_id,
+        // };
+        // const action = await dispatch(viewPatient(sendData));
+        // if (action.meta.requestStatus === "fulfilled") {
+        //     navigate("/patient_details", { state: { patient_data: { ...record, mrno: action?.payload?.pm_reference_id } } })
+        // }
+        const decodedToken = getDecodedToken();
+        const tokenData = decodedToken?.result;
+        if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
+            var sendZydusData = {
+                siteId: siteId,
+                empNo: empNo.toString(),
+                date: moment(date.startDate).format(showDateFormat),
+                apStatue: TAB_ZYDUS_ENCOUNTER,
+                page: 0,
+                filterVisitType: visitTypeFilters,
+            }
+            const action = await dispatch(zydusConsultAppoint(sendZydusData))
+            if (action.meta.requestStatus === "fulfilled") {
+                const data = action?.payload?.find(e => e?.encounterId == record?.pam_ref_id)
+                if (data !== undefined) {
+                    navigate("/patient_details", {
+                        state: {
+                            patient_data: {
+                                ...record,
+                                mrno: data.mrno,
+                                departmentId: data.departmentId,
+                                visitId: data.visitId,
+                                encounterId: data.encounterId,
+                                employeeId: empNo[empNo.length - 1]
                             }
-                        })
-                    } else {
-                        navigate("/patient_details", { state: { patient_data: record } })
-                    }
+                        }
+                    })
+                } else {
+                    navigate("/patient_details", { state: { patient_data: record } })
                 }
-            } else {
-                navigate("/patient_details", { state: { patient_data: record } })
             }
         } else {
             navigate("/patient_details", { state: { patient_data: record } })
