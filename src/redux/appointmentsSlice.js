@@ -253,7 +253,7 @@ export const syncZydusPatientAndAppointment = createAsyncThunk(
     async (data) => {
         const result = await ApiAppointments.syncZydusPatientAndAppointment(data);
         if (result.status) {
-            return result.pam_id;
+            return result;
         } else {
             throw Error(result.error);
         }
@@ -262,6 +262,23 @@ export const syncZydusPatientAndAppointment = createAsyncThunk(
 
 export const copyGetAllAppointment = createAsyncThunk(
     "records/copyGetAllAppointment",
+    async (data) => {
+        try {
+            const result = await ApiAppointments.getAllAppointment(data);
+            if (result.status) {
+                return result.data;
+            } else {
+                throw Error(result.error);
+            }
+        } catch (error) {
+            console.log("error: ", error);
+            throw Error(error);
+        }
+    }
+);
+
+export const copyGetAllAppointment1 = createAsyncThunk(
+    "records/copyGetAllAppointment1",
     async (data) => {
         try {
             const result = await ApiAppointments.getAllAppointment(data);
@@ -492,16 +509,27 @@ const appointmentsSlice = createSlice({
                     state.appointmentsData = [];
                 }
             })
-            .addCase(copyGetAllAppointment.fulfilled, (state, action) => {
+            .addCase(copyGetAllAppointment1.pending, (state) => {
+                state.setOnLoad = true;
+            })
+            .addCase(copyGetAllAppointment1.fulfilled, (state, action) => {
                 if (action.meta.arg.apStatue == TAB_FINISHED) {
+                    state.setOnLoad = true;
                     const updatedData = action.payload.app_data.map((e) => {
                         return { ...e, key: uuidv4() }
                     });
-                    state.queueCount = action.payload.queue_count;
-                    state.finishedCount = action.payload.finished_count;
-                    state.cancelledCount = action.payload.cancelled_count;
-                    state.finishedData = updatedData;
+                    if (action.meta.arg.page == 0) {
+                        state.queueCount = action.payload.queue_count;
+                        state.finishedCount = action.payload.finished_count;
+                        state.cancelledCount = action.payload.cancelled_count;
+                        state.finishedData = updatedData;
+                    } else {
+                        state.finishedData = [...state.finishedData, ...updatedData];
+                    }
                 }
+            })
+            .addCase(copyGetAllAppointment1.rejected, (state, action) => {
+                state.setOnLoad = false;
             })
     },
 });
