@@ -168,7 +168,7 @@ function App() {
                 <Route path="apollo-consultations" element={<ApolloConsultations />} />
                 <Route path="gen-rx-print" element={<GenRxPrescriptionPrintView />} />
                 <Route path="billing-dashboard" element={<BillingDashboard />} />
-                <Route path="all-patients" element={<AllPatients />} />
+                <Route path="all_patients" element={<AllPatients />} />
 
                 {/* Auth Route */}
                 <Route path="/login" element={<AuthContainer />} />

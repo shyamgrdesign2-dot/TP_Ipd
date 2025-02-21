@@ -80,7 +80,7 @@ function SidebarDoctor() {
       if (moduleName === "opd_billing" && isOpdBillingAccessable) {
         navigate("/billing-dashboard");
       } else if (moduleName === "all_patients") {
-        navigate("/all-patients");
+        navigate("/all_patients");
       } else {
         if (data.success == 200) {
           if (!isChrome && !isSafari) {

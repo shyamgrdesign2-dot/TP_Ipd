@@ -7,6 +7,7 @@ import {
   Row,
   Spin,
   Table,
+  message,
 } from "antd";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -38,6 +39,9 @@ import alertIcon from "./../../assets/images/alertIcon.svg";
 import { debounce } from "lodash";
 import * as XLSX from "xlsx";
 import { handleInAppClick } from "../opdBilling/utils/helper";
+import { errorMessage } from "../../utils/utils";
+import successIcon from "../../assets/images/end-visit.svg";
+import closeIcon from "../../assets/images/close-visit.svg";
 const { RangePicker } = DatePicker;
 
 const dateFormat = "YYYY-MM-DD";
@@ -56,11 +60,11 @@ const AllPatients = () => {
   const [loading, setOnLoad] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState({
-    startDate: moment().format(dateFormat),
+    startDate: moment('2000-01-01').format(dateFormat),
     endDate: moment().format(dateFormat),
   });
   const [pickerModal, setPickerModal] = useState(false);
-  const [dateStatus, setDateStatus] = useState(1);
+  const [dateStatus, setDateStatus] = useState(4);
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
   const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
   const [filesData, setFilesData] = useState([]);
@@ -73,6 +77,7 @@ const AllPatients = () => {
   const [pageNo, setPageNo] = useState(1);
   const fileInputRef = useRef(null);
   const observer = useRef();
+  const MESSAGE_KEY = 'patient_update_message';
 
   useEffect(() => {
     setLocationPath(location.pathname);
@@ -87,6 +92,45 @@ const AllPatients = () => {
       getAllDocumentCategories();
     }
   }, []);
+
+  useEffect(() => {
+    // Show message if redirected from patient form
+    if (location.state?.showMessage) {
+      const messageType = location.state.messageType;
+      
+      message.open({
+        key: MESSAGE_KEY,
+        type: "",
+        className: "message-appointment",
+        content: (
+          <div className="d-flex align-items-center">
+            <img src={successIcon} className="me-3" alt="Success" />
+            <div>
+              <div className="title-common text-start fontroboto">
+                {messageType === 'updated' 
+                  ? 'Patient details updated successfully' 
+                  : 'Patient added successfully'
+                }
+              </div>
+            </div>
+            <img
+              src={closeIcon}
+              className="ms-3 cursor-pointer"
+              onClick={() => message.destroy(MESSAGE_KEY)}
+              alt="Close"
+            />
+          </div>
+        ),
+        duration: 5,
+      });
+      
+      // Clear the message from location state
+      navigate(location.pathname, { 
+        replace: true,
+        state: {} 
+      });
+    }
+  }, [location]);
 
   const debouncedSearch = useMemo(
     () =>
@@ -244,10 +288,11 @@ const AllPatients = () => {
         ),
         key: "labparams",
       },
-      {
-        label: <span onClick={() => {}}>Book Appointment</span>,
-        key: "cancelappt",
-      },
+      // This will be added later
+      // {
+      //   label: <span onClick={() => {}}>Book Appointment</span>,
+      //   key: "bookappt",
+      // },
       {
         label: (
           <div onClick={handleAddClick}>
@@ -290,10 +335,11 @@ const AllPatients = () => {
       ),
     },
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: "PATIENT DETAILS",
+      dataIndex: "patient_details",
+      key: "patient_details",
       ellipsis: true,
+      width: "21%",
       render: (text, record) => (
         <div>
           <span
@@ -303,7 +349,7 @@ const AllPatients = () => {
             {record.pm_fullname}
           </span>
           <br />
-          <small>{genderAge(record)}</small>
+          <small>{record?.pm_gender}, {genderAge(record)}</small>
         </div>
       ),
     },
@@ -391,6 +437,10 @@ const AllPatients = () => {
 
   const rangePresets = [
     {
+      label: <div className={`${dateStatus === 4 ? "active" : ""}`}>Till date</div>,
+      value: [dayjs('2000-01-01'), dayjs()], // From start date till today
+    },
+    {
       label: <div className={`${dateStatus === 1 ? "active" : ""}`}>Today</div>,
       value: [dayjs(), dayjs().endOf("day")],
     },
@@ -424,6 +474,13 @@ const AllPatients = () => {
   const onRangeChange = (dates, dateStrings) => {
     if (dates) {
       if (
+        moment('2000-01-01').format(dateFormat) ==
+          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
+        dayjs().format(dateFormat) ==
+          moment(dateStrings[1], showDateFormat).format(dateFormat)
+      ) {
+        setDateStatus(4);
+      } else if (
         dayjs().format(dateFormat) ==
           moment(dateStrings[0], showDateFormat).format(dateFormat) &&
         dayjs().format(dateFormat) ==
@@ -452,80 +509,143 @@ const AllPatients = () => {
         endDate: moment(dateStrings[1], showDateFormat).format(dateFormat),
       });
     } else {
-      setDateStatus(null);
+      setDateStatus(4);
       setDateRange({
-        startDate: moment().format(dateFormat),
+        startDate: moment('2000-01-01').format(dateFormat),
         endDate: moment().format(dateFormat),
       });
     }
   };
 
-  const setStartLoader = () => {
-    dispatch(setLoadingStatus(true));
+  const setStartLoader = (data) => {
+    dispatch(setLoadingStatus(data));
+  };
+
+  const fetchAllPatientsForDownload = async () => {
+    let allPatients = [];
+    let currentPage = 1;
+    let hasMoreData = true;
+
+    try {
+      while (hasMoreData) {
+        const params = {
+          page: currentPage,
+          limit: 1000, // Maximum limit per API call
+          search: searchQuery,
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate,
+        };
+
+        const res = await fetchAllPatients(params);
+        
+        if (res?.patients?.length > 0) {
+          allPatients = [...allPatients, ...res.patients];
+          currentPage++;
+          
+          // Check if we've received less than 1000 records, meaning this is the last page
+          if (res.patients.length < 1000) {
+            hasMoreData = false;
+          }
+        } else {
+          hasMoreData = false;
+        }
+      }
+
+      return allPatients;
+    } catch (error) {
+      console.error("Error fetching all patients:", error);
+      errorMessage("Error downloading patient data");
+      return null;
+    }
   };
 
   const handleDownloadPatientData = async () => {
-    // Get today's date in YYYY-MM-DD format
-    const today = moment().format("DDMMYYYY");
+    try {
+      // Show loading state
+      setStartLoader(true);
 
-    const excelData = allPatientsData?.patients?.map((patient) => ({
-      "Patient Name": `${
-        patient.pm_salutation ? patient.pm_salutation + " " : ""
-      } ${patient.pm_fullname}`,
-      Gender: patient.pm_gender,
-      Age: `${
-        patient.ageYears
-          ? `${patient.ageYears}y${patient.ageMonths ? `, ` : ""}`
-          : ""
-      }${patient.ageMonths ? `${patient.ageMonths}m` : ""}`,
-      Mobile: patient.pm_contact_no,
-      "Patient ID": patient.tpml_refrence_id || patient.pm_pid,
-      "Last Visited": patient.lastVisitDate
-        ? moment(patient.lastVisitDate).format("DD-MM-YYYY")
-        : "",
-      "Patient Address": patient.address,
-    }));
+      // Fetch all patients
+      const allPatients = await fetchAllPatientsForDownload();
+      
+      if (!allPatients) {
+        setStartLoader(false);
+        return;
+      }
 
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date().toISOString().split("T")[0];
 
-    worksheet["!cols"] = [
-      { wch: 25 }, // Name
-      { wch: 10 }, // Gender
-      { wch: 10 },
-      { wch: 13 },
-      { wch: 15 },
-      { wch: 12 },
-      { wch: 30 },
-    ];
+      const excelData = allPatients.map((patient) => ({
+        "Patient Name": `${
+          patient.pm_salutation ? patient.pm_salutation + " " : ""
+        } ${patient.pm_fullname}`,
+        Gender: patient.pm_gender,
+        Age: `${
+          patient.ageYears
+            ? `${patient.ageYears}y${patient.ageMonths ? `, ` : ""}`
+            : ""
+        }${patient.ageMonths ? `${patient.ageMonths}m` : ""}`,
+        Mobile: patient.pm_contact_no,
+        "Patient ID": patient.tpml_refrence_id || patient.pm_pid,
+        "Last Visited": patient.lastVisitDate
+          ? moment(patient.lastVisitDate).format("DD-MM-YYYY")
+          : "",
+        "Patient Address": patient.pm_address,
+      }));
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Patient Data");
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
 
-    // Add date to filename
-    XLSX.writeFile(workbook, `patient_data_${today}.xlsx`);
+      worksheet["!cols"] = [
+        { wch: 25 }, // Name
+        { wch: 10 }, // Gender
+        { wch: 10 },
+        { wch: 13 },
+        { wch: 15 },
+        { wch: 12 },
+        { wch: 30 },
+      ];
 
-    if (!isChrome && !isSafari) {
-    // Generate Excel buffer
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Patient Data");
 
-    const excelBlob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
+      if (!isChrome && !isSafari) {
+        // Generate Excel buffer
+        const excelBuffer = XLSX.write(workbook, {
+          bookType: "xlsx",
+          type: "array",
+        });
 
-    // Create File object
-    const file = new File([excelBlob], `patient_data_${today}.xlsx`, {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    const formData = new FormData();
-    formData.append(file?.name, file);
-    const res = await uploadDocsToAzure(formData);
-    if (res?.length > 0) {
-      handleInAppClick(userId, "download", res?.[0]?.url, setStartLoader);
+        const excelBlob = new Blob([excelBuffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+
+        // Create File object
+        const file = new File([excelBlob], `patient_data_${today}.xlsx`, {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const formData = new FormData();
+        formData.append(file?.name, file);
+        const res = await uploadDocsToAzure(formData);
+        if (res?.length > 0) {
+          handleInAppClick(userId, "download", res?.[0]?.url, setStartLoader(true));
+        }
+      } else {
+        // Download file directly in Chrome/Safari
+        XLSX.writeFile(workbook, `patient_data_${today}.xlsx`);
+      }
+
+      setStartLoader(false);
+    } catch (error) {
+      console.error("Error in handleDownloadPatientData:", error);
+      errorMessage("Error downloading patient data");
+      setStartLoader(false);
     }
-    }
+  };
+
+  const handleAddPatient = () => {
+    navigate("/add_patient", { 
+      state: { from: "/all_patients" } 
+    });
   };
 
   return (
@@ -552,7 +672,7 @@ const AllPatients = () => {
                 <div className="d-flex">
                   <Button
                     className="btn-create-bill gap-1"
-                    onClick={() => navigate("/add_patient")}
+                    onClick={handleAddPatient}
                     icon={<i className="icon-Add" style={{ fontSize: 20 }} />}
                   >
                     <span>Add New Patient</span>
@@ -596,6 +716,8 @@ const AllPatients = () => {
                           "Last week"
                         ) : dateStatus === 3 ? (
                           "Last month"
+                        ) : dateStatus === 4 ? (
+                          "Till date"
                         ) : (
                           <>
                             {moment(dateRange.startDate).format(showDateFormat)}{" "}
@@ -670,9 +792,9 @@ const AllPatients = () => {
                     (Showing{" "}
                     {allPatientsData?.patients?.length ===
                     allPatientsData?.total ? (
-                      allPatientsData?.patients?.length
+                      <span className="ddx-ready-txt">{allPatientsData?.patients?.length}</span>
                     ) : (
-                      <span>{allPatientsData?.patients?.length}</span>
+                      <span className="ddx-ready-txt">{allPatientsData?.patients?.length}</span>
                     )}{" "}
                     of {allPatientsData?.total} patients)
                   </div>

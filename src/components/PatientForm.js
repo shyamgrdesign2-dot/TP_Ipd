@@ -8,7 +8,7 @@ import React, {
 import { isMobile } from "react-device-detect";
 import { Col, Row } from "react-bootstrap";
 import { Form, Tabs, Button } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
@@ -30,6 +30,7 @@ const { TabPane } = Tabs;
 
 function PatientForm({ mode = ADD, patient_data }) {
     const navigate = useNavigate();
+    const location = useLocation();
     const dispatch = useDispatch();
     const { loading } = useSelector(
         (state) => state.records
@@ -42,6 +43,9 @@ function PatientForm({ mode = ADD, patient_data }) {
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
     );
+
+    // Check if user came from all patients page
+    const isFromAllPatients = location.state?.from === "/all_patients";
 
     useEffect(() => {
         const getEditData = async () => {
@@ -106,16 +110,42 @@ function PatientForm({ mode = ADD, patient_data }) {
                     };
                     await updateDob(payload);
                 }
-                if (isMobile || !isSmartSyncAccessableFromGB) {
-                    mode === EDIT ? navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } }) : navigate("/prescription", { replace: true, state: { patient_data: action.payload } })
-                }
-                else {
-                    if (mode !== EDIT) {
-                        setIsModalOpen(true);
-                        setPatientData(action.payload);
-                    }
-                    if (mode === EDIT) {
-                        navigate("/patient_details", { replace: true, state: { patient_data: { ...patient_data, ...action.payload } } });
+
+                // Handle navigation based on source page
+                if (isFromAllPatients) {
+                    navigate("/all_patients", { 
+                        replace: true,
+                        state: { 
+                            showMessage: true,
+                            messageType: mode === EDIT ? 'updated' : 'added'
+                        } 
+                    });
+                } else {
+                    if (isMobile || !isSmartSyncAccessableFromGB) {
+                        mode === EDIT ? 
+                            navigate("/patient_details", { 
+                                replace: true, 
+                                state: { 
+                                    patient_data: { ...patient_data, ...action.payload } 
+                                } 
+                            }) : 
+                            navigate("/prescription", { 
+                                replace: true, 
+                                state: { patient_data: action.payload } 
+                            });
+                    } else {
+                        if (mode !== EDIT) {
+                            setIsModalOpen(true);
+                            setPatientData(action.payload);
+                        }
+                        if (mode === EDIT) {
+                            navigate("/patient_details", { 
+                                replace: true, 
+                                state: { 
+                                    patient_data: { ...patient_data, ...action.payload } 
+                                } 
+                            });
+                        }
                     }
                 }
             } else {
@@ -179,7 +209,12 @@ function PatientForm({ mode = ADD, patient_data }) {
                                     className='btn btn-primary3 me-30 btn-41 px-4'
                                     onClick={onFinish}
                                     loading={loading}>
-                                    {mode === EDIT ? 'Save' : 'Add Patient to Consult'}
+                                    {mode === EDIT 
+                                        ? 'Save' 
+                                        : isFromAllPatients 
+                                            ? 'Add Patient'
+                                            : 'Add Patient to Consult'
+                                    }
                                 </Button>
                             </div>
                             <CommonModal
