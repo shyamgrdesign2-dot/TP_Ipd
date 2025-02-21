@@ -15,7 +15,13 @@ import Header from "../../common/Header";
 import SidebarDoctor from "../../common/SidebarDoctor";
 import { genderAge } from "../opdBilling/components/viewBillPdf/helper";
 import { fetchAllPatients } from "./service";
-import { isAndroid, isBrowser, isChrome, isSafari } from "react-device-detect";
+import {
+  isAndroid,
+  isBrowser,
+  isChrome,
+  isMobile,
+  isSafari,
+} from "react-device-detect";
 import moment from "moment";
 import dayjs from "dayjs";
 import {
@@ -42,6 +48,7 @@ import { handleInAppClick } from "../opdBilling/utils/helper";
 import { errorMessage } from "../../utils/utils";
 import successIcon from "../../assets/images/end-visit.svg";
 import closeIcon from "../../assets/images/close-visit.svg";
+import CreateCertificate from "../../components/medical_certificate/CreateCertificate";
 const { RangePicker } = DatePicker;
 
 const dateFormat = "YYYY-MM-DD";
@@ -51,6 +58,7 @@ const AllPatients = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const { planDetails } = useSelector((state) => state.subscription);
   const { uploadDocCategories, isLoading } = useSelector(
     (state) => state.uploadDoc
   );
@@ -60,7 +68,7 @@ const AllPatients = () => {
   const [loading, setOnLoad] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState({
-    startDate: moment('2000-01-01').format(dateFormat),
+    startDate: moment("2000-01-01").format(dateFormat),
     endDate: moment().format(dateFormat),
   });
   const [pickerModal, setPickerModal] = useState(false);
@@ -75,9 +83,11 @@ const AllPatients = () => {
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [downloadData, setDownloadData] = useState([]);
   const [pageNo, setPageNo] = useState(1);
+  const [showCertificate, setShowCertificate] = useState(false);
+
   const fileInputRef = useRef(null);
   const observer = useRef();
-  const MESSAGE_KEY = 'patient_update_message';
+  const MESSAGE_KEY = "patient_update_message";
 
   useEffect(() => {
     setLocationPath(location.pathname);
@@ -97,7 +107,7 @@ const AllPatients = () => {
     // Show message if redirected from patient form
     if (location.state?.showMessage) {
       const messageType = location.state.messageType;
-      
+
       message.open({
         key: MESSAGE_KEY,
         type: "",
@@ -107,10 +117,9 @@ const AllPatients = () => {
             <img src={successIcon} className="me-3" alt="Success" />
             <div>
               <div className="title-common text-start fontroboto">
-                {messageType === 'updated' 
-                  ? 'Patient details updated successfully' 
-                  : 'Patient added successfully'
-                }
+                {messageType === "updated"
+                  ? "Patient details updated successfully"
+                  : "Patient added successfully"}
               </div>
             </div>
             <img
@@ -123,11 +132,11 @@ const AllPatients = () => {
         ),
         duration: 5,
       });
-      
+
       // Clear the message from location state
-      navigate(location.pathname, { 
+      navigate(location.pathname, {
         replace: true,
-        state: {} 
+        state: {},
       });
     }
   }, [location]);
@@ -175,7 +184,7 @@ const AllPatients = () => {
 
   const getAllPatients = async () => {
     const params = {
-      page: searchQuery === "" ? pageNo : 1,
+      page: pageNo,
       limit: 25,
       search: searchQuery,
       startDate: dateRange.startDate,
@@ -194,6 +203,7 @@ const AllPatients = () => {
   const onSearch = useCallback(
     (query) => {
       setSearchQuery(query);
+      setPageNo(1);
     },
     [searchQuery]
   );
@@ -222,6 +232,10 @@ const AllPatients = () => {
 
   const handleDeletePopup = () => {
     setShowDeletePopup(true);
+  };
+
+  const handleShowCertificate = () => {
+    setShowCertificate((prev) => !prev);
   };
 
   const handleFileUpload = (event, record) => {
@@ -317,6 +331,19 @@ const AllPatients = () => {
         ),
         key: "uploadDoc",
       },
+      {
+        label: (
+          <span
+            onClick={() => {
+              handleShowCertificate(record);
+              setPatientData(record);
+            }}
+          >
+            Create Certificate
+          </span>
+        ),
+        key: "labparams",
+      },
     ];
   };
 
@@ -326,7 +353,7 @@ const AllPatients = () => {
       dataIndex: "srno",
       key: "srno",
       ellipsis: true,
-      width: 80,
+      width: "6%",
       className: "fs-14",
       render: (text, record, index) => (
         <div>
@@ -339,7 +366,7 @@ const AllPatients = () => {
       dataIndex: "patient_details",
       key: "patient_details",
       ellipsis: true,
-      width: "21%",
+      width: "28%",
       render: (text, record) => (
         <div>
           <span
@@ -349,7 +376,9 @@ const AllPatients = () => {
             {record.pm_fullname}
           </span>
           <br />
-          <small>{record?.pm_gender}, {genderAge(record)}</small>
+          <small>
+            {record?.pm_gender}, {genderAge(record)}
+          </small>
         </div>
       ),
     },
@@ -358,6 +387,7 @@ const AllPatients = () => {
       dataIndex: "pm_contact_no",
       key: "pm_contact_no",
       ellipsis: true,
+      width: "17%",
       render: (text, record) => (
         <div>
           <span>{record.pm_contact_no} </span>
@@ -369,9 +399,10 @@ const AllPatients = () => {
       dataIndex: "pm_pid",
       key: "pm_pid",
       ellipsis: true,
+      width: "12%",
       render: (text, record) => (
         <div>
-          <span>{record.pm_pid} </span>
+          <span>{record.tpml_refrence_id || record.pm_pid} </span>
         </div>
       ),
     },
@@ -380,6 +411,7 @@ const AllPatients = () => {
       dataIndex: "category",
       key: "category",
       ellipsis: true,
+      width: "12%",
       render: (text, record) => (
         <div>
           <span>{record.category ?? "-"} </span>
@@ -391,6 +423,7 @@ const AllPatients = () => {
       dataIndex: "lastVisitDate",
       key: "lastVisitDate",
       ellipsis: true,
+      width: "15%",
       render: (text, record) => (
         <div>
           <span>
@@ -405,6 +438,7 @@ const AllPatients = () => {
       title: "Action",
       key: "action",
       width: 170,
+      width: "10%",
       render: (_, record, index) => (
         <div>
           <Dropdown
@@ -437,8 +471,10 @@ const AllPatients = () => {
 
   const rangePresets = [
     {
-      label: <div className={`${dateStatus === 4 ? "active" : ""}`}>Till date</div>,
-      value: [dayjs('2000-01-01'), dayjs()], // From start date till today
+      label: (
+        <div className={`${dateStatus === 4 ? "active" : ""}`}>Till date</div>
+      ),
+      value: [dayjs("2000-01-01"), dayjs()], // From start date till today
     },
     {
       label: <div className={`${dateStatus === 1 ? "active" : ""}`}>Today</div>,
@@ -472,9 +508,10 @@ const AllPatients = () => {
   ];
 
   const onRangeChange = (dates, dateStrings) => {
+    setPageNo(1);
     if (dates) {
       if (
-        moment('2000-01-01').format(dateFormat) ==
+        moment("2000-01-01").format(dateFormat) ==
           moment(dateStrings[0], showDateFormat).format(dateFormat) &&
         dayjs().format(dateFormat) ==
           moment(dateStrings[1], showDateFormat).format(dateFormat)
@@ -511,7 +548,7 @@ const AllPatients = () => {
     } else {
       setDateStatus(4);
       setDateRange({
-        startDate: moment('2000-01-01').format(dateFormat),
+        startDate: moment("2000-01-01").format(dateFormat),
         endDate: moment().format(dateFormat),
       });
     }
@@ -537,11 +574,11 @@ const AllPatients = () => {
         };
 
         const res = await fetchAllPatients(params);
-        
+
         if (res?.patients?.length > 0) {
           allPatients = [...allPatients, ...res.patients];
           currentPage++;
-          
+
           // Check if we've received less than 1000 records, meaning this is the last page
           if (res.patients.length < 1000) {
             hasMoreData = false;
@@ -566,20 +603,21 @@ const AllPatients = () => {
 
       // Fetch all patients
       const allPatients = await fetchAllPatientsForDownload();
-      
+
       if (!allPatients) {
         setStartLoader(false);
         return;
       }
 
       // Get today's date in YYYY-MM-DD format
-      const today = new Date().toISOString().split("T")[0];
+      const today = moment().format("DDMMYYYY");
 
       const excelData = allPatients.map((patient) => ({
         "Patient Name": `${
           patient.pm_salutation ? patient.pm_salutation + " " : ""
         } ${patient.pm_fullname}`,
         Gender: patient.pm_gender,
+        "Date of Birth": patient.pm_dob,
         Age: `${
           patient.ageYears
             ? `${patient.ageYears}y${patient.ageMonths ? `, ` : ""}`
@@ -587,6 +625,7 @@ const AllPatients = () => {
         }${patient.ageMonths ? `${patient.ageMonths}m` : ""}`,
         Mobile: patient.pm_contact_no,
         "Patient ID": patient.tpml_refrence_id || patient.pm_pid,
+        Category: patient.category,
         "Last Visited": patient.lastVisitDate
           ? moment(patient.lastVisitDate).format("DD-MM-YYYY")
           : "",
@@ -599,7 +638,9 @@ const AllPatients = () => {
       worksheet["!cols"] = [
         { wch: 25 }, // Name
         { wch: 10 }, // Gender
+        { wch: 15 },
         { wch: 10 },
+        { wch: 13 },
         { wch: 13 },
         { wch: 15 },
         { wch: 12 },
@@ -627,7 +668,12 @@ const AllPatients = () => {
         formData.append(file?.name, file);
         const res = await uploadDocsToAzure(formData);
         if (res?.length > 0) {
-          handleInAppClick(userId, "download", res?.[0]?.url, setStartLoader(true));
+          handleInAppClick(
+            userId,
+            "download",
+            res?.[0]?.url,
+            setStartLoader(true)
+          );
         }
       } else {
         // Download file directly in Chrome/Safari
@@ -643,8 +689,8 @@ const AllPatients = () => {
   };
 
   const handleAddPatient = () => {
-    navigate("/add_patient", { 
-      state: { from: "/all_patients" } 
+    navigate("/add_patient", {
+      state: { from: "/all_patients" },
     });
   };
 
@@ -727,64 +773,79 @@ const AllPatients = () => {
                       </span>
                       <i className="mx-2 fs-18 icon-calendar"></i>
                     </div>
-                    <RangePicker
-                      disabledDate={(current) => disabledDate(current)}
-                      open={pickerModal}
-                      presets={rangePresets}
-                      format={showDateFormat}
-                      onChange={onRangeChange}
-                      popupClassName="massage-date"
-                      className="massage-input"
-                      inputReadOnly
-                      renderExtraFooter={() => (
-                        <div className="d-flex align-items-center justify-content-between py-1">
-                          <div>
-                            {moment(dateRange.startDate).format(showDateFormat)}{" "}
-                            - {moment(dateRange.endDate).format(showDateFormat)}
-                          </div>
-                          <div>
-                            <button
-                              className="btn btn-text me-3 px-0"
-                              onClick={() => {
-                                setDateStatus(1);
-                                setDateRange({
-                                  startDate: moment().format(dateFormat),
-                                  endDate: moment().format(dateFormat),
-                                });
-                                handlePickerModal();
-                                setPageNo(1);
-                              }}
-                            >
-                              <span>Cancel</span>
-                            </button>
-                            <Button
-                              className="px-4"
-                              type="primary"
-                              onClick={handlePickerModal}
-                            >
-                              Done
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                      onOpenChange={() => {}}
-                      value={[
-                        dateRange.startDate !== dateRange.endDate
-                          ? dayjs(
-                              moment(dateRange.startDate).format(
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: 0,
+                        right: isMobile ? "-120px" : 0,
+                        top: isMobile ? "-10px" : 0,
+                      }}
+                    >
+                      <RangePicker
+                        disabledDate={(current) => disabledDate(current)}
+                        open={pickerModal}
+                        presets={rangePresets}
+                        format={showDateFormat}
+                        autoAdjustOverflow={true}
+                        onChange={onRangeChange}
+                        popupClassName="massage-date"
+                        className="massage-input"
+                        inputReadOnly
+                        renderExtraFooter={() => (
+                          <div className="d-flex align-items-center justify-content-between py-1">
+                            <div>
+                              {moment(dateRange.startDate).format(
                                 showDateFormat
-                              ),
-                              showDateFormat
-                            )
-                          : "",
-                        dateRange.startDate != dateRange.endDate
-                          ? dayjs(
-                              moment(dateRange.endDate).format(showDateFormat),
-                              showDateFormat
-                            )
-                          : "",
-                      ]}
-                    />
+                              )}{" "}
+                              -{" "}
+                              {moment(dateRange.endDate).format(showDateFormat)}
+                            </div>
+                            <div>
+                              <button
+                                className="btn btn-text me-3 px-0"
+                                onClick={() => {
+                                  setDateStatus(1);
+                                  setDateRange({
+                                    startDate: moment().format(dateFormat),
+                                    endDate: moment().format(dateFormat),
+                                  });
+                                  handlePickerModal();
+                                  setPageNo(1);
+                                }}
+                              >
+                                <span>Cancel</span>
+                              </button>
+                              <Button
+                                className="px-4"
+                                type="primary"
+                                onClick={handlePickerModal}
+                              >
+                                Done
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        onOpenChange={() => {}}
+                        value={[
+                          dateRange.startDate !== dateRange.endDate
+                            ? dayjs(
+                                moment(dateRange.startDate).format(
+                                  showDateFormat
+                                ),
+                                showDateFormat
+                              )
+                            : "",
+                          dateRange.startDate != dateRange.endDate
+                            ? dayjs(
+                                moment(dateRange.endDate).format(
+                                  showDateFormat
+                                ),
+                                showDateFormat
+                              )
+                            : "",
+                        ]}
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="d-flex align-items-center gap-3">
@@ -792,21 +853,27 @@ const AllPatients = () => {
                     (Showing{" "}
                     {allPatientsData?.patients?.length ===
                     allPatientsData?.total ? (
-                      <span className="ddx-ready-txt">{allPatientsData?.patients?.length}</span>
+                      <span className="ddx-ready-txt">
+                        {allPatientsData?.patients?.length}
+                      </span>
                     ) : (
-                      <span className="ddx-ready-txt">{allPatientsData?.patients?.length}</span>
+                      <span className="ddx-ready-txt">
+                        {allPatientsData?.patients?.length}
+                      </span>
                     )}{" "}
                     of {allPatientsData?.total} patients)
                   </div>
-                  <div
-                    className="d-flex justify-content-between align-items-center billing-download"
-                    onClick={handleDownloadPatientData}
-                  >
-                    <i
-                      className="icon-download"
-                      style={{ cursor: "pointer", color: "#4B4AD5" }}
-                    />
-                  </div>
+                  {planDetails?.currentPlanStatus === "PAID" && (
+                    <div
+                      className="d-flex justify-content-between align-items-center billing-download"
+                      onClick={handleDownloadPatientData}
+                    >
+                      <i
+                        className="icon-download"
+                        style={{ cursor: "pointer", color: "#4B4AD5" }}
+                      />
+                    </div>
+                  )}
                 </div>
               </Row>
             </div>
@@ -943,6 +1010,23 @@ const AllPatients = () => {
           }
         />
       ) : null}
+      {showCertificate && (
+        <Drawer
+          className="modalWidth-563"
+          width="auto"
+          title="Create Certificate"
+          placement="right"
+          closable
+          open={showCertificate}
+          onClose={handleShowCertificate}
+        >
+          <CreateCertificate
+            handleCreateCertificateDrawer={handleShowCertificate}
+            patient_data={patientData}
+            replace={false}
+          />
+        </Drawer>
+      )}
     </>
   );
 };

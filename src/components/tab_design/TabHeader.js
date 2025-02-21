@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { Button, Popover } from 'antd';
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { useSelector } from "react-redux";
 
@@ -12,6 +12,10 @@ import { getClinicName } from "../../utils/utils";
 
 function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
     const navigate = useNavigate();
+    const location = useLocation();
+
+        // Check if user came from all patients page
+    const isFromAllPatients = location.state?.from === "/all_patients";
 
     const { videoList, profile } = useSelector((state) => state.doctors);
 
@@ -100,7 +104,7 @@ function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
                         </Button>
                     ) : (
                         <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center' loading={loading} onClick={onClick}>
-                            Add Patient to Consult
+                            {isFromAllPatients ? "Add Patient" : "Add Patient to Consult"}
                         </Button>
                     )
                 )}
