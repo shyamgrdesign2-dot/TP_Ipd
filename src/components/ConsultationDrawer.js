@@ -795,7 +795,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                 return (
                   <li key={index}>
                     <div className="medicine-item">
-                      {activeIndex === index && activeType === type ? (
+                      {activeIndex === index &&
+                      activeType === type &&
+                      ["advice", "others"].includes(type) ? (
                         <input
                           type="text"
                           value={editableText}
@@ -806,14 +808,14 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                           style={{ width: `${textWidth + 10}px` }}
                         />
                       ) : (
-                        <span
-                          onClick={() => handleItemClick(type, index)}
-                          className="digitised-item"
-                        >
-                          {type === "advice" || type === "others"
-                            ? item
-                            : item?.name}
-                        </span>
+                        ["advice", "others"].includes(type) && (
+                          <span
+                            onClick={() => handleItemClick(type, index)}
+                            className="digitised-item"
+                          >
+                            {item}
+                          </span>
+                        )
                       )}
 
                       {/* Editable input for lineItem */}
@@ -841,7 +843,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                             onClick={() => handleLineItemClick(type, index)}
                             className="digitised-item"
                           >
-                            {`(${item.lineItem})`}
+                            {item.lineItem}
                           </span>
                         ))}
                     </div>
