@@ -240,16 +240,11 @@ function GenRxPrescriptionPrintView() {
   };
 
   const printInAppContent = () => {
-    navigate(
-      `/gen-rx-print/?url=${printUrl}&key=print`,
-      {
-        replace: true,
-        state,
-      },
-      () => {
-        navigate(0, { replace: true });
-      }
-    );
+    navigate(`/gen-rx-print/?url=${printUrl}&key=print`, {
+      replace: true,
+      state,
+    });
+    navigate(0, { replace: true });
   };
 
   return (
