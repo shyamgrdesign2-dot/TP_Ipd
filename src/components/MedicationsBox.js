@@ -41,7 +41,7 @@ import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, MESSAGE_KEY } from "../utils/constan
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DoseCalculator from "./dose_calculator/doseCalculator";
-import { changePillupStatus } from "../redux/doctorsSlice";
+import { upsertDoctorSettingFlag } from "../redux/doctorsSlice";
 
 
 const { TextArea } = Input;
@@ -1912,7 +1912,7 @@ function MedicationsBox() {
   const tourRef = useRef(null);
 
   useEffect(() => {
-    if (isPillUpAccessableFromGB && profile?.pillupFlag == 0) {
+    if (isPillUpAccessableFromGB && profile?.userSettingFlag?.find(e => e?.type === 'pillup')?.status !== 1) {
       tourRef?.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       setTimeout(() => {
         setTourOpen(true)
@@ -1935,7 +1935,7 @@ function MedicationsBox() {
   }, [popOver3]);
 
   const onTourHandle = () => {
-    dispatch(changePillupStatus({ pillup_flag: 1 }))
+    dispatch(upsertDoctorSettingFlag({ type: 'pillup', status: 1 }))
     setTourOpen(!tourOpen)
   }
 
@@ -1971,7 +1971,7 @@ function MedicationsBox() {
                 <Popover
                   open={popOver3}
                   onOpenChange={showHidePillUpPopover}
-                  content={profile?.pillupFlag == 1 ? PILLUP_CONTENT() : null}
+                  content={profile?.userSettingFlag?.find(e => e?.type === 'pillup')?.status === 1 ? PILLUP_CONTENT() : null}
                   trigger="hover"
                   placement="bottom"
                 >

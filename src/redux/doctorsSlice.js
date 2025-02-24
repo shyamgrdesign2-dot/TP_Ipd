@@ -316,11 +316,11 @@ export const zydusRefIds = createAsyncThunk(
   }
 );
 
-export const changePillupStatus = createAsyncThunk(
-  "records/changePillupStatus",
+export const upsertDoctorSettingFlag = createAsyncThunk(
+  "records/upsertDoctorSettingFlag",
   async (data) => {
     try {
-      const result = await ApiAppointments.changePillupStatus(data);
+      const result = await ApiAppointments.upsertDoctorSettingFlag(data);
       if (result.status) {
         return result.data;
       } else {
@@ -564,14 +564,22 @@ const doctorsSlice = createSlice({
           state.loading = false;
         }
       })
-      .addCase(changePillupStatus.fulfilled, (state, action) => {
-          state.profile = { ...state.profile, pillupFlag: 1 }
+      .addCase(upsertDoctorSettingFlag.fulfilled, (state, action) => {
+        const updatedFlags = [...state.profile.userSettingFlag];
+        const index = updatedFlags.findIndex(item => item.type === action.meta.arg.type);
+        if (index !== -1) {
+          updatedFlags[index].status = 1;
+        } else {
+          updatedFlags.push({ type: action.meta.arg.type, status: 1 });
+        }
+        state.profile.userSettingFlag = updatedFlags
+        console.log(state.profile)
       })
       .addCase(zydusRefIds.fulfilled, (state, action) => {
         if (action.payload.siteId !== undefined) {
           state.siteId = action.payload.siteId;
           state.empNo = action.payload.empNo;
-          state.storeCode = action.payload.storeCode; 
+          state.storeCode = action.payload.storeCode;
         }
       })
       .addCase(zydusRefIds.rejected, (state) => {
