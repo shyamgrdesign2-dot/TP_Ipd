@@ -42,20 +42,18 @@ function GenRxPrescriptionPrintView() {
   const navigate = useNavigate();
 
   const { state } = useLocation();
-  const { patient_data, isDigitiseRxSubmit } = state;
+  const { patient_data } = state;
 
   const [printUrl, setPrintUrl] = useState(
     state !== undefined ? `${state.print_url}&voiceRxDigitize=true` : null
   );
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [token, setToken] = useState(null);
   const [tokenData, setTokenData] = useState(null);
   const [divWidth, setDivWidth] = useState(0);
   const [numPages, setNumPages] = useState();
   const [printBlob, setPrintBlob] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [buttonText, setButtonText] = useState("Send to WhatsApp");
-  const [showProgressbar, setShowProgressbar] = useState(true);
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
   useEffect(() => {
@@ -69,9 +67,9 @@ function GenRxPrescriptionPrintView() {
       className: "message-appointment",
       content: (
         <div className="d-flex align-items-center">
-          <img src={visitEnd} className="me-3" />
+          <img src={visitEnd} className="me-3" alt="Visit End Icon" />
           <div>
-            <div className="title-common-digitised text-start fontroboto">{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
+            <div className="title-common-digitised text-start fontroboto">{`${patient_data?.pm_first_name}'s visit ended successfully.`}</div>
             <div className="fontroboto text-start fw-normal mt-1">
               View completed visits in finished tab.
             </div>
@@ -79,6 +77,7 @@ function GenRxPrescriptionPrintView() {
           <img
             src={imgCloseVisit}
             className="ms-3"
+            alt="Close Visit Icon"
             onClick={() => message.destroy()}
           />
         </div>
@@ -91,10 +90,8 @@ function GenRxPrescriptionPrintView() {
     const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
     if (token) {
       try {
-        setToken(token);
         const decoded = jwtDecode(token);
         setTokenData(decoded.result);
-        setShowProgressbar(state?.showProgressbar === false ? false : true);
       } catch (e) {
         console.error(e);
       }
@@ -152,7 +149,7 @@ function GenRxPrescriptionPrintView() {
       patient_unique_id: state?.patient_data?.patient_unique_id,
       hospital_business_id: tokenData?.hospital_business_id,
       um_id: tokenData?.user_id,
-      isVoiceRxDigitize: true
+      isVoiceRxDigitize: true,
     };
 
     setIsLoading(true);
@@ -199,6 +196,62 @@ function GenRxPrescriptionPrintView() {
     }
   };
 
+  const printContent = async () => {
+    try {
+      if (!printBlob) {
+        throw new Error("Print blob is not available");
+      }
+
+      const blobURL = URL.createObjectURL(printBlob);
+
+      // Clean up existing iframes
+      document.querySelectorAll("iframe").forEach((iframe) => iframe.remove());
+
+      // Create and configure iframe
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = blobURL;
+
+      iframe.onerror = () => {
+        URL.revokeObjectURL(blobURL);
+        throw new Error("Failed to load print content");
+      };
+
+      iframe.onload = () => {
+        try {
+          // Small delay to ensure content loads
+          requestAnimationFrame(() => {
+            iframe.focus();
+            iframe.contentWindow.print();
+            URL.revokeObjectURL(blobURL);
+          });
+        } catch (error) {
+          console.error("Error during print:", error);
+          URL.revokeObjectURL(blobURL);
+          errorMessage("Failed to print prescription");
+        }
+      };
+
+      document.body.appendChild(iframe);
+    } catch (error) {
+      console.error("Error in printContent:", error);
+      errorMessage("Failed to print prescription");
+    }
+  };
+
+  const printInAppContent = () => {
+    navigate(
+      `/gen-rx-print/?url=${printUrl}&key=print`,
+      {
+        replace: true,
+        state,
+      },
+      () => {
+        navigate(0, { replace: true });
+      }
+    );
+  };
+
   return (
     <>
       <HeaderPrescriptionPrint
@@ -232,11 +285,24 @@ function GenRxPrescriptionPrintView() {
                   icon={<i className="icon-download"></i>}
                   onClick={() =>
                     !isChrome && !isSafari
+                      ? printInAppContent()
+                      : printContent()
+                  }
+                >
+                  <span className="fw-semibold">{"Print Prescription"}</span>
+                  <i className="icon-right iconrotate180 ms-auto"></i>
+                </Button>
+                <Button
+                  type="text"
+                  className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
+                  icon={<i className="icon-download"></i>}
+                  onClick={() =>
+                    !isChrome && !isSafari
                       ? handleInAppDownload()
                       : handleDownload()
                   }
                 >
-                  <span className="fw-semibold">{"Download Rx"}</span>
+                  <span className="fw-semibold">{"Download Prescription"}</span>
                   <i className="icon-right iconrotate180 ms-auto"></i>
                 </Button>
                 <Button
