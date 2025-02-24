@@ -366,7 +366,7 @@ function ObsHistoryTableView({
               >
                 LMP
               </Text>
-              <Text
+              {!obsHistoryData?.ceed && (<Text
                 style={[
                   styles.cell,
                   {
@@ -380,8 +380,8 @@ function ObsHistoryTableView({
                 ]}
               >
                 E.D.D.
-              </Text>
-              <Text
+              </Text>)}
+              {obsHistoryData?.ceed && (<Text
                 style={[
                   styles.cell,
                   {
@@ -395,7 +395,7 @@ function ObsHistoryTableView({
                 ]}
               >
                 C.E.E.D.
-              </Text>
+              </Text>)}
               <Text
                 style={[
                   styles.cell,
@@ -511,7 +511,7 @@ function ObsHistoryTableView({
                   ? moment(obsHistoryData?.lmp).format("DD MMM YYYY")
                   : `-`}
               </Text>
-              <Text
+              {!obsHistoryData?.ceed && (<Text
                 style={[
                   styles.cell,
                   {
@@ -527,8 +527,8 @@ function ObsHistoryTableView({
                 {"edd" in obsHistoryData
                   ? moment(obsHistoryData?.edd).format("DD MMM YYYY")
                   : `-`}
-              </Text>
-              <Text
+              </Text>)}
+              {obsHistoryData?.ceed && (<Text
                 style={[
                   styles.cell,
                   {
@@ -544,7 +544,7 @@ function ObsHistoryTableView({
                 {"ceed" in obsHistoryData
                   ? moment(obsHistoryData?.ceed).format("DD MMM YYYY")
                   : `-`}
-              </Text>
+              </Text>)}
               <Text
                 style={[
                   styles.cell,

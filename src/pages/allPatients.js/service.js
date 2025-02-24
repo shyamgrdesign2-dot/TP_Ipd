@@ -8,11 +8,13 @@ export const fetchAllPatients = async function (params) {
   try {
     const queryParams = {
       search: params.search ?? "",
-      startDate: params.startDate,
-      endDate: params.endDate,
       page: params.page || 1,
       limit: params.limit || 25,
     };
+    if (params.startDate || params.endDate) {
+      queryParams.startDate = params.startDate;
+      queryParams.endDate = params.endDate;
+    }
     const queryString = new URLSearchParams(queryParams).toString();
     res = await api.get(
       `/api/v1/patient/listDashboard?${queryString}`,

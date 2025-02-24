@@ -10,7 +10,7 @@ import {
   obstetricDetailsUpdated,
   patientDiagnosisUpdated,
 } from "../../../../redux/obstetricSlice";
-import { isDecimalCheck, isNumberCheck } from "../../utils/helper";
+import { isDecimalCheck, isNumberCheck, isNumberCheckWithHyphen } from "../../utils/helper";
 
 const dateFormat = "YYYY-MM-DD";
 
@@ -364,7 +364,7 @@ function AddExamination({
             inputMode="numeric"
             value={examinationData.heightOfFundus || ""}
             onChange={(e) =>
-              isNumberCheck(e) &&
+              isNumberCheckWithHyphen(e) &&
               handleExaminationDataChange("heightOfFundus", e.target.value)
             }
           />

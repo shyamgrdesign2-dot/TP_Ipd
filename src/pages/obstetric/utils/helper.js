@@ -9,6 +9,15 @@ export const isNumberCheck = (e) => {
   return false;
 };
 
+export const isNumberCheckWithHyphen = (e) => {
+  const { value } = e.target;
+  const reg = /^[0-9-]*$/; // regex to accept numbers and hyphen
+  if (reg.test(value) || value === "") {
+    return true;
+  }
+  return false;
+};
+
 export const isDecimalCheck = (e) => {
   const { value } = e.target;
   const reg = /^[0-9]*\.?[0-9]*$/;

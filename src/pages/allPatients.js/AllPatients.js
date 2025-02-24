@@ -49,6 +49,7 @@ import { errorMessage } from "../../utils/utils";
 import successIcon from "../../assets/images/end-visit.svg";
 import closeIcon from "../../assets/images/close-visit.svg";
 import CreateCertificate from "../../components/medical_certificate/CreateCertificate";
+import { getDecodedToken } from "../../utils/localStorage";
 const { RangePicker } = DatePicker;
 
 const dateFormat = "YYYY-MM-DD";
@@ -58,6 +59,8 @@ const AllPatients = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const decodedToken = getDecodedToken();
+  const isAdmin = decodedToken?.result?.admin;
   const { planDetails } = useSelector((state) => state.subscription);
   const { uploadDocCategories, isLoading } = useSelector(
     (state) => state.uploadDoc
@@ -81,7 +84,6 @@ const AllPatients = () => {
   const [isFileLimitError, setIsFileLimitError] = useState(false);
   const [isFileTypeError, setIsFileTypeError] = useState(null);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
-  const [downloadData, setDownloadData] = useState([]);
   const [pageNo, setPageNo] = useState(1);
   const [showCertificate, setShowCertificate] = useState(false);
 
@@ -187,9 +189,11 @@ const AllPatients = () => {
       page: pageNo,
       limit: 25,
       search: searchQuery,
-      startDate: dateRange.startDate,
-      endDate: dateRange.endDate,
     };
+    if (dateStatus !== 4) {
+      params.startDate = dateRange.startDate;
+      params.endDate = dateRange.endDate;
+    }
     const res = await fetchAllPatients(params);
     if (pageNo === 1 || searchQuery !== "") {
       setAllPatientsData(res);
@@ -617,7 +621,9 @@ const AllPatients = () => {
           patient.pm_salutation ? patient.pm_salutation + " " : ""
         } ${patient.pm_fullname}`,
         Gender: patient.pm_gender,
-        "Date of Birth": patient.pm_dob,
+        "Date of Birth": patient.pm_dob
+          ? moment(patient.pm_dob).format("DD-MM-YYYY")
+          : "",
         Age: `${
           patient.ageYears
             ? `${patient.ageYears}y${patient.ageMonths ? `, ` : ""}`
@@ -794,11 +800,14 @@ const AllPatients = () => {
                         renderExtraFooter={() => (
                           <div className="d-flex align-items-center justify-content-between py-1">
                             <div>
-                              {moment(dateRange.startDate).format(
-                                showDateFormat
-                              )}{" "}
-                              -{" "}
-                              {moment(dateRange.endDate).format(showDateFormat)}
+                              {dateStatus !== 4
+                                ? `${moment(dateRange.startDate).format(
+                                    showDateFormat
+                                  )} -
+                                  ${moment(dateRange.endDate).format(
+                                    showDateFormat
+                                  )}`
+                                : "Till Date"}
                             </div>
                             <div>
                               <button
@@ -863,7 +872,7 @@ const AllPatients = () => {
                     )}{" "}
                     of {allPatientsData?.total} patients)
                   </div>
-                  {planDetails?.currentPlanStatus === "PAID" && (
+                  {planDetails?.currentPlanStatus === "PAID" && isAdmin && (
                     <div
                       className="d-flex justify-content-between align-items-center billing-download"
                       onClick={handleDownloadPatientData}

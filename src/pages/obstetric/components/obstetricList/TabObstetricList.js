@@ -158,13 +158,43 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
                     </label>{" "}
                   </>
                 )}
-                {obstetricDetails.lmp && obstetricDetails.edd && " | "}
-                {obstetricDetails.edd && (
+                {obstetricDetails.lmp &&
+                  (obstetricDetails.edd || obstetricDetails?.ceed) &&
+                  " | "}
+                {(obstetricDetails.edd || obstetricDetails.ceed) && (
                   <>
-                    <span>EDD</span> :{" "}
+                    <span>{obstetricDetails.ceed ? "CEDD" : "EDD"}</span> :{" "}
                     <label>
-                      {moment(obstetricDetails.edd).format("DD MMM YYYY")}
+                      {moment(
+                        obstetricDetails.ceed || obstetricDetails.edd
+                      ).format("DD MMM YYYY")}
                     </label>{" "}
+                  </>
+                )}
+                {(obstetricDetails.edd || obstetricDetails.ceed) &&
+                  (obstetricDetails.gestationDays ||
+                    obstetricDetails.gestationWeeks) &&
+                  " | "}
+                {(obstetricDetails.gestationDays ||
+                  obstetricDetails.gestationWeeks) && (
+                  <>
+                    <span>{"Gestation"}</span> :{" "}
+                    <label>
+                      {obstetricDetails.gestationWeeks
+                        ? `${obstetricDetails.gestationWeeks} ${
+                            obstetricDetails.gestationWeeks > 1
+                              ? "Weeks"
+                              : "Week"
+                          } ${obstetricDetails.gestationDays ? " & " : ""}`
+                        : ""}
+                      {obstetricDetails.gestationDays
+                        ? `${obstetricDetails.gestationDays} ${
+                            obstetricDetails.gestationDays > 1
+                              ? " Days"
+                              : " Day"
+                          }`
+                        : ""}
+                    </label>
                   </>
                 )}
               </>
