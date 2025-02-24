@@ -61,7 +61,7 @@ import {
 import ReconnectingWebSocket from "reconnectingwebsocket";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_SMARTSYNC_CONNECT } from "../utils/constants";
-import { changePillupStatus } from "../redux/doctorsSlice";
+import { upsertDoctorSettingFlag } from "../redux/doctorsSlice";
 
 function HeaderPrescription({
   prescription,
@@ -74,7 +74,7 @@ function HeaderPrescription({
   caseManagerData
 }) {
   const { templates, loading } = useSelector((state) => state.caseManager);
-  const { videoList, pillupCheck } = useSelector((state) => state.doctors);
+  const { profile, videoList } = useSelector((state) => state.doctors);
   const [videoLink, setVideoLink] = useState(null);
 
   const dispatch = useDispatch();
@@ -453,7 +453,7 @@ function HeaderPrescription({
     const tourRef = useRef(null);
   
     useEffect(() => {
-      if(isPillUpAccessableFromGB && !pillupCheck){
+      if(isPillUpAccessableFromGB && profile?.userSettingFlag?.find(e => e?.type === 'pillup')?.status !== 1){
         tourRef?.current?.scrollIntoView({ behavior: 'smooth' });
         setTimeout(() => {
           setTourOpen(true)
@@ -477,7 +477,7 @@ function HeaderPrescription({
   }, [popOver3]);
 
   const onTourHandle = () => {
-    dispatch(changePillupStatus())
+    dispatch(upsertDoctorSettingFlag({ type: 'pillup', status: 1 }))
     setTourOpen(!tourOpen)
   }
   
@@ -675,7 +675,7 @@ function HeaderPrescription({
                   <Popover
                     open={popOver3}
                     onOpenChange={showHidePillUpPopover}
-                    content={pillupCheck ? PILLUP_CONTENT() : null}
+                    content={profile?.userSettingFlag?.find(e => e?.type === 'pillup')?.status === 1 ? PILLUP_CONTENT() : null}
                     trigger="hover"
                     placement="bottom"
                   >

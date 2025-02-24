@@ -8,7 +8,6 @@ const initialState = {
     userCampaignList: [],
     userPurchaseList: [],
     loading: false,
-    popup: false,
     campaignDetails: null,
     errorObj: { visible: false, message: '' },
     categoryList: [],
@@ -242,16 +241,13 @@ const bulkMessagesSlice = createSlice({
             })
             .addCase(userCampaign.pending, (state) => {
                 state.loading = true;
-                state.popup = false;
             })
             .addCase(userCampaign.fulfilled, (state, action) => {
                 state.loading = false;
-                state.popup = action.payload?.length === 0 ? true : false;
                 state.userCampaignList = action.payload;
             })
             .addCase(userCampaign.rejected, (state, action) => {
                 state.loading = false;
-                state.popup = false;
                 state.userCampaignList = [];
             })
             .addCase(userCampaignDetails.pending, (state, action) => {

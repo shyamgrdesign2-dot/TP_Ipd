@@ -25,6 +25,7 @@ import CommonModal from "../common/CommonModal";
 import { TAB_CAMPAIGN, TAB_DRAFT, TAB_PURCHASE } from "../utils/constants";
 import { errorMessage, getClinicCity, removeBeforeWhiteSpace } from "../utils/utils";
 import AvailableCredits from "../components/bulk_messages/AvailableCredits";
+import { upsertDoctorSettingFlag } from "../redux/doctorsSlice";
 
 const { RangePicker } = DatePicker;
 
@@ -33,10 +34,11 @@ const showDateFormat = 'DD MMM YYYY'
 
 function MessagesData() {
 
-    const { tabCountObj, userCampaignList, userPurchaseList, campaignDetails, loading, popup, errorObj } = useSelector((state) => state.bulkMessages);
+    const { tabCountObj, userCampaignList, userPurchaseList, campaignDetails, loading, errorObj } = useSelector((state) => state.bulkMessages);
     const { profile } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
+    const [checked, setChecked] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [tabItems, setTabItems] = useState([])
     const [selectedTab, setSelectedTab] = useState(TAB_CAMPAIGN);
@@ -56,22 +58,31 @@ function MessagesData() {
 
     useEffect(() => {
         dispatch(userCredit());
-        if (popup) {
+        if (profile?.userSettingFlag?.find(e => e?.type === 'bulkSms')?.status !== 1) {
             showHideModal()
         }
         const clinic_city = getClinicCity(profile?.hospital_data);
         window.Moengage.track_event("TP_Messages_Button", {
-          "Doctor_specialty": profile?.dp_name,
-          "Doctor_unique_id": profile?.doctor_unique_id,
-          clinic_city,
-          "Doctor_Name": profile?.um_name,
-          "Doctor_mobile_No": profile?.um_contact,
+            "Doctor_specialty": profile?.dp_name,
+            "Doctor_unique_id": profile?.doctor_unique_id,
+            clinic_city,
+            "Doctor_Name": profile?.um_name,
+            "Doctor_mobile_No": profile?.um_contact,
         });
     }, []);
 
     const showHideModal = useCallback(() => {
         setIsModalOpen(!isModalOpen);
     }, [isModalOpen]);
+
+    const onCheckboxChange = (e) => {
+        setChecked(e.target.checked);
+    };
+
+    const gotItPress = () => {
+        checked && dispatch(upsertDoctorSettingFlag({ type: 'bulkSms', status: 1 }))
+        showHideModal()
+    }
 
     useEffect(() => {
         const timeOutId = setTimeout(() => {
@@ -523,13 +534,13 @@ function MessagesData() {
         navigate('/create-campaign');
         const clinic_city = getClinicCity(profile?.hospital_data);
         window.Moengage.track_event("TP_Choose_New_Template", {
-          "Doctor_specialty": profile?.dp_name,
-          "Doctor_unique_id": profile?.doctor_unique_id,
-          clinic_city,
-          "Doctor_Name": profile?.um_name,
-          "Doctor_mobile_No": profile?.um_contact,
+            "Doctor_specialty": profile?.dp_name,
+            "Doctor_unique_id": profile?.doctor_unique_id,
+            clinic_city,
+            "Doctor_Name": profile?.um_name,
+            "Doctor_mobile_No": profile?.um_contact,
         });
-      }
+    }
 
     const emptyText = (
         <div className="d-flex flex-column align-items-center justify-content-center"
@@ -715,9 +726,9 @@ function MessagesData() {
                         <div className="mt-2">
                             This feature allow you to send important updates, reminders, and personalized health tips to your patients all in one place! This feature is designed to save you time, improve communication, and keep your patients engaged in their health journey
                         </div>
-                        <Checkbox className="switch-name-check mt-4">Don’t show this again</Checkbox>
+                        <Checkbox className="switch-name-check mt-4" checked={checked} onChange={onCheckboxChange}>Don’t show this again</Checkbox>
                         <div className="mt-4">
-                            <Button onClick={showHideModal} className="lh-lg btn btn-primary3 btn-41 w-100">
+                            <Button onClick={gotItPress} className="lh-lg btn btn-primary3 btn-41 w-100">
                                 <span>Got it</span>
                             </Button>
                         </div>
