@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { Button, Row, Col, Spin, message } from "antd";
+import { Button, Row, Col, Spin } from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from "axios";
 import { saveAs } from "file-saver";
@@ -10,14 +10,11 @@ import { jwtDecode } from "jwt-decode";
 import { errorMessage } from "../utils/utils";
 import api from "../api/services/axiosService";
 
-import visitEnd from "../assets/images/end-visit.svg";
-import imgCloseVisit from "../assets/images/close-visit.svg";
 import wtsp from "../assets/images/wtsp.svg";
 import loadingImg from "../assets/images/loading.png";
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
 import {
-  MESSAGE_KEY,
   WHATS_APP_API,
   WTSAP_ERR_MESSAGE,
 } from "../utils/constants";
@@ -53,38 +50,13 @@ function GenRxPrescriptionPrintView() {
   const [numPages, setNumPages] = useState();
   const [printBlob, setPrintBlob] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
   const [buttonText, setButtonText] = useState("Send to WhatsApp");
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
-
-  useEffect(() => {
-    message.open({
-      key: MESSAGE_KEY,
-      type: "",
-      className: "message-appointment",
-      content: (
-        <div className="d-flex align-items-center">
-          <img src={visitEnd} className="me-3" alt="Visit End Icon" />
-          <div>
-            <div className="title-common-digitised text-start fontroboto">{`${patient_data?.pm_first_name}'s visit ended successfully.`}</div>
-            <div className="fontroboto text-start fw-normal mt-1">
-              View completed visits in finished tab.
-            </div>
-          </div>
-          <img
-            src={imgCloseVisit}
-            className="ms-3"
-            alt="Close Visit Icon"
-            onClick={() => message.destroy()}
-          />
-        </div>
-      ),
-      duration: 5,
-    });
-  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
@@ -99,6 +71,7 @@ function GenRxPrescriptionPrintView() {
   }, []);
 
   const handleDownload = async () => {
+    setDownloadLoading(true);
     try {
       const response = await axios({
         url: printUrl,
@@ -112,11 +85,13 @@ function GenRxPrescriptionPrintView() {
     } catch (error) {
       console.error("Error downloading file:", error);
       // Handle errors gracefully, e.g., display an error message to the user
+    } finally {
+      setDownloadLoading(false);
     }
   };
 
   const handleInAppDownload = async () => {
-    navigate(`/prescription_print_view/?url=${printUrl}&key=download`, {
+    navigate(`/gen-rx-print/?url=${printUrl}&key=download`, {
       replace: true,
       state: state,
     });
@@ -296,6 +271,7 @@ function GenRxPrescriptionPrintView() {
                       ? handleInAppDownload()
                       : handleDownload()
                   }
+                  loading={downloadLoading}
                 >
                   <span className="fw-semibold">{"Download Prescription"}</span>
                   <i className="icon-right iconrotate180 ms-auto"></i>

@@ -39,9 +39,12 @@ import BubbleSkeleton from "./BubbleSkeleton";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import VoiceWaveVisualizer from "./WaveVisualizer";
 import GenRXLoaders from "./GenRxLoaders";
-import { useSelector } from "react-redux";
 import genRxSendCta from "../assets/images/genRxSendCta.svg";
 import tatvaAiChakra from "../assets/lotties/tatvaAiChakra.lottie";
+import { MESSAGE_KEY } from "../utils/constants";
+import visitEnd from "../assets/images/end-visit.svg";
+import imgCloseVisit from "../assets/images/close-visit.svg";
+import { useSelector } from "react-redux";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -603,6 +606,29 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         : await dispatch(editCaseManager(sendData));
 
     if (action.meta.requestStatus === "fulfilled") {
+      message.open({
+        key: MESSAGE_KEY,
+        type: "",
+        className: "message-appointment",
+        content: (
+          <div className="d-flex align-items-center">
+            <img src={visitEnd} className="me-3" alt="Visit End Icon" />
+            <div>
+              <div className="title-common-digitised text-start fontroboto">{`${patient_data?.pm_first_name}'s visit ended successfully.`}</div>
+              <div className="fontroboto text-start fw-normal mt-1">
+                View completed visits in finished tab.
+              </div>
+            </div>
+            <img
+              src={imgCloseVisit}
+              className="ms-3"
+              alt="Close Visit Icon"
+              onClick={() => message.destroy()}
+            />
+          </div>
+        ),
+        duration: 5,
+      });
       navigate("/gen-rx-print", {
         replace: true,
         state: {
