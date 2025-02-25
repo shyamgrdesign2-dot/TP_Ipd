@@ -115,7 +115,7 @@ export default function PatientDiagnosis({
             40 * 7 -
             Math.ceil(
               Math.abs(
-                dayjs(newValue)
+                dayjs(patientDiagnosisData.ceed)
                   .startOf("day")
                   .diff(dayjs(today).startOf("day"), "day")
               )
