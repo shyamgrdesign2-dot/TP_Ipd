@@ -2003,8 +2003,7 @@ function ObsHistoryListView({
                                 fontWeight: 500,
                               }}
                             >
-                              &nbsp;{"\n"}
-                              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fundus
+                              &nbsp;Fundus
                               height&nbsp;:&nbsp;
                             </Text>
                             <Text
