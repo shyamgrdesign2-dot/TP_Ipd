@@ -550,9 +550,9 @@ const AllPatients = () => {
         endDate: moment(dateStrings[1], showDateFormat).format(dateFormat),
       });
     } else {
-      setDateStatus(4);
+      setDateStatus(null);
       setDateRange({
-        startDate: moment("2000-01-01").format(dateFormat),
+        startDate: moment().format(dateFormat),
         endDate: moment().format(dateFormat),
       });
     }
@@ -800,7 +800,7 @@ const AllPatients = () => {
                         renderExtraFooter={() => (
                           <div className="d-flex align-items-center justify-content-between py-1">
                             <div>
-                              {dateStatus !== 4
+                              {dateStatus !== 4 || !dateStatus
                                 ? `${moment(dateRange.startDate).format(
                                     showDateFormat
                                   )} -
