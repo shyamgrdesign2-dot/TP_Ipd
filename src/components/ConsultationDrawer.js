@@ -36,11 +36,12 @@ import deleteModuleIcon from "../assets/images/delete-icon-blue.svg";
 import alertIcon from "../assets/images/alertIcon.svg";
 import CommonModal from "../common/CommonModal";
 import BubbleSkeleton from "./BubbleSkeleton";
-import Lottie from "lottie-react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import VoiceWaveVisualizer from "./WaveVisualizer";
 import GenRXLoaders from "./GenRxLoaders";
-import { AnimationContext } from "../context/AnimationContext";
 import { useSelector } from "react-redux";
+import genRxSendCta from "../assets/images/genRxSendCta.svg";
+import tatvaAiChakra from "../assets/lotties/tatvaAiChakra.lottie";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -95,8 +96,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const { tcmId, consultationDate } = useContext(CashManagerContext);
 
   const dispatch = useDispatch();
-
-  const animations = useContext(AnimationContext);
 
   const textAreaRef = useRef(null);
 
@@ -1151,7 +1150,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       open={visible}
       className={`${styles.consultationDrawer} bg-body`}
       closeIcon={false}
-      width={showPrescription ? "100%" : "600px"}
+      width={showPrescription ? "100%" : "640px"}
     >
       <Suspense
         fallback={
@@ -1241,12 +1240,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                             onClick={handleSend}
                             style={{ width: 32 }}
                           >
-                            {animations.genRxSendCta && (
-                              <Lottie
-                                animationData={animations.genRxSendCta}
-                                loop={true}
-                              />
-                            )}
+                            <img src={genRxSendCta} alt="send" />
                           </div>
                         </div>
                       </div>
@@ -1274,14 +1268,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                             className={styles.animatedButton}
                             onClick={handleStartRecording}
                           >
-                            {animations.tatvaAiChakra && (
-                              <div style={{ width: "105px" }}>
-                                <Lottie
-                                  animationData={animations.tatvaAiChakra}
-                                  loop={true}
-                                />
-                              </div>
-                            )}
+                            <DotLottieReact
+                              src={tatvaAiChakra}
+                              loop
+                              autoplay
+                              style={{ width: "150px", height: "105px" }}
+                            />
                           </div>
                           <p className={styles.tapText}>Tap to Speak</p>
                         </div>
@@ -1316,12 +1308,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                 onTouchStart={handleSend}
                                 style={{ width: 32 }}
                               >
-                                {animations.genRxSendCta && (
-                                  <Lottie
-                                    animationData={animations.genRxSendCta}
-                                    loop={true}
-                                  />
-                                )}
+                                <img src={genRxSendCta} alt="send" />
                               </div>
                             </div>
                           )}
@@ -1421,12 +1408,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                     onClick={handleSend}
                                     style={{ width: 32 }}
                                   >
-                                    {animations.genRxSendCta && (
-                                      <Lottie
-                                        animationData={animations.genRxSendCta}
-                                        loop={true}
-                                      />
-                                    )}
+                                    <img src={genRxSendCta} alt="send" />
                                   </div>
                                 </div>
                               </div>
@@ -1474,12 +1456,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                     onClick={handleSend}
                                     style={{ width: 32 }}
                                   >
-                                    {animations.genRxSendCta && (
-                                      <Lottie
-                                        animationData={animations.genRxSendCta}
-                                        loop={true}
-                                      />
-                                    )}
+                                    <img src={genRxSendCta} alt="send" />
                                   </div>
                                 </div>
                               </div>

@@ -4,15 +4,15 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
-  useContext,
 } from "react";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import tipIcon from "../assets/images/tip.svg";
-import Lottie from "lottie-react";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
-import { AnimationContext } from "../context/AnimationContext";
 import { isMobile } from "react-device-detect";
+import genRxMentionHeadings from "../assets/lotties/genRxMentionHeadingsTip.lottie";
+import genRxFocused from "../assets/lotties/genRxStayFocusedTip.lottie";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const carouselItemStyle = {
   display: "flex",
@@ -23,7 +23,7 @@ const carouselItemStyle = {
   borderRadius: "24px",
   padding: "20px",
   height: "168px",
-  width: "460px",
+  width: "480px",
   margin: "0 auto",
   transition: "transform 0.3s ease",
 };
@@ -106,12 +106,12 @@ const arrowButtonBase = {
 
 const leftArrowStyle = {
   ...arrowButtonBase,
-  left: "0px",
+  left: "5px",
 };
 
 const rightArrowStyle = {
   ...arrowButtonBase,
-  right: "0px",
+  right: "5px",
 };
 
 const GenRxTips = ({ isKnowMore }) => {
@@ -120,7 +120,6 @@ const GenRxTips = ({ isKnowMore }) => {
   const [progress, setProgress] = useState(0);
   const progressInterval = useRef(null);
   const carouselRef = useRef(null);
-  const animations = useContext(AnimationContext);
 
   const tips = useMemo(
     () => [
@@ -128,28 +127,28 @@ const GenRxTips = ({ isKnowMore }) => {
         title: "Mention Headings",
         description:
           "While dictating Rx include headings like 'Symptoms', 'Medication' etc. to keep information organised.",
-        animationData: animations.headings,
+        animationData: genRxMentionHeadings,
       },
       {
         title: "Stay Focused",
         description:
           "Stick to only prescription details. Avoid irrelevant information for clear and precise dictation.",
-        animationData: animations.focused,
+        animationData: genRxFocused,
       },
-      {
-        title: "Dictate Rx in One Go",
-        description:
-          "Dictate prescription details clearly and completely in one go for better and faster results.",
-        animationData: animations.concise,
-      },
-      {
-        title: "You Can Type Too",
-        description:
-          "Listen to a sample voice dictation for guidance on how to dictate clear and concise prescriptions.",
-        animationData: animations.type,
-      },
+      // {
+      //   title: "Dictate Rx in One Go",
+      //   description:
+      //     "Dictate prescription details clearly and completely in one go for better and faster results.",
+      //   animationData: genRxConcise,
+      // },
+      // {
+      //   title: "You Can Type Too",
+      //   description:
+      //     "Listen to a sample voice dictation for guidance on how to dictate clear and concise prescriptions.",
+      //   animationData: genRxType,
+      // },
     ],
-    [animations]
+    []
   );
 
   const startProgress = useCallback(() => {
@@ -276,13 +275,13 @@ const GenRxTips = ({ isKnowMore }) => {
               </div>
               <p style={textStyle}>{tip.description}</p>
             </div>
-            {tip.animationData && (
-              <Lottie
-                animationData={tip.animationData}
-                loop={true}
-                style={{ minWidth: "120px" }}
-              />
-            )}
+
+            <DotLottieReact
+              src={tip.animationData}
+              loop
+              autoplay
+              style={{ width: "240px", height: "140px" }}
+            />
           </div>
         ))}
       </Carousel>
