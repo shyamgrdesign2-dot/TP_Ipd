@@ -311,6 +311,7 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
     <div className="overflow-y-auto" style={{ padding: "10px 10px 0px" }}>
       {obstetricDetails?.lmp ||
       obstetricDetails?.edd ||
+      obstetricDetails?.ceed ||
       obstetricDetails?.gravidity ||
       obstetricDetails?.parity ||
       obstetricDetails?.livingChildren ||

@@ -49,7 +49,7 @@ const PatientInfoList = () => {
       content: (
         <div className="cardbody-data border rounded px-2 my-2">
           <div className="my-2">
-            {(obstetricDetails.lmp || obstetricDetails.edd) && (
+            {(obstetricDetails.lmp || obstetricDetails.edd || obstetricDetails?.ceed) && (
               <>
                 <span>Patient Info:</span>{" "}
                 {obstetricDetails.lmp && (

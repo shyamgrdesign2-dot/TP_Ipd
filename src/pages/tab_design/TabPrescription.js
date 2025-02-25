@@ -601,7 +601,7 @@ function TabPrescription() {
   }, [isNavigateToObstetric]);
 
   useEffect(() => {
-    if (collapsedFlag === 6 && examinationHistory?.length === 0 && !shouldShowImmunisation && !shouldShowAncHistory && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies) {
+    if (collapsedFlag === 6 && examinationHistory?.length === 0 && !shouldShowImmunisation && !shouldShowAncHistory && !obstetricDetails?.lmp && !obstetricDetails?.edd && !obstetricDetails?.ceed && !obstetricDetails?.gravidity && !obstetricDetails?.parity && !obstetricDetails?.livingChildren && !obstetricDetails?.abortion && !obstetricDetails?.ectopicPregnancies) {
       setCollapsed(false);
     }
   }, [collapsedFlag, collapsed])
@@ -1101,7 +1101,8 @@ function TabPrescription() {
                           !obstetricDetails?.parity &&
                           !obstetricDetails?.livingChildren &&
                           !obstetricDetails?.abortion &&
-                          !obstetricDetails?.ectopicPregnancies
+                          !obstetricDetails?.ectopicPregnancies &&
+                          !obstetricDetails?.ceed
                             ? handleDrawerObstetric()
                             : openCollapsed(6)
                         }
