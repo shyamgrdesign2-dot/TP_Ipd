@@ -43,6 +43,8 @@ import {
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useLocation } from "react-router-dom";
 
+const { TextArea } = Input;
+
 function SurgicalBox() {
   const {
     selectedSurgicalList,
@@ -161,10 +163,10 @@ function SurgicalBox() {
   const createCustomSurgery = async (name) => {
     const masterId = await createSurgery({ name: name });
     return masterId;
-  }
+  };
 
-  const onSelectParent = useCallback (
-    async(data, e) => {
+  const onSelectParent = useCallback(
+    async (data, e) => {
       let surgeriesUpdatedData = { ...JSON.parse(e.key) };
       if (surgeriesUpdatedData?.isCustom) {
         const masterId = await createCustomSurgery(surgeriesUpdatedData.name);
@@ -522,11 +524,15 @@ function SurgicalBox() {
                           xs={13}
                           className="border-end"
                         >
-                          <Input
+                          <TextArea
                             className="notesinput border-0"
                             placeholder="Notes"
                             defaultValue={item.notes}
                             value={item.notes}
+                            autoSize={{
+                              minRows: 1,
+                              maxRows: 2,
+                            }}
                             onChange={(e) => onChangeNoteChild(e, index)}
                           />
                         </Col>

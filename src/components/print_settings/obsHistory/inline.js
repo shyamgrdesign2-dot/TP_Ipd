@@ -524,7 +524,7 @@ function ObsHistoryInlineView({
                   </>
                 )}
 
-                {"edd" in obsHistoryData && (
+                {"edd" in obsHistoryData && !obsHistoryData?.ceed && (
                   <>
                     <Text
                       style={{

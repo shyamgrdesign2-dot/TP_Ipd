@@ -48,9 +48,24 @@ export default function PatientDiagnosis({
     if (lmpDate) {
       const today = moment();
       const lmp = moment(lmpDate);
-      const gestationInWeeks = today.diff(lmp, "weeks");
-      const tempDate = lmp.clone().add(gestationInWeeks, "weeks");
-      const gestationInDays = today.diff(tempDate, "days");
+      let gestationInWeeks;
+      let gestationInDays;
+      if (patientDiagnosisData.ceed) {
+        const gestationAge =
+          40 * 7 -
+          Math.ceil(
+            Math.abs(new Date(patientDiagnosisData.ceed) - new Date(today)) /
+              (1000 * 60 * 60 * 24)
+          );
+
+        // Convert to weeks and days
+        gestationInWeeks = Math.floor(gestationAge / 7);
+        gestationInDays = gestationAge % 7;
+      } else {
+        gestationInWeeks = today.diff(lmp, "weeks");
+        const tempDate = lmp.clone().add(gestationInWeeks, "weeks");
+        gestationInDays = today.diff(tempDate, "days");
+      }
       /**
        * EDD Formula: LMP date + 1 year - 3 months + 7 days
        */
@@ -73,6 +88,9 @@ export default function PatientDiagnosis({
   }, [lmpDate]);
 
   const handlePatientDiagnosis = (newValue, key, isValid = true) => {
+    const today = moment();
+    let gestationInWeeks;
+    let gestationInDays;
     if (isValid && !isPreviousPregnancyOverview) {
       if (["lmp", "blood", "maritialStatus"].includes(key)) {
         setPrefillObstetricData((prevState) => ({
@@ -89,13 +107,57 @@ export default function PatientDiagnosis({
         [key]: newValue,
       }));
       if (key === "lmp" && newValue === null) {
+        if (patientDiagnosisData.ceed) {
+          const gestationAge =
+            40 * 7 -
+            Math.ceil(
+              Math.abs(new Date(patientDiagnosisData.ceed) - new Date(today)) /
+                (1000 * 60 * 60 * 24)
+            );
+
+          // Convert to weeks and days
+          gestationInWeeks = Math.floor(gestationAge / 7);
+          gestationInDays = gestationAge % 7;
+        }
         setPatientDiagnosisData((prevState) => ({
           ...prevState,
           edd: undefined,
+          gestationWeeks: gestationInWeeks,
+          gestationDays: gestationInDays,
+        }));
+      }
+      if (key === "ceed" && !newValue && !patientDiagnosisData.lmp) {
+        setPatientDiagnosisData((prevState) => ({
+          ...prevState,
           gestationWeeks: undefined,
           gestationDays: undefined,
         }));
+      } else if (key === "ceed") {
+        const lmp = moment(patientDiagnosisData.lmp);
+
+        if (newValue) {
+          const gestationAge =
+            40 * 7 -
+            Math.ceil(
+              Math.abs(new Date(newValue) - new Date(today)) /
+                (1000 * 60 * 60 * 24)
+            );
+
+          // Convert to weeks and days
+          gestationInWeeks = Math.floor(gestationAge / 7);
+          gestationInDays = gestationAge % 7;
+        } else {
+          gestationInWeeks = today.diff(lmp, "weeks");
+          const tempDate = lmp.clone().add(gestationInWeeks, "weeks");
+          gestationInDays = today.diff(tempDate, "days");
+        }
+        setPatientDiagnosisData((prevState) => ({
+          ...prevState,
+          gestationWeeks: gestationInWeeks,
+          gestationDays: gestationInDays,
+        }));
       }
+
       dispatch(patientDiagnosisUpdated());
       dispatch(obstetricDetailsUpdated());
     }
@@ -199,6 +261,8 @@ export default function PatientDiagnosis({
                     dayjs(dateString, "DD-MM-YYYY").toISOString(),
                     "ceed"
                   );
+                } else {
+                  handlePatientDiagnosis(undefined, "ceed");
                 }
               }}
               disabled={isPreviousPregnancyOverview}
