@@ -1209,7 +1209,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
 
                             {DELETE_MODAL}
 
-                            <button className='btn d-flex align-items-center btn-text me-14' onClick={handleDrawerCustomize}>
+                            <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerCustomize}>
                                 <i className="icon-setting me-2"></i> <span>Customize</span>
                             </button>
 
