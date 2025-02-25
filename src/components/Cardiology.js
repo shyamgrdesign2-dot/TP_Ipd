@@ -567,18 +567,13 @@ function Cardiology(props) {
           genRxData?.[type].map((item, index) => (
             <li key={index}>
               <div className="medicine-item">
-                <span>
-                  {/* Render dynamically based on type */}
-                  {
-                    type === "advice" || type === "others"
-                      ? item
-                      : item?.name
-                  }
-                </span>
+                {["advice", "others"].includes(type) && (
+                  <span>{item}</span>
+                )}
   
                 {/* Optional rendering for lineItem */}
                 {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "labInvestigation" || type === "symptoms" || type === "examinations" || type === "diagnosis") && item.lineItem && (
-                  <span>{` (${item.lineItem})`}</span>
+                  <span>{item.lineItem}</span>
                 )}
               </div>
             </li>
