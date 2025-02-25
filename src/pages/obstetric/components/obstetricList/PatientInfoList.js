@@ -61,9 +61,9 @@ const PatientInfoList = () => {
                   </>
                 )}
                 {obstetricDetails.lmp &&
-                  (obstetricDetails.edd || obstetricDetails.ceed) &&
-                  (obstetricDetails.gestationDays ||
-                    obstetricDetails.gestationWeeks) &&
+                  ((obstetricDetails.edd || obstetricDetails.ceed) ||
+                  (obstetricDetails.gestationDays > 0 ||
+                    obstetricDetails.gestationWeeks > 0)) &&
                   " | "}
                 {(obstetricDetails.edd || obstetricDetails.ceed) && (
                   <>
@@ -76,11 +76,11 @@ const PatientInfoList = () => {
                   </>
                 )}
                 {(obstetricDetails.edd || obstetricDetails.ceed) &&
-                  (obstetricDetails.gestationDays ||
-                    obstetricDetails.gestationWeeks) &&
+                  (obstetricDetails.gestationDays > 0||
+                    obstetricDetails.gestationWeeks > 0) &&
                   " | "}
-                {(obstetricDetails.gestationDays ||
-                  obstetricDetails.gestationWeeks) && (
+                {(obstetricDetails.gestationDays > 0 ||
+                  obstetricDetails.gestationWeeks > 0) && (
                   <>
                     <span>{"Gestation"}</span> :{" "}
                     <label>

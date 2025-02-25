@@ -194,11 +194,11 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
                   </>
                 )}
                 {(obstetricDetails.edd || obstetricDetails.ceed) &&
-                  (obstetricDetails.gestationDays ||
-                    obstetricDetails.gestationWeeks) &&
+                  (obstetricDetails.gestationDays > 0 ||
+                    obstetricDetails.gestationWeeks > 0) &&
                   " | "}
-                {(obstetricDetails.gestationDays ||
-                  obstetricDetails.gestationWeeks) && (
+                {(obstetricDetails.gestationDays > 0 ||
+                  obstetricDetails.gestationWeeks > 0) && (
                   <>
                     <span>{"Gestation"}</span> :{" "}
                     <label>
