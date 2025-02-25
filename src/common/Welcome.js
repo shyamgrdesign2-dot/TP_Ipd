@@ -94,6 +94,15 @@ function Welcome(props) {
               {locationPath == "/" &&
                 <div className="d-lg-flex d-block">
                   <Button
+                    variant="outline-primary"
+                    className="px-3 btn-41 me-3 btn-outline-primary d-flex align-items-center rounded-10px"
+                    style={{ background: 'rgba(255,255,255,0.5)' }}
+                    onClick={() => navigate('/add-appointment')}>
+                    <i className="icon-Add me-2"></i>
+                    {"Add New Appointment"}
+                  </Button>
+
+                  <Button
                     variant="primary"
                     className="px-3 btn-41"
                     onClick={clickWalkInConsultation}>
