@@ -147,7 +147,7 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
       content: (
         <div className="cardbody-data border rounded px-2 my-2">
           <div className="my-2">
-            {(obstetricDetails.lmp || obstetricDetails.edd) && (
+            {(obstetricDetails.lmp || obstetricDetails.edd || obstetricDetails?.ceed) && (
               <>
                 <span>Patient Info:</span>{" "}
                 {obstetricDetails.lmp && (
@@ -158,13 +158,43 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
                     </label>{" "}
                   </>
                 )}
-                {obstetricDetails.lmp && obstetricDetails.edd && " | "}
-                {obstetricDetails.edd && (
+                {obstetricDetails.lmp &&
+                  (obstetricDetails.edd || obstetricDetails?.ceed) &&
+                  " | "}
+                {(obstetricDetails.edd || obstetricDetails.ceed) && (
                   <>
-                    <span>EDD</span> :{" "}
+                    <span>{obstetricDetails.ceed ? "CEDD" : "EDD"}</span> :{" "}
                     <label>
-                      {moment(obstetricDetails.edd).format("DD MMM YYYY")}
+                      {moment(
+                        obstetricDetails.ceed || obstetricDetails.edd
+                      ).format("DD MMM YYYY")}
                     </label>{" "}
+                  </>
+                )}
+                {(obstetricDetails.edd || obstetricDetails.ceed) &&
+                  (obstetricDetails.gestationDays > 0 ||
+                    obstetricDetails.gestationWeeks > 0) &&
+                  " | "}
+                {(obstetricDetails.gestationDays > 0 ||
+                  obstetricDetails.gestationWeeks > 0) && (
+                  <>
+                    <span>{"Gestation"}</span> :{" "}
+                    <label>
+                      {obstetricDetails.gestationWeeks
+                        ? `${obstetricDetails.gestationWeeks} ${
+                            obstetricDetails.gestationWeeks > 1
+                              ? "Weeks"
+                              : "Week"
+                          } ${obstetricDetails.gestationDays ? " & " : ""}`
+                        : ""}
+                      {obstetricDetails.gestationDays
+                        ? `${obstetricDetails.gestationDays} ${
+                            obstetricDetails.gestationDays > 1
+                              ? " Days"
+                              : " Day"
+                          }`
+                        : ""}
+                    </label>
                   </>
                 )}
               </>
@@ -249,7 +279,7 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
       ),
     };
 
-    if (hasPatientInfo || obstetricDetails.lmp || obstetricDetails.edd) {
+    if (hasPatientInfo || obstetricDetails.lmp || obstetricDetails.edd || obstetricDetails.ceed) {
       data.push(updateData);
     }
     setInfoAccordionItems(data);

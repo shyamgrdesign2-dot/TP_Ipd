@@ -141,6 +141,7 @@ export default function VisitObstetric() {
       {Object.keys(previousVisit)?.length ||
       obstetricDetails?.lmp ||
       obstetricDetails?.edd ||
+      obstetricDetails?.ceed ||
       obstetricDetails?.gravidity ||
       obstetricDetails?.parity ||
       obstetricDetails?.livingChildren ||
@@ -183,6 +184,7 @@ export default function VisitObstetric() {
             </Card.Header>
             {(obstetricDetails?.lmp ||
               obstetricDetails?.edd ||
+              obstetricDetails?.ceed ||
               obstetricDetails?.gravidity ||
               obstetricDetails?.parity ||
               obstetricDetails?.livingChildren ||

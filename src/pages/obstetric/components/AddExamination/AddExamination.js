@@ -10,7 +10,7 @@ import {
   obstetricDetailsUpdated,
   patientDiagnosisUpdated,
 } from "../../../../redux/obstetricSlice";
-import { isDecimalCheck, isNumberCheck } from "../../utils/helper";
+import { isDecimalCheck, isNumberCheck, isNumberCheckWithHyphen } from "../../utils/helper";
 
 const dateFormat = "YYYY-MM-DD";
 
@@ -363,11 +363,12 @@ function AddExamination({
         <div className="examination-row examination-row-60 d-flex align-items-center px-2 py-5 w-100">
           <Input
             className="inputheight41"
+            style={{ width: 60 }}
             placeholder="Enter"
             inputMode="numeric"
             value={examinationData.heightOfFundus || ""}
             onChange={(e) =>
-              isNumberCheck(e) &&
+              isNumberCheckWithHyphen(e) &&
               handleExaminationDataChange("heightOfFundus", e.target.value)
             }
           />
@@ -380,11 +381,16 @@ function AddExamination({
           >
             <Radio.Button
               className="radio-button first-radio-button"
+              style={{ paddingLeft: 6, paddingRight: 6 }}
               value="cm"
             >
               Cm
             </Radio.Button>
-            <Radio.Button className="radio-button" value="weeks">
+            <Radio.Button
+              className="radio-button"
+              style={{ paddingLeft: 6, paddingRight: 6 }}
+              value="weeks"
+            >
               Weeks
             </Radio.Button>
           </Radio.Group>

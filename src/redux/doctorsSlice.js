@@ -30,8 +30,7 @@ const initialState = {
   dragDrop: {},
   siteId: null,
   empNo: [],
-  storeCode: null,
-  pillupCheck: false
+  storeCode: null
 };
 
 export const getProfile = createAsyncThunk(
@@ -317,6 +316,22 @@ export const zydusRefIds = createAsyncThunk(
   }
 );
 
+export const upsertDoctorSettingFlag = createAsyncThunk(
+  "records/upsertDoctorSettingFlag",
+  async (data) => {
+    try {
+      const result = await ApiAppointments.upsertDoctorSettingFlag(data);
+      if (result.status) {
+        return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      throw Error(error);
+    }
+  }
+);
+
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
@@ -356,9 +371,6 @@ const doctorsSlice = createSlice({
         state.dragDrop = {}
       }
     },
-    changePillupStatus: (state) => {
-      state.pillupCheck = true
-    }
   },
   extraReducers: (builder) => {
     builder
@@ -552,11 +564,22 @@ const doctorsSlice = createSlice({
           state.loading = false;
         }
       })
+      .addCase(upsertDoctorSettingFlag.fulfilled, (state, action) => {
+        const updatedFlags = [...state.profile.userSettingFlag];
+        const index = updatedFlags.findIndex(item => item.type === action.meta.arg.type);
+        if (index !== -1) {
+          updatedFlags[index].status = 1;
+        } else {
+          updatedFlags.push({ type: action.meta.arg.type, status: 1 });
+        }
+        state.profile.userSettingFlag = updatedFlags
+        console.log(state.profile)
+      })
       .addCase(zydusRefIds.fulfilled, (state, action) => {
         if (action.payload.siteId !== undefined) {
           state.siteId = action.payload.siteId;
           state.empNo = action.payload.empNo;
-          state.storeCode = action.payload.storeCode; 
+          state.storeCode = action.payload.storeCode;
         }
       })
       .addCase(zydusRefIds.rejected, (state) => {
@@ -567,5 +590,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop, changePillupStatus } = doctorsSlice.actions
+export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop } = doctorsSlice.actions
 export default doctorsSlice.reducer;

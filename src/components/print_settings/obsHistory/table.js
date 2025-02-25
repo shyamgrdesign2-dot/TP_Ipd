@@ -25,12 +25,25 @@ function ObsHistoryTableView({
   const lmpDate = obsHistoryData?.lmp ? moment(obsHistoryData.lmp) : null;
 
   let gestationWeeks = null;
-  let adjustedLmpDate = null;
   let gestationDays = null;
 
-  if (lmpDate) {
+  if (obsHistoryData?.ceed) {
+    const gestationAge =
+      40 * 7 -
+      Math.ceil(
+        Math.abs(
+          moment(obsHistoryData?.ceed)
+            .startOf("day")
+            .diff(moment(today).startOf("day"), "days")
+        )
+      );
+
+    // Convert to weeks and days
+    gestationWeeks = Math.floor(gestationAge / 7);
+    gestationDays = gestationAge % 7;
+  } else if (lmpDate) {
     gestationWeeks = today.diff(lmpDate, "weeks");
-    adjustedLmpDate = lmpDate.clone().add(gestationWeeks, "weeks");
+    const adjustedLmpDate = lmpDate.clone().add(gestationWeeks, "weeks");
     gestationDays = today.diff(adjustedLmpDate, "days");
   }
 
@@ -366,7 +379,7 @@ function ObsHistoryTableView({
               >
                 LMP
               </Text>
-              <Text
+              {!obsHistoryData?.ceed && (<Text
                 style={[
                   styles.cell,
                   {
@@ -380,8 +393,8 @@ function ObsHistoryTableView({
                 ]}
               >
                 E.D.D.
-              </Text>
-              <Text
+              </Text>)}
+              {obsHistoryData?.ceed && (<Text
                 style={[
                   styles.cell,
                   {
@@ -395,7 +408,7 @@ function ObsHistoryTableView({
                 ]}
               >
                 C.E.E.D.
-              </Text>
+              </Text>)}
               <Text
                 style={[
                   styles.cell,
@@ -511,7 +524,7 @@ function ObsHistoryTableView({
                   ? moment(obsHistoryData?.lmp).format("DD MMM YYYY")
                   : `-`}
               </Text>
-              <Text
+              {!obsHistoryData?.ceed && (<Text
                 style={[
                   styles.cell,
                   {
@@ -527,8 +540,8 @@ function ObsHistoryTableView({
                 {"edd" in obsHistoryData
                   ? moment(obsHistoryData?.edd).format("DD MMM YYYY")
                   : `-`}
-              </Text>
-              <Text
+              </Text>)}
+              {obsHistoryData?.ceed && (<Text
                 style={[
                   styles.cell,
                   {
@@ -544,7 +557,7 @@ function ObsHistoryTableView({
                 {"ceed" in obsHistoryData
                   ? moment(obsHistoryData?.ceed).format("DD MMM YYYY")
                   : `-`}
-              </Text>
+              </Text>)}
               <Text
                 style={[
                   styles.cell,

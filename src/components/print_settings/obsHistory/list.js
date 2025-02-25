@@ -25,12 +25,25 @@ function ObsHistoryListView({
   const lmpDate = obsHistoryData?.lmp ? moment(obsHistoryData.lmp) : null;
 
   let gestationWeeks = null;
-  let adjustedLmpDate = null;
   let gestationDays = null;
 
-  if (lmpDate) {
+  if (obsHistoryData?.ceed) {
+    const gestationAge =
+      40 * 7 -
+      Math.ceil(
+        Math.abs(
+          moment(obsHistoryData?.ceed)
+            .startOf("day")
+            .diff(moment(today).startOf("day"), "days")
+        )
+      );
+
+    // Convert to weeks and days
+    gestationWeeks = Math.floor(gestationAge / 7);
+    gestationDays = gestationAge % 7;
+  } else if (lmpDate) {
     gestationWeeks = today.diff(lmpDate, "weeks");
-    adjustedLmpDate = lmpDate.clone().add(gestationWeeks, "weeks");
+    const adjustedLmpDate = lmpDate.clone().add(gestationWeeks, "weeks");
     gestationDays = today.diff(adjustedLmpDate, "days");
   }
 
@@ -519,7 +532,7 @@ function ObsHistoryListView({
                   </>
                 )}
 
-                {"edd" in obsHistoryData && (
+                {"edd" in obsHistoryData && !obsHistoryData?.ceed && (
                   <>
                     <Text
                       style={{

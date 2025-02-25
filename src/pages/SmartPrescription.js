@@ -920,6 +920,7 @@ function SmartPrescription() {
           </div>
           {(obstetricDetails?.lmp ||
             obstetricDetails?.edd ||
+            obstetricDetails?.ceed ||
             obstetricDetails?.gravidity ||
             obstetricDetails?.parity ||
             obstetricDetails?.livingChildren ||

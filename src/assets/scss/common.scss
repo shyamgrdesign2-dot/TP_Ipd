@@ -193,6 +193,10 @@ body {
     }
     .me-20 {
         margin-right: 20px;
+
+        @media (max-width: 974px) {
+            margin-right: 15px;
+        }
     }
     .me-30 {
         margin-right: 30px;
@@ -1040,4 +1044,8 @@ body {
     border: none !important;
     background-color: transparent !important;
     padding: 0 93px 0 0;
+}
+
+.main-color {
+    color: #4B4AD5 !important;
 }

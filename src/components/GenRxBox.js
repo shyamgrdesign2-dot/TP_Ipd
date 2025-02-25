@@ -62,7 +62,7 @@ const GenRxBox = ({ handleGenRxKnowMore, setIsGenRxDrawerVisible }) => {
         <div>
           <div
             className="d-flex flex-column justify-content-center align-items-center"
-            style={{ gap: 10, paddingTop: "18px" }}
+            style={{ gap: 10, paddingTop: "18px", margin:"0 14px" }}
           >
             <Button
               className="btn btn-primary3 btn-41 px-4 w-100 d-flex align-items-center justify-content-center"

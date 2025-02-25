@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { Button, Row, Col, Spin, message } from "antd";
+import { Button, Row, Col, Spin } from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import axios from "axios";
 import { saveAs } from "file-saver";
@@ -10,14 +10,11 @@ import { jwtDecode } from "jwt-decode";
 import { errorMessage } from "../utils/utils";
 import api from "../api/services/axiosService";
 
-import visitEnd from "../assets/images/end-visit.svg";
-import imgCloseVisit from "../assets/images/close-visit.svg";
 import wtsp from "../assets/images/wtsp.svg";
 import loadingImg from "../assets/images/loading.png";
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
 import {
-  MESSAGE_KEY,
   WHATS_APP_API,
   WTSAP_ERR_MESSAGE,
 } from "../utils/constants";
@@ -42,20 +39,19 @@ function GenRxPrescriptionPrintView() {
   const navigate = useNavigate();
 
   const { state } = useLocation();
-  const { patient_data, isDigitiseRxSubmit } = state;
+  const { patient_data } = state;
 
   const [printUrl, setPrintUrl] = useState(
     state !== undefined ? `${state.print_url}&voiceRxDigitize=true` : null
   );
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [token, setToken] = useState(null);
   const [tokenData, setTokenData] = useState(null);
   const [divWidth, setDivWidth] = useState(0);
   const [numPages, setNumPages] = useState();
   const [printBlob, setPrintBlob] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
   const [buttonText, setButtonText] = useState("Send to WhatsApp");
-  const [showProgressbar, setShowProgressbar] = useState(true);
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
   useEffect(() => {
@@ -63,38 +59,11 @@ function GenRxPrescriptionPrintView() {
   }, [divRef]);
 
   useEffect(() => {
-    message.open({
-      key: MESSAGE_KEY,
-      type: "",
-      className: "message-appointment",
-      content: (
-        <div className="d-flex align-items-center">
-          <img src={visitEnd} className="me-3" />
-          <div>
-            <div className="title-common-digitised text-start fontroboto">{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
-            <div className="fontroboto text-start fw-normal mt-1">
-              View completed visits in finished tab.
-            </div>
-          </div>
-          <img
-            src={imgCloseVisit}
-            className="ms-3"
-            onClick={() => message.destroy()}
-          />
-        </div>
-      ),
-      duration: 5,
-    });
-  }, []);
-
-  useEffect(() => {
     const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
     if (token) {
       try {
-        setToken(token);
         const decoded = jwtDecode(token);
         setTokenData(decoded.result);
-        setShowProgressbar(state?.showProgressbar === false ? false : true);
       } catch (e) {
         console.error(e);
       }
@@ -102,6 +71,7 @@ function GenRxPrescriptionPrintView() {
   }, []);
 
   const handleDownload = async () => {
+    setDownloadLoading(true);
     try {
       const response = await axios({
         url: printUrl,
@@ -115,11 +85,13 @@ function GenRxPrescriptionPrintView() {
     } catch (error) {
       console.error("Error downloading file:", error);
       // Handle errors gracefully, e.g., display an error message to the user
+    } finally {
+      setDownloadLoading(false);
     }
   };
 
   const handleInAppDownload = async () => {
-    navigate(`/prescription_print_view/?url=${printUrl}&key=download`, {
+    navigate(`/gen-rx-print/?url=${printUrl}&key=download`, {
       replace: true,
       state: state,
     });
@@ -152,7 +124,7 @@ function GenRxPrescriptionPrintView() {
       patient_unique_id: state?.patient_data?.patient_unique_id,
       hospital_business_id: tokenData?.hospital_business_id,
       um_id: tokenData?.user_id,
-      isVoiceRxDigitize: true
+      isVoiceRxDigitize: true,
     };
 
     setIsLoading(true);
@@ -199,6 +171,57 @@ function GenRxPrescriptionPrintView() {
     }
   };
 
+  const printContent = async () => {
+    try {
+      if (!printBlob) {
+        throw new Error("Print blob is not available");
+      }
+
+      const blobURL = URL.createObjectURL(printBlob);
+
+      // Clean up existing iframes
+      document.querySelectorAll("iframe").forEach((iframe) => iframe.remove());
+
+      // Create and configure iframe
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = blobURL;
+
+      iframe.onerror = () => {
+        URL.revokeObjectURL(blobURL);
+        throw new Error("Failed to load print content");
+      };
+
+      iframe.onload = () => {
+        try {
+          // Small delay to ensure content loads
+          requestAnimationFrame(() => {
+            iframe.focus();
+            iframe.contentWindow.print();
+            URL.revokeObjectURL(blobURL);
+          });
+        } catch (error) {
+          console.error("Error during print:", error);
+          URL.revokeObjectURL(blobURL);
+          errorMessage("Failed to print prescription");
+        }
+      };
+
+      document.body.appendChild(iframe);
+    } catch (error) {
+      console.error("Error in printContent:", error);
+      errorMessage("Failed to print prescription");
+    }
+  };
+
+  const printInAppContent = () => {
+    navigate(`/gen-rx-print/?url=${printUrl}&key=print`, {
+      replace: true,
+      state,
+    });
+    navigate(0, { replace: true });
+  };
+
   return (
     <>
       <HeaderPrescriptionPrint
@@ -229,14 +252,28 @@ function GenRxPrescriptionPrintView() {
                 <Button
                   type="text"
                   className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
+                  icon={<i className="icon-Print"></i>}
+                  onClick={() =>
+                    !isChrome && !isSafari
+                      ? printInAppContent()
+                      : printContent()
+                  }
+                >
+                  <span className="fw-semibold">{"Print Prescription"}</span>
+                  <i className="icon-right iconrotate180 ms-auto"></i>
+                </Button>
+                <Button
+                  type="text"
+                  className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                   icon={<i className="icon-download"></i>}
                   onClick={() =>
                     !isChrome && !isSafari
                       ? handleInAppDownload()
                       : handleDownload()
                   }
+                  loading={downloadLoading}
                 >
-                  <span className="fw-semibold">{"Download Rx"}</span>
+                  <span className="fw-semibold">{"Download Prescription"}</span>
                   <i className="icon-right iconrotate180 ms-auto"></i>
                 </Button>
                 <Button
