@@ -117,14 +117,17 @@ const Obstetric = ({
   const lmpValue = moment(lmp);
 
   let gestationWeeks = null;
-  let adjustedLmpDate = null;
   let gestationDays = null;
 
   if (ceed) {
     const gestationAge =
       40 * 7 -
       Math.ceil(
-        Math.abs(new Date(ceed) - new Date(today)) / (1000 * 60 * 60 * 24)
+        Math.abs(
+          moment(ceed)
+            .startOf("day")
+            .diff(moment(today).startOf("day"), "days")
+        )
       );
 
     // Convert to weeks and days
@@ -132,7 +135,7 @@ const Obstetric = ({
     gestationDays = gestationAge % 7;
   } else if (lmp) {
     gestationWeeks = today.diff(lmpValue, "weeks");
-    adjustedLmpDate = lmpValue.clone().add(gestationWeeks, "weeks");
+    const adjustedLmpDate = lmpValue.clone().add(gestationWeeks, "weeks");
     gestationDays = today.diff(adjustedLmpDate, "days");
   }
 

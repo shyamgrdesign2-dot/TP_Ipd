@@ -54,8 +54,11 @@ export default function PatientDiagnosis({
         const gestationAge =
           40 * 7 -
           Math.ceil(
-            Math.abs(new Date(patientDiagnosisData.ceed) - new Date(today)) /
-              (1000 * 60 * 60 * 24)
+            Math.abs(
+              dayjs(patientDiagnosisData.ceed)
+                .startOf("day")
+                .diff(dayjs(today).startOf("day"), "day")
+            )
           );
 
         // Convert to weeks and days
@@ -111,8 +114,11 @@ export default function PatientDiagnosis({
           const gestationAge =
             40 * 7 -
             Math.ceil(
-              Math.abs(new Date(patientDiagnosisData.ceed) - new Date(today)) /
-                (1000 * 60 * 60 * 24)
+              Math.abs(
+                dayjs(newValue)
+                  .startOf("day")
+                  .diff(dayjs(today).startOf("day"), "day")
+              )
             );
 
           // Convert to weeks and days
@@ -139,8 +145,11 @@ export default function PatientDiagnosis({
           const gestationAge =
             40 * 7 -
             Math.ceil(
-              Math.abs(new Date(newValue) - new Date(today)) /
-                (1000 * 60 * 60 * 24)
+              Math.abs(
+                dayjs(newValue)
+                  .startOf("day")
+                  .diff(dayjs(today).startOf("day"), "day")
+              )
             );
 
           // Convert to weeks and days
@@ -275,7 +284,9 @@ export default function PatientDiagnosis({
                 padding: "0 6px 0 6px",
               }}
               disabledDate={(current) =>
-                current <= dayjs(patientDiagnosisData.lmp)
+                current &&
+                (current < dayjs().startOf("day") ||
+                  current > dayjs().add(280, "day").endOf("day"))
               }
             />
           </div>
