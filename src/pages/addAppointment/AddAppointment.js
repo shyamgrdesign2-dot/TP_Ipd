@@ -1,11 +1,21 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import Button from "react-bootstrap/Button";
 import tutorial from '../../assets/images/tutorial-icon.svg';
 import { useNavigate } from "react-router-dom";
+import { Drawer } from "antd";
+import ConfirmAppointment from "./components/ConfirmAppointment";
 
 function AddAppointment() {
 
   const navigate = useNavigate();
+
+  const [confirmAppointment, setConfirmAppointment] = useState(false);
+  const handleConfirmAppointment = useCallback(
+    () => {
+      setConfirmAppointment(!confirmAppointment)
+    },
+    [confirmAppointment]
+  );
 
   return (
     <>
@@ -33,10 +43,27 @@ function AddAppointment() {
 
               <Button
                 variant="primary"
+                onClick={handleConfirmAppointment}
                 className="px-3 btn-41 d-flex align-items-center rounded-10px">
                 <i className="icon-calendar me-2"></i>
                 {"Availability Settings"}
               </Button>
+
+              <Drawer
+                className="modalWidth-645" width="auto"
+                title="Confirm Appointment"
+                placement="right"
+                closable
+                open={confirmAppointment}
+                onClose={handleConfirmAppointment}
+                extra={
+                  <Button type="primary" disabled className="btn-41">
+                    Book Appointment
+                  </Button>
+                }
+              >
+                <ConfirmAppointment />
+              </Drawer>
             </div>
           </div>
         </div>
