@@ -6,6 +6,7 @@ import { IS_DEV } from "../../utils/constants";
 const baseUrl = { customBaseUrl: config.appointment_api_url };
 const baseZydusUrl = { customBaseUrl: config.zydus_api_url };
 const baseZydusProxyUrl = { customBaseUrl: config.zydus_proxy_url };
+const baseVisitUrl = { customBaseUrl: config.visit_api_url };
 
 const ApiAppointments = {};
 
@@ -132,6 +133,10 @@ ApiAppointments.zydusDocsList = function (mrno) {
 
 ApiAppointments.placeIctOrder = function (data) {
   return api.post(`/appointment/placeIctOrder`, data, baseZydusUrl);
+};
+
+ApiAppointments.listCategories = function () {
+  return api.get(`/api/v1/patient/listCategories`, baseVisitUrl);
 };
 
 export default ApiAppointments;

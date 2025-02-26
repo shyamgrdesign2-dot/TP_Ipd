@@ -21,7 +21,8 @@ const initialState = {
     salutationData: [],
     pincodeInfo: {},
     patients: null,
-    patients_details: null
+    patients_details: null,
+    categoriesList: []
 };
 
 export const getCaseTypes = createAsyncThunk(
@@ -301,6 +302,24 @@ export const placeIctOrder = createAsyncThunk(
             const result = await ApiAppointments.placeIctOrder(data);
             return result;
         } catch (error) {
+            throw Error(error);
+        }
+    }
+);
+
+export const listCategories = createAsyncThunk(
+    "records/listCategories",
+    async () => {
+        try {
+            const result = await ApiAppointments.listCategories();
+            console.log(result)
+            // if (result.status) {
+            //     return result.data.case_type;
+            // } else {
+            //     throw Error(result.error);
+            // }
+        } catch (error) {
+            console.log("error: ", error);
             throw Error(error);
         }
     }

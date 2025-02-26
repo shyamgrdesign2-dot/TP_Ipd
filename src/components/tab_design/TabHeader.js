@@ -16,6 +16,7 @@ function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
 
         // Check if user came from all patients page
     const isFromAllPatients = location.state?.from === "/all_patients";
+    const isFromAddAppointment = location.state?.from === "/add-appointment";
 
     const { videoList, profile } = useSelector((state) => state.doctors);
 
@@ -104,7 +105,7 @@ function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
                         </Button>
                     ) : (
                         <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center' loading={loading} onClick={onClick}>
-                            {isFromAllPatients ? "Add Patient" : "Add Patient to Consult"}
+                            {(isFromAllPatients || isFromAddAppointment) ? "Add Patient" : "Add Patient to Consult"}
                         </Button>
                     )
                 )}

@@ -1,15 +1,28 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Button from "react-bootstrap/Button";
-import tutorial from '../../assets/images/tutorial-icon.svg';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Drawer } from "antd";
+
 import ConfirmAppointment from "./components/ConfirmAppointment";
+import tutorial from '../../assets/images/tutorial-icon.svg';
 
 function AddAppointment() {
 
   const navigate = useNavigate();
 
+  const { state } = useLocation();
+  const { patient_data } = state != null && state
+
   const [confirmAppointment, setConfirmAppointment] = useState(false);
+  const [clickedPatient, setClickedPatient] = useState(null);
+
+  useEffect(() => {
+    if (patient_data) {
+      setClickedPatient(patient_data)
+      handleConfirmAppointment()
+    }
+  }, [patient_data]);
+
   const handleConfirmAppointment = useCallback(
     () => {
       setConfirmAppointment(!confirmAppointment)
@@ -49,21 +62,6 @@ function AddAppointment() {
                 {"Availability Settings"}
               </Button>
 
-              <Drawer
-                className="modalWidth-645" width="auto"
-                title="Confirm Appointment"
-                placement="right"
-                closable
-                open={confirmAppointment}
-                onClose={handleConfirmAppointment}
-                extra={
-                  <Button type="primary" disabled className="btn-41">
-                    Book Appointment
-                  </Button>
-                }
-              >
-                <ConfirmAppointment />
-              </Drawer>
             </div>
           </div>
         </div>
@@ -72,6 +70,24 @@ function AddAppointment() {
       <div className={`border rounded-4 appointment-wrap p-4`} style={{ height: 300 }}>
         {/* Akhil code here */}
       </div>
+      <Drawer
+        className="modalWidth-645" width="auto"
+        title="Confirm Appointment"
+        placement="right"
+        closable
+        open={confirmAppointment}
+        onClose={handleConfirmAppointment}
+        extra={
+          <Button type="primary" disabled className="btn-41">
+            Book Appointment
+          </Button>
+        }
+      >
+        <ConfirmAppointment
+          handleConfirmAppointment={handleConfirmAppointment}
+          clickedPatient={clickedPatient}
+          setClickedPatient={setClickedPatient} />
+      </Drawer>
     </>
   )
 }
