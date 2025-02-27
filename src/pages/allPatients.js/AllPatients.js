@@ -342,7 +342,9 @@ const AllPatients = () => {
   };
 
   const onEditPatientClick = (record) => {
-    navigate("/edit_patient", { state: { patient_data: record } });
+    navigate("/edit_patient", {
+      state: { patient_data: record, from: "/all_patients" },
+    });
     trackEvent("TP_AllPatients_EditPatientDetails", {
       ...doctorDetails,
       patient_id: record?.pm_pid,
@@ -415,7 +417,7 @@ const AllPatients = () => {
             Create Certificate
           </span>
         ),
-        key: "labparams",
+        key: "createCertificate",
       },
     ];
   };
