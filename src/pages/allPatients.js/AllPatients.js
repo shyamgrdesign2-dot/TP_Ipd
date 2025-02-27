@@ -45,7 +45,7 @@ import alertIcon from "./../../assets/images/alertIcon.svg";
 import { debounce } from "lodash";
 import * as XLSX from "xlsx";
 import { handleInAppClick } from "../opdBilling/utils/helper";
-import { errorMessage } from "../../utils/utils";
+import { errorMessage, getClinicName, trackEvent } from "../../utils/utils";
 import successIcon from "../../assets/images/end-visit.svg";
 import closeIcon from "../../assets/images/close-visit.svg";
 import CreateCertificate from "../../components/medical_certificate/CreateCertificate";
@@ -102,6 +102,14 @@ const AllPatients = () => {
   const fileInputRef = useRef(null);
   const observer = useRef();
   const MESSAGE_KEY = "patient_update_message";
+  const doctorDetails = {
+    clinic_name: getClinicName(profile?.hospital_data),
+    clinic_id: tokenData?.result?.clinic_id,
+    doctor_id: profile?.doctor_unique_id,
+    doctor_name: profile?.um_name,
+    doctor_mobile_no: profile?.um_contact,
+    device_details: isMobile ? "Tab" : "Web",
+  };
 
   useEffect(() => {
     if (profile) {
@@ -249,10 +257,16 @@ const AllPatients = () => {
     [searchQuery]
   );
 
-  const handleAddClick = () => {
+  const handleAddClick = (record) => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
+    trackEvent("TP_AllPatients_UploadMedicalRecords", {
+      ...doctorDetails,
+      patient_id: record?.pm_pid,
+      patient_name: record?.pm_fullname,
+      patient_number: record?.pm_contact_no,
+    });
   };
 
   const handleRetryBtn = () => {
@@ -319,10 +333,22 @@ const AllPatients = () => {
 
   const onPatientDetailsClick = (record) => {
     navigate("/patient_details", { state: { patient_data: record } });
+    trackEvent("TP_AllPatients_PatientDetailsView", {
+      ...doctorDetails,
+      patient_id: record?.pm_pid,
+      patient_name: record?.pm_fullname,
+      patient_number: record?.pm_contact_no,
+    });
   };
 
   const onEditPatientClick = (record) => {
     navigate("/edit_patient", { state: { patient_data: record } });
+    trackEvent("TP_AllPatients_EditPatientDetails", {
+      ...doctorDetails,
+      patient_id: record?.pm_pid,
+      patient_name: record?.pm_fullname,
+      patient_number: record?.pm_contact_no,
+    });
   };
 
   const getMenuItems = (record) => {
@@ -350,7 +376,7 @@ const AllPatients = () => {
       // },
       {
         label: (
-          <div onClick={handleAddClick}>
+          <div onClick={() => handleAddClick(record)}>
             Upload Medical Records
             {isAndroid && !isBrowser ? (
               <div
@@ -378,6 +404,12 @@ const AllPatients = () => {
             onClick={() => {
               handleShowCertificate(record);
               setPatientData(record);
+              trackEvent("TP_AllPatients_CreateCertificate", {
+                ...doctorDetails,
+                patient_id: record?.pm_pid,
+                patient_name: record?.pm_fullname,
+                patient_number: record?.pm_contact_no,
+              });
             }}
           >
             Create Certificate
@@ -492,6 +524,12 @@ const AllPatients = () => {
             <a
               onClick={(e) => {
                 e.preventDefault();
+                trackEvent("TP_AllPatients_Actionitemkebabmenu", {
+                  ...doctorDetails,
+                  patient_id: record?.pm_pid,
+                  patient_name: record?.pm_fullname,
+                  patient_number: record?.pm_contact_no,
+                });
               }}
             >
               <i className="icon-More" />
@@ -650,6 +688,7 @@ const AllPatients = () => {
         }
       }
     });
+    trackEvent("TP_AllPatients_DischargeSummary", doctorDetails);
   };
 
   async function SSO_TO_PM() {
@@ -774,6 +813,7 @@ const AllPatients = () => {
       }
 
       setStartLoader(false);
+      trackEvent("TP_AllPatients_DownloadPatients", doctorDetails);
     } catch (error) {
       console.error("Error in handleDownloadPatientData:", error);
       errorMessage("Error downloading patient data");
@@ -785,6 +825,7 @@ const AllPatients = () => {
     navigate("/add_patient", {
       state: { from: "/all_patients" },
     });
+    trackEvent("TP_AllPatients_AddNewPatient", doctorDetails);
   };
 
   return (
