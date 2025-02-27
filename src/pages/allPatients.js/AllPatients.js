@@ -504,7 +504,7 @@ const AllPatients = () => {
           <span>
             {record.lastVisitDate
               ? moment(record.lastVisitDate).format("DD-MM-YYYY")
-              : ""}
+              : "-"}
           </span>
         </div>
       ),
