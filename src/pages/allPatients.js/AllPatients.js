@@ -332,7 +332,11 @@ const AllPatients = () => {
   };
 
   const onPatientDetailsClick = (record) => {
-    navigate("/patient_details", { state: { patient_data: record } });
+    navigate("/patient_details", {
+      state: {
+        patient_data: { ...record, pm_first_name: record?.pm_fullname },
+      },
+    });
     trackEvent("TP_AllPatients_PatientDetailsView", {
       ...doctorDetails,
       patient_id: record?.pm_pid,
