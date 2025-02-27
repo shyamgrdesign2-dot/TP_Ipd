@@ -716,7 +716,10 @@ const AllPatients = () => {
         "Last Visited": patient.lastVisitDate
           ? moment(patient.lastVisitDate).format("DD-MM-YYYY")
           : "",
-        "Patient Address": patient.pm_address,
+        "Street Address": patient.pm_address,
+        City: patient.pm_city,
+        State: patient.pm_state,
+        "Pin Code": patient.pm_pincode,
       }));
 
       const workbook = XLSX.utils.book_new();
@@ -732,6 +735,9 @@ const AllPatients = () => {
         { wch: 15 },
         { wch: 12 },
         { wch: 30 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
       ];
 
       XLSX.utils.book_append_sheet(workbook, worksheet, "Patient Data");
@@ -964,7 +970,7 @@ const AllPatients = () => {
                     )}{" "}
                     of {allPatientsData?.total} patients)
                   </div>
-                  {planDetails?.currentPlanStatus === "PAID" && isAdmin && (
+                  {planDetails?.currentPlanStatus === "PAID" && isAdmin ? (
                     <div
                       className="d-flex justify-content-between align-items-center billing-download"
                       onClick={handleDownloadPatientData}
@@ -974,7 +980,7 @@ const AllPatients = () => {
                         style={{ cursor: "pointer", color: "#4B4AD5" }}
                       />
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </Row>
             </div>
