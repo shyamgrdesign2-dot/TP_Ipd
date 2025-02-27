@@ -635,6 +635,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           ...action.payload,
           patient_data: patient_data,
           page: "prescription",
+          rxId: genRxDetails?._id,
         },
       });
     } else {

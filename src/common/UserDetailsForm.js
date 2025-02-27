@@ -30,6 +30,13 @@ const UserDetailsForm = () => {
   const [loader, setLoader] = useState(false);
 
   const onFinish = async () => {
+    if (formData.alternate_mbl_no && formData.alternate_mbl_no.length !== 10) {
+      message.open({
+        type: "error",
+        content: "Please enter a valid mobile number",
+      });
+      return;
+    }
     const clinic_name = getClinicName(profile?.hospital_data);
     window.Moengage.track_event("InterestSubmitted_Click", {
       doctor_id: profile?.doctor_unique_id,
@@ -106,17 +113,16 @@ const UserDetailsForm = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                label="Secondary Mobile number"
-                name="alternate_mbl_no"
-              >
+              <Form.Item label="Secondary Mobile number">
                 <Input
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      alternate_mbl_no: e.target.value,
-                    })
-                  }
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={10}
+                  value={formData.alternate_mbl_no} // Ensures only valid state is shown
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+                    setFormData({ ...formData, alternate_mbl_no: value });
+                  }}
                 />
               </Form.Item>
             </Col>
