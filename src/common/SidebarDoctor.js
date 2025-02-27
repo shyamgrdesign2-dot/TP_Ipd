@@ -25,7 +25,7 @@ import billingsActiveIcon from "../assets/images/billings-active.svg";
 import followUpActiveIcon from "../assets/images/follow-up-active.svg";
 import tatvaAiActiveIcon from "../assets/images/website-images/tatvaAiActiveIcon.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { errorMessage } from "../utils/utils";
+import { errorMessage, getClinicName, trackEvent } from "../utils/utils";
 import FullPageLoader from "../pages/vaccination/components/Loader";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 
@@ -81,6 +81,14 @@ function SidebarDoctor() {
         navigate("/billing-dashboard");
       } else if (moduleName === "all_patients") {
         navigate("/all_patients");
+        trackEvent("TP_AllPatients_Click", {
+          clinic_name: getClinicName(profile?.hospital_data),
+          clinic_id: tokenData?.result?.clinic_id,
+          doctor_id: profile?.doctor_unique_id,
+          doctor_name: profile?.um_name,
+          doctor_mobile_no: profile?.um_contact,
+          device_details: isMobile ? "Tab" : "Web",
+        });
       } else {
         if (data.success == 200) {
           if (!isChrome && !isSafari) {
