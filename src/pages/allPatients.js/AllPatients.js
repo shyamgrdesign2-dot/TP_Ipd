@@ -49,7 +49,11 @@ import { errorMessage } from "../../utils/utils";
 import successIcon from "../../assets/images/end-visit.svg";
 import closeIcon from "../../assets/images/close-visit.svg";
 import CreateCertificate from "../../components/medical_certificate/CreateCertificate";
-import { getDecodedToken } from "../../utils/localStorage";
+import { getDecodedToken, useLocalStorage } from "../../utils/localStorage";
+import axios from "axios";
+import config from "../../config";
+import { jwtDecode } from "jwt-decode";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 const { RangePicker } = DatePicker;
 
 const dateFormat = "YYYY-MM-DD";
@@ -60,13 +64,21 @@ const AllPatients = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const decodedToken = getDecodedToken();
+  const [getToken, setToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+  );
   const isAdmin = decodedToken?.result?.admin;
+  const { profile } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
   const { uploadDocCategories, isLoading } = useSelector(
     (state) => state.uploadDoc
   );
+  const dischargeSummery = profile?.module_data?.find(
+    (item) => item?.type === "MyT_patient" || item?.type === "dis_patient"
+  );
   const { userId } = useSelector((state) => state.doctors);
   const [locationPath, setLocationPath] = useState("/");
+  const [tokenData, setTokenData] = useState(null);
   const [allPatientsData, setAllPatientsData] = useState([]);
   const [loading, setOnLoad] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -90,6 +102,31 @@ const AllPatients = () => {
   const fileInputRef = useRef(null);
   const observer = useRef();
   const MESSAGE_KEY = "patient_update_message";
+
+  useEffect(() => {
+    if (profile) {
+      const getStorageData = async () => {
+        const token = await getToken();
+        if (token !== undefined) {
+          try {
+            var decoded = jwtDecode(token);
+            setTokenData(decoded.result);
+            window.beamer_config = {
+              ...window.beamer_config,
+              product_id: "JBgEuAKX59541",
+              filter: profile?.dp_name,
+              user_firstname: profile?.um_name,
+              user_lastname: "",
+              user_id: decoded.result.user_id,
+            };
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      };
+      getStorageData();
+    }
+  }, [profile]);
 
   useEffect(() => {
     setLocationPath(location.pathname);
@@ -600,6 +637,50 @@ const AllPatients = () => {
     }
   };
 
+  const clickOldModule = (moduleName) => {
+    SSO_TO_PM().then(async (data) => {
+      if (data.success == 200) {
+        if (!isChrome && !isSafari) {
+          navigate(`/?url=${data.url}&module=${moduleName}&key=phpRedirect`, {
+            replace: true,
+          });
+          navigate(0, { replace: true });
+        } else {
+          window.open(`${data.url}&module=${moduleName}`);
+        }
+      }
+    });
+  };
+
+  async function SSO_TO_PM() {
+    try {
+      const sendData = {
+        doctor_unique_id: tokenData.doctor_unique_id,
+        mobile_no: tokenData.mobile_no,
+        clinic_id: tokenData.clinic_id,
+        hm_business_id: tokenData.hospital_business_id,
+        from: "app",
+      };
+
+      const formData = new FormData();
+      Object.keys(sendData).forEach((key) => {
+        formData.append(key, sendData[key]);
+      });
+
+      const response = await axios.post(config.sso_to_pm_url, formData, {
+        auth: {
+          username: config.sso_to_pm_username,
+          password: config.sso_to_pm_password,
+        },
+      });
+
+      return response.data;
+    } catch (err) {
+      console.log(err.message);
+      console.log(err.response.status);
+    }
+  }
+
   const handleDownloadPatientData = async () => {
     try {
       // Show loading state
@@ -721,7 +802,18 @@ const AllPatients = () => {
                     />
                   </>
                 </div>
-                <div className="d-flex">
+                <div className="d-flex gap-3">
+                  {dischargeSummery &&
+                    Object.keys(dischargeSummery)?.length > 0 && (
+                      <Button
+                        className="btn-manage-bill"
+                        onClick={() => clickOldModule(dischargeSummery?.type)}
+                      >
+                        <span style={{ textTransform: "capitalize" }}>
+                          {dischargeSummery?.title}
+                        </span>
+                      </Button>
+                    )}
                   <Button
                     className="btn-create-bill gap-1"
                     onClick={handleAddPatient}
