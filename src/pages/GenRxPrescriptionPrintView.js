@@ -7,17 +7,14 @@ import axios from "axios";
 import { saveAs } from "file-saver";
 import { jwtDecode } from "jwt-decode";
 
-import { errorMessage } from "../utils/utils";
+import { errorMessage, getClinicName, trackEvent } from "../utils/utils";
 import api from "../api/services/axiosService";
 
 import wtsp from "../assets/images/wtsp.svg";
 import loadingImg from "../assets/images/loading.png";
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
-import {
-  WHATS_APP_API,
-  WTSAP_ERR_MESSAGE,
-} from "../utils/constants";
+import { WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -34,12 +31,13 @@ function GenRxPrescriptionPrintView() {
   const printRef = useRef();
 
   const { loading } = useSelector((state) => state.caseManager);
+  const { profile } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
 
   const { state } = useLocation();
-  const { patient_data } = state;
+  const { patient_data, rxId } = state;
 
   const [printUrl, setPrintUrl] = useState(
     state !== undefined ? `${state.print_url}&voiceRxDigitize=true` : null
@@ -117,6 +115,15 @@ function GenRxPrescriptionPrintView() {
   }, [printUrl]);
 
   const handleSendToWhatsapp = async () => {
+    const clinic_name = getClinicName(profile?.hospital_data);
+    trackEvent("TP_VoiceRx_SendtoWhatsapp", {
+      patient_contact: patient_data?.pm_contact_no || "",
+      patient_id: patient_data?.patient_unique_id || "",
+      doctor_speciality: profile?.dp_name,
+      doctor_unique_id: profile?.doctor_unique_id,
+      clinic_name,
+      rx_id: rxId,
+    });
     const body = {
       tcm_id: state?.tcm_id,
       pm_contact_no: state?.patient_data?.pm_contact_no,

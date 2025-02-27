@@ -45,11 +45,15 @@ import alertIcon from "./../../assets/images/alertIcon.svg";
 import { debounce } from "lodash";
 import * as XLSX from "xlsx";
 import { handleInAppClick } from "../opdBilling/utils/helper";
-import { errorMessage } from "../../utils/utils";
+import { errorMessage, getClinicName, trackEvent } from "../../utils/utils";
 import successIcon from "../../assets/images/end-visit.svg";
 import closeIcon from "../../assets/images/close-visit.svg";
 import CreateCertificate from "../../components/medical_certificate/CreateCertificate";
-import { getDecodedToken } from "../../utils/localStorage";
+import { getDecodedToken, useLocalStorage } from "../../utils/localStorage";
+import axios from "axios";
+import config from "../../config";
+import { jwtDecode } from "jwt-decode";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 const { RangePicker } = DatePicker;
 
 const dateFormat = "YYYY-MM-DD";
@@ -60,13 +64,21 @@ const AllPatients = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const decodedToken = getDecodedToken();
+  const [getToken, setToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+  );
   const isAdmin = decodedToken?.result?.admin;
+  const { profile } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
   const { uploadDocCategories, isLoading } = useSelector(
     (state) => state.uploadDoc
   );
+  const dischargeSummery = profile?.module_data?.find(
+    (item) => item?.type === "MyT_patient" || item?.type === "dis_patient"
+  );
   const { userId } = useSelector((state) => state.doctors);
   const [locationPath, setLocationPath] = useState("/");
+  const [tokenData, setTokenData] = useState(null);
   const [allPatientsData, setAllPatientsData] = useState([]);
   const [loading, setOnLoad] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -90,6 +102,39 @@ const AllPatients = () => {
   const fileInputRef = useRef(null);
   const observer = useRef();
   const MESSAGE_KEY = "patient_update_message";
+  const doctorDetails = {
+    clinic_name: getClinicName(profile?.hospital_data),
+    clinic_id: tokenData?.result?.clinic_id,
+    doctor_id: profile?.doctor_unique_id,
+    doctor_name: profile?.um_name,
+    doctor_mobile_no: profile?.um_contact,
+    device_details: isMobile ? "Tab" : "Web",
+  };
+
+  useEffect(() => {
+    if (profile) {
+      const getStorageData = async () => {
+        const token = await getToken();
+        if (token !== undefined) {
+          try {
+            var decoded = jwtDecode(token);
+            setTokenData(decoded.result);
+            window.beamer_config = {
+              ...window.beamer_config,
+              product_id: "JBgEuAKX59541",
+              filter: profile?.dp_name,
+              user_firstname: profile?.um_name,
+              user_lastname: "",
+              user_id: decoded.result.user_id,
+            };
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      };
+      getStorageData();
+    }
+  }, [profile]);
 
   useEffect(() => {
     setLocationPath(location.pathname);
@@ -212,10 +257,16 @@ const AllPatients = () => {
     [searchQuery]
   );
 
-  const handleAddClick = () => {
+  const handleAddClick = (record) => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
+    trackEvent("TP_AllPatients_UploadMedicalRecords", {
+      ...doctorDetails,
+      patient_id: record?.pm_pid,
+      patient_name: record?.pm_fullname,
+      patient_number: record?.pm_contact_no,
+    });
   };
 
   const handleRetryBtn = () => {
@@ -282,10 +333,24 @@ const AllPatients = () => {
 
   const onPatientDetailsClick = (record) => {
     navigate("/patient_details", { state: { patient_data: record } });
+    trackEvent("TP_AllPatients_PatientDetailsView", {
+      ...doctorDetails,
+      patient_id: record?.pm_pid,
+      patient_name: record?.pm_fullname,
+      patient_number: record?.pm_contact_no,
+    });
   };
 
   const onEditPatientClick = (record) => {
-    navigate("/edit_patient", { state: { patient_data: record } });
+    navigate("/edit_patient", {
+      state: { patient_data: record, from: "/all_patients" },
+    });
+    trackEvent("TP_AllPatients_EditPatientDetails", {
+      ...doctorDetails,
+      patient_id: record?.pm_pid,
+      patient_name: record?.pm_fullname,
+      patient_number: record?.pm_contact_no,
+    });
   };
 
   const getMenuItems = (record) => {
@@ -313,7 +378,7 @@ const AllPatients = () => {
       // },
       {
         label: (
-          <div onClick={handleAddClick}>
+          <div onClick={() => handleAddClick(record)}>
             Upload Medical Records
             {isAndroid && !isBrowser ? (
               <div
@@ -341,12 +406,18 @@ const AllPatients = () => {
             onClick={() => {
               handleShowCertificate(record);
               setPatientData(record);
+              trackEvent("TP_AllPatients_CreateCertificate", {
+                ...doctorDetails,
+                patient_id: record?.pm_pid,
+                patient_name: record?.pm_fullname,
+                patient_number: record?.pm_contact_no,
+              });
             }}
           >
             Create Certificate
           </span>
         ),
-        key: "labparams",
+        key: "createCertificate",
       },
     ];
   };
@@ -433,7 +504,7 @@ const AllPatients = () => {
           <span>
             {record.lastVisitDate
               ? moment(record.lastVisitDate).format("DD-MM-YYYY")
-              : ""}
+              : "-"}
           </span>
         </div>
       ),
@@ -455,6 +526,12 @@ const AllPatients = () => {
             <a
               onClick={(e) => {
                 e.preventDefault();
+                trackEvent("TP_AllPatients_Actionitemkebabmenu", {
+                  ...doctorDetails,
+                  patient_id: record?.pm_pid,
+                  patient_name: record?.pm_fullname,
+                  patient_number: record?.pm_contact_no,
+                });
               }}
             >
               <i className="icon-More" />
@@ -600,6 +677,51 @@ const AllPatients = () => {
     }
   };
 
+  const clickOldModule = (moduleName) => {
+    SSO_TO_PM().then(async (data) => {
+      if (data.success == 200) {
+        if (!isChrome && !isSafari) {
+          navigate(`/?url=${data.url}&module=${moduleName}&key=phpRedirect`, {
+            replace: true,
+          });
+          navigate(0, { replace: true });
+        } else {
+          window.open(`${data.url}&module=${moduleName}`);
+        }
+      }
+    });
+    trackEvent("TP_AllPatients_DischargeSummary", doctorDetails);
+  };
+
+  async function SSO_TO_PM() {
+    try {
+      const sendData = {
+        doctor_unique_id: tokenData.doctor_unique_id,
+        mobile_no: tokenData.mobile_no,
+        clinic_id: tokenData.clinic_id,
+        hm_business_id: tokenData.hospital_business_id,
+        from: "app",
+      };
+
+      const formData = new FormData();
+      Object.keys(sendData).forEach((key) => {
+        formData.append(key, sendData[key]);
+      });
+
+      const response = await axios.post(config.sso_to_pm_url, formData, {
+        auth: {
+          username: config.sso_to_pm_username,
+          password: config.sso_to_pm_password,
+        },
+      });
+
+      return response.data;
+    } catch (err) {
+      console.log(err.message);
+      console.log(err.response.status);
+    }
+  }
+
   const handleDownloadPatientData = async () => {
     try {
       // Show loading state
@@ -635,7 +757,10 @@ const AllPatients = () => {
         "Last Visited": patient.lastVisitDate
           ? moment(patient.lastVisitDate).format("DD-MM-YYYY")
           : "",
-        "Patient Address": patient.pm_address,
+        "Street Address": patient.pm_address,
+        City: patient.pm_city,
+        State: patient.pm_state,
+        "Pin Code": patient.pm_pincode,
       }));
 
       const workbook = XLSX.utils.book_new();
@@ -651,6 +776,9 @@ const AllPatients = () => {
         { wch: 15 },
         { wch: 12 },
         { wch: 30 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
       ];
 
       XLSX.utils.book_append_sheet(workbook, worksheet, "Patient Data");
@@ -687,6 +815,7 @@ const AllPatients = () => {
       }
 
       setStartLoader(false);
+      trackEvent("TP_AllPatients_DownloadPatients", doctorDetails);
     } catch (error) {
       console.error("Error in handleDownloadPatientData:", error);
       errorMessage("Error downloading patient data");
@@ -698,6 +827,7 @@ const AllPatients = () => {
     navigate("/add_patient", {
       state: { from: "/all_patients" },
     });
+    trackEvent("TP_AllPatients_AddNewPatient", doctorDetails);
   };
 
   return (
@@ -721,7 +851,18 @@ const AllPatients = () => {
                     />
                   </>
                 </div>
-                <div className="d-flex">
+                <div className="d-flex gap-3">
+                  {dischargeSummery &&
+                    Object.keys(dischargeSummery)?.length > 0 && (
+                      <Button
+                        className="btn-manage-bill"
+                        onClick={() => clickOldModule(dischargeSummery?.type)}
+                      >
+                        <span style={{ textTransform: "capitalize" }}>
+                          {dischargeSummery?.title}
+                        </span>
+                      </Button>
+                    )}
                   <Button
                     className="btn-create-bill gap-1"
                     onClick={handleAddPatient}
@@ -872,7 +1013,7 @@ const AllPatients = () => {
                     )}{" "}
                     of {allPatientsData?.total} patients)
                   </div>
-                  {planDetails?.currentPlanStatus === "PAID" && isAdmin && (
+                  {planDetails?.currentPlanStatus === "PAID" && isAdmin ? (
                     <div
                       className="d-flex justify-content-between align-items-center billing-download"
                       onClick={handleDownloadPatientData}
@@ -882,7 +1023,7 @@ const AllPatients = () => {
                         style={{ cursor: "pointer", color: "#4B4AD5" }}
                       />
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </Row>
             </div>
