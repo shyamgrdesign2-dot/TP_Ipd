@@ -24,7 +24,7 @@ import { useGrowthChart } from "./growthChart/useGrowthChart";
 import useObstetric from "./obstetric/useObstetric";
 import { getModules } from "../redux/customModuleSlice";
 import moment from "moment";
-import { fetchBillsByPatient, listAdvancedDepositByPatient } from "./opdBilling/service";
+import { fetchBillsByPatient, fetchPatientWalletBalance, listAdvancedDepositByPatient } from "./opdBilling/service";
 
 function ConfigurePrintSetting() {
 
@@ -51,6 +51,7 @@ function ConfigurePrintSetting() {
     })
     const [patientBills, setPatientBills] = useState([]);
     const [advanceReceipts, setAdvanceReceipts] = useState([]);
+    const [patientWalletBalance, setPatientWalletBalance] = useState(0);
 
     const {customModules} = useSelector((state) => state.customModules);
     const dispatch = useDispatch();
@@ -132,6 +133,10 @@ function ConfigurePrintSetting() {
         if (patientAdvanceDeposit?.receipts?.length > 0) {
           setAdvanceReceipts(patientAdvanceDeposit?.receipts);
         }
+        const patientWalletBalanceRes = await fetchPatientWalletBalance(
+            caseManagerData?.patient_data?.patient_unique_id
+        );
+        setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
     };
 
     return (
@@ -158,7 +163,7 @@ function ConfigurePrintSetting() {
                                 <div className="titleprint mt-20">Preview</div>
                                 <div ref={divRef} className="rounded-20px bg-white mt-20 overflow-hidden">
                                     <div className="position-relative printheight">
-                                        {caseManagerData !== undefined ? <Quixote mode={NORMAL} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={patientBills} advanceReceipts={advanceReceipts} /> : <QuixoteCertificate mode={NORMAL} />}
+                                        {caseManagerData !== undefined ? <Quixote mode={NORMAL} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={patientBills} advanceReceipts={advanceReceipts} patientWalletBalance={patientWalletBalance} /> : <QuixoteCertificate mode={NORMAL} />}
                                     </div>
                                 </div>
                             </div>

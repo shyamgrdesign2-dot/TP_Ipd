@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData, customModules, patientBills, advanceReceipts } = props
+    let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData, customModules, patientBills, advanceReceipts, patientWalletBalance } = props
 
     const gynecHistoryData = caseManagerData?.gynecHistoryData
     const labParamsData = caseManagerData?.labParamsData
@@ -4656,6 +4656,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             )
                                         }
                                     })}
+                                    {patientWalletBalance > 0 && (<Text style={{ color: "#171725", fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, }}>
+                                        {"\n"}
+                                        {`Available Advance Balance ₹${patientWalletBalance}`}
+                                    </Text>)}
                                 </Text>
                             )
                         )
