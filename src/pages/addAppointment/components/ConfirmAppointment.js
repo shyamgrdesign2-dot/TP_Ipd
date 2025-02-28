@@ -2,10 +2,20 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { AutoComplete, Button, Col, Input, Row, Select } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { clearSearch, listCategories, searchPatients } from "../../../redux/appointmentsSlice";
+import { clearSearch, getCaseTypes, listCategories, searchPatients } from "../../../redux/appointmentsSlice";
 import { isAlphabet, isNumeric } from "../../../utils/utils";
 
-function ConfirmAppointment({ handleConfirmAppointment, clickedPatient, setClickedPatient }) {
+function ConfirmAppointment({
+    handleConfirmAppointment,
+    clickedPatient,
+    setClickedPatient,
+    selectedCashType,
+    setSelectedCashType,
+    selectedCategories,
+    setSelectedCategories,
+    remarks,
+    setRemarks
+}) {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -15,11 +25,12 @@ function ConfirmAppointment({ handleConfirmAppointment, clickedPatient, setClick
     const [searchQuery, setSearchQuery] = useState("");
     const [searchOptions, setSearchOptions] = useState([]);
 
-    const [selectedCashType, setSelectedCashType] = useState(null);
-    const [selectedCategories, setSelectedCategories] = useState(null);
-
     useEffect(() => {
         dispatch(listCategories())
+        caseTypes?.length === 0 && getCaseTypes()
+    }, []);
+
+    useEffect(() => {
         if (searchQuery) {
             const timeOutId = setTimeout(() => {
                 dispatch(searchPatients({ searchQuery: searchQuery, company: "" }));
@@ -137,17 +148,25 @@ function ConfirmAppointment({ handleConfirmAppointment, clickedPatient, setClick
 
 
     const onSelectCaseType = useCallback(
-        (data, e) => {
-            setSelectedCashType(e.key);
+        (data) => {
+            setSelectedCashType(data);
         },
         [selectedCashType]
     );
 
     const onSelectCategories = useCallback(
-        (data, e) => {
-            setSelectedCategories(e.key);
+        (data) => {
+            setSelectedCategories(data);
         },
         [selectedCategories]
+    );
+
+
+    const onChangeInputRemarks = useCallback(
+        (e) => {
+            setRemarks(e.target.value)
+        },
+        [remarks]
     );
 
     return (
@@ -217,7 +236,7 @@ function ConfirmAppointment({ handleConfirmAppointment, clickedPatient, setClick
                         placeholder="Select Case Type"
                         options={caseTypes?.map((item) => {
                             return {
-                                key: JSON.stringify(item),
+                                key: item.toct_id,
                                 value: item.toct_id,
                                 label: (
                                     <div key={item.toct_id}>
@@ -226,7 +245,7 @@ function ConfirmAppointment({ handleConfirmAppointment, clickedPatient, setClick
                                 ),
                             };
                         })}
-                        value={selectedCashType && JSON.parse(selectedCashType).toct_id}
+                        value={selectedCashType}
                         onSelect={onSelectCaseType}
                     />
                 </Col>
@@ -237,7 +256,7 @@ function ConfirmAppointment({ handleConfirmAppointment, clickedPatient, setClick
                         placeholder="Select Category"
                         options={categoriesList?.map((item) => {
                             return {
-                                key: JSON.stringify(item),
+                                key: item.pt_id,
                                 value: item.pt_id,
                                 label: (
                                     <div key={item.pt_id}>
@@ -246,13 +265,13 @@ function ConfirmAppointment({ handleConfirmAppointment, clickedPatient, setClick
                                 ),
                             };
                         })}
-                        value={selectedCategories && JSON.parse(selectedCategories).pt_id}
+                        value={selectedCategories}
                         onSelect={onSelectCategories}
                     />
                 </Col>
             </Row>
             <label className="d-block mb-2">Remarks for Receptionist</label>
-            <Input.TextArea placeholder="Write your remarks" className="textareaPlaceholder fontroboto text-main" rows={3} />
+            <Input.TextArea placeholder="Write your remarks" className="textareaPlaceholder fontroboto text-main" rows={3} onChange={onChangeInputRemarks} />
         </div>
     )
 }

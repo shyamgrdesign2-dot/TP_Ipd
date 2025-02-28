@@ -312,12 +312,7 @@ export const listCategories = createAsyncThunk(
     async () => {
         try {
             const result = await ApiAppointments.listCategories();
-            console.log(result)
-            // if (result.status) {
-            //     return result.data.case_type;
-            // } else {
-            //     throw Error(result.error);
-            // }
+            return result;
         } catch (error) {
             console.log("error: ", error);
             throw Error(error);
@@ -549,6 +544,12 @@ const appointmentsSlice = createSlice({
             })
             .addCase(copyGetAllAppointment1.rejected, (state, action) => {
                 state.setOnLoad = false;
+            })
+            .addCase(listCategories.fulfilled, (state, action) => {
+                state.categoriesList = action.payload?.categories;
+            })
+            .addCase(listCategories.rejected, (state, action) => {
+                state.categoriesList = [];
             })
     },
 });
