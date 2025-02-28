@@ -396,6 +396,7 @@ const PreviewBill = ({
             handleDrawerConfigureSettings={handleDrawerConfigureSettings}
             patientData={patientData}
             billData={billDetails}
+            totalAdvanceBalance={totalAdvanceBalance}
             isDepositReceipt={isDepositReceipt}
           />
         </Drawer>

@@ -2,7 +2,7 @@ import { Text, View } from "@react-pdf/renderer";
 import { PX_TO_PT, styles } from "./constants";
 import React from "react";
 
-const BillDetails = ({ pageFormat, billData }) => {
+const BillDetails = ({ pageFormat, billData, totalAdvanceBalance }) => {
   const {
     billItems,
     subTotal,
@@ -77,6 +77,14 @@ const BillDetails = ({ pageFormat, billData }) => {
       label: `Refunded Via ${mode.paymentMode}:`,
       value: `₹${mode.amount.toFixed(2)}`,
     })),
+    totalAdvanceBalance > 0
+      ? {
+          label: "Advance Balance:",
+          value: `₹${totalAdvanceBalance?.toFixed(2)}`,
+          color: "#A461D8",
+          bold: true,
+        }
+      : undefined,
   ]?.filter((item) => item);
 
   return (

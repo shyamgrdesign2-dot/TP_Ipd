@@ -275,8 +275,8 @@ function BillingDashboard({ patientData, fromPath }) {
                     </>
                   )}
                 </div>
-                <div className="d-flex gap-1" >
-                  { patientData &&
+                <div className="d-flex gap-1">
+                  {patientData && (
                     <div className="d-sm-flex d-block">
                       <Popover
                         open={popOverVideo}
@@ -301,7 +301,7 @@ function BillingDashboard({ patientData, fromPath }) {
                         />
                       )}
                     </div>
-                  }
+                  )}
                   {selectedTab === "billingtable" && !patientData && (
                     <Button
                       className="btn-manage-bill"
@@ -351,6 +351,7 @@ function BillingDashboard({ patientData, fromPath }) {
             onClose={handleManage3cBill}
             open={form3cDrawer}
             width="100%"
+            push={false}
           >
             <Manage3cBill
               handleForm3cBill={handleManage3cBill}

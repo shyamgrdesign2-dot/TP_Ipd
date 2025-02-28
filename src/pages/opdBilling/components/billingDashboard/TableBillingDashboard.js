@@ -256,6 +256,7 @@ const TableBillingDashboard = forwardRef(
                 selectedDoctors={selectedDoctors}
                 setSelectedDoctors={setSelectedDoctors}
                 createBillDrawer={createBillDrawer}
+                totalAdvanceBalance={totalAdvanceBalance}
               />
             ) : (
               <AdvanceDepositTable

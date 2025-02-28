@@ -124,6 +124,7 @@ function PrescriptionPrintView() {
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [patientBills, setPatientBills] = useState([]);
     const [advanceReceipts, setAdvanceReceipts] = useState([]);
+    const [patientWalletBalance, setPatientWalletBalance] = useState(0);
     const {isGynaecHistoryAccessable} = useAccess();
     const {planDetails} = useSelector(state => state.subscription);
 
@@ -202,6 +203,7 @@ function PrescriptionPrintView() {
         const patientAdvanceDeposit = await listAdvancedDepositByPatient(
           queryParams
         );
+        setPatientWalletBalance(patientAdvanceDeposit?.summary?.totalAdvanceBalance);
         if (patientAdvanceDeposit?.receipts?.length > 0) {
           setAdvanceReceipts(patientAdvanceDeposit?.receipts);
         }
@@ -493,6 +495,7 @@ function PrescriptionPrintView() {
                         handleCreateBillDrawer={handleCreateBillDrawer} 
                         patientBills={patientBills} 
                         getPatientBills={getPatientBills}
+                        totalAdvanceBalance={patientWalletBalance}
                     />
                 </Drawer>
             }

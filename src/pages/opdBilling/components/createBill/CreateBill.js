@@ -867,6 +867,7 @@ const CreateBill = ({
                     address: createRes?.patient?.address,
                   }
             }
+            totalAdvanceBalance={patientWalletBalance}
             profile={profile}
             billData={createRes}
             gstIn={advancedSettings?.GSTIN}
@@ -1329,7 +1330,7 @@ const CreateBill = ({
                     )}
                   </div>
                 }
-                
+
                 {isRxPage ? (
                   <>
                     <Button
@@ -1936,6 +1937,7 @@ const CreateBill = ({
             patientData={patientData}
             billData={billData}
             isPreviewFromTable={isPreviewFromTable}
+            totalAdvanceBalance={totalAdvanceBalance}
           />
         </Drawer>
       )}

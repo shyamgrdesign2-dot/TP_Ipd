@@ -43,7 +43,10 @@ import Form3cPrint from "./Form3cPrint.js";
 import { MESSAGE_KEY } from "../../../../utils/constants.js";
 import visitEnd from "../../../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../../../assets/images/close-visit.svg";
-import { fetchBillingDashboard } from "../../service.js";
+import {
+  fetchBillingDashboard,
+  fetchPatientWalletBalance,
+} from "../../service.js";
 import {
   formatDateWithOrdinal,
   handleDownload,
@@ -106,6 +109,7 @@ const Manage3cBills = forwardRef(
     const [sortConfig, setSortConfig] = useState({ field: null, order: null });
     const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
     const [billData, setBillData] = useState(null);
+    const [patientWalletBalance, setPatientWalletBalance] = useState(0);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const tableRef = useRef(null);
@@ -129,6 +133,15 @@ const Manage3cBills = forwardRef(
     const handlePrintWeb = useReactToPrint({
       content: () => printableRef.current,
     });
+
+    const getPatientWalletBalance = async (patientId) => {
+      const patientWalletBalanceRes = await fetchPatientWalletBalance(
+        patientId
+      );
+      if (patientWalletBalanceRes?.advanceDepositBalance) {
+        setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
+      }
+    };
 
     const handleForm3cPrint = () => {
       handlePrintClick(
@@ -369,7 +382,8 @@ const Manage3cBills = forwardRef(
         render: (text, record) => (
           <div
             className="cursor-pointer"
-            onClick={() => {
+            onClick={async () => {
+              await getPatientWalletBalance(record?.patientId);
               setBillData(record);
               handleDrawerPreviewBill();
             }}
@@ -689,6 +703,7 @@ const Manage3cBills = forwardRef(
                 handleCreateBillDrawer={handleDrawerPreviewBill}
                 isPreviewFromTable={true}
                 billData={billData}
+                totalAdvanceBalance={patientWalletBalance}
               />
             </Drawer>
           )}

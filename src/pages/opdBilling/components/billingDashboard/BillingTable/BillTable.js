@@ -2,7 +2,7 @@ import { Drawer, Dropdown, Table, message } from "antd";
 import { useState, useCallback } from "react";
 import PreviewBill from "../../../PreviewBill";
 import RefundBill from "../RefundBill/RefundBill";
-import { addBillsToForm3C } from "../../../service";
+import { addBillsToForm3C, fetchPatientWalletBalance } from "../../../service";
 import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
 import visitEnd from "../../../../../assets/images/end-visit.svg";
 import { MESSAGE_KEY } from "../../../../../utils/constants";
@@ -22,10 +22,12 @@ const BillTable = ({
   hasMore,
   tableRef,
   patientAdvanceData,
+  totalAdvanceBalance,
 }) => {
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [billData, setBillData] = useState(null);
+  const [patientWalletBalance, setPatientWalletBalance] = useState(0);
 
   const handleDrawerPreviewBill = () => {
     setPreviewBillDrawer(!previewBillDrawer);
@@ -89,6 +91,13 @@ const BillTable = ({
     setRefundBillDrawer(false);
   }, [getPatientBills]);
 
+  const getPatientWalletBalance = async (patientId) => {
+    const patientWalletBalanceRes = await fetchPatientWalletBalance(patientId);
+    if (patientWalletBalanceRes?.advanceDepositBalance) {
+      setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
+    }
+  };
+
   const columns = [
     {
       title: "#",
@@ -107,7 +116,10 @@ const BillTable = ({
       render: (text, record) => (
         <div
           className="cursor-pointer"
-          onClick={() => {
+          onClick={async () => {
+            if (!isPatientScreen) {
+              await getPatientWalletBalance(record?.patientId);
+            }
             setBillData(record);
             handleDrawerPreviewBill();
           }}
@@ -243,6 +255,11 @@ const BillTable = ({
             items: getMenuItems(record),
           }}
           trigger={["click"]}
+          onClick={() => {
+            if (!isPatientScreen) {
+              getPatientWalletBalance(record?.patientId);
+            }
+          }}
         >
           <i className="icon-More"></i>
         </Dropdown>
@@ -313,7 +330,7 @@ const BillTable = ({
       <Table
         ref={tableRef}
         className="billing-table px-0"
-        style={{ position: "relative",overflow:"hidden" }}
+        style={{ position: "relative", overflow: "hidden" }}
         columns={columns}
         width="100%"
         dataSource={data}
@@ -338,6 +355,9 @@ const BillTable = ({
             patientAdvanceData={patientAdvanceData}
             handleMessageForm3c={handleMessageForm3c}
             getPatientBills={getPatientBills}
+            totalAdvanceBalance={
+              isPatientScreen ? totalAdvanceBalance : patientWalletBalance
+            }
           />
         </Drawer>
       )}
