@@ -17,6 +17,7 @@ const initialState = {
     setOnLoad: true,
     appointmentsData: [],
     finishedData: [],
+    zydusAappointmentData: [],
     caseTypes: [],
     salutationData: [],
     pincodeInfo: {},
@@ -240,6 +241,30 @@ export const zydusConsultAppoint = createAsyncThunk(
                 if (action.meta.requestStatus === "fulfilled") {
                     await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.tokenNo))
                     dispatch(zydusConsultAppoint({ siteId, empNo, date, apStatue }))
+                }
+            }
+            // console.log("error: ", error);
+            throw Error(error);
+        }
+    }
+);
+
+export const zydusAppointment = createAsyncThunk(
+    "records/zydusAppointment",
+    async ({ siteId, empNo, date }, { dispatch }) => {
+        try {
+            const result = await ApiAppointments.appointments(siteId, empNo, date);
+            if (result.status == 'success') {
+                return result.data;
+            } else {
+                throw Error(result.error);
+            }
+        } catch (error) {
+            if (error.response.status === 401) {
+                const action = await dispatch(ictAuthToken())
+                if (action.meta.requestStatus === "fulfilled") {
+                    await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.tokenNo))
+                    dispatch(zydusAppointment({ siteId, empNo, date }))
                 }
             }
             // console.log("error: ", error);
@@ -508,6 +533,9 @@ const appointmentsSlice = createSlice({
                 if (action.meta.arg.page == 0) {
                     state.appointmentsData = [];
                 }
+            })
+            .addCase(zydusAppointment.fulfilled, (state, action) => {
+                state.zydusAappointmentData = action.payload
             })
             .addCase(copyGetAllAppointment1.pending, (state) => {
                 state.setOnLoad = true;
