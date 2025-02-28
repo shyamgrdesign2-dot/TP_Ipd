@@ -2,11 +2,15 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { AutoComplete, Button, Col, Input, Row, Select } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import dayjs from "dayjs";
 import { clearSearch, getCaseTypes, listCategories, searchPatients } from "../../../redux/appointmentsSlice";
 import { isAlphabet, isNumeric } from "../../../utils/utils";
 
 function ConfirmAppointment({
     handleConfirmAppointment,
+    selectedDoctor,
+    selectedDate,
+    selectedTimeSlot,
     clickedPatient,
     setClickedPatient,
     selectedCashType,
@@ -21,13 +25,14 @@ function ConfirmAppointment({
     const dispatch = useDispatch();
 
     const { patients, error, caseTypes, categoriesList } = useSelector((state) => state.records);
+    const { doctorList } = useSelector((state) => state.bulkMessages);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [searchOptions, setSearchOptions] = useState([]);
 
     useEffect(() => {
-        dispatch(listCategories())
-        caseTypes?.length === 0 && getCaseTypes()
+        categoriesList?.length === 0 && dispatch(listCategories())
+        caseTypes?.length === 0 && dispatch(getCaseTypes())
     }, []);
 
     useEffect(() => {
@@ -173,13 +178,15 @@ function ConfirmAppointment({
         <div className="bg-white h-100 p-20">
             <div className="d-flex align-items-center rounded-10px mb-4" style={{ backgroundColor: '#F2F4F7' }}>
                 <i className="bg-custom-purple fs-4 rounded-start-3 icon-patients p-3 text-primary"></i>
-                <div className="flex-grow-1 py-3 px-2 text-truncate fw-semibold fs-16">Dr. Mihir Behara</div>
-                <i className="text-primary icon-Edit cursor-pointer p-3" onClick={handleConfirmAppointment}></i>
+                <div className="flex-grow-1 py-3 px-2 text-truncate fw-semibold fs-16">{doctorList?.find(doctor => doctor.um_id == selectedDoctor)?.um_name}</div>
+                {/* {doctorList?.length > 1 && ( */}
+                    <i className="text-primary icon-Edit cursor-pointer p-3" onClick={()=>handleConfirmAppointment('edit_doctor')}></i>
+                {/* )} */}
             </div>
             <div className="d-flex align-items-center rounded-10px mb-4" style={{ backgroundColor: '#F2F4F7' }}>
                 <i className="icon-Queue text-primary rounded-start-3 p-3 bg-custom-purple"></i>
-                <div className="flex-grow-1 py-3 px-2 text-truncate fw-semibold fs-16">07:15 PM (Today) <span className="fw-normal"> | 08th Feb 2024 </span> </div>
-                <i className="icon-Edit text-primary cursor-pointer p-3" onClick={handleConfirmAppointment}></i>
+                <div className="flex-grow-1 py-3 px-2 text-truncate fw-semibold fs-16">{dayjs(selectedTimeSlot, "HH:mm:ss").format("hh:mm A")} (Today) <span className="fw-normal"> | {selectedDate.format("Do MMM YYYY")} </span> </div>
+                <i className="icon-Edit text-primary cursor-pointer p-3" onClick={()=>handleConfirmAppointment('edit_time')}></i>
             </div>
 
             <div className='mb-4'>

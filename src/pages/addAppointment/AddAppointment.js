@@ -20,6 +20,9 @@ import profileCircle from "../../assets/images/profile-circle.svg";
 import { DownOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
+import { isChrome, isSafari } from "react-device-detect";
+import config from "../../config";
+import axios from "axios";
 
 const TIME_SECTIONS = {
   MIDNIGHT: { start: "00:00", end: "03:00", label: "Midnight" },
@@ -82,7 +85,8 @@ const TimeSlotContainer = ({
   selectedTimeSlot,
   setSelectedTimeSlot,
   isLoading,
-  handleConfirmAppointment
+  handleConfirmAppointment,
+  editTime
 }) => {
   if (isLoading) {
     return <div className="slots-info">Loading slots...</div>;
@@ -117,7 +121,7 @@ const TimeSlotContainer = ({
             </div>
             <div className="contact-info">
               <span>
-                <i className="icon-phone"/> {appointment.pm_contact_no}
+                <i className="icon-phone" /> {appointment.pm_contact_no}
               </span>
               <span>
                 <i className="icon-calendar" /> {appointment.pm_pid}
@@ -153,12 +157,13 @@ const TimeSlotContainer = ({
   return (
     <>
       <div className="slots-info">{renderSlotsCount(slots)}</div>
+      {editTime && <div className="slots-info">{'Hello'}</div>}
       <div className="slots-container">
         {slots?.map((slot, index) => {
-          const slotStatus = slot.status === "unavailable" || slot.status === "leave" 
-            ? slot.status 
+          const slotStatus = slot.status === "unavailable" || slot.status === "leave"
+            ? slot.status
             : slot.status;
-          
+
           const slotContent = (
             <div
               className={`slot ${slotStatus}`}
@@ -177,7 +182,7 @@ const TimeSlotContainer = ({
           return slot.status === "available" ? (
             slotContent
           ) : (
-            <Tooltip 
+            <Tooltip
               key={index}
               title={getTooltipContent(slot)}
               overlayClassName="slot-tooltip"
@@ -288,7 +293,7 @@ function AddAppointment() {
   useEffect(() => {
     // Fetch slots when doctor or date changes
     const fetchSlots = async () => {
-      if ( selectedDoctor || profile?.um_name && selectedDate) {
+      if (selectedDoctor || profile?.um_name && selectedDate) {
         setIsLoadingSlots(true);
         const token = await getToken();
         try {
@@ -296,7 +301,7 @@ function AddAppointment() {
           setTokenData(decoded.result);
           const formattedDate = dayjs(selectedDate).format('YYYY-MM-DD');
           const response = await getSlotsList(selectedDoctor || decoded.result?.user_id, formattedDate);
-          
+
           if (response?.status) {
             const generatedSlots = generateTimeSlots(response.slots || []);
             setTimeSlots(generatedSlots);
@@ -325,9 +330,13 @@ function AddAppointment() {
 
   // Transform doctor list into options format for Ant Design Select
   const doctorOptions = doctorList?.map((doctor) => ({
-    value: doctor.um_id,
+    value: String(doctor.um_id),
     label: doctor.um_name,
   }));
+
+  useEffect(() => {
+    decodedToken && setSelectedDoctor(decodedToken?.result?.user_id);
+  }, [decodedToken]);
 
   const handleDoctorChange = (value) => {
     setSelectedDoctor(value);
@@ -338,6 +347,8 @@ function AddAppointment() {
 
   const [confirmAppointment, setConfirmAppointment] = useState(false);
 
+  const [editDoctor, setEditDoctor] = useState(false);
+  const [editTime, setEditTime] = useState(false);
   const [clickedPatient, setClickedPatient] = useState(null);
   const [selectedCashType, setSelectedCashType] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState(null);
@@ -351,17 +362,24 @@ function AddAppointment() {
   }, [patient_data]);
 
   const handleConfirmAppointment = useCallback(
-    () => {
+    (flag) => {
+      if (flag == 'edit_doctor') {
+        setEditDoctor(true)
+      } else if (flag == 'edit_time') {
+        setEditTime(true)
+      } else {
+        setEditTime(false)
+      }
       setConfirmAppointment(!confirmAppointment)
     },
-    [confirmAppointment]
+    [confirmAppointment, editDoctor, editTime]
   );
 
   const validation = () => !(clickedPatient && selectedCashType);
 
   const onBookAppointmentPress = async () => {
     let sendData = {
-      "doctor_id": 493,
+      "doctor_id": selectedDoctor,
       "patient_unique_id": clickedPatient?.patient_unique_id,
       "pm_pid": clickedPatient?.pm_pid,
       "appointment_date": "2025-02-28",
@@ -380,6 +398,61 @@ function AddAppointment() {
     // }
   }
 
+  async function SSO_TO_PM(flag) {
+    try {
+      const tokenData = decodedToken?.result
+
+      var sendData = {
+        doctor_unique_id: tokenData.doctor_unique_id,
+      };
+
+      var URL;
+
+      if (flag === 1) {
+        sendData['mobile_no'] = tokenData.mobile_no
+        sendData['clinic_id'] = tokenData.clinic_id
+        sendData['hm_business_id'] = tokenData.hospital_business_id
+        sendData['from'] = 'app'
+        URL = config.sso_to_pm_url
+      } else if (flag === 2) {
+        sendData['hospital_business_id'] = tokenData.hospital_business_id
+        URL = config.sso_to_pm_admin_url
+      }
+
+      const formData = new FormData();
+      Object.keys(sendData).forEach((key) => {
+        formData.append(key, sendData[key]);
+      });
+
+      const response = await axios.post(URL, formData,
+        {
+          auth: {
+            username: config.sso_to_pm_username,
+            password: config.sso_to_pm_password,
+          }
+        },
+      );
+
+      return response.data;
+    } catch (err) {
+      console.log(err.message);
+      console.log(err.response.status);
+    }
+  }
+
+  const myAvailability = async () => {
+    SSO_TO_PM(1).then(async (data) => {
+      if (data.success == 200) {
+        if (!isChrome && !isSafari) {
+          navigate(`/?url=${data.url}&module=my_availability&key=phpRedirect`, { replace: true })
+          navigate(0, { replace: true });
+        } else {
+          await window.open(`${data.url}&module=my_availability`)
+        }
+      }
+    });
+  }
+  
   return (
     <>
       <div className="welcomesection position-relative">
@@ -411,7 +484,7 @@ function AddAppointment() {
 
               <Button
                 variant="primary"
-                onClick={handleConfirmAppointment}
+                onClick={myAvailability}
                 className="px-3 btn-41 d-flex align-items-center rounded-10px"
               >
                 <i className="icon-calendar me-2"></i>
@@ -467,20 +540,18 @@ function AddAppointment() {
               <div
                 key={date.format("YYYY-MM-DD")}
                 onClick={() => handleChipClick(date)}
-                className={`date-chip ${
-                  date.format("YYYY-MM-DD") ===
+                className={`date-chip ${date.format("YYYY-MM-DD") ===
                   selectedDate.format("YYYY-MM-DD")
-                    ? "active"
-                    : ""
-                }`}
+                  ? "active"
+                  : ""
+                  }`}
               >
                 <div
-                  className={`${
-                    date.format("YYYY-MM-DD") ===
+                  className={`${date.format("YYYY-MM-DD") ===
                     selectedDate.format("YYYY-MM-DD")
-                      ? "date-chip active"
-                      : ""
-                  }`}
+                    ? "date-chip active"
+                    : ""
+                    }`}
                 >
                   {date.format("D")}
                 </div>
@@ -501,12 +572,18 @@ function AddAppointment() {
         <div className="doctor-selection">
           <Select
             placeholder="Select Doctor"
-            value={selectedDoctor ? selectedDoctor : profile?.um_name}
+            value={selectedDoctor}
             onChange={handleDoctorChange}
             options={doctorOptions}
-            style={{ width: "20%" }}
             className="doctor-select"
             disabled={!doctorOptions?.length}
+            onDropdownVisibleChange={(open) => setEditDoctor(open)}
+            open={editDoctor}
+            style={{
+              width: "20%",
+              border: editDoctor ? "1px solid #4B4AD5" : "none",
+              borderRadius: editDoctor ? "10px" : "none",
+            }}
           />
         </div>
 
@@ -519,6 +596,7 @@ function AddAppointment() {
                 setSelectedTimeSlot={setSelectedTimeSlot}
                 isLoading={isLoadingSlots}
                 handleConfirmAppointment={handleConfirmAppointment}
+                editTime={editTime}
               />
             </TabPane>
             <TabPane tab="Afternoon" key="AFTERNOON">
@@ -528,6 +606,7 @@ function AddAppointment() {
                 setSelectedTimeSlot={setSelectedTimeSlot}
                 isLoading={isLoadingSlots}
                 handleConfirmAppointment={handleConfirmAppointment}
+                editTime={editTime}
               />
             </TabPane>
             <TabPane tab="Evening" key="EVENING">
@@ -537,6 +616,7 @@ function AddAppointment() {
                 setSelectedTimeSlot={setSelectedTimeSlot}
                 isLoading={isLoadingSlots}
                 handleConfirmAppointment={handleConfirmAppointment}
+                editTime={editTime}
               />
             </TabPane>
           </Tabs>
@@ -557,6 +637,9 @@ function AddAppointment() {
       >
         <ConfirmAppointment
           handleConfirmAppointment={handleConfirmAppointment}
+          selectedDoctor={selectedDoctor}
+          selectedDate={selectedDate}
+          selectedTimeSlot={selectedTimeSlot}
           clickedPatient={clickedPatient}
           setClickedPatient={setClickedPatient}
           selectedCashType={selectedCashType}
