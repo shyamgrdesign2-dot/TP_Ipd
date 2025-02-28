@@ -50,7 +50,8 @@ import {
     syncZydusPatientAndAppointment,
     copyGetAllAppointment,
     viewPatient,
-    copyGetAllAppointment1
+    copyGetAllAppointment1,
+    zydusAppointment
 } from "../redux/appointmentsSlice";
 import { viewCaseManager } from "../redux/caseManagerSlice";
 
@@ -97,7 +98,7 @@ function AppointmentData({ locationPath }) {
     const from = searchParams.get("from");
     const [modalOpen, setModalOpen] = useState(false);
 
-    const { queueCount, finishedCount, cancelledCount, zydusEncounterCount, zydusAappointmentCount, appointmentsData, caseTypes, loading, setOnLoad, finishedData } = useSelector((state) => state.records);
+    const { queueCount, finishedCount, cancelledCount, zydusEncounterCount, zydusAappointmentCount, appointmentsData, caseTypes, loading, setOnLoad, finishedData, zydusAappointmentData } = useSelector((state) => state.records);
     const dispatch = useDispatch();
 
     const [date, setDate] = useState({
@@ -468,6 +469,13 @@ function AppointmentData({ locationPath }) {
                 if (encounterAction.meta.requestStatus === "fulfilled") {
                     encounterData = encounterAction.payload
                 }
+
+                var sendZydusAppointmentData = {
+                    siteId: siteId,
+                    empNo: empNo.toString(),
+                    date: moment(date.startDate).format(showDateFormat)
+                }
+                dispatch(zydusAppointment(sendZydusAppointmentData));
             }
 
             let sendData = {
@@ -852,7 +860,8 @@ function AppointmentData({ locationPath }) {
                 "date_of_birth": record.dob,
                 "gender": record.gender,
                 "contact_number": record.mobileNo,
-                "email_id": "noreply@zydushospitals.com"
+                "email_id": "noreply@zydushospitals.com",
+                "address": record.patient_address
             }
         }
 
@@ -1114,7 +1123,7 @@ function AppointmentData({ locationPath }) {
             ellipsis: true,
             render: (text, record) => (
                 <div>
-                    <span>{record.pm_contact_no} </span> <br /> <small> {record.mrno}</small>
+                    <span>{record.pm_contact_no} </span> <br /> <small> {record.mrno} {zydusAappointmentData.some((x) => x.mrno == record.mrno) && selectedTab == TAB_ZYDUS_ENCOUNTER && '(A)'}</small>
                 </div>
             )
         },
