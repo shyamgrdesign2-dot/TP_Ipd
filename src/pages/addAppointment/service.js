@@ -18,3 +18,18 @@ export const addAppointment = async (data) => {
     }
     return res;
 };
+
+export const getSlotsList = async (doctorId, date) => {
+    let res = {};
+    try {
+        const response = await api.get(`/api/v1/appointment/listSlots?doctorId=${doctorId}&date=${date}`, baseUrl);
+        if (response?.status === undefined) {
+            res = { status: true, ...response };
+        } else {
+            res = { status: false, message: response?.data?.message };
+        }
+    } catch (error) {
+        res = { status: false, message: error?.response?.data?.message };
+    }
+    return res;
+};
