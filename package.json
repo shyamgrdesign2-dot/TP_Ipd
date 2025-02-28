@@ -1,6 +1,6 @@
 {
   "name": "react-thyrocare",
-  "version": "3.4.9",
+  "version": "3.5.0",
   "private": true,
   "homepage": "/",
   "dependencies": {
@@ -39,6 +39,7 @@
     "moment": "^2.29.4",
     "pdfjs-dist": "^3.11.174",
     "qrcode": "^1.5.3",
+    "qrcode.react": "^4.2.0",
     "react": "^18.2.0",
     "react-audio-visualize": "^1.2.0",
     "react-beautiful-dnd": "^13.1.1",
