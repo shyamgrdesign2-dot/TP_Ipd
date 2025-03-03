@@ -1141,20 +1141,23 @@ function AppointmentData({ locationPath }) {
             key: "time",
             ellipsis: true,
             sortDirections: ['descend', 'ascend', 'descend'],
-            sortOrder: sort_order,
+            defaultSortOrder: sort_order,
             sorter: (a, b, sortOrder) => {
-                if (sortOrder !== sort_order) {
-                    setPageNo(0)
-                    dispatch(changeSortOrder(sortOrder))
+                if (selectedTab !== TAB_ZYDUS_APPOINTMENT && selectedTab != TAB_ZYDUS_ENCOUNTER) {
+                    if (sortOrder !== sort_order) {
+                        setPageNo(0)
+                        dispatch(changeSortOrder(sortOrder))
+                    }
+                } else {
+                    const lhsDateTime = `${a.apDate} ${a.apTime}`;
+                    const lhsLongTime = moment(lhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
+
+                    const rhsDateTime = `${b.apDate} ${b.apTime}`;
+                    const rhsLongTime = moment(rhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
+
+                    const result = lhsLongTime - rhsLongTime;
+                    return result;
                 }
-                // const lhsDateTime = `${a.apDate} ${a.apTime}`;
-                // const lhsLongTime = moment(lhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
-
-                // const rhsDateTime = `${b.apDate} ${b.apTime}`;
-                // const rhsLongTime = moment(rhsDateTime, "Do MMM YYYY HH:mm A").valueOf();
-
-                // const result = lhsLongTime - rhsLongTime;
-                // return result;
             },
             render: (text, record) => (
                 <div>
