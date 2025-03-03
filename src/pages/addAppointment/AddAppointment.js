@@ -60,13 +60,13 @@ const generateTimeSlots = (slotsData) => {
     // Just add type property to distinguish in UI
     const timeSlot = {
       ...slot,
-      type: slot.status === "available" ? "open" : slot.status,
     };
 
     // Add the slot to appropriate section
     const section = getTimeSection(slot.start);
     allTimeSlots[section].push(timeSlot);
   });
+
 
   // Sort slots within each section
   Object.keys(allTimeSlots).forEach((section) => {
@@ -86,7 +86,9 @@ const TimeSlotContainer = ({
   setSelectedTimeSlot,
   isLoading,
   handleConfirmAppointment,
-  editTime
+  editTime,
+  isSlotInPast,
+  selectedDoctorOption
 }) => {
   if (isLoading) {
     return <div className="slots-info">Loading slots...</div>;
@@ -112,26 +114,21 @@ const TimeSlotContainer = ({
   const getTooltipContent = (slot) => {
     switch (slot.status) {
       case 'confirmed':
-        const appointment = slot.appointments[0]; // Get the first appointment
         return (
           <div className="appointment-tooltip">
-            <h4>Appointment Details</h4>
-            <div className="patient-info">
-              {appointment.pm_full_name} ({appointment.pm_gender}, {appointment.ageYears}y)
-            </div>
-            <div className="contact-info">
-              <span>
-                <i className="icon-phone" /> {appointment.pm_contact_no}
-              </span>
-              <span>
-                <i className="icon-calendar" /> {appointment.pm_pid}
-              </span>
-            </div>
-            <div className="time-info">
-              <div className="date">{dayjs(slot.start, 'HH:mm:ss').format('hh:mm A')}</div>
-              <div className="doctor">
-                {dayjs(appointment.pam_app_date).format('DD MMM, YYYY')} with {slot.doctor_name}
+            <h4>Appointment Details({slot.appointments.length})</h4>
+            {slot.appointments.map((appointment, index) => (
+              <div key={index}>
+                <div className="patient-info">
+                  <i className="icon-profile" /> {appointment.pm_full_name} ({appointment.pm_gender.charAt(0)}, {appointment.ageYears}y) 
+                  <i className="icon-phone"/> {appointment.pm_contact_no}
+                </div>
+                {index !== slot.appointments.length - 1 && <div className="divider"></div>}
               </div>
+            ))}
+            <div className="time-info">
+              <div>Today,{dayjs(slot.start, 'HH:mm:ss').format('hh:mm A')}</div>
+              <div>{dayjs(slot.appointments[0].pam_app_date).format('DD MMM, YYYY')} with {selectedDoctorOption?.label}</div>
             </div>
           </div>
         );
@@ -157,29 +154,37 @@ const TimeSlotContainer = ({
   return (
     <>
       <div className="slots-info">{renderSlotsCount(slots)}</div>
-      {editTime && <div className="slots-info">{'Hello'}</div>}
+      {editTime && <div className="slot-instruction-info">{'Select new time slot'}</div>}
       <div className="slots-container">
         {slots?.map((slot, index) => {
-          const slotStatus = slot.status === "unavailable" || slot.status === "leave"
-            ? slot.status
-            : slot.status;
-
+          const isPast = isSlotInPast(slot.start);
+          const slotStatus = slot.status;
+          // const slotStatus = isPast ? `past ${slot.status}` : slot.status;
+          
           const slotContent = (
             <div
-              className={`slot ${slotStatus}`}
+              className={`slot ${slotStatus} ${isPast?"past" : ""}`}
               onClick={() => {
-                if (slot.status === "available") {
+                if (slot.status === "available" && !isPast) {
                   handleConfirmAppointment();
                   setSelectedTimeSlot(slot.start);
                 }
               }}
             >
               {slot.status === "confirmed" && <img src={greenRightIcon} />}
-              <div>{dayjs(slot.start, "HH:mm:ss").format("hh:mm A")}</div>
+              <div>
+                {(slot.status === "unavailable" || slot.status === "leave") ? (
+                  <>
+                    {dayjs(slot.start, "HH:mm:ss").format("hh:mm A")} - {dayjs(slot.end, "HH:mm:ss").format("hh:mm A")}
+                  </>
+                ) : (
+                  dayjs(slot.start, "HH:mm:ss").format("hh:mm A")
+                )}
+              </div>
             </div>
           );
 
-          return slot.status === "available" ? (
+          return slot.status === "available" && isPast ? (
             slotContent
           ) : (
             <Tooltip
@@ -200,7 +205,6 @@ const TimeSlotContainer = ({
 function AddAppointment() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(dayjs());
-  const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [dateChips, setDateChips] = useState([]);
   const [chipStartDate, setChipStartDate] = useState(dayjs());
   const [availableSlots, setAvailableSlots] = useState([]);
@@ -217,9 +221,41 @@ function AddAppointment() {
   );
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
+  const [selectedDoctor, setSelectedDoctor] = useState(decodedToken?.result?.user_id);
 
   // Add loading state
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+
+  // Add this function to determine current time section
+  const getCurrentTimeSection = () => {
+    const currentHour = dayjs().hour();
+    
+    if (currentHour >= 0 && currentHour < 3) return "MIDNIGHT";
+    if (currentHour >= 3 && currentHour < 5) return "LATE_NIGHT";
+    if (currentHour >= 5 && currentHour < 12) return "MORNING";
+    if (currentHour >= 12 && currentHour < 17) return "AFTERNOON";
+    if (currentHour >= 17 && currentHour < 21) return "EVENING";
+    if (currentHour >= 21 && currentHour <= 23) return "NIGHT";
+    
+    return "MORNING"; // default fallback
+  };
+
+  // Add state for active tab
+  const [activeTab, setActiveTab] = useState(getCurrentTimeSection());
+
+  // Function to check if a slot is in the past
+  const isSlotInPast = (slotTime) => {
+    if (dayjs(selectedDate).isBefore(dayjs(), 'day')) return true;
+    if (dayjs(selectedDate).isAfter(dayjs(), 'day')) return false;
+    
+    // For today, compare times
+    const currentTime = dayjs();
+    const slotDateTime = dayjs(selectedDate)
+      .hour(parseInt(slotTime.split(':')[0]))
+      .minute(parseInt(slotTime.split(':')[1]));
+      
+    return slotDateTime.isBefore(currentTime);
+  };
 
   useEffect(() => {
     // Initialize chips with today's date
@@ -334,11 +370,13 @@ function AddAppointment() {
     label: doctor.um_name,
   }));
 
-  useEffect(() => {
-    decodedToken && setSelectedDoctor(decodedToken?.result?.user_id);
-  }, [decodedToken]);
+  // useEffect(() => {
+  //   console.log("this is getting called")
+  //   decodedToken && setSelectedDoctor(decodedToken?.result?.user_id);
+  // }, [decodedToken]);
 
   const handleDoctorChange = (value) => {
+    console.log(value)
     setSelectedDoctor(value);
   };
 
@@ -382,7 +420,7 @@ function AddAppointment() {
       "doctor_id": selectedDoctor,
       "patient_unique_id": clickedPatient?.patient_unique_id,
       "pm_pid": clickedPatient?.pm_pid,
-      "appointment_date": "2025-02-28",
+      "appointment_date": dayjs(selectedDate).format('YYYY-MM-DD'),
       "appointment_start_time": "19:20",
       "appointment_end_time": "19:30",
       "appointment_duration": 10,
@@ -390,12 +428,12 @@ function AddAppointment() {
       "category_id": selectedCashType,
       "appointment_remark": remarks
     }
-    // const response = await addAppointment(sendData);
-    // if (response?.status) {
+    const response = await addAppointment(sendData);
+    if (response?.status) {
 
-    // } else {
-    //   errorMessage(response?.message)
-    // }
+    } else {
+      errorMessage(response?.message)
+    }
   }
 
   async function SSO_TO_PM(flag) {
@@ -453,6 +491,11 @@ function AddAppointment() {
     });
   }
   
+  // Find the selected doctor's label
+  const selectedDoctorOption = doctorOptions?.find(
+    (doctor) => doctor.value === String(selectedDoctor)
+  );
+
   return (
     <>
       <div className="welcomesection position-relative">
@@ -465,13 +508,8 @@ function AddAppointment() {
               <i className="fs-3 icon-right"></i>
             </div>
             <div>
-              <h1>Add New Patient</h1>
+              <h1>Select an Appointment Slot</h1>
             </div>
-            <img
-              src={require("../../assets/images/bg-welcome.png")}
-              className="welcomeig d-inline-block align-top"
-              alt="Welcome"
-            />
           </div>
           <div className="d-flex gap-1">
             <div className="d-lg-flex d-block">
@@ -572,7 +610,7 @@ function AddAppointment() {
         <div className="doctor-selection">
           <Select
             placeholder="Select Doctor"
-            value={selectedDoctor}
+            value={selectedDoctorOption}
             onChange={handleDoctorChange}
             options={doctorOptions}
             className="doctor-select"
@@ -588,7 +626,11 @@ function AddAppointment() {
         </div>
 
         <div className="timeslots-section">
-          <Tabs defaultActiveKey="MORNING">
+          <Tabs 
+            activeKey={activeTab} 
+            onChange={setActiveTab}
+            defaultActiveKey={getCurrentTimeSection()}
+          >
             <TabPane tab="Morning" key="MORNING">
               <TimeSlotContainer
                 slots={timeSlots.MORNING}
@@ -597,6 +639,8 @@ function AddAppointment() {
                 isLoading={isLoadingSlots}
                 handleConfirmAppointment={handleConfirmAppointment}
                 editTime={editTime}
+                isSlotInPast={isSlotInPast}
+                selectedDoctorOption={selectedDoctorOption}
               />
             </TabPane>
             <TabPane tab="Afternoon" key="AFTERNOON">
@@ -607,6 +651,8 @@ function AddAppointment() {
                 isLoading={isLoadingSlots}
                 handleConfirmAppointment={handleConfirmAppointment}
                 editTime={editTime}
+                isSlotInPast={isSlotInPast}
+                selectedDoctorOption={selectedDoctorOption}
               />
             </TabPane>
             <TabPane tab="Evening" key="EVENING">
@@ -617,6 +663,8 @@ function AddAppointment() {
                 isLoading={isLoadingSlots}
                 handleConfirmAppointment={handleConfirmAppointment}
                 editTime={editTime}
+                isSlotInPast={isSlotInPast}
+                selectedDoctorOption={selectedDoctorOption}
               />
             </TabPane>
           </Tabs>

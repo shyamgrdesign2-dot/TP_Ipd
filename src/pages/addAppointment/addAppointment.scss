@@ -1,4 +1,15 @@
 .appointment-wrap {
+
+    .slot-instruction-info {
+        color: #ED8A00 !important;
+        font-family: Poppins;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 24px;
+        margin: 1rem 1.2rem;
+    }
+
     .date-selection-container {
         .ant-picker {
             height: 38px;
@@ -181,7 +192,7 @@
         font-size: 16px;
         font-style: normal;
         font-weight: 380;
-        line-height: 24px; 
+        line-height: 24px;
         margin: 1.5rem 1.2rem;
     }
 
@@ -227,6 +238,7 @@
 
             &.confirmed {
                 background-color: #E6F4EA;
+                border: 1px solid #1E8E3E;
 
                 // color: #1E8E3E !important;
                 // border: 1px solid #1E8E3E;
@@ -237,10 +249,8 @@
             }
 
             &.past {
-                background-color: #fff;
-                color: #999;
-                border: 1px solid #ddd;
-                cursor: not-allowed;
+                background-color: #fffaf5;
+                opacity: 0.5;
             }
 
             &.rescheduling {
@@ -264,68 +274,73 @@
 }
 
 .slot-tooltip {
+
     .ant-tooltip-inner {
-      background: white;
-      color: #333;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      min-width: 320px;
-      
-      h4 {
-        margin: 0;
-        padding: 16px 20px;
-        font-size: 18px;
-        font-weight: 500;
-        border-bottom: 1px solid #E2E2EA;
-        margin: -20px -20px 20px -20px;
-      }
+        background: white;
+        color: #333;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        width: 400px !important;
+
+
+        h4 {
+            margin: 0;
+            padding: 16px 20px;
+            font-size: 18px;
+            font-weight: 500;
+            border-bottom: 1px solid #E2E2EA;
+            margin: -20px -20px 20px -20px;
+        }
     }
-  
+
     .appointment-tooltip {
-      .patient-info {
-        font-size: 16px;
-        margin-bottom: 12px;
-      }
-  
-      .contact-info {
-        display: flex;
-        gap: 12px;
-        color: #666;
-        margin-bottom: 16px;
-  
-        img {
-          width: 16px;
-          height: 16px;
-          opacity: 0.7;
+        // width: 400px !important;
+
+        .patient-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0;
+
+            i {
+                color: #666;
+            }
         }
-      }
-  
-      .time-info {
-        background: #F8F8F8;
-        padding: 16px;
-        border-radius: 12px;
-        margin-top: 16px;
-  
-        .date {
-          font-size: 16px;
-          font-weight: 500;
-          margin-bottom: 4px;
+
+        .divider {
+            height: 1px;
+            background: #E2E2EA;
+            margin: 0;
         }
-  
-        .doctor {
-          color: #666;
+
+        .time-info {
+            margin-top: 16px;
+            background: #B7DFB9;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            // display: flex;
+
+
+            div:first-child {
+                font-weight: 500;
+                margin-bottom: 4px;
+            }
+
+            div:last-child {
+                color: #666;
+            }
         }
-      }
     }
-  }
-  
-  // Remove default tooltip arrow and add custom arrow
-  .ant-tooltip-arrow {
+}
+
+// Remove default tooltip arrow and add custom arrow
+.ant-tooltip-arrow {
     display: none;
-  }
-  
-  .ant-tooltip-placement-top .ant-tooltip-inner::after {
+}
+
+.ant-tooltip-placement-top .ant-tooltip-inner::after {
     content: '';
     position: absolute;
     bottom: -8px;
@@ -336,4 +351,4 @@
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
     border-top: 8px solid white;
-  }
+}
