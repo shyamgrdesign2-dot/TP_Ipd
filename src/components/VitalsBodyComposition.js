@@ -106,7 +106,7 @@ function VitalsBodyComposition({ loading, passVitals, patientBirthWeight }) {
         initialRows[8][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
         initialRows[9][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
         initialRows[10][index] = item.ofc ? item.ofc : "-";
-        initialRows[11][index] = item.rbs ? item.rbs : "-";
+        initialRows[11][index] = item.general_rbs ? item.general_rbs : "-";
     });
 
     return (

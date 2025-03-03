@@ -1148,7 +1148,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             bmr,
                                                                             bsa,
                                                                             ofc,
-                                                                            rbs
+                                                                            general_rbs
                                                                         }) => ({
                                                                             temp: temp ? `Temp: ${temp}F` : '',
                                                                             pres: pres ? `Pulse: ${pres}/min` : '',
@@ -1163,7 +1163,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
                                                                             bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
                                                                             ofc: ofc ? `OFC: ${ofc}cms` : '',
-                                                                            rbs: rbs ? `General RBS: ${rbs}mg/dl` : '',
+                                                                            general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
                                                                         })
                                                                     )(caseManagerData.vitals[i])
                                                                 ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;
@@ -1218,7 +1218,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             bmr,
                                                                             bsa,
                                                                             ofc,
-                                                                            rbs
+                                                                            general_rbs
                                                                         }) => ({
                                                                             temp: temp ? `Temp: ${temp}F` : '',
                                                                             pres: pres ? `Pulse: ${pres}/min` : '',
@@ -1233,7 +1233,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
                                                                             bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
                                                                             ofc: ofc ? `OFC: ${ofc}cms` : '',
-                                                                            rbs: rbs ? `General RBS: ${rbs}mg/dl` : ''
+                                                                            general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : ''
                                                                         })
                                                                     )(caseManagerData.vitals[i])
                                                                 ).filter(([_, v]) => v))).join(', ')}\n`}

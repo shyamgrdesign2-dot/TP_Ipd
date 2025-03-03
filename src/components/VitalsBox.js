@@ -72,7 +72,7 @@ function VitalsBox(props) {
                 spo2: '',
                 bmr: cal.bmr,
                 bsa: cal.bsa,
-                rbs: m.rbs
+                general_rbs: m.general_rbs
             })));
         }
     }, [selectedVitalsList, measurements]);
@@ -101,7 +101,7 @@ function VitalsBox(props) {
                 bmi: cal.bmi,
                 bmr: cal.bmr,
                 bsa: cal.bsa,
-                rbs: ''
+                general_rbs: ''
             });
             setChildVitalsData((prev) => [...prev]);
         }
@@ -132,7 +132,7 @@ function VitalsBox(props) {
                 spo2: "",
                 bmr: cal.bmr,
                 bsa: cal.bsa,
-                rbs: ''
+                general_rbs: ''
                 },
             );
             setChildVitalsData([...tempVitals]);
@@ -217,7 +217,7 @@ function VitalsBox(props) {
             } else if (flag === 9) {
                 childVitalsData[i].ofc = updateValue;
             } else if (flag === 10) {
-                childVitalsData[i].rbs = updateValue;
+                childVitalsData[i].general_rbs = updateValue;
             }
             setChildVitalsData((prev) => [...prev]);
         },
@@ -285,7 +285,7 @@ function VitalsBox(props) {
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.spo2} addonAfter={'%'} onChange={(e) => onChangeInput(e.target.value, i, 6)} />
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
-                            <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.rbs} addonAfter={'mg/dl'} onChange={(e) => onChangeInput(e.target.value, i, 10)} />
+                            <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.general_rbs} addonAfter={'mg/dl'} onChange={(e) => onChangeInput(e.target.value, i, 10)} />
                         </div>
                         {profile?.dp_name === PAEDIATRICS || isGowthChartAccessableFromGB ? <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.ofc} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 9)} />

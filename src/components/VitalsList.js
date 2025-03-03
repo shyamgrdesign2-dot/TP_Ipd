@@ -65,10 +65,10 @@ function VitalsList(props) {
                                 <Input className='inputheight41-group mx-2' value={item.spo2} addonAfter={'%'} readOnly />
                             </div>
                         )}
-                        {item.rbs && (
+                        {item.general_rbs && (
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">General RBS</div>
-                                <Input className='inputheight41-group mx-2' value={item.rbs} addonAfter={'mg/dl'} readOnly />
+                                <Input className='inputheight41-group mx-2' value={item.general_rbs} addonAfter={'mg/dl'} readOnly />
                             </div>
                         )}
                         {item.ofc ? (
@@ -117,7 +117,7 @@ function VitalsList(props) {
         return (
             vitalsData.length > 0 &&
             vitalsData.map((item, i) => {
-                if (item.temp || item.pres || item.resp_rate || item.blood_press || item.spo2 || item.rbs || item.ofc || item.height || item.weight || item.bmi || item.bmr || item.bsa) {
+                if (item.temp || item.pres || item.resp_rate || item.blood_press || item.spo2 || item.general_rbs || item.ofc || item.height || item.weight || item.bmi || item.bmr || item.bsa) {
                 return (
                     <div key={i} className={`${vitalsData.length - 1 != i && 'border-bottom'} pt-3 vitals-height input-readonly`}>
                         <div className="title-sami mb-3">
@@ -159,10 +159,10 @@ function VitalsList(props) {
                                 <Input className='inputheight41-group mx-2' value={item.spo2} addonAfter={'%'} readOnly />
                             </div>
                         )}
-                        {item.rbs && (
+                        {item.general_rbs && (
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">General RBS</div>
-                                <Input className='inputheight41-group mx-2' value={item.rbs} addonAfter={'mg/dl'} readOnly />
+                                <Input className='inputheight41-group mx-2' value={item.general_rbs} addonAfter={'mg/dl'} readOnly />
                             </div>
                         )}
                         {item?.ofc ? (
