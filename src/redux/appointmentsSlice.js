@@ -22,7 +22,8 @@ const initialState = {
     salutationData: [],
     pincodeInfo: {},
     patients: null,
-    patients_details: null
+    patients_details: null,
+    categoriesList: []
 };
 
 export const getCaseTypes = createAsyncThunk(
@@ -331,6 +332,19 @@ export const placeIctOrder = createAsyncThunk(
     }
 );
 
+export const listCategories = createAsyncThunk(
+    "records/listCategories",
+    async () => {
+        try {
+            const result = await ApiAppointments.listCategories();
+            return result;
+        } catch (error) {
+            console.log("error: ", error);
+            throw Error(error);
+        }
+    }
+);
+
 const appointmentsSlice = createSlice({
     name: "records",
     initialState,
@@ -558,6 +572,12 @@ const appointmentsSlice = createSlice({
             })
             .addCase(copyGetAllAppointment1.rejected, (state, action) => {
                 state.setOnLoad = false;
+            })
+            .addCase(listCategories.fulfilled, (state, action) => {
+                state.categoriesList = action.payload?.categories;
+            })
+            .addCase(listCategories.rejected, (state, action) => {
+                state.categoriesList = [];
             })
     },
 });
