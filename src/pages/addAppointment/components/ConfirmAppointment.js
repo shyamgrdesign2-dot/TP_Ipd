@@ -174,8 +174,6 @@ function ConfirmAppointment({
         [remarks]
     );
 
-    console.log(selectedTimeSlot,"selectedTimeSlot")
-
     return (
         <div className="bg-white h-100 p-20">
             <div className="d-flex align-items-center rounded-10px mb-4" style={{ backgroundColor: '#F2F4F7' }}>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Button from "react-bootstrap/Button";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Drawer, Tooltip } from "antd";
+import { Drawer, message, Tooltip } from "antd";
 
 import ConfirmAppointment from "./components/ConfirmAppointment";
 import { addAppointment, getSlotsList } from "./service";
@@ -16,10 +16,12 @@ import "./addAppointment.scss";
 import { listDoctor } from "../../redux/bulkMessagesSlice";
 import { getDecodedToken, useLocalStorage } from "../../utils/localStorage";
 import greenRightIcon from "../../assets/images/green-rounded-check.svg";
+import visitEnd from '../../assets/images/end-visit.svg';
+import imgCloseVisit from '../../assets/images/close-visit.svg';
 import profileCircle from "../../assets/images/profile-circle.svg";
 import { DownOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
+import { MESSAGE_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import { isChrome, isSafari } from "react-device-detect";
 import config from "../../config";
 import axios from "axios";
@@ -67,7 +69,6 @@ const generateTimeSlots = (slotsData) => {
     allTimeSlots[section].push(timeSlot);
   });
 
-
   // Sort slots within each section
   Object.keys(allTimeSlots).forEach((section) => {
     allTimeSlots[section].sort((a, b) => {
@@ -88,7 +89,7 @@ const TimeSlotContainer = ({
   handleConfirmAppointment,
   editTime,
   isSlotInPast,
-  selectedDoctorOption
+  selectedDoctorOption,
 }) => {
   if (isLoading) {
     return <div className="slots-info">Loading slots...</div>;
@@ -113,37 +114,50 @@ const TimeSlotContainer = ({
 
   const getTooltipContent = (slot) => {
     switch (slot.status) {
-      case 'confirmed':
+      case "confirmed":
         return (
           <div className="appointment-tooltip">
             <h4>Appointment Details({slot.appointments.length})</h4>
             {slot.appointments.map((appointment, index) => (
               <div key={index}>
                 <div className="patient-info">
-                  <i className="icon-profile" /> {appointment.pm_full_name} ({appointment.pm_gender.charAt(0)}, {appointment.ageYears}y) 
-                  <i className="icon-phone"/> {appointment.pm_contact_no}
+                  <i className="icon-profile" /> {appointment.pm_full_name} (
+                  {appointment.pm_gender.charAt(0)}, {appointment.ageYears}y)
+                  <i className="icon-phone" /> {appointment.pm_contact_no}
                 </div>
-                {index !== slot.appointments.length - 1 && <div className="divider"></div>}
+                {index !== slot.appointments.length - 1 && (
+                  <div className="divider"></div>
+                )}
               </div>
             ))}
             <div className="time-info">
-              <div>Today,{dayjs(slot.start, 'HH:mm:ss').format('hh:mm A')}</div>
-              <div>{dayjs(slot.appointments[0].pam_app_date).format('DD MMM, YYYY')} with {selectedDoctorOption?.label}</div>
+              <div>Today,{dayjs(slot.start, "HH:mm:ss").format("hh:mm A")}</div>
+              <div>
+                {dayjs(slot.appointments[0].pam_app_date).format(
+                  "DD MMM, YYYY"
+                )}{" "}
+                with {selectedDoctorOption?.label}
+              </div>
             </div>
           </div>
         );
-      case 'unavailable':
+      case "unavailable":
         return (
           <div className="no-availability-tooltip">
             <h4>No Availability Set</h4>
-            <div>You haven't scheduled any slots during this time interval. Update your Availability Settings to enable booking in this period.</div>
+            <div>
+              You haven't scheduled any slots during this time interval. Update
+              your Availability Settings to enable booking in this period.
+            </div>
           </div>
         );
-      case 'leave':
+      case "leave":
         return (
           <div className="leave-tooltip">
             <h4>On Leave</h4>
-            <div>Whatever remarks that doctor writes in the PHP will be shown here.</div>
+            <div>
+              Whatever remarks that doctor writes in the PHP will be shown here.
+            </div>
           </div>
         );
       default:
@@ -154,15 +168,17 @@ const TimeSlotContainer = ({
   return (
     <>
       <div className="slots-info">{renderSlotsCount(slots)}</div>
-      {editTime && <div className="slot-instruction-info">{'Select new time slot'}</div>}
+      {editTime && (
+        <div className="slot-instruction-info">{"Select new time slot"}</div>
+      )}
       <div className="slots-container">
         {slots?.map((slot, index) => {
           const isPast = isSlotInPast(slot.start);
           const slotStatus = slot.status;
-          
+
           const slotContent = (
             <div
-              className={`slot ${slotStatus} ${isPast?"past" : ""}`}
+              className={`slot ${slotStatus} ${isPast ? "past" : ""}`}
               onClick={() => {
                 if (slot.status === "available" && !isPast) {
                   handleConfirmAppointment();
@@ -172,9 +188,10 @@ const TimeSlotContainer = ({
             >
               {slot.status === "confirmed" && <img src={greenRightIcon} />}
               <div>
-                {(slot.status === "unavailable" || slot.status === "leave") ? (
+                {slot.status === "unavailable" || slot.status === "leave" ? (
                   <>
-                    {dayjs(slot.start, "HH:mm:ss").format("hh:mm A")} - {dayjs(slot.end, "HH:mm:ss").format("hh:mm A")}
+                    {dayjs(slot.start, "HH:mm:ss").format("hh:mm A")} -{" "}
+                    {dayjs(slot.end, "HH:mm:ss").format("hh:mm A")}
                   </>
                 ) : (
                   dayjs(slot.start, "HH:mm:ss").format("hh:mm A")
@@ -220,7 +237,9 @@ function AddAppointment() {
   );
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
-  const [selectedDoctor, setSelectedDoctor] = useState(decodedToken?.result?.user_id);
+  const [selectedDoctor, setSelectedDoctor] = useState(
+    decodedToken?.result?.user_id
+  );
 
   // Add loading state
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
@@ -228,14 +247,14 @@ function AddAppointment() {
   // Add this function to determine current time section
   const getCurrentTimeSection = () => {
     const currentHour = dayjs().hour();
-    
+
     if (currentHour >= 0 && currentHour < 3) return "MIDNIGHT";
     if (currentHour >= 3 && currentHour < 5) return "LATE_NIGHT";
     if (currentHour >= 5 && currentHour < 12) return "MORNING";
     if (currentHour >= 12 && currentHour < 17) return "AFTERNOON";
     if (currentHour >= 17 && currentHour < 21) return "EVENING";
     if (currentHour >= 21 && currentHour <= 23) return "NIGHT";
-    
+
     return "MORNING"; // default fallback
   };
 
@@ -244,15 +263,15 @@ function AddAppointment() {
 
   // Function to check if a slot is in the past
   const isSlotInPast = (slotTime) => {
-    if (dayjs(selectedDate).isBefore(dayjs(), 'day')) return true;
-    if (dayjs(selectedDate).isAfter(dayjs(), 'day')) return false;
-    
+    if (dayjs(selectedDate).isBefore(dayjs(), "day")) return true;
+    if (dayjs(selectedDate).isAfter(dayjs(), "day")) return false;
+
     // For today, compare times
     const currentTime = dayjs();
     const slotDateTime = dayjs(selectedDate)
-      .hour(parseInt(slotTime.split(':')[0]))
-      .minute(parseInt(slotTime.split(':')[1]));
-      
+      .hour(parseInt(slotTime.split(":")[0]))
+      .minute(parseInt(slotTime.split(":")[1]));
+
     return slotDateTime.isBefore(currentTime);
   };
 
@@ -320,26 +339,29 @@ function AddAppointment() {
   };
 
   useEffect(() => {
-      dispatch(listDoctor());
+    dispatch(listDoctor());
   }, []);
 
   useEffect(() => {
     // Fetch slots when doctor or date changes
     const fetchSlots = async () => {
-      if (selectedDoctor || profile?.um_name && selectedDate) {
+      if (selectedDoctor || (profile?.um_name && selectedDate)) {
         setIsLoadingSlots(true);
         const token = await getToken();
         try {
           var decoded = jwtDecode(token);
           setTokenData(decoded.result);
-          const formattedDate = dayjs(selectedDate).format('YYYY-MM-DD');
-          const response = await getSlotsList(selectedDoctor || decoded.result?.user_id, formattedDate);
+          const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
+          const response = await getSlotsList(
+            selectedDoctor || decoded.result?.user_id,
+            formattedDate
+          );
 
           if (response?.status) {
             const generatedSlots = generateTimeSlots(response.slots || []);
             setTimeSlots(generatedSlots);
           } else {
-            errorMessage(response?.message || 'Failed to fetch slots');
+            errorMessage(response?.message || "Failed to fetch slots");
             setTimeSlots({
               MIDNIGHT: [],
               LATE_NIGHT: [],
@@ -350,8 +372,8 @@ function AddAppointment() {
             });
           }
         } catch (error) {
-          errorMessage('Error fetching slots');
-          console.error('Error fetching slots:', error);
+          errorMessage("Error fetching slots");
+          console.error("Error fetching slots:", error);
         } finally {
           setIsLoadingSlots(false);
         }
@@ -363,13 +385,14 @@ function AddAppointment() {
 
   // Make sure doctorList is properly mapped to doctorOptions
   const doctorOptions = doctorList?.map((doctor) => ({
-    value: String(doctor.um_id),  // Ensure this matches the type of selectedDoctor
-    label: doctor.um_name
+    value: String(doctor.um_id), // Ensure this matches the type of selectedDoctor
+    label: doctor.um_name,
   }));
 
   // Find the selected doctor's label with additional type checking
   const selectedDoctorOption = doctorOptions?.find(
-    (doctor) => doctor?.value === (selectedDoctor ? String(selectedDoctor) : null)
+    (doctor) =>
+      doctor?.value === (selectedDoctor ? String(selectedDoctor) : null)
   );
 
   const handleDoctorChange = (value) => {
@@ -377,7 +400,7 @@ function AddAppointment() {
   };
 
   const { state } = useLocation();
-  const { patient_data } = state != null && state
+  const { patient_data } = state != null && state;
 
   const [confirmAppointment, setConfirmAppointment] = useState(false);
 
@@ -386,28 +409,28 @@ function AddAppointment() {
   const [clickedPatient, setClickedPatient] = useState(null);
   const [selectedCashType, setSelectedCashType] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState(null);
-  const [remarks, setRemarks] = useState('');
+  const [remarks, setRemarks] = useState("");
 
   // Add a new state to store the complete slot details
   const [selectedSlotDetails, setSelectedSlotDetails] = useState(null);
 
   useEffect(() => {
     if (patient_data) {
-      setClickedPatient(patient_data)
-      handleConfirmAppointment()
+      setClickedPatient(patient_data);
+      handleConfirmAppointment();
     }
   }, [patient_data]);
 
   const handleConfirmAppointment = useCallback(
     (flag) => {
-      if (flag == 'edit_doctor') {
-        setEditDoctor(true)
-      } else if (flag == 'edit_time') {
-        setEditTime(true)
+      if (flag == "edit_doctor") {
+        setEditDoctor(true);
+      } else if (flag == "edit_time") {
+        setEditTime(true);
       } else {
-        setEditTime(false)
+        setEditTime(false);
       }
-      setConfirmAppointment(!confirmAppointment)
+      setConfirmAppointment(!confirmAppointment);
     },
     [confirmAppointment, editDoctor, editTime]
   );
@@ -422,45 +445,71 @@ function AddAppointment() {
 
   const onBookAppointmentPress = async () => {
     let sendData = {
-      "doctor_id": selectedDoctor,
-      "patient_unique_id": clickedPatient?.patient_unique_id,
-      "pm_pid": clickedPatient?.pm_pid,
-      "appointment_date": dayjs(selectedDate).format('YYYY-MM-DD'),
-      "appointment_start_time": dayjs(selectedSlotDetails.start, "HH:mm:ss").format("HH:mm"),
-      "appointment_end_time": dayjs(selectedSlotDetails.end, "HH:mm:ss").format("HH:mm"),
-      "appointment_duration": selectedSlotDetails?.availability?.duration || "10",
-      "category_id": selectedCategories ? selectedCategories : '',
-      "toct_id": selectedCashType,
-      "appointment_remark": remarks
-    }
+      doctor_id: selectedDoctor,
+      patient_unique_id: clickedPatient?.patient_unique_id,
+      pm_pid: clickedPatient?.pm_pid,
+      appointment_date: dayjs(selectedDate).format("YYYY-MM-DD"),
+      appointment_start_time: dayjs(
+        selectedSlotDetails.start,
+        "HH:mm:ss"
+      ).format("HH:mm"),
+      appointment_end_time: dayjs(selectedSlotDetails.end, "HH:mm:ss").format(
+        "HH:mm"
+      ),
+      appointment_duration: selectedSlotDetails?.availability?.increment || 5,
+      category_id: selectedCategories ? selectedCategories : "",
+      toct_id: selectedCashType,
+      appointment_remark: remarks,
+    };
+
     const response = await addAppointment(sendData);
     if (response?.status) {
       // Close the drawer
       setConfirmAppointment(false);
-      
+
+      message.open({
+        key: MESSAGE_KEY,
+        type: "",
+        className: "message-appointment",
+        content: (
+          <div className="d-flex align-items-center">
+            <img src={visitEnd} className="me-3" />
+            <div>
+              <div className="title-common text-start fontroboto">{`${clickedPatient?.pm_first_name}’s appointment booked successfully!`}</div>
+            </div>
+            <img
+              src={imgCloseVisit}
+              className="ms-3"
+              onClick={() => message.destroy()}
+            />
+          </div>
+        ),
+        duration: 5,
+      });
+
       // Reset form states
       setSelectedTimeSlot(null);
       setSelectedSlotDetails(null);
       setSelectedCategories(null);
       setSelectedCashType(null);
-      setRemarks('');
+      setRemarks("");
       setClickedPatient(null);
-      
+
       // Refresh the slots data for the selected date
-      const formattedDate = dayjs(selectedDate).format('YYYY-MM-DD');
+      const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
       const slotsResponse = await getSlotsList(selectedDoctor, formattedDate);
       if (slotsResponse?.status) {
         const generatedSlots = generateTimeSlots(slotsResponse.slots || []);
         setTimeSlots(generatedSlots);
       }
     } else {
-      errorMessage(response?.message)
+      errorMessage(response?.message);
     }
-  }
+  };
 
   async function SSO_TO_PM(flag) {
     try {
-      const tokenData = decodedToken?.result
+      const tokenData = decodedToken?.result;
 
       var sendData = {
         doctor_unique_id: tokenData.doctor_unique_id,
@@ -469,14 +518,14 @@ function AddAppointment() {
       var URL;
 
       if (flag === 1) {
-        sendData['mobile_no'] = tokenData.mobile_no
-        sendData['clinic_id'] = tokenData.clinic_id
-        sendData['hm_business_id'] = tokenData.hospital_business_id
-        sendData['from'] = 'app'
-        URL = config.sso_to_pm_url
+        sendData["mobile_no"] = tokenData.mobile_no;
+        sendData["clinic_id"] = tokenData.clinic_id;
+        sendData["hm_business_id"] = tokenData.hospital_business_id;
+        sendData["from"] = "app";
+        URL = config.sso_to_pm_url;
       } else if (flag === 2) {
-        sendData['hospital_business_id'] = tokenData.hospital_business_id
-        URL = config.sso_to_pm_admin_url
+        sendData["hospital_business_id"] = tokenData.hospital_business_id;
+        URL = config.sso_to_pm_admin_url;
       }
 
       const formData = new FormData();
@@ -484,19 +533,16 @@ function AddAppointment() {
         formData.append(key, sendData[key]);
       });
 
-      const response = await axios.post(URL, formData,
-        {
-          auth: {
-            username: config.sso_to_pm_username,
-            password: config.sso_to_pm_password,
-          }
+      const response = await axios.post(URL, formData, {
+        auth: {
+          username: config.sso_to_pm_username,
+          password: config.sso_to_pm_password,
         },
-      );
+      });
 
       return response.data;
     } catch (err) {
-      console.log(err.message);
-      console.log(err.response.status);
+      console.error(err.message);
     }
   }
 
@@ -504,15 +550,17 @@ function AddAppointment() {
     SSO_TO_PM(1).then(async (data) => {
       if (data.success == 200) {
         if (!isChrome && !isSafari) {
-          navigate(`/?url=${data.url}&module=my_availability&key=phpRedirect`, { replace: true })
+          navigate(`/?url=${data.url}&module=my_availability&key=phpRedirect`, {
+            replace: true,
+          });
           navigate(0, { replace: true });
         } else {
-          await window.open(`${data.url}&module=my_availability`)
+          await window.open(`${data.url}&module=my_availability`);
         }
       }
     });
-  }
-  
+  };
+
   return (
     <>
       <div className="welcomesection position-relative">
@@ -545,7 +593,6 @@ function AddAppointment() {
                 <i className="icon-calendar me-2"></i>
                 {"Availability Settings"}
               </Button>
-
             </div>
           </div>
         </div>
@@ -561,10 +608,12 @@ function AddAppointment() {
             inputReadOnly
             allowClear={false}
             defaultPickerValue={displayMonth}
-            suffixIcon={<i className="icon-right d-block text-main fs-5 suffix-icon-down"></i>}
+            suffixIcon={
+              <i className="icon-right d-block text-main fs-5 suffix-icon-down"></i>
+            }
             style={{ width: "165px" }}
             onClick={(e) => {
-              const input = e.target.closest('.ant-picker');
+              const input = e.target.closest(".ant-picker");
               if (input) {
                 input.click();
               }
@@ -595,18 +644,20 @@ function AddAppointment() {
               <div
                 key={date.format("YYYY-MM-DD")}
                 onClick={() => handleChipClick(date)}
-                className={`date-chip ${date.format("YYYY-MM-DD") ===
+                className={`date-chip ${
+                  date.format("YYYY-MM-DD") ===
                   selectedDate.format("YYYY-MM-DD")
-                  ? "active"
-                  : ""
-                  }`}
+                    ? "active"
+                    : ""
+                }`}
               >
                 <div
-                  className={`${date.format("YYYY-MM-DD") ===
+                  className={`${
+                    date.format("YYYY-MM-DD") ===
                     selectedDate.format("YYYY-MM-DD")
-                    ? "date-chip active"
-                    : ""
-                    }`}
+                      ? "date-chip active"
+                      : ""
+                  }`}
                 >
                   {date.format("D")}
                 </div>
@@ -643,8 +694,8 @@ function AddAppointment() {
         </div>
 
         <div className="timeslots-section">
-          <Tabs 
-            activeKey={activeTab} 
+          <Tabs
+            activeKey={activeTab}
             onChange={setActiveTab}
             defaultActiveKey={getCurrentTimeSection()}
           >
@@ -688,14 +739,20 @@ function AddAppointment() {
         </div>
       </div>
       <Drawer
-        className="modalWidth-645" width="auto"
+        className="modalWidth-645"
+        width="auto"
         title="Confirm Appointment"
         placement="right"
         closable
         open={confirmAppointment}
         onClose={handleConfirmAppointment}
         extra={
-          <Button type="primary" className="btn-41" disabled={validation()} onClick={onBookAppointmentPress}>
+          <Button
+            type="primary"
+            className="btn-41"
+            disabled={validation()}
+            onClick={onBookAppointmentPress}
+          >
             Book Appointment
           </Button>
         }
