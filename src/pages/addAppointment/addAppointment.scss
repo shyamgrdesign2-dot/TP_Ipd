@@ -238,7 +238,7 @@
 
             &.confirmed {
                 background-color: #E6F4EA;
-                border: 1px solid #1E8E3E;
+                // border: 1px solid #1E8E3E;
 
                 // color: #1E8E3E !important;
                 // border: 1px solid #1E8E3E;
@@ -249,8 +249,7 @@
             }
 
             &.past {
-                background-color: #fffaf5;
-                opacity: 0.5;
+                opacity: 0.25;
             }
 
             &.rescheduling {
@@ -275,13 +274,17 @@
 
 .slot-tooltip {
 
+    min-width: 200px !important;
+    max-width: 500px !important;
+
     .ant-tooltip-inner {
         background: white;
         color: #333;
         border-radius: 20px;
         padding: 20px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        width: 400px !important;
+        min-width: 200px !important;
+        max-width: 700px !important;
 
 
         h4 {
@@ -295,12 +298,12 @@
     }
 
     .appointment-tooltip {
-        // width: 400px !important;
+        min-width: 200px !important;
+        max-width: 700px !important;
 
         .patient-info {
             display: flex;
             align-items: center;
-            gap: 8px;
             padding: 12px 0;
 
             i {
@@ -314,9 +317,14 @@
             margin: 0;
         }
 
+        .appointment-patient-info{
+            max-height: 100px !important;
+            overflow-y: auto;
+        }
+
         .time-info {
             margin-top: 16px;
-            background: #B7DFB9;
+            background: #EDF7ED;
             padding: 16px;
             border-radius: 12px;
             text-align: center;

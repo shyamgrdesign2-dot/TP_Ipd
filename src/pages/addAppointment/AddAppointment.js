@@ -16,12 +16,16 @@ import "./addAppointment.scss";
 import { listDoctor } from "../../redux/bulkMessagesSlice";
 import { getDecodedToken, useLocalStorage } from "../../utils/localStorage";
 import greenRightIcon from "../../assets/images/green-rounded-check.svg";
-import visitEnd from '../../assets/images/end-visit.svg';
-import imgCloseVisit from '../../assets/images/close-visit.svg';
+import clockIcon from "../../assets/images/clock.svg";
+import visitEnd from "../../assets/images/end-visit.svg";
+import imgCloseVisit from "../../assets/images/close-visit.svg";
 import profileCircle from "../../assets/images/profile-circle.svg";
-import { DownOutlined } from "@ant-design/icons";
+import { ClockCircleOutlined, DownOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
-import { MESSAGE_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
+import {
+  MESSAGE_KEY,
+  PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+} from "../../utils/constants";
 import { isChrome, isSafari } from "react-device-detect";
 import config from "../../config";
 import axios from "axios";
@@ -117,34 +121,53 @@ const TimeSlotContainer = ({
       case "confirmed":
         return (
           <div className="appointment-tooltip">
-            <h4>Appointment Details({slot.appointments.length})</h4>
-            {slot.appointments.map((appointment, index) => (
-              <div key={index}>
-                <div className="patient-info">
-                  <i className="icon-profile" /> {appointment.pm_full_name} (
-                  {appointment.pm_gender.charAt(0)}, {appointment.ageYears}y)
-                  <i className="icon-phone" /> {appointment.pm_contact_no}
+            <h4>Appointment Details({slot.appointments?.length})</h4>
+            <div
+              className="appointments-scroll"
+              style={{ maxHeight: "200px", overflowY: "auto" }}
+            >
+              {slot.appointments?.map((appointment, index) => (
+                <div key={index} className="appointment-patient-info d-flex align-items-center gap-2">
+                  <div className="d-flex align-items-center gap-1 me-2">
+                    <i className="icon-profile"/>
+                    {appointment.pm_full_name.split(' ')[0]} (
+                    {appointment.pm_gender.charAt(0)}, {appointment.ageYears}y)
+                  </div>
+                  <div className="d-flex align-items-center gap-1 me-2">
+                    <i className="icon-phone" /> 
+                    {appointment.pm_contact_no}
+                  </div>
+                  <div className="d-flex align-items-center gap-1 me-2">
+                    <img src={clockIcon} alt="Tests" /> 
+                    {dayjs(slot.start, "HH:mm:ss").format("hh:mm A")}
+                  </div>
                 </div>
-                {index !== slot.appointments.length - 1 && (
-                  <div className="divider"></div>
-                )}
-              </div>
-            ))}
-            <div className="time-info">
-              <div>Today,{dayjs(slot.start, "HH:mm:ss").format("hh:mm A")}</div>
-              <div>
-                {dayjs(slot.appointments[0].pam_app_date).format(
-                  "DD MMM, YYYY"
-                )}{" "}
-                with {selectedDoctorOption?.label}
-              </div>
+              ))}
             </div>
           </div>
         );
       case "unavailable":
         return (
-          <div className="no-availability-tooltip">
+          <div className="appointment-tooltip">
             <h4>No Availability Set</h4>
+            <div
+              className="appointments-scroll"
+              style={{ maxHeight: "200px", overflowY: "auto" }}
+            >
+              {slot.appointments?.map((appointment, index) => (
+                <div key={index} className="appointment-patient-info">
+                  <div className="name-section">
+                    <i className="icon-profile" /> 
+                    {appointment.pm_full_name.split(' ')[0]} (
+                    {appointment.pm_gender.charAt(0)}, {appointment.ageYears}y)
+                  </div>
+                  <div className="contact-section">
+                    <i className="icon-phone" /> 
+                    {appointment.pm_contact_no}
+                  </div>
+                </div>
+              ))}
+            </div>
             <div>
               You haven't scheduled any slots during this time interval. Update
               your Availability Settings to enable booking in this period.
@@ -178,7 +201,13 @@ const TimeSlotContainer = ({
 
           const slotContent = (
             <div
-              className={`slot ${slotStatus} ${isPast ? "past" : ""}`}
+              className={`slot ${slotStatus} ${
+                isPast &&
+                slotStatus !== "confirmed" &&
+                slotStatus !== "unavailable"
+                  ? "past"
+                  : ""
+              }`}
               onClick={() => {
                 if (slot.status === "available" && !isPast) {
                   handleConfirmAppointment();
@@ -457,10 +486,18 @@ function AddAppointment() {
         "HH:mm"
       ),
       appointment_duration: selectedSlotDetails?.availability?.increment || 5,
-      category_id: selectedCategories ? selectedCategories : "",
       toct_id: selectedCashType,
-      appointment_remark: remarks,
     };
+
+    // Only add category_id if selectedCategories exists
+    if (selectedCategories) {
+      sendData.category_id = selectedCategories;
+    }
+
+    // Only add remarks if it exists and is not empty
+    if (remarks && remarks.trim()) {
+      sendData.appointment_remark = remarks;
+    }
 
     const response = await addAppointment(sendData);
     if (response?.status) {
