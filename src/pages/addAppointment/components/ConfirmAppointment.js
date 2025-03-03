@@ -174,6 +174,8 @@ function ConfirmAppointment({
         [remarks]
     );
 
+    console.log(selectedTimeSlot,"selectedTimeSlot")
+
     return (
         <div className="bg-white h-100 p-20">
             <div className="d-flex align-items-center rounded-10px mb-4" style={{ backgroundColor: '#F2F4F7' }}>
@@ -185,7 +187,16 @@ function ConfirmAppointment({
             </div>
             <div className="d-flex align-items-center rounded-10px mb-4" style={{ backgroundColor: '#F2F4F7' }}>
                 <i className="icon-Queue text-primary rounded-start-3 p-3 bg-custom-purple"></i>
-                <div className="flex-grow-1 py-3 px-2 text-truncate fw-semibold fs-16">{dayjs(selectedTimeSlot, "HH:mm:ss").format("hh:mm A")} (Today) <span className="fw-normal"> | {selectedDate.format("Do MMM YYYY")} </span> </div>
+                <div className="flex-grow-1 py-3 px-2 text-truncate fw-semibold fs-16">
+                    {selectedTimeSlot?.start && (
+                        <>
+                            {dayjs(selectedTimeSlot.start, "HH:mm:ss").format("hh:mm A")}
+                            {selectedDate.isSame(dayjs(), 'day') && " (Today)"}
+                            {selectedDate.isSame(dayjs().add(1, 'day'), 'day') && " (Tomorrow)"}
+                            <span className="fw-normal"> | {selectedDate.format("Do MMM YYYY")} </span>
+                        </>
+                    )}
+                </div>
                 <i className="icon-Edit text-primary cursor-pointer p-3" onClick={()=>handleConfirmAppointment('edit_time')}></i>
             </div>
 
@@ -219,7 +230,7 @@ function ConfirmAppointment({
                             popupClassName='walkincomplete'
                         >
                             <Input
-                                placeholder="Search by Patient’s Name, Phone number or Id"
+                                placeholder="Search by Patient's Name, Phone number or Id"
                                 prefix={<i className="icon-search"></i>}
                                 suffix={
                                     searchQuery.length > 0 && (

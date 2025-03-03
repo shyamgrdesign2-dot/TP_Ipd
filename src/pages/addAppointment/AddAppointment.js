@@ -159,7 +159,6 @@ const TimeSlotContainer = ({
         {slots?.map((slot, index) => {
           const isPast = isSlotInPast(slot.start);
           const slotStatus = slot.status;
-          // const slotStatus = isPast ? `past ${slot.status}` : slot.status;
           
           const slotContent = (
             <div
@@ -167,7 +166,7 @@ const TimeSlotContainer = ({
               onClick={() => {
                 if (slot.status === "available" && !isPast) {
                   handleConfirmAppointment();
-                  setSelectedTimeSlot(slot.start);
+                  setSelectedTimeSlot(slot);
                 }
               }}
             >
@@ -321,9 +320,7 @@ function AddAppointment() {
   };
 
   useEffect(() => {
-    if (isAdmin) {
       dispatch(listDoctor());
-    }
   }, []);
 
   useEffect(() => {
@@ -364,19 +361,18 @@ function AddAppointment() {
     fetchSlots();
   }, [selectedDoctor, selectedDate]);
 
-  // Transform doctor list into options format for Ant Design Select
+  // Make sure doctorList is properly mapped to doctorOptions
   const doctorOptions = doctorList?.map((doctor) => ({
-    value: String(doctor.um_id),
-    label: doctor.um_name,
+    value: String(doctor.um_id),  // Ensure this matches the type of selectedDoctor
+    label: doctor.um_name
   }));
 
-  // useEffect(() => {
-  //   console.log("this is getting called")
-  //   decodedToken && setSelectedDoctor(decodedToken?.result?.user_id);
-  // }, [decodedToken]);
+  // Find the selected doctor's label with additional type checking
+  const selectedDoctorOption = doctorOptions?.find(
+    (doctor) => doctor?.value === (selectedDoctor ? String(selectedDoctor) : null)
+  );
 
   const handleDoctorChange = (value) => {
-    console.log(value)
     setSelectedDoctor(value);
   };
 
@@ -391,6 +387,9 @@ function AddAppointment() {
   const [selectedCashType, setSelectedCashType] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState(null);
   const [remarks, setRemarks] = useState('');
+
+  // Add a new state to store the complete slot details
+  const [selectedSlotDetails, setSelectedSlotDetails] = useState(null);
 
   useEffect(() => {
     if (patient_data) {
@@ -415,22 +414,45 @@ function AddAppointment() {
 
   const validation = () => !(clickedPatient && selectedCashType);
 
+  // Update your time slot selection handler
+  const handleTimeSlotSelect = (slot) => {
+    setSelectedTimeSlot(slot);
+    setSelectedSlotDetails(slot); // Store the complete slot object
+  };
+
   const onBookAppointmentPress = async () => {
     let sendData = {
       "doctor_id": selectedDoctor,
       "patient_unique_id": clickedPatient?.patient_unique_id,
       "pm_pid": clickedPatient?.pm_pid,
       "appointment_date": dayjs(selectedDate).format('YYYY-MM-DD'),
-      "appointment_start_time": "19:20",
-      "appointment_end_time": "19:30",
-      "appointment_duration": 10,
-      "toct_id": selectedCategories ? selectedCategories : '',
-      "category_id": selectedCashType,
+      "appointment_start_time": dayjs(selectedSlotDetails.start, "HH:mm:ss").format("HH:mm"),
+      "appointment_end_time": dayjs(selectedSlotDetails.end, "HH:mm:ss").format("HH:mm"),
+      "appointment_duration": selectedSlotDetails?.availability?.duration || "10",
+      "category_id": selectedCategories ? selectedCategories : '',
+      "toct_id": selectedCashType,
       "appointment_remark": remarks
     }
     const response = await addAppointment(sendData);
     if (response?.status) {
-
+      // Close the drawer
+      setConfirmAppointment(false);
+      
+      // Reset form states
+      setSelectedTimeSlot(null);
+      setSelectedSlotDetails(null);
+      setSelectedCategories(null);
+      setSelectedCashType(null);
+      setRemarks('');
+      setClickedPatient(null);
+      
+      // Refresh the slots data for the selected date
+      const formattedDate = dayjs(selectedDate).format('YYYY-MM-DD');
+      const slotsResponse = await getSlotsList(selectedDoctor, formattedDate);
+      if (slotsResponse?.status) {
+        const generatedSlots = generateTimeSlots(slotsResponse.slots || []);
+        setTimeSlots(generatedSlots);
+      }
     } else {
       errorMessage(response?.message)
     }
@@ -491,11 +513,6 @@ function AddAppointment() {
     });
   }
   
-  // Find the selected doctor's label
-  const selectedDoctorOption = doctorOptions?.find(
-    (doctor) => doctor.value === String(selectedDoctor)
-  );
-
   return (
     <>
       <div className="welcomesection position-relative">
@@ -635,7 +652,7 @@ function AddAppointment() {
               <TimeSlotContainer
                 slots={timeSlots.MORNING}
                 selectedTimeSlot={selectedTimeSlot}
-                setSelectedTimeSlot={setSelectedTimeSlot}
+                setSelectedTimeSlot={handleTimeSlotSelect}
                 isLoading={isLoadingSlots}
                 handleConfirmAppointment={handleConfirmAppointment}
                 editTime={editTime}
@@ -647,7 +664,7 @@ function AddAppointment() {
               <TimeSlotContainer
                 slots={timeSlots.AFTERNOON}
                 selectedTimeSlot={selectedTimeSlot}
-                setSelectedTimeSlot={setSelectedTimeSlot}
+                setSelectedTimeSlot={handleTimeSlotSelect}
                 isLoading={isLoadingSlots}
                 handleConfirmAppointment={handleConfirmAppointment}
                 editTime={editTime}
@@ -659,7 +676,7 @@ function AddAppointment() {
               <TimeSlotContainer
                 slots={timeSlots.EVENING}
                 selectedTimeSlot={selectedTimeSlot}
-                setSelectedTimeSlot={setSelectedTimeSlot}
+                setSelectedTimeSlot={handleTimeSlotSelect}
                 isLoading={isLoadingSlots}
                 handleConfirmAppointment={handleConfirmAppointment}
                 editTime={editTime}
