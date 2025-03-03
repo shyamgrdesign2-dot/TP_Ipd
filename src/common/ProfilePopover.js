@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import moment from 'moment';
 import { getDecodedToken } from '../utils/localStorage';
 import config from '../config';
+import { isIPad13 } from 'react-device-detect';
 
 export const genderAge = (patient_data, profile, shouldShowGender = true) => {
     var value = shouldShowGender
@@ -104,7 +105,8 @@ function ProfilePopover(props) {
 
     const getPatientName = () => {
         if (!patient_data) return "Hello Guest";
-        if (isPrescriptionPage && patient_data?.pm_fullname?.length > 10) {
+        const isSmallTablet = window.innerWidth <= 1024;
+        if (isPrescriptionPage && isSmallTablet && patient_data?.pm_fullname?.length > 10) {
             return `${patient_data?.pm_fullname?.slice(0,10)}...`;
         }
         return patient_data?.pm_fullname;
