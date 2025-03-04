@@ -570,7 +570,7 @@ function Header({ locationPath }) {
     return iframeStatuses;
   };
   
-  const handleLogout = async () => {
+  const handleLogout = async () => { 
     
     // URLs to open silently
     const urlsToOpen = [
@@ -579,13 +579,23 @@ function Header({ locationPath }) {
     ];
 
     try {
-      // First clear all storage
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Then handle the silent URLs
+      // Prevent multiple clicks while logging out
+      if (window.isLoggingOut) return;
+      window.isLoggingOut = true;
+
+      // first handle the silent URLs
       const statuses = await openUrlsSilently(urlsToOpen);
       console.log("URL statuses:", statuses);
+
+      // Check if URLs were successfully called
+      const allSuccessful = statuses.every(({ status }) => status === "success");
+      if (!allSuccessful) {
+        console.warn("Some logout URLs failed:", statuses);
+      }
+
+      // then clear all storage
+      localStorage.clear();
+      sessionStorage.clear();
 
       // Navigate regardless of URL statuses
       window.location.href = "/login"; 
@@ -594,6 +604,8 @@ function Header({ locationPath }) {
       console.error("Error during logout:", error);
       // Still attempt to navigate even if there's an error
       window.location.href = "/login";
+    } finally {
+      window.isLoggingOut = false;
     }
   };
   
