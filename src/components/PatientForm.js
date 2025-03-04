@@ -211,7 +211,12 @@ function PatientForm({ mode = ADD, patient_data }) {
                         <>
                             <hr className="my-0" />
                             <div className="text-end p-20">
-                                <button type="button" className="btn btn-text text-decoration-underline me-3" onClick={() => mode === EDIT ? navigate(-1) : navigate(-2)}>
+                                <button type="button" className="btn btn-text text-decoration-underline me-3" onClick={() => mode === EDIT ? navigate(-1) : isFromAddAppointment ? navigate("/add-appointment", {
+                                    replace: true,
+                                    state: {
+                                        ...location.state
+                                    }
+                                }) : navigate(-2)}>
                                     Cancel
                                 </button>
                                 <Button
