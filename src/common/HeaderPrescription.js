@@ -1159,7 +1159,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                                     }
                                 />
                             </div>
-                            <ProfilePopover patient_data={patient_data} />
+                            <ProfilePopover patient_data={patient_data} isPrescriptionPage />
                         </div>
                     </Col>
                     <Col sm="auto">
