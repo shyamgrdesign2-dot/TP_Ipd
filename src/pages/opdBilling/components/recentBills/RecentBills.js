@@ -7,6 +7,7 @@ const RecentBills = ({
   handleCreateBillDrawer,
   patientBills,
   getPatientBills,
+  totalAdvanceBalance
 }) => {
   const [sortConfig, setSortConfig] = useState({ field: null, order: null });
 
@@ -54,6 +55,7 @@ const RecentBills = ({
           getPatientBills={getPatientBills}
           handleRecentBillDrawer={handleRecentBillDrawer}
           onSortChange={handleSortChange}
+          totalAdvanceBalance={totalAdvanceBalance}
         />
       </div>
     </div>

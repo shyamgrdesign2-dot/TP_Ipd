@@ -235,7 +235,7 @@ const DownloadBill = ({
             fontSize: 12,
           }}
         >
-          ₹{record.receivedAmount}
+          ₹{record.receivedAmount?.toFixed(2)}
         </span>
       ),
     },
@@ -251,7 +251,7 @@ const DownloadBill = ({
             fontSize: 12,
           }}
         >
-          ₹{record.refundedAmount}
+          ₹{record.refundedAmount?.toFixed(2)}
         </span>
       ),
     },

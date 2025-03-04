@@ -71,7 +71,7 @@ import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/Up
 import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
 import { resetDDxState } from "../redux/ddxSlice";
 import CreateBill from "../pages/opdBilling/components/createBill/CreateBill";
-import { fetchBillsByPatient } from "../pages/opdBilling/service";
+import { fetchBillsByPatient, fetchPatientWalletBalance } from "../pages/opdBilling/service";
 import RecentBills from "../pages/opdBilling/components/recentBills/RecentBills";
 import AddAdvance from "../pages/opdBilling/components/advanceDeposit/AddAdvance";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
@@ -396,6 +396,7 @@ function AppointmentData({ locationPath }) {
     const [recentBillDrawer, setRecentBillDrawer] = useState(false);
     const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
     const [patientBills, setPatientBills] = useState([]);
+    const [patientWalletBalance, setPatientWalletBalance] = useState(0);
 
     const showHideBackModal = () => {
         setIsBackModalOpen(!isBackModalOpen);
@@ -1365,6 +1366,11 @@ function AppointmentData({ locationPath }) {
             }));
             setPatientBills(billData);
         }
+        const patientWalletBalanceRes = await fetchPatientWalletBalance(
+          record?.patient_unique_id ||
+            appointmentSelectedFromMenu?.patient_unique_id
+        );
+        setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
     };
 
     const NO_DETAILS_MODAL = useMemo(() => {
@@ -1955,6 +1961,7 @@ function AppointmentData({ locationPath }) {
                         handleCreateBillDrawer={handleCreateBillDrawer}
                         patientBills={patientBills}
                         getPatientBills={getPatientBills}
+                        totalAdvanceBalance={patientWalletBalance}
                     />
                 </Drawer>
             )}

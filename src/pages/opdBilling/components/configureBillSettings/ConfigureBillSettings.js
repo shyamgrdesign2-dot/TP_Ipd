@@ -29,6 +29,7 @@ const ConfigureBillSettings = ({
   patientData,
   billData,
   isDepositReceipt,
+  totalAdvanceBalance,
 }) => {
   const dispatch = useDispatch();
   const { defaultPrintSettings, profile } = useSelector(
@@ -211,6 +212,7 @@ const ConfigureBillSettings = ({
         profile={profile}
         billData={billData}
         isDepositReceipt={isDepositReceipt}
+        totalAdvanceBalance={totalAdvanceBalance}
         gstIn={advancedSettings?.GSTIN}
         showCreatedBy={advancedSettings?.enableCreatedByInRx}
       />
