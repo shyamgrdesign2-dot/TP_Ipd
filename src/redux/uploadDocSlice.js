@@ -76,7 +76,7 @@ const uploadDocSlice = createSlice({
             category_id: -2,
             name: e?.serviceName,
             display_name: e?.serviceName,
-            url: `${config.zydus_proxy_url}/ictApiProxy/emr/lab/report/print?sampleId=${e?.sampleId}`,
+            url: `${config.zydus_proxy_url}/ictApiProxy/emr/lab/report/print?sampleId=${e?.sampleId}&labResultId=${e?.labResultId}`,
             um_id: 493,
             thumbnail_url: '',
             created_date: moment(e?.certifiedDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
