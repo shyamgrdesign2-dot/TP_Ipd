@@ -1157,13 +1157,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             // systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
                                                                             // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
                                                                             spo2: spo2 ? `SPO2: ${spo2}%` : '',
+                                                                            general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
+                                                                            ofc: ofc ? `OFC: ${ofc}cms` : '',
                                                                             height: height ? `Height: ${height}cms` : '',
                                                                             weight: weight ? `Weight: ${weight}kgs` : '',
                                                                             bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
                                                                             bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
                                                                             bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
-                                                                            ofc: ofc ? `OFC: ${ofc}cms` : '',
-                                                                            general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
                                                                         })
                                                                     )(caseManagerData.vitals[i])
                                                                 ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;
@@ -1227,13 +1227,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             // systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
                                                                             // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
                                                                             spo2: spo2 ? `SPO2: ${spo2}%` : '',
+                                                                            general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
+                                                                            ofc: ofc ? `OFC: ${ofc}cms` : '',
                                                                             height: height ? `Height: ${height}cms` : '',
                                                                             weight: weight ? `Weight: ${weight}kgs` : '',
                                                                             bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
                                                                             bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
                                                                             bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
-                                                                            ofc: ofc ? `OFC: ${ofc}cms` : '',
-                                                                            general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : ''
                                                                         })
                                                                     )(caseManagerData.vitals[i])
                                                                 ).filter(([_, v]) => v))).join(', ')}\n`}
