@@ -110,6 +110,7 @@ function ConfirmAppointment({
                                 name={patient.pm_fullname}
                                 boldWord={searchQuery}
                             />{" "}
+                            ({patient.pm_gender}, {patient.ageYears}y)
                         </span>
                     </div>
                     <div className="list-patientName d-flex align-items-center me-4">

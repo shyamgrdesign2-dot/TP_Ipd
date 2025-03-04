@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Button from "react-bootstrap/Button";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Drawer, message, Tooltip } from "antd";
+import { Drawer, message, Spin, Tooltip } from "antd";
 
 import ConfirmAppointment from "./components/ConfirmAppointment";
 import { addAppointment, getSlotsList } from "./service";
@@ -20,7 +20,8 @@ import clockIcon from "../../assets/images/clock.svg";
 import visitEnd from "../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../assets/images/close-visit.svg";
 import profileCircle from "../../assets/images/profile-circle.svg";
-import { ClockCircleOutlined, DownOutlined } from "@ant-design/icons";
+import cvtInfoIcon from "../../assets/images/cvt-info.svg";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import {
   MESSAGE_KEY,
@@ -29,6 +30,7 @@ import {
 import { isChrome, isSafari } from "react-device-detect";
 import config from "../../config";
 import axios from "axios";
+import { upsertDoctorSettingFlag } from "../../redux/doctorsSlice";
 
 const TIME_SECTIONS = {
   MIDNIGHT: { start: "00:00", end: "03:00", label: "Midnight" },
@@ -96,7 +98,19 @@ const TimeSlotContainer = ({
   selectedDoctorOption,
 }) => {
   if (isLoading) {
-    return <div className="slots-info">Loading slots...</div>;
+    return (
+      <div>
+        <Spin
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "50%",
+            zIndex: "9999",
+          }}
+          size="large"
+        />
+      </div>
+    );
   }
 
   const renderSlotsCount = (slots) => {
@@ -124,21 +138,31 @@ const TimeSlotContainer = ({
             <h4>Appointment Details({slot.appointments?.length})</h4>
             <div
               className="appointments-scroll"
-              style={{ maxHeight: "200px", overflowY: "auto" }}
+              style={{
+                maxHeight: "200px",
+                overflowY: "auto",
+              }}
             >
               {slot.appointments?.map((appointment, index) => (
-                <div key={index} className="appointment-patient-info d-flex align-items-center gap-2">
-                  <div className="d-flex align-items-center gap-1 me-2">
-                    <i className="icon-profile"/>
-                    {appointment.pm_full_name.split(' ')[0]} (
-                    {appointment.pm_gender.charAt(0)}, {appointment.ageYears}y)
+                <div
+                  key={index}
+                  className="appointment-patient-info d-flex align-items-center gap-2 p-2"
+                >
+                  <div className="appointment-patient-content align-items-center gap-1 me-2">
+                    <i className="icon-profile" />
+                    {appointment.pm_full_name.split(" ")[0].length > 10
+                      ? `${appointment.pm_full_name
+                          .split(" ")[0]
+                          .substring(0, 10)}...`
+                      : appointment.pm_full_name.split(" ")[0]}{" "}
+                    ({appointment.pm_gender.charAt(0)}, {appointment.ageYears}y)
                   </div>
                   <div className="d-flex align-items-center gap-1 me-2">
-                    <i className="icon-phone" /> 
+                    <i className="icon-phone" />
                     {appointment.pm_contact_no}
                   </div>
                   <div className="d-flex align-items-center gap-1 me-2">
-                    <img src={clockIcon} alt="Tests" /> 
+                    <img src={clockIcon} alt="Tests" />
                     {dayjs(slot.start, "HH:mm:ss").format("hh:mm A")}
                   </div>
                 </div>
@@ -149,28 +173,54 @@ const TimeSlotContainer = ({
       case "unavailable":
         return (
           <div className="appointment-tooltip">
-            <h4>No Availability Set</h4>
+            {slot.appointments?.length > 0 ? (
+              <h4>Appointment Details({slot.appointments?.length})</h4>
+            ) : (
+              <h4>No Availability Set</h4>
+            )}
             <div
               className="appointments-scroll"
               style={{ maxHeight: "200px", overflowY: "auto" }}
             >
               {slot.appointments?.map((appointment, index) => (
-                <div key={index} className="appointment-patient-info">
-                  <div className="name-section">
-                    <i className="icon-profile" /> 
-                    {appointment.pm_full_name.split(' ')[0]} (
-                    {appointment.pm_gender.charAt(0)}, {appointment.ageYears}y)
+                <div
+                  key={index}
+                  className="appointment-patient-info d-flex align-items-center gap-2 p-2"
+                >
+                  <div className="appointment-patient-content d-flex align-items-center gap-1 me-2">
+                    <i className="icon-profile" />
+                    {appointment.pm_full_name.split(" ")[0].length > 10
+                      ? `${appointment.pm_full_name
+                          .split(" ")[0]
+                          .substring(0, 10)}...`
+                      : appointment.pm_full_name.split(" ")[0]}{" "}
+                    ({appointment.pm_gender.charAt(0)}, {appointment.ageYears}y)
                   </div>
-                  <div className="contact-section">
-                    <i className="icon-phone" /> 
+                  <div className="d-flex align-items-center gap-1 me-2">
+                    <i className="icon-phone" />
                     {appointment.pm_contact_no}
+                  </div>
+                  <div className="d-flex align-items-center gap-1 me-2">
+                    <img src={clockIcon} alt="Tests" />
+                    {dayjs(slot.start, "HH:mm:ss").format("hh:mm A")}
                   </div>
                 </div>
               ))}
             </div>
             <div>
-              You haven't scheduled any slots during this time interval. Update
-              your Availability Settings to enable booking in this period.
+              {slot.appointments?.length > 0 ? (
+                <div className="mt-2 unavailability-text">
+                  <span className="fw-bold">Note:</span> You haven't scheduled
+                  any slots during this time. However, a few appointments were
+                  booked during this period.
+                </div>
+              ) : (
+                <div className="mt-2 unavailability-text">
+                  You haven't scheduled any slots during this time interval.
+                  Update your Availability Settings to enable booking in this
+                  period.
+                </div>
+              )}
             </div>
           </div>
         );
@@ -221,6 +271,7 @@ const TimeSlotContainer = ({
                   <>
                     {dayjs(slot.start, "HH:mm:ss").format("hh:mm A")} -{" "}
                     {dayjs(slot.end, "HH:mm:ss").format("hh:mm A")}
+                    <InfoCircleOutlined className="info-icon" />
                   </>
                 ) : (
                   dayjs(slot.start, "HH:mm:ss").format("hh:mm A")
@@ -229,14 +280,13 @@ const TimeSlotContainer = ({
             </div>
           );
 
-          return slot.status === "available" && isPast ? (
-            slotContent
-          ) : (
+          return (
             <Tooltip
               key={index}
               title={getTooltipContent(slot)}
               overlayClassName="slot-tooltip"
               placement="top"
+              // open={slot.status === "unavailable" ? true : false}
             >
               {slotContent}
             </Tooltip>
@@ -443,6 +493,9 @@ function AddAppointment() {
   // Add a new state to store the complete slot details
   const [selectedSlotDetails, setSelectedSlotDetails] = useState(null);
 
+  // At the top of your component, add this state
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
+
   useEffect(() => {
     if (patient_data) {
       setClickedPatient(patient_data);
@@ -598,6 +651,28 @@ function AddAppointment() {
     });
   };
 
+  // Update the HandleSettingsDescription function
+  const HandleSettingsDescription = () => {
+    try {
+      dispatch(
+        upsertDoctorSettingFlag({ type: "availabilitySettings", status: 1 })
+      );
+      setShowDisclaimer(false); // Hide the disclaimer strip
+    } catch (error) {
+      console.error("Error updating settings:", error);
+      message.error("Failed to update settings"); // Add error notification
+    }
+  };
+
+  useEffect(() => {
+    if (
+      profile?.userSettingFlag?.find((e) => e?.type === "availabilitySettings")
+        ?.status === 1
+    ) {
+      setShowDisclaimer(false);
+    }
+  }, [profile?.userSettingFlag]);
+
   return (
     <>
       <div className="welcomesection position-relative">
@@ -729,6 +804,32 @@ function AddAppointment() {
             }}
           />
         </div>
+
+        {showDisclaimer &&
+          profile?.userSettingFlag?.find(
+            (e) => e?.type === "availabilitySettings"
+          )?.status !== 1 && (
+            <div className="cvt-info mt-2 rounded-10px w-100 justify-content-between">
+              <div className="d-flex align-items-center">
+                <img src={cvtInfoIcon} alt="cvt-info-icon" className="me-2" />
+                <span className="cvt-info-text">
+                  <span className="title-common">Disclaimer:</span> The slots
+                  below are based on the default availability settings. To
+                  customise your schedule, update your availability in
+                  Availability Settings.
+                </span>
+              </div>
+              <i
+                className="icon-Cross ms-1 fs-20"
+                style={{
+                  color: "#A2A2A8",
+                  marginLeft: "auto",
+                  cursor: "pointer",
+                }}
+                onClick={HandleSettingsDescription}
+              ></i>
+            </div>
+          )}
 
         <div className="timeslots-section">
           <Tabs
