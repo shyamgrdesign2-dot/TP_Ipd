@@ -302,6 +302,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         bmi: cal.bmi,
         bmr: cal.bmr,
         bsa: cal.bsa,
+        general_rbs: ''
       });
 
       var sendData = {

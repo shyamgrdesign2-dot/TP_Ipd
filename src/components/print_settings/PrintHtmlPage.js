@@ -505,6 +505,10 @@ function PrintHtmlPage() {
       key: "12",
       name: `OFC (cms)`,
     },
+    {
+      key: "13",
+      name: `General RBS (mg/dl)`,
+    },
   ];
 
   const initialColumns = [

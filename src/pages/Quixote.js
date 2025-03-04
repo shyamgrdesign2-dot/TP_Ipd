@@ -80,7 +80,11 @@ function Quixote({ mode = NORMAL, ...props }) {
         {
             key: '11',
             name: `OFC (cms)`,
-        }
+        },
+        {
+            key: '12',
+            name: `General RBS (mg/dl)`,
+        },
     ];
 
     const initialColumns = [
@@ -113,6 +117,7 @@ function Quixote({ mode = NORMAL, ...props }) {
         initialRows[8][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
         initialRows[9][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
         initialRows[10][index] = item.ofc ? item.ofc : "-";
+        initialRows[11][index] = item.general_rbs ? item.general_rbs : "-";
     });
 
     const [pdfUrl, setPdfUrl] = useState(null)
