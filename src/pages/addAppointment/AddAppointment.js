@@ -33,19 +33,19 @@ import axios from "axios";
 import { upsertDoctorSettingFlag } from "../../redux/doctorsSlice";
 
 const TIME_SECTIONS_CONFIG = [
+  { key: 'MIDNIGHT', label: 'Midnight', timeRange: '12AM - 3AM' },
+  { key: 'EARLY_MORNING', label: 'Early Morning', timeRange: '3AM - 5AM' },
   { key: 'MORNING', label: 'Morning', timeRange: '5AM - 12PM' },
   { key: 'AFTERNOON', label: 'Afternoon', timeRange: '12PM - 5PM' },
   { key: 'EVENING', label: 'Evening', timeRange: '5PM - 9PM' },
   { key: 'NIGHT', label: 'Night', timeRange: '9PM - 12AM' },
-  { key: 'MIDNIGHT', label: 'Midnight', timeRange: '12AM - 3AM' },
-  { key: 'LATE_NIGHT', label: 'Late Night', timeRange: '3AM - 5AM' },
 ];
 
 const getTimeSection = (time) => {
   const hour = dayjs(time, "HH:mm:ss").hour();
 
   if (hour >= 0 && hour < 3) return "MIDNIGHT";
-  if (hour >= 3 && hour < 5) return "LATE_NIGHT";
+  if (hour >= 3 && hour < 5) return "EARLY_MORNING";
   if (hour >= 5 && hour < 12) return "MORNING";
   if (hour >= 12 && hour < 17) return "AFTERNOON";
   if (hour >= 17 && hour < 21) return "EVENING";
@@ -57,7 +57,7 @@ const getTimeSection = (time) => {
 const generateTimeSlots = (slotsData) => {
   let allTimeSlots = {
     MIDNIGHT: [],
-    LATE_NIGHT: [],
+    EARLY_MORNING: [],
     MORNING: [],
     AFTERNOON: [],
     EVENING: [],
@@ -377,12 +377,12 @@ function AddAppointment() {
     return chips;
   };
 
+  // Add this helper function to check if date exists in chips
   const isDateInChipRange = (date) => {
-    // Ensure we're working with dayjs objects
-    const selectedDateStr = dayjs(date).format("YYYY-MM-DD");
-    const firstDateStr = dateChips[0].format("YYYY-MM-DD");
-    const lastDateStr = dateChips[dateChips.length - 1].format("YYYY-MM-DD");
-
+    if (!dateChips.length) return false;
+    const selectedDateStr = dayjs(date).format('YYYY-MM-DD');
+    const firstDateStr = dateChips[0].format('YYYY-MM-DD');
+    const lastDateStr = dateChips[dateChips.length - 1].format('YYYY-MM-DD');
     return selectedDateStr >= firstDateStr && selectedDateStr <= lastDateStr;
   };
 
@@ -721,7 +721,10 @@ function AddAppointment() {
 
               <Button
                 variant="primary"
-                onClick={myAvailability}
+                onClick={() => {
+                  myAvailability();
+                  HandleSettingsDescription();
+                }}
                 className="px-3 btn-41 d-flex align-items-center rounded-10px"
               >
                 <i className="icon-calendar me-2"></i>
@@ -735,13 +738,15 @@ function AddAppointment() {
       <div className={`border rounded-4 appointment-wrap p-4`}>
         <div className="d-flex align-items-center justify-content-between">
           <DatePicker
-            value={selectedDate}
+            // value={selectedDate}
             onChange={handleDateChange}
             format="MMMM, YYYY"
             picker="date"
             inputReadOnly
             allowClear={false}
             defaultPickerValue={displayMonth}
+            // Set the displayed month based on conditions
+            value={isDateInChipRange(selectedDate) ? selectedDate : dateChips[0]}
             suffixIcon={
               <i className="icon-right d-block text-main fs-5 suffix-icon-down"></i>
             }
@@ -836,7 +841,15 @@ function AddAppointment() {
                   <span className="title-common">Disclaimer:</span> The slots
                   below are based on the default availability settings. To
                   customise your schedule, update your availability in
-                  <button onClick={myAvailability} className="availability-settings-text-btn">Availability Settings</button>.
+                  <button 
+                    onClick={() => {
+                      myAvailability();
+                      HandleSettingsDescription();
+                    }} 
+                    className="availability-settings-text-btn"
+                  >
+                    Availability Settings
+                  </button>.
                 </span>
               </div>
               <i
@@ -857,23 +870,44 @@ function AddAppointment() {
             onChange={setActiveTab}
             defaultActiveKey={getCurrentTimeSection()}
           >
-            {TIME_SECTIONS_CONFIG.map(section => (
-              <TabPane 
-                key={section.key}
-                tab={`${section.label}`}
-              >
-                <TimeSlotContainer
-                  slots={timeSlots[section.key]}
-                  selectedTimeSlot={selectedTimeSlot}
-                  setSelectedTimeSlot={handleTimeSlotSelect}
-                  isLoading={isLoadingSlots}
-                  handleConfirmAppointment={handleConfirmAppointment}
-                  editTime={editTime}
-                  isSlotInPast={isSlotInPast}
-                  selectedDoctorOption={selectedDoctorOption}
-                />
-              </TabPane>
-            ))}
+            {TIME_SECTIONS_CONFIG.map(section => {
+              // Skip rendering Midnight and Late Night sections if:
+              // 1. They have no slots, OR
+              // 2. They only have a single unavailable slot without appointments
+              if (section.key === 'MIDNIGHT' || section.key === 'EARLY_MORNING') {
+                const sectionSlots = timeSlots[section.key];
+                
+                // Check if there are no slots
+                if (!sectionSlots || sectionSlots.length === 0) {
+                  return null;
+                }
+                
+                // Check if there's only one slot and it's unavailable without appointments
+                if (sectionSlots.length === 1 && 
+                    sectionSlots[0].status === 'unavailable' && 
+                    (!sectionSlots[0].appointments || sectionSlots[0].appointments.length === 0)) {
+                  return null;
+                }
+              }
+
+              return (
+                <TabPane 
+                  key={section.key}
+                  tab={`${section.label}`}
+                >
+                  <TimeSlotContainer
+                    slots={timeSlots[section.key]}
+                    selectedTimeSlot={selectedTimeSlot}
+                    setSelectedTimeSlot={handleTimeSlotSelect}
+                    isLoading={isLoadingSlots}
+                    handleConfirmAppointment={handleConfirmAppointment}
+                    editTime={editTime}
+                    isSlotInPast={isSlotInPast}
+                    selectedDoctorOption={selectedDoctorOption}
+                  />
+                </TabPane>
+              );
+            })}
           </Tabs>
         </div>
       </div>
