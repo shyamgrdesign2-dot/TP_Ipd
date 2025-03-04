@@ -152,8 +152,8 @@ const TimeSlotContainer = ({
                     <i className="icon-profile" />
                     {appointment.pm_full_name.split(" ")[0].length > 10
                       ? `${appointment.pm_full_name
-                          .split(" ")[0]
-                          .substring(0, 10)}...`
+                        .split(" ")[0]
+                        .substring(0, 10)}...`
                       : appointment.pm_full_name.split(" ")[0]}{" "}
                     ({appointment.pm_gender.charAt(0)}, {appointment.ageYears}y)
                   </div>
@@ -191,8 +191,8 @@ const TimeSlotContainer = ({
                     <i className="icon-profile" />
                     {appointment.pm_full_name.split(" ")[0].length > 10
                       ? `${appointment.pm_full_name
-                          .split(" ")[0]
-                          .substring(0, 10)}...`
+                        .split(" ")[0]
+                        .substring(0, 10)}...`
                       : appointment.pm_full_name.split(" ")[0]}{" "}
                     ({appointment.pm_gender.charAt(0)}, {appointment.ageYears}y)
                   </div>
@@ -251,13 +251,12 @@ const TimeSlotContainer = ({
 
           const slotContent = (
             <div
-              className={`slot ${slotStatus} ${
-                isPast &&
-                slotStatus !== "confirmed" &&
-                slotStatus !== "unavailable"
+              className={`slot ${slotStatus} ${isPast &&
+                  slotStatus !== "confirmed" &&
+                  slotStatus !== "unavailable"
                   ? "past"
                   : ""
-              }`}
+                }`}
               onClick={() => {
                 if (slot.status === "available" && !isPast) {
                   handleConfirmAppointment();
@@ -286,7 +285,7 @@ const TimeSlotContainer = ({
               title={getTooltipContent(slot)}
               overlayClassName="slot-tooltip"
               placement="top"
-              // open={slot.status === "unavailable" ? true : false}
+            // open={slot.status === "unavailable" ? true : false}
             >
               {slotContent}
             </Tooltip>
@@ -499,6 +498,13 @@ function AddAppointment() {
   useEffect(() => {
     if (patient_data) {
       setClickedPatient(patient_data);
+      setSelectedDoctor(state?.selectedDoctor)
+      setSelectedDate(dayjs(state?.selectedDate))
+      setSelectedTimeSlot(state?.selectedTimeSlot)
+      setSelectedSlotDetails(state?.selectedTimeSlot)
+      setSelectedCashType(state?.selectedCashType)
+      setSelectedCategories(state?.selectedCategories)
+      setRemarks(state?.remarks)
       handleConfirmAppointment();
     }
   }, [patient_data]);
@@ -756,20 +762,18 @@ function AddAppointment() {
               <div
                 key={date.format("YYYY-MM-DD")}
                 onClick={() => handleChipClick(date)}
-                className={`date-chip ${
-                  date.format("YYYY-MM-DD") ===
-                  selectedDate.format("YYYY-MM-DD")
+                className={`date-chip ${date.format("YYYY-MM-DD") ===
+                    selectedDate.format("YYYY-MM-DD")
                     ? "active"
                     : ""
-                }`}
+                  }`}
               >
                 <div
-                  className={`${
-                    date.format("YYYY-MM-DD") ===
-                    selectedDate.format("YYYY-MM-DD")
+                  className={`${date.format("YYYY-MM-DD") ===
+                      selectedDate.format("YYYY-MM-DD")
                       ? "date-chip active"
                       : ""
-                  }`}
+                    }`}
                 >
                   {date.format("D")}
                 </div>

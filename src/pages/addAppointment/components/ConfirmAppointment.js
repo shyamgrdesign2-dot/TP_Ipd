@@ -72,7 +72,7 @@ function ConfirmAppointment({
             label: AddPatientPlank(),
         });
         setSearchOptions(data);
-    }, [patients]);
+    }, [patients, selectedCashType, selectedCategories, remarks]);
 
     const onSearchParent = useCallback(
         (query) => {
@@ -144,14 +144,48 @@ function ConfirmAppointment({
 
     function goToAddPatient() {
         if (searchQuery.length === 10 && isNumeric(searchQuery)) {
-            navigate("/add_patient", { state: { patient_data: { pm_fullname: '', pm_contact_no: searchQuery }, from: 'add-appointment' } });
+            navigate("/add_patient", {
+                state: {
+                    patient_data: { pm_fullname: '', pm_contact_no: searchQuery },
+                    from: 'add-appointment',
+                    selectedDoctor: selectedDoctor,
+                    clickedPatient: clickedPatient,
+                    selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
+                    selectedTimeSlot: selectedTimeSlot,
+                    selectedCashType: selectedCashType,
+                    selectedCategories: selectedCategories,
+                    remarks: remarks
+                }
+            });
         } else if (searchQuery.length > 0 && isAlphabet(searchQuery)) {
-            navigate("/add_patient", { state: { patient_data: { pm_fullname: searchQuery, pm_contact_no: '' }, from: 'add-appointment' } });
+            navigate("/add_patient", {
+                state: {
+                    patient_data: { pm_fullname: searchQuery, pm_contact_no: '' },
+                    from: 'add-appointment',
+                    selectedDoctor: selectedDoctor,
+                    clickedPatient: clickedPatient,
+                    selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
+                    selectedTimeSlot: selectedTimeSlot,
+                    selectedCashType: selectedCashType,
+                    selectedCategories: selectedCategories,
+                    remarks: remarks
+                }
+            });
         } else {
-            navigate("/add_patient", { state: { from: '/add-appointment' } });
+            navigate("/add_patient", {
+                state: {
+                    from: '/add-appointment',
+                    selectedDoctor: selectedDoctor,
+                    clickedPatient: clickedPatient,
+                    selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
+                    selectedTimeSlot: selectedTimeSlot,
+                    selectedCashType: selectedCashType,
+                    selectedCategories: selectedCategories,
+                    remarks: remarks
+                }
+            });
         }
     }
-
 
     const onSelectCaseType = useCallback(
         (data) => {
@@ -181,7 +215,7 @@ function ConfirmAppointment({
                 <i className="bg-custom-purple fs-4 rounded-start-3 icon-patients p-3 text-primary"></i>
                 <div className="flex-grow-1 py-3 px-2 text-truncate fw-semibold fs-16">{doctorList?.find(doctor => doctor.um_id == selectedDoctor)?.um_name}</div>
                 {/* {doctorList?.length > 1 && ( */}
-                    <i className="text-primary icon-Edit cursor-pointer p-3" onClick={()=>handleConfirmAppointment('edit_doctor')}></i>
+                <i className="text-primary icon-Edit cursor-pointer p-3" onClick={() => handleConfirmAppointment('edit_doctor')}></i>
                 {/* )} */}
             </div>
             <div className="d-flex align-items-center rounded-10px mb-4" style={{ backgroundColor: '#F2F4F7' }}>
@@ -196,7 +230,7 @@ function ConfirmAppointment({
                         </>
                     )}
                 </div>
-                <i className="icon-Edit text-primary cursor-pointer p-3" onClick={()=>handleConfirmAppointment('edit_time')}></i>
+                <i className="icon-Edit text-primary cursor-pointer p-3" onClick={() => handleConfirmAppointment('edit_time')}></i>
             </div>
 
             <div className='mb-4'>
@@ -288,7 +322,7 @@ function ConfirmAppointment({
                 </Col>
             </Row>
             <label className="d-block mb-2">Remarks for Receptionist</label>
-            <Input.TextArea placeholder="Write your remarks" className="textareaPlaceholder fontroboto text-main" rows={3} onChange={onChangeInputRemarks} />
+            <Input.TextArea placeholder="Write your remarks" value={remarks} className="textareaPlaceholder fontroboto text-main" rows={3} onChange={onChangeInputRemarks} />
         </div>
     )
 }
