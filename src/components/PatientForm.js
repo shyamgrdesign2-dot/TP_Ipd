@@ -125,7 +125,8 @@ function PatientForm({ mode = ADD, patient_data }) {
                     navigate("/add-appointment", {
                         replace: true,
                         state: {
-                            patient_data: { ...action.payload }
+                            ...location.state,
+                            patient_data: { ...action.payload },
                         }
                     });
                 } else {
