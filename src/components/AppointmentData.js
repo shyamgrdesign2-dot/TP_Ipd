@@ -709,7 +709,7 @@ function AppointmentData({ locationPath }) {
                     onClick={() => {
                         setAppointmentSelectedFromMenu(record);
                         handleConfirmationModal()
-                    }}>Cancel Appt.</span>,
+                    }}>Cancel Appointment</span>,
                 key: "cancelappt",
             },
             {

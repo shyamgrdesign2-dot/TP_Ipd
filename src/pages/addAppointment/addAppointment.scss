@@ -64,11 +64,6 @@
         margin-bottom: 20px;
 
         .date-chip {
-            // min-width: 60px;
-            // text-align: center;
-            // cursor: pointer;
-            // border: 1px solid #e0e0e0;
-            // transition: all 0.3s ease;
             display: flex;
             width: 54px;
             height: 53.915px;
@@ -277,15 +272,36 @@
     min-width: 200px !important;
     max-width: 500px !important;
 
+    .ant-tooltip .ant-tooltip-content {
+        position: relative;
+        // width: 600px !important;
+    }
+
+    :where(.css-dev-only-do-not-override-1okl62o).ant-tooltip {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        color: rgba(0, 0, 0, 0.88);
+        font-size: 14px;
+        line-height: 1.5714285714285714;
+        list-style: none;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        position: absolute;
+        z-index: 1070;
+        display: block;
+        width: max-content;
+        /* max-width: 250px; */
+        visibility: visible;
+        transform-origin: var(--arrow-x, 50%) var(--arrow-y, 50%);
+        --antd-arrow-background-color: rgba(0, 0, 0, 0.85);
+    }
+
     .ant-tooltip-inner {
         background: white;
         color: #333;
         border-radius: 20px;
         padding: 20px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        min-width: 200px !important;
-        max-width: 700px !important;
-
 
         h4 {
             margin: 0;
@@ -298,8 +314,22 @@
     }
 
     .appointment-tooltip {
-        min-width: 200px !important;
-        max-width: 700px !important;
+
+        .appointments-scroll {
+            background: #FAFAFB !important;
+            border-radius: 12px !important;
+
+            .appointment-patient-content {
+                display: flex;
+                padding: 4px 16px;
+                justify-content: center;
+                align-items: flex-start;
+                gap: 4px;
+                border-radius: 100px;
+                background: #EDF7ED !important;
+                color: #3D8C40 !important;
+            }
+        }
 
         .patient-info {
             display: flex;
@@ -317,9 +347,8 @@
             margin: 0;
         }
 
-        .appointment-patient-info{
-            max-height: 100px !important;
-            overflow-y: auto;
+        .appointment-patient-info {
+            border-bottom: 1px solid #E2E2EA;
         }
 
         .time-info {
@@ -340,23 +369,26 @@
                 color: #666;
             }
         }
+
+        .unavailability-text {
+            padding: 12px 8px;
+            border-radius: 12px;
+            border: 0.6px solid rgba(237, 138, 0, 0.40) !important;
+            background: #FEFBEB;
+            color: #ED8A00 !important;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 26px;
+            letter-spacing: 0.1px;
+        }
+        span{
+            color: #ED8A00 !important;
+            font-weight: 550 !important;
+        }
     }
 }
 
 // Remove default tooltip arrow and add custom arrow
 .ant-tooltip-arrow {
     display: none;
-}
-
-.ant-tooltip-placement-top .ant-tooltip-inner::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 8px solid white;
 }
