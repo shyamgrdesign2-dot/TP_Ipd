@@ -145,6 +145,7 @@ function ConfirmAppointment({
     function goToAddPatient() {
         if (searchQuery.length === 10 && isNumeric(searchQuery)) {
             navigate("/add_patient", {
+                replace: true,
                 state: {
                     patient_data: { pm_fullname: '', pm_contact_no: searchQuery },
                     from: 'add-appointment',
@@ -158,6 +159,7 @@ function ConfirmAppointment({
             });
         } else if (searchQuery.length > 0 && isAlphabet(searchQuery)) {
             navigate("/add_patient", {
+                replace: true,
                 state: {
                     patient_data: { pm_fullname: searchQuery, pm_contact_no: '' },
                     from: 'add-appointment',
@@ -171,6 +173,7 @@ function ConfirmAppointment({
             });
         } else {
             navigate("/add_patient", {
+                replace: true,
                 state: {
                     from: '/add-appointment',
                     selectedDoctor: selectedDoctor,

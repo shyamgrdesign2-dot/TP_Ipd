@@ -496,8 +496,8 @@ function AddAppointment() {
   const [showDisclaimer, setShowDisclaimer] = useState(true);
 
   useEffect(() => {
-    if (patient_data) {
-      setClickedPatient(patient_data);
+    if (state != null) {
+      setClickedPatient(state?.patient_data)
       setSelectedDoctor(state?.selectedDoctor)
       setSelectedDate(dayjs(state?.selectedDate))
       setSelectedTimeSlot(state?.selectedTimeSlot)
@@ -507,7 +507,7 @@ function AddAppointment() {
       setRemarks(state?.remarks)
       handleConfirmAppointment();
     }
-  }, [patient_data]);
+  }, [state]);
 
   const handleConfirmAppointment = useCallback(
     (flag) => {
