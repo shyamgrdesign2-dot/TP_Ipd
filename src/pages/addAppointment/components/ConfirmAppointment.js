@@ -72,7 +72,7 @@ function ConfirmAppointment({
             label: AddPatientPlank(),
         });
         setSearchOptions(data);
-    }, [patients, selectedCashType, selectedCategories, remarks]);
+    }, [patients, selectedDoctor, selectedDate, selectedTimeSlot, selectedCashType, selectedCategories, remarks]);
 
     const onSearchParent = useCallback(
         (query) => {
@@ -149,7 +149,6 @@ function ConfirmAppointment({
                     patient_data: { pm_fullname: '', pm_contact_no: searchQuery },
                     from: 'add-appointment',
                     selectedDoctor: selectedDoctor,
-                    clickedPatient: clickedPatient,
                     selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
                     selectedTimeSlot: selectedTimeSlot,
                     selectedCashType: selectedCashType,
@@ -163,7 +162,6 @@ function ConfirmAppointment({
                     patient_data: { pm_fullname: searchQuery, pm_contact_no: '' },
                     from: 'add-appointment',
                     selectedDoctor: selectedDoctor,
-                    clickedPatient: clickedPatient,
                     selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
                     selectedTimeSlot: selectedTimeSlot,
                     selectedCashType: selectedCashType,
@@ -176,7 +174,6 @@ function ConfirmAppointment({
                 state: {
                     from: '/add-appointment',
                     selectedDoctor: selectedDoctor,
-                    clickedPatient: clickedPatient,
                     selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
                     selectedTimeSlot: selectedTimeSlot,
                     selectedCashType: selectedCashType,
