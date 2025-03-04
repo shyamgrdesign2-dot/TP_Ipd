@@ -127,12 +127,16 @@ function App() {
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
               {!isLoginPage && (
-                <>
+                <div style={{
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 1000,
+                }}>
                   <DemoExpirationBanner />
                   <PlanExpirationBanner />
                   <ExpiredPlanCard />
                   <DoctorModal />
-                </>
+                </div>
               )}
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
