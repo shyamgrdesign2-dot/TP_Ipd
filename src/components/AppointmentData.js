@@ -877,12 +877,13 @@ function AppointmentData({ locationPath }) {
 
                 const actionCashManager = await dispatch(viewCaseManager(cashManagerSendData));
                 if (actionCashManager.meta.requestStatus === "fulfilled") {
-                    const actionViewPatient = await dispatch(viewPatient({ patient_unique_id: action?.payload?.patient_unique_id }));
+                    const actionViewPatient = await dispatch(viewPatient({ patient_unique_id: action?.payload?.patient_unique_id, source: 'zydus' }));
                     if (actionViewPatient.meta.requestStatus === "fulfilled") {
                         navigate("/patient_details", {
                             state: {
                                 patient_data: {
                                     ...actionViewPatient?.payload,
+                                    pam_id: action?.payload?.pam_id,
                                     mrno: record.mrno,
                                     departmentId: record.departmentId,
                                     visitId: record.visitId,
@@ -904,32 +905,21 @@ function AppointmentData({ locationPath }) {
     }
 
     const goToConsut = async (record, action) => {
-        let sendData = {
-            startDate: date.startDate,
-            endDate: date.endDate,
-            apStatue: TAB_QUEUE,
-            page: 0
-        }
-
-        const action1 = await dispatch(copyGetAllAppointment(sendData))
-        if (action1.meta.requestStatus === "fulfilled") {
-            const find_record = action1.payload?.app_data?.find(e => e?.pam_id == action?.payload?.pam_id)
-            if (find_record !== undefined) {
-                navigate("/prescription", {
-                    state: {
-                        patient_data: {
-                            ...find_record,
-                            mrno: record.mrno,
-                            departmentId: record.departmentId,
-                            visitId: record.visitId,
-                            encounterId: record.encounterId,
-                            employeeId: empNo[empNo.length - 1],
-                        }
+        const actionViewPatient = await dispatch(viewPatient({ patient_unique_id: action?.payload?.patient_unique_id, source: 'zydus' }));
+        if (actionViewPatient.meta.requestStatus === "fulfilled") {
+            navigate("/prescription", {
+                state: {
+                    patient_data: {
+                        ...actionViewPatient?.payload,
+                        pam_id: action?.payload?.pam_id,
+                        mrno: record.mrno,
+                        departmentId: record.departmentId,
+                        visitId: record.visitId,
+                        encounterId: record.encounterId,
+                        employeeId: empNo[empNo.length - 1],
                     }
-                })
-            } else {
-                errorMessage('Something went wrong! Please try again later')
-            }
+                }
+            })
         } else {
             errorMessage('Something went wrong! Please try again later')
         }
