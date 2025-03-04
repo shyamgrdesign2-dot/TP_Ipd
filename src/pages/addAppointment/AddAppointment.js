@@ -32,14 +32,14 @@ import config from "../../config";
 import axios from "axios";
 import { upsertDoctorSettingFlag } from "../../redux/doctorsSlice";
 
-const TIME_SECTIONS = {
-  MIDNIGHT: { start: "00:00", end: "03:00", label: "Midnight" },
-  LATE_NIGHT: { start: "03:00", end: "05:00", label: "Late Night" },
-  MORNING: { start: "05:00", end: "12:00", label: "Morning" },
-  AFTERNOON: { start: "12:00", end: "17:00", label: "Afternoon" },
-  EVENING: { start: "17:00", end: "21:00", label: "Evening" },
-  NIGHT: { start: "21:00", end: "24:00", label: "Night" },
-};
+const TIME_SECTIONS_CONFIG = [
+  { key: 'MORNING', label: 'Morning', timeRange: '5AM - 12PM' },
+  { key: 'AFTERNOON', label: 'Afternoon', timeRange: '12PM - 5PM' },
+  { key: 'EVENING', label: 'Evening', timeRange: '5PM - 9PM' },
+  { key: 'NIGHT', label: 'Night', timeRange: '9PM - 12AM' },
+  { key: 'MIDNIGHT', label: 'Midnight', timeRange: '12AM - 3AM' },
+  { key: 'LATE_NIGHT', label: 'Late Night', timeRange: '3AM - 5AM' },
+];
 
 const getTimeSection = (time) => {
   const hour = dayjs(time, "HH:mm:ss").hour();
@@ -841,42 +841,23 @@ function AddAppointment() {
             onChange={setActiveTab}
             defaultActiveKey={getCurrentTimeSection()}
           >
-            <TabPane tab="Morning" key="MORNING">
-              <TimeSlotContainer
-                slots={timeSlots.MORNING}
-                selectedTimeSlot={selectedTimeSlot}
-                setSelectedTimeSlot={handleTimeSlotSelect}
-                isLoading={isLoadingSlots}
-                handleConfirmAppointment={handleConfirmAppointment}
-                editTime={editTime}
-                isSlotInPast={isSlotInPast}
-                selectedDoctorOption={selectedDoctorOption}
-              />
-            </TabPane>
-            <TabPane tab="Afternoon" key="AFTERNOON">
-              <TimeSlotContainer
-                slots={timeSlots.AFTERNOON}
-                selectedTimeSlot={selectedTimeSlot}
-                setSelectedTimeSlot={handleTimeSlotSelect}
-                isLoading={isLoadingSlots}
-                handleConfirmAppointment={handleConfirmAppointment}
-                editTime={editTime}
-                isSlotInPast={isSlotInPast}
-                selectedDoctorOption={selectedDoctorOption}
-              />
-            </TabPane>
-            <TabPane tab="Evening" key="EVENING">
-              <TimeSlotContainer
-                slots={timeSlots.EVENING}
-                selectedTimeSlot={selectedTimeSlot}
-                setSelectedTimeSlot={handleTimeSlotSelect}
-                isLoading={isLoadingSlots}
-                handleConfirmAppointment={handleConfirmAppointment}
-                editTime={editTime}
-                isSlotInPast={isSlotInPast}
-                selectedDoctorOption={selectedDoctorOption}
-              />
-            </TabPane>
+            {TIME_SECTIONS_CONFIG.map(section => (
+              <TabPane 
+                key={section.key}
+                tab={`${section.label}`}
+              >
+                <TimeSlotContainer
+                  slots={timeSlots[section.key]}
+                  selectedTimeSlot={selectedTimeSlot}
+                  setSelectedTimeSlot={handleTimeSlotSelect}
+                  isLoading={isLoadingSlots}
+                  handleConfirmAppointment={handleConfirmAppointment}
+                  editTime={editTime}
+                  isSlotInPast={isSlotInPast}
+                  selectedDoctorOption={selectedDoctorOption}
+                />
+              </TabPane>
+            ))}
           </Tabs>
         </div>
       </div>
