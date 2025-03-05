@@ -73,9 +73,9 @@ import addCircleIcon from "../../../../assets/images/add-circle.svg";
 import AddAdvance from "../advanceDeposit/AddAdvance";
 import { isMobile } from "react-device-detect";
 
-import playIcons from '../../../../assets/images/tube-icon.svg';
-import tutorial from '../../../../assets/images/tutorial-icon.svg';
-import videorotate from '../../../../assets/images/videorotate.gif';
+import playIcons from "../../../../assets/images/tube-icon.svg";
+import tutorial from "../../../../assets/images/tutorial-icon.svg";
+import videorotate from "../../../../assets/images/videorotate.gif";
 import VideoModal from "../../../../common/VideoModal";
 import { Popover } from "antd";
 
@@ -797,9 +797,10 @@ const CreateBill = ({
       setPaymentModeItemMissing(true);
       return;
     }
+    const patientUniqueId =
+      patientData?.patient_unique_id || patientDetails?.patientUniqueId;
     const payload = {
-      patientId:
-        patientData?.patient_unique_id || patientDetails?.patientUniqueId,
+      patientId: patientUniqueId,
       doctorId: userId,
       billItems: updatedDataSource,
       paymentModes: paymentModes,
@@ -842,6 +843,16 @@ const CreateBill = ({
         ),
         duration: 3,
       });
+      let walletBalance;
+      const isPaymentByWallet = paymentModes?.some(
+        (item) => item?.paymentMode === "Advance Deposit"
+      );
+
+      if (isPaymentByWallet) {
+        walletBalance = await fetchPatientWalletBalance(patientUniqueId);
+        walletBalance = walletBalance?.advanceDepositBalance;
+        setPatientWalletBalance(walletBalance);
+      }
       setBillData(createRes);
       if (type === "exit") {
         handleCreateBillDrawer();
@@ -867,7 +878,7 @@ const CreateBill = ({
                     address: createRes?.patient?.address,
                   }
             }
-            totalAdvanceBalance={patientWalletBalance}
+            totalAdvanceBalance={walletBalance || patientWalletBalance}
             profile={profile}
             billData={createRes}
             gstIn={advancedSettings?.GSTIN}
@@ -1937,7 +1948,7 @@ const CreateBill = ({
             patientData={patientData}
             billData={billData}
             isPreviewFromTable={isPreviewFromTable}
-            totalAdvanceBalance={totalAdvanceBalance}
+            totalAdvanceBalance={patientWalletBalance}
           />
         </Drawer>
       )}
