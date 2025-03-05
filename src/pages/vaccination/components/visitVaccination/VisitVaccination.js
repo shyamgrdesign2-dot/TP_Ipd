@@ -158,6 +158,7 @@ function VisitVaccination() {
                       state: {
                         patient_data: patient_data,
                         chartType: "vaccination",
+                        from: "/patient_details",
                       },
                     })
                   }

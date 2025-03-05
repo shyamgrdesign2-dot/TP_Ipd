@@ -75,6 +75,7 @@ export default function VisitGrowthChart() {
                       state: {
                         patient_data: patient_data,
                         chartType: "growthChart",
+                        from: "/patient_details"
                       },
                     })
                   }
