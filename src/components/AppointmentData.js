@@ -1413,6 +1413,15 @@ function AppointmentData({ locationPath }) {
                                 <span>{appointmentSelectedFromMenu?.pm_pid}</span>
                             </div>
                         </div>
+                        <div className="alert-warning rounded-10px p-2 patient-details mt-3">
+                            <div className="d-flex align-items-center">
+                                <img className='me-3' src={alertIcon} alt="Warning" />
+                                <span>
+                                Canceling this appointment will free up the time slot for others. 
+                                This action cannot be undone. Do you want to proceed?
+                                </span>
+                            </div>
+                        </div>
                         <div className="mt-4">
                             <div className="d-flex align-items-center mt-2">
                                 <Button
