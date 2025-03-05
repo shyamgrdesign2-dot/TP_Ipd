@@ -778,14 +778,14 @@ function AppointmentData({ locationPath }) {
             "doctor_id": profile?.doctor_unique_id,
             "patient_id": record?.patient_unique_id
         });
-        goToPatientDetails(record);
+        goToPatientDetails(record, '/prescription');
     }
 
     const onPatientDetailsClick = async (record) => {
-        goToPatientDetails(record);
+        goToPatientDetails(record, '/patient_details');
     }
 
-    const goToPatientDetails = async (record) => {
+    const goToPatientDetails = async (record, route) => {
         const decodedToken = getDecodedToken();
         const tokenData = decodedToken?.result;
         if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
@@ -801,7 +801,7 @@ function AppointmentData({ locationPath }) {
             if (action.meta.requestStatus === "fulfilled") {
                 const data = action?.payload?.find(e => e?.encounterId == record?.pam_ref_id)
                 if (data !== undefined) {
-                    navigate("/patient_details", {
+                    navigate(route, {
                         state: {
                             patient_data: {
                                 ...record,
@@ -814,11 +814,11 @@ function AppointmentData({ locationPath }) {
                         }
                     })
                 } else {
-                    navigate("/patient_details", { state: { patient_data: record } })
+                    navigate(route, { state: { patient_data: record } })
                 }
             }
         } else {
-            navigate("/patient_details", { state: { patient_data: record } })
+            navigate(route, { state: { patient_data: record } })
         }
     }
 
