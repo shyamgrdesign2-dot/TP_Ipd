@@ -1290,7 +1290,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                                       ? "#E54848"
                                                       : "inherit",
                                                   }}
-                                                  type="text"
+                                                  type="numeric"
                                                   className={`lab-params-input
                                                   ${
                                                     inputValues[reportName][testName][date]
