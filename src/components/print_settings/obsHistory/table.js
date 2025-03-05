@@ -12,6 +12,7 @@ function ObsHistoryTableView({
   printSettings,
   options,
   obsHistoryData,
+  consultationDate
 }) {
   const pregnancyHistory = obsHistoryData?.pregnancyHistory || [];
   obsHistoryData = obsHistoryData?.currentPregnancy || {};
@@ -21,7 +22,7 @@ function ObsHistoryTableView({
   const immunisationPrintEnabled = obsHistoryData?.immunisationHistory?.filter(
     (item) => item?.enablePrint
   );
-  const today = moment();
+  const today = moment(consultationDate);
   const lmpDate = obsHistoryData?.lmp ? moment(obsHistoryData.lmp) : null;
 
   let gestationWeeks = null;
