@@ -91,6 +91,17 @@
         }
     }
 
+    .availability-settings-text-btn {
+        text-decoration: none;
+        background: none;
+        border: none;
+        color: #4B4AD5;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration-line: underline;
+        cursor: pointer;
+    }
+
     .doctor-selection {
         margin-top: 3.5rem !important;
     }
@@ -381,7 +392,8 @@
             line-height: 26px;
             letter-spacing: 0.1px;
         }
-        span{
+
+        span {
             color: #ED8A00 !important;
             font-weight: 550 !important;
         }

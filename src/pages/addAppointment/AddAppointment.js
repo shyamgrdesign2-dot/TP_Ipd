@@ -642,6 +642,20 @@ function AddAppointment() {
     }
   }
 
+  useEffect(() => {
+    // Cleanup function to remove event listener when component unmounts
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      window.location.reload();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
+  };
+
   const myAvailability = async () => {
     SSO_TO_PM(1).then(async (data) => {
       if (data.success == 200) {
@@ -651,6 +665,8 @@ function AddAppointment() {
           });
           navigate(0, { replace: true });
         } else {
+          // Add visibility change listener before opening new tab
+          document.addEventListener('visibilitychange', handleVisibilityChange);
           await window.open(`${data.url}&module=my_availability`);
         }
       }
@@ -813,14 +829,14 @@ function AddAppointment() {
           profile?.userSettingFlag?.find(
             (e) => e?.type === "availabilitySettings"
           )?.status !== 1 && (
-            <div className="cvt-info mt-2 rounded-10px w-100 justify-content-between">
+            <div className="cvt-info mt-4 rounded-10px w-100 justify-content-between">
               <div className="d-flex align-items-center">
                 <img src={cvtInfoIcon} alt="cvt-info-icon" className="me-2" />
                 <span className="cvt-info-text">
                   <span className="title-common">Disclaimer:</span> The slots
                   below are based on the default availability settings. To
                   customise your schedule, update your availability in
-                  Availability Settings.
+                  <button onClick={myAvailability} className="availability-settings-text-btn">Availability Settings</button>.
                 </span>
               </div>
               <i
