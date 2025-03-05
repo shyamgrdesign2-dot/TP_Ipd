@@ -34,6 +34,32 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
         item?.enablePrint)
   );
 
+  const today = moment();
+  const lmpDate = obstetricDetails?.lmp ? moment(obstetricDetails.lmp) : null;
+
+  let gestationWeeks = null;
+  let gestationDays = null;
+
+  if (obstetricDetails?.ceed) {
+    const gestationAge =
+      40 * 7 -
+      Math.ceil(
+        Math.abs(
+          moment(obstetricDetails?.ceed)
+            .startOf("day")
+            .diff(moment(today).startOf("day"), "days")
+        )
+      );
+
+    // Convert to weeks and days
+    gestationWeeks = Math.floor(gestationAge / 7);
+    gestationDays = gestationAge % 7;
+  } else if (lmpDate) {
+    gestationWeeks = today.diff(lmpDate, "weeks");
+    const adjustedLmpDate = lmpDate.clone().add(gestationWeeks, "weeks");
+    gestationDays = today.diff(adjustedLmpDate, "days");
+  }
+
   const measurementDetails = (obsVisit) => {
     return (
       <div style={{ display: "flex", flexDirection: "column", rowGap: "16px" }}>
@@ -147,7 +173,9 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
       content: (
         <div className="cardbody-data border rounded px-2 my-2">
           <div className="my-2">
-            {(obstetricDetails.lmp || obstetricDetails.edd || obstetricDetails?.ceed) && (
+            {(obstetricDetails.lmp ||
+              obstetricDetails.edd ||
+              obstetricDetails?.ceed) && (
               <>
                 <span>Patient Info:</span>{" "}
                 {obstetricDetails.lmp && (
@@ -172,26 +200,20 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
                   </>
                 )}
                 {(obstetricDetails.edd || obstetricDetails.ceed) &&
-                  (obstetricDetails.gestationDays > 0 ||
-                    obstetricDetails.gestationWeeks > 0) &&
+                  (gestationDays > 0 || gestationWeeks > 0) &&
                   " | "}
-                {(obstetricDetails.gestationDays > 0 ||
-                  obstetricDetails.gestationWeeks > 0) && (
+                {(gestationDays > 0 || gestationWeeks > 0) && (
                   <>
                     <span>{"Gestation"}</span> :{" "}
                     <label>
-                      {obstetricDetails.gestationWeeks
-                        ? `${obstetricDetails.gestationWeeks} ${
-                            obstetricDetails.gestationWeeks > 1
-                              ? "Weeks"
-                              : "Week"
-                          } ${obstetricDetails.gestationDays ? " & " : ""}`
+                      {gestationWeeks
+                        ? `${gestationWeeks} ${
+                            gestationWeeks > 1 ? "Weeks" : "Week"
+                          } ${gestationDays ? " & " : ""}`
                         : ""}
-                      {obstetricDetails.gestationDays
-                        ? `${obstetricDetails.gestationDays} ${
-                            obstetricDetails.gestationDays > 1
-                              ? " Days"
-                              : " Day"
+                      {gestationDays
+                        ? `${gestationDays} ${
+                            gestationDays > 1 ? " Days" : " Day"
                           }`
                         : ""}
                     </label>
@@ -279,7 +301,12 @@ const TabObstetricList = ({ handleCollapsed, handleDrawerObstetric }) => {
       ),
     };
 
-    if (hasPatientInfo || obstetricDetails.lmp || obstetricDetails.edd || obstetricDetails.ceed) {
+    if (
+      hasPatientInfo ||
+      obstetricDetails.lmp ||
+      obstetricDetails.edd ||
+      obstetricDetails.ceed
+    ) {
       data.push(updateData);
     }
     setInfoAccordionItems(data);
