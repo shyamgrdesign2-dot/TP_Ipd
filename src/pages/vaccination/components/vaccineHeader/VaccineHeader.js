@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useContext } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
 import { Button, Dropdown, Menu, Popover, Spin } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import CashManagerContext from "../../../../context/CashManagerContext";
 import ProfilePopover from "../../../../common/ProfilePopover";
@@ -29,7 +29,7 @@ function VaccineHeader({
   loader,
   isObstetric,
   isGrowthChart,
-  isPregnancyCompleted
+  isPregnancyCompleted,
 }) {
   const vaccinationVideo = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
@@ -43,18 +43,19 @@ function VaccineHeader({
     tmv_description: "Obstetric History",
     tmv_title: "Obstetric History",
   };
-    const growthChartVideo = {
-      link: "https://www.youtube.com/embed/ZpfTsX_f2LM",
-      thumbnail: "https://i.ytimg.com/vi/o6ALwX9hPMM/hqdefault.jpg",
-      tmv_description: "Growth Chart",
-      tmv_title: "Growth Chart",
-    };
+  const growthChartVideo = {
+    link: "https://www.youtube.com/embed/ZpfTsX_f2LM",
+    thumbnail: "https://i.ytimg.com/vi/o6ALwX9hPMM/hqdefault.jpg",
+    tmv_description: "Growth Chart",
+    tmv_title: "Growth Chart",
+  };
   const videoLink = isObstetric
     ? obstetricVideo
     : isVaccination
     ? vaccinationVideo
     : growthChartVideo;
   const navigate = useNavigate();
+  const location = useLocation();
   let { patient_data } = useContext(CashManagerContext);
   const { isPatientDiagnosisUpdated } = useSelector((state) => state.obstetric);
 
@@ -178,11 +179,13 @@ function VaccineHeader({
             <div className="align-items-center d-flex h-100">
               <div className="border-end h-100 text-center">
                 <div
-                  onClick={
+                  onClick={() => {
                     isObstetric
-                      ? obstetricBackBtnHandler
-                      : handleDrawerVaccination
-                  }
+                      ? obstetricBackBtnHandler()
+                      : location.state?.from === "/patient_details"
+                      ? navigate(-1)
+                      : handleDrawerVaccination();
+                  }}
                   className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
                 >
                   <i className="icon-right"></i>
@@ -260,13 +263,9 @@ function VaccineHeader({
                   Preview
                 </Button>
               )}
-              {
-                isGrowthChart && (
-                  <div className="growth-chart-type">
-                    WHO-IAP Chart
-                  </div>
-                )
-              }
+              {isGrowthChart && (
+                <div className="growth-chart-type">WHO-IAP Chart</div>
+              )}
               {!isObstetric && (
                 <Dropdown overlay={isVaccination ? vaccinePrint : growthPrint}>
                   <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
@@ -299,13 +298,19 @@ function VaccineHeader({
               ) : (
                 <Button
                   type="button"
-                className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-                  onClick={handleDrawerVaccination}
+                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
+                  onClick={() => {
+                    if (location.state?.from === "/patient_details") {
+                      navigate(-1);
+                    } else {
+                      handleDrawerVaccination();
+                    }
+                  }}
                   icon={<i className="icon-save" />}
                   loading={isObstetric && loader}
                   disabled={isObstetric && loader}
                 >
-                 Save
+                  Save
                 </Button>
               )}
             </div>

@@ -60,6 +60,8 @@ const UpdateVaccine = ({
     { label: "2 weeks", value: 14 },
     { label: "1 month", value: 30 },
     { label: "2 months", value: 60 },
+    { label: "3 months", value: 90 },
+    { label: "6 months", value: 180 },
   ];
   const [vaccineDetails, setVaccineDetails] = useState(
     selectedVaccines.reduce((acc, item) => {
