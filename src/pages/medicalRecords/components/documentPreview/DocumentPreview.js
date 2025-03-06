@@ -1,5 +1,10 @@
 import { Button, Card, Spin } from "antd";
-import { Worker, Viewer, RotateDirection, ProgressBar } from "@react-pdf-viewer/core";
+import {
+  Worker,
+  Viewer,
+  RotateDirection,
+  ProgressBar,
+} from "@react-pdf-viewer/core";
 import { zoomPlugin } from "@react-pdf-viewer/zoom";
 import "./DocumentPreview.scss";
 import { useEffect, useRef, useState } from "react";
@@ -27,12 +32,17 @@ const DocumentPreview = ({
   handleDownload,
 }) => {
   const { uploadDocCategories } = useSelector((state) => state.uploadDoc);
-  const categoryName = cardData?.category_id === -2 ? 'Zydus' : uploadDocCategories.find(
-    (item) => item.category_id === cardData?.category_id
-  )?.category_name;
+  const categoryName =
+    cardData?.category_id === -2
+      ? "Zydus"
+      : uploadDocCategories.find(
+          (item) => item.category_id === cardData?.category_id
+        )?.category_name;
   const [scale, setScale] = useState(1.0);
   const [currentPage, setCurrentPage] = useState(1);
   const [numberOfPages, setNumberOfPages] = useState(0);
+  const [showControls, setShowControls] = useState(true);
+  const controlsTimeoutRef = useRef(null);
 
   const zoomPluginInstance = zoomPlugin();
   const rotatePluginInstance = rotatePlugin();
@@ -43,8 +53,33 @@ const DocumentPreview = ({
   const imgRef = useRef(null);
   const [angle, setAngle] = useState(0);
 
+  const resetControlsTimeout = () => {
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    setShowControls(true);
+    controlsTimeoutRef.current = setTimeout(() => {
+      setShowControls(false);
+    }, 2000);
+  };
+
   useEffect(() => {
-    if (cardData?.url?.startsWith(config.zydus_proxy_url) || cardData?.url?.includes(".pdf")) {
+    // Initial timeout
+    resetControlsTimeout();
+
+    // Cleanup on unmount
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (
+      cardData?.url?.startsWith(config.zydus_proxy_url) ||
+      cardData?.url?.includes(".pdf")
+    ) {
       setIsPdf(true);
     } else {
       setIsPdf(false);
@@ -188,7 +223,7 @@ const DocumentPreview = ({
   };
 
   return (
-    <div>
+    <div onMouseMove={resetControlsTimeout}>
       <Card bordered={false} className="search-modalCard">
         <div
           style={{
@@ -294,7 +329,16 @@ const DocumentPreview = ({
               workerUrl={`https://unpkg.com/pdfjs-dist@2.6.347/build/pdf.worker.min.js`}
             >
               <Viewer
-                renderLoader={(percentages) => <Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
+                renderLoader={(percentages) => (
+                  <Spin
+                    style={{
+                      position: "absolute",
+                      zIndex: 0,
+                      left: "50%",
+                      top: "50%",
+                    }}
+                  />
+                )}
                 fileUrl={cardData?.url}
                 plugins={[
                   zoomPluginInstance,
@@ -307,16 +351,35 @@ const DocumentPreview = ({
                 onPageChange={onPageChange}
                 onZoom={handleOnZoom}
                 defaultScale={scale}
-                httpHeaders={cardData?.url?.startsWith(config.zydus_proxy_url) && {
-                  Authorization: `Bearer ${localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN))}`,
-                }}
+                httpHeaders={
+                  cardData?.url?.startsWith(config.zydus_proxy_url) && {
+                    Authorization: `Bearer ${
+                      localStorage.getItem(
+                        PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN
+                      ) == null
+                        ? null
+                        : JSON.parse(
+                            localStorage.getItem(
+                              PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN
+                            )
+                          )
+                    }`,
+                  }
+                }
               />
             </Worker>
           ) : (
-            <TransformWrapper initialScale={1} options={{ zoomStep: 0.2 }}>
+            <TransformWrapper
+              initialScale={1}
+              options={{ zoomStep: 0.2 }}
+              onTransformed={(e) => {
+                // Update scale when transform changes (including pinch zoom)
+                setScale(e.state.scale);
+              }}
+            >
               {({ zoomIn, zoomOut, ...rest }) => (
                 <>
-                  <ImageControls />
+                  {showControls && <ImageControls />}
                   <TransformComponent>
                     <div
                       style={{
