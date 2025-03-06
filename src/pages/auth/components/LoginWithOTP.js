@@ -35,10 +35,14 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   useEffect(() => {
-    const scriptId = "msg91-otp-script"; // Unique ID for the script
+    // Add a flag to window to indicate MSG91 is being used
+    window.isMSG91Active = true;
+    
+    const scriptId = "msg91-otp-script";
     const existingScript = document.getElementById(scriptId);
 
-    if (!existingScript) {
+    // Only load the script if it's not present AND we're on the OTP page
+    if (!existingScript && window.isMSG91Active) {
       const configuration = {
         widgetId: "346b79686352303336343033",
         tokenAuth: "365375TaYB4FU32WrR67443055P1",
@@ -59,7 +63,7 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
       script.async = true;
 
       script.onload = () => {
-        if (window.initSendOTP) {
+        if (window.initSendOTP && window.isMSG91Active) {
           window.initSendOTP(configuration);
         } else {
           console.error("initSendOTP method not found!");
@@ -70,17 +74,69 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
     }
 
     return () => {
-      const existingScript = document.getElementById(scriptId);
-      if (existingScript) {
-        document.body.removeChild(existingScript);
+      // Remove the flag when component unmounts
+      window.isMSG91Active = false;
+      
+      // Try to remove the custom element
+      const msg91Provider = document.querySelector('msg91-otp-provider');
+      if (msg91Provider) {
+        try {
+          // Try to disconnect any observers or event listeners
+          if (msg91Provider.disconnectedCallback) {
+            msg91Provider.disconnectedCallback();
+          }
+          msg91Provider.remove();
+        } catch (e) {
+          console.error('Error removing MSG91 provider:', e);
+        }
       }
 
+      // Remove the script
+      const script = document.getElementById(scriptId);
+      if (script) {
+        document.body.removeChild(script);
+      }
+
+      // Attempt to undefine the custom element
+      try {
+        // @ts-ignore
+        customElements.whenDefined('msg91-otp-provider').then(() => {
+          // @ts-ignore
+          customElements.define('msg91-otp-provider', class extends HTMLElement {});
+        });
+      } catch (e) {
+        console.error('Error redefining custom element:', e);
+      }
+
+      // Reset any global MSG91 variables
+      if (window.initSendOTP) {
+        window.initSendOTP = undefined;
+      }
+      if (window.sendOtp) {
+        window.sendOtp = undefined;
+      }
+      if (window.verifyOtp) {
+        window.verifyOtp = undefined;
+      }
+      if (window.retryOtp) {
+        window.retryOtp = undefined;
+      }
+
+      // Clean up any remaining elements
+      ['msg91', 'h-captcha'].forEach(className => {
+        document.querySelectorAll(`[class*="${className}"]`).forEach(el => el.remove());
+      });
+
+      document.querySelectorAll('iframe[src*="hcaptcha"], iframe[src*="msg91"]').forEach(iframe => {
+        iframe.remove();
+      });
+
+      // Get UTM parameters and track events
       const params = new URLSearchParams(window.location.search);
       setUtm_campaign(params.get("utm_campaign") ?? 'NA');
       setUtm_source(params.get("utm_source") ?? 'NA');
       setUtm_medium(params.get("utm_medium") ?? 'NA');
       setUtm_content(params.get("utm_content") ?? 'NA');
-
 
       if(reason === 'forgotPassword' || reason === "setPassword"){
         window.Moengage.track_event('TP_ResetPassword_landing_page', {
@@ -92,7 +148,6 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
         });
       }
     };
-
   }, []);
 
   let timer; // Global timer reference

@@ -72,6 +72,12 @@ function TabVitalsList(props) {
                                     <div className="fontroboto">{item.spo2}</div>
                                 </div>
                             )}
+                            {item.general_rbs && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">General RBS (mg/dl)</div>
+                                    <div className="fontroboto">{item.general_rbs}</div>
+                                </div>
+                            )}
                             {item.ofc ? (
                                 <div className="d-flex align-items-center justify-content-between mb-12">
                                     <div className="fontroboto">OFC (cms)</div>
@@ -160,6 +166,12 @@ function TabVitalsList(props) {
                                 <div className="d-flex align-items-center justify-content-between mb-12">
                                     <div className="fontroboto">SPO2 (%)</div>
                                     <div className="fontroboto">{item.spo2}</div>
+                                </div>
+                            )}
+                            {item.general_rbs && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">General RBS (mg/dl)</div>
+                                    <div className="fontroboto">{item.general_rbs}</div>
                                 </div>
                             )}
                             {item.ofc ? (

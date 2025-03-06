@@ -577,7 +577,7 @@ function Header({ locationPath }) {
       config.pedia_logout_url,
       config.tatvaAi_logout_url,
     ];
-  
+
     try {
       // Prevent multiple clicks while logging out
       if (window.isLoggingOut) return;
@@ -591,12 +591,12 @@ function Header({ locationPath }) {
       const allSuccessful = statuses.every(({ status }) => status === "success");
       if (!allSuccessful) {
         console.warn("Some logout URLs failed:", statuses);
-    }
-  
+      }
+
       // then clear all storage
-    localStorage.clear();
-    sessionStorage.clear();
-  
+      localStorage.clear();
+      sessionStorage.clear();
+
       // Navigate regardless of URL statuses
       window.location.href = "/login"; 
 
@@ -763,8 +763,8 @@ function Header({ locationPath }) {
         {
           label: (
             <div className="title-common d-flex align-items-center">
-                <i className="icon-exit me-3 color-red"></i>
-                <span className="color-red">Log Out</span>
+              <i className="icon-exit me-3 color-red"></i>
+              <span className="color-red">Log Out</span>
             </div>
           ),
           key: "logout",

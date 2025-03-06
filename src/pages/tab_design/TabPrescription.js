@@ -1301,7 +1301,7 @@ function TabPrescription() {
               style={{ height: "calc(100vh - 60px)" }}
             >
               <Content>
-              {(shouldShowGenRxPopup || shouldShowApexPopup || shouldShowTatvaAiPopup) && 
+              {/* {(shouldShowGenRxPopup || shouldShowApexPopup || shouldShowTatvaAiPopup) && 
                   <Carousel
                   responsive={{
                     desktop: {
@@ -1338,7 +1338,7 @@ function TabPrescription() {
                       />
                     )}
                   </Carousel>
-                }
+                } */}
                 {customizedPadRightList?.map((e, i) => {
                   const customModule = customModules?.find(
                     (m) => m.module_id === e.tmdpm_id

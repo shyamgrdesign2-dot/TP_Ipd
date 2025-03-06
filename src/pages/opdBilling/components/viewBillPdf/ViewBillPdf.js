@@ -164,6 +164,7 @@ const ViewBillPdf = ({
             <BillDetails
               pageFormat={printSettings?.pageFormat}
               billData={billData}
+              totalAdvanceBalance={totalAdvanceBalance}
             />
           )}
           <BillOtherSettings printSettings={printSettings} profile={profile} />

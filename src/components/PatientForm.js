@@ -46,6 +46,7 @@ function PatientForm({ mode = ADD, patient_data }) {
 
     // Check if user came from all patients page
     const isFromAllPatients = location.state?.from === "/all_patients";
+    const isFromAddAppointment = location.state?.from === "/add-appointment";
 
     useEffect(() => {
         const getEditData = async () => {
@@ -113,25 +114,33 @@ function PatientForm({ mode = ADD, patient_data }) {
 
                 // Handle navigation based on source page
                 if (isFromAllPatients) {
-                    navigate("/all_patients", { 
+                    navigate("/all_patients", {
                         replace: true,
-                        state: { 
+                        state: {
                             showMessage: true,
                             messageType: mode === EDIT ? 'updated' : 'added'
-                        } 
+                        }
+                    });
+                } else if (isFromAddAppointment) {
+                    navigate("/add-appointment", {
+                        replace: true,
+                        state: {
+                            ...location.state,
+                            patient_data: { ...action.payload },
+                        }
                     });
                 } else {
                     if (isMobile || !isSmartSyncAccessableFromGB) {
-                        mode === EDIT ? 
-                            navigate("/patient_details", { 
-                                replace: true, 
-                                state: { 
-                                    patient_data: { ...patient_data, ...action.payload } 
-                                } 
-                            }) : 
-                            navigate("/prescription", { 
-                                replace: true, 
-                                state: { patient_data: action.payload } 
+                        mode === EDIT ?
+                            navigate("/patient_details", {
+                                replace: true,
+                                state: {
+                                    patient_data: { ...patient_data, ...action.payload }
+                                }
+                            }) :
+                            navigate("/prescription", {
+                                replace: true,
+                                state: { patient_data: action.payload }
                             });
                     } else {
                         if (mode !== EDIT) {
@@ -139,11 +148,11 @@ function PatientForm({ mode = ADD, patient_data }) {
                             setPatientData(action.payload);
                         }
                         if (mode === EDIT) {
-                            navigate("/patient_details", { 
-                                replace: true, 
-                                state: { 
-                                    patient_data: { ...patient_data, ...action.payload } 
-                                } 
+                            navigate("/patient_details", {
+                                replace: true,
+                                state: {
+                                    patient_data: { ...patient_data, ...action.payload }
+                                }
                             });
                         }
                     }
@@ -202,16 +211,21 @@ function PatientForm({ mode = ADD, patient_data }) {
                         <>
                             <hr className="my-0" />
                             <div className="text-end p-20">
-                                <button type="button" className="btn btn-text text-decoration-underline me-3" onClick={() => mode === EDIT ? navigate(-1) : navigate(-2)}>
+                                <button type="button" className="btn btn-text text-decoration-underline me-3" onClick={() => mode === EDIT ? navigate(-1) : isFromAddAppointment ? navigate("/add-appointment", {
+                                    replace: true,
+                                    state: {
+                                        ...location.state
+                                    }
+                                }) : navigate(-2)}>
                                     Cancel
                                 </button>
                                 <Button
                                     className='btn btn-primary3 me-30 btn-41 px-4'
                                     onClick={onFinish}
                                     loading={loading}>
-                                    {mode === EDIT 
-                                        ? 'Save' 
-                                        : isFromAllPatients 
+                                    {mode === EDIT
+                                        ? 'Save'
+                                        : (isFromAllPatients || isFromAddAppointment)
                                             ? 'Add Patient'
                                             : 'Add Patient to Consult'
                                     }

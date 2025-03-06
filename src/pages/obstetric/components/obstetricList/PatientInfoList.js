@@ -13,6 +13,32 @@ const PatientInfoList = () => {
   const { examinationHistory } = obstetricDetails || [];
   const [infoAccordionItems, setInfoAccordionItems] = useState([]);
 
+  const today = moment();
+  const lmpDate = obstetricDetails?.lmp ? moment(obstetricDetails.lmp) : null;
+
+  let gestationWeeks = null;
+  let gestationDays = null;
+
+  if (obstetricDetails?.ceed) {
+    const gestationAge =
+      40 * 7 -
+      Math.ceil(
+        Math.abs(
+          moment(obstetricDetails?.ceed)
+            .startOf("day")
+            .diff(moment(today).startOf("day"), "days")
+        )
+      );
+
+    // Convert to weeks and days
+    gestationWeeks = Math.floor(gestationAge / 7);
+    gestationDays = gestationAge % 7;
+  } else if (lmpDate) {
+    gestationWeeks = today.diff(lmpDate, "weeks");
+    const adjustedLmpDate = lmpDate.clone().add(gestationWeeks, "weeks");
+    gestationDays = today.diff(adjustedLmpDate, "days");
+  }
+
   useEffect(() => {
     const { gravidity, livingChildren, parity, abortion, ectopicPregnancies } =
       obstetricDetails || {};
@@ -49,7 +75,9 @@ const PatientInfoList = () => {
       content: (
         <div className="cardbody-data border rounded px-2 my-2">
           <div className="my-2">
-            {(obstetricDetails.lmp || obstetricDetails.edd || obstetricDetails?.ceed) && (
+            {(obstetricDetails.lmp ||
+              obstetricDetails.edd ||
+              obstetricDetails?.ceed) && (
               <>
                 <span>Patient Info:</span>{" "}
                 {obstetricDetails.lmp && (
@@ -61,9 +89,10 @@ const PatientInfoList = () => {
                   </>
                 )}
                 {obstetricDetails.lmp &&
-                  ((obstetricDetails.edd || obstetricDetails.ceed) ||
-                  (obstetricDetails.gestationDays > 0 ||
-                    obstetricDetails.gestationWeeks > 0)) &&
+                  (obstetricDetails.edd ||
+                    obstetricDetails.ceed ||
+                    gestationDays > 0 ||
+                    gestationWeeks > 0) &&
                   " | "}
                 {(obstetricDetails.edd || obstetricDetails.ceed) && (
                   <>
@@ -76,26 +105,20 @@ const PatientInfoList = () => {
                   </>
                 )}
                 {(obstetricDetails.edd || obstetricDetails.ceed) &&
-                  (obstetricDetails.gestationDays > 0||
-                    obstetricDetails.gestationWeeks > 0) &&
+                  (gestationDays > 0 || gestationWeeks > 0) &&
                   " | "}
-                {(obstetricDetails.gestationDays > 0 ||
-                  obstetricDetails.gestationWeeks > 0) && (
+                {(gestationDays > 0 || gestationWeeks > 0) && (
                   <>
                     <span>{"Gestation"}</span> :{" "}
                     <label>
-                      {obstetricDetails.gestationWeeks
-                        ? `${obstetricDetails.gestationWeeks} ${
-                            obstetricDetails.gestationWeeks > 1
-                              ? "Weeks"
-                              : "Week"
-                          } ${obstetricDetails.gestationDays ? " & " : ""}`
+                      {gestationWeeks
+                        ? `${gestationWeeks} ${
+                            gestationWeeks > 1 ? "Weeks" : "Week"
+                          } ${gestationDays ? " & " : ""}`
                         : ""}
-                      {obstetricDetails.gestationDays
-                        ? `${obstetricDetails.gestationDays} ${
-                            obstetricDetails.gestationDays > 1
-                              ? " Days"
-                              : " Day"
+                      {gestationDays
+                        ? `${gestationDays} ${
+                            gestationDays > 1 ? " Days" : " Day"
                           }`
                         : ""}
                     </label>

@@ -288,7 +288,8 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
       render: (text, record) => (
         <div
           className="cursor-pointer"
-          onClick={() => {
+          onClick={async () => {
+            await getPatientWalletBalance(record?.patientId);
             setBillData({
               ...record,
               patient: {

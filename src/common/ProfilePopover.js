@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import moment from 'moment';
 import { getDecodedToken } from '../utils/localStorage';
 import config from '../config';
+import { isIPad13 } from 'react-device-detect';
 
 export const genderAge = (patient_data, profile, shouldShowGender = true) => {
     var value = shouldShowGender

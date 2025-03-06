@@ -45,6 +45,7 @@ import GenRxPrescriptionPrintView from "./pages/GenRxPrescriptionPrintView";
 import BillingDashboard from "./pages/opdBilling/components/billingDashboard/BillingDashboard";
 import BillingSettings from "./pages/opdBilling/components/advanceBillSettings/BillingSettings";
 import AllPatients from "./pages/allPatients.js/AllPatients";
+import AddAppointment from "./pages/addAppointment/AddAppointment";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -126,12 +127,16 @@ function App() {
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
               {!isLoginPage && (
-                <>
+                <div style={{
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 1000,
+                }}>
                   <DemoExpirationBanner />
                   <PlanExpirationBanner />
                   <ExpiredPlanCard />
                   <DoctorModal />
-                </>
+                </div>
               )}
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
@@ -174,6 +179,7 @@ function App() {
                 <Route path="/login" element={<AuthContainer />} />
 
                 <Route path="billing-settings" element={<BillingSettings />} />
+                <Route path="add-appointment" element={<AddAppointment />} />
 
               </Routes>
             </PersistGate>

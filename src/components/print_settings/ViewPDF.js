@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData, customModules, patientBills, advanceReceipts } = props
+    let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData, customModules, patientBills, advanceReceipts, patientWalletBalance } = props
 
     const gynecHistoryData = caseManagerData?.gynecHistoryData
     const labParamsData = caseManagerData?.labParamsData
@@ -1147,7 +1147,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             bmi,
                                                                             bmr,
                                                                             bsa,
-                                                                            ofc
+                                                                            ofc,
+                                                                            general_rbs
                                                                         }) => ({
                                                                             temp: temp ? `Temp: ${temp}F` : '',
                                                                             pres: pres ? `Pulse: ${pres}/min` : '',
@@ -1156,12 +1157,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             // systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
                                                                             // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
                                                                             spo2: spo2 ? `SPO2: ${spo2}%` : '',
+                                                                            general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
+                                                                            ofc: ofc ? `OFC: ${ofc}cms` : '',
                                                                             height: height ? `Height: ${height}cms` : '',
                                                                             weight: weight ? `Weight: ${weight}kgs` : '',
                                                                             bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
                                                                             bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
                                                                             bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
-                                                                            ofc: ofc ? `OFC: ${ofc}cms` : '',
                                                                         })
                                                                     )(caseManagerData.vitals[i])
                                                                 ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;
@@ -1215,7 +1217,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             bmi,
                                                                             bmr,
                                                                             bsa,
-                                                                            ofc
+                                                                            ofc,
+                                                                            general_rbs
                                                                         }) => ({
                                                                             temp: temp ? `Temp: ${temp}F` : '',
                                                                             pres: pres ? `Pulse: ${pres}/min` : '',
@@ -1224,12 +1227,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             // systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
                                                                             // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
                                                                             spo2: spo2 ? `SPO2: ${spo2}%` : '',
+                                                                            general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
+                                                                            ofc: ofc ? `OFC: ${ofc}cms` : '',
                                                                             height: height ? `Height: ${height}cms` : '',
                                                                             weight: weight ? `Weight: ${weight}kgs` : '',
                                                                             bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
                                                                             bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
                                                                             bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
-                                                                            ofc: ofc ? `OFC: ${ofc}cms` : '',
                                                                         })
                                                                     )(caseManagerData.vitals[i])
                                                                 ).filter(([_, v]) => v))).join(', ')}\n`}
@@ -4164,11 +4168,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {isGynaecHistoryAccessable && obsHistoryData &&
                                         Object.keys(obsHistoryData).length > 2 &&
                                         (option?.format === "inline" ? (
-                                            <ObsHistoryInlineView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
+                                            <ObsHistoryInlineView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} consultationDate={caseManagerData?.patient_data?.patient_consultaion_date} />
                                         ) : option?.format === "listview" ? (
-                                            <ObsHistoryListView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
+                                            <ObsHistoryListView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} consultationDate={caseManagerData?.patient_data?.patient_consultaion_date} />
                                         ) : (
-                                            <ObsHistoryTableView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} />
+                                            <ObsHistoryTableView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} consultationDate={caseManagerData?.patient_data?.patient_consultaion_date} />
                                         ))
                                     }
                                 </>
@@ -4656,6 +4660,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             )
                                         }
                                     })}
+                                    {patientWalletBalance > 0 && (<Text style={{ color: "#171725", fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, }}>
+                                        {"\n"}
+                                        {`Available Advance Balance ₹${patientWalletBalance}`}
+                                    </Text>)}
                                 </Text>
                             )
                         )

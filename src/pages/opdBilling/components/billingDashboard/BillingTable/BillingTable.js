@@ -80,6 +80,7 @@ export default function BillingTable({
   selectedDoctors,
   setSelectedDoctors,
   createBillDrawer,
+  totalAdvanceBalance,
 }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
@@ -868,6 +869,7 @@ export default function BillingTable({
             hasMore={hasMore}
             tableRef={tableRef}
             patientAdvanceData={patientData ? patientAdvanceData : ""}
+            totalAdvanceBalance={totalAdvanceBalance}
           />
         </Row>
 

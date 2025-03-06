@@ -14,8 +14,9 @@ function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
     const navigate = useNavigate();
     const location = useLocation();
 
-        // Check if user came from all patients page
+    // Check if user came from all patients page
     const isFromAllPatients = location.state?.from === "/all_patients";
+    const isFromAddAppointment = location.state?.from === "/add-appointment";
 
     const { videoList, profile } = useSelector((state) => state.doctors);
 
@@ -73,7 +74,12 @@ function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
         <div className='modalCard-header align-items-center d-flex justify-content-between'>
             <div className="align-items-center d-flex">
                 <div className='border-end h-100 text-center'>
-                    <Button className='btn btn-delete-prescription px-3 h-100' onClick={() => navigate(-1)}>
+                    <Button className='btn btn-delete-prescription px-3 h-100' onClick={() => isFromAddAppointment ? navigate("/add-appointment", {
+                        replace: true,
+                        state: {
+                            ...location.state
+                        }
+                    }) : navigate(-1)}>
                         <i className='icon-right lh-lg'></i>
                     </Button>
                 </div>
@@ -104,7 +110,7 @@ function TabHeader({ flag, mode = ADD, title, loading, onClick }) {
                         </Button>
                     ) : (
                         <Button className='btn btn-primary3 me-30 btn-41 px-4 d-flex align-items-center' loading={loading} onClick={onClick}>
-                            {isFromAllPatients ? "Add Patient" : "Add Patient to Consult"}
+                            {(isFromAllPatients || isFromAddAppointment) ? "Add Patient" : "Add Patient to Consult"}
                         </Button>
                     )
                 )}
