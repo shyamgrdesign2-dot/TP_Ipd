@@ -370,7 +370,7 @@ function Header({ locationPath }) {
               </div>
             </div>
             <div className="my-3">
-              <Checkbox className="switch-name-check" checked={switchCheckbox} onChange={onSwitchChange}>Don’t show this again</Checkbox>
+              <Checkbox className="switch-name-check" checked={switchCheckbox} onChange={onSwitchChange}>Don't show this again</Checkbox>
             </div>
             <div>
               <div className="d-flex align-items-center mt-2 justify-content-end">
@@ -419,7 +419,7 @@ function Header({ locationPath }) {
           </div>
           <div className="mt-4 fontroboto">Where you can uplift your medical practice with premium evidence-based and practice related content.</div>
           <div className="my-3 align-items-center d-flex justify-content-between">
-            <Checkbox className="switch-name-check fontroboto fw-medium" checked={logoCheckbox} onChange={onLogoChange}>Don’t show this again</Checkbox>
+            <Checkbox className="switch-name-check fontroboto fw-medium" checked={logoCheckbox} onChange={onLogoChange}>Don't show this again</Checkbox>
             <Button onClick={() => logoCheckbox ? onLogoClick() : showHideNavigateToTatvaPedia()} className="lh-lg btn btn-primary3 btn-41 px-4" loading={loading}>
               <span>Close</span>
             </Button>
@@ -571,6 +571,7 @@ function Header({ locationPath }) {
   };
   
   const handleLogout = async () => {
+    
     // URLs to open silently
     const urlsToOpen = [
       config.pedia_logout_url,
@@ -578,33 +579,34 @@ function Header({ locationPath }) {
     ];
   
     try {
+      // Prevent multiple clicks while logging out
+      if (window.isLoggingOut) return;
+      window.isLoggingOut = true;
+
+      // first handle the silent URLs
       const statuses = await openUrlsSilently(urlsToOpen);
+      console.log("URL statuses:", statuses);
   
-      statuses.forEach(({ url, status }) => {
-        // testing purpose
-        console.log(`URL: ${url} - Status: ${status}`);
-      });
-  
+      // Check if URLs were successfully called
       const allSuccessful = statuses.every(({ status }) => status === "success");
-  
-      if (allSuccessful) {
-        // testing purpose
-        console.log("All URLs loaded successfully!");
-      } else {
-        console.error("Some URLs failed to load.");
-      }
-    } catch (error) {
-      console.error("Error opening URLs:", error);
+      if (!allSuccessful) {
+        console.warn("Some logout URLs failed:", statuses);
     }
   
-    // Clear local storage
+      // then clear all storage
     localStorage.clear();
-  
-    // Clear session storage (if used)
     sessionStorage.clear();
   
-    // Redirect to the login page
-    navigate("/login");
+      // Navigate regardless of URL statuses
+      window.location.href = "/login"; 
+
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Still attempt to navigate even if there's an error
+      window.location.href = "/login";
+    } finally {
+      window.isLoggingOut = false;
+    }
   };
   
   const handleClick = () => {
@@ -760,12 +762,14 @@ function Header({ locationPath }) {
         },
         {
           label: (
-              <button className="title-common me-5 d-flex align-items-center border-background-none" onClick={handleLogout}>
+            <div className="title-common d-flex align-items-center">
                 <i className="icon-exit me-3 color-red"></i>
                 <span className="color-red">Log Out</span>
-              </button>
+            </div>
           ),
-          key: "8",
+          key: "logout",
+          onClick: handleLogout,
+          className: "logout-menu-item"
         },
       ]
     : [];
