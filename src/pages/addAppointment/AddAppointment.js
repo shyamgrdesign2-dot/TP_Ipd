@@ -285,7 +285,7 @@ const TimeSlotContainer = ({
               title={getTooltipContent(slot)}
               overlayClassName="slot-tooltip"
               placement="top"
-            // open={slot.status === "unavailable" ? true : false}
+              // open={slot.status === "unavailable" ? true : false}
             >
               {slotContent}
             </Tooltip>
@@ -475,6 +475,7 @@ function AddAppointment() {
 
   const handleDoctorChange = (value) => {
     setSelectedDoctor(value);
+    setActiveTab(getCurrentTimeSection()); // Reset tab to current time section
   };
 
   const { state } = useLocation();
