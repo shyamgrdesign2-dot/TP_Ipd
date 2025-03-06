@@ -565,6 +565,9 @@ function AppointmentData({ locationPath }) {
                         return item.pm_fullname
                             .toLowerCase()
                             .includes(zydusSearchQuery.toLowerCase()) ||
+                            item.mrno
+                                .toLowerCase()
+                                .includes(zydusSearchQuery.toLowerCase()) ||
                             item.pm_contact_no
                                 .toLowerCase()
                                 .includes(zydusSearchQuery.toLowerCase());
@@ -1649,7 +1652,7 @@ function AppointmentData({ locationPath }) {
                             ) : (
                                 <Input
                                     value={zydusSearchQuery}
-                                    placeholder="Search patient by name and mobile number"
+                                    placeholder="Search patient by name, MRN or mobile number"
                                     className="inputheight38"
                                     prefix={<i className="icon-search" />}
                                     suffix={zydusSearchQuery.length > 0 && <i className="icon-Cross" onClick={() => onZydusSearch('')}></i>}
