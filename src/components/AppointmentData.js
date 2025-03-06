@@ -115,6 +115,8 @@ function AppointmentData({ locationPath }) {
         GB_ISCRIBE
     );
     const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+    const [zydusSearchQuery, setZydusSearchQuery] = useState('');
+    const [matchedAppointment, setMatchedAppointment] = useState([]);
 
     const [filesData, setFilesData] = useState([]);
     const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
@@ -553,6 +555,36 @@ function AppointmentData({ locationPath }) {
             setSearchQuery(query);
         },
         [searchQuery]
+    );
+
+    useEffect(() => {
+        const searchTimeOutId = setTimeout(() => {
+            if (selectedTab === TAB_ZYDUS_ENCOUNTER || selectedTab === TAB_ZYDUS_APPOINTMENT) {
+                if (zydusSearchQuery) {
+                    let filtered = appointmentsData.filter((item) => {
+                        return item.pm_fullname
+                            .toLowerCase()
+                            .includes(zydusSearchQuery.toLowerCase()) ||
+                            item.pm_contact_no
+                                .toLowerCase()
+                                .includes(zydusSearchQuery.toLowerCase());
+                    });
+                    setMatchedAppointment(filtered);
+                } else {
+                    setMatchedAppointment(appointmentsData);
+                }
+            }
+        }, 500);
+        return () => {
+            clearTimeout(searchTimeOutId);
+        };
+    }, [zydusSearchQuery, appointmentsData]);
+
+    const onZydusSearch = useCallback(
+        (query) => {
+            setZydusSearchQuery(query);
+        },
+        [zydusSearchQuery]
     );
 
     const onDateChange = useCallback(
@@ -1425,8 +1457,8 @@ function AppointmentData({ locationPath }) {
                             <div className="d-flex align-items-center">
                                 <img className='me-3' src={alertIcon} alt="Warning" />
                                 <span>
-                                Canceling this appointment will free up the time slot for others. 
-                                This action cannot be undone. Do you want to proceed?
+                                    Canceling this appointment will free up the time slot for others.
+                                    This action cannot be undone. Do you want to proceed?
                                 </span>
                             </div>
                         </div>
@@ -1605,7 +1637,7 @@ function AppointmentData({ locationPath }) {
                 <div className="appointment-data">
                     <Row className="justify-content-between align-items-center my-3 px-4">
                         <Col xl={4} sm={4}>
-                            {(selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT) && (
+                            {(selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT) ? (
                                 <Input
                                     value={searchQuery}
                                     placeholder="Search patient by name and mobile number"
@@ -1613,6 +1645,15 @@ function AppointmentData({ locationPath }) {
                                     prefix={<i className="icon-search" />}
                                     suffix={searchQuery.length > 0 && <i className="icon-Cross" onClick={() => onSearch('')}></i>}
                                     onChange={(e) => onSearch(e.target.value)}
+                                />
+                            ) : (
+                                <Input
+                                    value={zydusSearchQuery}
+                                    placeholder="Search patient by name and mobile number"
+                                    className="inputheight38"
+                                    prefix={<i className="icon-search" />}
+                                    suffix={zydusSearchQuery.length > 0 && <i className="icon-Cross" onClick={() => onZydusSearch('')}></i>}
+                                    onChange={(e) => onZydusSearch(e.target.value)}
                                 />
                             )}
                         </Col>
@@ -1681,7 +1722,7 @@ function AppointmentData({ locationPath }) {
                                 <Table
                                     className="px-xl-4 px-0"
                                     columns={columns}
-                                    dataSource={appointmentsData}
+                                    dataSource={selectedTab !== TAB_ZYDUS_ENCOUNTER && selectedTab !== TAB_ZYDUS_APPOINTMENT ? appointmentsData : matchedAppointment}
                                     onChange={handleChange}
                                     pagination={false}
                                     loading={loading && pageNo === 0}
