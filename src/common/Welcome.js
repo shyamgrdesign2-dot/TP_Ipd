@@ -93,14 +93,14 @@ function Welcome(props) {
             <div>
               {locationPath == "/" &&
                 <div className="d-lg-flex d-block">
-                  <Button
+                  {/* <Button
                     variant="outline-primary"
                     className="px-3 btn-41 me-3 btn-outline-primary d-flex align-items-center rounded-10px"
                     style={{ background: 'rgba(255,255,255,0.5)' }}
                     onClick={() => navigate('/add-appointment')}>
                     <i className="icon-Add me-2"></i>
                     {"Add New Appointment"}
-                  </Button>
+                  </Button> */}
 
                   <Button
                     variant="primary"

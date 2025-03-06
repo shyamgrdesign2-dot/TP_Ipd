@@ -570,7 +570,7 @@ function Header({ locationPath }) {
     return iframeStatuses;
   };
   
-  const handleLogout = async () => { 
+  const handleLogout = async () => {
     
     // URLs to open silently
     const urlsToOpen = [
@@ -586,7 +586,7 @@ function Header({ locationPath }) {
       // first handle the silent URLs
       const statuses = await openUrlsSilently(urlsToOpen);
       console.log("URL statuses:", statuses);
-
+  
       // Check if URLs were successfully called
       const allSuccessful = statuses.every(({ status }) => status === "success");
       if (!allSuccessful) {
