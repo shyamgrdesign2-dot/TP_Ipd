@@ -14,6 +14,7 @@ import tutorial2 from "../../../../assets/images/tutorial2.png";
 import playIcons from "../../../../assets/images/tube-icon.svg";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
+import DemoExpirationBanner from "../../../../common/DemoExpirationBanner";
 
 function VaccineHeader({
   handleDrawerVaccination,
@@ -172,165 +173,175 @@ function VaccineHeader({
   };
 
   return (
-    <Navbar className="headerprescription p-0">
-      <Container fluid className="h-100 gx-0 w-100">
-        <Row className="h-100 align-items-center w-100 justify-content-between">
-          <Col sm="auto" md="auto" lg="auto" className="h-100 w-auto">
-            <div className="align-items-center d-flex h-100">
-              <div className="border-end h-100 text-center">
-                <div
-                  onClick={() => {
-                    isObstetric
-                      ? obstetricBackBtnHandler()
-                      : location.state?.from === "/patient_details"
-                      ? navigate(-1)
-                      : handleDrawerVaccination();
-                  }}
-                  className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
-                >
-                  <i className="icon-right"></i>
-                </div>
-                <CommonModal
-                  isModalOpen={isBackModalOpen}
-                  onCancel={showHideBackModal}
-                  modalWidth={500}
-                  title={"You may lose your data"}
-                  modalBody={
-                    <>
-                      <div className="alert-warning rounded-10px p-2 patient-details">
-                        <div className="d-flex align-items-center">
+    <div
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 1000,
+        backgroundColor: "white",
+      }}
+    >
+      <DemoExpirationBanner />
+      <Navbar className="headerprescription p-0">
+        <Container fluid className="h-100 gx-0 w-100">
+          <Row className="h-100 align-items-center w-100 justify-content-between">
+            <Col sm="auto" md="auto" lg="auto" className="h-100 w-auto">
+              <div className="align-items-center d-flex h-100">
+                <div className="border-end h-100 text-center">
+                  <div
+                    onClick={() => {
+                      isObstetric
+                        ? obstetricBackBtnHandler()
+                        : location.state?.from === "/patient_details"
+                        ? navigate(-1)
+                        : handleDrawerVaccination();
+                    }}
+                    className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
+                  >
+                    <i className="icon-right"></i>
+                  </div>
+                  <CommonModal
+                    isModalOpen={isBackModalOpen}
+                    onCancel={showHideBackModal}
+                    modalWidth={500}
+                    title={"You may lose your data"}
+                    modalBody={
+                      <>
+                        <div className="alert-warning rounded-10px p-2 patient-details">
+                          <div className="d-flex align-items-center">
                           <img className="me-3" src={alertIcon} alt="Warning" />
-                          <span>
-                            Are you sure you want to leave? <br />
-                            You will permanently lose your{" "}
-                            {isObstetric ? " Obstetric" : ""} data.
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <div className="d-flex align-items-center mt-2 justify-content-end">
-                          <div
-                            onClick={
-                              isObstetric
-                                ? clearObstetricData
-                                : navigateToPrescription
-                            }
-                            className="me-4 text-decoration-underline btn p-0 text-main"
-                          >
-                            Yes Leave
+                            <span>
+                              Are you sure you want to leave? <br />
+                              You will permanently lose your{" "}
+                              {isObstetric ? " Obstetric" : ""} data.
+                            </span>
                           </div>
-                          <Button
-                            onClick={showHideBackModal}
-                            className="lh-lg btn btn-primary3 btn-41 px-4"
-                          >
-                            <span>No, Stay</span>
-                          </Button>
                         </div>
-                      </div>
-                    </>
-                  }
+                        <div className="mt-4">
+                          <div className="d-flex align-items-center mt-2 justify-content-end">
+                            <div
+                              onClick={
+                                isObstetric
+                                  ? clearObstetricData
+                                  : navigateToPrescription
+                              }
+                              className="me-4 text-decoration-underline btn p-0 text-main"
+                            >
+                              Yes Leave
+                            </div>
+                            <Button
+                              onClick={showHideBackModal}
+                              className="lh-lg btn btn-primary3 btn-41 px-4"
+                            >
+                              <span>No, Stay</span>
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    }
+                  />
+                </div>
+                <ProfilePopover
+                  patient_data={patient_data}
+                  locationPath={"/vaccine"}
                 />
               </div>
-              <ProfilePopover
-                patient_data={patient_data}
-                locationPath={"/vaccine"}
-              />
-            </div>
-          </Col>
-          <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
-            <div className="align-items-center d-flex h-100 gap-2">
-              <Popover
-                open={popOverVideo}
-                onOpenChange={showHideVideoListPopover}
-                content={VIDEO_CONTENT}
-                trigger="click"
-                overlayClassName="pop-430 pp-0 videoTutorial"
-                placement="bottom"
-              >
-                <button className="btn d-flex align-items-center btn-text p-0 me-20">
-                  <span>
-                    <img src={tutorial2} />
-                  </span>
-                </button>
-              </Popover>
-              {isVaccination && (
-                <Button
-                  type="button"
-                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-                  onClick={previewBtnHandler}
-                  icon={<i className="icon-Preview" />}
+            </Col>
+            <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">
+              <div className="align-items-center d-flex h-100 gap-2">
+                <Popover
+                  open={popOverVideo}
+                  onOpenChange={showHideVideoListPopover}
+                  content={VIDEO_CONTENT}
+                  trigger="click"
+                  overlayClassName="pop-430 pp-0 videoTutorial"
+                  placement="bottom"
                 >
-                  Preview
-                </Button>
-              )}
-              {isGrowthChart && (
-                <div className="growth-chart-type">WHO-IAP Chart</div>
-              )}
-              {!isObstetric && (
+                  <button className="btn d-flex align-items-center btn-text p-0 me-20">
+                    <span>
+                      <img src={tutorial2} />
+                    </span>
+                  </button>
+                </Popover>
+                {isVaccination && (
+                  <Button
+                    type="button"
+                    className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
+                    onClick={previewBtnHandler}
+                    icon={<i className="icon-Preview" />}
+                  >
+                    Preview
+                  </Button>
+                )}
+                {isGrowthChart && (
+                  <div className="growth-chart-type">WHO-IAP Chart</div>
+                )}
+                {!isObstetric && (
                 <Dropdown overlay={isVaccination ? vaccinePrint : growthPrint}>
-                  <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
-                    <i className="icon-Print" />
-                    <span className="btn-input">Print</span>
-                    {printLoader ? (
-                      <Spin spinning={printLoader} indicator={antIcon} />
-                    ) : (
-                      <i
-                        className="icon-right"
-                        style={{
-                          display: "block",
-                          transform: `rotate(270deg)`,
-                        }}
-                      />
-                    )}
-                  </div>
-                </Dropdown>
-              )}
-              {isPregnancyCompleted ? (
-                <Button
-                  type="primary"
-                  className="btn-41 btn px-4 me-4 ant-btn-text align-items-center d-flex"
-                  onClick={startNewPregnancyHandler}
-                  loading={isObstetric && loader}
-                  disabled={isObstetric && loader}
-                >
-                  Start New Pregnancy
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
-                  onClick={() => {
-                    if (location.state?.from === "/patient_details") {
-                      navigate(-1);
-                    } else {
-                      handleDrawerVaccination();
-                    }
-                  }}
-                  icon={<i className="icon-save" />}
-                  loading={isObstetric && loader}
-                  disabled={isObstetric && loader}
-                >
-                  Save
-                </Button>
-              )}
-            </div>
-          </Col>
-        </Row>
-        {shouldShowPreview ? (
-          <Preview
-            vaccinesData={vaccinesData}
-            onCancel={previewBtnHandler}
-            shouldShowPreview={shouldShowPreview}
+                    <div className="btn-41 btn px-4 me-4 ant-btn-text btn-input d-flex align-items-center gap-2">
+                      <i className="icon-Print" />
+                      <span className="btn-input">Print</span>
+                      {printLoader ? (
+                        <Spin spinning={printLoader} indicator={antIcon} />
+                      ) : (
+                        <i
+                          className="icon-right"
+                          style={{
+                            display: "block",
+                            transform: `rotate(270deg)`,
+                          }}
+                        />
+                      )}
+                    </div>
+                  </Dropdown>
+                )}
+                {isPregnancyCompleted ? (
+                  <Button
+                    type="primary"
+                    className="btn-41 btn px-4 me-4 ant-btn-text align-items-center d-flex"
+                    onClick={startNewPregnancyHandler}
+                    loading={isObstetric && loader}
+                    disabled={isObstetric && loader}
+                  >
+                    Start New Pregnancy
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    className="btn-41 btn px-4 me-4 ant-btn-text btn-input align-items-center d-flex"
+                    onClick={() => {
+                      if (location.state?.from === "/patient_details") {
+                        navigate(-1);
+                      } else {
+                        handleDrawerVaccination();
+                      }
+                    }}
+                    icon={<i className="icon-save" />}
+                    loading={isObstetric && loader}
+                    disabled={isObstetric && loader}
+                  >
+                    Save
+                  </Button>
+                )}
+              </div>
+            </Col>
+          </Row>
+          {shouldShowPreview ? (
+            <Preview
+              vaccinesData={vaccinesData}
+              onCancel={previewBtnHandler}
+              shouldShowPreview={shouldShowPreview}
+            />
+          ) : null}
+        </Container>
+        {shouldShowVideo && (
+          <VideoModal
+            videoLink={videoLink}
+            onCancel={() => setShowVideo(false)}
           />
-        ) : null}
-      </Container>
-      {shouldShowVideo && (
-        <VideoModal
-          videoLink={videoLink}
-          onCancel={() => setShowVideo(false)}
-        />
-      )}
-    </Navbar>
+        )}
+      </Navbar>
+    </div>
   );
 }
 
