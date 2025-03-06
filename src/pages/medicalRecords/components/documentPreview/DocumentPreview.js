@@ -60,7 +60,7 @@ const DocumentPreview = ({
     setShowControls(true);
     controlsTimeoutRef.current = setTimeout(() => {
       setShowControls(false);
-    }, 2000);
+    }, 4000);
   };
 
   useEffect(() => {
