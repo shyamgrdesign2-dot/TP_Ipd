@@ -106,7 +106,7 @@ function ProfilePopover(props) {
         if (!patient_data) return "Hello Guest";
         const isSmallTablet = window.innerWidth <= 1024;
         if (isPrescriptionPage && isSmallTablet && patient_data?.pm_fullname?.length > 10) {
-            return `${patient_data?.pm_fullname?.slice(0,10)}...`;
+            return `${patient_data?.pm_fullname?.slice(0,5)}...`;
         }
         return patient_data?.pm_fullname;
     }
