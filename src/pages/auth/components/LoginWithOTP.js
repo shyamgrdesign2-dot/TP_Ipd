@@ -74,78 +74,78 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
     }
 
     return () => {
-      // Remove the flag when component unmounts
-      window.isMSG91Active = false;
+      const currentPath = window.location.pathname;
+      const searchParams = new URLSearchParams(window.location.search);
+      const view = searchParams.get('view');
       
-      // Try to remove the custom element
-      const msg91Provider = document.querySelector('msg91-otp-provider');
-      if (msg91Provider) {
-        try {
-          // Try to disconnect any observers or event listeners
-          if (msg91Provider.disconnectedCallback) {
-            msg91Provider.disconnectedCallback();
+      const isAuthView = currentPath.includes('/login') && 
+        (view === 'signup' || !view);
+      
+      if (!isAuthView || view === 'loginWithPassword') {
+        window.isMSG91Active = false;
+        
+        // Remove the MSG91 provider element if it exists
+        const msg91Provider = document.querySelector('msg91-otp-provider');
+        if (msg91Provider) {
+          try {
+            if (msg91Provider.disconnectedCallback) {
+              msg91Provider.disconnectedCallback();
+            }
+            msg91Provider.remove();
+          } catch (e) {
+            console.error('Error removing MSG91 provider:', e);
           }
-          msg91Provider.remove();
-        } catch (e) {
-          console.error('Error removing MSG91 provider:', e);
         }
-      }
 
-      // Remove the script
-      const script = document.getElementById(scriptId);
-      if (script) {
-        document.body.removeChild(script);
-      }
+        // Remove the script
+        const script = document.getElementById(scriptId);
+        if (script) {
+          document.body.removeChild(script);
+        }
 
-      // Attempt to undefine the custom element
-      try {
-        // @ts-ignore
-        customElements.whenDefined('msg91-otp-provider').then(() => {
-          // @ts-ignore
-          customElements.define('msg91-otp-provider', class extends HTMLElement {});
-        });
-      } catch (e) {
-        console.error('Error redefining custom element:', e);
-      }
+        // Instead of trying to undefine or redefine, 
+        // we'll set the methods to no-op functions
+        try {
+          if (window.initSendOTP) {
+            window.initSendOTP = () => console.log('MSG91 disabled');
+          }
+          if (window.sendOtp) {
+            window.sendOtp = () => console.log('MSG91 disabled');
+          }
+          if (window.verifyOtp) {
+            window.verifyOtp = () => console.log('MSG91 disabled');
+          }
+          if (window.retryOtp) {
+            window.retryOtp = () => console.log('MSG91 disabled');
+          }
+        } catch (e) {
+          console.error('Error resetting MSG91 methods:', e);
+        }
 
-      // Reset any global MSG91 variables
-      if (window.initSendOTP) {
-        window.initSendOTP = undefined;
-      }
-      if (window.sendOtp) {
-        window.sendOtp = undefined;
-      }
-      if (window.verifyOtp) {
-        window.verifyOtp = undefined;
-      }
-      if (window.retryOtp) {
-        window.retryOtp = undefined;
-      }
+        // Remove any existing captcha elements
+        const captchaElement = document.getElementById('captch-id');
+        if (captchaElement) {
+          while (captchaElement.firstChild) {
+            captchaElement.removeChild(captchaElement.firstChild);
+          }
+        }
 
-      // Clean up any remaining elements
-      ['msg91', 'h-captcha'].forEach(className => {
-        document.querySelectorAll(`[class*="${className}"]`).forEach(el => el.remove());
-      });
+        // Get UTM parameters and track events
+        const params = new URLSearchParams(window.location.search);
+        setUtm_campaign(params.get("utm_campaign") ?? 'NA');
+        setUtm_source(params.get("utm_source") ?? 'NA');
+        setUtm_medium(params.get("utm_medium") ?? 'NA');
+        setUtm_content(params.get("utm_content") ?? 'NA');
 
-      document.querySelectorAll('iframe[src*="hcaptcha"], iframe[src*="msg91"]').forEach(iframe => {
-        iframe.remove();
-      });
-
-      // Get UTM parameters and track events
-      const params = new URLSearchParams(window.location.search);
-      setUtm_campaign(params.get("utm_campaign") ?? 'NA');
-      setUtm_source(params.get("utm_source") ?? 'NA');
-      setUtm_medium(params.get("utm_medium") ?? 'NA');
-      setUtm_content(params.get("utm_content") ?? 'NA');
-
-      if(reason === 'forgotPassword' || reason === "setPassword"){
-        window.Moengage.track_event('TP_ResetPassword_landing_page', {
-          utm_campaign, utm_source, utm_medium, utm_content
-        });
-      }else {
-        window.Moengage.track_event('TP_Login_OTP_landing_page', {
-          utm_campaign, utm_source, utm_medium, utm_content
-        });
+        if(reason === 'forgotPassword' || reason === "setPassword"){
+          window.Moengage.track_event('TP_ResetPassword_landing_page', {
+            utm_campaign, utm_source, utm_medium, utm_content
+          });
+        }else {
+          window.Moengage.track_event('TP_Login_OTP_landing_page', {
+            utm_campaign, utm_source, utm_medium, utm_content
+          });
+        }
       }
     };
   }, []);
