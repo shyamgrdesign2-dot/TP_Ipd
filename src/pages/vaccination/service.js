@@ -150,13 +150,12 @@ export const createPatient = async (payload) => {
   return res;
 };
 
-export const getGivenVaccineDetails = async (patientUid, patientPid) => {
-  const today = moment().format("YYYY-MM-DD");
+export const getGivenVaccineDetails = async (patientUid, patientPid, date) => {
 
   let result = [];
   try {
     result = await api.get(
-      `vaccination/patientTemplateForPrint?patient_uid=${patientUid}&patient_pid=${patientPid}&vaccine_given_date=${today}`,
+      `vaccination/patientTemplateForPrint?patient_uid=${patientUid}&patient_pid=${patientPid}&vaccine_given_date=${date}`,
       baseUrl
     );
     if (result?.template) {
