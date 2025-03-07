@@ -1,6 +1,6 @@
 import React from 'react';
 import { Font, Page, Text, View, Image, Document, StyleSheet } from '@react-pdf/renderer';
-import { isNumeric, medicine_freq_dosage_format, chunkArray, capitalize } from '../../utils/utils'
+import { isNumeric, medicine_freq_dosage_format, chunkArray, capitalize, getIndianLanguageFont } from '../../utils/utils'
 import { EXTRA_OPTIONS, NORMAL, WHATSAPP } from '../../utils/constants';
 import moment from 'moment';
 import ObsHistoryInlineView from './obsHistory/inline';
@@ -61,6 +61,105 @@ Font.register({
         { src: require('../../assets/fonts/print-fonts/Vazirmatn-Regular.ttf'), fontWeight: 400 }, // Regular
         { src: require('../../assets/fonts/print-fonts/Vazirmatn-Medium.ttf'), fontWeight: 500 }, // Medium
         { src: require('../../assets/fonts/print-fonts/Vazirmatn-Bold.ttf'), fontWeight: 700 }, // Bold
+    ],
+});
+
+Font.register({
+    family: 'NotoSansDevanagari',
+    fonts: [
+        { src: require('../../assets/fonts/print-fonts/NotoSansDevanagari-Regular.ttf'), fontWeight: 400 }, // Regular
+        { src: require('../../assets/fonts/print-fonts/NotoSansDevanagari-Medium.ttf'), fontWeight: 500 }, // Medium
+        { src: require('../../assets/fonts/print-fonts/NotoSansDevanagari-Bold.ttf'), fontWeight: 700 }, // Bold
+    ],
+});
+
+// Bengali
+Font.register({
+    family: 'NotoSansBengali',
+    fonts: [
+        { src: require('../../assets/fonts/print-fonts/NotoSansBengali-Regular.ttf'), fontWeight: 400 }, // Regular
+        { src: require('../../assets/fonts/print-fonts/NotoSansBengali-Medium.ttf'), fontWeight: 500 }, // Medium
+        { src: require('../../assets/fonts/print-fonts/NotoSansBengali-Bold.ttf'), fontWeight: 700 }, // Bold
+    ],
+});
+
+// Tamil
+Font.register({
+    family: 'NotoSansTamil',
+    fonts: [
+        { src: require('../../assets/fonts/print-fonts/NotoSansTamil-Regular.ttf'), fontWeight: 400 }, // Regular
+        { src: require('../../assets/fonts/print-fonts/NotoSansTamil-Medium.ttf'), fontWeight: 500 }, // Medium
+        { src: require('../../assets/fonts/print-fonts/NotoSansTamil-Bold.ttf'), fontWeight: 700 }, // Bold
+    ],
+});
+
+// Telugu
+Font.register({
+    family: 'NotoSansTelugu',
+    fonts: [
+        { src: require('../../assets/fonts/print-fonts/NotoSansTelugu-Regular.ttf'), fontWeight: 400 }, // Regular
+        { src: require('../../assets/fonts/print-fonts/NotoSansTelugu-Medium.ttf'), fontWeight: 500 }, // Medium
+        { src: require('../../assets/fonts/print-fonts/NotoSansTelugu-Bold.ttf'), fontWeight: 700 }, // Bold
+    ],
+});
+
+// Kannada
+Font.register({
+    family: 'NotoSansKannada',
+    fonts: [
+        { src: require('../../assets/fonts/print-fonts/NotoSansKannada-Regular.ttf'), fontWeight: 400 }, // Regular
+        { src: require('../../assets/fonts/print-fonts/NotoSansKannada-Medium.ttf'), fontWeight: 500 }, // Medium
+        { src: require('../../assets/fonts/print-fonts/NotoSansKannada-Bold.ttf'), fontWeight: 700 }, // Bold
+    ],
+});
+
+// Malayalam
+Font.register({
+    family: 'NotoSansMalayalam',
+    fonts: [
+        { src: require('../../assets/fonts/print-fonts/NotoSansMalayalam-Regular.ttf'), fontWeight: 400 }, // Regular
+        { src: require('../../assets/fonts/print-fonts/NotoSansMalayalam-Medium.ttf'), fontWeight: 500 }, // Medium
+        { src: require('../../assets/fonts/print-fonts/NotoSansMalayalam-Bold.ttf'), fontWeight: 700 }, // Bold
+    ],
+});
+
+// Gujarati
+Font.register({
+    family: 'NotoSansGujarati',
+    fonts: [
+        { src: require('../../assets/fonts/print-fonts/NotoSansGujarati-Regular.ttf'), fontWeight: 400 }, // Regular
+        { src: require('../../assets/fonts/print-fonts/NotoSansGujarati-Medium.ttf'), fontWeight: 500 }, // Medium
+        { src: require('../../assets/fonts/print-fonts/NotoSansGujarati-Bold.ttf'), fontWeight: 700 }, // Bold
+    ],
+});
+
+// Punjabi/Gurmukhi
+Font.register({
+    family: 'NotoSansGurmukhi',
+    fonts: [
+        { src: require('../../assets/fonts/print-fonts/NotoSansGurmukhi-Regular.ttf'), fontWeight: 400 }, // Regular
+        { src: require('../../assets/fonts/print-fonts/NotoSansGurmukhi-Medium.ttf'), fontWeight: 500 }, // Medium
+        { src: require('../../assets/fonts/print-fonts/NotoSansGurmukhi-Bold.ttf'), fontWeight: 700 }, // Bold
+    ],
+});
+
+// Oriya/Odia
+Font.register({
+    family: 'NotoSansOriya',
+    fonts: [
+        { src: require('../../assets/fonts/print-fonts/NotoSansOriya-Regular.ttf'), fontWeight: 400 }, // Regular
+        { src: require('../../assets/fonts/print-fonts/NotoSansOriya-Medium.ttf'), fontWeight: 500 }, // Medium
+        { src: require('../../assets/fonts/print-fonts/NotoSansOriya-Bold.ttf'), fontWeight: 700 }, // Bold
+    ],
+});
+
+// Urdu
+Font.register({
+    family: 'NotoNastaliqUrdu',
+    fonts: [
+        { src: require('../../assets/fonts/print-fonts/NotoNastaliqUrdu-Regular.ttf'), fontWeight: 400 }, // Regular
+        { src: require('../../assets/fonts/print-fonts/NotoNastaliqUrdu-Medium.ttf'), fontWeight: 500 }, // Medium
+        { src: require('../../assets/fonts/print-fonts/NotoNastaliqUrdu-Bold.ttf'), fontWeight: 700 }, // Bold
     ],
 });
 
@@ -634,9 +733,27 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {caseManagerData.symptoms.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.symptom_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
                                                             {(item.since || item.severity || item.note) ?
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                <View>
+                                                                    {/* For since and severity (English content) */}
+                                                                    {(item.since || item.severity) && (
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            {`(${[
+                                                                                item.since ? `since: ${item.since}` : null,
+                                                                                item.severity ? `severity: ${item.severity}` : null
+                                                                            ].filter(Boolean).join(', ')}${(item.since || item.severity) && item.note ? ', ' : ''}${!item.note ? ')' : ''}`}
+                                                                        </Text>
+                                                                    )}
+                                                                    
+                                                                    {/* For note (potentially in Indian language) */}
+                                                                    {item.note && (
+                                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            {`${!(item.since || item.severity) ? '(' : ''}${item.note})`}
+                                                                        </Text>
+                                                                    )}
+                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                </View>
                                                                 :
                                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                             }
@@ -651,10 +768,37 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
-                                                            {(item.since || item.severity || item.note) &&
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, severity, note }) => ({ since, severity, note }))(caseManagerData.symptoms[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                                            }
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.symptom_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
+                                                            {(item.since || item.severity || item.note) && (
+                                                                <View>
+                                                                    {/* For since and severity (English content) */}
+                                                                    {(item.since || item.severity) && (
+                                                                    <Text style={{ 
+                                                                        color: '#171725', 
+                                                                        fontFamily: printSettings?.page_format?.font_family, 
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                        fontWeight: 400 
+                                                                    }}>
+                                                                        {`(${[
+                                                                        item.since ? `since: ${item.since}` : null,
+                                                                        item.severity ? `severity: ${item.severity}` : null
+                                                                        ].filter(Boolean).join(', ')}${(item.since || item.severity) && item.note ? ', ' : ''}${!item.note ? ')\n' : ''}`}
+                                                                    </Text>
+                                                                    )}
+                                                                    
+                                                                    {/* For note (potentially in Indian language) */}
+                                                                    {item.note && (
+                                                                    <Text style={{ 
+                                                                        color: '#171725', 
+                                                                        fontFamily: getIndianLanguageFont(item.note), 
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                        fontWeight: 400 
+                                                                    }}>
+                                                                        {`${!(item.since || item.severity) ? '(' : ''}${item.note})\n`}
+                                                                    </Text>
+                                                                    )}
+                                                                </View>
+                                                            )}
                                                         </Text>
                                                     )
                                                 })}
@@ -673,10 +817,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     </View>
                                                     {caseManagerData.symptoms.map((item, i) => (
                                                         <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.symptom_name}</Text>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.symptom_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.symptom_name}</Text>
                                                             <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
                                                             <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.severity ? item.severity : '-'}</Text>
-                                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
                                                         </View>
                                                     ))}
                                                 </View>
@@ -693,9 +837,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {caseManagerData.examination.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.examination_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
                                                             {(item.note) ?
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                                 :
                                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                             }
@@ -710,9 +854,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.examination_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
                                                             {(item.since || item.severity || item.note) &&
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
                                                             }
                                                         </Text>
                                                     )
@@ -732,10 +876,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     </View>
                                                     {caseManagerData.examination.map((item, i) => (
                                                         <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.examination_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>
                                                                 {item.examination_name}
                                                             </Text>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                 {item.note ? item.note : '-'}
                                                             </Text>
                                                         </View>
@@ -754,9 +898,21 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {caseManagerData.diagnosis.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.tds_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
                                                             {(item.since || item.status || item.note) ?
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                <Text>
+                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                        {`(`}
+                                                                    </Text>
+                                                                    {[
+                                                                        caseManagerData.diagnosis[i].since && <Text key="since" style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis[i].since}</Text>,
+                                                                        caseManagerData.diagnosis[i].status && <Text key="status" style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis[i].status}</Text>,
+                                                                        caseManagerData.diagnosis[i].note && <Text key="note" style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.diagnosis[i].note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis[i].note}</Text>
+                                                                    ].filter(Boolean).reduce((prev, curr, idx) => [prev, <Text key={`sep-${idx}`} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>, </Text>, curr])}
+                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                        {`)`}{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;
+                                                                    </Text>
+                                                                </Text>
                                                                 :
                                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                             }
@@ -771,9 +927,18 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.tds_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
                                                             {(item.since || item.severity || item.note) &&
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ since, status, note }) => ({ since, status, note }))(caseManagerData.diagnosis[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                    {`(`}
+                                                                    {[
+                                                                        caseManagerData.diagnosis[i].since && <Text key="since" style={{ fontFamily: printSettings?.page_format?.font_family }}>{caseManagerData.diagnosis[i].since}</Text>,
+                                                                        caseManagerData.diagnosis[i].status && <Text key="status" style={{ fontFamily: printSettings?.page_format?.font_family }}>{caseManagerData.diagnosis[i].status}</Text>,
+                                                                        caseManagerData.diagnosis[i].note && <Text key="note" style={{ fontFamily: getIndianLanguageFont(caseManagerData.diagnosis[i].note, printSettings?.page_format?.font_family) }}>{caseManagerData.diagnosis[i].note}</Text>
+                                                                    ].filter(Boolean).reduce((prev, curr, idx) => [prev, <Text key={`sep-${idx}`}>, </Text>, curr])}
+                                                                    {`)`}
+                                                                    {'\n'}
+                                                                </Text>
                                                             }
                                                         </Text>
                                                     )
@@ -791,10 +956,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     </View>
                                                     {caseManagerData.diagnosis.map((item, i) => (
                                                         <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tds_name}</Text>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.tds_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tds_name}</Text>
                                                             <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
                                                             <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.status ? item.status : '-'}</Text>
-                                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
                                                         </View>
                                                     ))}
                                                 </View>
@@ -1015,7 +1180,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {caseManagerData.advice.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.advice_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.advice.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                         </Text>
                                                     )
@@ -1028,7 +1193,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.advice_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}&nbsp;</Text>
                                                         </Text>
                                                     )
                                                 })}
@@ -1042,7 +1207,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     </View>
                                                     {caseManagerData.advice.map((item, i) => (
                                                         <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.advice_name}</Text>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.advice_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.advice_name}</Text>
                                                         </View>
                                                     ))}
                                                 </View>
@@ -1059,9 +1224,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {caseManagerData.investigation.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.investigation_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
                                                             {(item.note) ?
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                                 :
                                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                             }
@@ -1076,9 +1241,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.investigation_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
                                                             {(item.since || item.severity || item.note) &&
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
                                                             }
                                                         </Text>
                                                     )
@@ -1094,8 +1259,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     </View>
                                                     {caseManagerData.investigation.map((item, i) => (
                                                         <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.investigation_name}</Text>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.investigation_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.investigation_name}</Text>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}</Text>
                                                         </View>
                                                     ))}
                                                 </View>
@@ -1364,7 +1529,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                 {item1?.note && (
                                                                                                     <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
                                                                                                         {` | Note : `}
-                                                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                                        <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item1?.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                                                                             {item1?.note}
                                                                                                         </Text>
                                                                                                     </Text>
@@ -1393,7 +1558,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {caseManagerData?.medical_history?.[0]?.medical_history_remarks && (
                                                     <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
                                                         <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{'\n'}{`Additional History`}&nbsp;</Text>
-                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                        <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                             {`(`}{caseManagerData?.medical_history?.[0]?.medical_history_remarks}{`)`}
                                                         </Text>
                                                     </Text>
@@ -1479,7 +1644,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         <Text
                                                             style={{
                                                                 color: '#454551',
-                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family),
                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                 fontWeight: 500,
                                                                 marginLeft: PX_TO_PT * 15,
@@ -1534,7 +1699,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                         {item?.tmmhs_id === 3 && (
                                                                                             <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.relationship ? item1.relationship : '-'}</Text>
                                                                                         )}
-                                                                                        <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.note ? item1.note : '-'}</Text>
+                                                                                        <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: getIndianLanguageFont(item1?.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.note ? item1.note : '-'}</Text>
                                                                                     </View>
                                                                                 )
                                                                             })}
@@ -1560,7 +1725,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         <Text style={{ color: '#000', marginTop: PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`Additional History : `}</Text>
                                                         <View style={[styles.table, { marginTop: 0 }]}>
                                                             <View style={styles.row} wrap={false}>
-                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{caseManagerData?.medical_history?.[0]?.medical_history_remarks}</Text>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{caseManagerData?.medical_history?.[0]?.medical_history_remarks}</Text>
                                                             </View>
                                                         </View>
                                                     </>
@@ -1581,7 +1746,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.visit_advice && (
                                         <Text style={{ marginTop: PX_TO_PT * 15 }}>
                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
+                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.visit_advice, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
                                         </Text>
                                     )}
                                 </>
@@ -1618,7 +1783,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     {item?.tvp_remarks &&
                                                                         <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
                                                                             {` | Note : `}
-                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item?.tvp_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                                                 {item?.tvp_remarks}
                                                                             </Text>
                                                                         </Text>}
@@ -1642,7 +1807,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     {item?.tvd_remarks &&
                                                                         <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
                                                                             {` | Note : `}
-                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item?.tvd_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                                                 {item?.tvd_remarks}
                                                                             </Text>
                                                                         </Text>}
@@ -1681,7 +1846,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     </Text>}
                                                                     {item?.tvp_remarks && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
                                                                         {` | Note : `}
-                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                        <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item?.tvp_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                                             {item?.tvp_remarks}
                                                                         </Text>
                                                                     </Text>}
@@ -1705,7 +1870,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     </Text>
                                                                     {item?.tvp_remarks && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
                                                                         {` | Note : `}
-                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                        <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item?.tvd_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                                             {item?.tvd_remarks}
                                                                         </Text>
                                                                     </Text>}
@@ -1741,7 +1906,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                         {item?.tvpv_site || '-'}
                                                                     </Text>
-                                                                    <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: getIndianLanguageFont(item?.tvp_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                         {item.tvp_remarks || '-'}
                                                                     </Text>
                                                                 </View>
@@ -1764,7 +1929,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                         {item?.tvd_due_date ? moment(item?.tvd_due_date).format("DD MMM YYYY") : '-'}
                                                                     </Text>
-                                                                    <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: getIndianLanguageFont(item?.tvd_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                         {item.tvd_remarks || '-'}
                                                                     </Text>
                                                                 </View>
@@ -1989,7 +2154,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.cycleNotes, printSettings?.page_format?.font_family),
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                             fontWeight: 400,
                                                                         }}
@@ -2193,7 +2358,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.flowNotes, printSettings?.page_format?.font_family),
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                             fontWeight: 400,
                                                                         }}
@@ -2321,7 +2486,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.painNotes, printSettings?.page_format?.font_family),
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                             fontWeight: 400,
                                                                         }}
@@ -2409,7 +2574,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.menarcheNotes, printSettings?.page_format?.font_family),
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                             fontWeight: 400,
                                                                         }}
@@ -2536,7 +2701,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.reproductiveNotes, printSettings?.page_format?.font_family),
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                             fontWeight: 400,
                                                                         }}
@@ -2586,7 +2751,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             <Text
                                                                 style={{
                                                                     color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontFamily: getIndianLanguageFont(gynecHistoryData?.notes, printSettings?.page_format?.font_family),
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                     fontWeight: 400,
                                                                 }}
@@ -2763,7 +2928,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.cycleNotes, printSettings?.page_format?.font_family),
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                             fontWeight: 400,
                                                                         }}
@@ -2970,7 +3135,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.flowNotes, printSettings?.page_format?.font_family),
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                             fontWeight: 400,
                                                                         }}
@@ -3101,7 +3266,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.painNotes, printSettings?.page_format?.font_family),
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                             fontWeight: 400,
                                                                         }}
@@ -3192,7 +3357,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.menarcheNotes, printSettings?.page_format?.font_family),
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                             fontWeight: 400,
                                                                         }}
@@ -3322,7 +3487,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text
                                                                         style={{
                                                                             color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.reproductiveNotes, printSettings?.page_format?.font_family),
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                             fontWeight: 400,
                                                                         }}
@@ -3361,7 +3526,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             <Text
                                                                 style={{
                                                                     color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontFamily: getIndianLanguageFont(gynecHistoryData?.notes, printSettings?.page_format?.font_family),
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                     fontWeight: 400,
                                                                 }}
@@ -3562,7 +3727,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             <Text
                                                                 style={[
                                                                     {
-                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontFamily: getIndianLanguageFont(gynecHistoryData?.cycleNotes, printSettings?.page_format?.font_family),
                                                                         fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                         fontWeight: 400,
                                                                         color: "#000",
@@ -3749,7 +3914,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             <Text
                                                                 style={[
                                                                     {
-                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontFamily: getIndianLanguageFont(gynecHistoryData?.flowNotes, printSettings?.page_format?.font_family),
                                                                         fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                         fontWeight: 400,
                                                                         color: "#000",
@@ -3878,7 +4043,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             <Text
                                                                 style={[
                                                                     {
-                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontFamily: getIndianLanguageFont(gynecHistoryData?.painNotes, printSettings?.page_format?.font_family),
                                                                         fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                         fontWeight: 400,
                                                                         color: "#000",
@@ -3976,7 +4141,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             <Text
                                                                 style={[
                                                                     {
-                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontFamily: getIndianLanguageFont(gynecHistoryData?.menarcheNotes, printSettings?.page_format?.font_family),
                                                                         fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                         fontWeight: 400,
                                                                         color: "#000",
@@ -4105,7 +4270,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             <Text
                                                                 style={[
                                                                     {
-                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontFamily: getIndianLanguageFont(gynecHistoryData?.reproductiveNotes, printSettings?.page_format?.font_family),
                                                                         fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                         fontWeight: 400,
                                                                         color: "#000",
@@ -4145,7 +4310,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     style={[
                                                                         styles.cell,
                                                                         {
-                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.notes, printSettings?.page_format?.font_family),
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                             fontWeight: 400,
                                                                             color: "#000",
@@ -4534,9 +4699,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {caseManagerData.surgeries.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.name}&nbsp;</Text>
                                                             {(item.notes) ?
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ notes }) => ({ notes }))(caseManagerData.surgeries[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.surgeries.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ notes }) => ({ notes }))(caseManagerData.surgeries[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.surgeries.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                                 :
                                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.surgeries.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                             }
@@ -4551,9 +4716,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
                                                             <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.name}&nbsp;</Text>
                                                             {(item.notes) &&
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ notes }) => ({ notes }))(caseManagerData.surgeries[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ notes }) => ({ notes }))(caseManagerData.surgeries[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
                                                             }
                                                         </Text>
                                                     )
@@ -4569,8 +4734,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     </View>
                                                     {caseManagerData.surgeries.map((item, i) => (
                                                         <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}</Text>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes ? item.notes : '-'}</Text>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}</Text>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes ? item.notes : '-'}</Text>
                                                         </View>
                                                     ))}
                                                 </View>
@@ -4585,9 +4750,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         {customModule?.content?.map((item, i) => {
                                             return (
                                                 <Text key={i}>
-                                                    {item.title && <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{"\n"}{item.title}&nbsp;</Text>}
+                                                    {item.title && <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{"\n"}{item.title}&nbsp;</Text>}
                                                     {item.notes &&
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{"\n"}{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}&nbsp;</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{"\n"}{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}&nbsp;</Text>
                                                     }
                                                 </Text>
                                             )
@@ -4600,9 +4765,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             return (
                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                    {item.title && <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;</Text>}
+                                                    {item.title && <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;</Text>}
                                                     {item.notes &&
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.title ? "\n" : ""}{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.title ? "\n" : ""}{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}</Text>
                                                     }
                                                 </Text>
                                             )
@@ -4618,8 +4783,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                             {customModule?.content.map((item, i) => (
                                                 <View style={styles.row} key={i} wrap={false}>
-                                                    {customModule?.content?.some((item) => item.title) &&<Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}</Text>}
-                                                    {customModule?.content?.some((item) => item.notes) &&<Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.trim()?.replace(/\n+/g, "\n") || '-'}</Text>}
+                                                    {customModule?.content?.some((item) => item.title) &&<Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}</Text>}
+                                                    {customModule?.content?.some((item) => item.notes) &&<Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.trim()?.replace(/\n+/g, "\n") || '-'}</Text>}
                                                 </View>
                                             ))}
                                         </View>

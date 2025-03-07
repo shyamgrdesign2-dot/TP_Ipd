@@ -5,6 +5,7 @@ import {
   getPregnancyOutcome,
   getTypeOfAbortion,
 } from "../../../pages/obstetric/utils/helper";
+import { getIndianLanguageFont } from "../../../utils/utils";
 
 function ObsHistoryInlineView({
   PX_TO_PT,
@@ -422,7 +423,7 @@ function ObsHistoryInlineView({
                       <Text
                         style={{
                           color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
+                          fontFamily: getIndianLanguageFont(obsHistoryData?.diagnosisNotes, printSettings?.page_format?.font_family),
                           fontSize:
                             PX_TO_PT * printSettings?.page_format?.font_size,
                           fontWeight: 400,
@@ -1711,8 +1712,7 @@ function ObsHistoryInlineView({
                             <Text
                               style={{
                                 color: "#171725",
-                                fontFamily:
-                                  printSettings?.page_format?.font_family,
+                                fontFamily: getIndianLanguageFont(item?.remarks, printSettings?.page_format?.font_family),
                                 fontSize:
                                   PX_TO_PT *
                                   printSettings?.page_format?.font_size,
@@ -2363,7 +2363,7 @@ function ObsHistoryInlineView({
                                   style={{
                                     color: "#171725",
                                     fontFamily:
-                                      printSettings?.page_format?.font_family,
+                                      getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family),
                                     fontSize:
                                       PX_TO_PT *
                                       printSettings?.page_format?.font_size,
@@ -2513,8 +2513,7 @@ function ObsHistoryInlineView({
                           <Text
                             style={{
                               color: "#171725",
-                              fontFamily:
-                                printSettings?.page_format?.font_family,
+                              fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family),
                               fontSize:
                                 PX_TO_PT *
                                 printSettings?.page_format?.font_size,
@@ -2660,8 +2659,7 @@ function ObsHistoryInlineView({
                             <Text
                               style={{
                                 color: "#171725",
-                                fontFamily:
-                                  printSettings?.page_format?.font_family,
+                                fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family),
                                 fontSize:
                                   PX_TO_PT *
                                   printSettings?.page_format?.font_size,
