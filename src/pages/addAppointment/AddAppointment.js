@@ -229,7 +229,7 @@ const TimeSlotContainer = ({
           <div className="leave-tooltip">
             <h4>On Leave</h4>
             <div>
-              Whatever remarks that doctor writes in the PHP will be shown here.
+              {slot.leave?.remarks}
             </div>
           </div>
         );
