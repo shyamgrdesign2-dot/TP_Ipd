@@ -226,6 +226,13 @@
                 cursor: not-allowed;
             }
 
+            &.leave{
+                background-color: #f5f5f5;
+                color: #666;
+                border: 1px solid #aeaeae;
+                cursor: not-allowed;
+            }
+
             &.available {
                 background-color: #fff;
                 // color: #4318FF;
