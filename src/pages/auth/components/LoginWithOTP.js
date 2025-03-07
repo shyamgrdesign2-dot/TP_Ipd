@@ -74,23 +74,17 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
     }
 
     return () => {
-      // Check both pathname and query parameters
       const currentPath = window.location.pathname;
       const searchParams = new URLSearchParams(window.location.search);
       const view = searchParams.get('view');
       
-      // Only cleanup if we're navigating away from login/auth related views
-      // OR if we're switching to loginWithPassword
       const isAuthView = currentPath.includes('/login') && 
         (view === 'signup' || !view);
       
-      // Cleanup should happen when:
-      // 1. We're leaving auth views completely (!isAuthView)
-      // 2. OR we're switching to loginWithPassword view
       if (!isAuthView || view === 'loginWithPassword') {
         window.isMSG91Active = false;
         
-        // Rest of the cleanup code...
+        // Remove the MSG91 provider element if it exists
         const msg91Provider = document.querySelector('msg91-otp-provider');
         if (msg91Provider) {
           try {
@@ -109,29 +103,31 @@ const LoginWithOTP = ({ reason, handleView, number }) => {
           document.body.removeChild(script);
         }
 
-        // Attempt to undefine the custom element
+        // Instead of trying to undefine or redefine, 
+        // we'll set the methods to no-op functions
         try {
-          // @ts-ignore
-          customElements.whenDefined('msg91-otp-provider').then(() => {
-            // @ts-ignore
-            customElements.define('msg91-otp-provider', class extends HTMLElement {});
-          });
+          if (window.initSendOTP) {
+            window.initSendOTP = () => console.log('MSG91 disabled');
+          }
+          if (window.sendOtp) {
+            window.sendOtp = () => console.log('MSG91 disabled');
+          }
+          if (window.verifyOtp) {
+            window.verifyOtp = () => console.log('MSG91 disabled');
+          }
+          if (window.retryOtp) {
+            window.retryOtp = () => console.log('MSG91 disabled');
+          }
         } catch (e) {
-          console.error('Error redefining custom element:', e);
+          console.error('Error resetting MSG91 methods:', e);
         }
 
-        // Reset any global MSG91 variables
-        if (window.initSendOTP) {
-          window.initSendOTP = undefined;
-        }
-        if (window.sendOtp) {
-          window.sendOtp = undefined;
-        }
-        if (window.verifyOtp) {
-          window.verifyOtp = undefined;
-        }
-        if (window.retryOtp) {
-          window.retryOtp = undefined;
+        // Remove any existing captcha elements
+        const captchaElement = document.getElementById('captch-id');
+        if (captchaElement) {
+          while (captchaElement.firstChild) {
+            captchaElement.removeChild(captchaElement.firstChild);
+          }
         }
 
         // Get UTM parameters and track events
