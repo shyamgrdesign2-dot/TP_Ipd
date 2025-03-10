@@ -189,7 +189,7 @@ const TimeSlotContainer = ({
                   </div>
                   <div className="d-flex align-items-center gap-1 me-2">
                     <img src={clockIcon} alt="Tests" />
-                    {dayjs(slot.start, "HH:mm:ss").format("hh:mm A")}
+                    {`${dayjs(appointment.pam_app_time, "HH:mm:ss").format("hh:mm A")} (${appointment.pam_appointment_duration}min)`}
                   </div>
                 </div>
               ))}
@@ -253,9 +253,17 @@ const TimeSlotContainer = ({
       case "leave":
         return (
           <div className="leave-tooltip">
-            <h4>On Leave</h4>
-            <div>
-              {slot.leave?.remarks}
+            <div className="leave-tooltip">
+              {slot.leave?.remarks ? (
+                <>
+                  <h4>On Leave</h4>
+                  <div>{slot.leave?.remarks}</div>
+                </>
+              ) : (
+                <div className="d-flex align-items-center justify-content-center">
+                  On Leave
+                </div>
+              )}
             </div>
           </div>
         );
@@ -311,7 +319,6 @@ const TimeSlotContainer = ({
               title={getTooltipContent(slot)}
               overlayClassName="slot-tooltip"
               placement="top"
-              // open={slot.status === "unavailable" ? true : false}
             >
               {slotContent}
             </Tooltip>
