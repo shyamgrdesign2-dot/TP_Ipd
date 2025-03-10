@@ -144,7 +144,6 @@ function ConfirmAppointment({
     };
 
     function goToAddPatient() {
-
         // Track the event with appropriate data
         window.Moengage.track_event("TP_AddAppointments_AddNewPatient", {
             "Doctor_specialty": profile?.dp_name,
