@@ -96,6 +96,7 @@ const TimeSlotContainer = ({
   editTime,
   isSlotInPast,
   selectedDoctorOption,
+  selectedDate
 }) => {
   if (isLoading) {
     return (
@@ -131,6 +132,31 @@ const TimeSlotContainer = ({
   };
 
   const getTooltipContent = (slot) => {
+    // First check if slot is in the past
+    const isPastSlot = (slot) => {
+      const currentDateTime = dayjs();
+      const slotDateTime = dayjs(selectedDate)
+        .hour(dayjs(slot.start, "HH:mm:ss").hour())
+        .minute(dayjs(slot.start, "HH:mm:ss").minute())
+        .second(dayjs(slot.start, "HH:mm:ss").second());
+      
+      return currentDateTime.isAfter(slotDateTime);
+    };
+    
+    console.log(slot, "-", isPastSlot(slot));
+    // If it's a past slot and not confirmed, show the past slot message
+    if (isPastSlot(slot) && slot.status !== "confirmed" && slot.status !== "unavailable" && slot.status !== "leave") {
+      return (
+        <div className="past-slot-tooltip">
+          <h4>Past Time Slot</h4>
+          <div>
+            This time slot has already passed and cannot be booked. Please select an available future slot for today's appointment.
+          </div>
+        </div>
+      );
+    }
+
+    // Rest of your existing switch case for other slot statuses
     switch (slot.status) {
       case "confirmed":
         return (
@@ -905,6 +931,7 @@ function AddAppointment() {
                     editTime={editTime}
                     isSlotInPast={isSlotInPast}
                     selectedDoctorOption={selectedDoctorOption}
+                    selectedDate={selectedDate}
                   />
                 </TabPane>
               );

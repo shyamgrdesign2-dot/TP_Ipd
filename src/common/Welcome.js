@@ -10,6 +10,7 @@ import CreditImg from "../assets/images/credit_icon.svg"
 import config from "../config";
 import AvailableCredits from "../components/bulk_messages/AvailableCredits";
 import { getClinicCity } from "../utils/utils";
+import { isMobile } from "react-device-detect";
 
 function Welcome(props) {
 
@@ -96,7 +97,10 @@ function Welcome(props) {
                   <Button
                     variant="outline-primary"
                     className="px-3 btn-41 me-3 btn-outline-primary d-flex align-items-center rounded-10px"
-                    style={{ background: 'rgba(255,255,255,0.5)' }}
+                    style={{ 
+                      background: 'rgba(255,255,255,0.5)',
+                      height: isMobile ? '3.5rem' : '41px'
+                    }}
                     onClick={() => navigate('/add-appointment')}>
                     <i className="icon-Add me-2"></i>
                     {"Add New Appointment"}
@@ -105,6 +109,9 @@ function Welcome(props) {
                   <Button
                     variant="primary"
                     className="px-3 btn-41"
+                    style={{
+                      height: isMobile ? '3.5rem' : '41px'
+                    }}
                     onClick={clickWalkInConsultation}>
                     {"Start Walk-in Consultation"}
                   </Button>
