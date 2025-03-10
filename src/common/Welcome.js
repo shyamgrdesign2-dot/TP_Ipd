@@ -101,7 +101,15 @@ function Welcome(props) {
                       background: 'rgba(255,255,255,0.5)',
                       height: isMobile ? '3.5rem' : '41px'
                     }}
-                    onClick={() => navigate('/add-appointment')}>
+                    onClick={() => {
+                      window.Moengage.track_event("TP_AddAppointment_addnewappointment", {
+                        "Doctor_specialty": profile?.dp_name,
+                        "Doctor_unique_id": profile?.doctor_unique_id,
+                        "Doctor_Name": profile?.um_name,
+                        "Doctor_mobile_No": profile?.um_contact,
+                      });
+                      navigate('/add-appointment');
+                    }}>
                     <i className="icon-Add me-2"></i>
                     {"Add New Appointment"}
                   </Button>
