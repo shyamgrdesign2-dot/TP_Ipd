@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { Container, Navbar, Nav } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { Select, Button, Checkbox, Popover, Drawer, Dropdown } from "antd";
+import { Select, Button, Checkbox, Popover, Drawer, Dropdown, Spin } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 import { isChrome, isSafari, isBrowser } from "react-device-detect";
@@ -100,6 +100,8 @@ function Header({ locationPath }) {
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const [tokenData, setTokenData] = useState(null);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     dispatch(getProfile());
@@ -221,16 +223,60 @@ function Header({ locationPath }) {
     window.Moengage.track_event("TP_Tatvapedia_landing", {
       clinic_name,
     });
-    showHideLogoModal()
-    setTimeout(() => {
-      if (!isChrome && !isSafari) {
-        navigate('/?close_app=true', { replace: true });
-        navigate(0, { replace: true });
-      } else {
-        window.open(config.tatvaRedirect);
-      }
-    }, 500);
-  }
+    showHideLogoModal();
+
+    try {
+      // Start loading
+      setIsLoading(true);
+
+      // Generate Basic Auth token
+      const credentials = btoa('client:secret');
+      const mobileNumber = profile?.um_contact && `+91${profile.um_contact}`;
+      const password = profile?.b2c && `uuid:${profile.b2c}`;
+
+      // Prepare form data
+      const formData = new URLSearchParams();
+      formData.append('client_id', 'client');
+      formData.append('username', mobileNumber);
+      formData.append('password', password);
+      formData.append('grant_type', 'custom_password');
+      formData.append('scope', 'openid,profile,read');
+
+      // Make API call
+      const response = await axios({
+        method: 'post',
+        url: 'https://diginext-authserver-uat.grayisland-b2cef66c.centralindia.azurecontainerapps.io/oauth2/token',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${credentials}`
+        },
+        data: formData
+      });
+
+      // Get token from response
+      const token = response.data.access_token;
+
+      // Handle redirect with token
+      setTimeout(() => {
+        if (!isChrome && !isSafari) {
+          navigate('/?close_app=true', { replace: true });
+          navigate(0, { replace: true });
+        } else {
+          const redirectUrl = `https://diginextdoctor72093uat.azureedge.net/?token=${token}`;
+          window.open(redirectUrl);
+        }
+        // Stop loading after redirect
+        setIsLoading(false);
+      }, 500);
+
+    } catch (error) {
+      console.error('Error fetching token:', error);
+      // Handle error appropriately
+      errorMessage('Failed to redirect to TatvaPedia');
+      // Stop loading on error
+      setIsLoading(false);
+    }
+  };
 
   const LOGO_MODAL = useMemo(() => {
     return (
@@ -259,10 +305,13 @@ function Header({ locationPath }) {
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>
-                <Button onClick={() => {
-                  window.Moengage.track_event("TP_Tatvapedia_Switch_cancelled");
-                  showHideLogoModal()
-                }} className="lh-lg btn btn-primary3 btn-41 px-4">
+                <Button 
+                  onClick={() => {
+                    window.Moengage.track_event("TP_Tatvapedia_Switch_cancelled");
+                    showHideLogoModal()
+                  }} 
+                  className="lh-lg btn btn-primary3 btn-41 px-4"
+                >
                   <span>No, Stay</span>
                 </Button>
               </div>
@@ -863,8 +912,15 @@ function Header({ locationPath }) {
     pdf.save('OPD-Plans.pdf');
   };
 
+  console.log(isLoading,"isLoading")
+
   return (
     <Navbar className="justify-content-between portal-header">
+      {isLoading && (
+        <div className="spinner-overlay">
+          <Spin size="large" />
+        </div>
+      )}
       <Container fluid>
         <div>
           <img onClick={() => {
