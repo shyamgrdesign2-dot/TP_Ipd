@@ -245,7 +245,7 @@ function Header({ locationPath }) {
       // Make API call
       const response = await axios({
         method: 'post',
-        url: 'https://diginext-authserver-uat.grayisland-b2cef66c.centralindia.azurecontainerapps.io/oauth2/token',
+        url: `${config.tatvaPedia_api_url}/oauth2/token`,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Authorization': `Basic ${credentials}`
@@ -262,7 +262,7 @@ function Header({ locationPath }) {
           navigate('/?close_app=true', { replace: true });
           navigate(0, { replace: true });
         } else {
-          const redirectUrl = `https://diginextdoctor72093uat.azureedge.net/?token=${token}`;
+          const redirectUrl = `${config.tatvaPedia_domain_url}/?token=${token}`;
           window.open(redirectUrl);
         }
         // Stop loading after redirect

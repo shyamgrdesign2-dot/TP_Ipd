@@ -52,4 +52,6 @@ export default {
   lite_api_key: env.lite_api_key,
   lite_secret_key: env.lite_secret_key,
   gen_rx_api_url: env.gen_rx_api_url,
+  tatvaPedia_api_url: env.tatvaPedia_api_url,
+  tatvaPedia_domain_url: env.tatvaPedia_domain_url,
 };
