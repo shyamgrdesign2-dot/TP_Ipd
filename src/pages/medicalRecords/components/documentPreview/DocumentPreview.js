@@ -313,7 +313,7 @@ const DocumentPreview = ({
       </Card>
 
       <div className="d-flex flex-column justify-content-center align-items-center">
-        {isPdf ? <Controls /> : null}
+        {isPdf && showControls ? <Controls /> : null}
 
         <div
           className="pdf-container"

@@ -10,6 +10,7 @@ import CreditImg from "../assets/images/credit_icon.svg"
 import config from "../config";
 import AvailableCredits from "../components/bulk_messages/AvailableCredits";
 import { getClinicCity } from "../utils/utils";
+import { isMobile } from "react-device-detect";
 
 function Welcome(props) {
 
@@ -93,18 +94,32 @@ function Welcome(props) {
             <div>
               {locationPath == "/" &&
                 <div className="d-lg-flex d-block">
-                  {/* <Button
+                  <Button
                     variant="outline-primary"
                     className="px-3 btn-41 me-3 btn-outline-primary d-flex align-items-center rounded-10px"
-                    style={{ background: 'rgba(255,255,255,0.5)' }}
-                    onClick={() => navigate('/add-appointment')}>
+                    style={{ 
+                      background: 'rgba(255,255,255,0.5)',
+                      height: isMobile ? '3.5rem' : '41px'
+                    }}
+                    onClick={() => {
+                      window.Moengage.track_event("TP_AddAppointment_addnewappointment", {
+                        "Doctor_specialty": profile?.dp_name,
+                        "Doctor_unique_id": profile?.doctor_unique_id,
+                        "Doctor_Name": profile?.um_name,
+                        "Doctor_mobile_No": profile?.um_contact,
+                      });
+                      navigate('/add-appointment');
+                    }}>
                     <i className="icon-Add me-2"></i>
                     {"Add New Appointment"}
-                  </Button> */}
+                  </Button>
 
                   <Button
                     variant="primary"
                     className="px-3 btn-41"
+                    style={{
+                      height: isMobile ? '3.5rem' : '41px'
+                    }}
                     onClick={clickWalkInConsultation}>
                     {"Start Walk-in Consultation"}
                   </Button>

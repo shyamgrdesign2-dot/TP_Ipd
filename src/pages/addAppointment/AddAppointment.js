@@ -31,6 +31,7 @@ import { isChrome, isSafari } from "react-device-detect";
 import config from "../../config";
 import axios from "axios";
 import { upsertDoctorSettingFlag } from "../../redux/doctorsSlice";
+import { getCaseTypes, listCategories } from "../../redux/appointmentsSlice";
 
 const TIME_SECTIONS_CONFIG = [
   { key: 'MIDNIGHT', label: 'Midnight', timeRange: '12AM - 3AM' },
@@ -96,6 +97,7 @@ const TimeSlotContainer = ({
   editTime,
   isSlotInPast,
   selectedDoctorOption,
+  selectedDate
 }) => {
   if (isLoading) {
     return (
@@ -131,6 +133,30 @@ const TimeSlotContainer = ({
   };
 
   const getTooltipContent = (slot) => {
+    // First check if slot is in the past
+    const isPastSlot = (slot) => {
+      const currentDateTime = dayjs();
+      const slotDateTime = dayjs(selectedDate)
+        .hour(dayjs(slot.start, "HH:mm:ss").hour())
+        .minute(dayjs(slot.start, "HH:mm:ss").minute())
+        .second(dayjs(slot.start, "HH:mm:ss").second());
+      
+      return currentDateTime.isAfter(slotDateTime);
+    };
+    
+    // If it's a past slot and not confirmed, show the past slot message
+    if (isPastSlot(slot) && slot.status !== "confirmed" && slot.status !== "unavailable" && slot.status !== "leave") {
+      return (
+        <div className="past-slot-tooltip">
+          <h4>Past Time Slot</h4>
+          <div>
+            This time slot has already passed and cannot be booked. Please select an available future slot for today's appointment.
+          </div>
+        </div>
+      );
+    }
+
+    // Rest of your existing switch case for other slot statuses
     switch (slot.status) {
       case "confirmed":
         return (
@@ -163,7 +189,7 @@ const TimeSlotContainer = ({
                   </div>
                   <div className="d-flex align-items-center gap-1 me-2">
                     <img src={clockIcon} alt="Tests" />
-                    {dayjs(slot.start, "HH:mm:ss").format("hh:mm A")}
+                    {`${dayjs(appointment.pam_app_time, "HH:mm:ss").format("hh:mm A")} (${appointment.pam_appointment_duration}min)`}
                   </div>
                 </div>
               ))}
@@ -227,9 +253,17 @@ const TimeSlotContainer = ({
       case "leave":
         return (
           <div className="leave-tooltip">
-            <h4>On Leave</h4>
-            <div>
-              Whatever remarks that doctor writes in the PHP will be shown here.
+            <div className="leave-tooltip">
+              {slot.leave?.remarks ? (
+                <>
+                  <h4>On Leave</h4>
+                  <div>{slot.leave?.remarks}</div>
+                </>
+              ) : (
+                <div className="d-flex align-items-center justify-content-center">
+                  On Leave
+                </div>
+              )}
             </div>
           </div>
         );
@@ -285,7 +319,6 @@ const TimeSlotContainer = ({
               title={getTooltipContent(slot)}
               overlayClassName="slot-tooltip"
               placement="top"
-              // open={slot.status === "unavailable" ? true : false}
             >
               {slotContent}
             </Tooltip>
@@ -310,6 +343,7 @@ function AddAppointment() {
   const [timeSlots, setTimeSlots] = useState({});
   const [tokenData, setTokenData] = useState(null);
   const { profile } = useSelector((state) => state.doctors);
+  const {caseTypes, categoriesList } = useSelector((state) => state.records);
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
@@ -486,7 +520,7 @@ function AddAppointment() {
   const [editDoctor, setEditDoctor] = useState(false);
   const [editTime, setEditTime] = useState(false);
   const [clickedPatient, setClickedPatient] = useState(null);
-  const [selectedCashType, setSelectedCashType] = useState(null);
+  const [selectedCaseType, setSelectedCaseType] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState(null);
   const [remarks, setRemarks] = useState("");
 
@@ -503,7 +537,7 @@ function AddAppointment() {
       setSelectedDate(dayjs(state?.selectedDate))
       setSelectedTimeSlot(state?.selectedTimeSlot)
       setSelectedSlotDetails(state?.selectedTimeSlot)
-      setSelectedCashType(state?.selectedCashType)
+      setSelectedCaseType(state?.selectedCaseType)
       setSelectedCategories(state?.selectedCategories)
       setRemarks(state?.remarks)
       handleConfirmAppointment();
@@ -524,13 +558,18 @@ function AddAppointment() {
     [confirmAppointment, editDoctor, editTime]
   );
 
-  const validation = () => !(clickedPatient && selectedCashType);
+  const validation = () => !(clickedPatient && selectedCaseType);
 
   // Update your time slot selection handler
   const handleTimeSlotSelect = (slot) => {
     setSelectedTimeSlot(slot);
     setSelectedSlotDetails(slot); // Store the complete slot object
   };
+
+  useEffect(() => {
+    categoriesList?.length === 0 && dispatch(listCategories())
+    caseTypes?.length === 0 && dispatch(getCaseTypes())
+  }, []);
 
   const onBookAppointmentPress = async () => {
     let sendData = {
@@ -546,8 +585,40 @@ function AddAppointment() {
         "HH:mm"
       ),
       appointment_duration: selectedSlotDetails?.availability?.increment || 5,
-      toct_id: selectedCashType,
+      toct_id: selectedCaseType,
     };
+
+    // First, add these helper functions to get names from IDs
+    const getCaseTypeName = (caseTypeId, caseTypes) => {
+      const caseType = caseTypes?.find(type => type.toct_id === Number(caseTypeId));
+      return caseType?.toct_type || '';
+    };
+
+    const getCategoryName = (categoryId, categoriesList) => {
+      const category = categoriesList?.find(cat => cat.pt_id === Number(categoryId));
+      return category?.pt_name || '';
+    };
+
+    // In your tracking event, use these functions
+    window.Moengage.track_event("TP_AddAppointment_bookappointment", {
+      "Doctor_specialty": profile?.dp_name,
+      "Doctor_unique_id": profile?.doctor_unique_id,
+      "Doctor_name": profile?.um_name,
+      "Doctor_mobile_No": profile?.um_contact,
+      "Patient_unique_id": clickedPatient?.patient_unique_id,
+      "Patient_name": clickedPatient?.pm_first_name,
+      "Pm_pid": clickedPatient?.pm_pid,
+      "Appointment_date": dayjs(selectedDate).format("YYYY-MM-DD"),
+      "Appointment_start_time": dayjs(
+        selectedSlotDetails.start,
+        "HH:mm:ss"
+      ).format("HH:mm"),
+      "Appointment_end_time": dayjs(selectedSlotDetails.end, "HH:mm:ss").format(
+        "HH:mm"
+      ),
+      "Case_type": getCaseTypeName(selectedCaseType, caseTypes),
+      "Category": getCategoryName(selectedCategories, categoriesList),
+    });
 
     // Only add category_id if selectedCategories exists
     if (selectedCategories) {
@@ -588,7 +659,7 @@ function AddAppointment() {
       setSelectedTimeSlot(null);
       setSelectedSlotDetails(null);
       setSelectedCategories(null);
-      setSelectedCashType(null);
+      setSelectedCaseType(null);
       setRemarks("");
       setClickedPatient(null);
 
@@ -725,6 +796,12 @@ function AddAppointment() {
                 onClick={() => {
                   myAvailability();
                   HandleSettingsDescription();
+                  window.Moengage.track_event("TP_AddAppointments_AvailabilitySettings", {
+                    "Doctor_specialty": profile?.dp_name,
+                    "Doctor_unique_id": profile?.doctor_unique_id,
+                    "Doctor_Name": profile?.um_name,
+                    "Doctor_mobile_No": profile?.um_contact,
+                  });
                 }}
                 className="px-3 btn-41 d-flex align-items-center rounded-10px"
               >
@@ -905,6 +982,7 @@ function AddAppointment() {
                     editTime={editTime}
                     isSlotInPast={isSlotInPast}
                     selectedDoctorOption={selectedDoctorOption}
+                    selectedDate={selectedDate}
                   />
                 </TabPane>
               );
@@ -938,8 +1016,8 @@ function AddAppointment() {
           selectedTimeSlot={selectedTimeSlot}
           clickedPatient={clickedPatient}
           setClickedPatient={setClickedPatient}
-          selectedCashType={selectedCashType}
-          setSelectedCashType={setSelectedCashType}
+          selectedCaseType={selectedCaseType}
+          setSelectedCaseType={setSelectedCaseType}
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
           remarks={remarks}

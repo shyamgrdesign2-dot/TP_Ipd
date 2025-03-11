@@ -13,8 +13,8 @@ function ConfirmAppointment({
     selectedTimeSlot,
     clickedPatient,
     setClickedPatient,
-    selectedCashType,
-    setSelectedCashType,
+    selectedCaseType,
+    setSelectedCaseType,
     selectedCategories,
     setSelectedCategories,
     remarks,
@@ -25,6 +25,7 @@ function ConfirmAppointment({
     const dispatch = useDispatch();
 
     const { patients, error, caseTypes, categoriesList } = useSelector((state) => state.records);
+    const { profile } = useSelector((state) => state.doctors);
     const { doctorList } = useSelector((state) => state.bulkMessages);
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -72,7 +73,7 @@ function ConfirmAppointment({
             label: AddPatientPlank(),
         });
         setSearchOptions(data);
-    }, [patients, selectedDoctor, selectedDate, selectedTimeSlot, selectedCashType, selectedCategories, remarks]);
+    }, [patients, selectedDoctor, selectedDate, selectedTimeSlot, selectedCaseType, selectedCategories, remarks]);
 
     const onSearchParent = useCallback(
         (query) => {
@@ -143,6 +144,14 @@ function ConfirmAppointment({
     };
 
     function goToAddPatient() {
+        // Track the event with appropriate data
+        window.Moengage.track_event("TP_AddAppointments_AddNewPatient", {
+            "Doctor_specialty": profile?.dp_name,
+            "Doctor_unique_id": profile?.doctor_unique_id,
+            "Doctor_Name": profile?.um_name,
+            "Doctor_mobile_No": profile?.um_contact,
+        });
+
         if (searchQuery.length === 10 && isNumeric(searchQuery)) {
             navigate("/add_patient", {
                 replace: true,
@@ -152,7 +161,7 @@ function ConfirmAppointment({
                     selectedDoctor: selectedDoctor,
                     selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
                     selectedTimeSlot: selectedTimeSlot,
-                    selectedCashType: selectedCashType,
+                    selectedCaseType: selectedCaseType,
                     selectedCategories: selectedCategories,
                     remarks: remarks
                 }
@@ -166,7 +175,7 @@ function ConfirmAppointment({
                     selectedDoctor: selectedDoctor,
                     selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
                     selectedTimeSlot: selectedTimeSlot,
-                    selectedCashType: selectedCashType,
+                    selectedCaseType: selectedCaseType,
                     selectedCategories: selectedCategories,
                     remarks: remarks
                 }
@@ -179,7 +188,7 @@ function ConfirmAppointment({
                     selectedDoctor: selectedDoctor,
                     selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
                     selectedTimeSlot: selectedTimeSlot,
-                    selectedCashType: selectedCashType,
+                    selectedCaseType: selectedCaseType,
                     selectedCategories: selectedCategories,
                     remarks: remarks
                 }
@@ -189,9 +198,9 @@ function ConfirmAppointment({
 
     const onSelectCaseType = useCallback(
         (data) => {
-            setSelectedCashType(data);
+            setSelectedCaseType(data);
         },
-        [selectedCashType]
+        [selectedCaseType]
     );
 
     const onSelectCategories = useCallback(
@@ -296,7 +305,7 @@ function ConfirmAppointment({
                                 ),
                             };
                         })}
-                        value={selectedCashType}
+                        value={selectedCaseType}
                         onSelect={onSelectCaseType}
                     />
                 </Col>

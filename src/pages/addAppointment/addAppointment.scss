@@ -226,6 +226,13 @@
                 cursor: not-allowed;
             }
 
+            &.leave{
+                background-color: #f5f5f5;
+                color: #666;
+                border: 1px solid #aeaeae;
+                cursor: not-allowed;
+            }
+
             &.available {
                 background-color: #fff;
                 // color: #4318FF;
@@ -281,7 +288,7 @@
 .slot-tooltip {
 
     min-width: 200px !important;
-    max-width: 510px !important;
+    max-width: 540px !important;
 
     .ant-tooltip .ant-tooltip-content {
         position: relative;

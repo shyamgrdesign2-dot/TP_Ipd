@@ -221,7 +221,7 @@ function Header({ locationPath }) {
     window.Moengage.track_event("TP_Tatvapedia_landing", {
       clinic_name,
     });
-    showHideLogoModal()
+    showHideLogoModal();
     setTimeout(() => {
       if (!isChrome && !isSafari) {
         navigate('/?close_app=true', { replace: true });
@@ -230,7 +230,7 @@ function Header({ locationPath }) {
         window.open(config.tatvaRedirect);
       }
     }, 500);
-  }
+  };
 
   const LOGO_MODAL = useMemo(() => {
     return (
@@ -259,10 +259,13 @@ function Header({ locationPath }) {
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>
-                <Button onClick={() => {
-                  window.Moengage.track_event("TP_Tatvapedia_Switch_cancelled");
-                  showHideLogoModal()
-                }} className="lh-lg btn btn-primary3 btn-41 px-4">
+                <Button 
+                  onClick={() => {
+                    window.Moengage.track_event("TP_Tatvapedia_Switch_cancelled");
+                    showHideLogoModal()
+                  }} 
+                  className="lh-lg btn btn-primary3 btn-41 px-4"
+                >
                   <span>No, Stay</span>
                 </Button>
               </div>

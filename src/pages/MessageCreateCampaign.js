@@ -11,7 +11,7 @@ import { listAllTemplate, listCategory, listDoctor, searchPatient, updatePatient
 import moment from "moment";
 import dayjs from "dayjs";
 
-import { errorMessage, getClinicCity, onlyNumberFormat } from "../utils/utils";
+import { errorMessage, getClinicCity, onlyDecimalFormat, onlyNumberFormat } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
 
 import VideoModal from "../common/VideoModal";
@@ -91,6 +91,8 @@ function MessageCreateCampaign() {
     const [end_time, setend_time] = useState('');
     const [date, setdate] = useState('');
     const [time, settime] = useState('');
+    const [surgery_name, setsurgery_name] = useState('');
+    const [amount, setamount] = useState('');
 
     const [dateRange, setDateRange] = useState({
         startDate: moment().format(dateFormat),
@@ -205,6 +207,12 @@ function MessageCreateCampaign() {
             if (campaign_data?.msg_rowData?.hasOwnProperty('time')) {
                 settime(campaign_data?.msg_rowData?.time)
             }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('surgery_name')) {
+                setsurgery_name(campaign_data?.msg_rowData?.surgery_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('amount')) {
+                setamount(campaign_data?.msg_rowData?.amount)
+            }
             const clinic_city = getClinicCity(profile?.hospital_data);
             window.Moengage.track_event("TP_Select_Mode_Of_Messages", {
                 "Doctor_specialty": profile?.dp_name,
@@ -309,6 +317,12 @@ function MessageCreateCampaign() {
             }
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('time')) {
                 settime(reuse_campaign_data?.msg_rowData?.time)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('surgery_name')) {
+                setsurgery_name(reuse_campaign_data?.msg_rowData?.surgery_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('amount')) {
+                setamount(reuse_campaign_data?.msg_rowData?.amount)
             }
             const clinic_city = getClinicCity(profile?.hospital_data);
             window.Moengage.track_event("TP_Select_Mode_Of_Messages", {
@@ -727,6 +741,7 @@ function MessageCreateCampaign() {
                                 width: clinic_name ? parseInt(clinic_name?.length * 7.55) >= 150 ? clinic_name?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={clinic_name}
                             onChange={(e) => setclinic_name(e.target.value)}
                             placeholder="Enter clinic name"
@@ -743,6 +758,7 @@ function MessageCreateCampaign() {
                                 width: clinic_address ? parseInt(clinic_address?.length * 7.55) >= 150 ? clinic_address?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={clinic_address}
                             onChange={(e) => setclinic_address(e.target.value)}
                             placeholder="Enter clinic address"
@@ -759,6 +775,7 @@ function MessageCreateCampaign() {
                                 width: festival_name ? parseInt(festival_name?.length * 7.55) >= 150 ? festival_name?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={festival_name}
                             onChange={(e) => setfestival_name(e.target.value)}
                             placeholder="Enter festival name"
@@ -775,6 +792,7 @@ function MessageCreateCampaign() {
                                 width: doctor_name ? parseInt(doctor_name?.length * 7.55) >= 150 ? doctor_name?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={doctor_name}
                             onChange={(e) => setdoctor_name(e.target.value)}
                             placeholder="Enter doctor name"
@@ -791,8 +809,9 @@ function MessageCreateCampaign() {
                                 width: phone_number ? parseInt(phone_number?.length * 7.55) >= 150 ? phone_number?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={10}
                             value={phone_number}
-                            onChange={(e) => setphone_number(e.target.value)}
+                            onChange={(e) => setphone_number(onlyNumberFormat(e.target.value))}
                             placeholder="Enter phone number"
                             className="me-1 my-1 fw-medium"
                         />
@@ -807,6 +826,7 @@ function MessageCreateCampaign() {
                                 width: link ? parseInt(link?.length * 7.55) >= 150 ? link?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={link}
                             onChange={(e) => setlink(e.target.value)}
                             placeholder="Enter link"
@@ -823,6 +843,7 @@ function MessageCreateCampaign() {
                                 width: review_link ? parseInt(review_link?.length * 7.55) >= 150 ? review_link?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={review_link}
                             onChange={(e) => setreview_link(e.target.value)}
                             placeholder="Enter review link"
@@ -839,6 +860,7 @@ function MessageCreateCampaign() {
                                 width: vaccine_name ? parseInt(vaccine_name?.length * 7.55) >= 150 ? vaccine_name?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={vaccine_name}
                             onChange={(e) => setvaccine_name(e.target.value)}
                             placeholder="Enter vaccine name"
@@ -855,6 +877,7 @@ function MessageCreateCampaign() {
                                 width: camp_name ? parseInt(camp_name?.length * 7.55) >= 150 ? camp_name?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={camp_name}
                             onChange={(e) => setcamp_name(e.target.value)}
                             placeholder="Enter Camp name"
@@ -871,6 +894,7 @@ function MessageCreateCampaign() {
                                 width: 90,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={year_no}
                             onChange={(e) => setyear_no(onlyNumberFormat(e.target.value))}
                             placeholder="Enter Year"
@@ -956,6 +980,40 @@ function MessageCreateCampaign() {
                         />
                     );
                 }
+                else if (part === 'surgery_name') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: surgery_name ? parseInt(surgery_name?.length * 7.55) >= 150 ? surgery_name?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            maxLength={30}
+                            value={surgery_name}
+                            onChange={(e) => setsurgery_name(e.target.value)}
+                            placeholder="Enter Surgery Name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'amount') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: amount ? parseInt(amount?.length * 7.55) >= 150 ? amount?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            maxLength={30}
+                            value={amount}
+                            onChange={(e) => setamount(onlyDecimalFormat(e.target.value))}
+                            placeholder="Enter Amount"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
             }
             return part;
         });
@@ -977,7 +1035,9 @@ function MessageCreateCampaign() {
         start_time,
         end_time,
         date,
-        time
+        time,
+        surgery_name,
+        amount
     ]);
 
     const TEMPLATE_TEXT = useMemo(() => {
@@ -998,6 +1058,8 @@ function MessageCreateCampaign() {
             .replace(/{end_time}/g, end_time ? end_time : '{end_time}')
             .replace(/{date}/g, date ? date : '{date}')
             .replace(/{time}/g, time ? time : '{time}')
+            .replace(/{surgery_name}/g, surgery_name ? surgery_name : '{surgery_name}')
+            .replace(/{amount}/g, amount ? amount : '{amount}')
     }, [
         template,
         clinic_name,
@@ -1015,7 +1077,9 @@ function MessageCreateCampaign() {
         start_time,
         end_time,
         date,
-        time
+        time,
+        surgery_name,
+        amount
     ])
 
 
@@ -1071,6 +1135,12 @@ function MessageCreateCampaign() {
                 }
                 else if (part === 'time') {
                     msg_rowData['time'] = time;
+                }
+                else if (part === 'surgery_name') {
+                    msg_rowData['surgery_name'] = surgery_name;
+                }
+                else if (part === 'amount') {
+                    msg_rowData['amount'] = amount;
                 }
             }
         })
@@ -1349,6 +1419,8 @@ function MessageCreateCampaign() {
                                                                 .replace(/{end_time}/g, `<label class="text-greycolor">{end_time}</label>`)
                                                                 .replace(/{date}/g, `<label class="text-greycolor">{date}</label>`)
                                                                 .replace(/{time}/g, `<label class="text-greycolor">{time}</label>`)
+                                                                .replace(/{surgery_name}/g, `<label class="text-greycolor">{surgery_name}</label>`)
+                                                                .replace(/{amount}/g, `<label class="text-greycolor">{amount}</label>`)
                                                         }}>
                                                     </div>
                                                 </div>
@@ -1506,6 +1578,7 @@ function MessageCreateCampaign() {
                                                                 inputMode="numeric"
                                                                 className="patient-range"
                                                                 value={min_age}
+                                                                maxLength={30}
                                                                 onChange={onChangeMinInput}
                                                                 addonAfter={selectAfter} />
                                                             <div className="px-3">-</div>
@@ -1513,6 +1586,7 @@ function MessageCreateCampaign() {
                                                                 inputMode="numeric"
                                                                 className="patient-range"
                                                                 value={max_age}
+                                                                maxLength={30}
                                                                 onChange={onChangeMaxInput}
                                                                 addonAfter={selectAfter} />
                                                         </div>
