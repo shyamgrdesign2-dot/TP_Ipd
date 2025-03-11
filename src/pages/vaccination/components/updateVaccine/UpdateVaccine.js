@@ -25,6 +25,7 @@ import {
   addGivenVaccines,
 } from "../../../../redux/vaccineSlice.js";
 import { useDispatch, useSelector } from "react-redux";
+import { isVaccineModifiedRecently } from "../../VaccinationHelper.js";
 
 const vaccineSites = [
   { label: "Left Arm", value: "Left Arm" },
@@ -80,6 +81,10 @@ const UpdateVaccine = ({
   const { patient_data } = state;
   const formRef = useRef(null);
   const { profile } = useSelector((state) => state.doctors);
+  const isGivenVaccineModifiedRecently = isVaccineModifiedRecently(
+    selectedVaccines?.[0]?.tvp_modify_date ||
+      selectedVaccines?.[0]?.tvp_create_date
+  );
 
   const handleDropdownVisibleChange = (index, isFocused = false) => {
     setIsOpen((prev) => {
@@ -403,6 +408,7 @@ const UpdateVaccine = ({
               <Radio
                 checked={selectedDate === "due"}
                 onClick={() => setSelectedDate("due")}
+                disabled={!isGivenVaccineModifiedRecently}
               >
                 Due Date
                 <div style={{ opacity: 0.5 }}>
@@ -421,6 +427,9 @@ const UpdateVaccine = ({
                 </Button>
               )}
             </div>
+            {!isGivenVaccineModifiedRecently
+              ? "Vaccine has already given"
+              : null}
           </div>
           {changeDate && (
             <div className="d-flex">
