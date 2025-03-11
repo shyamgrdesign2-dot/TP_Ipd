@@ -741,6 +741,7 @@ function MessageCreateCampaign() {
                                 width: clinic_name ? parseInt(clinic_name?.length * 7.55) >= 150 ? clinic_name?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={clinic_name}
                             onChange={(e) => setclinic_name(e.target.value)}
                             placeholder="Enter clinic name"
@@ -757,6 +758,7 @@ function MessageCreateCampaign() {
                                 width: clinic_address ? parseInt(clinic_address?.length * 7.55) >= 150 ? clinic_address?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={clinic_address}
                             onChange={(e) => setclinic_address(e.target.value)}
                             placeholder="Enter clinic address"
@@ -773,6 +775,7 @@ function MessageCreateCampaign() {
                                 width: festival_name ? parseInt(festival_name?.length * 7.55) >= 150 ? festival_name?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={festival_name}
                             onChange={(e) => setfestival_name(e.target.value)}
                             placeholder="Enter festival name"
@@ -789,6 +792,7 @@ function MessageCreateCampaign() {
                                 width: doctor_name ? parseInt(doctor_name?.length * 7.55) >= 150 ? doctor_name?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={doctor_name}
                             onChange={(e) => setdoctor_name(e.target.value)}
                             placeholder="Enter doctor name"
@@ -805,8 +809,9 @@ function MessageCreateCampaign() {
                                 width: phone_number ? parseInt(phone_number?.length * 7.55) >= 150 ? phone_number?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={phone_number}
-                            onChange={(e) => setphone_number(e.target.value)}
+                            onChange={(e) => setphone_number(onlyNumberFormat(e.target.value))}
                             placeholder="Enter phone number"
                             className="me-1 my-1 fw-medium"
                         />
@@ -821,6 +826,7 @@ function MessageCreateCampaign() {
                                 width: link ? parseInt(link?.length * 7.55) >= 150 ? link?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={link}
                             onChange={(e) => setlink(e.target.value)}
                             placeholder="Enter link"
@@ -837,6 +843,7 @@ function MessageCreateCampaign() {
                                 width: review_link ? parseInt(review_link?.length * 7.55) >= 150 ? review_link?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={review_link}
                             onChange={(e) => setreview_link(e.target.value)}
                             placeholder="Enter review link"
@@ -853,6 +860,7 @@ function MessageCreateCampaign() {
                                 width: vaccine_name ? parseInt(vaccine_name?.length * 7.55) >= 150 ? vaccine_name?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={vaccine_name}
                             onChange={(e) => setvaccine_name(e.target.value)}
                             placeholder="Enter vaccine name"
@@ -869,6 +877,7 @@ function MessageCreateCampaign() {
                                 width: camp_name ? parseInt(camp_name?.length * 7.55) >= 150 ? camp_name?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={camp_name}
                             onChange={(e) => setcamp_name(e.target.value)}
                             placeholder="Enter Camp name"
@@ -885,6 +894,7 @@ function MessageCreateCampaign() {
                                 width: 90,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={year_no}
                             onChange={(e) => setyear_no(onlyNumberFormat(e.target.value))}
                             placeholder="Enter Year"
@@ -979,6 +989,7 @@ function MessageCreateCampaign() {
                                 width: surgery_name ? parseInt(surgery_name?.length * 7.55) >= 150 ? surgery_name?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={surgery_name}
                             onChange={(e) => setsurgery_name(e.target.value)}
                             placeholder="Enter Surgery Name"
@@ -995,6 +1006,7 @@ function MessageCreateCampaign() {
                                 width: amount ? parseInt(amount?.length * 7.55) >= 150 ? amount?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
+                            maxLength={30}
                             value={amount}
                             onChange={(e) => setamount(onlyDecimalFormat(e.target.value))}
                             placeholder="Enter Amount"
@@ -1566,6 +1578,7 @@ function MessageCreateCampaign() {
                                                                 inputMode="numeric"
                                                                 className="patient-range"
                                                                 value={min_age}
+                                                                maxLength={30}
                                                                 onChange={onChangeMinInput}
                                                                 addonAfter={selectAfter} />
                                                             <div className="px-3">-</div>
@@ -1573,6 +1586,7 @@ function MessageCreateCampaign() {
                                                                 inputMode="numeric"
                                                                 className="patient-range"
                                                                 value={max_age}
+                                                                maxLength={30}
                                                                 onChange={onChangeMaxInput}
                                                                 addonAfter={selectAfter} />
                                                         </div>
