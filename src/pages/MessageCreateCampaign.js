@@ -809,7 +809,7 @@ function MessageCreateCampaign() {
                                 width: phone_number ? parseInt(phone_number?.length * 7.55) >= 150 ? phone_number?.length * 7.55 : 150 : 150,
                                 maxWidth: 300
                             }}
-                            maxLength={30}
+                            maxLength={10}
                             value={phone_number}
                             onChange={(e) => setphone_number(onlyNumberFormat(e.target.value))}
                             placeholder="Enter phone number"
