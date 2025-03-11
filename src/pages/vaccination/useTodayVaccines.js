@@ -12,12 +12,21 @@ export const useTodayVaccines = (caseManagerData) => {
   const getGivenAndDueVaccines = async () => {
     const given = await getGivenVaccineDetails(
       caseManagerData?.patient_data?.patient_unique_id,
-      caseManagerData?.patient_data?.patient_id
+      caseManagerData?.patient_data?.patient_id,
+      caseManagerData?.patient_data?.patient_consultaion_date
+        ? moment(
+            caseManagerData?.patient_data?.patient_consultaion_date
+          ).format("YYYY-MM-DD")
+        : moment().format("YYYY-MM-DD")
     );
     const due = await getOverridenDueDatesByDate(
       caseManagerData?.patient_data?.patient_unique_id,
       caseManagerData?.patient_data?.patient_id,
-      moment().format("YYYY-MM-DD")
+      caseManagerData?.patient_data?.patient_consultaion_date
+        ? moment(
+            caseManagerData?.patient_data?.patient_consultaion_date
+          ).format("YYYY-MM-DD")
+        : moment().format("YYYY-MM-DD")
     );
     setTodayVaccines({ given, due });
   };
