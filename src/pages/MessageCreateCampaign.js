@@ -11,7 +11,7 @@ import { listAllTemplate, listCategory, listDoctor, searchPatient, updatePatient
 import moment from "moment";
 import dayjs from "dayjs";
 
-import { errorMessage, getClinicCity, onlyNumberFormat } from "../utils/utils";
+import { errorMessage, getClinicCity, onlyDecimalFormat, onlyNumberFormat } from "../utils/utils";
 import { MESSAGE_KEY } from "../utils/constants";
 
 import VideoModal from "../common/VideoModal";
@@ -91,6 +91,8 @@ function MessageCreateCampaign() {
     const [end_time, setend_time] = useState('');
     const [date, setdate] = useState('');
     const [time, settime] = useState('');
+    const [surgery_name, setsurgery_name] = useState('');
+    const [amount, setamount] = useState('');
 
     const [dateRange, setDateRange] = useState({
         startDate: moment().format(dateFormat),
@@ -205,6 +207,12 @@ function MessageCreateCampaign() {
             if (campaign_data?.msg_rowData?.hasOwnProperty('time')) {
                 settime(campaign_data?.msg_rowData?.time)
             }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('surgery_name')) {
+                setsurgery_name(campaign_data?.msg_rowData?.surgery_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('amount')) {
+                setamount(campaign_data?.msg_rowData?.amount)
+            }
             const clinic_city = getClinicCity(profile?.hospital_data);
             window.Moengage.track_event("TP_Select_Mode_Of_Messages", {
                 "Doctor_specialty": profile?.dp_name,
@@ -309,6 +317,12 @@ function MessageCreateCampaign() {
             }
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('time')) {
                 settime(reuse_campaign_data?.msg_rowData?.time)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('surgery_name')) {
+                setsurgery_name(reuse_campaign_data?.msg_rowData?.surgery_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('amount')) {
+                setamount(reuse_campaign_data?.msg_rowData?.amount)
             }
             const clinic_city = getClinicCity(profile?.hospital_data);
             window.Moengage.track_event("TP_Select_Mode_Of_Messages", {
@@ -956,6 +970,38 @@ function MessageCreateCampaign() {
                         />
                     );
                 }
+                else if (part === 'surgery_name') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: surgery_name ? parseInt(surgery_name?.length * 7.55) >= 150 ? surgery_name?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={surgery_name}
+                            onChange={(e) => setsurgery_name(e.target.value)}
+                            placeholder="Enter Surgery Name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'amount') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: amount ? parseInt(amount?.length * 7.55) >= 150 ? amount?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            value={amount}
+                            onChange={(e) => setamount(onlyDecimalFormat(e.target.value))}
+                            placeholder="Enter Amount"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
             }
             return part;
         });
@@ -977,7 +1023,9 @@ function MessageCreateCampaign() {
         start_time,
         end_time,
         date,
-        time
+        time,
+        surgery_name,
+        amount
     ]);
 
     const TEMPLATE_TEXT = useMemo(() => {
@@ -998,6 +1046,8 @@ function MessageCreateCampaign() {
             .replace(/{end_time}/g, end_time ? end_time : '{end_time}')
             .replace(/{date}/g, date ? date : '{date}')
             .replace(/{time}/g, time ? time : '{time}')
+            .replace(/{surgery_name}/g, surgery_name ? surgery_name : '{surgery_name}')
+            .replace(/{amount}/g, amount ? amount : '{amount}')
     }, [
         template,
         clinic_name,
@@ -1015,7 +1065,9 @@ function MessageCreateCampaign() {
         start_time,
         end_time,
         date,
-        time
+        time,
+        surgery_name,
+        amount
     ])
 
 
@@ -1071,6 +1123,12 @@ function MessageCreateCampaign() {
                 }
                 else if (part === 'time') {
                     msg_rowData['time'] = time;
+                }
+                else if (part === 'surgery_name') {
+                    msg_rowData['surgery_name'] = surgery_name;
+                }
+                else if (part === 'amount') {
+                    msg_rowData['amount'] = amount;
                 }
             }
         })
@@ -1349,6 +1407,8 @@ function MessageCreateCampaign() {
                                                                 .replace(/{end_time}/g, `<label class="text-greycolor">{end_time}</label>`)
                                                                 .replace(/{date}/g, `<label class="text-greycolor">{date}</label>`)
                                                                 .replace(/{time}/g, `<label class="text-greycolor">{time}</label>`)
+                                                                .replace(/{surgery_name}/g, `<label class="text-greycolor">{surgery_name}</label>`)
+                                                                .replace(/{amount}/g, `<label class="text-greycolor">{amount}</label>`)
                                                         }}>
                                                     </div>
                                                 </div>
