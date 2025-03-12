@@ -356,21 +356,69 @@ function AddAppointment() {
   // Add loading state
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
-  // Add this function to determine current time section
+  // Helper function to find the first available section
+  const getFirstAvailableSection = (timeSlots) => {
+    const sections = ['MIDNIGHT', 'EARLY_MORNING', 'MORNING', 'AFTERNOON', 'EVENING', 'NIGHT'];
+    
+    for (const section of sections) {
+      const sectionSlots = timeSlots[section];
+      if (sectionSlots && sectionSlots.length > 0) {
+        // Check if section has valid slots (not just unavailable slots without appointments)
+        const hasValidSlots = sectionSlots.some(slot => 
+          slot.status !== 'unavailable' || 
+          (slot.appointments && slot.appointments.length > 0)
+        );
+        if (hasValidSlots) {
+          return section;
+        }
+      }
+    }
+    return 'MORNING'; // default fallback
+  };
+
+  // Helper function to find the next available section from current time
+  const getNextAvailableSection = (timeSlots, currentSection) => {
+    const sections = ['MIDNIGHT', 'EARLY_MORNING', 'MORNING', 'AFTERNOON', 'EVENING', 'NIGHT'];
+    const currentIndex = sections.indexOf(currentSection);
+    
+    // First check if current section has slots
+    if (timeSlots[currentSection]?.length > 0) {
+      const hasValidSlots = timeSlots[currentSection].some(slot => 
+        slot.status !== 'unavailable' || 
+        (slot.appointments && slot.appointments.length > 0)
+      );
+      if (hasValidSlots) return currentSection;
+    }
+    
+    // Look for next available section
+    for (let i = currentIndex + 1; i < sections.length; i++) {
+      const section = sections[i];
+      if (timeSlots[section]?.length > 0) {
+        const hasValidSlots = timeSlots[section].some(slot => 
+          slot.status !== 'unavailable' || 
+          (slot.appointments && slot.appointments.length > 0)
+        );
+        if (hasValidSlots) return section;
+      }
+    }
+    
+    return 'MORNING'; // default fallback
+  };
+
   const getCurrentTimeSection = () => {
     const currentHour = dayjs().hour();
 
     if (currentHour >= 0 && currentHour < 3) return "MIDNIGHT";
-    if (currentHour >= 3 && currentHour < 5) return "LATE_NIGHT";
+    if (currentHour >= 3 && currentHour < 5) return "EARLY_MORNING";
     if (currentHour >= 5 && currentHour < 12) return "MORNING";
     if (currentHour >= 12 && currentHour < 17) return "AFTERNOON";
     if (currentHour >= 17 && currentHour < 21) return "EVENING";
     if (currentHour >= 21 && currentHour <= 23) return "NIGHT";
 
-    return "MORNING"; // default fallback
+    return "MORNING";
   };
 
-  // Add state for active tab
+  // Initialize active tab based on current time
   const [activeTab, setActiveTab] = useState(getCurrentTimeSection());
 
   // Function to check if a slot is in the past
@@ -455,13 +503,13 @@ function AddAppointment() {
   }, []);
 
   useEffect(() => {
-    // Fetch slots when doctor or date changes
+    // Update useEffect for handling slots fetching
     const fetchSlots = async () => {
       if (selectedDoctor || (profile?.um_name && selectedDate)) {
         setIsLoadingSlots(true);
-        const token = await getToken();
         try {
-          var decoded = jwtDecode(token);
+          const token = await getToken();
+          const decoded = jwtDecode(token);
           setTokenData(decoded.result);
           const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
           const response = await getSlotsList(
@@ -472,11 +520,21 @@ function AddAppointment() {
           if (response?.status) {
             const generatedSlots = generateTimeSlots(response.slots || []);
             setTimeSlots(generatedSlots);
+            
+            // Determine which tab should be active
+            if (dayjs(selectedDate).isSame(dayjs(), 'day')) {
+              // For current date
+              const currentSection = getCurrentTimeSection();
+              setActiveTab(getNextAvailableSection(generatedSlots, currentSection));
+            } else {
+              // For past or future dates
+              setActiveTab(getFirstAvailableSection(generatedSlots));
+            }
           } else {
             errorMessage(response?.message || "Failed to fetch slots");
             setTimeSlots({
               MIDNIGHT: [],
-              LATE_NIGHT: [],
+              EARLY_MORNING: [],
               MORNING: [],
               AFTERNOON: [],
               EVENING: [],
@@ -670,6 +728,7 @@ function AddAppointment() {
         const generatedSlots = generateTimeSlots(slotsResponse.slots || []);
         setTimeSlots(generatedSlots);
       }
+      navigate("/");
     } else {
       errorMessage(response?.message);
     }
@@ -804,6 +863,7 @@ function AddAppointment() {
                   });
                 }}
                 className="px-3 btn-41 d-flex align-items-center rounded-10px"
+                disabled={selectedDoctor != decodedToken?.result?.user_id}
               >
                 <i className="icon-calendar me-2"></i>
                 {"Availability Settings"}
@@ -949,7 +1009,7 @@ function AddAppointment() {
             defaultActiveKey={getCurrentTimeSection()}
           >
             {TIME_SECTIONS_CONFIG.map(section => {
-              // Skip rendering Midnight and Late Night sections if:
+              // Skip rendering Midnight and Early Morning sections if:
               // 1. They have no slots, OR
               // 2. They only have a single unavailable slot without appointments
               if (section.key === 'MIDNIGHT' || section.key === 'EARLY_MORNING') {
