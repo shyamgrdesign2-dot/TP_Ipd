@@ -329,6 +329,8 @@ function ConfirmAppointment({
                         })}
                         value={selectedCategories}
                         onSelect={onSelectCategories}
+                        allowClear={true}
+                        onChange={(value) => setSelectedCategories(value)}
                     />
                 </Col>
             </Row>
