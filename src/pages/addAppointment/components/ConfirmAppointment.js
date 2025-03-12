@@ -13,8 +13,8 @@ function ConfirmAppointment({
     selectedTimeSlot,
     clickedPatient,
     setClickedPatient,
-    selectedCashType,
-    setSelectedCashType,
+    selectedCaseType,
+    setSelectedCaseType,
     selectedCategories,
     setSelectedCategories,
     remarks,
@@ -72,7 +72,7 @@ function ConfirmAppointment({
             label: AddPatientPlank(),
         });
         setSearchOptions(data);
-    }, [patients, selectedDoctor, selectedDate, selectedTimeSlot, selectedCashType, selectedCategories, remarks]);
+    }, [patients, selectedDoctor, selectedDate, selectedTimeSlot, selectedCaseType, selectedCategories, remarks]);
 
     const onSearchParent = useCallback(
         (query) => {
@@ -152,7 +152,7 @@ function ConfirmAppointment({
                     selectedDoctor: selectedDoctor,
                     selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
                     selectedTimeSlot: selectedTimeSlot,
-                    selectedCashType: selectedCashType,
+                    selectedCaseType: selectedCaseType,
                     selectedCategories: selectedCategories,
                     remarks: remarks
                 }
@@ -166,7 +166,7 @@ function ConfirmAppointment({
                     selectedDoctor: selectedDoctor,
                     selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
                     selectedTimeSlot: selectedTimeSlot,
-                    selectedCashType: selectedCashType,
+                    selectedCaseType: selectedCaseType,
                     selectedCategories: selectedCategories,
                     remarks: remarks
                 }
@@ -179,7 +179,7 @@ function ConfirmAppointment({
                     selectedDoctor: selectedDoctor,
                     selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
                     selectedTimeSlot: selectedTimeSlot,
-                    selectedCashType: selectedCashType,
+                    selectedCaseType: selectedCaseType,
                     selectedCategories: selectedCategories,
                     remarks: remarks
                 }
@@ -189,9 +189,9 @@ function ConfirmAppointment({
 
     const onSelectCaseType = useCallback(
         (data) => {
-            setSelectedCashType(data);
+            setSelectedCaseType(data);
         },
-        [selectedCashType]
+        [selectedCaseType]
     );
 
     const onSelectCategories = useCallback(
@@ -296,7 +296,7 @@ function ConfirmAppointment({
                                 ),
                             };
                         })}
-                        value={selectedCashType}
+                        value={selectedCaseType}
                         onSelect={onSelectCaseType}
                     />
                 </Col>
@@ -318,6 +318,8 @@ function ConfirmAppointment({
                         })}
                         value={selectedCategories}
                         onSelect={onSelectCategories}
+                        allowClear={true}
+                        onChange={(value) => setSelectedCategories(value)}
                     />
                 </Col>
             </Row>
