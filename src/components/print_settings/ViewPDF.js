@@ -4801,7 +4801,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             ) : option?.is_custom_module === true && option?.enable === 'Y' && option?.custom_status === 'Y' && customModule?.content?.length > 0 ? (
                                 option?.format === 'inline' ? (
                                     <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
                                         {customModule?.content?.map((item, i) => {
                                             return (
                                                 <Text key={i}>
@@ -4815,7 +4815,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </Text>
                                 ) : option?.format === 'listview' ? (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
                                         {customModule?.content.map((item, i) => {
                                             return (
                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
@@ -4830,7 +4830,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </View>
                                 ) : (customModule?.content?.some((item) => item.title || item.notes) &&
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>{customModule?.name}:&nbsp;</Text>
+                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>{customModule?.name}:&nbsp;</Text>
                                         <View style={styles.table}>
                                             <View style={styles.headerRow} fixed>
                                                 {customModule?.content?.some((item) => item.title) && <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>}
