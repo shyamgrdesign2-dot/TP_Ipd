@@ -8,6 +8,8 @@ import { isAlphabet, isNumeric } from "../../../utils/utils";
 
 function ConfirmAppointment({
     handleConfirmAppointment,
+    searchQuery,
+    setSearchQuery,
     selectedDoctor,
     selectedDate,
     selectedTimeSlot,
@@ -28,7 +30,6 @@ function ConfirmAppointment({
     const { profile } = useSelector((state) => state.doctors);
     const { doctorList } = useSelector((state) => state.bulkMessages);
 
-    const [searchQuery, setSearchQuery] = useState("");
     const [searchOptions, setSearchOptions] = useState([]);
 
     useEffect(() => {
