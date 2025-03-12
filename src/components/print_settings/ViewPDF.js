@@ -4482,7 +4482,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 key={inputIndex}
                                                                                 style={{
                                                                                     color: "#171725",
-                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontFamily: getIndianLanguageFont(input.value, printSettings?.page_format?.font_family),
                                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                                     fontWeight: 400,
                                                                                 }}
@@ -4598,7 +4598,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 key={inputIndex}
                                                                                 style={{
                                                                                     color: "#171725",
-                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontFamily: getIndianLanguageFont(input.value, printSettings?.page_format?.font_family),
                                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                                     fontWeight: 400,
                                                                                 }}
@@ -4723,7 +4723,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                             styles.cell,
                                                                                             {
                                                                                                 flex: 1,
-                                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                                fontFamily: getIndianLanguageFont(testResult.value, printSettings?.page_format?.font_family),
                                                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                                                 fontWeight: 400,
                                                                                                 color: "#000",
