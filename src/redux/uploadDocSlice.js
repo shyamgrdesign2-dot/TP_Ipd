@@ -115,13 +115,13 @@ const uploadDocSlice = createSlice({
           return {
             id: e?.orderId,
             category_id: -3,
-            name: e?.serviceName,
-            display_name: e?.serviceName,
+            name: `${e?.serviceName}-${e?.orderStatus}`,
+            display_name: `${e?.serviceName}-${e?.orderStatus}`,
             url: null,
             um_id: action.meta.arg.um_id,
             thumbnail_url: '',
-            created_date: moment(e?.orderConformedDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-            investigation_date: moment(e?.orderConformedDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+            created_date: moment(e?.orderConformedDate).format('YYYY-MM-DD'),
+            investigation_date: moment(e?.orderConformedDate).format('YYYY-MM-DD'),
             notes: ''
           }
         })
