@@ -70,7 +70,7 @@ import Obstetric from "../obstetric/Obstetric";
 import TabObstetricList from "../obstetric/components/obstetricList/TabObstetricList";
 import { fetchObstetricDetails } from "../obstetric/service";
 import { addObstetricDetails } from "../../redux/obstetricSlice";
-import { setAllUploadedDocs, setPatientUploadedDocs, setUploadDocCategories, zydusDocsList } from "../../redux/uploadDocSlice";
+import { setAllUploadedDocs, setPatientUploadedDocs, setUploadDocCategories, zydusDocsList, zydusRadioList } from "../../redux/uploadDocSlice";
 import { fetchAllDocumentCategories, fetchAllPatientDocs, fetchDocsUploadedByPatient } from "../medicalRecords/service";
 import TabUploadDocumentList from "../medicalRecords/components/uploadDocumentList/TabUploadDocumentList";
 import UploadDocument from "../medicalRecords/UploadDocument";
@@ -274,7 +274,8 @@ function TabPrescription() {
     );
     const tokenData = decodedToken?.result;
     if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB && patient_data.mrno != null && patient_data.mrno != undefined) {
-      dispatch(zydusDocsList({ mrno: patient_data.mrno }))
+      dispatch(zydusDocsList({ mrno: patient_data.mrno, um_id: tokenData?.user_id }))
+      dispatch(zydusRadioList({ mrno: patient_data.mrno, um_id: tokenData?.user_id }))
     }
   };
 
