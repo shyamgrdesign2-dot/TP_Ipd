@@ -153,7 +153,10 @@ export const isVaccineModifiedRecently = (modifyDate) => {
 
   const modifiedDateTime = moment(modifyDate);
   const now = moment();
-  const hoursDifference = now.diff(modifiedDateTime, "hours");
 
+  // Calculate absolute difference in hours including decimals for minutes and seconds
+  const hoursDifference = Math.abs(now.diff(modifiedDateTime, "hours", true));
+
+  // Return true if difference is less than 24 hours
   return hoursDifference <= 24;
 };
