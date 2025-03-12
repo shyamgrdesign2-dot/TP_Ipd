@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Button from "react-bootstrap/Button";
 import { Drawer } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { userCredit } from "../redux/bulkMessagesSlice";
 
@@ -24,6 +24,9 @@ function Welcome(props) {
 
   const [availableCredit, setAvailableCredit] = useState(false);
   const decodedToken = getDecodedToken();
+
+  const location = useLocation();
+  const isFromAddAppointment = location.state?.from === "/add-appointment";
 
   const clickWalkInConsultation = () => {
     const businessId = decodedToken?.result?.hospital_business_id;
@@ -63,7 +66,12 @@ function Welcome(props) {
         <div className="bg-welcome d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             {backVisible && (
-              <div onClick={() => navigate(-1)} className="lh-1 me-1 px-2 text-dark cursor-pointer">
+              <div onClick={() => isFromAddAppointment ? navigate("/add-appointment", {
+                replace: true,
+                state: {
+                  ...location.state
+                }
+              }) : navigate(-1)} className="lh-1 me-1 px-2 text-dark cursor-pointer">
                 <i className="fs-3 icon-right"></i>
               </div>
             )}
@@ -97,7 +105,7 @@ function Welcome(props) {
                   <Button
                     variant="outline-primary"
                     className="px-3 btn-41 me-3 btn-outline-primary d-flex align-items-center rounded-10px"
-                    style={{ 
+                    style={{
                       background: 'rgba(255,255,255,0.5)',
                       height: isMobile ? '3.5rem' : '41px'
                     }}

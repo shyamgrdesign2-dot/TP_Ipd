@@ -140,10 +140,10 @@ const TimeSlotContainer = ({
         .hour(dayjs(slot.start, "HH:mm:ss").hour())
         .minute(dayjs(slot.start, "HH:mm:ss").minute())
         .second(dayjs(slot.start, "HH:mm:ss").second());
-      
+
       return currentDateTime.isAfter(slotDateTime);
     };
-    
+
     // If it's a past slot and not confirmed, show the past slot message
     if (isPastSlot(slot) && slot.status !== "confirmed" && slot.status !== "unavailable" && slot.status !== "leave") {
       return (
@@ -286,10 +286,10 @@ const TimeSlotContainer = ({
           const slotContent = (
             <div
               className={`slot ${slotStatus} ${isPast &&
-                  slotStatus !== "confirmed" &&
-                  slotStatus !== "unavailable"
-                  ? "past"
-                  : ""
+                slotStatus !== "confirmed" &&
+                slotStatus !== "unavailable"
+                ? "past"
+                : ""
                 }`}
               onClick={() => {
                 if (slot.status === "available" && !isPast) {
@@ -343,7 +343,7 @@ function AddAppointment() {
   const [timeSlots, setTimeSlots] = useState({});
   const [tokenData, setTokenData] = useState(null);
   const { profile } = useSelector((state) => state.doctors);
-  const {caseTypes, categoriesList } = useSelector((state) => state.records);
+  const { caseTypes, categoriesList } = useSelector((state) => state.records);
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
@@ -356,21 +356,69 @@ function AddAppointment() {
   // Add loading state
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
-  // Add this function to determine current time section
+  // Helper function to find the first available section
+  const getFirstAvailableSection = (timeSlots) => {
+    const sections = ['MIDNIGHT', 'EARLY_MORNING', 'MORNING', 'AFTERNOON', 'EVENING', 'NIGHT'];
+
+    for (const section of sections) {
+      const sectionSlots = timeSlots[section];
+      if (sectionSlots && sectionSlots.length > 0) {
+        // Check if section has valid slots (not just unavailable slots without appointments)
+        const hasValidSlots = sectionSlots.some(slot =>
+          slot.status !== 'unavailable' ||
+          (slot.appointments && slot.appointments.length > 0)
+        );
+        if (hasValidSlots) {
+          return section;
+        }
+      }
+    }
+    return 'MORNING'; // default fallback
+  };
+
+  // Helper function to find the next available section from current time
+  const getNextAvailableSection = (timeSlots, currentSection) => {
+    const sections = ['MIDNIGHT', 'EARLY_MORNING', 'MORNING', 'AFTERNOON', 'EVENING', 'NIGHT'];
+    const currentIndex = sections.indexOf(currentSection);
+
+    // First check if current section has slots
+    if (timeSlots[currentSection]?.length > 0) {
+      const hasValidSlots = timeSlots[currentSection].some(slot =>
+        slot.status !== 'unavailable' ||
+        (slot.appointments && slot.appointments.length > 0)
+      );
+      if (hasValidSlots) return currentSection;
+    }
+
+    // Look for next available section
+    for (let i = currentIndex + 1; i < sections.length; i++) {
+      const section = sections[i];
+      if (timeSlots[section]?.length > 0) {
+        const hasValidSlots = timeSlots[section].some(slot =>
+          slot.status !== 'unavailable' ||
+          (slot.appointments && slot.appointments.length > 0)
+        );
+        if (hasValidSlots) return section;
+      }
+    }
+
+    return 'MORNING'; // default fallback
+  };
+
   const getCurrentTimeSection = () => {
     const currentHour = dayjs().hour();
 
     if (currentHour >= 0 && currentHour < 3) return "MIDNIGHT";
-    if (currentHour >= 3 && currentHour < 5) return "LATE_NIGHT";
+    if (currentHour >= 3 && currentHour < 5) return "EARLY_MORNING";
     if (currentHour >= 5 && currentHour < 12) return "MORNING";
     if (currentHour >= 12 && currentHour < 17) return "AFTERNOON";
     if (currentHour >= 17 && currentHour < 21) return "EVENING";
     if (currentHour >= 21 && currentHour <= 23) return "NIGHT";
 
-    return "MORNING"; // default fallback
+    return "MORNING";
   };
 
-  // Add state for active tab
+  // Initialize active tab based on current time
   const [activeTab, setActiveTab] = useState(getCurrentTimeSection());
 
   // Function to check if a slot is in the past
@@ -455,13 +503,13 @@ function AddAppointment() {
   }, []);
 
   useEffect(() => {
-    // Fetch slots when doctor or date changes
+    // Update useEffect for handling slots fetching
     const fetchSlots = async () => {
       if (selectedDoctor || (profile?.um_name && selectedDate)) {
         setIsLoadingSlots(true);
-        const token = await getToken();
         try {
-          var decoded = jwtDecode(token);
+          const token = await getToken();
+          const decoded = jwtDecode(token);
           setTokenData(decoded.result);
           const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
           const response = await getSlotsList(
@@ -472,11 +520,21 @@ function AddAppointment() {
           if (response?.status) {
             const generatedSlots = generateTimeSlots(response.slots || []);
             setTimeSlots(generatedSlots);
+
+            // Determine which tab should be active
+            if (dayjs(selectedDate).isSame(dayjs(), 'day')) {
+              // For current date
+              const currentSection = getCurrentTimeSection();
+              setActiveTab(getNextAvailableSection(generatedSlots, currentSection));
+            } else {
+              // For past or future dates
+              setActiveTab(getFirstAvailableSection(generatedSlots));
+            }
           } else {
             errorMessage(response?.message || "Failed to fetch slots");
             setTimeSlots({
               MIDNIGHT: [],
-              LATE_NIGHT: [],
+              EARLY_MORNING: [],
               MORNING: [],
               AFTERNOON: [],
               EVENING: [],
@@ -517,6 +575,7 @@ function AddAppointment() {
 
   const [confirmAppointment, setConfirmAppointment] = useState(false);
 
+  const [searchQuery, setSearchQuery] = useState("");
   const [editDoctor, setEditDoctor] = useState(false);
   const [editTime, setEditTime] = useState(false);
   const [clickedPatient, setClickedPatient] = useState(null);
@@ -656,6 +715,7 @@ function AddAppointment() {
       });
 
       // Reset form states
+      setSearchQuery('')
       setSelectedTimeSlot(null);
       setSelectedSlotDetails(null);
       setSelectedCategories(null);
@@ -670,6 +730,7 @@ function AddAppointment() {
         const generatedSlots = generateTimeSlots(slotsResponse.slots || []);
         setTimeSlots(generatedSlots);
       }
+      navigate(-1);
     } else {
       errorMessage(response?.message);
     }
@@ -804,6 +865,7 @@ function AddAppointment() {
                   });
                 }}
                 className="px-3 btn-41 d-flex align-items-center rounded-10px"
+                disabled={selectedDoctor != decodedToken?.result?.user_id}
               >
                 <i className="icon-calendar me-2"></i>
                 {"Availability Settings"}
@@ -862,16 +924,16 @@ function AddAppointment() {
                 key={date.format("YYYY-MM-DD")}
                 onClick={() => handleChipClick(date)}
                 className={`date-chip ${date.format("YYYY-MM-DD") ===
-                    selectedDate.format("YYYY-MM-DD")
-                    ? "active"
-                    : ""
+                  selectedDate.format("YYYY-MM-DD")
+                  ? "active"
+                  : ""
                   }`}
               >
                 <div
                   className={`${date.format("YYYY-MM-DD") ===
-                      selectedDate.format("YYYY-MM-DD")
-                      ? "date-chip active"
-                      : ""
+                    selectedDate.format("YYYY-MM-DD")
+                    ? "date-chip active"
+                    : ""
                     }`}
                 >
                   {date.format("D")}
@@ -919,11 +981,11 @@ function AddAppointment() {
                   <span className="title-common">Disclaimer:</span> The slots
                   below are based on the default availability settings. To
                   customise your schedule, update your availability in
-                  <button 
+                  <button
                     onClick={() => {
                       myAvailability();
                       HandleSettingsDescription();
-                    }} 
+                    }}
                     className="availability-settings-text-btn"
                   >
                     Availability Settings
@@ -949,27 +1011,27 @@ function AddAppointment() {
             defaultActiveKey={getCurrentTimeSection()}
           >
             {TIME_SECTIONS_CONFIG.map(section => {
-              // Skip rendering Midnight and Late Night sections if:
+              // Skip rendering Midnight and Early Morning sections if:
               // 1. They have no slots, OR
               // 2. They only have a single unavailable slot without appointments
               if (section.key === 'MIDNIGHT' || section.key === 'EARLY_MORNING') {
                 const sectionSlots = timeSlots[section.key];
-                
+
                 // Check if there are no slots
                 if (!sectionSlots || sectionSlots.length === 0) {
                   return null;
                 }
-                
+
                 // Check if there's only one slot and it's unavailable without appointments
-                if (sectionSlots.length === 1 && 
-                    sectionSlots[0].status === 'unavailable' && 
-                    (!sectionSlots[0].appointments || sectionSlots[0].appointments.length === 0)) {
+                if (sectionSlots.length === 1 &&
+                  sectionSlots[0].status === 'unavailable' &&
+                  (!sectionSlots[0].appointments || sectionSlots[0].appointments.length === 0)) {
                   return null;
                 }
               }
 
               return (
-                <TabPane 
+                <TabPane
                   key={section.key}
                   tab={`${section.label}`}
                 >
@@ -1011,6 +1073,8 @@ function AddAppointment() {
       >
         <ConfirmAppointment
           handleConfirmAppointment={handleConfirmAppointment}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
           selectedDoctor={selectedDoctor}
           selectedDate={selectedDate}
           selectedTimeSlot={selectedTimeSlot}
