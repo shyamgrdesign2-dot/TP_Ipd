@@ -131,6 +131,10 @@ ApiAppointments.zydusDocsList = function (mrno) {
   return api.get(`/ictApiProxy/emr/lab/result/list?mrno=${mrno}`, baseZydusProxyUrl);
 };
 
+ApiAppointments.zydusRadioList = function (mrno) {
+  return api.get(`/ictApiProxy/emr/serviceorder/radiology/orders?mrno=${mrno}`, baseZydusProxyUrl);
+};
+
 ApiAppointments.placeIctOrder = function (data) {
   return api.post(`/appointment/placeIctOrder`, data, baseZydusUrl);
 };
