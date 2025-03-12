@@ -517,6 +517,7 @@ function MedicalCertificate() {
             <div className="bg-body p-3" style={{ height: 'calc(100vh - 60px)' }}>
                 <Input allowClear className="popinput mb-3" onChange={onTitleChange} value={title} placeholder="Certificate Title" />
                 <JoditEditor
+                    key={'JoditEditor123'}
                     ref={editor}
                     config={config}
                     value={content
