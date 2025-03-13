@@ -68,7 +68,7 @@ const RecordCard = ({
   }, []);
 
   const updatedFileName = shortenText(display_name);
-  const categoryName = category_id === -2 ? 'Zydus' : uploadDocCategories.find(
+  const categoryName = category_id === -2 ? 'Zydus Lab' : category_id === -3 ? 'Zydus Radio' : uploadDocCategories.find(
     (item) => item?.category_id === category_id
   )?.category_name;
 
@@ -181,9 +181,9 @@ const RecordCard = ({
             localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN) == null
               ? null
               : JSON.parse(
-                  localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN)
-                )
-          }`,
+                localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN)
+              )
+            }`,
         };
       }
 
@@ -239,7 +239,11 @@ const RecordCard = ({
   };
 
   const handleThumbnailClick = () => {
-    setShowPreview(true);
+    if (category_id === -3) {
+      window.open(`http://10.11.100.106:6162/Launch_Viewer.asp?Username=hisuser&Password=hisuser&patientid=${patient_data.mrno}`);
+    } else {
+      setShowPreview(true);
+    }
   };
 
   return (
