@@ -382,7 +382,7 @@ function Cardiology(props) {
     if (showDigitalRx){
       await window.open(printUrl)
     }
-    else if(showDigitalGenRx) {
+    else if(showDigitalGenRx && !isSmartRxFile) {
       const urlObj = new URL(viewCaseManagerData?.print_url);
       urlObj.searchParams.set("voiceRxDigitize", "true");
       const updatedUrl = urlObj.toString();
