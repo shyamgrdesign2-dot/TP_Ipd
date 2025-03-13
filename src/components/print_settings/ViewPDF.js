@@ -4796,7 +4796,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     {mode == NORMAL ? (
                         printSettings?.letterhead_format === 0 ? (
                             <View>
-                                <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />
+                                {printSettings?.header_footer?.footer?.title && (<View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />)}
                                 <Text style={{ marginTop: PX_TO_PT * 8, color: '#171725', fontFamily: 'Roboto', fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size, fontWeight: 400, maxLines: 1 }}>{printSettings?.header_footer?.footer?.title}</Text>
                             </View>
                         ) : printSettings?.letterhead_format === 1 && (
@@ -4809,7 +4809,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     ) : (
                         printSettings?.whatsapp_letterhead_format === 0 ? (
                             <View>
-                                <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />
+                                {printSettings?.header_footer?.footer?.title && (<View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />)}
                                 <Text style={{ marginTop: PX_TO_PT * 8, color: '#171725', fontFamily: 'Roboto', fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size, fontWeight: 400, maxLines: 1 }}>{printSettings?.header_footer?.footer?.title}</Text>
                             </View>
                         ) : printSettings?.whatsapp_letterhead_format === 1 && (
