@@ -2363,8 +2363,7 @@ function ObsHistoryListView({
                               <Text
                                 style={{
                                   color: "#171725",
-                                  fontFamily:
-                                    printSettings?.page_format?.font_family,
+                                  fontFamily: getIndianLanguageFont(item?.master?.name, printSettings?.page_format?.font_family),
                                   fontSize:
                                     PX_TO_PT *
                                     printSettings?.page_format?.font_size,
