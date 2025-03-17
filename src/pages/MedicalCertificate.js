@@ -364,10 +364,18 @@ function MedicalCertificate() {
     const onEditorChange = (newContent) => {
         // console.log(newContent)
         const allInputs = document.querySelectorAll('input[type="date"][id], input[type="search"][id]');
-        allInputs.forEach(input => input.type == 'date' ? input.addEventListener('change', handleInputChange) : input.addEventListener('keyup', handleInputChange));
 
-        // removeLabelWithoutContent();
-
+        allInputs.forEach((input) => {
+            if (input.type === 'date') {
+                input.removeEventListener("change", handleInputChange);
+                input.removeEventListener("input", handleInputChange);
+                input.addEventListener("change", handleInputChange);
+                input.addEventListener("input", handleInputChange);
+            } else {
+                input.removeEventListener("keyup", handleInputChange);
+                input.addEventListener("keyup", handleInputChange);
+            }
+        });
     }
 
     function removeLabelWithoutContent() {
@@ -409,7 +417,7 @@ function MedicalCertificate() {
         if (valueToUpdate) {
           valueToUpdate.removeAttribute('value');
                 if (inputElement.type === "date") {
-                    const newDateValue = inputElement.value;
+                    const newDateValue = moment(inputElement.value).format('DD/MM/YYYY');
                     // console.log(newDateValue)
           valueToUpdate.setAttribute('value', newDateValue);
                 } else if (inputElement.type === "search") {
