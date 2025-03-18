@@ -11,8 +11,9 @@ import {
   Flex,
   Divider,
   Space,
+  message,
 } from "antd";
-import { useEffect, useState, memo, useRef } from "react";
+import { useEffect, useState, memo, useRef, useMemo } from "react";
 import "./updateVaccine.scss";
 import moment from "moment";
 import SuccessPopup from "../SuccessPopup.js";
@@ -25,6 +26,12 @@ import {
   addGivenVaccines,
 } from "../../../../redux/vaccineSlice.js";
 import { useDispatch, useSelector } from "react-redux";
+import { isVaccineModifiedRecently } from "../../VaccinationHelper.js";
+import CommonModal from "../../../../common/CommonModal.js";
+import alertIcon from "../../../../assets/images/alertIcon.svg";
+import successIcon from "../../../../assets/images/end-visit.svg";
+import closeIcon from "../../../../assets/images/close-visit.svg";
+import { MESSAGE_KEY } from "../../../../utils/constants.js";
 
 const vaccineSites = [
   { label: "Left Arm", value: "Left Arm" },
@@ -54,6 +61,7 @@ const UpdateVaccine = ({
   const [dayFromToday, setDayFromToday] = useState();
   const [dueDateNote, setDueDateNote] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showDefaultPopup, setShowDefaultPopup] = useState(null);
   const dayFromTodayList = [
     { label: "Tomorrow", value: 1 },
     { label: "1 week", value: 7 },
@@ -63,12 +71,18 @@ const UpdateVaccine = ({
     { label: "3 months", value: 90 },
     { label: "6 months", value: 180 },
   ];
-  const [vaccineDetails, setVaccineDetails] = useState(
-    selectedVaccines.reduce((acc, item) => {
-      acc[item.tvac_name] = undefined;
-      return acc;
-    }, {})
+  const initialVaccineDetails = useMemo(
+    () =>
+      (selectedVaccines || [])?.reduce((acc, item) => {
+        if (item?.tvac_name) {
+          acc[item?.tvac_name] = undefined;
+        }
+        return acc;
+      }, {}),
+    [selectedVaccines] // dependency array
   );
+
+  const [vaccineDetails, setVaccineDetails] = useState(initialVaccineDetails);
   const [vaccineOptions, setVaccineOptions] = useState([]);
   const [updateLoader, setUpdateLoader] = useState(false);
   const [focusedIndexes, setFocusedIndexes] = useState([]);
@@ -80,6 +94,10 @@ const UpdateVaccine = ({
   const { patient_data } = state;
   const formRef = useRef(null);
   const { profile } = useSelector((state) => state.doctors);
+  const isGivenVaccineModifiedRecently = isVaccineModifiedRecently(
+    selectedVaccines?.[0]?.tvp_modify_date ||
+      selectedVaccines?.[0]?.tvp_create_date
+  );
 
   const handleDropdownVisibleChange = (index, isFocused = false) => {
     setIsOpen((prev) => {
@@ -92,8 +110,8 @@ const UpdateVaccine = ({
   const scrollToIndex = (index) => {
     const element = selectRefs.current[index];
     if (element) {
-      element.scrollTo({ behavior: "smooth", block: "center" });
-      element.focus();
+      element?.scrollTo({ behavior: "smooth", block: "center" });
+      element?.focus();
       handleDropdownVisibleChange(index, true);
     }
   };
@@ -153,7 +171,7 @@ const UpdateVaccine = ({
         !selectedVaccines?.[index]?.brandId
       ) {
         if (ref) {
-          ref.focus();
+          ref?.focus();
         }
         newFocusedIndexes.push(index);
       }
@@ -341,6 +359,63 @@ const UpdateVaccine = ({
       : current && current < moment().startOf("day");
   };
 
+  const handleDefaultClick = async () => {
+    const vaccine = selectedVaccines[showDefaultPopup];
+    const payload = {
+      patient_pid: patientDetails?.vac_pid || patient_data?.pm_pid,
+      patient_uid: patientDetails?.patient_unique_id || patient_data?.pm_id,
+      hospital_bid:
+        patientDetails?.hm_business_id || patient_data?.hm_business_id,
+      hospital_id: patientDetails?.hm_id || patient_data?.hm_id,
+      vaccine_template_id: vaccine?.tvt_id,
+      vaccine_name: vaccine?.tvac_name,
+      vaccine_company_id: "",
+      vaccine_given_date: "",
+      remarks: "",
+      vaccine_site: "",
+    };
+
+    const result = updateVaccine(payload);
+    const resultStatus = await result;
+    if (resultStatus?.status === 201) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: "",
+        className: "message-appointment",
+        content: (
+          <div className="d-flex align-items-center">
+            <img src={successIcon} className="me-3" alt="Success" />
+            <div>
+              <div className="title-common text-start fontroboto">
+                {`${vaccine?.tvac_name} Reverted successfully`}
+              </div>
+            </div>
+            <img
+              src={closeIcon}
+              className="ms-3 cursor-pointer"
+              onClick={() => message.destroy(MESSAGE_KEY)}
+              alt="Close"
+            />
+          </div>
+        ),
+        duration: 5,
+      });
+      setSelectedCards((prevItems) =>
+        prevItems.filter((_, index) => index !== showDefaultPopup)
+      );
+      selectRefs.current = selectRefs?.current?.filter(
+        (_, index) => index !== showDefaultPopup
+      );
+      if (selectedVaccines?.length === 1) {
+        getVaccineDetails(true);
+        setShow(false);
+      }
+      setShowDefaultPopup(null);
+      trackUpdateEvent();
+    }
+    return result;
+  };
+
   return (
     <Modal
       title={
@@ -403,6 +478,7 @@ const UpdateVaccine = ({
               <Radio
                 checked={selectedDate === "due"}
                 onClick={() => setSelectedDate("due")}
+                disabled={!isGivenVaccineModifiedRecently}
               >
                 Due Date
                 <div style={{ opacity: 0.5 }}>
@@ -421,6 +497,14 @@ const UpdateVaccine = ({
                 </Button>
               )}
             </div>
+            {!isGivenVaccineModifiedRecently ? (
+              <div className="pt-2">
+                Note: The <b style={{ fontWeight: 600 }}>'Due'</b> option is
+                disabled as 24 hours have passed since the vaccine was marked as{" "}
+                <b style={{ fontWeight: 600 }}>'Given'</b>. This change is now
+                permanent
+              </div>
+            ) : null}
           </div>
           {changeDate && (
             <div className="d-flex">
@@ -480,12 +564,25 @@ const UpdateVaccine = ({
                     : undefined;
                   return (
                     <>
-                      <label>
-                        {vaccine?.tvac_name}
-                        <div style={{ opacity: 0.5 }}>{`(Selected vaccine ${
-                          i + 1
-                        })`}</div>
-                      </label>
+                      <div className="d-flex justify-content-between">
+                        <label>
+                          {vaccine?.tvac_name}
+                          <div style={{ opacity: 0.5 }}>{`(Selected vaccine ${
+                            i + 1
+                          })`}</div>
+                        </label>
+                        {isGivenVaccineModifiedRecently &&
+                          (selectedVaccines?.[0]?.tvp_modify_date ||
+                            selectedVaccines?.[0]?.tvp_create_date) && (
+                            <div
+                              className="cursor-pointer d-flex main-color"
+                              onClick={() => setShowDefaultPopup(i)}
+                            >
+                              <span className="icon-reload me-1 main-color" />
+                              Revert Given Status
+                            </div>
+                          )}
+                      </div>
                       <Select
                         showSearch
                         placeholder="Select vaccine brand"
@@ -638,6 +735,42 @@ const UpdateVaccine = ({
         </Col>
       </Row>
       <SuccessPopup show={showSuccess} setShow={setShowSuccess} />
+      <CommonModal
+        isModalOpen={showDefaultPopup !== null}
+        onCancel={() => setShowDefaultPopup(null)}
+        modalWidth={500}
+        title={"Confirm Revert Action"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className="me-3" src={alertIcon} alt="Warning" />
+                <span>
+                  Are you sure you want to revert the vaccination status <br />
+                  back to <b>'Default'</b>? Once reverted, you will need to
+                  <br /> manually update the status again if needed.
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div
+                  onClick={() => setShowDefaultPopup(null)}
+                  className="me-4 text-decoration-underline btn p-0 text-main"
+                >
+                  Cancel
+                </div>
+                <Button
+                  onClick={handleDefaultClick}
+                  className="lh-lg btn btn-primary3 btn-41 px-4"
+                >
+                  <span>Yes, Revert</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
     </Modal>
   );
 };

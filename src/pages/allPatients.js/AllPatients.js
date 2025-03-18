@@ -34,6 +34,7 @@ import {
   uploadDocsToAzure,
 } from "../medicalRecords/service";
 import {
+  resetUploadDocState,
   setLoadingStatus,
   setUploadDocCategories,
 } from "../../redux/uploadDocSlice";
@@ -54,6 +55,10 @@ import axios from "axios";
 import config from "../../config";
 import { jwtDecode } from "jwt-decode";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
+import { resetVaccineState } from "../../redux/vaccineSlice";
+import { resetGrowthChartState } from "../../redux/growthChartSlice";
+import { resetObstetricState } from "../../redux/obstetricSlice";
+import { resetDDxState } from "../../redux/ddxSlice";
 const { RangePicker } = DatePicker;
 
 const dateFormat = "YYYY-MM-DD";
@@ -332,6 +337,11 @@ const AllPatients = () => {
   };
 
   const onPatientDetailsClick = (record) => {
+    dispatch(resetVaccineState());
+    dispatch(resetGrowthChartState());
+    dispatch(resetObstetricState());
+    dispatch(resetUploadDocState());
+    dispatch(resetDDxState());
     navigate("/patient_details", {
       state: {
         patient_data: { ...record, pm_first_name: record?.pm_fullname },
