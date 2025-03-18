@@ -442,12 +442,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
                 : PX_TO_PT * 30,
             paddingBottom: letterhead_format === 2
-                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 10
+                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
                 : letterhead_format === 1
                     ? fileFooter?.imageShow
                         ? footerImageHeight + 25
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 10
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 10,
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25,
             paddingLeft: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
                 : PX_TO_PT * 30,
