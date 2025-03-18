@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Navbar } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'antd';
@@ -15,13 +15,12 @@ import { updateVisitStatus } from '../api/services/VisitService';
 import { resetUploadDocState } from '../redux/uploadDocSlice';
 import { resetDDxState } from '../redux/ddxSlice';
 
-function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToAppointment }) {
+function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToAppointment, pam_id }) {
     const navigate = useNavigate();
     const { profile } = useSelector((state) => state.doctors);
     const {
         loadingEndVisit,
     } = useSelector((state) => state.caseManager);
-    const { appointmentsData } = useSelector((state) => state.records);
     const dispatch = useDispatch();
 
     const onEndVisitClick = async () => {
@@ -35,8 +34,8 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToApp
               tcm_id: tcm_id,
             };
             const action = await dispatch(sendCashsheetWhatsapp(sendData));
-            if (appointmentsData?.[0]?.pam_id) {
-              await updateVisitStatus(appointmentsData[0].pam_id, {
+            if (pam_id) {
+              updateVisitStatus(pam_id, {
                 status: 3,
                 prescriptionUrl: printUrl,
               });
