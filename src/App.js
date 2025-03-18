@@ -46,6 +46,7 @@ import BillingDashboard from "./pages/opdBilling/components/billingDashboard/Bil
 import BillingSettings from "./pages/opdBilling/components/advanceBillSettings/BillingSettings";
 import AllPatients from "./pages/allPatients.js/AllPatients";
 import AddAppointment from "./pages/addAppointment/AddAppointment";
+import { checkAccountStatus } from './pages/auth/authService';
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -55,17 +56,94 @@ const growthbook = new GrowthBook({
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
-  // this param needs to be changed as needed
   const authToken = searchParams.get("authToken");
   const location = useLocation();
 
-  const [getToken, setToken] = useLocalStorage(
-    PERSISTANT_STORAGE_KEY_AUTH_TOKEN
-  );
-
   const navigate = useNavigate();
+  const isLoginPage = location.pathname === "/login";
 
-  const isLoginPage = location.pathname === "/login"; // Check if the current path is "/login"
+  const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+
+  const openUrlsSilently = async (urls) => {
+    return Promise.all(
+      urls.map(async (url) => {
+        try {
+          const response = await fetch(url, { method: 'GET', mode: 'no-cors' });
+          return { url, status: 'success' };
+        } catch (error) {
+          return { url, status: 'error', error };
+        }
+      })
+    );
+  };
+
+  const handleLogout = async () => {
+  
+    const urlsToOpen = [
+      config.pedia_logout_url,
+      config.tatvaAi_logout_url,
+    ];
+
+    try {
+      if (window.isLoggingOut) return;
+      window.isLoggingOut = true;
+
+      const statuses = await openUrlsSilently(urlsToOpen);
+      console.log("URL statuses:", statuses);
+  
+      const allSuccessful = statuses.every(({ status }) => status === "success");
+      if (!allSuccessful) {
+        console.warn("Some logout URLs failed:", statuses);
+      }
+
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = "/login"; 
+
+    } catch (error) {
+      console.error("Error during logout:", error);
+      window.location.href = "/login";
+    } finally {
+      window.isLoggingOut = false;
+    }
+  };
+
+  // useEffect(() => {
+  //   window.handleLogout = handleLogout;
+  //   return () => {
+  //     delete window.handleLogout;
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      const token = getToken();
+      if (token && !isLoginPage) {
+        try {
+          const decoded = jwtDecode(token);
+          const phoneNumber = decoded?.result?.mobile_no;
+          const doctorUniqueId = decoded?.result?.doctor_unique_id;
+          
+          if (phoneNumber && doctorUniqueId) {
+            const response = await checkAccountStatus(phoneNumber, doctorUniqueId);
+            if (response?.account_status === false) { 
+              handleLogout();
+            }
+          }
+        } catch (e) {
+          console.error("Error checking account status:", e);
+        }
+      }
+    };
+
+    checkUserStatus();
+
+    const intervalId = setInterval(checkUserStatus, 5 * 60 * 1000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
   useEffect(() => {
     // Load features asynchronously when the app renders
