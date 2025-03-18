@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Font, Page, Text, View, Image, Document, StyleSheet } from '@react-pdf/renderer';
 import { isNumeric, medicine_freq_dosage_format, chunkArray, capitalize, getIndianLanguageFont } from '../../utils/utils'
 import { EXTRA_OPTIONS, NORMAL, WHATSAPP } from '../../utils/constants';
@@ -469,6 +469,54 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             : PX_TO_PT * 30;
     };
 
+   const [footerImageHeight, setFooterImageHeight] = useState(0);
+
+
+    useEffect(() => {
+      const loadImage = () => {
+        if (fileFooter?.showFile) {
+          // Use window.Image instead of Image
+          const img = new window.Image();
+          img.src = fileFooter.showFile;
+
+          img.onload = function () {
+            // Convert to PDF points
+            const heightInPt = this.height * PX_TO_PT;
+            console.log("Footer Image Height:", heightInPt);
+            setFooterImageHeight(heightInPt);
+          };
+
+          img.onerror = function (error) {
+            console.error("Error loading footer image:", error);
+            setFooterImageHeight(0);
+          };
+        }
+      };
+
+      loadImage();
+    }, [fileFooter?.showFile]);
+    
+     const renderFooterImage = () => {
+       try {
+         if (fileFooter?.showFile && fileFooter?.imageShow) {
+           return (
+             <Image
+               src={fileFooter.showFile}
+               style={{
+                 width: "100%",
+                 objectFit: "cover",
+                 height: footerImageHeight || "auto",
+               }}
+             />
+           );
+         }
+         return null;
+       } catch (error) {
+         console.error("Error rendering footer image:", error);
+         return null;
+       }
+     };
+
     const calculatePadding = () => {
         const { letterhead_format, header_footer, whatsapp_letterhead_format } = printSettings || {};
         const footer = header_footer?.footer;
@@ -495,14 +543,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
                 : PX_TO_PT * 30,
             paddingBottom: letterhead_format === 2
-                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5)
+                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 10
                 : letterhead_format === 1
-                    ? fileFooter
-                        ? 110
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5)
-                    : footer?.title
-                        ? 35 + parseInt(footer?.font_size)
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5),
+                    ? fileFooter?.imageShow
+                        ? footerImageHeight + 25
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 10
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 10,
             paddingLeft: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
                 : PX_TO_PT * 30,
@@ -518,9 +564,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         <Document>
             <Page
                 size="A4"
-                style={paddingStyles}
+                style={[paddingStyles, {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                }]}
                 wrap={!smartRxData}>
-
+                <View style={{flex: 1}}>    
                 <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed>
                     {mode == NORMAL ? (
                         printSettings?.letterhead_format === 0 ? (
@@ -5008,10 +5058,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     )}
                 </View>
 
-
+                </View>
                 <View style={{
                     position: 'absolute',
-                    bottom: PX_TO_PT * 30,
+                    bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
                     left: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
                     right: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
                     }} fixed>
@@ -5036,15 +5086,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             </View>
                         ) : printSettings?.whatsapp_letterhead_format === 1 && (
                             fileFooter && fileFooter?.imageShow && (
-                                <Image
-                                    style={{ width: '100%', objectFit: 'cover' }}
-                                    src={fileFooter?.showFile} />
+                                renderFooterImage()
                             )
                         )
                     )}
                 </View>
 
-                {/* </View> */}
             </Page>
         </Document>
     )
