@@ -83,6 +83,7 @@ function HeaderPrescription({
   const {
     patient_data,
     tcmId,
+    pamId,
     consultationDate,
     symptomsData,
     examinationData,
@@ -395,7 +396,7 @@ function HeaderPrescription({
         patient_data !== undefined
           ? patient_data.hasOwnProperty("pam_id")
             ? patient_data.pam_id
-            : 0
+            : pamId
           : 0,
       consultation_date: consultationDate,
       symptoms: symptomsData,

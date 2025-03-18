@@ -423,7 +423,7 @@ function SmartRxPreview() {
         }
         try {
             const action = await dispatch(viewCaseManager(sendData));
-            
+
             if (action.meta.requestStatus === "fulfilled") {
                 if (showDigitalRx) {
                     const response = await fetchRxDigitisedData();
@@ -445,6 +445,7 @@ function SmartRxPreview() {
                             patient_data,
                             caseManagerData: action.payload,
                             smartRxFilesData: smartRxFile,
+                            pam_id: state?.pam_id
                         },
                     });
                 }
@@ -462,6 +463,7 @@ function SmartRxPreview() {
                 patient_data: patient_data,
                 smartRxFilesData: smartRxFile,
                 tcm_id: state.tcm_id,
+                pam_id: state?.pam_id,
                 print_url: state.print_url,
                 digitisedData: rxDigitiseApiResponse,
                 type:"new"
@@ -471,7 +473,7 @@ function SmartRxPreview() {
 
     return (
         <>
-            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} printUrl={printUrl} />
+            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} printUrl={printUrl} pam_id={state?.pam_id} />
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={7}>

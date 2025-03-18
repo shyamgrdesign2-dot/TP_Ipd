@@ -28,7 +28,7 @@ function SmartRxDigitise() {
     const navigate = useNavigate();
 
     const { state } = useLocation();
-    const { patient_data, smartRxFilesData, tcm_id, print_url, digitisedData} = state
+    const { patient_data, smartRxFilesData, tcm_id, print_url, digitisedData, pam_id} = state
 
     const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}` : null);
     const [token, setToken] = useState(null);
@@ -96,6 +96,7 @@ function SmartRxDigitise() {
                             patient_data,
                             smartRxData: smartRxFilesData,
                             tcm_id,
+                            pam_id,
                             print_url,
                             showProgressbar: false,
                             page: "digitise"
