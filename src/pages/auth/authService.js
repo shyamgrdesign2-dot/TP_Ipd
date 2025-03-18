@@ -109,3 +109,15 @@ export const setupClinic = async (body) => {
   }
 }
 
+export const checkAccountStatus = async (phoneNumber, doctorUniqueId) => {
+  try {
+    const response = await axios.post(`${baseUrl}/api/v1/auth/account-status`, {
+      phone_number: phoneNumber,
+      doctor_unique_id: doctorUniqueId
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
+};
+
