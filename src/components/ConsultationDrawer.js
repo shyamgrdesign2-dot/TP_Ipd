@@ -1238,7 +1238,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                       Dictate the complete prescription effortlessly
                     </div>
                   </div>
-                  {!isTyping && <GenRxTips />}
+                  {!isTyping && !isRecording && <GenRxTips />}
 
                   {isRecording ? (
                     <div

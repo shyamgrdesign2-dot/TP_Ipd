@@ -324,7 +324,7 @@ function ObsHistoryTableView({
               >
                 {"diagnosisNotes" in obsHistoryData
                   ? obsHistoryData?.diagnosisNotes
-                  : `-`}
+                  : `-`}&nbsp;
               </Text>
             </Text>
           </View>
@@ -1271,7 +1271,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {"remarks" in item ? item?.remarks : `-`}
+                      {"remarks" in item ? item?.remarks : `-`}&nbsp;
                     </Text>
                   </Text>
                 </View>
@@ -1727,7 +1727,7 @@ function ObsHistoryTableView({
                     },
                   ]}
                 >
-                  {"notes" in item ? item?.notes : `-`}
+                  {"notes" in item ? item?.notes : `-`}&nbsp;
                 </Text>
               </Text>
             </View>
@@ -1834,7 +1834,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.master?.name ?? ""}
+                      {item?.master?.name ?? ""}&nbsp;
                     </Text>
                     <Text
                       style={[
@@ -1885,7 +1885,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.notes ?? "-"}
+                      {item?.notes ?? "-"}&nbsp;
                     </Text>
                   </View>
                 );
@@ -2015,7 +2015,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.notes ?? "-"}
+                      {item?.notes ?? "-"}&nbsp;
                     </Text>
                   </View>
                 )}
