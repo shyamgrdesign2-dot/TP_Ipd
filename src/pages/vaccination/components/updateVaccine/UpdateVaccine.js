@@ -93,7 +93,7 @@ const UpdateVaccine = ({
   const { state } = useLocation();
   const { patient_data } = state;
   const formRef = useRef(null);
-  const { profile } = useSelector((state) => state.doctors);
+  const { profile, userId } = useSelector((state) => state.doctors);
   const isGivenVaccineModifiedRecently = isVaccineModifiedRecently(
     selectedVaccines?.[0]?.tvp_modify_date ||
       selectedVaccines?.[0]?.tvp_create_date
@@ -378,6 +378,14 @@ const UpdateVaccine = ({
     const result = updateVaccine(payload);
     const resultStatus = await result;
     if (resultStatus?.status === 201) {
+      window.Moengage.track_event("TP_Vaccination_Revert_Confirmed", {
+        Doctor_specialty: profile?.dp_name,
+        Doctor_unique_id: profile?.doctor_unique_id,
+        Doctor_Name: profile?.um_name,
+        Doctor_mobile_No: profile?.um_contact,
+        Doctor_um_id: userId,
+        Time_Stamp: moment().format("YYYY-MM-DD HH:mm:ss"),
+      });
       message.open({
         key: MESSAGE_KEY,
         type: "",
@@ -576,7 +584,22 @@ const UpdateVaccine = ({
                             selectedVaccines?.[0]?.tvp_create_date) && (
                             <div
                               className="cursor-pointer d-flex main-color"
-                              onClick={() => setShowDefaultPopup(i)}
+                              onClick={() => {
+                                setShowDefaultPopup(i);
+                                window.Moengage.track_event(
+                                  "TP_Vaccination_Revert",
+                                  {
+                                    Doctor_specialty: profile?.dp_name,
+                                    Doctor_unique_id: profile?.doctor_unique_id,
+                                    Doctor_Name: profile?.um_name,
+                                    Doctor_mobile_No: profile?.um_contact,
+                                    Doctor_um_id: userId,
+                                    Time_Stamp: moment().format(
+                                      "YYYY-MM-DD HH:mm:ss"
+                                    ),
+                                  }
+                                );
+                              }}
                             >
                               <span className="icon-reload me-1 main-color" />
                               Revert Given Status
