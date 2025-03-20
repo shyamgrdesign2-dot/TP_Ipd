@@ -108,12 +108,7 @@ function App() {
     }
   };
 
-  // useEffect(() => {
-  //   window.handleLogout = handleLogout;
-  //   return () => {
-  //     delete window.handleLogout;
-  //   };
-  // }, []);
+
 
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -143,7 +138,7 @@ function App() {
     return () => {
       clearInterval(intervalId);
     };
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     // Load features asynchronously when the app renders
