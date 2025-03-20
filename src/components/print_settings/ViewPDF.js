@@ -471,7 +471,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
    const [footerImageHeight, setFooterImageHeight] = useState(0);
 
-
     useEffect(() => {
       const loadImage = () => {
         if (fileFooter?.showFile) {
@@ -505,7 +504,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                style={{
                  width: "100%",
                  objectFit: "cover",
-                 height: footerImageHeight || "auto",
                }}
              />
            );
@@ -525,12 +523,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             return {
                 paddingTop: PX_TO_PT * 30,
                 paddingBottom: whatsapp_letterhead_format === 1
-                    ? fileFooter
-                        ? 110
-                        : PX_TO_PT * 30
-                    : footer?.title
-                        ? 35 + parseInt(footer?.font_size)
-                        : PX_TO_PT * 30,
+                    ? fileFooter?.imageShow
+                        ? footerImageHeight + 24
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 24
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 24,
                 paddingLeft: PX_TO_PT * 30,
                 paddingRight: PX_TO_PT * 30,
                 display: 'flex',
@@ -543,12 +539,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
                 : PX_TO_PT * 30,
             paddingBottom: letterhead_format === 2
-                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
+                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 24
                 : letterhead_format === 1
                     ? fileFooter?.imageShow
-                        ? footerImageHeight + 25
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25,
+                        ? footerImageHeight + 24
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 24
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 24,
             paddingLeft: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
                 : PX_TO_PT * 30,
@@ -5062,8 +5058,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 <View style={{
                     position: 'absolute',
                     bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
-                    left: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
-                    right: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
+                    left: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
+                    right: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
                     }} fixed>
                     {mode == NORMAL ? (
                         printSettings?.letterhead_format === 0 ? (
@@ -5073,9 +5069,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             </View>
                         ) : printSettings?.letterhead_format === 1 && (
                             fileFooter && fileFooter?.imageShow && (
-                                <Image
-                                    style={{ width: '100%', objectFit: 'cover' }}
-                                    src={fileFooter?.showFile} />
+                                renderFooterImage()
                             )
                         )
                     ) : (
