@@ -62,6 +62,8 @@ function SmartRxPreview() {
     const [isLoading, setIsLoading] = useState(false);
     const [buttonText, setButtonText] = useState("Send to WhatsApp");
 
+    const { profile } = useSelector((state) => state.doctors);
+
     const [isRxDigitiseComplete, setRxDigitiseComplete] = useState(false);
     const [rxDigitiseApiResponse, setRxDigitiseApiResponse] = useState(null);
     const [showProgressbar, setShowProgressbar] = useState(true);
@@ -165,6 +167,13 @@ function SmartRxPreview() {
 
     const handleDownload = async () => {
         try {
+            if(showDigitalRx){
+                window.Moengage.track_event("TP_Digitised_Prescription_Download", {
+                    Doctor_Name: profile?.um_name,
+                    Doctor_Number: profile?.um_contact,
+                    Doctor_Unique_Id: profile?.doctor_unique_id,
+                });
+            }
             const response = await axios({
                 url: printUrl,
                 method: 'GET',
@@ -179,6 +188,13 @@ function SmartRxPreview() {
     };
 
     const handleInAppDownload = async () => {
+        if(showDigitalRx){
+            window.Moengage.track_event("TP_Digitised_Prescription_Download", {
+                Doctor_Name: profile?.um_name,
+                Doctor_Number: profile?.um_contact,
+                Doctor_Unique_Id: profile?.doctor_unique_id,
+            });
+        }
         navigate(`/prescription_print_view/?url=${printUrl}&key=download`, { replace: true, state: state })
         navigate(0, { replace: true });
     };
@@ -423,7 +439,7 @@ function SmartRxPreview() {
         }
         try {
             const action = await dispatch(viewCaseManager(sendData));
-            
+
             if (action.meta.requestStatus === "fulfilled") {
                 if (showDigitalRx) {
                     const response = await fetchRxDigitisedData();
@@ -445,6 +461,7 @@ function SmartRxPreview() {
                             patient_data,
                             caseManagerData: action.payload,
                             smartRxFilesData: smartRxFile,
+                            pam_id: state?.pam_id
                         },
                     });
                 }
@@ -462,6 +479,7 @@ function SmartRxPreview() {
                 patient_data: patient_data,
                 smartRxFilesData: smartRxFile,
                 tcm_id: state.tcm_id,
+                pam_id: state?.pam_id,
                 print_url: state.print_url,
                 digitisedData: rxDigitiseApiResponse,
                 type:"new"
@@ -471,7 +489,7 @@ function SmartRxPreview() {
 
     return (
         <>
-            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} printUrl={printUrl} />
+            <HeaderPrescriptionPrint patient_data={patient_data} tcm_id={state?.tcm_id} printUrl={printUrl} pam_id={state?.pam_id} />
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
                     <Col md={7} lg={7} xl={7}>

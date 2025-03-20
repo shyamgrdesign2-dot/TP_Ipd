@@ -5,6 +5,7 @@ import {
   getPregnancyOutcome,
   getTypeOfAbortion,
 } from "../../../pages/obstetric/utils/helper";
+import { getIndianLanguageFont } from "../../../utils/utils";
 
 function ObsHistoryTableView({
   PX_TO_PT,
@@ -314,7 +315,7 @@ function ObsHistoryTableView({
                 style={[
                   styles.cell,
                   {
-                    fontFamily: printSettings?.page_format?.font_family,
+                    fontFamily: getIndianLanguageFont(obsHistoryData?.diagnosisNotes, printSettings?.page_format?.font_family),
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                     fontWeight: 400,
                     color: "#000",
@@ -323,7 +324,7 @@ function ObsHistoryTableView({
               >
                 {"diagnosisNotes" in obsHistoryData
                   ? obsHistoryData?.diagnosisNotes
-                  : `-`}
+                  : `-`}&nbsp;
               </Text>
             </Text>
           </View>
@@ -1262,7 +1263,7 @@ function ObsHistoryTableView({
                       style={[
                         styles.cell,
                         {
-                          fontFamily: printSettings?.page_format?.font_family,
+                          fontFamily: getIndianLanguageFont(item?.remarks, printSettings?.page_format?.font_family),
                           fontSize:
                             PX_TO_PT * printSettings?.page_format?.font_size,
                           fontWeight: 400,
@@ -1270,7 +1271,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {"remarks" in item ? item?.remarks : `-`}
+                      {"remarks" in item ? item?.remarks : `-`}&nbsp;
                     </Text>
                   </Text>
                 </View>
@@ -1718,7 +1719,7 @@ function ObsHistoryTableView({
                   style={[
                     styles.cell,
                     {
-                      fontFamily: printSettings?.page_format?.font_family,
+                      fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family),
                       fontSize:
                         PX_TO_PT * printSettings?.page_format?.font_size,
                       fontWeight: 400,
@@ -1726,7 +1727,7 @@ function ObsHistoryTableView({
                     },
                   ]}
                 >
-                  {"notes" in item ? item?.notes : `-`}
+                  {"notes" in item ? item?.notes : `-`}&nbsp;
                 </Text>
               </Text>
             </View>
@@ -1825,7 +1826,7 @@ function ObsHistoryTableView({
                         {
                           flex: 1.3,
                           color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
+                          fontFamily: getIndianLanguageFont(item?.master?.name, printSettings?.page_format?.font_family),
                           fontSize:
                             PX_TO_PT * printSettings?.page_format?.font_size,
                           fontWeight: 400,
@@ -1833,7 +1834,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.master?.name ?? ""}
+                      {item?.master?.name ?? ""}&nbsp;
                     </Text>
                     <Text
                       style={[
@@ -1876,7 +1877,7 @@ function ObsHistoryTableView({
                         {
                           flex: 1.3,
                           color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
+                          fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family),
                           fontSize:
                             PX_TO_PT * printSettings?.page_format?.font_size,
                           fontWeight: 400,
@@ -1884,7 +1885,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.notes ?? "-"}
+                      {item?.notes ?? "-"}&nbsp;
                     </Text>
                   </View>
                 );
@@ -2006,7 +2007,7 @@ function ObsHistoryTableView({
                         {
                           flex: 1.5,
                           color: "#171725",
-                          fontFamily: printSettings?.page_format?.font_family,
+                          fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family),
                           fontSize:
                             PX_TO_PT * printSettings?.page_format?.font_size,
                           fontWeight: 400,
@@ -2014,7 +2015,7 @@ function ObsHistoryTableView({
                         },
                       ]}
                     >
-                      {item?.notes ?? "-"}
+                      {item?.notes ?? "-"}&nbsp;
                     </Text>
                   </View>
                 )}

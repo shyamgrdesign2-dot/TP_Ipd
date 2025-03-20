@@ -288,12 +288,52 @@ function MedicalCertificate() {
         }
     }, [certificate_data]);
 
+    const handleAddEventListener = () => {
+      // Specifically target only date and search inputs with IDs
+      const dateInputs = document.querySelectorAll('input[type="date"][id]');
+      const searchInputs = document.querySelectorAll(
+        'input[type="search"][id]'
+      );
+
+      // Handle date inputs
+      dateInputs.forEach((input) => {
+        input.removeEventListener("change", handleInputChange);
+        input.removeEventListener("input", handleInputChange);
+        input.addEventListener("change", handleInputChange);
+        input.addEventListener("input", handleInputChange);
+      });
+
+      // Handle search inputs
+      searchInputs.forEach((input) => {
+        input.removeEventListener("keyup", handleInputChange);
+        input.addEventListener("keyup", handleInputChange);
+      });
+    };
+
+    const handleRemoveEventListener = () => {
+      const dateInputs = document.querySelectorAll('input[type="date"][id]');
+      const searchInputs = document.querySelectorAll(
+        'input[type="search"][id]'
+      );
+
+      dateInputs.forEach((input) => {
+        input.removeEventListener("change", handleInputChange);
+        input.removeEventListener("input", handleInputChange);
+      });
+
+      searchInputs.forEach((input) => {
+        input.removeEventListener("keyup", handleInputChange);
+      });
+    };
+
     useEffect(() => {
-        const allInputs = document.querySelectorAll('input[type="date"][id], input[type="search"][id]');
-        allInputs.forEach(input => input.type == 'date' ? input.addEventListener('change', handleInputChange) : input.addEventListener('keyup', handleInputChange));
+        // Initial setup
+        handleAddEventListener();
 
-        // removeLabelWithoutContent();
-
+        // Cleanup
+        return () => {
+            handleRemoveEventListener();
+        };
     }, [content]);
 
     useEffect(() => {
@@ -324,10 +364,18 @@ function MedicalCertificate() {
     const onEditorChange = (newContent) => {
         // console.log(newContent)
         const allInputs = document.querySelectorAll('input[type="date"][id], input[type="search"][id]');
-        allInputs.forEach(input => input.type == 'date' ? input.addEventListener('change', handleInputChange) : input.addEventListener('keyup', handleInputChange));
 
-        // removeLabelWithoutContent();
-
+        allInputs.forEach((input) => {
+            if (input.type === 'date') {
+                input.removeEventListener("change", handleInputChange);
+                input.removeEventListener("input", handleInputChange);
+                input.addEventListener("change", handleInputChange);
+                input.addEventListener("input", handleInputChange);
+            } else {
+                input.removeEventListener("keyup", handleInputChange);
+                input.addEventListener("keyup", handleInputChange);
+            }
+        });
     }
 
     function removeLabelWithoutContent() {
@@ -362,16 +410,16 @@ function MedicalCertificate() {
     }
 
     function handleInputChange(event) {
-        const inputElement = event.target;
-        if (inputElement.type === "date" || inputElement.type === "search") {
-            const elementId = inputElement.id;
-            const valueToUpdate = document.getElementById(elementId);
-            if (valueToUpdate) {
-                valueToUpdate.removeAttribute('value');
+      const inputElement = event.target;
+      if (inputElement.type === "date" || inputElement.type === "search") {
+        const elementId = inputElement.id;
+        const valueToUpdate = document.getElementById(elementId);
+        if (valueToUpdate) {
+          valueToUpdate.removeAttribute('value');
                 if (inputElement.type === "date") {
-                    const newDateValue = inputElement.value;
+                    const newDateValue = moment(inputElement.value).format('DD/MM/YYYY');
                     // console.log(newDateValue)
-                    valueToUpdate.setAttribute('value', newDateValue);
+          valueToUpdate.setAttribute('value', newDateValue);
                 } else if (inputElement.type === "search") {
                     const newTextValue = inputElement.value;
                     // console.log(newTextValue)
@@ -379,8 +427,8 @@ function MedicalCertificate() {
                 }
             } else {
                 console.error("Element with ID", elementId, "not found for value update.");
-            }
         }
+      }
     }
 
     const handleCreateCertificateDrawer = useCallback(() => {

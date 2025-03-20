@@ -27,7 +27,9 @@ export const mergeDataPatientDetails = (
       patientDetails?.findLast((obj) => obj.tvp_temp_id === item.tvt_id) || {};
 
     const { tvt_due_day, tvt_due_month, tvt_due_year } = item;
-    const { tvp_given_date } = vaccineGivenToPatient;
+    const { tvp_given_date, tvp_create_date, tvp_modify_date } =
+      vaccineGivenToPatient;
+    const givenModifiedDate = tvp_modify_date || tvp_create_date;
     const futureDate = birthDate
       ? moment(birthDate, "Do MMM YYYY")
           .add({
@@ -41,19 +43,35 @@ export const mergeDataPatientDetails = (
     const matchingForOverDue = overridenVaccines.find(
       (obj) => obj.tvd_temp_id === item.tvt_id
     );
+    const dueModifiedDate =
+      matchingForOverDue?.tvd_modify_date ||
+      matchingForOverDue?.tvd_create_date;
 
-    const brandDetails = tvp_given_date
-      ? details.find((brand) => brand.tvc_id === vaccineGivenToPatient?.tvc_id)
-      : {};
+    // Determine which record to use based on date comparison
+    let useGivenPatient = true;
+    if (givenModifiedDate && dueModifiedDate) {
+      const givenDate = moment(givenModifiedDate).toISOString();
+      const overriddenDate = moment(dueModifiedDate).toISOString();
+      useGivenPatient = givenDate >= overriddenDate;
+    } else if (!givenModifiedDate && matchingForOverDue?.tvd_due_date) {
+      useGivenPatient = false;
+    }
+
+    const brandDetails =
+      useGivenPatient && tvp_given_date
+        ? details.find(
+            (brand) => brand.tvc_id === vaccineGivenToPatient?.tvc_id
+          )
+        : {};
 
     return {
       ...item,
-      ...vaccineGivenToPatient,
-      ...matchingForOverDue,
-      ...(tvp_given_date && {
-        brandName: brandDetails?.tvc_name,
-        brandId: brandDetails?.tvc_id,
-      }),
+      ...(useGivenPatient ? vaccineGivenToPatient : matchingForOverDue),
+      ...(useGivenPatient &&
+        tvp_given_date && {
+          brandName: brandDetails?.tvc_name,
+          brandId: brandDetails?.tvc_id,
+        }),
       dueDate: futureDate,
     };
   });
@@ -128,4 +146,17 @@ export const getDefaultOption = (dateOptions) => {
     return 0;
   }
   return activeValue - 1;
+};
+
+export const isVaccineModifiedRecently = (modifyDate) => {
+  if (!modifyDate) return true;
+
+  const modifiedDateTime = moment(modifyDate);
+  const now = moment();
+
+  // Calculate absolute difference in hours including decimals for minutes and seconds
+  const hoursDifference = Math.abs(now.diff(modifiedDateTime, "hours", true));
+
+  // Return true if difference is less than 24 hours
+  return hoursDifference <= 24;
 };

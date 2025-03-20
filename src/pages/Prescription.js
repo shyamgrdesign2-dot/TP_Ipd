@@ -139,6 +139,7 @@ function Prescription() {
   const { patient_data, send_path, caseManagerData } = state;
   const chartType = state?.chartType;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
+  const pamId = caseManagerData !== undefined ? caseManagerData.pam_id : 0;
   const consultationDate =
     caseManagerData !== undefined
       ? caseManagerData.consultation_date
@@ -186,6 +187,7 @@ function Prescription() {
     patient_data,
     send_path,
     tcmId,
+    pamId,
     consultationDate,
     symptomsData,
     setSymptomsData,
