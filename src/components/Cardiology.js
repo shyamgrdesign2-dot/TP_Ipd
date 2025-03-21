@@ -620,6 +620,29 @@ function Cardiology(props) {
         )
 }));
 
+  // Add this helper function at the top of the component
+  const hasValidContent = (data, type) => {
+    if (!data?.[type] || !Array.isArray(data[type])) return false;
+    
+    return data[type].some(item => {
+      if (typeof item === 'string') return item.trim().length > 0;
+      
+      // For object types, check if any relevant fields have content
+      const relevantFields = {
+        medications: ['refinedName', 'lineItem'],
+        symptoms: ['name', 'lineItem'],
+        examination: ['name', 'notes'],
+        diagnosis: ['name', 'notes'],
+        medicalHistory: ['name', 'lineItem'],
+        vaccinations: ['name', 'lineItem'],
+        tests: ['refinedName', 'lineItem']
+      };
+
+      const fieldsToCheck = relevantFields[type] || ['name'];
+      return fieldsToCheck.some(field => item[field]?.trim?.().length > 0);
+    });
+  };
+
   return (
     <div className="appointment-wrap PatientDetailswrap m-0">
       <Card className="">
@@ -904,126 +927,99 @@ function Cardiology(props) {
                   <div>
                     {isRxdigitised && showDigitalRx ? (
                       <div className="m-4">
-                        {rxDigitisedData?.editedData?.vitals && Object.values(rxDigitisedData?.editedData?.vitals).some((value) => value) && (
+                        {rxDigitisedData?.editedData?.vitals && 
+                         Object.values(rxDigitisedData?.editedData?.vitals).some(value => value?.trim?.().length > 0) && (
                           <>
                             <div className="d-flex align-items-start">
-                              <img
-                                className="me-2"
-                                src={vitalsIcon}
-                                alt="Vitals"
-                              />
+                              <img className="me-2" src={vitalsIcon} alt="Vitals" />
                               <div className="title-digitise-section mb-1">Vitals and Body compositions</div>
                             </div>
                             {renderItems('vitals')}
                           </>
                         )}
 
-                        {rxDigitisedData?.editedData?.medicalHistory && rxDigitisedData?.editedData?.medicalHistory.length > 0 && (
+                        {rxDigitisedData?.editedData?.medicalHistory && 
+                         hasValidContent(rxDigitisedData.editedData, 'medicalHistory') && (
                           <>
                             <div className="d-flex align-items-start">
-                              <img
-                                className="me-2"
-                                src={medicalHistoryIcon}
-                                alt="MedicalHistory"
-                              />
+                              <img className="me-2" src={medicalHistoryIcon} alt="MedicalHistory" />
                               <div className="title-digitise-section mb-1">Medical History</div>
                             </div>
                             {renderItems('medicalHistory')}
                           </>
                         )}
 
-                        {rxDigitisedData?.editedData?.symptoms && rxDigitisedData?.editedData?.symptoms.length > 0 && (
+                        {rxDigitisedData?.editedData?.symptoms && 
+                         hasValidContent(rxDigitisedData.editedData, 'symptoms') && (
                           <>
                             <div className="d-flex align-items-start">
-                              <img
-                                className="me-2"
-                                src={Symptomsicon}
-                                alt="Symptoms"
-                              />
+                              <img className="me-2" src={Symptomsicon} alt="Symptoms" />
                               <div className="title-digitise-section mb-1">Symptoms</div>
                             </div>
                             {renderItems('symptoms')}
                           </>
                         )}
 
-                        {rxDigitisedData?.editedData?.examination && rxDigitisedData?.editedData?.examination.length > 0 && (
+                        {rxDigitisedData?.editedData?.examination && 
+                         hasValidContent(rxDigitisedData.editedData, 'examination') && (
                           <>
                             <div className="d-flex align-items-start">
-                              <img
-                                className="me-2"
-                                src={Examinationsicon}
-                                alt="Examination"
-                              />
+                              <img className="me-2" src={Examinationsicon} alt="Examination" />
                               <div className="title-digitise-section mb-1">Examinations</div>
                             </div>
                             {renderItems('examination')}
                           </>
                         )}
 
-                        {rxDigitisedData?.editedData?.diagnosis && rxDigitisedData?.editedData?.diagnosis.length > 0 && (
+                        {rxDigitisedData?.editedData?.diagnosis && 
+                         hasValidContent(rxDigitisedData.editedData, 'diagnosis') && (
                           <>
                             <div className="d-flex align-items-start">
-                              <img
-                                className="me-2"
-                                src={Diagnosisicon}
-                                alt="Diagnosis"
-                              />
+                              <img className="me-2" src={Diagnosisicon} alt="Diagnosis" />
                               <div className="title-digitise-section mb-1">Diagnosis</div>
                             </div>
                             {renderItems('diagnosis')}
                           </>
                         )}
 
-                        {rxDigitisedData?.editedData?.medications && rxDigitisedData?.editedData?.medications.length > 0 && (
+                        {rxDigitisedData?.editedData?.medications && 
+                         hasValidContent(rxDigitisedData.editedData, 'medications') && (
                           <>
                             <div className="d-flex align-items-start">
-                              <img
-                                className="me-2"
-                                src={Medicationicon}
-                                alt="Medications"
-                              />
+                              <img className="me-2" src={Medicationicon} alt="Medications" />
                               <div className="title-digitise-section mb-1">Medication</div>
                             </div>
                             {renderItems('medications')}
                           </>
                         )}
 
-                        {rxDigitisedData?.editedData?.tests && rxDigitisedData?.editedData?.tests.length > 0 && (
+                        {rxDigitisedData?.editedData?.tests && 
+                         hasValidContent(rxDigitisedData.editedData, 'tests') && (
                           <>
                             <div className="d-flex align-items-start">
-                              <img
-                                className="me-2"
-                                src={Investigationicon}
-                                alt="Tests"
-                              />
+                              <img className="me-2" src={Investigationicon} alt="Tests" />
                               <div className="title-digitise-section mb-1">Lab Investigation</div>
                             </div>
                             {renderItems('tests')}
                           </>
                         )}
 
-                        {rxDigitisedData?.editedData?.advice && rxDigitisedData?.editedData?.advice.length > 0 && (
+                        {rxDigitisedData?.editedData?.advice && 
+                         hasValidContent(rxDigitisedData.editedData, 'advice') && (
                           <>
                             <div className="d-flex align-items-start">
-                              <img
-                                className="me-2"
-                                src={Frameicon}
-                                alt="Advice"
-                              />
+                              <img className="me-2" src={Frameicon} alt="Advice" />
                               <div className="title-digitise-section mb-1">Advices</div>
                             </div>
                             {renderItems('advice')}
                           </>
                         )}
                         
-                        {rxDigitisedData?.editedData?.vaccinations && rxDigitisedData?.editedData?.vaccinations.length > 0 && (
+                        {rxDigitisedData?.editedData?.vaccinations && 
+                         hasValidContent(rxDigitisedData.editedData, 'vaccinations') && (
                           <>
                             <div className="d-flex align-items-start">
-                              <img
-                                className="me-2"
-                                src={vaccinationIcon}
-                                alt="vaccinations"
-                              />
+                              <img className="me-2" src={vaccinationIcon} alt="vaccinations" />
                               <div className="title-digitise-section mb-1">Vaccinations</div>
                             </div>
                             {renderItems('vaccinations')}
