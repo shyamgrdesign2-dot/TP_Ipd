@@ -37,7 +37,7 @@ function GenRxPrescriptionPrintView() {
   const navigate = useNavigate();
 
   const { state } = useLocation();
-  const { patient_data, rxId } = state;
+  const { patient_data, rxId, pam_id } = state;
 
   const [printUrl, setPrintUrl] = useState(
     state !== undefined ? `${state.print_url}&voiceRxDigitize=true` : null
@@ -235,6 +235,7 @@ function GenRxPrescriptionPrintView() {
         patient_data={patient_data}
         tcm_id={state?.tcm_id}
         printUrl={printUrl}
+        pam_id={pam_id}
       />
       <div
         className={`${

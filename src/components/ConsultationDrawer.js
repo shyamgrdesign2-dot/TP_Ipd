@@ -96,7 +96,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
   const navigate = useNavigate();
 
-  const { tcmId, consultationDate } = useContext(CashManagerContext);
+  const { tcmId, consultationDate, pamId } = useContext(CashManagerContext);
 
   const dispatch = useDispatch();
 
@@ -594,7 +594,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         patient_data !== undefined
           ? patient_data.hasOwnProperty("pam_id")
             ? patient_data.pam_id
-            : 0
+            : pamId
           : 0,
       consultation_date: consultationDate,
       smart_prescription_filename: genRxDetails?._id,
@@ -1238,7 +1238,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                       Dictate the complete prescription effortlessly
                     </div>
                   </div>
-                  {!isTyping && <GenRxTips />}
+                  {!isTyping && !isRecording && <GenRxTips />}
 
                   {isRecording ? (
                     <div

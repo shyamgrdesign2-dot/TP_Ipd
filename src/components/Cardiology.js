@@ -380,9 +380,14 @@ function Cardiology(props) {
 
   const printContent = async () => {
     if (showDigitalRx){
+      window.Moengage.track_event("TP_Digitised_Prescription_Print", {
+        Doctor_Name: profile?.um_name,
+        Doctor_Number: profile?.um_contact,
+        Doctor_Unique_Id: profile?.doctor_unique_id,
+      });
       await window.open(printUrl)
     }
-    else if(showDigitalGenRx) {
+    else if(showDigitalGenRx && !isSmartRxFile) {
       const urlObj = new URL(viewCaseManagerData?.print_url);
       urlObj.searchParams.set("voiceRxDigitize", "true");
       const updatedUrl = urlObj.toString();
@@ -396,6 +401,11 @@ function Cardiology(props) {
   const printInAppContent = async () => {
     let voiceRxUrl;
     if(showDigitalGenRx) {
+      window.Moengage.track_event("TP_Digitised_Prescription_Print", {
+        Doctor_Name: profile?.um_name,
+        Doctor_Number: profile?.um_contact,
+        Doctor_Unique_Id: profile?.doctor_unique_id,
+      });
       const urlObj = new URL(viewCaseManagerData?.print_url);
       urlObj.searchParams.set("voiceRxDigitize", "true");
       voiceRxUrl = urlObj.toString();

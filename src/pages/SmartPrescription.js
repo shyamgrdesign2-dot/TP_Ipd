@@ -136,9 +136,10 @@ function SmartPrescription() {
   const dispatch = useDispatch();
 
   const { state } = useLocation();
-  const { patient_data, send_path, caseManagerData, smartRxFilesData } = state;
+  const { patient_data, send_path, caseManagerData, smartRxFilesData, pam_id } = state;
   const chartType = state?.chartType;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
+  const pamId = pam_id ? pam_id : caseManagerData !== undefined ? caseManagerData.pam_id : 0;
   const consultationDate =
     caseManagerData !== undefined
       ? caseManagerData.consultation_date
@@ -200,6 +201,7 @@ function SmartPrescription() {
     patient_data,
     send_path,
     tcmId,
+    pamId,
     consultationDate,
     symptomsData,
     setSymptomsData,
