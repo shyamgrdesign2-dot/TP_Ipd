@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Button from "react-bootstrap/Button";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Drawer, message, Spin, Tooltip } from "antd";
+import { Drawer, message, Spin, Tooltip, Popover } from "antd";
 
 import ConfirmAppointment from "./components/ConfirmAppointment";
 import { addAppointment, getSlotsList } from "./service";
-import { errorMessage, getTokenData } from "../../utils/utils";
+import { errorMessage, getTokenData, getClinicName } from "../../utils/utils";
 import Form from "react-bootstrap/Form";
 import { DatePicker, Tabs, Select } from "antd";
 import tutorial from "../../assets/images/tutorial-icon.svg";
@@ -32,6 +32,8 @@ import config from "../../config";
 import axios from "axios";
 import { upsertDoctorSettingFlag } from "../../redux/doctorsSlice";
 import { getCaseTypes, listCategories } from "../../redux/appointmentsSlice";
+import playIcons from "../../assets/images/tube-icon.svg";
+import VideoModal from "../../common/VideoModal";
 
 const TIME_SECTIONS_CONFIG = [
   { key: 'MIDNIGHT', label: 'Midnight', timeRange: '12AM - 3AM' },
@@ -355,6 +357,10 @@ function AddAppointment() {
 
   // Add loading state
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+
+  const [popOverVideo, setPopOverVideo] = useState(false);
+  const [videoLink, setVideoLink] = useState(null);
+  const { videoList } = useSelector((state) => state.doctors);
 
   // Helper function to find the first available section
   const getFirstAvailableSection = (timeSlots) => {
@@ -828,6 +834,68 @@ function AddAppointment() {
     }
   }, [profile?.userSettingFlag]);
 
+  //PopOverVideo function
+  const showHideVideoListPopover = useCallback(() => {
+    setPopOverVideo(!popOverVideo);
+  }, [popOverVideo]);
+
+  //Video Componet
+  const VIDEO_CONTENT = useCallback(() => {
+    return (
+      <>
+        <div className="video-contant rounded-4 p-20 zindex-99999" key="oneclickrx-video">
+          <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+            <div className="title-common lh-base">Video Tutorial</div>
+            <Button
+              className="btn btn-videoClose p-0"
+              onClick={showHideVideoListPopover}
+            >
+              <i className="icon-Cross" />
+            </Button>
+          </div>
+          {videoList[16]?.video?.slice(0, 1).map((item1, i1) => {
+            return (
+              <div
+                key={i1}
+                className={`d-flex ${
+                  i1 !== videoList[13]?.video.length - 1 &&
+                  "pb-3 mb-15 border-bottom"
+                }`}
+              >
+                <div className="tutorial-play me-14">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVideoLink(item1);
+                      const clinic_name = getClinicName(profile?.hospital_data);
+                      window.Moengage.track_event("TP_Tutorial_Viewed", {
+                        clinic_name,
+                        tutorial_type: videoList[16]?.category,
+                      });
+                    }}
+                  >
+                    <img src={playIcons} />
+                  </button>
+                  <span className="tutorial-thumb">
+                    <img src={item1.thumbnail} />
+                  </span>
+                </div>
+                <div>
+                  <h3 className="title-common text-welcome">
+                    {item1?.tmv_title}
+                  </h3>
+                  <div className="fs-12 fontroboto fw-normal text-main">
+                    {item1?.tmv_description}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </>
+    );
+  }, [popOverVideo]);
+
   return (
     <>
       <div className="welcomesection position-relative">
@@ -845,12 +913,27 @@ function AddAppointment() {
           </div>
           <div className="d-flex gap-1">
             <div className="d-lg-flex d-block">
-              <button className="btn d-flex align-items-center btn-text mx-3 tutorial p-0">
-                <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
-                  <img height={42} src={tutorial} />
-                  Tutorial
-                </span>
-              </button>
+              <Popover
+                open={popOverVideo}
+                onOpenChange={showHideVideoListPopover}
+                content={VIDEO_CONTENT}
+                trigger="click"
+                overlayClassName="pop-430 pp-0 videoTutorial"
+                placement="bottom"
+              >
+                <button className="btn d-flex align-items-center btn-text mx-3 tutorial p-0">
+                  <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
+                    <img height={42} src={tutorial} />
+                    Tutorial
+                  </span>
+                </button>
+              </Popover>
+              {videoLink && (
+                <VideoModal
+                  videoLink={videoLink}
+                  onCancel={() => setVideoLink(null)}
+                />
+              )}
 
               <Button
                 variant="primary"
