@@ -580,7 +580,7 @@ function SmartRxPreview() {
                                                 </div>
                                             </div>
                                             <button onClick={handleDigitiseRx} className="digitise-btn">
-                                                Digitise Rx Now <span>&#8594;</span> 
+                                                View Digitised Rx <span>&#8594;</span> 
                                             </button>
                                         </div>
                                     )}
