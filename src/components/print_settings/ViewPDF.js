@@ -440,7 +440,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
                 : letterhead_format === 1
                     ? fileFooter?.imageShow
-                        ? footerImageHeight + 25
+                        ? footerImageHeight
                         : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
                         : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25,
             paddingLeft: [0,1,2].includes(letterhead_format)
