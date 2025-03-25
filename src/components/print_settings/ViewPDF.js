@@ -481,7 +481,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
           img.onload = function () {
             // Convert to PDF points
             const heightInPt = this.height * PX_TO_PT;
-            console.log("Footer Image Height:", heightInPt);
             setFooterImageHeight(heightInPt);
           };
 
@@ -524,9 +523,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 paddingTop: PX_TO_PT * 30,
                 paddingBottom: whatsapp_letterhead_format === 1
                     ? fileFooter?.imageShow
-                        ? footerImageHeight + 24
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 24
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 24,
+                        ? footerImageHeight + 25
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25,
                 paddingLeft: PX_TO_PT * 30,
                 paddingRight: PX_TO_PT * 30,
                 display: 'flex',
@@ -539,12 +538,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
                 : PX_TO_PT * 30,
             paddingBottom: letterhead_format === 2
-                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 24
+                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
                 : letterhead_format === 1
                     ? fileFooter?.imageShow
-                        ? footerImageHeight + 24
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 24
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 24,
+                        ? footerImageHeight + 25
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25,
             paddingLeft: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
                 : PX_TO_PT * 30,
