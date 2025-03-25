@@ -56,8 +56,8 @@ const dev = {
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
-  // tatvaPedia_api_url: "https://diginext-authserver-uat.grayisland-b2cef66c.centralindia.azurecontainerapps.io",
-  // tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
+  tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in",
+  tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
 };
 
 const qa_tp = {
@@ -122,8 +122,8 @@ const qa_tp = {
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
-  // tatvaPedia_api_url: "https://diginext-authserver-uat.grayisland-b2cef66c.centralindia.azurecontainerapps.io", // for the future use
-  // tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
+  tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
+  tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
 };
 
 const qa = {
@@ -184,8 +184,8 @@ const qa = {
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
-  // tatvaPedia_api_url: "https://diginext-authserver-uat.grayisland-b2cef66c.centralindia.azurecontainerapps.io", // for the future use
-  // tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
+  tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
+  tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
 };
 
 const uat = {
@@ -251,8 +251,8 @@ const uat = {
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-uat.tatvacare.in",
-  // tatvaPedia_api_url: "https://diginext-authserver-uat.grayisland-b2cef66c.centralindia.azurecontainerapps.io", // for the future use
-  // tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
+  tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
+  tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
 };
 
 const prod = {
@@ -313,8 +313,8 @@ const prod = {
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-prod.tatvacare.in",
-  // tatvaPedia_api_url: "https://diginext-authserver-prod.grayisland-b2cef66c.centralindia.azurecontainerapps.io", // for the future use
-  // tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in",
+  tatvaPedia_api_url: "https://diginext-authserver.tatvacare.in", // for the future use
+  tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in",
 };
 
 const getEnv = () => {
