@@ -12,7 +12,10 @@ import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { isMobile } from "react-device-detect";
 import genRxMentionHeadings from "../assets/lotties/genRxMentionHeadingsTip.lottie";
 import genRxFocused from "../assets/lotties/genRxStayFocusedTip.lottie";
+import genRxConcise from "../assets/lotties/genRxBeConciseTip.json";
+import genRxType from "../assets/lotties/genRxTypeTip.json";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import Lottie from "lottie-react";
 
 const carouselItemStyle = {
   display: "flex",
@@ -23,8 +26,7 @@ const carouselItemStyle = {
   borderRadius: "24px",
   padding: "20px",
   height: "168px",
-  width: "480px",
-  // margin: "0 auto",
+  width: "492px",
   transition: "transform 0.3s ease",
 };
 
@@ -52,6 +54,7 @@ const tipIconStyle = {
 
 const tipTitleStyle = {
   color: "#4B4AD5",
+  display: "flex",
 };
 
 const textStyle = {
@@ -128,25 +131,29 @@ const GenRxTips = ({ isKnowMore }) => {
         description:
           "While dictating Rx include headings like 'Symptoms', 'Medication' etc. to keep information organised.",
         animationData: genRxMentionHeadings,
+        key: "mention-headings",
       },
       {
         title: <span className="main-color">Stay Focused</span>,
         description:
           "Stick to only prescription details. Avoid irrelevant information for clear and precise dictation.",
         animationData: genRxFocused,
+        key: "stay-focused",
       },
-      // {
-      //   title: "Dictate Rx in One Go",
-      //   description:
-      //     "Dictate prescription details clearly and completely in one go for better and faster results.",
-      //   animationData: genRxConcise,
-      // },
-      // {
-      //   title: "You Can Type Too",
-      //   description:
-      //     "Listen to a sample voice dictation for guidance on how to dictate clear and concise prescriptions.",
-      //   animationData: genRxType,
-      // },
+      {
+        title: <span className="main-color">Dictate Rx in One Go</span>,
+        description:
+          "Dictate prescription details clearly and completely in one go for better and faster results.",
+        animationData: genRxConcise,
+        key: "dictate-rx-in-one-go",
+      },
+      {
+        title: <span className="main-color">You Can Type Too</span>,
+        description:
+          "Listen to a sample voice dictation for guidance on how to dictate clear and concise prescriptions.",
+        animationData: genRxType,
+        key: "you-can-type-too",
+      },
     ],
     []
   );
@@ -267,7 +274,13 @@ const GenRxTips = ({ isKnowMore }) => {
         }
       >
         {tips.map((tip, index) => (
-          <div key={index} style={{...carouselItemStyle, margin: isKnowMore ? "0" : "0 auto"}}>
+          <div
+            key={index}
+            style={{
+              ...carouselItemStyle,
+              margin: isKnowMore ? "0" : "0 auto",
+            }}
+          >
             <div style={columnStyle}>
               <div style={tipStyle}>
                 <img src={tipIcon} alt="tip-icon" style={tipIconStyle} />
@@ -276,12 +289,21 @@ const GenRxTips = ({ isKnowMore }) => {
               <p style={textStyle}>{tip.description}</p>
             </div>
 
-            <DotLottieReact
-              src={tip.animationData}
-              loop
-              autoplay
-              style={{ width: "240px", height: "140px" }}
-            />
+            {["mention-headings", "stay-focused"].includes(tip.key) ? (
+              <DotLottieReact
+                src={tip.animationData}
+                loop
+                autoplay
+                style={{ width: "240px", height: "140px" }}
+              />
+            ) : (
+              <Lottie
+                animationData={tip.animationData}
+                loop
+                autoplay
+                style={{ width: "240px", height: "140px" }}
+              />
+            )}
           </div>
         ))}
       </Carousel>
