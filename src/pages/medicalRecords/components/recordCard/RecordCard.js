@@ -23,6 +23,7 @@ import { db } from "../../../../firebase";
 import { loadPdf, mergeDocuments, shortenText } from "../../utils/helper";
 import config from "../../../../config";
 import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../../../../utils/constants";
+import { getDecodedToken } from "../../../../utils/localStorage";
 
 const RecordCard = ({
   cardData,
