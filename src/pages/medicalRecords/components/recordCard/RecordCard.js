@@ -33,6 +33,7 @@ const RecordCard = ({
   setUploadDocDrawer,
 }) => {
   const dispatch = useDispatch();
+  const decodedToken = getDecodedToken();
   const location = useLocation();
   const { state } = location;
   const { patient_data } = state;
@@ -240,7 +241,12 @@ const RecordCard = ({
 
   const handleThumbnailClick = () => {
     if (category_id === -3) {
-      window.open(`http://10.11.100.106:6162/Launch_Viewer.asp?Username=hisuser&Password=hisuser&patientid=${patient_data.mrno}`);
+      const tokenData = decodedToken?.result;
+      if (tokenData.clinic_id == 8061) {
+        window.open(`http://10.12.100.170:6162/Launch_Viewer.asp?Username=hisuser&Password=hisuser&patientid=${patient_data.mrno}`);
+      } else {
+        window.open(`http://10.11.100.106:6162/Launch_Viewer.asp?Username=hisuser&Password=hisuser&patientid=${patient_data.mrno}`);
+      }
     } else {
       setShowPreview(true);
     }
