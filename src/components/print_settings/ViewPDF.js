@@ -4557,120 +4557,53 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : option?.format === "listview" ? (
                                             <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text>
-                                                    <>
-                                                        <Text
-                                                            style={{
-                                                                color: "#171725",
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 700,
-                                                            }}
-                                                        >
-                                                            Lab Results:&nbsp;
+                                                <Text style={{
+                                                    color: "#171725",
+                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                    fontWeight: 700,
+                                                }}>
+                                                    Lab Results:
+                                                </Text>
+    
+                                                {labParamsPatchData?.map((item, dateIndex) => (
+                                                    <View key={dateIndex}>
+                                                        <Text style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 500,
+                                                            marginTop: PX_TO_PT * 8,
+                                                        }}>
+                                                            {moment(item?.date).format("Do MMM YYYY")}
                                                         </Text>
-
-                                                        {labParamsPatchData?.map((item, i) => (
-                                                            <>
-                                                                <Text
-                                                                    style={{
-                                                                        color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                    }}
-                                                                >
-                                                                    &nbsp;{"\n"}&nbsp;&nbsp;&nbsp;
+    
+                                                        {Object.entries(item.groupedInputs).map(([reportName, tests], reportIndex) => (
+                                                            <View key={reportIndex} style={{ marginLeft: PX_TO_PT * 16 }}>
+                                                                <Text style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}>
+                                                                    {reportIndex + 1}. {reportName}
                                                                 </Text>
-                                                                <Text
-                                                                    style={{
+    
+                                                                {tests.map((input, testIndex) => (
+                                                                    <Text key={testIndex} style={{
                                                                         color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                    }}
-                                                                >
-                                                                    {i + 1}.&nbsp;&nbsp;
-                                                                </Text>
-                                                                <Text
-                                                                    key={i}
-                                                                    style={{
-                                                                        color: '#171725',
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                    }}
-                                                                >
-                                                                    {moment(item?.date).format('Do MMM YYYY')}&nbsp;
-                                                                </Text>
-                                                                <Text
-                                                                    style={{
-                                                                        color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontFamily: getIndianLanguageFont(input.value, printSettings?.page_format?.font_family),
                                                                         fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                         fontWeight: 400,
-                                                                    }}
-                                                                >
-                                                                    -&nbsp;
-                                                                </Text>
-
-                                                                {Object.entries(item.groupedInputs).map(([reportName, tests], reportIndex) => (
-                                                                    <Text key={reportIndex}>
-                                                                        {reportIndex !== 0 && (
-                                                                            <Text
-                                                                                style={{
-                                                                                    color: "#171725",
-                                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                    fontWeight: 400,
-                                                                                }}
-                                                                            >
-                                                                                ),&nbsp;
-                                                                            </Text>
-                                                                        )}
-
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 500,
-                                                                            }}
-                                                                        >
-                                                                            {reportName}&nbsp;(
-                                                                        </Text>
-
-                                                                        {tests.map((input, inputIndex) => (
-                                                                            <Text
-                                                                                key={inputIndex}
-                                                                                style={{
-                                                                                    color: "#171725",
-                                                                                    fontFamily: getIndianLanguageFont(input.value, printSettings?.page_format?.font_family),
-                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                    fontWeight: 400,
-                                                                                }}
-                                                                            >
-                                                                                {inputIndex !== 0 && <Text>, </Text>}
-                                                                                {input.testName}:&nbsp;{input.value}&nbsp;{input.testName !== 'Remarks' ? input.units : ''}
-                                                                            </Text>
-                                                                        ))}
+                                                                        marginLeft: PX_TO_PT * 24,
+                                                                    }}>
+                                                                        {String.fromCharCode(97 + testIndex)}. {input.testName}: {input.value} {input.testName !== 'Remarks' ? input.units : ''}
                                                                     </Text>
                                                                 ))}
-
-                                                                <Text
-                                                                    style={{
-                                                                        color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 400,
-                                                                    }}
-                                                                >
-                                                                    )
-                                                                </Text>
-                                                            </>
+                                                            </View>
                                                         ))}
-                                                    </>
-                                                </Text>
+                                                    </View>
+                                                ))}
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
