@@ -303,7 +303,7 @@ const Signup = ({reason, handleView, number}) => {
             setError("Please enter First Name");
             return;
         }
-        const fnameRegex = /^[^\s]+$/;
+        const fnameRegex = /^[A-Za-z]+(?: [A-Za-z]+)?$/;
         if (fnameRegex.test(fname.trim()) === false) {
             setError("Please enter a valid First Name");
             return;
