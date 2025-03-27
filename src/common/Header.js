@@ -663,7 +663,9 @@ function Header({ locationPath }) {
       // Even if there's an error, clear storage and redirect
       localStorage.clear();
       sessionStorage.clear();
-      window.location.href = "/login";
+      
+      // Redirect to login page
+      navigate("/login");
     } finally {
       setIsLoading(false);
       window.isLoggingOut = false;
