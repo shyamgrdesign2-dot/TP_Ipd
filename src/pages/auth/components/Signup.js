@@ -303,7 +303,7 @@ const Signup = ({reason, handleView, number}) => {
             setError("Please enter First Name");
             return;
         }
-        const fnameRegex = /^[^\s]+$/;
+        const fnameRegex = /^[A-Za-z]+(?: [A-Za-z]+)?$/;
         if (fnameRegex.test(fname.trim()) === false) {
             setError("Please enter a valid First Name");
             return;
@@ -331,12 +331,12 @@ const Signup = ({reason, handleView, number}) => {
         setLoading(true);
         localStorage.setItem('mo_mobile', "91" + mobileNumber);
         const userOnboard = await onboardUser({
-            firstname: fname,
-            lastname: lname,
+            first_name: fname,
+            last_name: lname,
             password: 'PMLITE@123',
-            country_code: "+91",
-            phone_number: mobileNumber,
+            mbl_no: "91" + mobileNumber,
             speciality: specialty,
+            plan_type: 'TC+PM+EN+TRIAL',
             utm_campaign: params.get("utm_campaign") ?? 'NA',
             utm_source: params.get("utm_source") ?? 'NA',
             utm_medium:params.get("utm_medium") ?? 'NA',
