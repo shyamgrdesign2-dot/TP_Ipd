@@ -326,7 +326,7 @@ const getEnv = () => {
     case "qa":
       return qa;
     case "uat":
-      return prod;
+      return uat;
     case "prod":
       return prod;
     default:
