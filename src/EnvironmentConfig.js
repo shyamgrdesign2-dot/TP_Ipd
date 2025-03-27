@@ -313,8 +313,8 @@ const prod = {
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-prod.tatvacare.in",
-  tatvaPedia_api_url: "https://diginext-authserver.tatvacare.in", // for the future use
-  tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in",
+  tatvaPedia_api_url: "https://diginext-authserver-prod.tatvacare.in ",
+  tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in", 
 };
 
 const getEnv = () => {
@@ -326,7 +326,7 @@ const getEnv = () => {
     case "qa":
       return qa;
     case "uat":
-      return uat;
+      return prod;
     case "prod":
       return prod;
     default:
