@@ -294,8 +294,7 @@ const prod = {
   rx_digitization: "https://pm-rxdigitization-prod.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-prod.tatvacare.in",
   lab_params_api_url: "https://pm-patient-docs-prod.tatvacare.in",
-  user_management_api_url:
-    "https://user-management57548prod.azurewebsites.net/",
+  user_management_api_url: "https://diginext-usermgmt-prod.tatvacare.in",
   razorpay_integration_url: "https://pm-razorpay-uat-integration.tatvacare.in",
   api_secret_key: "184028f7-a9dh-4518-k1f2-q07t5mn11g72",
   api_key: "TC_01o89208247drot41",
