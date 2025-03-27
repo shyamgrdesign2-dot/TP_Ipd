@@ -345,65 +345,87 @@ const DigitisedPrescription = ({ data, setData }) => {
     );
   };
 
+  const hasValidContent = (type) => {
+    if (!data[type] || !Array.isArray(data[type])) return false;
+    
+    return data[type].some(item => {
+      if (typeof item === 'string') return item.trim().length > 0;
+      
+      // For object types, check if any relevant fields have content
+      const relevantFields = {
+        medications: ['refinedName', 'lineItem'],
+        symptoms: ['name', 'lineItem'],
+        examination: ['name', 'notes'],
+        diagnosis: ['name', 'notes'],
+        medicalHistory: ['name', 'lineItem'],
+        vaccinations: ['name', 'lineItem'],
+        tests: ['refinedName', 'lineItem']
+      };
+
+      const fieldsToCheck = relevantFields[type] || ['name'];
+      return fieldsToCheck.some(field => item[field]?.trim?.().length > 0);
+    });
+  };
+
   return (
     <div className="digitised-container">
-      {data?.vitals && Object.values(data.vitals).some((value) => value) && (
+      {data?.vitals && Object.values(data.vitals).some(value => value?.trim?.().length > 0) && (
         <>
           <div className="title-digitise-section mb-2">Vitals</div>
           {renderItems("vitals")}
         </>
       )}
 
-      {data?.medicalHistory && data.medicalHistory.length > 0 && (
+      {data?.medicalHistory && hasValidContent("medicalHistory") && (
         <>
           <div className="title-digitise-section mb-2">Medical History</div>
           {renderItems("medicalHistory")}
         </>
       )}
 
-      {data?.symptoms && data.symptoms.length > 0 && (
+      {data?.symptoms && hasValidContent("symptoms") && (
         <>
           <div className="title-digitise-section mb-2">Symptoms</div>
           {renderItems("symptoms")}
         </>
       )}
 
-      {data?.examination && data.examination.length > 0 && (
+      {data?.examination && hasValidContent("examination") && (
         <>
           <div className="title-digitise-section mb-2">Examination</div>
           {renderItems("examination")}
         </>
       )}
 
-      {data?.diagnosis && data.diagnosis.length > 0 && (
+      {data?.diagnosis && hasValidContent("diagnosis") && (
         <>
           <div className="title-digitise-section mb-2">Diagnosis</div>
           {renderItems("diagnosis")}
         </>
       )}
 
-      {data?.medications && data.medications.length > 0 && (
+      {data?.medications && hasValidContent("medications") && (
         <>
           <div className="title-digitise-section mb-2">Medicine</div>
           {renderItems("medications")}
         </>
       )}
 
-      {data?.tests && data.tests.length > 0 && (
+      {data?.tests && hasValidContent("tests") && (
         <>
           <div className="title-digitise-section mb-2">Lab Investigation</div>
           {renderItems("tests")}
         </>
       )}
 
-      {data?.advice && data.advice.length > 0 && (
+      {data?.advice && hasValidContent("advice") && (
         <>
           <div className="title-digitise-section mb-2">Advices</div>
           {renderItems("advice")}
         </>
       )}
 
-      {data?.vaccinations && data.vaccinations.length > 0 && (
+      {data?.vaccinations && hasValidContent("vaccinations") && (
         <>
           <div className="title-digitise-section mb-2">Vaccination</div>
           {renderItems('vaccinations')}

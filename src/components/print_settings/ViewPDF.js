@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Font, Page, Text, View, Image, Document, StyleSheet } from '@react-pdf/renderer';
 import { isNumeric, medicine_freq_dosage_format, chunkArray, capitalize, getIndianLanguageFont } from '../../utils/utils'
 import { EXTRA_OPTIONS, NORMAL, WHATSAPP } from '../../utils/constants';
@@ -469,6 +469,51 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             : PX_TO_PT * 30;
     };
 
+   const [footerImageHeight, setFooterImageHeight] = useState(0);
+
+    useEffect(() => {
+      const loadImage = () => {
+        if (fileFooter?.showFile) {
+          // Use window.Image instead of Image
+          const img = new window.Image();
+          img.src = fileFooter.showFile;
+
+          img.onload = function () {
+            // Convert to PDF points
+            const heightInPt = this.height * PX_TO_PT;
+            setFooterImageHeight(heightInPt);
+          };
+
+          img.onerror = function (error) {
+            console.error("Error loading footer image:", error);
+            setFooterImageHeight(0);
+          };
+        }
+      };
+
+      loadImage();
+    }, [fileFooter?.showFile]);
+    
+     const renderFooterImage = () => {
+       try {
+         if (fileFooter?.showFile && fileFooter?.imageShow) {
+           return (
+             <Image
+               src={fileFooter.showFile}
+               style={{
+                 width: "100%",
+                 objectFit: "cover",
+               }}
+             />
+           );
+         }
+         return null;
+       } catch (error) {
+         console.error("Error rendering footer image:", error);
+         return null;
+       }
+     };
+
     const calculatePadding = () => {
         const { letterhead_format, header_footer, whatsapp_letterhead_format } = printSettings || {};
         const footer = header_footer?.footer;
@@ -477,12 +522,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             return {
                 paddingTop: PX_TO_PT * 30,
                 paddingBottom: whatsapp_letterhead_format === 1
-                    ? fileFooter
-                        ? 110
-                        : PX_TO_PT * 30
-                    : footer?.title
-                        ? 35 + parseInt(footer?.font_size)
-                        : PX_TO_PT * 30,
+                    ? fileFooter?.imageShow
+                        ? footerImageHeight + 25
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25,
                 paddingLeft: PX_TO_PT * 30,
                 paddingRight: PX_TO_PT * 30,
                 display: 'flex',
@@ -495,14 +538,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
                 : PX_TO_PT * 30,
             paddingBottom: letterhead_format === 2
-                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5)
+                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
                 : letterhead_format === 1
-                    ? fileFooter
-                        ? 110
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5)
-                    : footer?.title
-                        ? 35 + parseInt(footer?.font_size)
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5),
+                    ? fileFooter?.imageShow
+                        ? footerImageHeight
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25,
             paddingLeft: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
                 : PX_TO_PT * 30,
@@ -518,9 +559,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         <Document>
             <Page
                 size="A4"
-                style={paddingStyles}
+                style={[paddingStyles, {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                }]}
                 wrap={!smartRxData}>
-
+                <View style={{flex: 1}}>    
                 <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed>
                     {mode == NORMAL ? (
                         printSettings?.letterhead_format === 0 ? (
@@ -4512,120 +4557,53 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : option?.format === "listview" ? (
                                             <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text>
-                                                    <>
-                                                        <Text
-                                                            style={{
-                                                                color: "#171725",
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 700,
-                                                            }}
-                                                        >
-                                                            Lab Results:&nbsp;
+                                                <Text style={{
+                                                    color: "#171725",
+                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                    fontWeight: 700,
+                                                }}>
+                                                    Lab Results:
+                                                </Text>
+    
+                                                {labParamsPatchData?.map((item, dateIndex) => (
+                                                    <View key={dateIndex}>
+                                                        <Text style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 500,
+                                                            marginTop: PX_TO_PT * 8,
+                                                        }}>
+                                                            {moment(item?.date).format("Do MMM YYYY")}
                                                         </Text>
-
-                                                        {labParamsPatchData?.map((item, i) => (
-                                                            <>
-                                                                <Text
-                                                                    style={{
-                                                                        color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                    }}
-                                                                >
-                                                                    &nbsp;{"\n"}&nbsp;&nbsp;&nbsp;
+    
+                                                        {Object.entries(item.groupedInputs).map(([reportName, tests], reportIndex) => (
+                                                            <View key={reportIndex} style={{ marginLeft: PX_TO_PT * 16 }}>
+                                                                <Text style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}>
+                                                                    {reportIndex + 1}. {reportName}
                                                                 </Text>
-                                                                <Text
-                                                                    style={{
+    
+                                                                {tests.map((input, testIndex) => (
+                                                                    <Text key={testIndex} style={{
                                                                         color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                    }}
-                                                                >
-                                                                    {i + 1}.&nbsp;&nbsp;
-                                                                </Text>
-                                                                <Text
-                                                                    key={i}
-                                                                    style={{
-                                                                        color: '#171725',
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                    }}
-                                                                >
-                                                                    {moment(item?.date).format('Do MMM YYYY')}&nbsp;
-                                                                </Text>
-                                                                <Text
-                                                                    style={{
-                                                                        color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontFamily: getIndianLanguageFont(input.value, printSettings?.page_format?.font_family),
                                                                         fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                         fontWeight: 400,
-                                                                    }}
-                                                                >
-                                                                    -&nbsp;
-                                                                </Text>
-
-                                                                {Object.entries(item.groupedInputs).map(([reportName, tests], reportIndex) => (
-                                                                    <Text key={reportIndex}>
-                                                                        {reportIndex !== 0 && (
-                                                                            <Text
-                                                                                style={{
-                                                                                    color: "#171725",
-                                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                    fontWeight: 400,
-                                                                                }}
-                                                                            >
-                                                                                ),&nbsp;
-                                                                            </Text>
-                                                                        )}
-
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 500,
-                                                                            }}
-                                                                        >
-                                                                            {reportName}&nbsp;(
-                                                                        </Text>
-
-                                                                        {tests.map((input, inputIndex) => (
-                                                                            <Text
-                                                                                key={inputIndex}
-                                                                                style={{
-                                                                                    color: "#171725",
-                                                                                    fontFamily: getIndianLanguageFont(input.value, printSettings?.page_format?.font_family),
-                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                    fontWeight: 400,
-                                                                                }}
-                                                                            >
-                                                                                {inputIndex !== 0 && <Text>, </Text>}
-                                                                                {input.testName}:&nbsp;{input.value}&nbsp;{input.testName !== 'Remarks' ? input.units : ''}
-                                                                            </Text>
-                                                                        ))}
+                                                                        marginLeft: PX_TO_PT * 24,
+                                                                    }}>
+                                                                        {String.fromCharCode(97 + testIndex)}. {input.testName}: {input.value} {input.testName !== 'Remarks' ? input.units : ''}
                                                                     </Text>
                                                                 ))}
-
-                                                                <Text
-                                                                    style={{
-                                                                        color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 400,
-                                                                    }}
-                                                                >
-                                                                    )
-                                                                </Text>
-                                                            </>
+                                                            </View>
                                                         ))}
-                                                    </>
-                                                </Text>
+                                                    </View>
+                                                ))}
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
@@ -5008,12 +4986,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     )}
                 </View>
 
-
+                </View>
                 <View style={{
                     position: 'absolute',
-                    bottom: PX_TO_PT * 30,
-                    left: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
-                    right: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
+                    bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
+                    left: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
+                    right: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
                     }} fixed>
                     {mode == NORMAL ? (
                         printSettings?.letterhead_format === 0 ? (
@@ -5023,9 +5001,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             </View>
                         ) : printSettings?.letterhead_format === 1 && (
                             fileFooter && fileFooter?.imageShow && (
-                                <Image
-                                    style={{ width: '100%', objectFit: 'cover' }}
-                                    src={fileFooter?.showFile} />
+                                renderFooterImage()
                             )
                         )
                     ) : (
@@ -5036,15 +5012,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             </View>
                         ) : printSettings?.whatsapp_letterhead_format === 1 && (
                             fileFooter && fileFooter?.imageShow && (
-                                <Image
-                                    style={{ width: '100%', objectFit: 'cover' }}
-                                    src={fileFooter?.showFile} />
+                                renderFooterImage()
                             )
                         )
                     )}
                 </View>
 
-                {/* </View> */}
             </Page>
         </Document>
     )
