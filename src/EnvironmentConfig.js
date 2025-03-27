@@ -294,8 +294,7 @@ const prod = {
   rx_digitization: "https://pm-rxdigitization-prod.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-prod.tatvacare.in",
   lab_params_api_url: "https://pm-patient-docs-prod.tatvacare.in",
-  user_management_api_url:
-    "https://user-management57548prod.azurewebsites.net/",
+  user_management_api_url: "https://diginext-usermgmt-prod.tatvacare.in",
   razorpay_integration_url: "https://pm-razorpay-uat-integration.tatvacare.in",
   api_secret_key: "184028f7-a9dh-4518-k1f2-q07t5mn11g72",
   api_key: "TC_01o89208247drot41",
@@ -313,8 +312,8 @@ const prod = {
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-prod.tatvacare.in",
-  tatvaPedia_api_url: "https://diginext-authserver.tatvacare.in", // for the future use
-  tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in",
+  tatvaPedia_api_url: "https://diginext-authserver-prod.tatvacare.in ",
+  tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in", 
 };
 
 const getEnv = () => {
