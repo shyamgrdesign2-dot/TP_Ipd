@@ -598,11 +598,18 @@ function Header({ locationPath }) {
           iframe.style.border = "none";
           iframe.style.visibility = "hidden";
   
+          // Set a timeout to reject if the iframe doesn't load within 5 seconds
+          const timeoutId = setTimeout(() => {
+            reject({ url, status: "timeout" });
+          }, 5000);
+  
           iframe.onload = () => {
+            clearTimeout(timeoutId);
             resolve({ url, status: "success" });
           };
   
           iframe.onerror = () => {
+            clearTimeout(timeoutId);
             reject({ url, status: "error" });
           };
   
@@ -620,7 +627,6 @@ function Header({ locationPath }) {
   };
   
   const handleLogout = async () => {
-    // URLs to open silently
     const urlsToOpen = [
       config.pedia_logout_url,
       config.tatvaAi_logout_url,
@@ -634,25 +640,32 @@ function Header({ locationPath }) {
       // Show loader
       setIsLoading(true);
 
-      // Open logout URLs silently
-      await openUrlsSilently(urlsToOpen);
-
-      // Small delay to allow logout requests to complete
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setTimeout(async () => {
+        try {
+          // Try to open URLs and get their statuses
+          const urlStatuses = await openUrlsSilently(urlsToOpen);
+          // Log results and check for failures
+          console.log("Logout URL statuses:", urlStatuses);
+        } catch (error) {
+          console.error("Error opening logout URLs:", error);
+        }
+      }, 1000);
 
       // Clear storage - this is our confirmation of logout
       localStorage.clear();
       sessionStorage.clear();
 
       // Redirect to login page
-      window.location.href = "/login";
+      navigate("/login");
 
     } catch (error) {
       console.error("Error during logout:", error);
       // Even if there's an error, clear storage and redirect
       localStorage.clear();
       sessionStorage.clear();
-      window.location.href = "/login";
+      
+      // Redirect to login page
+      navigate("/login");
     } finally {
       setIsLoading(false);
       window.isLoggingOut = false;
