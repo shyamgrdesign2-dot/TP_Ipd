@@ -1823,14 +1823,15 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     )
                                                 })}
                                                 {caseManagerData?.medical_history?.[0]?.medical_history_remarks &&
-                                                    <>
-                                                        <Text style={{ color: '#000', marginTop: PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`Additional History : `}</Text>
-                                                        <View style={[styles.table, { marginTop: 0 }]}>
-                                                            <View style={styles.row} wrap={false}>
-                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{caseManagerData?.medical_history?.[0]?.medical_history_remarks}&nbsp;</Text>
-                                                            </View>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.headerRow} fixed>
+                                                            <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Additional History :</Text>
                                                         </View>
-                                                    </>
+
+                                                        <View style={styles.row} wrap={false}>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{caseManagerData?.medical_history?.[0]?.medical_history_remarks}&nbsp;</Text>
+                                                        </View>
+                                                    </View>
                                                 }
                                             </View>
                                         )
