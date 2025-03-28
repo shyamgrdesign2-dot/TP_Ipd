@@ -78,11 +78,9 @@ export const getSpecialityList = async () => {
 export const onboardUser = async (body) => {
   try {
 
-    const response = await axios.post(`${userMgmtUrl}/user/tatva/register`, JSON.stringify(body), {
+    const response = await axios.post(`${baseUrl}/api/v1/oauth2/signup`, JSON.stringify(body), {
       headers: {
         'Content-Type': 'application/json',
-        'api_key': config.lite_api_key,
-        'api_secret_key': config.lite_secret_key,
       }
     });
     return response;
