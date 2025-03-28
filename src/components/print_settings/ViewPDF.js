@@ -523,7 +523,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 paddingTop: PX_TO_PT * 30,
                 paddingBottom: whatsapp_letterhead_format === 1
                     ? fileFooter?.imageShow
-                        ? footerImageHeight
+                        ? footerImageHeight + 5
                         : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
                         : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5,
                 paddingLeft: PX_TO_PT * 30,
@@ -541,7 +541,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
                 : letterhead_format === 1
                     ? fileFooter?.imageShow
-                        ? footerImageHeight
+                        ? footerImageHeight + 5
                         : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
                         : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5,
             paddingLeft: [0,1,2].includes(letterhead_format)
