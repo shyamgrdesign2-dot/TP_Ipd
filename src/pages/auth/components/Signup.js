@@ -331,12 +331,12 @@ const Signup = ({reason, handleView, number}) => {
         setLoading(true);
         localStorage.setItem('mo_mobile', "91" + mobileNumber);
         const userOnboard = await onboardUser({
-            first_name: fname,
-            last_name: lname,
+            firstname: fname,
+            lastname: lname,
             password: 'PMLITE@123',
-            mbl_no: "91" + mobileNumber,
+            phone_number: mobileNumber,
+            country_code: "+91",
             speciality: specialty,
-            plan_type: 'TC+PM+EN+TRIAL',
             utm_campaign: params.get("utm_campaign") ?? 'NA',
             utm_source: params.get("utm_source") ?? 'NA',
             utm_medium:params.get("utm_medium") ?? 'NA',
