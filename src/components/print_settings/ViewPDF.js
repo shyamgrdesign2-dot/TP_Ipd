@@ -523,9 +523,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 paddingTop: PX_TO_PT * 30,
                 paddingBottom: whatsapp_letterhead_format === 1
                     ? fileFooter?.imageShow
-                        ? footerImageHeight + 25
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25,
+                        ? footerImageHeight + 5
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5,
                 paddingLeft: PX_TO_PT * 30,
                 paddingRight: PX_TO_PT * 30,
                 display: 'flex',
@@ -538,12 +538,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
                 : PX_TO_PT * 30,
             paddingBottom: letterhead_format === 2
-                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
+                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
                 : letterhead_format === 1
                     ? fileFooter?.imageShow
-                        ? footerImageHeight
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 25,
+                        ? footerImageHeight + 5
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
+                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5,
             paddingLeft: [0,1,2].includes(letterhead_format)
                 ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
                 : PX_TO_PT * 30,
@@ -1823,14 +1823,15 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     )
                                                 })}
                                                 {caseManagerData?.medical_history?.[0]?.medical_history_remarks &&
-                                                    <>
-                                                        <Text style={{ color: '#000', marginTop: PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`Additional History : `}</Text>
-                                                        <View style={[styles.table, { marginTop: 0 }]}>
-                                                            <View style={styles.row} wrap={false}>
-                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{caseManagerData?.medical_history?.[0]?.medical_history_remarks}&nbsp;</Text>
-                                                            </View>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.headerRow} fixed>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', backgroundColor: '#E2E2EA' }]}>Additional History :</Text>
                                                         </View>
-                                                    </>
+
+                                                        <View style={styles.row} wrap={false}>
+                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{caseManagerData?.medical_history?.[0]?.medical_history_remarks}&nbsp;</Text>
+                                                        </View>
+                                                    </View>
                                                 }
                                             </View>
                                         )
