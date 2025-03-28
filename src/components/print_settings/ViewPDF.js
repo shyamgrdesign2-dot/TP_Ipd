@@ -1825,7 +1825,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 {caseManagerData?.medical_history?.[0]?.medical_history_remarks &&
                                                     <View style={styles.table}>
                                                         <View style={styles.headerRow} fixed>
-                                                            <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', backgroundColor: '#E2E2EA' }]}>Additional History :</Text>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', backgroundColor: '#E2E2EA' }]}>Additional History :</Text>
                                                         </View>
 
                                                         <View style={styles.row} wrap={false}>
