@@ -302,7 +302,7 @@ const prod = {
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.com",
   upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-prod.tatvacare.in",
-  pedia_logout_url: "https://health.tatvacare.in/#logout_user=1",
+  pedia_logout_url: "https://diginext-authserver-prod.tatvacare.in/logout?post_logout_redirect_uri=https://tatvapedia.tatvacare.in&client_id=client",
   bulk_messages: "https://pm-communication-prod.tatvacare.in",
   searchengine_url: "https://pm-searchengine-prod.tatvacare.in",
   razorPay_key: "rzp_live_GvLkPHHNSMs2G3",
@@ -312,7 +312,7 @@ const prod = {
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-prod.tatvacare.in",
-  tatvaPedia_api_url: "https://diginext-authserver-prod.tatvacare.in ",
+  tatvaPedia_api_url: "https://diginext-authserver-prod.tatvacare.in",
   tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in", 
 };
 
