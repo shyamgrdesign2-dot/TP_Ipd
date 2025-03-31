@@ -33,6 +33,7 @@ import CvtKnowMore from "../pages/smartSync/components/CvtKnowMore";
 import moment from "moment";
 import { getModules } from "../redux/customModuleSlice";
 import { getGenRx } from "../api/services/ApiGenRx";
+import ApiCustomModule from "../api/services/ApiCustomModule";
 
 function Cardiology(props) {
   const navigate = useNavigate();
@@ -40,7 +41,6 @@ function Cardiology(props) {
 
   const { profile, userId } = useSelector((state) => state.doctors);
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
-  const {customModules} = useSelector((state) => state.customModules);
 
   const {
     patient_data,
@@ -51,14 +51,7 @@ function Cardiology(props) {
     prevPress,
   } = props;
 
-  const customModulesMap = new Map(
-    customModules.map((module) => [module.module_id, module.name])
-  );
-  
-  const customModulesRxData = viewCaseManagerData?.moduleContents?.filter((module) => module.content.length).map((content) => ({
-        ...content,
-        module_name: customModulesMap.get(content.module_id),
-    }))
+  const [customModulesRxData, setCustomModulesRxData] = useState([]);
 
   const [filteredInfo, setFilteredInfo] = useState({});
   const [setSortedInfo] = useState({});
@@ -90,6 +83,7 @@ function Cardiology(props) {
     setSmartRxFile([]);
     setShowDigitalRx(false)
     if (viewCaseManagerData?.tcm_id) {
+      fetchCustomModules();
       fetchData();
     }
     if (
@@ -143,6 +137,33 @@ function Cardiology(props) {
         setPrintUrl(updatedUrl);
     }
   }, [showDigitalRx]);
+
+  const fetchCustomModules = async () => {
+    try {
+      if (!viewCaseManagerData?.doctor_data?.um_id || !viewCaseManagerData?.moduleContents?.length) {
+        setCustomModulesRxData([]);
+        return;
+      }
+
+      const response = await ApiCustomModule.getModules(viewCaseManagerData.doctor_data.um_id);
+      
+      const customModulesMap = new Map(
+        response?.modules?.map(module => [module.module_id, module.name])
+      );
+      
+      const processedModules = viewCaseManagerData.moduleContents
+        .filter(module => module.content && module.content.length > 0)
+        .map(content => ({
+          ...content,
+          module_name: customModulesMap.get(content.module_id)
+        }));
+        
+      setCustomModulesRxData(processedModules);
+    } catch (error) {
+      console.error("Error fetching custom modules:", error);
+      setCustomModulesRxData([]);
+    }
+  }
 
   const fetchData = async () => {
     const payload = {
