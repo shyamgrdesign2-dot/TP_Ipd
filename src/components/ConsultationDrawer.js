@@ -58,6 +58,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [prescriptionData, setPrescriptionData] = useState(null);
+  const [symptomsCollectorData, setSymptomsCollectorData] = useState(null);
   const [localModules, setLocalModules] = useState([]);
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
@@ -150,8 +151,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     }
   };
 
-  console.log("userId", profile, profile?.hospital_data?.[0]?.hm_id);
-
   const getSymptomsCollectorData = async () => {
     const payload = {
       um_id: String(userId),
@@ -161,9 +160,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     };
     const response = await fetchSymptomsCollectorData(payload);
     if (response && Object.keys(response)?.length > 0) {
+      setSymptomsCollectorData(response);
       setPrescriptionData(response);
       setShowPrescription(true);
-      setGenRxDetails({ _id: response?._id });
     }
   };
 
@@ -265,7 +264,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   const preparePayloadForApi = () => {
-    const { dynamicFields = {} } = prescriptionData;
+    const cleanedData = removeScItems(prescriptionData);
+    const { dynamicFields = {} } = cleanedData;
 
     // Exclude local modules based on localModules state
     const filteredDynamicFields = Object.keys(dynamicFields).reduce(
@@ -279,8 +279,17 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     );
 
     return {
-      ...prescriptionData,
+      ...cleanedData,
       dynamicFields: filteredDynamicFields,
+    };
+  };
+
+  const removeScItems = (data) => {
+    // Create a new object with filtered arrays
+    return {
+      ...data,
+      symptoms: data.symptoms.filter((symptom) => !symptom.SC),
+      medicalHistory: data.medicalHistory.filter((history) => !history.SC),
     };
   };
 
@@ -324,8 +333,13 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
             }, {}),
           };
 
+          const mergedData = mergeData(
+            response.data.digitize,
+            symptomsCollectorData
+          );
+
           return {
-            ...response.data.digitize,
+            ...mergedData,
             dynamicFields: mergedDynamicFields, // Updated dynamicFields with localModules
           };
         });
@@ -382,6 +396,59 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       console.error("Error in voice digitization:", error);
       message.error(error.message || "Failed to process prescription");
     }
+  };
+
+  const mergeData = (data1, data2) => {
+    // Helper function to check if two items are duplicates
+    const isDuplicate = (item1, item2) => {
+      return (
+        item1.name === item2.name &&
+        item1.duration === item2.duration &&
+        item1.severity === item2.severity &&
+        item1.notes === item2.notes
+      );
+    };
+
+    // Add SC flag to data2 items
+    const data2WithSC = {
+      ...data2,
+      symptoms: data2.symptoms.map((symptom) => ({
+        ...symptom,
+        SC: true,
+      })),
+      medicalHistory: data2.medicalHistory.map((history) => ({
+        ...history,
+        SC: true,
+      })),
+    };
+
+    // Merge symptoms arrays while removing duplicates
+    const mergedSymptoms = [...data1.symptoms];
+    data2WithSC.symptoms.forEach((symptom2) => {
+      if (!mergedSymptoms.some((symptom1) => isDuplicate(symptom1, symptom2))) {
+        mergedSymptoms.push(symptom2);
+      }
+    });
+
+    // Merge medicalHistory arrays while removing duplicates
+    const mergedMedicalHistory = [...data1.medicalHistory];
+    data2WithSC.medicalHistory.forEach((history2) => {
+      if (
+        !mergedMedicalHistory.some((history1) =>
+          isDuplicate(history1, history2)
+        )
+      ) {
+        mergedMedicalHistory.push(history2);
+      }
+    });
+
+    // Return merged object
+    return {
+      ...data1,
+      ...data2,
+      symptoms: mergedSymptoms,
+      medicalHistory: mergedMedicalHistory,
+    };
   };
 
   const handleEdit = () => {
