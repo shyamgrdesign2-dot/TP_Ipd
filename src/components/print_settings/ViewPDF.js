@@ -1856,26 +1856,28 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             ) : option?.id === 9 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     {caseManagerData.follow_up_date && (
-                                            option?.format === 'inline' ? (
+                                        option?.format === 'inline' ? (
                                                 <Text style={{ marginTop: PX_TO_PT * 15 }}>
                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
                                                     <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.follow_up_date, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{option?.followup_dateformat ? moment(caseManagerData.follow_up_date).format('DD/MM/YYYY') : onCalFollowUp(moment(caseManagerData.follow_up_date).format('YYYY-MM-DD'), moment(caseManagerData?.patient_data?.patient_consultaion_date).format('YYYY-MM-DD'))}</Text>
                                                 </Text>
-                                            ) : option?.format === 'listview' ? (
+                                        ) : option?.format === 'listview' ? (
                                                 <View style={{ marginTop: PX_TO_PT * 15 }}>
                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
                                                     <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.follow_up_date, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, marginTop: PX_TO_PT * 4 }}>{option?.followup_dateformat ? moment(caseManagerData.follow_up_date).format('DD/MM/YYYY') : onCalFollowUp(moment(caseManagerData.follow_up_date).format('YYYY-MM-DD'), moment(caseManagerData?.patient_data?.patient_consultaion_date).format('YYYY-MM-DD'))}</Text>
                                                 </View>
-                                            ) : (
+                                        ) : (
                                                 <View style={{ marginTop: PX_TO_PT * 15 }}>
                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
                                                     <View style={styles.table}>
                                                         <Text style={{border: '1px solid #171725', padding: 6, color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.follow_up_date, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{option?.followup_dateformat ? moment(caseManagerData.follow_up_date).format('DD/MM/YYYY') : onCalFollowUp(moment(caseManagerData.follow_up_date).format('YYYY-MM-DD'), moment(caseManagerData?.patient_data?.patient_consultaion_date).format('YYYY-MM-DD'))}</Text>
                                                     </View>
                                                 </View>
-                                            )
-                                        )}
-
+                                        )
+                                    )}
+                                </>
+                            ) : option?.id === 91 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                <>
                                     {caseManagerData.visit_advice && (
                                         option?.format === 'inline' ? (
                                             <Text style={{ marginTop: PX_TO_PT * 15 }}>
