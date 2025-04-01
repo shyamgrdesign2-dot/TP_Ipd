@@ -15,6 +15,7 @@ import micIcon from "../assets/images/mic-gen-rx.svg";
 import pauseIcon from "../assets/images/pause.svg";
 import {
   editGenRxDetails,
+  fetchSymptomsCollectorData,
   generateRx,
   getGenRx,
   updateGenRx,
@@ -103,6 +104,10 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const textAreaRef = useRef(null);
 
   useEffect(() => {
+    getSymptomsCollectorData();
+  }, []);
+
+  useEffect(() => {
     if (caseManagerData?.smart_prescription_filename) getGenRxDetails();
   }, [caseManagerData?.smart_prescription_filename]);
 
@@ -142,6 +147,31 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       }
     } catch (error) {
       console.error("Error getting Rx details:", error);
+    }
+  };
+
+  const getSymptomsCollectorData = async () => {
+    // const payload = {
+    //   um_id: "64" || profile?.doctor_unique_id,
+    //   patient_unique_id: "5089833678" || patient_data?.patient_unique_id,
+    //   hm_id: "77" || patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
+    //   pam_id:
+    //     "9266" || patient_data !== undefined
+    //       ? patient_data.hasOwnProperty("pam_id")
+    //         ? patient_data.pam_id
+    //         : pamId
+    //       : 0,
+    // };
+    const payload = {
+      um_id: "64",
+      patient_unique_id: "5089833678",
+      hm_id: "77",
+      pam_id: "9266",
+    };
+    const response = await fetchSymptomsCollectorData(payload);
+    if (response && Object.keys(response).length > 0) {
+      setPrescriptionData(response);
+      setShowPrescription(true);
     }
   };
 
