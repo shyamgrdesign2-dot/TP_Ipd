@@ -157,12 +157,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       um_id: String(userId),
       patient_unique_id: String(patient_data?.patient_unique_id),
       hm_id: String(decodedToken?.result?.clinic_id),
-      pam_id:
-        patient_data !== undefined
-          ? patient_data.hasOwnProperty("pam_id")
-            ? patient_data.pam_id
-            : "9266"
-          : "9266",
+      pam_id: "9266",
     };
     const response = await fetchSymptomsCollectorData(payload);
     if (response && Object.keys(response)?.length > 0) {
