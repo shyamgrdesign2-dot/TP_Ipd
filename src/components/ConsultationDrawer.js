@@ -15,6 +15,7 @@ import micIcon from "../assets/images/mic-gen-rx.svg";
 import pauseIcon from "../assets/images/pause.svg";
 import {
   editGenRxDetails,
+  fetchSymptomsCollectorData,
   generateRx,
   getGenRx,
   updateGenRx,
@@ -82,7 +83,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const doctorId = decodedToken?.result?.user_id;
   const [audioBlob, setAudioBlob] = useState(null);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
-  const { profile } = useSelector((state) => state.doctors);
+  const { profile, userId } = useSelector((state) => state.doctors);
   const { TextArea } = Input;
 
   const showHideBackModal = useCallback(() => {
@@ -101,6 +102,10 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const dispatch = useDispatch();
 
   const textAreaRef = useRef(null);
+
+  useEffect(() => {
+    getSymptomsCollectorData();
+  }, []);
 
   useEffect(() => {
     if (caseManagerData?.smart_prescription_filename) getGenRxDetails();
@@ -142,6 +147,28 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       }
     } catch (error) {
       console.error("Error getting Rx details:", error);
+    }
+  };
+
+  console.log("userId", profile, profile?.hospital_data?.[0]?.hm_id);
+
+  const getSymptomsCollectorData = async () => {
+    const payload = {
+      um_id: String(userId),
+      patient_unique_id: String(patient_data?.patient_unique_id),
+      hm_id: String(decodedToken?.result?.clinic_id),
+      pam_id:
+        patient_data !== undefined
+          ? patient_data.hasOwnProperty("pam_id")
+            ? patient_data.pam_id
+            : 0
+          : 0,
+    };
+    const response = await fetchSymptomsCollectorData(payload);
+    if (response && Object.keys(response)?.length > 0) {
+      setPrescriptionData(response);
+      setShowPrescription(true);
+      setGenRxDetails({ _id: response?._id });
     }
   };
 
