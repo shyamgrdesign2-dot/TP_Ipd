@@ -83,7 +83,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const doctorId = decodedToken?.result?.user_id;
   const [audioBlob, setAudioBlob] = useState(null);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
-  const { profile } = useSelector((state) => state.doctors);
+  const { profile, userId } = useSelector((state) => state.doctors);
   const { TextArea } = Input;
 
   const showHideBackModal = useCallback(() => {
@@ -150,28 +150,25 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     }
   };
 
+  console.log("userId", profile, profile?.hospital_data?.[0]?.hm_id);
+
   const getSymptomsCollectorData = async () => {
-    // const payload = {
-    //   um_id: "64" || profile?.doctor_unique_id,
-    //   patient_unique_id: "5089833678" || patient_data?.patient_unique_id,
-    //   hm_id: "77" || patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
-    //   pam_id:
-    //     "9266" || patient_data !== undefined
-    //       ? patient_data.hasOwnProperty("pam_id")
-    //         ? patient_data.pam_id
-    //         : pamId
-    //       : 0,
-    // };
     const payload = {
-      um_id: "64",
-      patient_unique_id: "5089833678",
-      hm_id: "77",
-      pam_id: "9266",
+      um_id: String(userId),
+      patient_unique_id: String(patient_data?.patient_unique_id),
+      hm_id: String(decodedToken?.result?.clinic_id),
+      pam_id:
+        patient_data !== undefined
+          ? patient_data.hasOwnProperty("pam_id")
+            ? patient_data.pam_id
+            : pamId
+          : 0,
     };
     const response = await fetchSymptomsCollectorData(payload);
-    if (response && Object.keys(response).length > 0) {
+    if (response && Object.keys(response)?.length > 0) {
       setPrescriptionData(response);
       setShowPrescription(true);
+      setGenRxDetails({ _id: response?._id });
     }
   };
 
