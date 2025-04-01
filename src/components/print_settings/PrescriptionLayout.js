@@ -613,7 +613,6 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
           </Form.Item>
         </Col>
       </Row>
-      {console.log(printSettings)}
       {printSettings?.prescription?.case_option?.length > 0 && (
         <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndCaseOption}>
           <SortableContext
