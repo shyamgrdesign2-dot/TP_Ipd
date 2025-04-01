@@ -161,7 +161,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         patient_data !== undefined
           ? patient_data.hasOwnProperty("pam_id")
             ? patient_data.pam_id
-            : pamId
+            : 0
           : 0,
     };
     const response = await fetchSymptomsCollectorData(payload);
