@@ -613,6 +613,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
           </Form.Item>
         </Col>
       </Row>
+      {console.log(printSettings)}
       {printSettings?.prescription?.case_option?.length > 0 && (
         <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndCaseOption}>
           <SortableContext
@@ -648,25 +649,27 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                               ({ ...option, key: option.id })
                               : (caseManagerData.medical_history.length > 0 && option.id === 8) ?
                                 ({ ...option, key: option.id })
-                                : ((caseManagerData.follow_up_date || caseManagerData.visit_advice) && option.id === 9) ?
+                                : (caseManagerData.follow_up_date && option.id === 9) ?
                                   ({ ...option, key: option.id })
-                                  : (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ?
+                                  : (caseManagerData.visit_advice && option.id === 91) ?
                                     ({ ...option, key: option.id })
-                                    : (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ?
+                                    : (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ?
                                       ({ ...option, key: option.id })
-                                      : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0) ?
+                                      : (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ?
                                         ({ ...option, key: option.id })
-                                        : (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ?
+                                        : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0) ?
                                           ({ ...option, key: option.id })
-                                          : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?.id) ?
+                                          : (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ?
                                             ({ ...option, key: option.id })
-                                            : (caseManagerData.labParamsData?.length > 0 && option.id === 15) ? ({ ...option, key: option.id })
-                                              : (caseManagerData?.surgeries?.length > 0 && option.id === 16) ?
-                                                ({ ...option, key: option.id })
-                                                : (option.is_custom_module === true && customModulesRxData?.find((e) => e?.module_id === option?.id)?.content?.length > 0) ?
+                                            : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?.id) ?
+                                              ({ ...option, key: option.id })
+                                              : (caseManagerData.labParamsData?.length > 0 && option.id === 15) ? ({ ...option, key: option.id })
+                                                : (caseManagerData?.surgeries?.length > 0 && option.id === 16) ?
                                                   ({ ...option, key: option.id })
-                                                  : (patientBills?.length > 0 && option.id === 17) &&
-                                                  ({ ...option, key: option.id })
+                                                  : (option.is_custom_module === true && customModulesRxData?.find((e) => e?.module_id === option?.id)?.content?.length > 0) ?
+                                                    ({ ...option, key: option.id })
+                                                    : (patientBills?.length > 0 && option.id === 17) &&
+                                                    ({ ...option, key: option.id })
               )}
               showHeader={false}
             />
