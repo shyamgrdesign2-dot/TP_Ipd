@@ -673,7 +673,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   async function onEndVisitClick() {
-    if (isRxEdited || localModules?.length) handleUpdateGenRX();
+    if (isRxEdited || localModules?.length || (symptomsCollectorData && Object.keys(symptomsCollectorData)?.length > 0)) handleUpdateGenRX();
     const sendData = {
       action: tcmId === 0 ? "add" : "edit",
       tcm_id: tcmId,
