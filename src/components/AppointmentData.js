@@ -1676,7 +1676,7 @@ function AppointmentData({ locationPath }) {
                                             format={showDateFormat}
                                             placeholder={showDateFormat.toLowerCase()}
                                             // disabled={date.startDate != date.endDate}
-                                            disabledDate={selectedTab !== TAB_QUEUE && disabledDate}
+                                            disabledDate={selectedTab !== TAB_QUEUE && selectedTab !== TAB_ZYDUS_ENCOUNTER && selectedTab !== TAB_ZYDUS_APPOINTMENT && disabledDate}
                                             defaultValue={dayjs(moment(date.startDate).format(showDateFormat), showDateFormat)}
                                             value={
                                                 date.startDate == date.endDate
