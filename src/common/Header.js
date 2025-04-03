@@ -232,7 +232,8 @@ function Header({ locationPath }) {
       // Generate Basic Auth token
       const credentials = btoa('client:secret');
       const mobileNumber = profile?.um_contact && `+91${profile.um_contact}`;
-      const password = profile?.b2c && `uuid:${profile.b2c}`;
+      const password = tokenData.doctor_unique_id && `uuid:${tokenData.doctor_unique_id}`;
+
 
       // Prepare form data
       const formData = new URLSearchParams();
