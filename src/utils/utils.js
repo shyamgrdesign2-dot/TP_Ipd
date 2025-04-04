@@ -187,7 +187,7 @@ export const medicine_freq_dosage_format = (freqDosage) => {
 
 export const calculateDose = (dosage, weight, concentration) => {
   const dose = (parseFloat(dosage) * parseFloat(weight)) / parseFloat(concentration);
-  return !isNaN(dose) ? dose.toFixed(2).replace(/\.00$/, '') : "";
+  return !isNaN(dose) ? dose.toFixed(1).replace(/\.0$/, '') : "";
 }
 
 export const dataUrlToFile = (url, fileName) => {
