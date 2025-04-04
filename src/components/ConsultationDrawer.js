@@ -333,10 +333,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
             }, {}),
           };
 
-          const mergedData = mergeData(
-            response.data.digitize,
-            symptomsCollectorData
-          );
+          const mergedData =
+            symptomsCollectorData &&
+            Object.keys(symptomsCollectorData)?.length > 0
+              ? mergeData(response.data.digitize, symptomsCollectorData)
+              : response.data.digitize;
 
           return {
             ...mergedData,
@@ -412,19 +413,19 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     // Add SC flag to data2 items
     const data2WithSC = {
       ...data2,
-      symptoms: data2.symptoms.map((symptom) => ({
+      symptoms: data2?.symptoms?.map((symptom) => ({
         ...symptom,
         SC: true,
       })),
-      medicalHistory: data2.medicalHistory.map((history) => ({
+      medicalHistory: data2?.medicalHistory?.map((history) => ({
         ...history,
         SC: true,
       })),
     };
 
     // Merge symptoms arrays while removing duplicates
-    const mergedSymptoms = [...data1.symptoms];
-    data2WithSC.symptoms.forEach((symptom2) => {
+    const mergedSymptoms = [...data1?.symptoms];
+    data2WithSC?.symptoms?.forEach((symptom2) => {
       if (!mergedSymptoms.some((symptom1) => isDuplicate(symptom1, symptom2))) {
         mergedSymptoms.push(symptom2);
       }
