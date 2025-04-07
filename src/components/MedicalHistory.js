@@ -4,36 +4,33 @@ import { Spin } from 'antd';
 import moment from 'moment';
 
 import MedicalHistoryicon from '../assets/images/Medical-History.svg';
-import arrowright from '../assets/images/arrow-box-right.svg';
 import heartBeat from '../assets/images/heartBeat.svg';
 import { useLocation } from 'react-router-dom';
 import { getGynecDetails } from '../api/services/ApiGynec';
 import { errorMessage } from '../utils/utils';
 import { useAccess } from '../pages/vaccination/useAccess';
-import { useSelector } from 'react-redux';
 
-function MedicalHistory({ loading, medicalHistoryData }) {
+function MedicalHistory({ loading, medicalHistoryData, doctorId }) {
 
     const [isExpand, setIsExpand] = useState(false);
     const [gynecHistory, setGynecHistory] = useState({});
 
     const { state } = useLocation();
     const { patient_data } = state;
-    const { userId } = useSelector((state) => state.doctors);
 
     const {isGynaecHistoryAccessable} = useAccess();
 
     useEffect(() => {
-        if(isGynaecHistoryAccessable){
+        if(doctorId){
             fetchGynecHistory();
         }
-    }, [isGynaecHistoryAccessable]);
+    }, [doctorId]);
     
     const fetchGynecHistory = async () => {
         try {
             const data = await getGynecDetails(
               patient_data?.patient_unique_id,
-              userId
+              doctorId
             );
             setGynecHistory(data);
         } catch (error) {
@@ -75,7 +72,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                     <div className='d-flex align-items-center justify-content-between'>
                         <div>
                             <img src={MedicalHistoryicon} alt="Medical History" className='me-3' />
-                            {isGynaecHistoryAccessable ? `Gynec History` : `Medical History`}
+                            {Object.keys(gynecHistory || {}).length > 2 ? `Gynec History` : `Medical History`}
                         </div>
                         {/* <a>
                             <img src={arrowright} alt="right" />
@@ -85,7 +82,7 @@ function MedicalHistory({ loading, medicalHistoryData }) {
                 <div className='p-3'>
                     {((medicalHistoryData && medicalHistoryData.length > 0) || (gynecHistory && Object.keys(gynecHistory).length > 2)) &&
                         <div className={`${!isExpand ? 'overflow-hidden' : 'overflow-auto'}`} style={{ height: isExpand ? 529 : 190 }}>
-                            {(gynecHistory && Object.keys(filteredGynecHistory).length > 0) && isGynaecHistoryAccessable && (
+                            {(gynecHistory && Object.keys(filteredGynecHistory).length > 0) && (
                                 <>
                                     <div className="fw-semibold">Menstrual Details</div>
                                     <div className="cardbody-data border rounded px-2 my-2">

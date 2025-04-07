@@ -17,13 +17,12 @@ import { useAccess } from "../../../vaccination/useAccess";
 import PatientInfoList from "../obstetricList/PatientInfoList";
 import AncImmunisationList from "../obstetricList/AncImmunisationList";
 
-export default function VisitObstetric() {
+export default function VisitObstetric({ doctorId }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { obstetricDetails: allObstetricDetails, isObstetricDetailsFetched } =
     useSelector((state) => state.obstetric);
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
-  const { userId } = useSelector((state) => state.doctors);
   const { state } = useLocation();
   const { patient_data } = state;
   const { isGynaecHistoryAccessable } = useAccess();
@@ -57,10 +56,10 @@ export default function VisitObstetric() {
   );
 
   useEffect(() => {
-    if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
+    if (!isObstetricDetailsFetched && doctorId) {
       getAllObstetricDetails();
     }
-  }, [isObstetricDetailsFetched, isGynaecHistoryAccessable]);
+  }, [isObstetricDetailsFetched, doctorId]);
 
   useEffect(() => {
     if (obstetricDetails?.examinationHistory?.[0]) {
@@ -102,7 +101,10 @@ export default function VisitObstetric() {
   };
 
   const getAllObstetricDetails = async () => {
-    const obstetricResponse = await fetchObstetricDetails(patient_data.patient_unique_id);
+    const obstetricResponse = await fetchObstetricDetails(
+      patient_data.patient_unique_id,
+      doctorId
+    );
     if (obstetricResponse) {
       dispatch(addObstetricDetails(obstetricResponse));
     }
@@ -166,7 +168,7 @@ export default function VisitObstetric() {
                   />
                   Obstetric History
                 </div>
-                <Button
+                {isGynaecHistoryAccessable && <Button
                   className="btn btn-input d-flex align-items-center gap-1"
                   onClick={obstetricNavigate}
                 >
@@ -179,7 +181,7 @@ export default function VisitObstetric() {
                       marginTop: "-1px",
                     }}
                   />
-                </Button>
+                </Button>}
               </div>
             </Card.Header>
             {(obstetricDetails?.lmp ||
