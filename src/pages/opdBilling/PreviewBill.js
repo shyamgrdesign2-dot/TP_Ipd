@@ -78,7 +78,10 @@ const PreviewBill = ({
   }, [billPrintSettings, billDetails]);
 
   useEffect(() => {
-    if ((billPrintSettings && Object.keys(billPrintSettings).length === 0) || isReceptionist) {
+    if (
+      (billPrintSettings && Object.keys(billPrintSettings).length === 0) ||
+      isReceptionist
+    ) {
       getBillPrintSettings();
     }
   }, []);
@@ -200,12 +203,7 @@ const PreviewBill = ({
         <HeaderPrescriptionPrint
           patient_data={patientData}
           tcm_id={6222}
-          handleGoToAppointment={() => {
-            handleCreateBillDrawer();
-            if (isReceptionist) {
-              navigate(-1);
-            }
-          }}
+          handleGoToAppointment={handleCreateBillDrawer}
         />
       )}
 
