@@ -102,15 +102,20 @@ function Header({ locationPath }) {
   const [tokenData, setTokenData] = useState(null);
 
   const [isLoading, setIsLoading] = useState(false);
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
 
   useEffect(() => {
-    dispatch(getProfile());
-    dispatch(customizedPad(CUSTOMIZED_PAD_SENDDATA));
-    dispatch(showMedicineTime());
-    dispatch(showMedicineFrequency());
-    dispatch(getMedicineType());
-    dispatch(getDefaultPrintsettings({ default: false }));
-    dispatch(listVideo());
+    if (!isReceptionist) {
+      dispatch(getProfile());
+      dispatch(customizedPad(CUSTOMIZED_PAD_SENDDATA));
+      dispatch(showMedicineTime());
+      dispatch(showMedicineFrequency());
+      dispatch(getMedicineType());
+      dispatch(getDefaultPrintsettings({ default: false }));
+      dispatch(listVideo());
+    }
+   
     const tokenData = decodedToken?.result;
     if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
       dispatch(zydusRefIds())
@@ -167,7 +172,7 @@ function Header({ locationPath }) {
   };
 
   const getBillPrintSettings = async () => {
-    const printSettingsResponse = await fetchPrintSetting();
+    const printSettingsResponse = await fetchPrintSetting(isReceptionist ? urlParams.get("um_id") : "");
     if (printSettingsResponse) {
       dispatch(setBillPrintSettings(printSettingsResponse));
     }

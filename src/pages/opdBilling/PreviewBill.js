@@ -18,6 +18,7 @@ import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { deleteDocsUploadedFromAndroid } from "../medicalRecords/service";
 import RefundBill from "./components/billingDashboard/RefundBill/RefundBill";
 import { getClinic, trackEvent } from "../../utils/utils";
+import { useNavigate } from "react-router-dom";
 
 const PreviewBill = ({
   handleCreateBillDrawer,
@@ -29,6 +30,7 @@ const PreviewBill = ({
   handleMessageForm3c,
   getPatientBills,
 }) => {
+  const navigate = useNavigate();
   const [billDetails, setBillDetails] = useState(billData);
   const { patient = {} } = billDetails || {};
   const patientData = {
@@ -60,6 +62,10 @@ const PreviewBill = ({
     billData?.paymentStatus === "Refunded"
   );
   const { planDetails } = useSelector((state) => state.subscription);
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
+  const receptionistId = urlParams.get("receptionistId");
+  const receptionistName = urlParams.get("receptionistName");
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -72,13 +78,15 @@ const PreviewBill = ({
   }, [billPrintSettings, billDetails]);
 
   useEffect(() => {
-    if (billPrintSettings && Object.keys(billPrintSettings).length === 0) {
+    if ((billPrintSettings && Object.keys(billPrintSettings).length === 0) || isReceptionist) {
       getBillPrintSettings();
     }
   }, []);
 
   const getBillPrintSettings = async () => {
-    const printSettingsResponse = await fetchPrintSetting();
+    const printSettingsResponse = await fetchPrintSetting(
+      isReceptionist ? billDetails?.doctorId : ""
+    );
     if (printSettingsResponse) {
       dispatch(setBillPrintSettings(printSettingsResponse));
     }
@@ -153,6 +161,8 @@ const PreviewBill = ({
       doctorContact: profile?.um_contact,
       city: clinic?.hm_city,
       pincode: clinic?.hm_pincode,
+      receptionistId: receptionistId,
+      receptionistName: receptionistName,
     });
     setRefundBillDrawer(!refundBillDrawer);
   };
@@ -190,7 +200,12 @@ const PreviewBill = ({
         <HeaderPrescriptionPrint
           patient_data={patientData}
           tcm_id={6222}
-          handleGoToAppointment={handleCreateBillDrawer}
+          handleGoToAppointment={() => {
+            handleCreateBillDrawer();
+            if (isReceptionist) {
+              navigate(-1);
+            }
+          }}
         />
       )}
 
@@ -201,7 +216,7 @@ const PreviewBill = ({
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
           <Col md={7} sm={7} xl={isDepositReceipt ? 6 : 5}>
-            {isMobile ? (
+            {isMobile || isReceptionist ? (
               ""
             ) : (
               <div
@@ -242,7 +257,9 @@ const PreviewBill = ({
                 )}
                 <Button
                   type="text"
-                  className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
+                  className={`btn btnicon20 align-items-center d-flex mb-3 btn-41 w-100 ${
+                    isReceptionist ? "receptionist-white-btn" : "btn-input"
+                  }`}
                   icon={<i className="icon-Print" />}
                   onClick={() => {
                     const clinic = getClinic();
@@ -252,6 +269,8 @@ const PreviewBill = ({
                       doctorContact: profile?.um_contact,
                       city: clinic?.hm_city,
                       pincode: clinic?.hm_pincode,
+                      receptionistId: receptionistId,
+                      receptionistName: receptionistName,
                     });
                     printContent(
                       printBlob,
@@ -267,7 +286,9 @@ const PreviewBill = ({
                 </Button>
                 <Button
                   type="text"
-                  className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
+                  className={`btn btnicon20 align-items-center d-flex mb-3 btn-41 w-100 ${
+                    isReceptionist ? "receptionist-white-btn" : "btn-input"
+                  }`}
                   icon={<i className="icon-download" />}
                   onClick={() => {
                     const clinic = getClinic();
@@ -280,6 +301,8 @@ const PreviewBill = ({
                       city: clinic?.hm_city,
                       pincode: clinic?.hm_pincode,
                       subscriptionStatus: planDetails?.currentPlanStatus,
+                      receptionistId: receptionistId,
+                      receptionistName: receptionistName,
                     });
                     handleDownload(
                       pdfUrl,
@@ -300,7 +323,9 @@ const PreviewBill = ({
                   billDetails?.paymentStatus !== "Refunded" && (
                     <Button
                       type="text"
-                      className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
+                      className={`btn btnicon20 align-items-center d-flex btn-41 w-100 ${
+                        isReceptionist ? "receptionist-white-btn" : "btn-input"
+                      }`}
                       icon={<i className="icon-Edit" />}
                       onClick={() => handleRefundBillDrawer()}
                     >

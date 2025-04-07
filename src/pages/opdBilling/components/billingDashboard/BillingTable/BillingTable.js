@@ -107,11 +107,22 @@ export default function BillingTable({
   // Drawer states
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const umIds = urlParams.get("um_id")?.split(",") || [];
+  const umNames = urlParams.get("um_name")?.split(",") || [];
+  const isReceptionist = urlParams.has("receptionist");
+
+  const doctorsListFromKea = umIds?.map((id, index) => ({
+    um_id: parseInt(id),
+    um_name: umNames[index],
+  }));
   const { doctorList } = useSelector((state) => state.bulkMessages);
-  const doctorIds =
-    doctorList.map((doctor) => doctor.um_id).length > 0
-      ? doctorList.map((doctor) => doctor.um_id)
-      : [userId];
+  const finalDoctorList = isReceptionist ? doctorsListFromKea : doctorList;
+  const doctorIds = isReceptionist
+    ? doctorsListFromKea?.map((doctor) => doctor.um_id)
+    : doctorList.map((doctor) => doctor.um_id).length > 0
+    ? doctorList.map((doctor) => doctor.um_id)
+    : [userId];
   const dispatch = useDispatch();
   const { profile } = useSelector((state) => state.doctors);
 
@@ -136,7 +147,7 @@ export default function BillingTable({
   }, [data]);
 
   const handleSelectAll = () => {
-    setSelectedDoctors(doctorList.map((doctor) => doctor.um_id));
+    setSelectedDoctors(finalDoctorList.map((doctor) => doctor.um_id));
     setSelectAll(true);
   };
 
@@ -233,12 +244,17 @@ export default function BillingTable({
 
   const handleDownloadAll = async () => {
     const clinic = getClinic();
+    const urlParams = new URLSearchParams(window.location.search);
+    const receptionistId = urlParams.get("receptionistId");
+    const receptionistName = urlParams.get("receptionistName");
     trackEvent("TP_download_report", {
       doctorSpeciality: profile?.dp_name,
       doctorId: profile?.doctor_unique_id,
       doctorContact: profile?.um_contact,
       city: clinic?.hm_city,
       pincode: clinic?.hm_pincode,
+      receptionistId: receptionistId,
+      receptionistName: receptionistName,
     });
     dispatch(setLoadingStatus(true));
     try {
@@ -483,7 +499,7 @@ export default function BillingTable({
   };
 
   useEffect(() => {
-    if (patientData && doctorList?.length > 0) {
+    if (patientData && finalDoctorList?.length > 0) {
       patientAdvanceData();
     }
   }, []);
@@ -530,7 +546,7 @@ export default function BillingTable({
 
   useEffect(() => {
     resetTableScroll();
-    if (doctorList?.length > 0 || userId) {
+    if (finalDoctorList?.length > 0 || userId) {
       const fetchData = patientData ? patientBillingData : loadData;
       fetchData();
     }
@@ -626,7 +642,7 @@ export default function BillingTable({
             />
           </div>
           <div className="d-flex flex-row gap-2">
-            {isAdmin && doctorList?.length > 1 ? (
+            {(isAdmin || isReceptionist) && finalDoctorList?.length > 1 ? (
               <div className="doctor-select-container">
                 <Select
                   className="doctor-select"
@@ -650,7 +666,7 @@ export default function BillingTable({
                           Select Custom Doctors
                         </div>
                         <div className="doctor-select-list">
-                          {doctorList.map((doctor) => (
+                          {finalDoctorList.map((doctor) => (
                             <div
                               key={doctor.um_id}
                               style={{ padding: "8px 0" }}
@@ -680,7 +696,7 @@ export default function BillingTable({
                         <div className="selected-doctors-wrapper">
                           <div className="selected-doctors-tags">
                             {selectedDoctors.map((doctorId) => {
-                              const doctor = doctorList.find(
+                              const doctor = finalDoctorList.find(
                                 (d) => d.um_id === doctorId
                               );
                               return (

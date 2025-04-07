@@ -3,10 +3,13 @@ import config from "../../config";
 
 const baseUrl = { customBaseUrl: config.lab_params_api_url };
 
-export const fetchPrintSetting = async function () {
+export const fetchPrintSetting = async function (doctorId) {
   let res = {};
   try {
-    res = await api.get(`/api/v1/billing/printSetting`, baseUrl);
+    res = await api.get(
+      `/api/v1/billing/printSetting${doctorId ? `?um_id=${doctorId}` : ""}`,
+      baseUrl
+    );
   } catch (e) {
     console.error("Error while fetching Print settings details: ", e);
   }
@@ -251,14 +254,20 @@ export const fetchBillsByPatient = async function (params) {
     // Construct query parameters dynamically
     const queryParams = {
       search: params.search ?? "",
-      startDate: params.startDate ?? "",
-      endDate: params.endDate ?? "",
       sortBy: params.sortBy || "date",
       sortOrder: params.sortOrder || "asc",
       page: params.page || 1,
       limit: params.limit || 25,
       patientId: params.patientId,
     };
+
+    if (params.startDate) {
+      queryParams.startDate = params.startDate;
+    }
+
+    if (params.endDate) {
+      queryParams.endDate = params.endDate;
+    }
 
     const statusParams = Array.isArray(params.status)
       ? params.status
@@ -337,7 +346,6 @@ export const fetchAdvancedDepositDashboard = async function (params) {
     res = await api.get(apiUrl, {
       customBaseUrl: baseUrl.customBaseUrl,
     });
-
   } catch (e) {
     console.error("Error while fetching advanced deposit dashboard data: ", e);
   }

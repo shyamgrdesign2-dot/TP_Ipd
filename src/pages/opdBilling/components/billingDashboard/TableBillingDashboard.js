@@ -73,6 +73,8 @@ const TableBillingDashboard = forwardRef(
         ? doctorList.map((doctor) => doctor.um_id)
         : [userId];
     const deviceUid = localStorage.getItem("app_device_unique_id");
+    const urlParams = new URLSearchParams(window.location.search);
+    const isReceptionist = urlParams.has("receptionist");
     //   const [date, setDate] = useState({
     //     startDate: moment().format(dateFormat),
     //     endDate: moment().format(dateFormat),
@@ -130,7 +132,7 @@ const TableBillingDashboard = forwardRef(
         sortOrder: "desc",
         startDate: dateRange.startDate,
         endDate: dateRange.endDate,
-        doctorIds:
+        doctorIds: isReceptionist ? urlParams.get("um_id")?.split(",") :
           selectedDoctors.length > 0 ? [...selectedDoctors] : [...doctorIds],
         patientId: patientData?.patient_unique_id
           ? patientData?.patient_unique_id
@@ -143,11 +145,11 @@ const TableBillingDashboard = forwardRef(
         sortOrder: "desc",
         startDate: dateRange.startDate,
         endDate: dateRange.endDate,
-        doctorIds: doctorList.map((doctor) => doctor.um_id),
+        doctorIds: isReceptionist ? urlParams.get("um_id")?.split(",") : doctorList.map((doctor) => doctor.um_id),
         patientId: patientData?.patient_unique_id
           ? patientData?.patient_unique_id
           : "",
-      };
+      };   
       const billResponse = patientData
         ? await fetchBillsByPatient(billParams)
         : await fetchBillingDashboard(billParams);
