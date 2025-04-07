@@ -62,12 +62,17 @@ const RefIdPopup = ({ index, refId, showHideModal, handleModeChange }) => {
                 <Button
                   onClick={() => {
                     const clinic = getClinic();
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const receptionistId = urlParams.get("receptionistId");
+                    const receptionistName = urlParams.get("receptionistName");
                     trackEvent("TP_Billing_AddinUPIRef", {
                       doctorSpeciality: profile?.dp_name,
                       doctorId: profile?.doctor_unique_id,
                       doctorContact: profile?.um_contact,
                       city: clinic?.hm_city,
                       pincode: clinic?.hm_pincode,
+                      receptionistId: receptionistId,
+                      receptionistName: receptionistName,
                     });
                     handleModeChange(refIdData, index, "refId");
                     showHideModal();

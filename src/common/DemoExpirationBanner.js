@@ -16,10 +16,14 @@ const DemoExpirationBanner = () => {
     expiresIn,
     is_pm_renew_requested,
   } = planDetails || {};
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchSubscriptionDetails()); // Fetch subscription details on every reload
+    if (!isReceptionist) {
+      dispatch(fetchSubscriptionDetails()); // Fetch subscription details on every reload
+    }
   }, [dispatch]);
 
   const handleClick = () => {

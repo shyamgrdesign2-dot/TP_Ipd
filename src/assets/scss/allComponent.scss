@@ -379,6 +379,89 @@
     }
 }
 
+.bill-status {
+    font-size: 12px;
+    font-weight: 600;
+    color: #19BB7A !important;
+    background-color: #EDF7ED;
+    padding: 4px 10px;
+    border-radius: 30px;
+    margin-left: 10px;
+    height: 26px;
+}
+
+.bill-status-unbilled {
+    color: #ED8A00 !important;
+    background-color: #FEFBEB;
+}
+
+.btn-create-bill {
+    cursor: pointer !important;
+    display: flex;
+    height: 41px;
+    padding: 10px 24px !important;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 10px !important;
+    background: var(--P-CTA-100, #4B4AD5) !important;
+    border-color: #4B4AD5 !important;
+
+    &:hover,
+    &:focus {
+        background: var(--P-CTA-100, #4B4AD5) !important;
+        border-color: #4B4AD5 !important;
+    }
+
+    span {
+        color: white !important;
+    }
+}
+
+.receptionist-btn {
+    border-radius: 10px !important;
+    background-color: rgb(113, 79, 255) !important;
+    border-color: rgb(113, 79, 255) !important;
+    &:hover,
+    &:focus {
+        background: rgb(113, 79, 255) !important;
+        border-color: rgb(113, 79, 255) !important;
+    }
+    span {
+        color: white !important;
+    }
+}
+
+.receptionist-white-btn {
+    cursor: pointer !important;
+    display: flex;
+    height: 41px;
+    padding: 10px 24px !important;
+    justify-content: center;
+    align-items: center;
+    gap: 10px !important;
+    border-radius: 10px !important;
+    background: white;
+    border-color: rgb(113, 79, 255) !important;
+
+    &:hover,
+    &:focus {
+        background: rgb(113, 79, 255) !important;
+        border-color: rgb(113, 79, 255) !important;
+    }
+
+    span, i {
+        color: rgb(113, 79, 255) !important;
+    }
+    &:hover,
+    &:focus {
+        span, i {
+            color: white !important;
+        }
+        background: rgb(113, 79, 255) !important;
+        border-color: rgb(113, 79, 255) !important;
+    }
+}
 .anticon-menu {
     svg {
         color: $grayColor;

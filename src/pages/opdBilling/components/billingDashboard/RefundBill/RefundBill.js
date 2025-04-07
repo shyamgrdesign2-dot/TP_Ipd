@@ -66,6 +66,8 @@ function RefundBill({
   const filteredOptions = PaymentOptions.filter(
     (option) => !usedPaymentModes.includes(option.value)
   );
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
 
   const handleModeChange = (value, index, type) => {
     const updatedModes = [...paymentModes];
@@ -151,6 +153,8 @@ function RefundBill({
       { paymentMode: filteredOptions[0]?.value, amount: "", refId: "" },
     ];
     setPaymentModes(newPaymentModes);
+    const receptionistId = urlParams.get("receptionistId");
+    const receptionistName = urlParams.get("receptionistName");
     trackEvent("TP_Billing_AddPaymentMode", {
       doctorSpeciality: profile?.dp_name,
       doctorId: profile?.doctor_unique_id,
@@ -159,6 +163,8 @@ function RefundBill({
       pincode: clinic?.hm_pincode,
       subscriptionStatus: planDetails?.currentPlanStatus,
       paymentModes: JSON.stringify(newPaymentModes),
+      receptionistId: receptionistId,
+      receptionistName: receptionistName,
     });
 
     // Add scroll behavior
@@ -273,12 +279,17 @@ function RefundBill({
               className="btn btn-delete-prescription px-3 focus-none h-100"
               onClick={handleRefundBillDrawer}
             >
-              <i className="icon-Cross fs-3"></i>
+              <i
+                className="icon-Cross fs-3"
+                style={{ color: isReceptionist ? "rgb(113, 79, 255)" : "" }}
+              ></i>
             </Button>
             <div className="modal-title">Refund Bill</div>
           </div>
           <Button
-            className="btn btn-primary3 btn-41 px-4 me-20"
+            className={`btn btn-41 px-4 me-20 ${
+              isReceptionist ? "receptionist-btn" : "btn-primary3"
+            }`}
             onClick={handleRefundBill}
           >
             Refund
@@ -472,7 +483,9 @@ function RefundBill({
         </div>
 
         <button
-          className="btn-refund-bill mx-4 p-2 h-50"
+          className={`btn-refund-bill mx-4 p-2 h-50 ${
+            isReceptionist ? "receptionist-btn" : ""
+          }`}
           onClick={handleRefundBill}
           disabled={totalRefundAmount !== billData?.paidAmount}
         >

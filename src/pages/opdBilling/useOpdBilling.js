@@ -10,9 +10,11 @@ export const useOpdBilling = () => {
   const { shouldShowOpdBilling, isOpdBillChecked } = useSelector(
     (state) => state.billing
   );
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
 
   useEffect(() => {
-    if (!isOpdBillChecked) {
+    if (!isOpdBillChecked && !isReceptionist) {
       getShowOpdBilling();
     }
   }, []);

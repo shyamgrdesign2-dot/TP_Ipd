@@ -112,6 +112,10 @@ function AddAdvance({
   const [refundModes, setRefundModes] = useState([]);
   const [notes, setNotes] = useState(""); // Stores the final notes value
   const notesRef = useRef("");
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
+  const receptionistId = urlParams.get("receptionistId");
+  const receptionistName = urlParams.get("receptionistName");
 
   useEffect(() => {
     setAdvanceModes([
@@ -259,6 +263,8 @@ function AddAdvance({
           ? setAdvanceModes([...advanceModes, newMode])
           : setRefundModes([...refundModes, newMode])
       ),
+      receptionistId: urlParams.get("receptionistId"),
+      receptionistName: urlParams.get("receptionistName"),
     });
   };
 
@@ -741,6 +747,8 @@ function AddAdvance({
         city: clinic?.hm_city,
         pincode: clinic?.hm_pincode,
         source: "add_advance",
+        receptionistId: receptionistId,
+        receptionistName: receptionistName,
       }
     );
     const totalAdvanceAmount = calculateTotalAmount(advanceModes);
@@ -935,14 +943,18 @@ function AddAdvance({
       <Card bordered={false} className="search-modalCard add-advance-wrapper">
         <div className="modalCard-header align-items-center justify-content-between d-flex">
           <div className="align-items-center d-flex justify-content-center">
-            <Button
-              type="text"
-              className="btn px-3 focus-none h-100"
-              onClick={handleAddAdvanceDrawer}
-            >
-              <i className="icon-Cross fs-3"></i>
-            </Button>
-            <div className="modal-title">Advance Deposit</div>
+            {!isReceptionist && (
+              <Button
+                type="text"
+                className="btn px-3 focus-none h-100"
+                onClick={handleAddAdvanceDrawer}
+              >
+                <i className="icon-Cross fs-3"></i>
+              </Button>
+            )}
+            <div className={`modal-title ${isReceptionist ? "mx-4 p-2" : ""}`}>
+              Advance Deposit
+            </div>
           </div>
         </div>
         <div className="d-flex modal-body">
@@ -1101,7 +1113,9 @@ function AddAdvance({
             </div>
             <div className="d-flex align-items-center justify-content-center mx-4 p-2">
               <Button
-                className="btn btn-primary3 w-100 h-50"
+                className={`btn btn-primary3 w-100 h-50 ${
+                  isReceptionist ? "receptionist-btn" : ""
+                }`}
                 onClick={handleAddAdvanceClick}
                 disabled={!isFormValid()}
               >
