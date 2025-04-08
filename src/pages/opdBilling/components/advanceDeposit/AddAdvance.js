@@ -67,6 +67,7 @@ function AddAdvance({
   billData,
   onSuccess,
   updateTotalAdvanceBalance,
+  isReceptionistDashboard,
 }) {
   const { state } = useLocation();
   const { pam_id } = state || {};
@@ -943,16 +944,20 @@ function AddAdvance({
       <Card bordered={false} className="search-modalCard add-advance-wrapper">
         <div className="modalCard-header align-items-center justify-content-between d-flex">
           <div className="align-items-center d-flex justify-content-center">
-            {!isReceptionist && (
+            {(!isReceptionist || isReceptionistDashboard) && (
               <Button
                 type="text"
                 className="btn px-3 focus-none h-100"
                 onClick={handleAddAdvanceDrawer}
               >
-                <i className="icon-Cross fs-3"></i>
+                <i className="icon-Cross fs-3" />
               </Button>
             )}
-            <div className={`modal-title ${isReceptionist ? "mx-4 p-2" : ""}`}>
+            <div
+              className={`modal-title ${
+                isReceptionist && !isReceptionistDashboard ? "mx-4 p-2" : ""
+              }`}
+            >
               Advance Deposit
             </div>
           </div>

@@ -417,6 +417,7 @@ function BillingDashboard({ patientData, fromPath }) {
             <AddAdvance
               handleAddAdvanceDrawer={handleAdvanceSuccess}
               patientData={patientData}
+              isReceptionistDashboard={isReceptionist}
             />
           </Drawer>
         )}
