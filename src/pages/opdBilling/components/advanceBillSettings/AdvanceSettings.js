@@ -16,7 +16,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
   const [billModalOpen, setBillModalOpen] = useState(false);
   const [receiptModalOpen, setReceiptModalOpen] = useState(false);
   const [advanceReceiptModalOpen, setAdvanceReceiptModalOpen] = useState(false);
-  const {profile} = useSelector(state => state.doctors);
+  const { profile } = useSelector((state) => state.doctors);
 
   useEffect(() => {
     if (advancedSettings) setSettings(advancedSettings);
@@ -82,9 +82,9 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
     setSettings({ ...settings, [e.target.name]: e.target.value === "Checked" });
   };
 
-  // const handleEnabledForReceptionist = (e) => {
-  //   setSettings({ ...settings, [e.target.name]: e.target.value === "Allow" });
-  // };
+  const handleEnabledForReceptionist = (e) => {
+    setSettings({ ...settings, [e.target.name]: e.target.value === "Allow" });
+  };
 
   const handleChangeGstin = (e) => {
     setSettings({ ...settings, GSTIN: e.target.value });
@@ -253,7 +253,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
           />
         </div>
 
-        {/* <div className={styles.formItem}>
+        <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
             <label>Billing/Unbilled Status in Appointment Screen</label>
             <InfoTooltip type={"BillingStatus"} />
@@ -281,7 +281,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
               );
             })}
           </Radio.Group>
-        </div> */}
+        </div>
 
         <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
@@ -379,7 +379,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
           </Radio.Group>
         </div>
 
-        {/* <div className={styles.formItem}>
+        <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
             <label>Receptionist Access Control</label>
             <InfoTooltip type={"ReceptionistAccessControl"} />
@@ -407,7 +407,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
               );
             })}
           </Radio.Group>
-        </div> */}
+        </div>
 
         <div className={styles.formItem} style={{ marginBottom: 50 }}>
           <div className={styles.inputWithIcon}>
