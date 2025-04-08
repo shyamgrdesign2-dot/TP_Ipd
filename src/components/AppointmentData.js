@@ -490,7 +490,7 @@ function AppointmentData({ locationPath }) {
             clearTimeout(timeOutId);
         };
         }
-    }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order, isDigitisationTab, siteId, createBillDrawer]);
+    }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order, isDigitisationTab, siteId, createBillDrawer, advancedSettings?.billingStatusInAppointmentScreen]);
 
     const encounterAndFinishDataManage = async () => {
         if (siteId) {
@@ -1205,7 +1205,7 @@ function AppointmentData({ locationPath }) {
              render: (text, record) => (
                 <div>
                     <span>{selectedTab !== TAB_ZYDUS_APPOINTMENT ? record.toct_type : record.appointmentStatus}</span>
-                    <span className={`bill-status ${record.billStatus === "Unbilled" ? "bill-status-unbilled" : ""}`}>{record.billStatus}</span>
+                    {advancedSettings?.billingStatusInAppointmentScreen && record.billStatus && <span className={`bill-status ${record.billStatus === "Unbilled" ? "bill-status-unbilled" : ""}`}>{record.billStatus}</span>}
                 </div>
             )
         },
