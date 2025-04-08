@@ -827,7 +827,7 @@ const CreateBill = ({
     const payload = {
       patientId: patientUniqueId,
       doctorId: isReceptionist
-        ? doctorsList?.lenth === 1
+        ? doctorsList?.length === 1
           ? doctorsList[0].value
           : selectedDoctor?.value
         : userId,
@@ -1352,7 +1352,7 @@ const CreateBill = ({
                   </div>
                 )}
 
-                {
+                {!isReceptionist && (
                   <div className="d-sm-flex d-block">
                     <Popover
                       open={popOverVideo}
@@ -1376,7 +1376,7 @@ const CreateBill = ({
                       />
                     )}
                   </div>
-                }
+                )}
 
                 {isRxPage ? (
                   <>
@@ -1427,7 +1427,10 @@ const CreateBill = ({
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
                           !patientDetails?.patientUniqueId) ||
-                        Number(payableAmount) === 0
+                        Number(payableAmount) === 0 ||
+                        (isReceptionist &&
+                          doctorsList?.length > 1 &&
+                          !selectedDoctor)
                       }
                     >
                       Save & Print
@@ -1444,7 +1447,10 @@ const CreateBill = ({
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
                           !patientDetails?.patientUniqueId) ||
-                        Number(payableAmount) === 0
+                        Number(payableAmount) === 0 ||
+                        (isReceptionist &&
+                          doctorsList?.length > 1 &&
+                          !selectedDoctor)
                       }
                     >
                       Save & Preview
