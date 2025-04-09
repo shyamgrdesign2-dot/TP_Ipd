@@ -179,11 +179,11 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
   const customModulesMap = new Map(
     customModules.map((module) => [module.module_id, module.name])
   );
-  
+
   const customModulesRxData = caseManagerData?.moduleContents?.filter((module) => module.content.length).map((content) => ({
-        ...content,
-        module_name: customModulesMap.get(content.module_id),
-    }))
+    ...content,
+    module_name: customModulesMap.get(content.module_id),
+  }))
 
   const onMainCaseOptionChange = useCallback(
     (e) => {
@@ -218,6 +218,16 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
 
   const onMedicationWithGenericChange = (e, i) => {
     printSettings.prescription.case_option[i].medicine_with_generic =
+      e.target.value;
+    setPrintSettings((prev) => {
+      return {
+        ...prev,
+      };
+    });
+  };
+
+  const onFollowUpWithDateFormat = (e, i) => {
+    printSettings.prescription.case_option[i].followup_dateformat =
       e.target.value;
     setPrintSettings((prev) => {
       return {
@@ -330,6 +340,34 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
           <div className="subtitle-customize text-start mt-3">
             <span>Note:</span> The printed information will always include the
             name of the medicine (brand or generic), and the frequency.
+          </div>
+        </>
+      ),
+    },
+  ];
+
+  const accordionItemsFollowUp = (record, i) => [
+    {
+      key: "1",
+      label: (
+        <div className="text-start">
+          <div className="fw-semibold">Customise Options</div>
+          <div className="subtitle-customize">
+            Select the parameters to be displayed
+          </div>
+        </div>
+      ),
+      children: (
+        <>
+          <div className="fw-medium text-start py-2">FOLLOW UP FORMAT</div>
+          <div className="d-flex align-items-center text-start">
+            <Radio.Group
+              value={record?.followup_dateformat}
+              onChange={(e) => onFollowUpWithDateFormat(e, i)}
+            >
+              <Radio className="mb-2" value={true}>Date format (e.g., 24/12/2024)</Radio>
+              <Radio value={false}>Duration format (e.g., 2 days/weeks/months)</Radio>
+            </Radio.Group>
           </div>
         </>
       ),
@@ -477,6 +515,20 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
               </div>
             </div>
           )}
+          {record.id === 9 && (
+            <div style={{ marginLeft: -40, display: "flex" }}>
+              <div style={{ flex: 1 }}>
+                <div className="border mt-3 rounded-4 p-3 bg-white ">
+                  <Collapse
+                    items={accordionItemsFollowUp(record, printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
+                    defaultActiveKey={["1"]}
+                    className="prescriptiontab-accordian"
+                    expandIconPosition={"end"}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
           {record.id === 8 && (
             <div style={{ marginLeft: -40, display: "flex" }}>
               <div style={{ flex: 1 }}>
@@ -596,24 +648,26 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                               ({ ...option, key: option.id })
                               : (caseManagerData.medical_history.length > 0 && option.id === 8) ?
                                 ({ ...option, key: option.id })
-                                : ((caseManagerData.follow_up_date || caseManagerData.visit_advice) && option.id === 9) ?
+                                : (caseManagerData.follow_up_date && option.id === 9) ?
                                   ({ ...option, key: option.id })
-                                  : (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ?
+                                  : (caseManagerData.visit_advice && option.id === 91) ?
                                     ({ ...option, key: option.id })
-                                    : (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ?
+                                    : (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ?
                                       ({ ...option, key: option.id })
-                                      : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0) ?
+                                      : (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ?
                                         ({ ...option, key: option.id })
-                                        : (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ?
+                                        : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0) ?
                                           ({ ...option, key: option.id })
-                                          : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?.id) ?
+                                          : (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ?
                                             ({ ...option, key: option.id })
-                                            : (caseManagerData.labParamsData?.length > 0 && option.id === 15) ? ({ ...option, key: option.id })
-                                             : (caseManagerData?.surgeries?.length > 0 && option.id === 16) ?
-                                                ({ ...option, key: option.id })
-                                                : (option.is_custom_module === true && customModulesRxData?.find((e) => e?.module_id === option?.id)?.content?.length > 0) ?
+                                            : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?.id) ?
+                                              ({ ...option, key: option.id })
+                                              : (caseManagerData.labParamsData?.length > 0 && option.id === 15) ? ({ ...option, key: option.id })
+                                                : (caseManagerData?.surgeries?.length > 0 && option.id === 16) ?
                                                   ({ ...option, key: option.id })
-                                                  : (patientBills?.length > 0 && option.id === 17) &&
+                                                  : (option.is_custom_module === true && customModulesRxData?.find((e) => e?.module_id === option?.id)?.content?.length > 0) ?
+                                                    ({ ...option, key: option.id })
+                                                    : (patientBills?.length > 0 && option.id === 17) &&
                                                     ({ ...option, key: option.id })
               )}
               showHeader={false}
