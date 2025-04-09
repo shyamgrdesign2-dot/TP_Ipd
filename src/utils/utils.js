@@ -555,7 +555,7 @@ export const handlePrintClick = (
   handlePrintWeb,
   chartType
 ) => {
-  if (!isBrowser) {
+  if (typeof window === "undefined") {
     if (!element) {
       console.error("Element not found");
       return;

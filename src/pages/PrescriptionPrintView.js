@@ -402,7 +402,7 @@ function PrescriptionPrintView() {
                                         window.Moengage.track_event("print_select", {
                                             "language": LANGUAGE_LIST.find(e => e.value === selectedLang).label
                                         });
-                                        !isChrome && !isSafari ? printInAppContent() : printContent()
+                                        typeof window === "undefined" ? printInAppContent() : printContent()
                                     }}
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-Print"></i>}
@@ -414,7 +414,7 @@ function PrescriptionPrintView() {
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-download"></i>}
-                                    onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
+                                    onClick={() => typeof window === "undefined" ? handleInAppDownload() : handleDownload()}
                                 >
                                     <span className="fw-semibold">Download Prescription</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
