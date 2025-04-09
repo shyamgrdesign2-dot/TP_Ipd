@@ -1,17 +1,15 @@
 import React from "react";
 import { fetchObstetricDetails } from "./service";
-import { useSelector } from "react-redux";
 
-export default function useObstetric(patientId) {
+export default function useObstetric(patientId, doctorId) {
   const [obstetrics, setObstetrics] = React.useState([]);
-  const { userId } = useSelector((state) => state.doctors);
 
   React.useEffect(() => {
     getObstetrics();
   }, []);
 
   const getObstetrics = async () => {
-    const res = await fetchObstetricDetails(patientId, true);
+    const res = await fetchObstetricDetails(patientId, doctorId, true);
     setObstetrics(res);
   };
 
