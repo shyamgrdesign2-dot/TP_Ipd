@@ -241,7 +241,7 @@ function PrescriptionPrintView() {
     // });
 
     const printContent = async () => {
-        if (isMobile) {
+        if (isMobile || osName == 'Linux') {
             try {
                 const blobURL = URL.createObjectURL(printBlob);
                 const printWindow = window.open(blobURL, '_blank');
@@ -414,7 +414,7 @@ function PrescriptionPrintView() {
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-download"></i>}
-                                    onClick={() => (browserName == "Chrome WebView" || browserName == "WebKit") ? alert("Inapp") : alert("normal")}
+                                    onClick={() => (browserName == "Chrome WebView" || browserName == "WebKit") ? handleInAppDownload() : handleDownload()}
                                 >
                                     <span className="fw-semibold">Download Prescription</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
