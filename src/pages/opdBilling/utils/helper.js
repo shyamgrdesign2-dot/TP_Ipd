@@ -46,7 +46,7 @@ export const printContent = async (
   setStartLoader,
   isDoctor
 ) => {
-  if (!isChrome && !isSafari) {
+  if (typeof window === "undefined") {
     const file = new File([printBlob], "billingFile.pdf", {
       type: "application/pdf",
     });
