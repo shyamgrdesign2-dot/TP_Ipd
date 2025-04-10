@@ -647,7 +647,7 @@ function AddAdvance({
     if (status === 1) {
       handleDrawerPreviewBill();
     } else {
-      const patient = billData?.patient || {};
+      const patient = billData?.patient || data?.[0]?.patient || {};
       const upadtedPatientData = {
         pm_pid: patient.id,
         pm_fullname: patient.name,
@@ -663,7 +663,11 @@ function AddAdvance({
       const blob = await pdf(
         <ViewBillPdf
           printSettings={billPrintSettings}
-          patientData={upadtedPatientData}
+          patientData={
+            patientData && Object.keys(patientData).length > 0
+              ? patientData
+              : upadtedPatientData
+          }
           profile={profile}
           billData={record}
           isDepositReceipt={true}
@@ -792,7 +796,7 @@ function AddAdvance({
 
       try {
         const response = await createAdvancedDeposit(payload);
-        if (response) {
+        if (response?.id) {
           message.open({
             key: MESSAGE_KEY,
             type: "",
@@ -905,15 +909,23 @@ function AddAdvance({
     if (selectedTab === 1) {
       // Advance
       // Check if any advance mode is empty or has 0 amount
-      return advanceModes.every((mode) => mode.paymentMode && mode.amount > 0);
+      return (
+        advanceModes.every((mode) => mode.paymentMode && mode.amount > 0) &&
+        (patientData?.pm_fullname ||
+          patientData?.patientName ||
+          patientDetails?.patientName)
+      );
       // ) && (depositDate || patientData?.apDate) &&
-      // (patientDetails || patientData || billData);
     } else {
       // Refund
       // Check if any refund mode is empty or has 0 amount
-      return refundModes.every((mode) => mode.paymentMode && mode.amount > 0);
+      return (
+        refundModes.every((mode) => mode.paymentMode && mode.amount > 0) &&
+        (patientData?.pm_fullname ||
+          patientData?.patientName ||
+          patientDetails?.patientName)
+      );
       //   (depositDate || patientData?.apDate) &&
-      // (patientDetails || patientData || billData);
     }
   };
 

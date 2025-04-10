@@ -33,6 +33,8 @@ import UploadDocPopup from "./medicalRecords/components/uploadDocPopup/UploadDoc
 import CommonModal from "../common/CommonModal";
 import UploadDocument from "./medicalRecords/UploadDocument";
 import BillingDashboard from "./opdBilling/components/billingDashboard/BillingDashboard";
+import { fetchPrintSetting } from "./opdBilling/service";
+import { setBillPrintSettings } from "../redux/billingSlice";
 
 const { Sider, Content } = Layout;
 
@@ -47,6 +49,9 @@ function PatientDetails() {
     const { allUploadedDocs } = useSelector(
       (state) => state.uploadDoc
     );
+      const { billPrintSettings } = useSelector(
+        (state) => state.billing
+      );
     const dispatch = useDispatch();
 
     const { state } = useLocation();
@@ -104,7 +109,19 @@ function PatientDetails() {
     if (patient_data.patient_unique_id && allUploadedDocs.length === 0) {
         getAllPatientDocs();
     }
+    if (
+      (billPrintSettings && Object.keys(billPrintSettings).length === 0)
+    ) {
+      getBillPrintSettings();
+    }
     }, []);
+
+    const getBillPrintSettings = async () => {
+        const printSettingsResponse = await fetchPrintSetting();
+        if (printSettingsResponse) {
+            dispatch(setBillPrintSettings(printSettingsResponse));
+        }
+    };
 
     const getAllPatientDocs = async () => {
         const doctorUploadedDocs = await fetchAllPatientDocs(patient_data.patient_unique_id);
