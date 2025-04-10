@@ -2,12 +2,12 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 // import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { Col, Row, Select, Button, message, Spin, Input } from "antd";
-import { isMobile, isChrome, isSafari } from "react-device-detect";
+import { isMobile, browserName, osName } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useReactToPrint } from 'react-to-print';
 
-import { inputToLabel,HTMLTransformer, removeLabelTags, errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
+import { inputToLabel, HTMLTransformer, removeLabelTags, errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
 import { MESSAGE_KEY } from "../utils/constants";
 
@@ -78,7 +78,7 @@ function CertificatePrintView() {
             title: title,
             content: removeLabelTags(HTMLTransformer(inputToLabel(tcu_content)))
         }
-        
+
         const action = await dispatch(addCertificate(sendData))
         if (action.meta.requestStatus === "fulfilled") {
             setAddEditFlag(true)
@@ -103,23 +103,44 @@ function CertificatePrintView() {
     }
 
     const printContent = async () => {
-        var blobURL = URL.createObjectURL(printBlob);
-        // Remove all existing iframes
-        document.querySelectorAll('iframe').forEach(function (iframe) {
-            iframe.parentNode.removeChild(iframe);
-        });
-        var iframe = document.createElement('iframe'); //load content in an iframe to print later
-        document.body.appendChild(iframe);
-        iframe.style.display = 'none';
-        iframe.src = blobURL;
-        iframe.onload = function () {
-            setTimeout(function () {
-                iframe.focus();
-                iframe.contentWindow.print();
-                // Revoke the Blob URL to avoid memory leaks
-                URL.revokeObjectURL(blobURL);
-            }, 1);
-        };
+        if (isMobile || osName == 'Linux') {
+            try {
+                const blobURL = URL.createObjectURL(printBlob);
+                const printWindow = window.open(blobURL, '_blank');
+
+                if (!printWindow) {
+                    console.error('Unable to open new window for printing');
+                    return;
+                }
+
+                printWindow.onload = () => {
+                    setTimeout(() => {
+                        printWindow.print();
+                        URL.revokeObjectURL(blobURL);
+                    }, 1000);
+                };
+            } catch (error) {
+                console.error('Error occurred while printing:', error);
+            }
+        } else {
+            var blobURL = URL.createObjectURL(printBlob);
+            // Remove all existing iframes
+            document.querySelectorAll('iframe').forEach(function (iframe) {
+                iframe.parentNode.removeChild(iframe);
+            });
+            var iframe = document.createElement('iframe'); //load content in an iframe to print later
+            document.body.appendChild(iframe);
+            iframe.style.display = 'none';
+            iframe.src = blobURL;
+            iframe.onload = function () {
+                setTimeout(function () {
+                    iframe.focus();
+                    iframe.contentWindow.print();
+                    // Revoke the Blob URL to avoid memory leaks
+                    URL.revokeObjectURL(blobURL);
+                }, 1);
+            };
+        }
     };
 
     const printInAppContent = async () => {
@@ -199,7 +220,7 @@ function CertificatePrintView() {
                                 <Button
                                     type="text"
                                     onClick={() => {
-                                        !isChrome && !isSafari ? printInAppContent() : printContent()
+                                        (browserName == "Chrome WebView" || browserName == "WebKit") ? printInAppContent() : printContent()
                                     }}
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-Print"></i>}
@@ -211,7 +232,7 @@ function CertificatePrintView() {
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-download"></i>}
-                                    onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
+                                    onClick={() => (browserName == "Chrome WebView" || browserName == "WebKit") ? handleInAppDownload() : handleDownload()}
                                 >
                                     <span className="fw-semibold">Download</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
