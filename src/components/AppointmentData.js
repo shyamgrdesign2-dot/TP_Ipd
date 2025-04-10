@@ -71,10 +71,11 @@ import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/Up
 import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
 import { resetDDxState } from "../redux/ddxSlice";
 import CreateBill from "../pages/opdBilling/components/createBill/CreateBill";
-import { fetchBillsByPatient, fetchPatientWalletBalance } from "../pages/opdBilling/service";
+import { checkToShowOpdBilling, fetchBillsByPatient, fetchPatientWalletBalance } from "../pages/opdBilling/service";
 import RecentBills from "../pages/opdBilling/components/recentBills/RecentBills";
 import AddAdvance from "../pages/opdBilling/components/advanceDeposit/AddAdvance";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
+import { setShouldShowOpdBilling } from "../redux/billingSlice";
 
 const { TextArea } = Input;
 
@@ -90,6 +91,9 @@ function AppointmentData({ locationPath }) {
     );
     const { uploadDocCategories } = useSelector(
         (state) => state.uploadDoc
+    );
+    const { isOpdBillChecked } = useSelector(
+      (state) => state.billing
     );
     const { isLoading } = useSelector((state) => state.uploadDoc);
     const { advancedSettings } = useSelector((state) => state.billing);
@@ -491,6 +495,17 @@ function AppointmentData({ locationPath }) {
         };
         }
     }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order, isDigitisationTab, siteId, createBillDrawer, advancedSettings?.billingStatusInAppointmentScreen]);
+
+    useEffect(() => {
+        if (!isOpdBillChecked && !isReceptionist) {
+            getShowOpdBilling();
+        }
+    }, []);
+
+    const getShowOpdBilling = async () => {
+        const res = await checkToShowOpdBilling();
+        dispatch(setShouldShowOpdBilling(res));
+    };
 
     const encounterAndFinishDataManage = async () => {
         if (siteId) {
@@ -1384,6 +1399,9 @@ function AppointmentData({ locationPath }) {
             setCreateBillDrawer(!createBillDrawer);
             if (recentBillDrawer && !isReceptionist) {
                 setRecentBillDrawer(false);
+            }
+            if (recentBillDrawer && isReceptionist) {
+                getPatientBills(appointmentSelectedFromMenu);
             }
         },
         [createBillDrawer]
