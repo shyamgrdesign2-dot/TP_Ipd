@@ -15,8 +15,6 @@ import { TAB_ADDRESS } from "../utils/constants";
 import Subscription from "../components/doctor_profile/Subscription";
 import PremiumUser from "../common/PremiumUser";
 
-import { isMobile, isMobileOnly, isTablet, isBrowser, isDesktop, isConsole, isEmbedded, isAndroid, isWinPhone, isIOS, isChrome, isFirefox, isSafari, isOpera, isYandex, isChromium, isMobileSafari, isSamsungBrowser, osVersion, osName, fullBrowserVersion, browserVersion, browserName, mobileVendor, mobileModel, engineName, engineVersion, getUA, deviceType, isIOS13, isIPhone13, isIPod13, isIPad13, isElectron, isEdgeChromium, isLegacyEdge, isWindows, isMacOs, deviceDetect, OsTypes, BrowserTypes } from "react-device-detect";
-
 function DoctorProfile() {
 
   const navigate = useNavigate();
@@ -313,41 +311,9 @@ function DoctorProfile() {
           <div className="mb-4">
             <ProfileClinicView />
           </div>
-          {["TRIAL", "EXPIRED", "PAID"].includes(planDetails?.currentPlanStatus) && <div className="mb-4">
+          {["TRIAL", "EXPIRED","PAID"].includes(planDetails?.currentPlanStatus) && <div className="mb-4">
             <Subscription />
           </div>}
-        </Container>
-      </div>
-
-      <div className="my-5">
-        <Container fluid='lg'>
-
-            <h6>{`isMobile - ${isMobile ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isMobileOnly - ${isMobileOnly ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isTablet - ${isTablet ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isBrowser - ${isBrowser ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isDesktop - ${isDesktop ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isConsole - ${isConsole ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isEmbedded - ${isEmbedded ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isAndroid - ${isAndroid ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isWinPhone - ${isWinPhone ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isIOS - ${isIOS ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isChrome - ${isChrome ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isFirefox - ${isFirefox ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isOpera - ${isOpera ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isYandex - ${isYandex ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isChromium - ${isChromium ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isMobileSafari - ${isMobileSafari ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isSamsungBrowser - ${isSamsungBrowser ? 'Yes' : 'No'}`}</h6>
-            <h6>{`osName - ${osName}`}</h6>
-            <h6>{`browserName - ${browserName}`}</h6>
-            <h6>{`deviceType - ${deviceType}`}</h6>
-            <h6>{`isEdgeChromium - ${isEdgeChromium ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isLegacyEdge - ${isLegacyEdge ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isWindows - ${isWindows ? 'Yes' : 'No'}`}</h6>
-            <h6>{`isMacOs - ${isMacOs ? 'Yes' : 'No'}`}</h6>
-            <h6>{`deviceDetect - ${JSON.stringify(deviceDetect())}`}</h6>
-          
         </Container>
       </div>
     </>
