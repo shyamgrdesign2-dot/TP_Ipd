@@ -1724,7 +1724,7 @@ function AppointmentData({ locationPath }) {
 
     return (
         <>
-            <div className="border rounded-4 appointment-wrap dateborder">
+            {!isReceptionist && (<div className="border rounded-4 appointment-wrap dateborder">
                 <Tabs
                     defaultActiveKey={TAB_QUEUE}
                     items={items}
@@ -1902,7 +1902,7 @@ function AppointmentData({ locationPath }) {
                 >
                     <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={appointmentSelectedFromMenu?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} onSave={handleLabParamsUpdate} />
                 </Drawer>)}
-            </div>
+            </div>)}
 
             {modalOpen && (
                 <Modal
@@ -2001,7 +2001,7 @@ function AppointmentData({ locationPath }) {
                     setIsFileTypeError={setIsFileTypeError}
                 />
             )}
-            {isLoading ? (
+            {(isLoading || (isReceptionist && !recentBillDrawer)) ? (
                 <div>
                     <Spin
                         style={{
