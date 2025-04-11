@@ -2001,7 +2001,7 @@ function AppointmentData({ locationPath }) {
                     setIsFileTypeError={setIsFileTypeError}
                 />
             )}
-            {(isLoading || (isReceptionist && !recentBillDrawer)) ? (
+            {(isLoading || (isReceptionist && (!recentBillDrawer || !addAdvanceDrawer))) ? (
                 <div>
                     <Spin
                         style={{
