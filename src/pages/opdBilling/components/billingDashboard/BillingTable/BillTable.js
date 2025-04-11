@@ -47,6 +47,9 @@ const BillTable = ({
         const payload = { billIds: [record.id] }; // Adjust payload as needed
         const response = await addBillsToForm3C(payload);
         if (response.status === 204) {
+          if (getPatientBills) {
+            getPatientBills();
+          }
           message.open({
             key: MESSAGE_KEY,
             type: "",
