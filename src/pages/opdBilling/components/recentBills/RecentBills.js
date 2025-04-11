@@ -8,6 +8,7 @@ const RecentBills = ({
   patientBills,
   getPatientBills,
   totalAdvanceBalance,
+  patientData,
 }) => {
   const [sortConfig, setSortConfig] = useState({ field: null, order: null });
   const urlParams = new URLSearchParams(window.location.search);
@@ -44,7 +45,7 @@ const RecentBills = ({
             </Button>
           )}
           <div className={`modal-title ${isReceptionist ? "px-4" : ""}`}>
-            Patient's Recent Bills
+            {patientData?.pm_fullname}'s Recent Bills
           </div>
         </div>
         <Button
