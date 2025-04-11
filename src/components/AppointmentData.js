@@ -2099,6 +2099,7 @@ function AppointmentData({ locationPath }) {
                         patientBills={patientBills}
                         getPatientBills={getPatientBills}
                         totalAdvanceBalance={patientWalletBalance}
+                        patientData={appointmentSelectedFromMenu}
                     />
                 </Drawer>
             )}
