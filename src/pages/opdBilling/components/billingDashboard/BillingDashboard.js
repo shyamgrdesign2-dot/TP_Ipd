@@ -124,17 +124,6 @@ function BillingDashboard({ patientData, fromPath }) {
 
   // Modify the Add Advance Drawer handler
   const handleAddAdvanceDrawer = () => {
-    const clinic = getClinic();
-    trackEvent("TP_billing_addadvance", {
-      doctorSpeciality: profile?.dp_name,
-      doctorId: profile?.doctor_unique_id,
-      doctorContact: profile?.um_contact,
-      city: clinic?.hm_city,
-      pincode: clinic?.hm_pincode,
-      source: fromPath || "billing_page",
-      receptionistId: receptionistId,
-      receptionistName: receptionistName,
-    });
     setAddAdvanceDrawer(!addAdvanceDrawer);
     // If drawer is closing and we have a refresh function, call it
     if (addAdvanceDrawer && billingTableRef.current?.refreshData) {
