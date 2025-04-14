@@ -162,7 +162,7 @@ const BillTable = ({
       dataIndex: "totalAmount",
       key: "totalAmount",
       ellipsis: true,
-      width: "13%",
+      width: "14%",
       sorter: true,
       onFilter: (value, record) => record.send_on.startsWith(value),
       render: (text, record) => (
@@ -250,7 +250,7 @@ const BillTable = ({
     {
       title: "Action",
       key: "action",
-      width: "10%",
+      width: "9%",
       render: (text, record) => (
         <Dropdown
           className="cursor-pointer"

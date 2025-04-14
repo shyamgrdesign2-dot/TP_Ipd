@@ -240,7 +240,7 @@ const PreviewBill = ({
               }}
             >
               <div>
-                {!isMobile ? (
+                {!isMobile || isReceptionist ? (
                   ""
                 ) : (
                   <div
