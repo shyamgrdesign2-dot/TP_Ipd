@@ -974,7 +974,7 @@ function AddAdvance({
             </div>
           </div>
         </div>
-        <div className="d-flex modal-body">
+        <div className="d-flex modal-body" style={{ overflow: "scroll" }}>
           <div className="advance-left-container">
             <div className="d-flex flex-column gap-2 my-2 form-fields">
               {/* Patient Name */}
