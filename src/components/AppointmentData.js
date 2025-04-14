@@ -71,11 +71,11 @@ import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/Up
 import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
 import { resetDDxState } from "../redux/ddxSlice";
 import CreateBill from "../pages/opdBilling/components/createBill/CreateBill";
-import { checkToShowOpdBilling, fetchBillsByPatient, fetchPatientWalletBalance } from "../pages/opdBilling/service";
+import { checkToShowOpdBilling, fetchAdvanceSetting, fetchBillsByPatient, fetchPatientWalletBalance, fetchPrintSetting } from "../pages/opdBilling/service";
 import RecentBills from "../pages/opdBilling/components/recentBills/RecentBills";
 import AddAdvance from "../pages/opdBilling/components/advanceDeposit/AddAdvance";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
-import { setShouldShowOpdBilling } from "../redux/billingSlice";
+import { setAdvancedSettings, setBillPrintSettings, setShouldShowOpdBilling } from "../redux/billingSlice";
 
 const { TextArea } = Input;
 
@@ -220,6 +220,8 @@ function AppointmentData({ locationPath }) {
         if (uploadDocCategories.length === 0 && !isReceptionist) {
             getAllDocumentCategories();
         }
+        getAdvanceSettings();
+        getBillPrintSettings();
     }, []);
 
     useEffect(() => {
@@ -254,6 +256,22 @@ function AppointmentData({ locationPath }) {
             }
         }
     }, []);
+
+    const getAdvanceSettings = async () => {
+        const advanceSettingsResponse = await fetchAdvanceSetting();
+        if (advanceSettingsResponse) {
+            dispatch(setAdvancedSettings(advanceSettingsResponse));
+        }
+    };
+
+    const getBillPrintSettings = async () => {
+        const printSettingsResponse = await fetchPrintSetting(
+            isReceptionist ? urlParams.get("um_id") : ""
+        );
+        if (printSettingsResponse) {
+            dispatch(setBillPrintSettings(printSettingsResponse));
+        }
+    };
 
     const fetchPendingDigitisationRx = async () => {
 
@@ -2001,7 +2019,7 @@ function AppointmentData({ locationPath }) {
                     setIsFileTypeError={setIsFileTypeError}
                 />
             )}
-            {(isLoading || (isReceptionist && (!recentBillDrawer || !addAdvanceDrawer))) ? (
+            {(isLoading || (isReceptionist && (!recentBillDrawer && !addAdvanceDrawer))) ? (
                 <div>
                     <Spin
                         style={{

@@ -1477,7 +1477,10 @@ const CreateBill = ({
             <div className="d-flex flex-column h-100 gap-2 px-3 py-4">
               <div className="d-flex gap-3">
                 <div className="w-100">
-                  <div className="mb-1">Patient Name, Mobile no & ID </div>
+                  <div className="mb-1">
+                    Patient Name, Mobile no & ID{" "}
+                    <span className="lab-params-warning">*</span>{" "}
+                  </div>
                   {isEditingName &&
                   (!patientData || Object.keys(patientData).length === 0) ? (
                     <AutoComplete
@@ -1561,7 +1564,9 @@ const CreateBill = ({
                   />
                 </div>
                 <div>
-                  <div style={{ paddingBottom: "5px" }}>Doctor Name</div>
+                  <div style={{ paddingBottom: "5px" }}>
+                    Doctor Name <span className="lab-params-warning">*</span>
+                  </div>
                   {!isReceptionist || doctorsList.length === 1 ? (
                     <Input
                       className="input-create-bill"
