@@ -2033,6 +2033,7 @@ const CreateBill = ({
               patientData?.pm_fullname ? patientData : patientDetails
             }
             updateTotalAdvanceBalance={setTotalAdvanceBalance}
+            isReceptionistDashboard={isReceptionist}
           />
         </Drawer>
       )}
