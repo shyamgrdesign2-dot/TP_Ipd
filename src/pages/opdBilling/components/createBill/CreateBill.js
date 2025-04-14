@@ -325,6 +325,14 @@ const CreateBill = ({
     } else {
       setDisableSaveBtn(false);
     }
+    if (
+      dataSource?.find(
+        (item, index) =>
+          item?.masterId === "" && index !== dataSource.length - 1
+      )
+    ) {
+      setDisableSaveBtn(true);
+    }
   }, [dataSource, paymentModes, patientDetails]);
 
   useEffect(() => {
