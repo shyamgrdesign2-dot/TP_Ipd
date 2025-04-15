@@ -48,6 +48,7 @@ import AllPatients from "./pages/allPatients.js/AllPatients";
 import AddAppointment from "./pages/addAppointment/AddAppointment";
 import { checkAccountStatus } from './pages/auth/authService';
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
+import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -268,6 +269,7 @@ function App() {
                 <Route path="all_patients" element={<AllPatients />} />
                 <Route path="billing-settings" element={<BillingSettings />} />
                 <Route path="add-appointment" element={<AddAppointment />} />
+                <Route path="get-unlimited-access" element={<GetUnlimitedAccess />} />
               </Route>
             </Routes>
           </PersistGate>

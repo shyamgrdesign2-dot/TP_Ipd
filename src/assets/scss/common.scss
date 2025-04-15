@@ -263,6 +263,9 @@ body {
     .px-20 {
         padding: 0 20px;
     }
+    .px-75px {
+        padding: 0 75px;
+    }
     .p-30 {
         padding: 30px;
     }
@@ -271,6 +274,9 @@ body {
     }
     .rounded-10px {
         border-radius: 10px !important;
+    }
+    .rounded-12px {
+        border-radius: 12px !important;
     }
     .rounded-20px {
         border-radius: 20px;
@@ -1048,4 +1054,8 @@ body {
 
 .main-color {
     color: #4B4AD5 !important;
+}
+
+.text-price {
+    color: $priceColor !important;
 }

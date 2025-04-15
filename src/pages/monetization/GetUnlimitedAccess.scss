@@ -1,0 +1,173 @@
+@import '../../assets/scss/variables';
+
+.unlimited-access-wrapper {
+    .flat-20 {
+        height: 63px;
+        width: 100%;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #09410B !important;
+        font-size: 18px;
+        font-weight: 500;
+        background: linear-gradient(90deg, rgba(22, 155, 27, 0) -4.19%, rgba(38, 229, 46, 0.2) 49.22%, rgba(22, 155, 27, 0) 102.63%);
+        span {
+            color: #09410B !important;
+            font-weight: 600;
+        }
+        div {
+            color: #09410B !important;
+            font-size: 15px;
+            font-weight: 600;
+            background-color: #3D8C402B;
+        }
+    }
+    .bg-unlimited-access {
+        background-image: url(../../assets/images/bg-unlimited-access.svg);
+        background-repeat: no-repeat;
+        background-position: top center;
+        padding: 32px 41px 0;
+        @media only screen and (max-width: 1400px) {
+            padding: 25px 25px 0;
+        }
+    }
+    .unlimited-access-price {
+        background: linear-gradient(360deg, #FFFFFF 62.86%, #FAEBFF 100%);
+        box-shadow: 0px -1px 8px 0px #4B4AD51F;
+        border-radius: 26px 26px 0 0;
+        padding: 42px;
+        position: relative;
+        &:after {
+            position: absolute;
+            content: '';
+            background-image: url(../../assets/images/add-square.svg);
+            left: 50%;
+            bottom: -26px;
+            width: 42px;
+            height: 42px;
+        }
+        @media only screen and (max-width: 1400px) {
+            padding: 25px;
+        }
+        .medco-app {
+            background: linear-gradient(270deg, rgba(164, 97, 216, 0.1) 0%, rgba(128, 23, 210, 0.1) 100%);
+            border-radius: 15px;
+            padding: 17px;
+            display: flex;
+            align-items: center;
+        }
+    }
+    .access-off {
+        background: linear-gradient(101.91deg, #3D8C40 9.72%, #2DC433 47.18%, #37843A 100%);
+        min-width: 70px;
+        text-align: center;
+    }
+    .addon-access {
+        background: $white;
+        box-shadow: 0px 1px 6px 0px #4B4AD51F;
+        border-radius: 0 0 26px 26px;
+        padding: 42px;
+        @media only screen and (max-width: 1400px) {
+            padding: 25px;
+        }
+        .addon-box {
+            background: #4B4AD508;
+            border: 0.69px solid #4B4AD508;
+            border-radius: 24px;
+            padding: 32px;
+            position: relative;
+            &.box-added {
+                background: #EAFFEB33;
+                border: 0.69px solid #B7DFB9;
+            }
+            .addon-box-price {
+                min-width: 130px;    
+            }
+            .btn-addon {
+                min-width: 110px;
+                height: 42px;
+                background: #4B4AD51A;
+                border: 1px solid $theme;
+                span, i {
+                    color: $theme !important;
+                }
+                &:hover {
+                    background-color: $theme;
+                    span, i {
+                        color: $white !important;
+                    }
+                }
+            }
+            .btn-added {
+                min-width: 110px;
+                height: 42px;
+                background: #4CAF5033;
+                border: 1px solid #4CAF50;
+                span, i {
+                    color: #4CAF50 !important;
+                }
+                &:hover {
+                    background-color: #4CAF50;
+                    span, i {
+                        color: $white !important;
+                    }
+                }
+            }
+            .includes-box {
+                border: 1px solid #4B4AD51A;
+                border-radius: 10px;
+                padding: 24px;
+                height: 200px;
+                position: relative;
+                &:after {
+                    position: absolute;
+                    content: '';
+                    background-image: url(../../assets/images/pro-incudes.svg);
+                }
+            }
+        }
+    }
+    .unlimited-access-summary {
+        background-color: $white;
+        box-shadow: 0px 0px 12px 0px #00000014;
+        border-radius: 20px;
+        padding: 32px;
+        .dd-yearly {
+            background: #4B4AD50F;
+            border-radius: 10px;
+        }
+        .text-discount {
+            color: #3D8C40 !important;
+        }
+        .btn-proceed {
+            height: 52px;
+            width: 100%;
+            span {
+                font-size: 18px;
+            }
+        }
+    }
+}
+
+.tag-recommend {
+    background: linear-gradient(89.8deg, #3D8C40 0.16%, #5DC061 32.11%, #3D8C40 98.83%);
+    padding: 5px 20px;
+    font-size: 14px;
+    color: $white !important;
+    font-weight: 500;
+    border-radius: 16px 0;
+    position: absolute;
+    top: 0;
+    left: -6px;
+    &:after {
+        position: absolute;
+        content: "";
+        width: 5px;
+        height: 4px;
+        bottom: -3px;
+        left: 0;
+        background-image: url(../../assets/images/tag-recommend.svg);
+        background-repeat: no-repeat;
+    }
+}

@@ -780,6 +780,21 @@ function Header({ locationPath }) {
           </a>,
         key: '7',
       },
+      {
+        type: "divider",
+      },
+      {
+        className: "freeTrialMenu text-center rounded-12px p-3 my-3",
+        label: (
+          <>
+            Your free trial ends in <span className="fw-semibold"> 7 days!</span>
+            <div className="title-common text-white border p-2 rounded-12px w-100 mt-2 cursor-pointer" style={{backgroundColor: '#FFFFFF1A'}} onClick={() => navigate("/get-unlimited-access")}>
+              <img loading="lazy" src={crownIcon} className="text-white me-2" alt="" />Get Unlimited Access
+            </div>
+          </>
+        ),
+        key: "8",
+      },
       // {
       //   label:
       //     <a>
