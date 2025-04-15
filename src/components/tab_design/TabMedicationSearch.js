@@ -942,7 +942,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      medicationData[selectedIndex].tmm_remarks = capitalizeAfterSentence(e.target.value);
+      medicationData[selectedIndex].tmm_remarks = e.target.value;
       setMedicationData((prev) => [...prev]);
     },
     [selectedIndex, medicationData]

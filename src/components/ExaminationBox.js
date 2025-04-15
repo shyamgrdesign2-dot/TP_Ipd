@@ -245,7 +245,7 @@ function ExaminationBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      examinationData[i].note = capitalizeAfterSentence(e.target.value);
+      examinationData[i].note = e.target.value;
       // ?.replace(/,/g, '')
       setExaminationData((prev) => [...prev]);
       dispatch(setIsDDxReadyToGenerate(true));
