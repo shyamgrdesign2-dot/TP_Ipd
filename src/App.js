@@ -170,15 +170,15 @@ function App() {
       const params = new URLSearchParams(location.search);
       if (!isReceptionist) {
         params.delete("authToken");
-      }
 
-      navigate(
-        {
-          pathname: location.pathname,
-          search: params.toString(),
-        },
-        { replace: true }
-      ); // Ensure the URL is cleaned up, removing authToken
+        navigate(
+          {
+            pathname: location.pathname,
+            search: params.toString(),
+          },
+          { replace: true }
+        ); // Ensure the URL is cleaned up, removing authToken
+      }
     }
   }, [authToken, setToken, navigate, location]);
 
