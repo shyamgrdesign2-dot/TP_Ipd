@@ -28,10 +28,12 @@ const BillTable = ({
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [billData, setBillData] = useState(null);
   const [patientWalletBalance, setPatientWalletBalance] = useState(0);
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
 
   const handleDrawerPreviewBill = () => {
     setPreviewBillDrawer(!previewBillDrawer);
-    if (previewBillDrawer) {
+    if (previewBillDrawer && !isReceptionist) {
       handleRecentBillDrawer && handleRecentBillDrawer();
     }
   };
