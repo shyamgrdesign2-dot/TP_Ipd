@@ -255,7 +255,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
 
         <div className={styles.formItem}>
           <div className={styles.inputWithIcon}>
-            <label>Billing/Unbilled Status in Appointment Screen</label>
+            <label>Billed/Unbilled Status in Appointment Screen</label>
             <InfoTooltip type={"BillingStatus"} />
           </div>
 
