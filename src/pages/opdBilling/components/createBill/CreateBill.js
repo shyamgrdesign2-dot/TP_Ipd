@@ -1767,7 +1767,7 @@ const CreateBill = ({
                             <span className="icon-info fs-18 mt-1 bdg-danger" />
                             <span className="bdg-danger">
                               Amount exceeds available balance of ₹
-                              {patientWalletBalance}. Please adjust or add funds
+                              {totalAdvanceBalance}. Please adjust or add funds
                             </span>
                           </div>
                         )}
