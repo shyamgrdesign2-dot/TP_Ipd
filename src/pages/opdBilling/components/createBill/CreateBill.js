@@ -1762,7 +1762,7 @@ const CreateBill = ({
                         </div>
                       )}
                       {payment?.paymentMode === "Advance Deposit" &&
-                        payment?.amount > patientWalletBalance && (
+                        payment?.amount > totalAdvanceBalance && (
                           <div className="d-flex align-items-start gap-2">
                             <span className="icon-info fs-18 mt-1 bdg-danger" />
                             <span className="bdg-danger">

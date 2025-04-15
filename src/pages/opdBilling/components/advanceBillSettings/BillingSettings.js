@@ -59,6 +59,7 @@ const BillingSettings = () => {
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
   const { videoList } = useSelector((state) => state.doctors);
+  const { advancedSettings } = useSelector((state) => state.billing);
 
   const columns = [
     {
@@ -152,7 +153,9 @@ const BillingSettings = () => {
 
   // Cleanup debounce on unmount
   useEffect(() => {
-    getAdvanceSettings();
+    if (advancedSettings && Object.keys(advancedSettings).length === 0) {
+      getAdvanceSettings();
+    }
   }, []);
 
   useEffect(() => {
