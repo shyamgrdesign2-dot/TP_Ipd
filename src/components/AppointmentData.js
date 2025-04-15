@@ -1473,7 +1473,7 @@ function AppointmentData({ locationPath }) {
         const response = await fetchBillsByPatient(queryParams);
             if (isReceptionist) {
                 const patientData = {
-                  patient_unique_id: record?.patient_unique_id,
+                  patient_unique_id: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id || urlParams.get("patient_unique_id"),
                   pm_pid: record?.pm_pid,
                   pam_id: record?.pam_id,
                   source: record?.source,
@@ -1505,7 +1505,8 @@ function AppointmentData({ locationPath }) {
         }
         const patientWalletBalanceRes = await fetchPatientWalletBalance(
             record?.patient_unique_id ||
-            appointmentSelectedFromMenu?.patient_unique_id
+            appointmentSelectedFromMenu?.patient_unique_id ||
+            urlParams.get("patient_unique_id")
         );
         setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
     };
