@@ -47,7 +47,6 @@ import BillingSettings from "./pages/opdBilling/components/advanceBillSettings/B
 import AllPatients from "./pages/allPatients.js/AllPatients";
 import AddAppointment from "./pages/addAppointment/AddAppointment";
 import { checkAccountStatus } from './pages/auth/authService';
-import PrivateRoute from "./pages/auth/components/PrivateRoute";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -216,8 +215,7 @@ function App() {
                   <DoctorModal />
                 </div>
               )}
-              <PrivateRoute>
-                <Routes>
+              <Routes>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route path="create-campaign" element={<MessageCreateCampaign />} />
                 <Route path="patient_details" element={<PatientDetails />} />
@@ -261,7 +259,6 @@ function App() {
                 <Route path="add-appointment" element={<AddAppointment />} />
 
               </Routes>
-              </PrivateRoute>
             </PersistGate>
           </Provider>
         </ErrorBoundary>
