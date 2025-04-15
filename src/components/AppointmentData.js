@@ -220,7 +220,9 @@ function AppointmentData({ locationPath }) {
         if (uploadDocCategories.length === 0 && !isReceptionist) {
             getAllDocumentCategories();
         }
-        getAdvanceSettings();
+        if (advancedSettings && Object.keys(advancedSettings).length === 0) {
+            getAdvanceSettings();
+        }
         getBillPrintSettings();
     }, []);
 
