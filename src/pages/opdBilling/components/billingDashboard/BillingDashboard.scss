@@ -21,27 +21,6 @@
         }
     }
 
-    .btn-create-bill {
-        cursor: pointer !important;
-        display: flex;
-        height: 41px;
-        padding: 10px 24px;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        border-radius: 10px;
-        background: var(--P-CTA-100, #4B4AD5);
-
-        &:hover,
-        &:focus {
-            background: var(--P-CTA-100, #4B4AD5) !important;
-        }
-
-        span {
-            color: white !important;
-        }
-    }
-
     .advance-deposite-container {
         display: flex;
         align-items: center;

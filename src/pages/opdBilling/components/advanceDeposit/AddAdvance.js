@@ -67,6 +67,7 @@ function AddAdvance({
   billData,
   onSuccess,
   updateTotalAdvanceBalance,
+  isReceptionistDashboard,
 }) {
   const { state } = useLocation();
   const { pam_id } = state || {};
@@ -112,6 +113,10 @@ function AddAdvance({
   const [refundModes, setRefundModes] = useState([]);
   const [notes, setNotes] = useState(""); // Stores the final notes value
   const notesRef = useRef("");
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
+  const receptionistId = urlParams.get("receptionistId");
+  const receptionistName = urlParams.get("receptionistName");
 
   useEffect(() => {
     setAdvanceModes([
@@ -259,6 +264,8 @@ function AddAdvance({
           ? setAdvanceModes([...advanceModes, newMode])
           : setRefundModes([...refundModes, newMode])
       ),
+      receptionistId: urlParams.get("receptionistId"),
+      receptionistName: urlParams.get("receptionistName"),
     });
   };
 
@@ -640,7 +647,7 @@ function AddAdvance({
     if (status === 1) {
       handleDrawerPreviewBill();
     } else {
-      const patient = billData?.patient || {};
+      const patient = billData?.patient || data?.[0]?.patient || {};
       const upadtedPatientData = {
         pm_pid: patient.id,
         pm_fullname: patient.name,
@@ -656,7 +663,11 @@ function AddAdvance({
       const blob = await pdf(
         <ViewBillPdf
           printSettings={billPrintSettings}
-          patientData={upadtedPatientData}
+          patientData={
+            patientData && Object.keys(patientData).length > 0
+              ? patientData
+              : upadtedPatientData
+          }
           profile={profile}
           billData={record}
           isDepositReceipt={true}
@@ -741,6 +752,8 @@ function AddAdvance({
         city: clinic?.hm_city,
         pincode: clinic?.hm_pincode,
         source: "add_advance",
+        receptionistId: receptionistId,
+        receptionistName: receptionistName,
       }
     );
     const totalAdvanceAmount = calculateTotalAmount(advanceModes);
@@ -783,7 +796,7 @@ function AddAdvance({
 
       try {
         const response = await createAdvancedDeposit(payload);
-        if (response) {
+        if (response?.id) {
           message.open({
             key: MESSAGE_KEY,
             type: "",
@@ -896,15 +909,23 @@ function AddAdvance({
     if (selectedTab === 1) {
       // Advance
       // Check if any advance mode is empty or has 0 amount
-      return advanceModes.every((mode) => mode.paymentMode && mode.amount > 0);
+      return (
+        advanceModes.every((mode) => mode.paymentMode && mode.amount > 0) &&
+        (patientData?.pm_fullname ||
+          patientData?.patientName ||
+          patientDetails?.patientName)
+      );
       // ) && (depositDate || patientData?.apDate) &&
-      // (patientDetails || patientData || billData);
     } else {
       // Refund
       // Check if any refund mode is empty or has 0 amount
-      return refundModes.every((mode) => mode.paymentMode && mode.amount > 0);
+      return (
+        refundModes.every((mode) => mode.paymentMode && mode.amount > 0) &&
+        (patientData?.pm_fullname ||
+          patientData?.patientName ||
+          patientDetails?.patientName)
+      );
       //   (depositDate || patientData?.apDate) &&
-      // (patientDetails || patientData || billData);
     }
   };
 
@@ -935,17 +956,25 @@ function AddAdvance({
       <Card bordered={false} className="search-modalCard add-advance-wrapper">
         <div className="modalCard-header align-items-center justify-content-between d-flex">
           <div className="align-items-center d-flex justify-content-center">
-            <Button
-              type="text"
-              className="btn px-3 focus-none h-100"
-              onClick={handleAddAdvanceDrawer}
+            {(!isReceptionist || isReceptionistDashboard) && (
+              <Button
+                type="text"
+                className="btn px-3 focus-none h-100"
+                onClick={handleAddAdvanceDrawer}
+              >
+                <i className="icon-Cross fs-3" />
+              </Button>
+            )}
+            <div
+              className={`modal-title ${
+                isReceptionist && !isReceptionistDashboard ? "mx-4 p-2" : ""
+              }`}
             >
-              <i className="icon-Cross fs-3"></i>
-            </Button>
-            <div className="modal-title">Advance Deposit</div>
+              Advance Deposit
+            </div>
           </div>
         </div>
-        <div className="d-flex modal-body">
+        <div className="d-flex modal-body" style={{ overflow: "scroll" }}>
           <div className="advance-left-container">
             <div className="d-flex flex-column gap-2 my-2 form-fields">
               {/* Patient Name */}
@@ -1101,7 +1130,9 @@ function AddAdvance({
             </div>
             <div className="d-flex align-items-center justify-content-center mx-4 p-2">
               <Button
-                className="btn btn-primary3 w-100 h-50"
+                className={`btn btn-primary3 w-100 h-50 ${
+                  isReceptionist ? "receptionist-btn" : ""
+                }`}
                 onClick={handleAddAdvanceClick}
                 disabled={!isFormValid()}
               >

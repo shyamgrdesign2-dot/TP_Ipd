@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { isMobile } from "react-device-detect";
 
 import Header from "../../../../common/Header";
@@ -23,8 +23,8 @@ import AddForm3cBills from "../manage3cBills/AddForm3cBills";
 import addCircleIcon from "../../../../assets/images/add-circle.svg";
 import visitEnd from "../../../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../../../assets/images/close-visit.svg";
-import playIcons from '../../../../assets/images/tube-icon.svg';
-import tutorial from '../../../../assets/images/tutorial-icon.svg';
+import playIcons from "../../../../assets/images/tube-icon.svg";
+import tutorial from "../../../../assets/images/tutorial-icon.svg";
 import VideoModal from "../../../../common/VideoModal";
 import { Popover } from "antd";
 
@@ -35,6 +35,7 @@ import { fetchPatientWalletBalance } from "../../service";
 
 function BillingDashboard({ patientData, fromPath }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   let location = useLocation();
   const [locationPath, setLocationPath] = useState("/");
   const { profile } = useSelector((state) => state.doctors);
@@ -57,6 +58,10 @@ function BillingDashboard({ patientData, fromPath }) {
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
   const { videoList } = useSelector((state) => state.doctors);
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
+  const receptionistId = urlParams.get("receptionistId");
+  const receptionistName = urlParams.get("receptionistName");
 
   useEffect(() => {
     setLocationPath(location.pathname);
@@ -102,6 +107,8 @@ function BillingDashboard({ patientData, fromPath }) {
       city: clinic?.hm_city,
       pincode: clinic?.hm_pincode,
       subscriptionStatus: planDetails?.currentPlanStatus,
+      receptionistId: receptionistId,
+      receptionistName: receptionistName,
     });
     setCreateBillDrawer(!createBillDrawer);
   }, [createBillDrawer]);
@@ -117,15 +124,6 @@ function BillingDashboard({ patientData, fromPath }) {
 
   // Modify the Add Advance Drawer handler
   const handleAddAdvanceDrawer = () => {
-    const clinic = getClinic();
-    trackEvent("TP_billing_addadvance", {
-      doctorSpeciality: profile?.dp_name,
-      doctorId: profile?.doctor_unique_id,
-      doctorContact: profile?.um_contact,
-      city: clinic?.hm_city,
-      pincode: clinic?.hm_pincode,
-      source: fromPath || "billing_page",
-    });
     setAddAdvanceDrawer(!addAdvanceDrawer);
     // If drawer is closing and we have a refresh function, call it
     if (addAdvanceDrawer && billingTableRef.current?.refreshData) {
@@ -182,7 +180,10 @@ function BillingDashboard({ patientData, fromPath }) {
   const VIDEO_CONTENT = useCallback(() => {
     return (
       <>
-        <div className="video-contant rounded-4 p-20 zindex-10" key="oneclickrx-video">
+        <div
+          className="video-contant rounded-4 p-20 zindex-10"
+          key="oneclickrx-video"
+        >
           <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
             <div className="title-common lh-base">Video Tutorial</div>
             <Button
@@ -237,12 +238,20 @@ function BillingDashboard({ patientData, fromPath }) {
 
   return (
     <>
-      {!patientData && <Header locationPath={locationPath} />}
+      {!patientData && !isReceptionist && (
+        <Header locationPath={locationPath} />
+      )}
       <div className="d-flex billing-dashboard-wraper">
-        {!patientData && <SidebarDoctor activeItem={"opd-billing"} />}
+        {!patientData && !isReceptionist && (
+          <SidebarDoctor activeItem={"opd-billing"} />
+        )}
         <div className="w-100 bg-body wrapper">
           <>
-            <div className="welcomesection position-relative mb-3">
+            <div
+              className={`welcomesection position-relative mb-3 ${
+                isReceptionist ? "receptionist-welcome" : ""
+              }`}
+            >
               <div className="bg-welcome d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center">
                   {patientData ? (
@@ -267,11 +276,13 @@ function BillingDashboard({ patientData, fromPath }) {
                       <div>
                         <h1>OPD Billing</h1>
                       </div>
-                      <img
-                        src={require("../../../../assets/images/bg-welcome.png")}
-                        className="welcomeig d-inline-block align-top"
-                        alt="Welcome"
-                      />
+                      {!isReceptionist && (
+                        <img
+                          src={require("../../../../assets/images/bg-welcome.png")}
+                          className="welcomeig d-inline-block align-top"
+                          alt="Welcome"
+                        />
+                      )}
                     </>
                   )}
                 </div>
@@ -302,17 +313,21 @@ function BillingDashboard({ patientData, fromPath }) {
                       )}
                     </div>
                   )}
-                  {selectedTab === "billingtable" && !patientData && (
-                    <Button
-                      className="btn-manage-bill"
-                      onClick={handleManage3cBill}
-                    >
-                      <span>Manage Form 3c Bills</span>
-                    </Button>
-                  )}
+                  {selectedTab === "billingtable" &&
+                    !patientData &&
+                    !isReceptionist && (
+                      <Button
+                        className="btn-manage-bill"
+                        onClick={handleManage3cBill}
+                      >
+                        <span>Manage Form 3c Bills</span>
+                      </Button>
+                    )}
                   {selectedTab !== "billingtable" && !patientData && (
                     <Button
-                      className="btn-create-bill"
+                      className={`btn-create-bill ${
+                        isReceptionist ? "receptionist-btn" : ""
+                      }`}
                       onClick={handleAddAdvanceDrawer}
                     >
                       <span style={{ fontSize: "22px" }}>{"+"}</span>
@@ -321,7 +336,9 @@ function BillingDashboard({ patientData, fromPath }) {
                   )}
                   {(selectedTab === "billingtable" || patientData) && (
                     <Button
-                      className="btn-create-bill"
+                      className={`btn-create-bill ${
+                        isReceptionist ? "receptionist-btn" : ""
+                      }`}
                       onClick={handleCreateBillDrawer}
                     >
                       <span style={{ fontSize: "22px" }}>+</span>
@@ -389,6 +406,7 @@ function BillingDashboard({ patientData, fromPath }) {
             <AddAdvance
               handleAddAdvanceDrawer={handleAdvanceSuccess}
               patientData={patientData}
+              isReceptionistDashboard={isReceptionist}
             />
           </Drawer>
         )}

@@ -71,10 +71,11 @@ import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/Up
 import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
 import { resetDDxState } from "../redux/ddxSlice";
 import CreateBill from "../pages/opdBilling/components/createBill/CreateBill";
-import { fetchBillsByPatient, fetchPatientWalletBalance } from "../pages/opdBilling/service";
+import { checkToShowOpdBilling, fetchAdvanceSetting, fetchBillsByPatient, fetchPatientWalletBalance, fetchPrintSetting } from "../pages/opdBilling/service";
 import RecentBills from "../pages/opdBilling/components/recentBills/RecentBills";
 import AddAdvance from "../pages/opdBilling/components/advanceDeposit/AddAdvance";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
+import { setAdvancedSettings, setBillPrintSettings, setShouldShowOpdBilling } from "../redux/billingSlice";
 
 const { TextArea } = Input;
 
@@ -91,7 +92,11 @@ function AppointmentData({ locationPath }) {
     const { uploadDocCategories } = useSelector(
         (state) => state.uploadDoc
     );
+    const { isOpdBillChecked } = useSelector(
+      (state) => state.billing
+    );
     const { isLoading } = useSelector((state) => state.uploadDoc);
+    const { advancedSettings } = useSelector((state) => state.billing);
     const { isOpdBillingAccessable } = useOpdBilling();
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -128,6 +133,11 @@ function AppointmentData({ locationPath }) {
     const [patientData, setPatientData] = useState(null);
     const fileInputRef = useRef(null);
     const { planDetails } = useSelector(state => state.subscription);
+    const urlParams = new URLSearchParams(window.location.search);
+    const isReceptionist = urlParams.has("receptionist");
+    const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
+      useState(null);
+
 
     const handleDrawerUploadDoc = () => {
         setUploadDocDrawer(!uploadDocDrawer);
@@ -207,9 +217,11 @@ function AppointmentData({ locationPath }) {
     };
 
     useEffect(() => {
-        if (uploadDocCategories.length === 0) {
+        if (uploadDocCategories.length === 0 && !isReceptionist) {
             getAllDocumentCategories();
         }
+        getAdvanceSettings();
+        getBillPrintSettings();
     }, []);
 
     useEffect(() => {
@@ -218,6 +230,48 @@ function AppointmentData({ locationPath }) {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+
+    useEffect(() => {
+        if (isReceptionist) {
+            const patientRecord = {
+              patient_unique_id: urlParams.get("patient_unique_id"),
+              pam_id: urlParams.get("pam_id"),
+              pm_pid: urlParams.get("pm_pid"),
+              source: urlParams.get("source"),
+              receptionistId: urlParams.get("receptionistId"),
+              receptionistName: urlParams.get("receptionistName"),
+            };
+            getPatientBills(patientRecord);
+            const receptionistTask = urlParams.get("receptionist");
+            if (receptionistTask === "bill") {
+                handleRecentBillDrawer();
+                trackEvent("TP_Billing_CreateBill", {
+                  patientId: patientRecord?.patient_unique_id,
+                  source: patientRecord?.source,
+                  receptionistId: patientRecord?.receptionistId,
+                  receptionistName: patientRecord?.receptionistName,
+                });
+            } else if (receptionistTask === "advance-deposit") {
+                handleAddAdvanceDrawer();
+            }
+        }
+    }, []);
+
+    const getAdvanceSettings = async () => {
+        const advanceSettingsResponse = await fetchAdvanceSetting();
+        if (advanceSettingsResponse) {
+            dispatch(setAdvancedSettings(advanceSettingsResponse));
+        }
+    };
+
+    const getBillPrintSettings = async () => {
+        const printSettingsResponse = await fetchPrintSetting(
+            isReceptionist ? urlParams.get("um_id") : ""
+        );
+        if (printSettingsResponse) {
+            dispatch(setBillPrintSettings(printSettingsResponse));
+        }
+    };
 
     const fetchPendingDigitisationRx = async () => {
 
@@ -385,7 +439,6 @@ function AppointmentData({ locationPath }) {
         { value: 2, icon: <i className="icon-calendar"></i> },
     ];
     const [segmented, setSegmented] = useState(1);
-    const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] = useState(null);
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [isEndVisitReasonModal, setEndVisitReasonModal] = useState(false);
     const [endVisitReasonDrawer, setEndVisitReasonDrawer] = useState(false);
@@ -411,15 +464,18 @@ function AppointmentData({ locationPath }) {
     }, [locationPath, from]);
 
     useEffect(() => {
-        dispatch(getCaseTypes());
-        dispatch(resetVaccineState());
-        dispatch(resetGrowthChartState());
-        dispatch(resetObstetricState());
-        dispatch(resetUploadDocState());
-        dispatch(resetDDxState());
+        if (!isReceptionist) {
+            dispatch(getCaseTypes());
+            dispatch(resetVaccineState());
+            dispatch(resetGrowthChartState());
+            dispatch(resetObstetricState());
+            dispatch(resetUploadDocState());
+            dispatch(resetDDxState());
+        }
     }, []);
 
     useEffect(() => {
+        if (!createBillDrawer && !isReceptionist) {
         const timeOutId = setTimeout(async () => {
             if (selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT) {
                 var sendData = {
@@ -430,6 +486,7 @@ function AppointmentData({ locationPath }) {
                     page: pageNo,
                     search: searchQuery,
                     sortOrder: sort_order,
+                    fetchBillStatus: advancedSettings?.billingStatusInAppointmentScreen,
                     ...(isDigitisationTab && pendingDigitisation?.data
                         ? { cvtAppointmentIdsStr: pendingDigitisation.data }
                         : {})
@@ -437,7 +494,7 @@ function AppointmentData({ locationPath }) {
                 // console.log(sendData)
                 dispatch(getAllAppointment(sendData));
             } else {
-                encounterAndFinishDataManage()
+              encounterAndFinishDataManage();
             }
 
             // if (searchQuery) {
@@ -454,20 +511,34 @@ function AppointmentData({ locationPath }) {
         return () => {
             clearTimeout(timeOutId);
         };
-    }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order, isDigitisationTab, siteId]);
+        }
+    }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order, isDigitisationTab, siteId, createBillDrawer, advancedSettings?.billingStatusInAppointmentScreen]);
+
+    useEffect(() => {
+        if (!isOpdBillChecked && !isReceptionist) {
+            getShowOpdBilling();
+        }
+    }, []);
+
+    const getShowOpdBilling = async () => {
+        const res = await checkToShowOpdBilling();
+        dispatch(setShouldShowOpdBilling(res));
+    };
 
     const encounterAndFinishDataManage = async () => {
         if (siteId) {
             let encounterData = []
             if (pageNo === 0) {
                 var sendZydusData = {
-                    siteId: siteId,
-                    empNo: empNo.toString(),
-                    date: moment(date.startDate).format(showDateFormat),
-                    apStatue: selectedTab,
-                    page: 0,
-                    filterVisitType: visitTypeFilters,
-                }
+                  siteId: siteId,
+                  empNo: empNo.toString(),
+                  date: moment(date.startDate).format(showDateFormat),
+                  apStatue: selectedTab,
+                  page: 0,
+                  filterVisitType: visitTypeFilters,
+                  fetchBillStatus:
+                    advancedSettings?.billingStatusInAppointmentScreen,
+                };
                 let encounterAction = await dispatch(zydusConsultAppoint(sendZydusData));
                 if (encounterAction.meta.requestStatus === "fulfilled") {
                     encounterData = encounterAction.payload
@@ -482,10 +553,12 @@ function AppointmentData({ locationPath }) {
             }
 
             let sendData = {
-                startDate: date.startDate,
-                endDate: date.endDate,
-                apStatue: TAB_FINISHED,
-                page: 0
+              startDate: date.startDate,
+              endDate: date.endDate,
+              apStatue: TAB_FINISHED,
+              page: 0,
+              fetchBillStatus:
+                advancedSettings?.billingStatusInAppointmentScreen,
             };
 
             let action = await dispatch(copyGetAllAppointment1(sendData));
@@ -826,13 +899,15 @@ function AppointmentData({ locationPath }) {
         const tokenData = decodedToken?.result;
         if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
             var sendZydusData = {
-                siteId: siteId,
-                empNo: empNo.toString(),
-                date: moment(date.startDate).format(showDateFormat),
-                apStatue: TAB_ZYDUS_ENCOUNTER,
-                page: 0,
-                filterVisitType: visitTypeFilters,
-            }
+              siteId: siteId,
+              empNo: empNo.toString(),
+              date: moment(date.startDate).format(showDateFormat),
+              apStatue: TAB_ZYDUS_ENCOUNTER,
+              page: 0,
+              filterVisitType: visitTypeFilters,
+              fetchBillStatus:
+                advancedSettings?.billingStatusInAppointmentScreen,
+            };
             const action = await dispatch(zydusConsultAppoint(sendZydusData))
             if (action.meta.requestStatus === "fulfilled") {
                 const data = action?.payload?.find(e => e?.encounterId == record?.pam_ref_id)
@@ -1159,7 +1234,13 @@ function AppointmentData({ locationPath }) {
             key: selectedTab !== TAB_ZYDUS_APPOINTMENT ? "toct_type" : "appointmentStatus",
             ellipsis: true,
             filteredValue: visitTypeFilters.split(',') || '',
-            filters: selectedTab !== TAB_ZYDUS_APPOINTMENT ? getVisitTypeFilters() : null
+            filters: selectedTab !== TAB_ZYDUS_APPOINTMENT ? getVisitTypeFilters() : null,
+             render: (text, record) => (
+                <div>
+                    <span>{selectedTab !== TAB_ZYDUS_APPOINTMENT ? record.toct_type : record.appointmentStatus}</span>
+                    {advancedSettings?.billingStatusInAppointmentScreen && record.billStatus && <span className={`bill-status ${record.billStatus === "Unbilled" ? "bill-status-unbilled" : ""}`}>{record.billStatus}</span>}
+                </div>
+            )
         },
         {
             title: "Slot",
@@ -1334,8 +1415,11 @@ function AppointmentData({ locationPath }) {
     const handleCreateBillDrawer = useCallback(
         () => {
             setCreateBillDrawer(!createBillDrawer);
-            if (recentBillDrawer) {
+            if (recentBillDrawer && !isReceptionist) {
                 setRecentBillDrawer(false);
+            }
+            if (recentBillDrawer && isReceptionist) {
+                getPatientBills(appointmentSelectedFromMenu);
             }
         },
         [createBillDrawer]
@@ -1343,7 +1427,7 @@ function AppointmentData({ locationPath }) {
 
     const handleAddAdvanceDrawer = useCallback(
         () => {
-            setAddAdvanceDrawer(!addAdvanceDrawer)
+            setAddAdvanceDrawer(!addAdvanceDrawer);
         },
         [addAdvanceDrawer]
     );
@@ -1372,18 +1456,46 @@ function AppointmentData({ locationPath }) {
 
     const getPatientBills = async (record, sortParams = {}) => {
         const queryParams = {
-            doctorIds: [userId],
+            doctorIds: isReceptionist ? urlParams.get("um_id")?.split(",") : [userId],
             sortBy: sortParams.field || "date",  // Default sort by date
             sortOrder: sortParams.order || "asc", // Default ascending order
             page: 1,
             limit: 25,
-            startDate: moment().format("YYYY-MM-DD"),
-            endDate: moment().format("YYYY-MM-DD"),
             patientId: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id,
-            appointmentId: record?.pam_id || appointmentSelectedFromMenu?.pam_id,
+            appointmentId: isReceptionist ? undefined : record?.pam_id || appointmentSelectedFromMenu?.pam_id,
         };
 
+        if (!isReceptionist) {
+            queryParams.startDate = moment().format("YYYY-MM-DD");
+            queryParams.endDate = moment().format("YYYY-MM-DD");
+        }
+
         const response = await fetchBillsByPatient(queryParams);
+            if (isReceptionist) {
+                const patientData = {
+                  patient_unique_id: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id || urlParams.get("patient_unique_id"),
+                  pm_pid: record?.pm_pid,
+                  pam_id: record?.pam_id,
+                  source: record?.source,
+                  receptionistId: record?.receptionistId,
+                  receptionistName: record?.receptionistName,
+                  pm_fullname: response?.patient?.name,
+                  pm_contact_no: response?.patient?.phone,
+                  pm_salutation: response?.patient?.salutation,
+                  pm_gender: response?.patient?.gender,
+                  tpml_refrence_id: response?.patient?.refId,
+                  address: response?.patient?.address,
+                  ageYears: response?.patient?.ageYears,
+                  ageMonths: response?.patient?.ageMonths,
+                  ageDays: response?.patient?.ageDays,
+                  pm_pid: urlParams.get("pm_pid"),
+                  pam_id: urlParams.get("pam_id"),
+                  source: urlParams.get("source"),
+                  receptionistId: urlParams.get("receptionistId"),
+                  receptionistName: urlParams.get("receptionistName"),
+                };
+                setAppointmentSelectedFromMenu(patientData);
+            }
         if (response?.bills?.length > 0) {
             const billData = response?.bills?.map((bill) => ({
                 ...bill,
@@ -1393,7 +1505,8 @@ function AppointmentData({ locationPath }) {
         }
         const patientWalletBalanceRes = await fetchPatientWalletBalance(
             record?.patient_unique_id ||
-            appointmentSelectedFromMenu?.patient_unique_id
+            appointmentSelectedFromMenu?.patient_unique_id ||
+            urlParams.get("patient_unique_id")
         );
         setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
     };
@@ -1630,7 +1743,7 @@ function AppointmentData({ locationPath }) {
 
     return (
         <>
-            <div className="border rounded-4 appointment-wrap dateborder">
+            {!isReceptionist && (<div className="border rounded-4 appointment-wrap dateborder">
                 <Tabs
                     defaultActiveKey={TAB_QUEUE}
                     items={items}
@@ -1808,7 +1921,7 @@ function AppointmentData({ locationPath }) {
                 >
                     <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={appointmentSelectedFromMenu?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} onSave={handleLabParamsUpdate} />
                 </Drawer>)}
-            </div>
+            </div>)}
 
             {modalOpen && (
                 <Modal
@@ -1907,7 +2020,7 @@ function AppointmentData({ locationPath }) {
                     setIsFileTypeError={setIsFileTypeError}
                 />
             )}
-            {isLoading ? (
+            {(isLoading || (isReceptionist && (!recentBillDrawer && !addAdvanceDrawer))) ? (
                 <div>
                     <Spin
                         style={{
@@ -1996,7 +2109,7 @@ function AppointmentData({ locationPath }) {
                     placement="right"
                     open={recentBillDrawer}
                     onClose={handleRecentBillDrawer}
-                    width="77%"
+                    width={isReceptionist ? "100%" : "77%"}
                     push={false}
                 >
                     <RecentBills
@@ -2005,6 +2118,7 @@ function AppointmentData({ locationPath }) {
                         patientBills={patientBills}
                         getPatientBills={getPatientBills}
                         totalAdvanceBalance={patientWalletBalance}
+                        patientData={appointmentSelectedFromMenu}
                     />
                 </Drawer>
             )}
@@ -2014,7 +2128,7 @@ function AppointmentData({ locationPath }) {
                     placement="right"
                     open={addAdvanceDrawer}
                     onClose={handleAddAdvanceDrawer}
-                    width="85%"
+                    width={isReceptionist ? "100%" : "85%"}
                     push={false}
                 >
                     <AddAdvance handleAddAdvanceDrawer={handleAddAdvanceDrawer} patientData={appointmentSelectedFromMenu} />

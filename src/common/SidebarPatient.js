@@ -10,14 +10,18 @@ import { getClinicName, makeDefaultLogo } from "../utils/utils";
 import { getDecodedToken } from '../utils/localStorage';
 import config from '../config';
 import { useOpdBilling } from '../pages/opdBilling/useOpdBilling';
+import { setShouldShowOpdBilling } from '../redux/billingSlice';
+import { checkToShowOpdBilling } from '../pages/opdBilling/service';
+import { useDispatch } from 'react-redux';
 
 function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHandle }) {
-
+    const dispatch = useDispatch();
     const { profile } = useSelector((state) => state.doctors);
     const [tokenData, setTokenData] = useState(null);
      const { allUploadedDocs } = useSelector(
        (state) => state.uploadDoc
      );
+    const { isOpdBillChecked } = useSelector((state) => state.billing);
     const { isOpdBillingAccessable } = useOpdBilling();
 
     const menu = [
@@ -36,6 +40,17 @@ function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHan
         const decoded = decodedToken?.result;
         setTokenData(decoded)
     }, []);
+
+    useEffect(() => {
+        if (!isOpdBillChecked) {
+            getShowOpdBilling();
+        }
+    }, []);
+
+    const getShowOpdBilling = async () => {
+        const res = await checkToShowOpdBilling();
+        dispatch(setShouldShowOpdBilling(res));
+    };
 
     const content = (
         <>

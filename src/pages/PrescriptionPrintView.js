@@ -26,9 +26,10 @@ import { env } from "../EnvironmentConfig";
 import { setCurrentSessionRx } from "../redux/obstetricSlice";
 import CreateBill from "./opdBilling/components/createBill/CreateBill";
 import RecentBills from "./opdBilling/components/recentBills/RecentBills";
-import { fetchBillsByPatient, listAdvancedDepositByPatient } from "./opdBilling/service";
+import { checkToShowOpdBilling, fetchBillsByPatient, listAdvancedDepositByPatient } from "./opdBilling/service";
 import moment from "moment";
 import { useOpdBilling } from "./opdBilling/useOpdBilling";
+import { setShouldShowOpdBilling } from "../redux/billingSlice";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -100,6 +101,7 @@ function PrescriptionPrintView() {
     } = useSelector((state) => state.caseManager);
     const { userId, profile } = useSelector((state) => state.doctors);
     const { currentSessionRx } = useSelector((state) => state.obstetric);
+    const { isOpdBillChecked } = useSelector((state) => state.billing);
     const { isOpdBillingAccessable } = useOpdBilling();
     const dispatch = useDispatch();
 
@@ -179,6 +181,17 @@ function PrescriptionPrintView() {
       const encodedData = btoa(selectedLang.toString());
       setPrintUrl(`${printUrl}&lg=${encodedData}`);
     }, [patientBills, advanceReceipts]);
+
+    useEffect(() => {
+        if (!isOpdBillChecked) {
+            getShowOpdBilling();
+        }
+    }, []);
+
+    const getShowOpdBilling = async () => {
+        const res = await checkToShowOpdBilling();
+        dispatch(setShouldShowOpdBilling(res));
+    };
 
     const getPatientBills = async (_, sortParams = {}) => {
         const queryParams = {
@@ -517,6 +530,7 @@ function PrescriptionPrintView() {
                         patientBills={patientBills} 
                         getPatientBills={getPatientBills}
                         totalAdvanceBalance={patientWalletBalance}
+                        patientData={patient_data}
                     />
                 </Drawer>
             }
