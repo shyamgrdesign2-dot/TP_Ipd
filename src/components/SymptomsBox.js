@@ -349,7 +349,7 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      symptomsData[i].note = capitalizeAfterSentence(e.target.value);
+      symptomsData[i].note = e.target.value;
       // ?.replace(/,/g, '')
       setSymptomsData((prev) => [...prev]);
       dispatch(setIsDDxReadyToGenerate(true));

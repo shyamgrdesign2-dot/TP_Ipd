@@ -1366,7 +1366,7 @@ function TabMedicationBox() {
 
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      childDrawerData[childIndex].tmm_remarks = capitalizeAfterSentence(e.target.value);
+      childDrawerData[childIndex].tmm_remarks = e.target.value;
       setChildDrawerData((prev) => [...prev]);
     },
     [childIndex, childDrawerData]
