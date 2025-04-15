@@ -233,7 +233,7 @@ const CreateBill = ({
   const filteredOptions = PaymentOptions.filter(
     (option) =>
       !usedPaymentModes.includes(option.value) &&
-      (option.value !== "Advance Deposit" || patientWalletBalance > 0)
+      (option.value !== "Advance Deposit" || totalAdvanceBalance > 0)
   );
   const receptionistId = urlParams.get("receptionistId");
   const receptionistName = urlParams.get("receptionistName");
