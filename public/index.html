@@ -23,7 +23,6 @@
           y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", clarityId);
     </script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1" /> -->
@@ -94,5 +93,19 @@
   };
 </script>
 <script type="text/javascript" src="https://app.getbeamer.com/js/beamer-embed.js" defer="defer"></script>
+
+<script>
+    // Check URL parameters for receptionist
+    const urlParams = new URLSearchParams(window.location.search);
+    const isReceptionist = urlParams.has("receptionist");
+    
+    // Only load Razorpay script if NOT a receptionist
+    if (!isReceptionist) {
+        var script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        document.head.appendChild(script);
+    }
+</script>
 
 </html>
