@@ -346,9 +346,7 @@ const CreateBill = ({
 
   const getPatientDueAmount = async (patientUniqueId) => {
     const patientDueRes = await fetchPatientDueAmount(patientUniqueId);
-    if (patientDueRes?.previousDueAmount) {
       setPatientDueAmount(patientDueRes?.previousDueAmount);
-    }
   };
 
   const getPatientWalletBalance = async (patientUniqueId) => {

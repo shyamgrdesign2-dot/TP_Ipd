@@ -99,7 +99,17 @@
     // }
   };
 </script>
-<script type="text/javascript" src="https://app.getbeamer.com/js/beamer-embed.js" defer="defer"></script>
+
+<!-- Only load Beamer if NOT a receptionist -->
+<script>
+    if (!isReceptionist) {
+        var beamerScript = document.createElement('script');
+        beamerScript.type = "text/javascript";
+        beamerScript.src = "https://app.getbeamer.com/js/beamer-embed.js";
+        beamerScript.defer = "defer";
+        document.body.appendChild(beamerScript);
+    }
+</script>
 
 <script>
     // Only load Razorpay script if NOT a receptionist
