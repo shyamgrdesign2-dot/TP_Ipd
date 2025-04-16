@@ -930,6 +930,17 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                 pillup_fulfilment: isPillUpAccessableFromGB && pillupSwitch ? 1 : 0
             };
 
+            const decodedToken = getDecodedToken();
+            const tokenData = decodedToken?.result;
+            if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
+                sendData['zydus_details'] = {
+                    "departmentId": patient_data?.departmentId,
+                    "encounterId": patient_data?.encounterId,
+                    "mrno": patient_data?.mrno,
+                    "doctorCode": patient_data?.employeeId
+                }
+            }
+
             const clinic_name = getClinicName(profile?.hospital_data);
             tcmId == 0 ?
                 window.Moengage.track_event("TP_Consultation_ended", {
@@ -973,8 +984,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     isMedicineList: medicationData.length > 0 ? true : false
                 })
 
-                const decodedToken = getDecodedToken();
-                const tokenData = decodedToken?.result;
+
                 if (tokenData?.hospital_business_id == env.zydus_business_id
                     && isZydusUserAccessableFromGB
                     && patient_data?.mrno !== undefined
@@ -1014,7 +1024,8 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             "storeCode": storeCode, // hardcoded value
                             "duplicateCheck": 1, // hardcoded value
                             "investigationList": investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name) : [],
-                            "medicineList": medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })) : []
+                            "medicineList": medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => ({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })) : [],
+                            "pillupSwitch": isPillUpAccessableFromGB && pillupSwitch ? 1 : 0
                         }
                         
                         window.Moengage.track_event("Z_placeIctOrder_API_before_call", {
@@ -1029,7 +1040,8 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                             "storeCode": storeCode, // hardcoded value
                             "duplicateCheck": 1, // hardcoded value
                             "investigationList": investigationData.length > 0 ? actionIM?.payload?.investigation.map(item => item.investigation_name).join(', ') : [],
-                            "medicineList": medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => JSON.stringify({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })).join(', ') : []
+                            "medicineList": medicationData.length > 0 ? actionIM?.payload?.medicine.map(({ tmm_medicine_name, display_qty, tmm_remarks }) => JSON.stringify({ name: tmm_medicine_name, quantity:display_qty, instruction: tmm_remarks })).join(', ') : [],
+                            "pillupSwitch": isPillUpAccessableFromGB && pillupSwitch ? 1 : 0
                         })
 
                         const actionPIO = await dispatch(placeIctOrder(zydusSendData))

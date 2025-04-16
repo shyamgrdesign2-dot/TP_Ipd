@@ -56,14 +56,16 @@ const growthbook = new GrowthBook({
 });
 
 function App() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const authToken = searchParams.get("authToken");
   const location = useLocation();
-
   const navigate = useNavigate();
-  const isLoginPage = location.pathname === "/login";
-
   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  
+  const isLoginPage = location.pathname === "/login";
+  const isRootPath = location.pathname === "/";
+  const token = getToken();
+
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
 
@@ -110,8 +112,6 @@ function App() {
       window.isLoggingOut = false;
     }
   };
-
-
 
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -161,63 +161,76 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const pathname = window.location.pathname;
-
-    if ((pathname == "/" || pathname == "/billing-dashboard") && authToken) {
-      // Set the token in local storage
+    // Handle authToken in URL
+    if (authToken) {
       setToken(authToken);
-
-      // Remove the authToken from the URL
+      
+      // Clean up URL but preserve other params
       const params = new URLSearchParams(location.search);
       if (!isReceptionist) {
         params.delete("authToken");
 
+        // Navigate to appointment list
         navigate(
           {
-            pathname: location.pathname,
+            pathname: "/",
             search: params.toString(),
           },
           { replace: true }
-        ); // Ensure the URL is cleaned up, removing authToken
+        );
+      }
+      
+    }
+  }, [authToken, setToken, navigate]);
+
+  // Determine where to redirect on root path
+  useEffect(() => {
+    if (isRootPath) {
+      const hasAuth = token || authToken;
+      if (!hasAuth) {
+        navigate("/login");
       }
     }
-  }, [authToken, setToken, navigate, location]);
+  }, [isRootPath, token, authToken, navigate]);
 
   return (
-    <>
-      <GrowthBookProvider growthbook={growthbook}>
-        <ErrorBoundary
-          FallbackComponent={ErrorFallback}
-          onError={(error) => {
-            // You can also log the error to an error reporting service like AppSignal
-            // logErrorToMyService(error, errorInfo);
-            console.error(error);
-          }}
-          onReset={(details) => {
-            // Reset the state of your app so the error doesn't happen again
-            console.error(details);
-          }}
-        >
-          <TalkativeWidget
-            region="au"
-            configUuid="3f5d31d7-aae5-43f2-903a-2dc2d90a36f3"
-          />
-          <Provider store={store}>
-            <PersistGate loading={null} persistor={persistor}>
-              {!isLoginPage && (
-                <div style={{
-                  position: 'sticky',
-                  top: 0,
-                  zIndex: 1000,
-                }}>
-                  <DemoExpirationBanner />
-                  <PlanExpirationBanner />
-                  <ExpiredPlanCard />
-                  <DoctorModal />
-                </div>
-              )}
-              <PrivateRoute>
-                <Routes>
+    <GrowthBookProvider growthbook={growthbook}>
+      <ErrorBoundary
+        FallbackComponent={ErrorFallback}
+        onError={(error) => {
+          // You can also log the error to an error reporting service like AppSignal
+          // logErrorToMyService(error, errorInfo);
+          console.error(error);
+        }}
+        onReset={(details) => {
+          // Reset the state of your app so the error doesn't happen again
+          console.error(details);
+        }}
+      >
+        <TalkativeWidget
+          region="au"
+          configUuid="3f5d31d7-aae5-43f2-903a-2dc2d90a36f3"
+        />
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            {!isLoginPage && (
+              <div style={{
+                position: 'sticky',
+                top: 0,
+                zIndex: 1000,
+              }}>
+                <DemoExpirationBanner />
+                <PlanExpirationBanner />
+                <ExpiredPlanCard />
+                <DoctorModal />
+              </div>
+            )}
+            <Routes>
+              {/* Public route */}
+              <Route path="/login" element={<AuthContainer />} />
+              
+              {/* Protected routes */}
+              <Route element={<PrivateRoute />}>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route path="create-campaign" element={<MessageCreateCampaign />} />
                 <Route path="patient_details" element={<PatientDetails />} />
@@ -253,20 +266,14 @@ function App() {
                 <Route path="gen-rx-print" element={<GenRxPrescriptionPrintView />} />
                 <Route path="billing-dashboard" element={<BillingDashboard />} />
                 <Route path="all_patients" element={<AllPatients />} />
-
-                {/* Auth Route */}
-                <Route path="/login" element={<AuthContainer />} />
-
                 <Route path="billing-settings" element={<BillingSettings />} />
                 <Route path="add-appointment" element={<AddAppointment />} />
-
-              </Routes>
-              </PrivateRoute>
-            </PersistGate>
-          </Provider>
-        </ErrorBoundary>
-      </GrowthBookProvider>
-    </>
+              </Route>
+            </Routes>
+          </PersistGate>
+        </Provider>
+      </ErrorBoundary>
+    </GrowthBookProvider>
   );
 }
 

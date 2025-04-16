@@ -6,6 +6,10 @@ import { Col, Row } from "react-bootstrap";
 import RecordCard from "./components/recordCard/RecordCard";
 import { isAndroid, isBrowser } from "react-device-detect";
 import { generateUniqueFileName, getCorrectedFileName } from "./utils/helper";
+import { getDecodedToken } from "../../utils/localStorage";
+import { GB_ZYDUS_USER } from "../../utils/constants";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { env } from "../../EnvironmentConfig";
 
 const MedicalRecords = ({
   medicalReportDrawer,
@@ -32,7 +36,10 @@ const MedicalRecords = ({
     category_id: -3,
     category_name: "Zydus Radio",
   };
-  const updatedCategory = [newCategory, newCategory1, newCategory2, ...uploadDocCategories];
+  const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const decodedToken = getDecodedToken();
+  const tokenData = decodedToken?.result;
+  const updatedCategory = tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB ? [newCategory, newCategory1, newCategory2, ...uploadDocCategories] : [newCategory, ...uploadDocCategories];
 
   const [activeCategory, setActiveCategory] = useState(-1);
   const [activeCategoryDocs, setActiveCategoryDocs] = useState(allUploadedDocs);

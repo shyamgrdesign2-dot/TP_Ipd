@@ -227,7 +227,7 @@ function TabExaminationSearch({ passIndex, onClose }) {
 
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            examinationData[selectedIndex].note = capitalizeAfterSentence(e.target.value);
+            examinationData[selectedIndex].note = e.target.value;
             // ?.replace(/,/g, '')
             setExaminationData((prev) => [...prev]);
         },

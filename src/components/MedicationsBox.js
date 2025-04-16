@@ -618,7 +618,7 @@ function MedicationsBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      medicationData[i].tmm_remarks = capitalizeAfterSentence(e.target.value);
+      medicationData[i].tmm_remarks = e.target.value;
       setMedicationData((prev) => [...prev]);
     },
     [medicationData]
