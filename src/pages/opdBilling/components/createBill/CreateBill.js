@@ -346,9 +346,7 @@ const CreateBill = ({
 
   const getPatientDueAmount = async (patientUniqueId) => {
     const patientDueRes = await fetchPatientDueAmount(patientUniqueId);
-    if (patientDueRes?.previousDueAmount) {
       setPatientDueAmount(patientDueRes?.previousDueAmount);
-    }
   };
 
   const getPatientWalletBalance = async (patientUniqueId) => {
@@ -1762,12 +1760,12 @@ const CreateBill = ({
                         </div>
                       )}
                       {payment?.paymentMode === "Advance Deposit" &&
-                        payment?.amount > patientWalletBalance && (
+                        payment?.amount > totalAdvanceBalance && (
                           <div className="d-flex align-items-start gap-2">
                             <span className="icon-info fs-18 mt-1 bdg-danger" />
                             <span className="bdg-danger">
                               Amount exceeds available balance of ₹
-                              {patientWalletBalance}. Please adjust or add funds
+                              {totalAdvanceBalance}. Please adjust or add funds
                             </span>
                           </div>
                         )}

@@ -217,12 +217,18 @@ function AppointmentData({ locationPath }) {
     };
 
     useEffect(() => {
-        if (uploadDocCategories.length === 0 && !isReceptionist) {
-            getAllDocumentCategories();
-        }
+      if (uploadDocCategories.length === 0 && !isReceptionist) {
+        getAllDocumentCategories();
+      }
+      if (
+        advancedSettings &&
+        Object.keys(advancedSettings).length === 0 &&
+        isOpdBillingAccessable
+      ) {
         getAdvanceSettings();
-        getBillPrintSettings();
-    }, []);
+      }
+      getBillPrintSettings();
+    }, [isOpdBillingAccessable]);
 
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);

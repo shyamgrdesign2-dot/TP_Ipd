@@ -31,7 +31,8 @@ import { Popover } from "antd";
 import { clearSearch } from "../../../../redux/appointmentsSlice";
 import AddAdvance from "../advanceDeposit/AddAdvance";
 import CreateBill from "../createBill/CreateBill";
-import { fetchPatientWalletBalance } from "../../service";
+import { fetchAdvanceSetting, fetchPatientWalletBalance } from "../../service";
+import { setAdvancedSettings } from "../../../../redux/billingSlice";
 
 function BillingDashboard({ patientData, fromPath }) {
   const dispatch = useDispatch();
@@ -49,6 +50,9 @@ function BillingDashboard({ patientData, fromPath }) {
   const [createBillDrawer, setCreateBillDrawer] = useState(false);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const { planDetails } = useSelector((state) => state.subscription);
+  const { advancedSettings } = useSelector(
+    (state) => state.billing
+  );
 
   // Add a ref to store the refresh function
   const billingTableRef = useRef(null);
@@ -81,7 +85,17 @@ function BillingDashboard({ patientData, fromPath }) {
     } catch (e) {
       console.error("Error while token decoding: ", e);
     }
+    if (advancedSettings && Object.keys(advancedSettings).length === 0) {
+      getAdvanceSettings();
+    }
   }, []);
+
+  const getAdvanceSettings = async () => {
+    const advanceSettingsResponse = await fetchAdvanceSetting();
+    if (advanceSettingsResponse) {
+      dispatch(setAdvancedSettings(advanceSettingsResponse));
+    }
+  };
 
   // Drawer form 3c
   const handleManage3cBill = () => {
