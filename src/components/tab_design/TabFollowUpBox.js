@@ -142,7 +142,7 @@ function TabFollowUpBox() {
 
     const onChangeNote = useCallback(
         (e) => {
-            setAdditionalNote(capitalizeAfterSentence(e.target.value))
+            setAdditionalNote(e.target.value)
         },
         [additionalNote]
     );

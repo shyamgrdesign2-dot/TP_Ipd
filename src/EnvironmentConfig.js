@@ -49,7 +49,7 @@ const dev = {
   pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
-  razorPay_key: "rzp_test_PoLtBba5t8qJIm",
+  razorPay_key: "rzp_test_NfYVp2U3ALGItU",
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
   tatvaAi_logout_url:"https://tatva-ai-uat.tatvacare.in/logout",
@@ -58,6 +58,7 @@ const dev = {
   gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in",
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
+  symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
 };
 
 const qa_tp = {
@@ -115,7 +116,7 @@ const qa_tp = {
   pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
   bulk_messages: "https://pm-communication-qa.tatvacare.in",
   searchengine_url: "https://pm-searchengine-qa.tatvacare.in",
-  razorPay_key: "rzp_test_PoLtBba5t8qJIm",
+  razorPay_key: "rzp_test_NfYVp2U3ALGItU",
   tatvaAi_api_url: "https://pm-doctor-tatva-qa.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
   tatvaAi_logout_url:"https://tatva-ai-uat.tatvacare.in/logout",
@@ -124,6 +125,7 @@ const qa_tp = {
   gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
+  symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
 };
 
 const qa = {
@@ -177,7 +179,7 @@ const qa = {
   pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
-  razorPay_key: "rzp_test_PoLtBba5t8qJIm",
+  razorPay_key: "rzp_test_NfYVp2U3ALGItU",
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
   tatvaAi_logout_url:"https://tatva-ai-uat.tatvacare.in/logout",
@@ -186,6 +188,7 @@ const qa = {
   gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
+  symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
 };
 
 const uat = {
@@ -244,7 +247,7 @@ const uat = {
   pedia_logout_url: "https://doctor-uat.tatvacare.in/#logout_user=1",
   bulk_messages: "https://pm-communication-uat.tatvacare.in",
   searchengine_url: "https://pm-searchengine-uat.tatvacare.in",
-  razorPay_key: "rzp_test_PoLtBba5t8qJIm",
+  razorPay_key: "rzp_test_NfYVp2U3ALGItU",
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
   tatvaAi_logout_url:"https://tatva-ai-uat.tatvacare.in/logout",
@@ -253,6 +256,7 @@ const uat = {
   gen_rx_api_url: "https://pm-rxdigitization-uat.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
+  symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
 };
 
 const prod = {
@@ -314,6 +318,7 @@ const prod = {
   gen_rx_api_url: "https://pm-rxdigitization-prod.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-prod.tatvacare.in",
   tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in", 
+  symptoms_collector_api_url: "https://pm-tatva-agents-prod.tatvacare.in",
 };
 
 const getEnv = () => {
