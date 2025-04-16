@@ -153,7 +153,7 @@ const FONTS_SIZE_LIST = [
     }
 ]
 
-function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetails }) {
+function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetails, patientBills, advanceReceipts, patientWalletBalance }) {
 
     const inputHeaderFile = React.createRef();
     const cropperHeaderRef = React.createRef();
@@ -1037,7 +1037,7 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                             </Col>
                                         </Row>
                                         <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
-                                            <WhatsappConfigureView handleDrawerWhatsappView={handleDrawerWhatsappView} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} />
+                                            <WhatsappConfigureView handleDrawerWhatsappView={handleDrawerWhatsappView} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={patientBills} advanceReceipts={advanceReceipts} patientWalletBalance={patientWalletBalance} />
                                         </Drawer>
                                     </>
                                 )}
@@ -1249,7 +1249,7 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                             </Col>
                                         </Row>
                                         <Drawer closeIcon={false} placement="right" onClose={handleDrawerWhatsappView} open={isHandleDrawerWhatsappView} width="100%" height="100%">
-                                            <WhatsappConfigureView handleDrawerWhatsappView={handleDrawerWhatsappView} />
+                                            <WhatsappConfigureView handleDrawerWhatsappView={handleDrawerWhatsappView} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={patientBills} advanceReceipts={advanceReceipts} patientWalletBalance={patientWalletBalance} />
                                         </Drawer>
                                     </>
                                 )}
@@ -1308,7 +1308,7 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                             </Col>
                                         </Row>
                                         <Drawer closeIcon={false} placement="right" onClose={handleDrawerOwnLetterHead} open={isOwnLetterHead} width="100%">
-                                            <WhatsappConfigure handleDrawerOwnLetterHead={handleDrawerOwnLetterHead} />
+                                            <WhatsappConfigure handleDrawerOwnLetterHead={handleDrawerOwnLetterHead} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={patientBills} advanceReceipts={advanceReceipts} patientWalletBalance={patientWalletBalance} />
                                         </Drawer>
                                     </>
                                 )}
