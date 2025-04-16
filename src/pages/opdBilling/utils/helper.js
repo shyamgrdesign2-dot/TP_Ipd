@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
 import { db } from "../../../firebase";
 import { uploadDocsToAzure } from "../../medicalRecords/service";
-import { isChrome, isMobile, isSafari, osName } from "react-device-detect";
+import { browserName, isChrome, isMobile, isSafari, osName } from "react-device-detect";
 import moment from "moment";
 
 export const handleDownload = async (
@@ -13,7 +13,7 @@ export const handleDownload = async (
   setStartLoader,
   isDoctor = false
 ) => {
-  if (typeof window === "undefined") {
+  if (browserName == "Chrome WebView" || browserName == "WebKit") {
     const file = new File([printBlob], "billingFile.pdf", {
       type: "application/pdf",
     });
@@ -46,7 +46,7 @@ export const printContent = async (
   setStartLoader,
   isDoctor
 ) => {
-  if (typeof window === "undefined") {
+  if (browserName == "Chrome WebView" || browserName == "WebKit") {
     const file = new File([printBlob], "billingFile.pdf", {
       type: "application/pdf",
     });
