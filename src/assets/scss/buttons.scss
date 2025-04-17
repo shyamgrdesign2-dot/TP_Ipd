@@ -47,7 +47,7 @@ body {
 
         &.btn-outline-primary {
             background-color: rgba($color: #fff, $alpha: 5.0);
-            border-color: $theme;
+            border: 1px solid $theme;
             color: $theme;
             font-size: 14px;
 

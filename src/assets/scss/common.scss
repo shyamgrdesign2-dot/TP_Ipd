@@ -191,6 +191,9 @@ body {
     .w-60 {
         width: 60%;
     }
+    .w-92 {
+        width: 92% !important;
+    }
     .me-20 {
         margin-right: 20px;
 
@@ -1058,4 +1061,11 @@ body {
 
 .text-price {
     color: $priceColor !important;
+}
+
+.text-1F2933 {
+    color: #1F2933 !important;
+}
+.opacity-08 {
+    opacity: 0.8;
 }

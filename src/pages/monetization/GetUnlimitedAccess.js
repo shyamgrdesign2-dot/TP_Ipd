@@ -14,7 +14,6 @@ import AddonAccess from "./components/AddonAccess";
 
 function GetUnlimitedAccess() {
     const [showAll, setShowAll] = useState(false);
-
     const features = [
         "OPD Management",
         "Personalised Website",
@@ -29,7 +28,6 @@ function GetUnlimitedAccess() {
         "Digital Rx Delivery",
         "Google My Business Optimisation",
     ];
-
     const visibleFeatures = showAll ? features : features.slice(0, 6);
 
     return (

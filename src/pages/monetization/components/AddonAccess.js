@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import vaccinationImg from "../../../assets/images/Vaccination.svg";
 import deviderIncludes from "../../../assets/images/includes-devider.svg";
+import aiPowered from "../../../assets/images/ai-powered.svg";
 import "../GetUnlimitedAccess.scss";
 import { Button, Checkbox } from "antd";
 
 function AddonAccess() {
 
     const [add, setAdd] = useState(null);
-
     const handleAdd = () => {
         setAdd(!add)
     }
@@ -20,7 +20,11 @@ function AddonAccess() {
                     <div className="tag-recommend">Recommend</div>
                     <div className="d-flex align-items-center justify-content-between">
                         <div>
-                            <div className="fs-4 text-welcome fw-semibold my-2"><img style={{ background: '#EDDFF780' }} className="p-1 rounded-10px me-2" src={vaccinationImg} alt="Icon" /> Smart Sync Pro </div>
+                            <div className="fs-4 text-welcome fw-semibold my-2">
+                                <img style={{ background: '#EDDFF780' }} className="p-1 rounded-10px me-2" src={vaccinationImg} alt="Icon" /> 
+                                Smart Sync Pro 
+                                {/* <img src={aiPowered} alt="Icon" /> Uncomment in AI modules  */}
+                            </div>
                             <div>
                                 <div className="fs-14">Write naturally, with real-time view in your device <Link className="text-decoration-underline fw-medium text-main">Know more</Link></div>
                             </div>
