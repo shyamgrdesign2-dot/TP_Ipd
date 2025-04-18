@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 import yearlyPlan from '../../../assets/images/year-plan-corner.svg'
@@ -7,20 +7,32 @@ import medcoAppScanner from '../../../assets/images/scanner-medco-app.svg'
 import listIcon from '../../../assets/images/list-icon.svg'
 import aiPowered from '../../../assets/images/ai-powered.svg'
 import vaccinationImg from "../../../assets/images/Vaccination.svg";
+import iconEdit from "../../../assets/images/edit.svg";
 
 import "../GetUnlimitedAccess.scss";
-import { Dropdown, Card, Modal } from "antd";
+import { Dropdown, Card, Modal, Drawer, Input } from "antd";
 import { Button, Col, Row } from "react-bootstrap";
 import { DownOutlined } from '@ant-design/icons'
 import Slider from "react-slick";
 
 function UnlimitedAccessSummary() {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [drawerOpen, setDrawerOpen] = useState(false);
+
+    // Model Function
     const showModal = () => {
         setIsModalOpen(true);
     };
     const handleCancel = () => {
         setIsModalOpen(false);
+    };
+
+    // Drawer Function
+    const showDrawer = () => {
+        setDrawerOpen(true);
+    };
+    const onClose = () => {
+        setDrawerOpen(false);
     };
 
     const items = [
@@ -107,7 +119,7 @@ function UnlimitedAccessSummary() {
                     Proceed to Pay ₹13,998
                 </Button>
                 <div className="text-center">
-                    <Link className="text-decoration-underline fw-medium text-primary">Have a sales referral code?</Link>
+                    <Link className="text-decoration-underline fw-medium text-primary" onClick={showDrawer}>Have a sales referral code?</Link>
                 </div>
             </div>
             <Modal
@@ -235,6 +247,67 @@ function UnlimitedAccessSummary() {
                     </>
                 </Card>
             </Modal>
+            <Drawer
+                placement="right"
+                open={drawerOpen}
+                className='bg-body'
+                closeIcon={false}
+                width={539}
+            >
+                <div className="modalCard-header h-60 position-sticky top-0 z-2">
+                    <div className="align-items-center d-flex h-100">
+                        <div className="border-end h-100 text-center me-3">
+                            <div onClick={onClose}
+                                className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer">
+                                <i className="icon-right"></i>
+                            </div>
+                        </div>
+                        <div className="title-common">Referral Code</div>
+                    </div>
+                    <div className="p-4">
+                        {/* OTP Mobile Number */}
+                        {/* <div className="fontroboto mb-2">Enter Sales Mobile Number <sup className="text-danger-custom fs-14">*</sup></div>
+                        <Input className="inputheight45 rounded-10px" />
+                        <Button className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={showModal}>
+                            Continue
+                        </Button> */}
+
+                        {/* OTP Code */}
+                        {/* <div className="fontroboto mb-2 text-1F2933">Enter OTP sent to <span className="fw-bold text-decoration-underline text-1F2933">+91-9344414944</span> <img className="ms-2 cursor-pointer" height={16} src={iconEdit} /></div>
+                        <Input.OTP className="input-otp-size45" length={6} />
+                        <div className="fontroboto mt-3">Didn’t receive OTP? <Link className="text-decoration-underline fw-semibold text-primary">Resend OTP</Link></div>
+                        <Button className="btn btn-proceed btn-primary3 my-4 fs-18" onClick={showModal}>
+                            Continue
+                        </Button> */}
+
+                        {/* Discount Amount */}
+                        <div className="fontroboto mb-2">Enter Sales Discount Amount <sup className="text-danger-custom fs-14">*</sup></div>
+                        <Input className="inputheight45 rounded-10px fw-medium" placeholder="0" prefix="₹" />
+                        <div className="discount-amount-box p-4 mt-4">
+                            <div className="d-flex align-items-center justify-content-between py-2">
+                                <div>TatvaPractice EMR (1 year):</div>
+                                <div className="fw-medium text-green">₹12,999</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between py-2">
+                                <div>Flat Discount:</div>
+                                <div className="fw-medium text-green">-₹3000</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between py-2">
+                                <div>Sales Discount:</div>
+                                <div className="fw-medium text-green">-₹0</div>
+                            </div>
+                            <hr />
+                            <div className="d-flex align-items-center justify-content-between py-2">
+                                <div className="text-welcome fw-semibold fs-18">Total Amount :</div>
+                                <div className="text-welcome fw-semibold fs-18">₹9,999</div>
+                            </div>
+                        </div>
+                        <Button disabled className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={showModal}>
+                            Continue
+                        </Button>
+                    </div>
+                </div>
+            </Drawer>
         </>
     );
 }
