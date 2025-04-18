@@ -34,7 +34,7 @@ function GetUnlimitedAccess() {
         <>
             <HeaderUnlimitedAccess />
             <div className="unlimited-access-wrapper overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
-                <div className="flat-20">
+                <div className="flat-20 py-3">
                     🎉<span>&nbsp;Flat 20% off</span>&nbsp;on EMR—limited time offer!&nbsp;&nbsp;
                     <div className="rounded-pill px-2 py-1">02 Days : 08 Hours : 24 Min ⏳ </div>
                 </div>

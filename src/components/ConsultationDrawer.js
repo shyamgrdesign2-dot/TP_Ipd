@@ -8,11 +8,17 @@ import React, {
   Suspense,
   lazy,
 } from "react";
-import { Drawer, Button, Input, message, Menu, Dropdown, Spin } from "antd";
+import { Drawer, Button, Input, message, Menu, Dropdown, Spin, Modal, Card } from "antd";
 import styles from "./ConsultationDrawer.module.css";
 import deleteIcon from "../assets/images/delete-gen-rx.svg";
 import micIcon from "../assets/images/mic-gen-rx.svg";
 import pauseIcon from "../assets/images/pause.svg";
+import coinSm from "../assets/images/coin-sm.png";
+import coinSmRed from "../assets/images/coin-sm-red.png";
+import coinLg from "../assets/images/coin-lg.png";
+import crown from '../assets/images/crown.svg'
+import planExpiredSandClock from '../assets/images/plan-expired-sand-clock.png'
+
 import {
   editGenRxDetails,
   fetchSymptomsCollectorData,
@@ -45,6 +51,7 @@ import tatvaAiChakra from "../assets/lotties/tatvaAiChakra.lottie";
 import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
+import expiredInfographic2 from '../assets/images/expired-infographic-2.svg'
 import { useSelector } from "react-redux";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
@@ -86,6 +93,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const { profile, userId } = useSelector((state) => state.doctors);
   const { TextArea } = Input;
+
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+
+  const showHideSubModal = useCallback(() => {
+    setIsSubModalOpen(!isSubModalOpen);
+  }, [isSubModalOpen]);
 
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
@@ -335,7 +348,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
           const mergedData =
             symptomsCollectorData &&
-            Object.keys(symptomsCollectorData)?.length > 0
+              Object.keys(symptomsCollectorData)?.length > 0
               ? mergeData(response.data.digitize, symptomsCollectorData)
               : response.data.digitize;
 
@@ -357,9 +370,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         setQueries(
           isEditing
             ? [
-                ...queries.slice(0, queries.length - 1),
-                response.data.transcription,
-              ]
+              ...queries.slice(0, queries.length - 1),
+              response.data.transcription,
+            ]
             : [...queries, response.data.transcription]
         );
         setInputText("");
@@ -761,7 +774,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
               onChange={handleInputChange}
               onBlur={() => handleInputBlur("followUp")}
               autoFocus
-              // style={{ width: `${textWidth + 10}px` }}
+            // style={{ width: `${textWidth + 10}px` }}
             />
           ) : (
             <span
@@ -812,7 +825,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                             .replace(/^./, (str) => str.toUpperCase())}: `}
                         </span>
                         {activeIndex === key &&
-                        activeType === "vitalsAndBodyComposition" ? (
+                          activeType === "vitalsAndBodyComposition" ? (
                           <input
                             type="text"
                             value={editableText} // Pre-fill the input with the current value
@@ -887,8 +900,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                   <li key={index}>
                     <div className="medicine-item">
                       {activeIndex === index &&
-                      activeType === type &&
-                      ["advice", "others"].includes(type) ? (
+                        activeType === type &&
+                        ["advice", "others"].includes(type) ? (
                         <input
                           type="text"
                           value={editableText}
@@ -919,7 +932,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                         type === "diagnosis") &&
                         item?.lineItem &&
                         (activeIndex === index &&
-                        activeType === `${type}-lineItem` ? (
+                          activeType === `${type}-lineItem` ? (
                           <input
                             type="text"
                             value={editableLineItem}
@@ -1025,8 +1038,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                     {localModules?.includes(module)
                       ? module
                       : module
-                          .replace(/([A-Z])/g, " $1")
-                          .replace(/^./, (str) => str.toUpperCase())}
+                        .replace(/([A-Z])/g, " $1")
+                        .replace(/^./, (str) => str.toUpperCase())}
                     {localModules?.includes(module) && (
                       <i
                         className={`icon-Edit fs-21 ms-2 cursor-pointer`}
@@ -1068,8 +1081,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                           {localModules?.includes(module)
                             ? module
                             : module
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}{" "}
+                              .replace(/([A-Z])/g, " $1")
+                              .replace(/^./, (str) => str.toUpperCase())}{" "}
                           Module
                         </Menu.Item>
                       </Menu>
@@ -1299,6 +1312,18 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                   Tutorial
                 </span>
               </button>
+
+              <Button className="btn rounded-pill btn-free-trials me-3" onClick={showHideSubModal}>
+                <img src={coinSm} className="me-2" alt="Tatva Icon" />
+                03 free trials
+                <i className="ms-2 icon-right iconrotate180"></i>
+              </Button>
+
+              {/* Open button when required for 0 free trial */}
+              {/* <Button className="btn rounded-pill btn-free-trials btn-free-0-trials me-3" onClick={showHideSubModal}>
+                <img src={coinSmRed} className="me-2" alt="Tatva Icon" /> 
+                0 free trial
+              </Button> */}
 
               {showPrescription && (
                 <Button
@@ -1596,9 +1621,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                       <GenRXLoaders isProcessing={isProcessing} />
                     ) : (
                       <div
-                        className={`${styles.rightSection} ${
-                          isProcessing ? styles.gradientBorder : ""
-                        }`}
+                        className={`${styles.rightSection} ${isProcessing ? styles.gradientBorder : ""
+                          }`}
                         style={{
                           background: isProcessing ? `url(${genRxBg})` : "",
                         }}
@@ -1800,6 +1824,68 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           </div>
         </>
       </Suspense>
+      <Modal
+        open={isSubModalOpen}
+        closeIcon={false}
+        footer={null}
+        centered
+        className="voicerx-modal text-center"
+        width={435}
+        styles={{
+          mask: { marginLeft: window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)', backdropFilter: 'blur(2px)' },
+          wrapper: { marginLeft: window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)' },
+        }}
+
+      >
+        <Card
+          extra={
+            <>
+              {/* Uncomment for Trial modal */}
+              {/* <img className="coinLg" src={coinLg} alt="Tatva Coin" /> */}
+              <button className="position-relative z-1 btn p-1 lh-1 btnclose closeButton" onClick={showHideSubModal}>
+                <i className="icon-Cross"></i>
+              </button>
+              <img className="expiredInfographic" src={expiredInfographic2} alt="Your free trail has Expired" />
+              <img className="expiredInfographic" style={{opacity: 0.5}} src={expiredInfographic2} alt="Your free trail has Expired" />
+            </>
+          }>
+
+          {/* For Expire Modal */}
+          <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
+          <div className="text-white">
+            Your<span className="text-white fw-semibold"> Voice Rx  free trail  </span>  has expired. <br />
+            Upgrade now to continue a hassle free experience!
+          </div>
+
+          {/* Uncomment for Trial modal */}
+          {/* <div className="text-white fs-16">
+            <span className="fw-bold fs-2 text-white">03</span><span className="text-white fw-semibold">/05</span> free Trial Left! <br />
+            You can generate up to <span className="fw-bold text-white">3 RX</span> using AI Voice Rx for absolutely free!
+          </div> */}
+          <div className="bg-white p-4 rounded-5 mt-4">
+            <div className="fs-4 fw-bold text-price">Upgrade Now 🚀</div>
+            <div className="mt-3 text-price">Unlock unlimited AI Voice Rx, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
+
+            {/* Unblobk when timing rquired */}
+            <div class="my-3 flat-20 lh-lg d-block fs-12-1 fs-12 py-3">🔥Unlock Unlimited Access&nbsp;<span>- Flat 20% OFF!</span><br />⏳ Offer ends in
+              <div className="rounded-pill fs-12-1 mt-2 w-75 mx-auto px-2 py-1">02 Days : 08 Hours : 24 Min </div>
+            </div>
+
+            <div>
+              <Button type='button' className='mt-3 btn align-items-center mx-auto d-flex btn-41 btn-text btn-save' style={{ height: 52 }}>
+                <i className='icon-phone text-primary me-2'></i>
+                Request a call back
+              </Button>
+            </div>
+            <div>
+              <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex">
+                <img className="me-2" src={crown} alt="Crown" />
+                Get Unlimited Access
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </Modal>
     </Drawer>
   );
 };

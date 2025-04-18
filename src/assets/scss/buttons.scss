@@ -622,6 +622,32 @@ body {
                 }
             }
         }
+        &.btn-free-trials {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            border: 0.78px solid #ED8A00;
+            background: #FBF5E8;
+            backdrop-filter: blur(31.030303955078125px);
+            &:hover, &:focus  {
+                background: #FBF5E8 !important;
+                border: 0.78px solid #ED8A00 !important;
+                i {
+                    color: #212529;
+                }
+            }
+            &.btn-free-0-trials {
+                background: var(--Colour-Red-Red---10, #FCEDED);
+                border: 0.78px solid #FC5A5A;
+                span {
+                    color: #FC5A5A !important;
+                }
+                &:hover, &:focus  {
+                    background: var(--Colour-Red-Red---10, #FCEDED) !important;
+                    border: 0.78px solid #FC5A5A !important;
+                }
+            }
+        }
     }
 
     .btn-consult {

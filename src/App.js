@@ -346,7 +346,7 @@ function App() {
                     <img className="me-2" src={listIcon} alt="icon" />
                     <div className="fs-14 text-start">Generate AI-powered prescriptions in seconds & more</div>
                   </div>
-                  <div class="my-4 flat-20 flat-other">🔥Unlock Unlimited Access&nbsp;<span>- Flat 20% OFF!</span></div>
+                  <div class="my-4 flat-20 py-2 fs-16">🔥Unlock Unlimited Access&nbsp;<span>- Flat 20% OFF!</span></div>
                   <Row>
                     <Col lg={6}>
                       <Button type='button' className='w-100 btn align-items-center justify-content-center d-flex btn-41 btn-outline-primary' style={{height: 52}}>

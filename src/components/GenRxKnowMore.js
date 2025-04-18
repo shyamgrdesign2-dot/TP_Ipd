@@ -2,7 +2,11 @@ import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Button, Spin, Tabs } from "antd";
 import genRxIcon from "../assets/images/gen-rx-icon.svg";
 import playIcons from "../assets/images/tube-icon.svg";
+import coinSm from "../assets/images/coin-sm.png";
+import coinSmRed from "../assets/images/coin-sm-red.png";
+import crown from '../assets/images/crown.svg'
 import VideoModal from "../common/VideoModal";
+import { Col, Row } from "react-bootstrap";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -53,11 +57,10 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
       {
         root: null, // Default is the viewport
         threshold: 0, // Trigger as soon as the section starts intersecting
-        rootMargin: `0px 0px ${
-          activeKey === "basicGenRxInfo" || activeKey === "howGenRxWorks"
-            ? "20%"
-            : "-20%"
-        } 0px`, // Focus on sections near the top of the viewport
+        rootMargin: `0px 0px ${activeKey === "basicGenRxInfo" || activeKey === "howGenRxWorks"
+          ? "20%"
+          : "-20%"
+          } 0px`, // Focus on sections near the top of the viewport
       }
     );
 
@@ -83,15 +86,21 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
       <div className="drawer-container">
         {/* Modal Header */}
         <div className="drawer-header">
-          <div className="drawer-header-content border-bottom">
-            <Button
-              type="text"
-              className="close-drawer-btn"
-              onClick={handleGenRxKnowMore}
-            >
-              <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
+          <div className="drawer-header-content justify-content-between  border-bottom">
+            <div className="d-flex align-items-center">
+              <Button
+                type="text"
+                className="close-drawer-btn"
+                onClick={handleGenRxKnowMore}
+              >
+                <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
+              </Button>
+              <div className="drawer-title">AI-Powered Voice Rx</div>
+            </div>
+            <Button className="btn rounded-pill btn-free-trials btn-free-0-trials me-3">
+              <img src={coinSmRed} className="me-2" alt="Tatva Icon" />
+              0 free trial
             </Button>
-            <div className="drawer-title">AI-Powered Voice Rx</div>
           </div>
 
           {/* Tabs */}
@@ -186,6 +195,29 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
               double-check all details to ensure they are correct and complete.
             </div>
           </div>
+
+          {/* Added for Trial Expired */}
+          <div className="position-absolute bottom-0 bg-white w-100 px-4 py-3">
+            <div className="fontroboto fs-16 text-center text-danger-custom">
+              Your <span className="fw-bold text-danger-custom">Voice Rx free trail</span> has expired. <br />
+              Upgrade now to continue a hassle free experience!
+            </div>
+            <Row className="mt-2">
+              <Col lg={6}>
+                <Button type='button' className='w-100 btn ant-btn align-items-center justify-content-center d-flex btn-41 btn-primary1 btn-outline-primary' style={{ height: 52 }}>
+                  <i className='icon-phone me-2'></i>
+                  Request a call back
+                </Button>
+              </Col>
+              <Col lg={6}>
+                <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex">
+                  <img className="me-2" src={crown} alt="Crown" />
+                  Get Unlimited Access
+                </Button>
+              </Col>
+            </Row>
+          </div>
+
         </div>
         {shouldShowVideo && (
           <VideoModal
