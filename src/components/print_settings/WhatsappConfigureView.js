@@ -9,7 +9,7 @@ import wtsp from '../../assets/images/wtsp.svg';
 
 function WhatsappConfigureView(props) {
 
-    const { handleDrawerWhatsappView, todayVaccines, growthChartDetails, obstetricDetails } = props
+    const { handleDrawerWhatsappView, todayVaccines, growthChartDetails, obstetricDetails, patientBills, advanceReceipts, patientWalletBalance } = props
 
     return (
         <>
@@ -36,7 +36,7 @@ function WhatsappConfigureView(props) {
                 <div className="titleprint mt-20"><img className="img-fluid me-2" width={25} src={wtsp} alt="WhatsApp" /> WhatsApp Preview</div>
                 <div className="rounded-20px bg-white mt-20 overflow-hidden">
                     <div className="position-relative printheight">
-                        <Quixote mode={NORMAL} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} />
+                        <Quixote mode={NORMAL} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={patientBills} advanceReceipts={advanceReceipts} patientWalletBalance={patientWalletBalance} />
                     </div>
                 </div>
             </div>

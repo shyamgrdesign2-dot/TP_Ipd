@@ -218,12 +218,15 @@ export const fetchAncDoctorList = async function () {
 
 export const fetchObstetricDetails = async function (
   patientUniqueId,
+  userId,
   todaysExamination
 ) {
   let res = {};
+  const decodedToken = getDecodedToken();
+  const doctorId = decodedToken?.result?.user_id;
   try {
     res = await api.get(
-      `/api/v1/gyneac/obstetric-history/${patientUniqueId}${
+      `/api/v1/gyneac/obstetric-history/${patientUniqueId}/${userId || doctorId}${
         todaysExamination ? "?todaysExamination=true" : ""
       }`,
       ancImmunisationbaseUrl

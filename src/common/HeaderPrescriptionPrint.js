@@ -22,6 +22,8 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToApp
         loadingEndVisit,
     } = useSelector((state) => state.caseManager);
     const dispatch = useDispatch();
+    const urlParams = new URLSearchParams(window.location.search);
+    const isReceptionist = urlParams.has("receptionist");
 
     const onEndVisitClick = async () => {
         if (handleGoToAppointment) {
@@ -88,11 +90,11 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToApp
                         </div>
                     </div>
                 </div>
-                <Button onClick={onEndVisitClick}
+                {!isReceptionist && <Button onClick={onEndVisitClick}
                     loading={loadingEndVisit}
-                    className='btn align-items-center d-flex btn-41 btn-primary3 me-3 px-4'>
+                    className={`btn align-items-center d-flex btn-41 me-3 px-4 btn-primary3`}>
                     Go to Appointment
-                </Button>
+                </Button>}
             </div>
         </Navbar>
     );

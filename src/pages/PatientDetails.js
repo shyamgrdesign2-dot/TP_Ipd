@@ -33,6 +33,8 @@ import UploadDocPopup from "./medicalRecords/components/uploadDocPopup/UploadDoc
 import CommonModal from "../common/CommonModal";
 import UploadDocument from "./medicalRecords/UploadDocument";
 import BillingDashboard from "./opdBilling/components/billingDashboard/BillingDashboard";
+import { fetchPrintSetting } from "./opdBilling/service";
+import { setBillPrintSettings } from "../redux/billingSlice";
 
 const { Sider, Content } = Layout;
 
@@ -47,6 +49,9 @@ function PatientDetails() {
     const { allUploadedDocs } = useSelector(
       (state) => state.uploadDoc
     );
+      const { billPrintSettings } = useSelector(
+        (state) => state.billing
+      );
     const dispatch = useDispatch();
 
     const { state } = useLocation();
@@ -57,7 +62,6 @@ function PatientDetails() {
     const { isVaccinationAccessable, isGrowthChartAccessable } = useAccess(
       patient_data?.ageYears
     );
-    const {isGynaecHistoryAccessable} = useAccess();
 
     const [sidebarKey, setSidebarKey] = useState(1);
 
@@ -105,7 +109,19 @@ function PatientDetails() {
     if (patient_data.patient_unique_id && allUploadedDocs.length === 0) {
         getAllPatientDocs();
     }
+    if (
+      (billPrintSettings && Object.keys(billPrintSettings).length === 0)
+    ) {
+      getBillPrintSettings();
+    }
     }, []);
+
+    const getBillPrintSettings = async () => {
+        const printSettingsResponse = await fetchPrintSetting();
+        if (printSettingsResponse) {
+            dispatch(setBillPrintSettings(printSettingsResponse));
+        }
+    };
 
     const getAllPatientDocs = async () => {
         const doctorUploadedDocs = await fetchAllPatientDocs(patient_data.patient_unique_id);
@@ -199,14 +215,12 @@ function PatientDetails() {
                                         {viewCaseManagerData && (viewCaseManagerData?.vitals?.length > 0 || viewCaseManagerData?.patient_birth_weight) && (
                                             <VitalsBodyComposition loading={loading} passVitals={viewCaseManagerData ? [...viewCaseManagerData.vitals].slice(0, 2) : viewCaseManagerData} patientBirthWeight={viewCaseManagerData?.patient_birth_weight} />
                                         )}
-                                        {!viewCaseManagerData?.smart_prescription_filename?.length &&
-                                            <>
-                                                <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} />
-                                                {isVaccinationAccessable && <VisitVaccination />}
-                                                {isGrowthChartAccessable && <VisitGrowthChart />}
-                                                {isGynaecHistoryAccessable && <VisitObstetric />}
-                                            </>
-                                        }
+                                        
+                                        <MedicalHistory loading={loading} medicalHistoryData={viewCaseManagerData?.medical_history} doctorId={viewCaseManagerData?.doctor_data?.um_id} />
+                                        {isVaccinationAccessable && <VisitVaccination />}
+                                        {isGrowthChartAccessable && <VisitGrowthChart />}
+                                        <VisitObstetric doctorId={viewCaseManagerData?.doctor_data?.um_id} />
+                                            
                                         {<VisitLabParameters patient_unique_id={patient_data?.patient_unique_id} doc_id={userId}/>}
                                         {/*   <LabParameters />
                                             <Vaccination /> */}

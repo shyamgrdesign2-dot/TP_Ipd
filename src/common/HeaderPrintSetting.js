@@ -166,12 +166,13 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
         } else if (flag === 3) {
             navigate(-1);
         } else {
-            await dispatch(getDefaultPrintsettings({ default: true }));
-            if(customModules?.length > 0) {
-                const rxPrescription = {
-                    ...defaultPrintSettings?.prescription,
+            const action = await dispatch(getDefaultPrintsettings({ default: true }));
+            if(action.meta.requestStatus === "fulfilled") {
+                if(customModules?.length > 0) {
+                    const rxPrescription = {
+                    ...action?.payload?.prescription,
                     case_option: [
-                      ...(defaultPrintSettings?.prescription?.case_option || []),
+                      ...(action?.payload?.prescription?.case_option || []),
                       ...customModules?.map((module) => ({
                         id: module.module_id,
                         title: module.name,
@@ -184,13 +185,14 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                   };
           
                   const sendData = {
-                    ...defaultPrintSettings,
+                    ...action?.payload,
                     prescription: JSON.stringify(rxPrescription),
-                    header_footer: JSON.stringify(defaultPrintSettings?.header_footer),
-                    page_format: JSON.stringify(defaultPrintSettings?.page_format),
+                    header_footer: JSON.stringify(action?.payload?.header_footer),
+                    page_format: JSON.stringify(action?.payload?.page_format),
                   };
           
                   dispatch(savePrintsettings(sendData));
+                }
             }
             showHideBackModal();
             dispatch(setCurrentSessionRx(null));

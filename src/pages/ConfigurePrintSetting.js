@@ -45,7 +45,7 @@ function ConfigurePrintSetting() {
     const [fileSignature, setFileSignature] = useState(null);
     const todayVaccines = useTodayVaccines(caseManagerData);
     const growthChartDetails = useGrowthChart(caseManagerData);
-    const obstetricDetails = useObstetric(caseManagerData?.patient_data?.patient_unique_id);
+    const obstetricDetails = useObstetric(caseManagerData?.patient_data?.patient_unique_id, caseManagerData?.doctor_Data?.um_id);
     const medicalHistoryCheckboxOptions = caseManagerData?.medical_history?.map(e => {
         return { label: e?.title, value: e?.tmmhs_id }
     })
@@ -152,7 +152,7 @@ function ConfigurePrintSetting() {
                                 {selectedTab === TAB_PRESCRIPTION ? (
                                     <PrescriptionLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={[...patientBills, ...advanceReceipts]} />
                                 ) : selectedTab === TAB_HEADER_FOOTER ? (
-                                    <HeaderFooterLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} />
+                                    <HeaderFooterLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={patientBills} advanceReceipts={advanceReceipts} patientWalletBalance={patientWalletBalance} />
                                 ) : selectedTab === TAB_PAGE_FORMAT && (
                                     <PageFormatLayout />
                                 )}

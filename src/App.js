@@ -63,6 +63,8 @@ function App() {
   const isLoginPage = location.pathname === "/login";
 
   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
 
   const openUrlsSilently = async (urls) => {
     return Promise.all(
@@ -113,7 +115,7 @@ function App() {
   useEffect(() => {
     const checkUserStatus = async () => {
       const token = getToken();
-      if (token && !isLoginPage) {
+      if (token && !isLoginPage && !isReceptionist) {
         try {
           const decoded = jwtDecode(token);
           const phoneNumber = decoded?.result?.mobile_no;
@@ -160,21 +162,23 @@ function App() {
   useEffect(() => {
     const pathname = window.location.pathname;
 
-    if (pathname == "/" && authToken) {
+    if ((pathname == "/" || pathname == "/billing-dashboard") && authToken) {
       // Set the token in local storage
       setToken(authToken);
 
       // Remove the authToken from the URL
       const params = new URLSearchParams(location.search);
-      params.delete("authToken");
+      if (!isReceptionist) {
+        params.delete("authToken");
 
-      navigate(
-        {
-          pathname: location.pathname,
-          search: params.toString(),
-        },
-        { replace: true }
-      ); // Ensure the URL is cleaned up, removing authToken
+        navigate(
+          {
+            pathname: location.pathname,
+            search: params.toString(),
+          },
+          { replace: true }
+        ); // Ensure the URL is cleaned up, removing authToken
+      }
     }
   }, [authToken, setToken, navigate, location]);
 

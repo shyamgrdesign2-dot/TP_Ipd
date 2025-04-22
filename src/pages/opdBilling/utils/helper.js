@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
 import { db } from "../../../firebase";
 import { uploadDocsToAzure } from "../../medicalRecords/service";
-import { isChrome, isSafari } from "react-device-detect";
+import { browserName, isChrome, isMobile, isSafari, osName } from "react-device-detect";
 import moment from "moment";
 
 export const handleDownload = async (
@@ -13,7 +13,7 @@ export const handleDownload = async (
   setStartLoader,
   isDoctor = false
 ) => {
-  if (!isChrome && !isSafari) {
+  if (browserName == "Chrome WebView" || browserName == "WebKit") {
     const file = new File([printBlob], "billingFile.pdf", {
       type: "application/pdf",
     });
@@ -46,7 +46,7 @@ export const printContent = async (
   setStartLoader,
   isDoctor
 ) => {
-  if (!isChrome && !isSafari) {
+  if (browserName == "Chrome WebView" || browserName == "WebKit") {
     const file = new File([printBlob], "billingFile.pdf", {
       type: "application/pdf",
     });
@@ -60,23 +60,44 @@ export const printContent = async (
       handleInAppClick(patientUniqueId, "print", res?.[0]?.url, setStartLoader);
     }
   } else {
-    var blobURL = URL.createObjectURL(printBlob);
-    // Remove all existing iframes
-    document.querySelectorAll("iframe").forEach(function (iframe) {
-      iframe.parentNode.removeChild(iframe);
-    });
-    var iframe = document.createElement("iframe"); //load content in an iframe to print later
-    document.body.appendChild(iframe);
-    iframe.style.display = "none";
-    iframe.src = blobURL;
-    iframe.onload = function () {
-      setTimeout(function () {
-        iframe.focus();
-        iframe.contentWindow.print();
-        // Revoke the Blob URL to avoid memory leaks
-        URL.revokeObjectURL(blobURL);
-      }, 1);
-    };
+    if (isMobile || osName == "Linux") {
+      try {
+        const blobURL = URL.createObjectURL(printBlob);
+        const printWindow = window.open(blobURL, "_blank");
+
+        if (!printWindow) {
+          console.error("Unable to open new window for printing");
+          return;
+        }
+
+        printWindow.onload = () => {
+          setTimeout(() => {
+            printWindow.print();
+            URL.revokeObjectURL(blobURL);
+          }, 1000);
+        };
+      } catch (error) {
+        console.error("Error occurred while printing:", error);
+      }
+    } else {
+      var blobURL = URL.createObjectURL(printBlob);
+      // Remove all existing iframes
+      document.querySelectorAll("iframe").forEach(function (iframe) {
+        iframe.parentNode.removeChild(iframe);
+      });
+      var iframe = document.createElement("iframe"); //load content in an iframe to print later
+      document.body.appendChild(iframe);
+      iframe.style.display = "none";
+      iframe.src = blobURL;
+      iframe.onload = function () {
+        setTimeout(function () {
+          iframe.focus();
+          iframe.contentWindow.print();
+          // Revoke the Blob URL to avoid memory leaks
+          URL.revokeObjectURL(blobURL);
+        }, 1);
+      };
+    }
   }
 };
 

@@ -8,6 +8,7 @@ const BillDetails = ({ pageFormat, billData, totalAdvanceBalance }) => {
     subTotal,
     lineItemDiscount,
     extraDiscount,
+    extraDiscountType,
     applicableGst,
     payableAmount,
     paymentModes = [],
@@ -22,6 +23,16 @@ const BillDetails = ({ pageFormat, billData, totalAdvanceBalance }) => {
     nextBillNumber,
   } = billData || {};
 
+  const totalBillAmount = billItems?.reduce(
+    (sum, service) => sum + (Number(service.totalAmount) || 0),
+    0
+  );
+
+  const extraDiscountAmount =
+    extraDiscountType === "percentage"
+      ? (totalBillAmount * (Number(extraDiscount) || 0)) / 100 // Percentage based
+      : Number(extraDiscount) || 0; // Flat/Rupee based
+
   const billInfo = [
     { label: "Subtotal:", value: `₹${subTotal}` },
     { label: "Line Item Discount:", value: `₹${lineItemDiscount}` },
@@ -30,7 +41,7 @@ const BillDetails = ({ pageFormat, billData, totalAdvanceBalance }) => {
       value: `₹${applicableGst}`,
       divider: dueFromPreviousBill === 0,
     },
-    { label: "Extra Discount:", value: `₹${extraDiscount}` },
+    { label: "Extra Discount:", value: `₹${extraDiscountAmount?.toFixed(2)}` },
     dueFromPreviousBill > 0
       ? {
           label: "Due from Previous bill:",

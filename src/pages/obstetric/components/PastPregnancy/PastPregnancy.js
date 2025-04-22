@@ -612,6 +612,13 @@ function PastPregnancy({
                     { value: "Left tube", label: "Left tube" },
                     { value: "Right tube", label: "Right tube" },
                     { value: "Others", label: "Others" },
+                    { value: "Cornual Pregnancy", label: "Cornual Pregnancy" },
+                    {
+                      value: "Extra Uterine Pregnancy",
+                      label: "Extra Uterine Pregnancy",
+                    },
+                    { value: "Ovarian Pregnancy", label: "Ovarian Pregnancy" },
+                    { value: "Tubal Abortion", label: "Tubal Abortion" },
                   ]}
                   placeholder="Select"
                   className="custom-select"
@@ -632,6 +639,13 @@ function PastPregnancy({
                     { value: "Spontaneous", label: "Spontaneous" },
                     { value: "Induce", label: "Induce" },
                     { value: "Recurrent", label: "Recurrent" },
+                    { value: "Septic Abortion", label: "Septic Abortion" },
+                    {
+                      value: "Incomplete Abortion",
+                      label: "Incomplete Abortion",
+                    },
+                    { value: "Blighted Ovum", label: "Blighted Ovum" },
+                    { value: "Hydatidiform Mole", label: "Hydatidiform Mole" },
                   ]}
                   placeholder="Select"
                   className="custom-select"

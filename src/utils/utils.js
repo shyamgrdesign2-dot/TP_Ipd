@@ -3,7 +3,7 @@ import moment from "moment";
 import config from "../config";
 import { message } from "antd";
 import { MESSAGE_KEY } from "../utils/constants";
-import { isBrowser } from "react-device-detect";
+import { browserName, isBrowser } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
@@ -187,7 +187,7 @@ export const medicine_freq_dosage_format = (freqDosage) => {
 
 export const calculateDose = (dosage, weight, concentration) => {
   const dose = (parseFloat(dosage) * parseFloat(weight)) / parseFloat(concentration);
-  return !isNaN(dose) ? dose.toFixed(2).replace(/\.00$/, '') : "";
+  return !isNaN(dose) ? dose.toFixed(1).replace(/\.0$/, '') : "";
 }
 
 export const dataUrlToFile = (url, fileName) => {
@@ -555,7 +555,7 @@ export const handlePrintClick = (
   handlePrintWeb,
   chartType
 ) => {
-  if (!isBrowser) {
+  if (browserName == "Chrome WebView" || browserName == "WebKit") {
     if (!element) {
       console.error("Element not found");
       return;

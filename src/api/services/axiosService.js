@@ -81,7 +81,11 @@ instance.interceptors.response.use(
                 notificationParam.description = 'Please login again'
                 // Clear localStorage before redirecting
                 localStorage.removeItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-                window.location.href = '/login';
+                const urlParams = new URLSearchParams(window.location.search);
+                const isReceptionist = urlParams.has("receptionist");
+                if (!isReceptionist) {
+                    window.location.href = '/login';
+                }
             }
         }
 

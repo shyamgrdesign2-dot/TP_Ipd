@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 // import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { Col, Row, Select, Button, message, Spin, Drawer } from "antd";
-import { isMobile, isChrome, isSafari } from "react-device-detect";
+import { isMobile, browserName, osName } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useReactToPrint } from 'react-to-print';
@@ -26,9 +26,10 @@ import { env } from "../EnvironmentConfig";
 import { setCurrentSessionRx } from "../redux/obstetricSlice";
 import CreateBill from "./opdBilling/components/createBill/CreateBill";
 import RecentBills from "./opdBilling/components/recentBills/RecentBills";
-import { fetchBillsByPatient, listAdvancedDepositByPatient } from "./opdBilling/service";
+import { checkToShowOpdBilling, fetchBillsByPatient, listAdvancedDepositByPatient } from "./opdBilling/service";
 import moment from "moment";
 import { useOpdBilling } from "./opdBilling/useOpdBilling";
+import { setShouldShowOpdBilling } from "../redux/billingSlice";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -100,6 +101,7 @@ function PrescriptionPrintView() {
     } = useSelector((state) => state.caseManager);
     const { userId, profile } = useSelector((state) => state.doctors);
     const { currentSessionRx } = useSelector((state) => state.obstetric);
+    const { isOpdBillChecked } = useSelector((state) => state.billing);
     const { isOpdBillingAccessable } = useOpdBilling();
     const dispatch = useDispatch();
 
@@ -180,6 +182,17 @@ function PrescriptionPrintView() {
       setPrintUrl(`${printUrl}&lg=${encodedData}`);
     }, [patientBills, advanceReceipts]);
 
+    useEffect(() => {
+        if (!isOpdBillChecked) {
+            getShowOpdBilling();
+        }
+    }, []);
+
+    const getShowOpdBilling = async () => {
+        const res = await checkToShowOpdBilling();
+        dispatch(setShouldShowOpdBilling(res));
+    };
+
     const getPatientBills = async (_, sortParams = {}) => {
         const queryParams = {
             doctorIds: [userId],
@@ -241,23 +254,44 @@ function PrescriptionPrintView() {
     // });
 
     const printContent = async () => {
-        var blobURL = URL.createObjectURL(printBlob);
-        // Remove all existing iframes
-        document.querySelectorAll('iframe').forEach(function (iframe) {
-            iframe.parentNode.removeChild(iframe);
-        });
-        var iframe = document.createElement('iframe'); //load content in an iframe to print later
-        document.body.appendChild(iframe);
-        iframe.style.display = 'none';
-        iframe.src = blobURL;
-        iframe.onload = function () {
-            setTimeout(function () {
-                iframe.focus();
-                iframe.contentWindow.print();
-                // Revoke the Blob URL to avoid memory leaks
-                URL.revokeObjectURL(blobURL);
-            }, 1);
-        };
+        if (isMobile || osName == 'Linux') {
+            try {
+                const blobURL = URL.createObjectURL(printBlob);
+                const printWindow = window.open(blobURL, '_blank');
+
+                if (!printWindow) {
+                    console.error('Unable to open new window for printing');
+                    return;
+                }
+
+                printWindow.onload = () => {
+                    setTimeout(() => {
+                        printWindow.print();
+                        URL.revokeObjectURL(blobURL);
+                    }, 1000);
+                };
+            } catch (error) {
+                console.error('Error occurred while printing:', error);
+            }
+        } else {
+            var blobURL = URL.createObjectURL(printBlob);
+            // Remove all existing iframes
+            document.querySelectorAll('iframe').forEach(function (iframe) {
+                iframe.parentNode.removeChild(iframe);
+            });
+            var iframe = document.createElement('iframe'); //load content in an iframe to print later
+            document.body.appendChild(iframe);
+            iframe.style.display = 'none';
+            iframe.src = blobURL;
+            iframe.onload = function () {
+                setTimeout(function () {
+                    iframe.focus();
+                    iframe.contentWindow.print();
+                    // Revoke the Blob URL to avoid memory leaks
+                    URL.revokeObjectURL(blobURL);
+                }, 1);
+            };
+        }
     };
 
     const printInAppContent = async () => {
@@ -381,7 +415,7 @@ function PrescriptionPrintView() {
                                         window.Moengage.track_event("print_select", {
                                             "language": LANGUAGE_LIST.find(e => e.value === selectedLang).label
                                         });
-                                        !isChrome && !isSafari ? printInAppContent() : printContent()
+                                        (browserName == "Chrome WebView" || browserName == "WebKit") ? printInAppContent() : printContent()
                                     }}
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-Print"></i>}
@@ -393,7 +427,7 @@ function PrescriptionPrintView() {
                                     type="text"
                                     className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-download"></i>}
-                                    onClick={() => !isChrome && !isSafari ? handleInAppDownload() : handleDownload()}
+                                    onClick={() => (browserName == "Chrome WebView" || browserName == "WebKit") ? handleInAppDownload() : handleDownload()}
                                 >
                                     <span className="fw-semibold">Download Prescription</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
@@ -496,6 +530,7 @@ function PrescriptionPrintView() {
                         patientBills={patientBills} 
                         getPatientBills={getPatientBills}
                         totalAdvanceBalance={patientWalletBalance}
+                        patientData={patient_data}
                     />
                 </Drawer>
             }

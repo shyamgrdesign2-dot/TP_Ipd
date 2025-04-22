@@ -128,7 +128,7 @@ ApiAppointments.syncZydusPatientAndAppointment = function (body) {
 };
 
 ApiAppointments.zydusDocsList = function (mrno) {
-  return api.get(`/ictApiProxy/emr/lab/result/list?mrno=${mrno}`, baseZydusProxyUrl);
+  return api.get(`/ictApiProxy/emr/lab/result/list?mrno=${mrno}&noOfDays=6000`, baseZydusProxyUrl);
 };
 
 ApiAppointments.zydusRadioList = function (mrno) {
