@@ -11,7 +11,6 @@ import {
 import { resetVaccineState } from '../redux/vaccineSlice';
 import { resetGrowthChartState } from '../redux/growthChartSlice';
 import { resetObstetricState } from '../redux/obstetricSlice';
-import { updateVisitStatus } from '../api/services/VisitService';
 import { resetUploadDocState } from '../redux/uploadDocSlice';
 import { resetDDxState } from '../redux/ddxSlice';
 
@@ -36,12 +35,6 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToApp
               tcm_id: tcm_id,
             };
             const action = await dispatch(sendCashsheetWhatsapp(sendData));
-            if (pam_id) {
-              updateVisitStatus(pam_id, {
-                status: 3,
-                prescriptionUrl: printUrl,
-              });
-            }
             if (action.meta.requestStatus === "fulfilled") {
               dispatch(resetVaccineState());
               dispatch(resetGrowthChartState());
