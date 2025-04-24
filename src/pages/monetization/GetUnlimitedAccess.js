@@ -10,8 +10,8 @@ import SmartSyncPro from "./components/SmartSyncPro";
 import AddonServices from "./components/AddonServices";
 import CampaignDiscount from "./components/CampaignDiscount";
 import UnlimitedAccessSummary from "./components/UnlimitedAccessSummary";
-import { S_TATVA_PRACTICE, S_SMARTSYNC, S_RX_DIGITIZATION, S_VOICE_RX, S_DDX } from "../../utils/constants";
-import { campaigns, services } from "../../redux/monetizationSlice";
+import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX } from "../../utils/constants";
+import { services } from "../../redux/monetizationSlice";
 import GenRxKnowMore from "../../components/GenRxKnowMore";
 
 import "./GetUnlimitedAccess.scss";
