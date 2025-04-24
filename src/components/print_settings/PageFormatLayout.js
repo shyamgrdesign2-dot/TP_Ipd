@@ -1,5 +1,5 @@
-import React, { useCallback, useContext } from "react";
-import { Form, Select } from "antd";
+import React, { useCallback, useContext, useEffect } from "react";
+import { Form, Radio, Select } from "antd";
 
 import PrintSettingsContext from '../../context/PrintSettingsContext';
 import { FONTS_FAMILY_LIST, FONTS_SIZE_LIST } from "../../utils/constants";
@@ -7,6 +7,18 @@ import { FONTS_FAMILY_LIST, FONTS_SIZE_LIST } from "../../utils/constants";
 function PageFormatLayout() {
 
     const { printSettings, setPrintSettings } = useContext(PrintSettingsContext);
+
+    useEffect(() => {
+        if (printSettings?.page_format?.pagination === undefined) {
+            setPrintSettings(prevSettings => ({
+                ...prevSettings,
+                page_format: {
+                    ...prevSettings.page_format,
+                    pagination: "hide"
+                }
+            }));
+        }
+    }, []);
 
     const onSelectFontFamily = useCallback(
         (data) => {
@@ -43,6 +55,18 @@ function PageFormatLayout() {
         },
         [printSettings]
     );
+
+    const paginationHandler = useCallback((e) => {
+        const paginationValue = e.target.value;
+        
+        setPrintSettings(prevSettings => ({
+          ...prevSettings,
+          page_format: {
+            ...prevSettings.page_format,
+            pagination: paginationValue
+          }
+        }));
+    }, []);
 
     return (
         <div className="px-3 form_addnewpatient">
@@ -89,6 +113,14 @@ function PageFormatLayout() {
                     onSelect={onSelectPatientInfoFontSize}
                     allowClear
                 />
+            </Form.Item>
+
+             <Form.Item>
+                <label className="mb-1">Pagination</label>
+                <Radio.Group className="d-flex gender-radio" value={printSettings?.page_format?.pagination} onChange={paginationHandler}>
+                    <Radio.Button className="w-100 text-center" value="show">Show</Radio.Button>
+                    <Radio.Button className="w-100 text-center" value="hide">Hide</Radio.Button>
+                </Radio.Group>
             </Form.Item>
         </div>
     );
