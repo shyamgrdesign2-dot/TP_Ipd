@@ -48,15 +48,22 @@ import VoiceWaveVisualizer from "./WaveVisualizer";
 import GenRXLoaders from "./GenRxLoaders";
 import genRxSendCta from "../assets/images/genRxSendCta.svg";
 import tatvaAiChakra from "../assets/lotties/tatvaAiChakra.lottie";
-import { MESSAGE_KEY } from "../utils/constants";
+import { MESSAGE_KEY, S_VOICE_RX } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import expiredInfographic2 from '../assets/images/expired-infographic-2.svg'
 import { useSelector } from "react-redux";
+import CampaignDiscount from "../pages/monetization/components/CampaignDiscount";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
 const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
+
+  const { campaignsData, plansList } = useSelector((state) => state.monetization);
+  const planTier = plansList.find(e => e.service_name === S_VOICE_RX)
+  // const planTier = { ...plansList.find(e => e.service_name === S_VOICE_RX), credit_balance: 0 }
+
+
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
   const [isRecording, setIsRecording] = useState(false);
@@ -94,7 +101,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const { profile, userId } = useSelector((state) => state.doctors);
   const { TextArea } = Input;
 
-  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(true);
 
   const showHideSubModal = useCallback(() => {
     setIsSubModalOpen(!isSubModalOpen);
@@ -240,39 +247,43 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   const handleSend = async () => {
-    if (!isRecording && !(inputText || editableQuery)) return;
-    if (genRxDetails?._id) {
-      const clinic_name = getClinicName(profile?.hospital_data);
-      trackEvent("TP_VoiceRx_editRx", {
-        patient_contact: patient_data?.pm_contact_no || "",
-        patient_id: patient_data?.patient_unique_id || "",
-        doctor_speciality: profile?.dp_name,
-        doctor_unique_id: profile?.doctor_unique_id,
-        clinic_name,
-        rx_id: genRxDetails?._id,
-      });
-    }
-    setShowPrescription(true);
-    setRecordingTime(0);
-    setIsProcessing(true);
-
-    try {
-      if (isRecording) {
-        mediaRecorderRef.current?.stop();
-        await new Promise((resolve) => setTimeout(resolve, 100)); // Ensure audio is processed
-
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/webm",
+    if (planTier?.credit_balance > 0) {
+      if (!isRecording && !(inputText || editableQuery)) return;
+      if (genRxDetails?._id) {
+        const clinic_name = getClinicName(profile?.hospital_data);
+        trackEvent("TP_VoiceRx_editRx", {
+          patient_contact: patient_data?.pm_contact_no || "",
+          patient_id: patient_data?.patient_unique_id || "",
+          doctor_speciality: profile?.dp_name,
+          doctor_unique_id: profile?.doctor_unique_id,
+          clinic_name,
+          rx_id: genRxDetails?._id,
         });
-
-        await handleVoiceDigitize(audioBlob, "");
-      } else {
-        await handleVoiceDigitize(null, inputText || editableQuery);
       }
-    } catch (error) {
-      console.error("Error processing prescription:", error);
-      message.error(error.message || "Failed to process prescription");
-      setIsProcessing(false);
+      setShowPrescription(true);
+      setRecordingTime(0);
+      setIsProcessing(true);
+
+      try {
+        if (isRecording) {
+          mediaRecorderRef.current?.stop();
+          await new Promise((resolve) => setTimeout(resolve, 100)); // Ensure audio is processed
+
+          const audioBlob = new Blob(audioChunksRef.current, {
+            type: "audio/webm",
+          });
+
+          await handleVoiceDigitize(audioBlob, "");
+        } else {
+          await handleVoiceDigitize(null, inputText || editableQuery);
+        }
+      } catch (error) {
+        console.error("Error processing prescription:", error);
+        message.error(error.message || "Failed to process prescription");
+        setIsProcessing(false);
+      }
+    } else {
+      showHideSubModal()
     }
   };
 
@@ -1313,17 +1324,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                 </span>
               </button>
 
-              <Button className="btn rounded-pill btn-free-trials me-3" onClick={showHideSubModal}>
-                <img src={coinSm} className="me-2" alt="Tatva Icon" />
-                03 free trials
-                <i className="ms-2 icon-right iconrotate180"></i>
+              <Button className={`btn rounded-pill btn-free-trials me-3 ${planTier?.credit_balance === 0 && 'btn-free-0-trials'}`} onClick={showHideSubModal}>
+                <img src={planTier?.credit_balance === 0 ? coinSmRed : coinSm} className="me-2" alt="Tatva Icon" />
+                {planTier?.credit_balance} free trial
+                {planTier?.credit_balance > 0 && <i className="ms-2 icon-right iconrotate180"></i>}
               </Button>
-
-              {/* Open button when required for 0 free trial */}
-              {/* <Button className="btn rounded-pill btn-free-trials btn-free-0-trials me-3" onClick={showHideSubModal}>
-                <img src={coinSmRed} className="me-2" alt="Tatva Icon" /> 
-                0 free trial
-              </Button> */}
 
               {showPrescription && (
                 <Button
@@ -1832,44 +1837,50 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         className="voicerx-modal text-center"
         width={435}
         styles={{
-          mask: { marginLeft: window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)', backdropFilter: 'blur(2px)' },
-          wrapper: { marginLeft: window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)' },
+          mask: { marginLeft: showPrescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)', backdropFilter: 'blur(2px)' },
+          wrapper: { marginLeft: showPrescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)' },
         }}
-
       >
         <Card
           extra={
             <>
               {/* Uncomment for Trial modal */}
-              {/* <img className="coinLg" src={coinLg} alt="Tatva Coin" /> */}
+              {planTier?.credit_balance > 0 && (
+                <img className="coinLg" src={coinLg} alt="Tatva Coin" />
+              )}
               <button className="position-relative z-1 btn p-1 lh-1 btnclose closeButton" onClick={showHideSubModal}>
                 <i className="icon-Cross"></i>
               </button>
               <img className="expiredInfographic" src={expiredInfographic2} alt="Your free trail has Expired" />
-              <img className="expiredInfographic" style={{opacity: 0.5}} src={expiredInfographic2} alt="Your free trail has Expired" />
+              <img className="expiredInfographic" style={{ opacity: 0.5 }} src={expiredInfographic2} alt="Your free trail has Expired" />
             </>
           }>
 
-          {/* For Expire Modal */}
-          <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
-          <div className="text-white">
-            Your<span className="text-white fw-semibold"> Voice Rx  free trail  </span>  has expired. <br />
-            Upgrade now to continue a hassle free experience!
-          </div>
+          {planTier?.credit_balance > 0 ? (
+            // Uncomment for Trial modal
+            <div className="text-white fs-16">
+              <span className="fw-bold fs-2 text-white">{planTier?.credit_balance}</span>
+              <span className="text-white fw-semibold">/05</span> free Trial Left! <br />
+              You can generate up to <span className="fw-bold text-white">3 RX</span> using AI Voice Rx for absolutely free!
+            </div>
+          ) : (
+            // For Expire Modal
+            <>
+              <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
+              <div className="text-white">
+                Your<span className="text-white fw-semibold"> Voice Rx  free trail  </span>  has expired. <br />
+                Upgrade now to continue a hassle free experience!
+              </div>
+            </>
+          )}
 
-          {/* Uncomment for Trial modal */}
-          {/* <div className="text-white fs-16">
-            <span className="fw-bold fs-2 text-white">03</span><span className="text-white fw-semibold">/05</span> free Trial Left! <br />
-            You can generate up to <span className="fw-bold text-white">3 RX</span> using AI Voice Rx for absolutely free!
-          </div> */}
           <div className="bg-white p-4 rounded-5 mt-4">
             <div className="fs-4 fw-bold text-price">Upgrade Now 🚀</div>
             <div className="mt-3 text-price">Unlock unlimited AI Voice Rx, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
 
-            {/* Unblobk when timing rquired */}
-            <div class="my-3 flat-20 lh-lg d-block fs-12-1 fs-12 py-3">🔥Unlock Unlimited Access&nbsp;<span>- Flat 20% OFF!</span><br />⏳ Offer ends in
-              <div className="rounded-pill fs-12-1 mt-2 w-75 mx-auto px-2 py-1">02 Days : 08 Hours : 24 Min </div>
-            </div>
+            {campaignsData?.campaign_active && (
+              <CampaignDiscount flag={2} />
+            )}
 
             <div>
               <Button type='button' className='mt-3 btn align-items-center mx-auto d-flex btn-41 btn-text btn-save' style={{ height: 52 }}>

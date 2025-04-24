@@ -6,6 +6,7 @@ const initialState = {
     campaignsData: null,
     servicesLoading: false,
     servicesList: [],
+    plansList: [],
     loading: false,
     errorObj: { visible: false, message: '' },
 };
@@ -51,6 +52,18 @@ export const verifyPayment = createAsyncThunk(
     async (data, { dispatch, rejectWithValue }) => {
         try {
             const result = await ApiMonetization.verifyPayment(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
+export const plans = createAsyncThunk(
+    "monetization/plans",
+    async (b2c_id, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.plans(b2c_id);
             return result;
         } catch (error) {
             return rejectWithValue({ visible: false, message: error.response.data.message });
@@ -107,6 +120,9 @@ const monetizationSlice = createSlice({
             .addCase(services.rejected, (state) => {
                 state.servicesLoading = false
                 state.servicesList = [];
+            })
+            .addCase(plans.fulfilled, (state, action) => {
+                state.plansList = action.payload?.services
             })
     },
 });
