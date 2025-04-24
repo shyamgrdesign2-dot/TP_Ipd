@@ -120,7 +120,6 @@ function AvailableCredits({ handleAvailableCredit }) {
 
     const clickBuyNow = async () => {
         if (creditRadio || creditInput) {
-            console.log(selectedState)
             if (selectedState) {
                 const amount = creditInput ? parseFloat(creditInput) : parseFloat(creditRadio)
                 let sendData = {

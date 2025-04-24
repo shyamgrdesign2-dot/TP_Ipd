@@ -1,0 +1,61 @@
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "antd";
+import { useSelector } from "react-redux";
+
+import vaccinationImg from "../../../assets/images/Vaccination.svg";
+import aiPowered from "../../../assets/images/ai-powered.svg";
+import { formatAmount } from "../../../utils/utils";
+
+function AddonServices({ item, addOrNot, handleAddRemove }) {
+
+    const { campaignsData } = useSelector((state) => state.monetization);
+
+    return (
+        <>
+            <div className="addon-access mt-2 mb-3">
+                <div className={`addon-box ${addOrNot && 'box-added'}`}>
+                    {item.must_have && (<div className="tag-recommend">Must Have</div>)}
+                    <div className="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div className="fs-4 text-welcome fw-semibold my-2">
+                                <img style={{ background: '#EDDFF780' }} className="p-1 rounded-10px me-2" src={vaccinationImg} alt="Icon" />
+                                {item.service_display_name}
+                                {/* <img src={aiPowered} alt="Icon" /> Uncomment in AI modules  */}
+                            </div>
+                            <div>
+                                <div className="fs-14">{item.service_description}<Link className="text-decoration-underline fw-medium text-main">Know more</Link></div>
+                            </div>
+                        </div>
+                        <div className="addon-box-price mx-4">
+                            <div className="d-flex align-items-end">
+                                <div className="fw-semibold text-price lh-1 fs-4">
+                                    {`₹${campaignsData?.campaign_active ?
+                                        formatAmount(parseFloat(item.service_cost) - (parseFloat(item.service_cost) * parseFloat(campaignsData?.campaign_value) / 100))
+                                        :
+                                        formatAmount(parseFloat(item.service_cost))}`}
+                                </div>
+                                <div className="text-price fs-18">/year</div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-center mt-1">
+                                {campaignsData?.campaign_active && (
+                                    <>
+                                        <div className="text-black-50 text-decoration-line-through me-2">{`₹${item.service_cost}`}</div>
+                                        <div className="access-off px-2 py-1 rounded-pill fw-semibold fs-12-1 text-white">{`${campaignsData?.campaign_value}% off`}</div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                        <div>
+                            <Button className={`btn d-flex rounded-10px align-items-center justify-content-center ms-4 ${!addOrNot ? 'btn-addon' : 'btn-added'}`} onClick={handleAddRemove}>
+                                <i className={`me-2 ${!addOrNot ? 'icon-Add fs-18 ' : 'fs-4 icon-check'}`}></i> {!addOrNot ? 'Add' : 'Added'}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+}
+
+export default React.memo(AddonServices);

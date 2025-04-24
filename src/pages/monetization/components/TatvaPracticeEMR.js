@@ -1,0 +1,71 @@
+import React, { useState, useCallback } from "react";
+import { Col, Row } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import { isMobile } from "react-device-detect";
+import { useSelector } from "react-redux";
+
+import tatvaEMR from '../../../assets/images/logo-tatva-emr.svg'
+import growingClinic from '../../../assets/images/growing-clinic.svg'
+import listIcon from '../../../assets/images/list-icon.svg'
+import medcoIcon from '../../../assets/images/medco-icon.svg'
+import { formatAmount } from "../../../utils/utils";
+
+function TatvaPracticeEMR({ item }) {
+
+    const { campaignsData } = useSelector((state) => state.monetization);
+    const [showAll, setShowAll] = useState(false);
+
+    const handleShowAll = useCallback(() => {
+        setShowAll(!showAll)
+    }, [showAll]);
+
+    return (
+        <div className="unlimited-access-price text-center">
+            <img src={tatvaEMR} alt='EMR Icon' />
+            <div className="text-price fs-2 fw-semibold mt-4">{item.service_display_name}</div>
+            <div className="d-flex align-items-end justify-content-center mt-4">
+                {campaignsData?.campaign_active && (
+                    <div className="fs-18 text-black-50 text-decoration-line-through me-2">{`₹${item.service_cost}`}</div>
+                )}
+                <div className="fw-semibold text-price lh-1" style={{ fontSize: 36 }}>
+                    {`₹${campaignsData?.campaign_active ?
+                        formatAmount(parseFloat(item.service_cost) - (parseFloat(item.service_cost) * parseFloat(campaignsData?.campaign_value) / 100))
+                        :
+                        formatAmount(parseFloat(item.service_cost))}`}
+                </div>
+                <div className="text-price fs-4">/year</div>
+                {campaignsData?.campaign_active && (
+                    <div className="access-off px-3 py-1 ms-3 rounded-pill fw-semibold fs-18 text-white">{`${campaignsData?.campaign_value}% off`}</div>
+                )}
+            </div>
+            <div className="d-flex align-items-end justify-content-center mt-4">
+                <div className="text-black-50">Everything for a</div>
+                <div className="fw-medium text-secondary-custom"><img className="mx-2" src={growingClinic} alt="Growing clinic" />Growing clinic</div>
+            </div>
+            <div className={`${!isMobile ? 'px-75px' : 'px-0'}`}>
+                <Row className="my-4">
+                    {item?.service_points?.slice(0, showAll ? item?.service_points?.length : 4)?.map((feature, i) => (
+                        <Col key={i} lg={6} className="py-3">
+                            <div className="d-flex align-items-center">
+                                <img className="mx-2" src={listIcon} alt="icon" />
+                                <div className="fs-14 fw-medium text-price text-start">{feature}</div>
+                            </div>
+                        </Col>
+                    ))}
+                </Row>
+                {showAll &&
+                    <div className="medco-app my-4">
+                        <img className="me-3" src={medcoIcon} alt="Medco Icon" />
+                        <div className="text-start">
+                            <div className="fw-bold">Get the MedEco Doctor App free with EMR</div>
+                            <div className="fs-14">Enhance your clinical practice and stay updated with the latest medical insights. <Link className="text-decoration-underline fw-medium text-primary">Know More</Link></div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div className="text-primary fw-medium cursor-pointer d-inline text-decoration-underline" onClick={handleShowAll}>{showAll ? 'View less' : `View ${item?.service_points?.length - 4} More Features`}</div>
+        </div>
+    );
+}
+
+export default React.memo(TatvaPracticeEMR);

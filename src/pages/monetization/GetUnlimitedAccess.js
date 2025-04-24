@@ -1,89 +1,163 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Col, Row } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { isMobile } from "react-device-detect";
+import { useSelector, useDispatch } from "react-redux";
+import moment from "moment";
 
 import HeaderUnlimitedAccess from "../../common/HeaderUnlimitedAccess";
-import tatvaEMR from '../../assets/images/logo-tatva-emr.svg'
-import growingClinic from '../../assets/images/growing-clinic.svg'
-import listIcon from '../../assets/images/list-icon.svg'
-import medcoIcon from '../../assets/images/medco-icon.svg'
-import "./GetUnlimitedAccess.scss";
+import TatvaPracticeEMR from "./components/TatvaPracticeEMR";
+import SmartSyncPro from "./components/SmartSyncPro";
+import AddonServices from "./components/AddonServices";
 import UnlimitedAccessSummary from "./components/UnlimitedAccessSummary";
-import AddonAccess from "./components/AddonAccess";
+import { S_TATVA_PRACTICE, S_SMARTSYNC, S_RX_DIGITIZATION } from "../../utils/constants";
+import { campaigns, services } from "../../redux/monetizationSlice";
+
+import "./GetUnlimitedAccess.scss";
+import { Spin } from "antd";
 
 function GetUnlimitedAccess() {
-    const [showAll, setShowAll] = useState(false);
-    const features = [
-        "OPD Management",
-        "Personalised Website",
-        "Appointment Management",
-        "Automated Follow up Remainder",
-        "Comprehensive Patient Record",
-        "Dedicated Support",
-        "Specialised Rx Pad",
-        "Appointment scheduling",
-        "In-Depth Practice Insights",
-        "Treatment Effectiveness",
-        "Digital Rx Delivery",
-        "Google My Business Optimisation",
-    ];
-    const visibleFeatures = showAll ? features : features.slice(0, 6);
+
+    const { campaignsData, servicesLoading, servicesList } = useSelector((state) => state.monetization);
+    const dispatch = useDispatch();
+
+    const [countdown, setCountdown] = useState({
+        days: '00',
+        hours: '00',
+        minutes: '00',
+    });
+    const [selectedServices, setSelectedServices] = useState([]);
+
+    useEffect(() => {
+        dispatch(campaigns());
+        dispatch(services('7401ba1b-aac7-49f1-8b88-bef3bffc1c1e'));
+    }, []);
+
+    useEffect(() => {
+        if (servicesList?.length) {
+            const EMR = servicesList
+                ?.filter(({ service_name }) => service_name === S_TATVA_PRACTICE)
+                ?.map(service => ({ ...service, validity: 1 }));
+            setSelectedServices(EMR)
+        }
+    }, [servicesList]);
+
+    useEffect(() => {
+        if (campaignsData && campaignsData.campaign_active) {
+            const updateCountdown = () => {
+                const now = moment();
+                const future = moment(campaignsData?.campaign_enddate);
+
+                const duration = moment.duration(future.diff(now));
+
+                const days = String(Math.floor(duration.asDays())).padStart(2, '0');
+                const hours = String(duration.hours()).padStart(2, '0');
+                const minutes = String(duration.minutes()).padStart(2, '0');
+
+                if (duration.asMilliseconds() <= 0) {
+                    setCountdown({ days: '00', hours: '00', minutes: '00' });
+                } else {
+                    setCountdown({ days, hours, minutes });
+                }
+            };
+
+            updateCountdown(); // Run immediately on mount/update
+
+            const interval = setInterval(updateCountdown, 60000); // Then run every 1 minute
+
+            return () => clearInterval(interval);
+        }
+    }, [campaignsData]);
+
+    const handleAddRemove = useCallback((item) => {
+        setSelectedServices(prev => {
+            const exists = prev.find(e => e.service_name === item.service_name);
+            if (exists) {
+                return prev.filter(e => e.service_name !== item.service_name);
+            } else {
+                return [...prev, { ...item, validity: 1 }];
+            }
+        });
+    }, [selectedServices]);
+
+    const handleSmartSyncAddRemove = useCallback((item, checked) => {
+        if (checked) {
+            setSelectedServices(prev => {
+                const newSelection = [...prev];
+                item.forEach(service => {
+                    const index = newSelection.findIndex(e => e.service_name === service.service_name);
+                    if (index !== -1) {
+                        newSelection.splice(index, 1);
+                    } else {
+                        newSelection.push({ ...service, validity: 1 });
+                    }
+                });
+                return newSelection;
+            });
+        } else {
+            setSelectedServices(prev => {
+                const exists = prev.find(e => e.service_name === item[0].service_name);
+                if (exists) {
+                    return prev.filter(e => e.service_name !== item[0].service_name);
+                } else {
+                    return [...prev, { ...item[0], validity: 1 }];
+                }
+            });
+        }
+    }, [selectedServices]);
 
     return (
         <>
             <HeaderUnlimitedAccess />
             <div className="unlimited-access-wrapper overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
-                <div className="flat-20 py-3">
-                    🎉<span>&nbsp;Flat 20% off</span>&nbsp;on EMR—limited time offer!&nbsp;&nbsp;
-                    <div className="rounded-pill px-2 py-1">02 Days : 08 Hours : 24 Min ⏳ </div>
-                </div>
-                <div className="bg-unlimited-access">
-                    <Row className="g-4">
-                        <Col xl={8} lg={8} sm={7} xs={12}>
-                            <div className="unlimited-access-price text-center">
-                                <img src={tatvaEMR} alt='EMR Icon' />
-                                <div className="text-price fs-2 fw-semibold mt-4">TatvaPractice EMR</div>
-                                <div className="d-flex align-items-end justify-content-center mt-4">
-                                    <div className="fs-18 text-black-50 text-decoration-line-through me-2">₹12,999</div>
-                                    <div className="fw-semibold text-price lh-1" style={{ fontSize: 36 }}>₹9,999</div>
-                                    <div className="text-price fs-4">/year</div>
-                                    <div className="access-off px-3 py-1 ms-3 rounded-pill fw-semibold fs-18 text-white">20% off</div>
-                                </div>
-                                <div className="d-flex align-items-end justify-content-center mt-4">
-                                    <div className="text-black-50">Everything for a</div>
-                                    <div className="fw-medium text-secondary-custom"><img className="mx-2" src={growingClinic} alt="Growing clinic" />Growing clinic</div>
-                                </div>
-                                <div className={`${!isMobile ? 'px-75px' : 'px-0'}`}>
-                                    <Row className="my-4">
-                                        {visibleFeatures.map((feature, index) => (
-                                            <Col lg={6} className="py-3" key={index}>
-                                                <div className="d-flex align-items-center">
-                                                    <img className="mx-2" src={listIcon} alt="icon" />
-                                                    <div className="fs-14 fw-medium text-price text-start">{feature}</div>
-                                                </div>
-                                            </Col>
-                                        ))}
-                                    </Row>
-                                    {showAll &&
-                                        <div className="medco-app my-4">
-                                            <img className="me-3" src={medcoIcon} alt="Medco Icon" />
-                                            <div className="text-start">
-                                                <div className="fw-bold">Get the MedEco Doctor App free with EMR</div>
-                                                <div className="fs-14">Enhance your clinical practice and stay updated with the latest medical insights. <Link className="text-decoration-underline fw-medium text-primary">Know More</Link></div>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                                <div className="text-primary fw-medium cursor-pointer d-inline text-decoration-underline" onClick={() => setShowAll(!showAll)}> {showAll ? 'View less' : 'View 8 More Features'}</div>
+                {!servicesLoading ? (
+                    <>
+                        {campaignsData?.campaign_active && (
+                            <div className="flat-20 py-3">
+                                🎉<span>&nbsp;Flat {campaignsData?.campaign_value}% off</span>&nbsp;on EMR—limited time offer!&nbsp;&nbsp;
+                                <div className="rounded-pill px-2 py-1">{countdown.days} Days : {countdown.hours} Hours : {countdown.minutes} Min ⏳ </div>
                             </div>
-                            <AddonAccess />
-                        </Col>
-                        <Col xl={4} lg={4} sm={5} xs={12}>
-                            <UnlimitedAccessSummary />
-                        </Col>
-                    </Row>
-                </div>
+                        )}
+                        <div className="bg-unlimited-access">
+                            <Row className="g-4">
+                                <Col xl={8} lg={8} sm={7} xs={12}>
+                                    {servicesList?.map((item, index) => {
+                                        return (
+                                            <div key={index}>
+                                                {item.hasOwnProperty("data") ? (
+                                                    <SmartSyncPro
+                                                        data={item?.data}
+                                                        addOrNot={selectedServices?.some(e => e.service_name === S_SMARTSYNC)}
+                                                        handleSmartSyncAddRemove={(checked) => handleSmartSyncAddRemove(item?.data, checked)}
+                                                        selectedServices={selectedServices}
+                                                        setSelectedServices={setSelectedServices}
+                                                    />
+                                                ) : item.service_name === S_TATVA_PRACTICE ? (
+                                                    <TatvaPracticeEMR
+                                                        item={item}
+                                                    />
+                                                ) : (
+                                                    <AddonServices
+                                                        item={item}
+                                                        addOrNot={selectedServices?.some(e => e.service_name === item.service_name)}
+                                                        handleAddRemove={() => handleAddRemove(item)}
+                                                    />
+                                                )}
+                                            </div>
+                                        )
+                                    })}
+                                </Col>
+                                <Col xl={4} lg={4} sm={5} xs={12}>
+                                    <UnlimitedAccessSummary
+                                        selectedServices={selectedServices}
+                                        setSelectedServices={setSelectedServices}
+                                    />
+                                </Col>
+                            </Row>
+                        </div>
+                    </>
+                ) : (
+                    <Spin className="flex-fill align-self-center" />
+                )}
+
             </div>
         </>
     );
