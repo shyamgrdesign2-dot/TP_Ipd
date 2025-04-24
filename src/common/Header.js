@@ -47,6 +47,7 @@ import CommonModal from "./CommonModal";
 import { useReactToPrint } from 'react-to-print';
 import { fetchAdvanceSetting, fetchPrintSetting } from "../pages/opdBilling/service";
 import { setAdvancedSettings, setBillPrintSettings } from "../redux/billingSlice";
+import { campaigns, plans } from "../redux/monetizationSlice";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
@@ -125,6 +126,8 @@ function Header({ locationPath }) {
   useEffect(() => {
     getAdvanceSettings();
     getBillPrintSettings();
+    dispatch(campaigns());
+    dispatch(plans('7401ba1b-aac7-49f1-8b88-bef3bffc1c1e'));
   }, []);
 
   useEffect(() => {

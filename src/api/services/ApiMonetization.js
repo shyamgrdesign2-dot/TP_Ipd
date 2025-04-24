@@ -21,4 +21,8 @@ ApiMonetization.verifyPayment = function (data) {
     return api.post(`/api/v1/payment/verify-payment`, data, baseUrl);
 };
 
+ApiMonetization.plans = function (b2c_id) {
+    return api.get(`/api/v1/monetization/plans?b2c_id=${b2c_id}`, baseUrl);
+};
+
 export default ApiMonetization;

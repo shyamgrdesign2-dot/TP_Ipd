@@ -7,9 +7,10 @@ import HeaderUnlimitedAccess from "../../common/HeaderUnlimitedAccess";
 import TatvaPracticeEMR from "./components/TatvaPracticeEMR";
 import SmartSyncPro from "./components/SmartSyncPro";
 import AddonServices from "./components/AddonServices";
+import CampaignDiscount from "./components/CampaignDiscount";
 import UnlimitedAccessSummary from "./components/UnlimitedAccessSummary";
 import { S_TATVA_PRACTICE, S_SMARTSYNC, S_RX_DIGITIZATION } from "../../utils/constants";
-import { campaigns, services } from "../../redux/monetizationSlice";
+import { services } from "../../redux/monetizationSlice";
 
 import "./GetUnlimitedAccess.scss";
 import { Spin } from "antd";
@@ -19,15 +20,9 @@ function GetUnlimitedAccess() {
     const { campaignsData, servicesLoading, servicesList } = useSelector((state) => state.monetization);
     const dispatch = useDispatch();
 
-    const [countdown, setCountdown] = useState({
-        days: '00',
-        hours: '00',
-        minutes: '00',
-    });
     const [selectedServices, setSelectedServices] = useState([]);
 
     useEffect(() => {
-        dispatch(campaigns());
         dispatch(services('7401ba1b-aac7-49f1-8b88-bef3bffc1c1e'));
     }, []);
 
@@ -39,33 +34,6 @@ function GetUnlimitedAccess() {
             setSelectedServices(EMR)
         }
     }, [servicesList]);
-
-    useEffect(() => {
-        if (campaignsData && campaignsData.campaign_active) {
-            const updateCountdown = () => {
-                const now = moment();
-                const future = moment(campaignsData?.campaign_enddate);
-
-                const duration = moment.duration(future.diff(now));
-
-                const days = String(Math.floor(duration.asDays())).padStart(2, '0');
-                const hours = String(duration.hours()).padStart(2, '0');
-                const minutes = String(duration.minutes()).padStart(2, '0');
-
-                if (duration.asMilliseconds() <= 0) {
-                    setCountdown({ days: '00', hours: '00', minutes: '00' });
-                } else {
-                    setCountdown({ days, hours, minutes });
-                }
-            };
-
-            updateCountdown(); // Run immediately on mount/update
-
-            const interval = setInterval(updateCountdown, 60000); // Then run every 1 minute
-
-            return () => clearInterval(interval);
-        }
-    }, [campaignsData]);
 
     const handleAddRemove = useCallback((item) => {
         setSelectedServices(prev => {
@@ -111,10 +79,7 @@ function GetUnlimitedAccess() {
                 {!servicesLoading ? (
                     <>
                         {campaignsData?.campaign_active && (
-                            <div className="flat-20 py-3">
-                                🎉<span>&nbsp;Flat {campaignsData?.campaign_value}% off</span>&nbsp;on EMR—limited time offer!&nbsp;&nbsp;
-                                <div className="rounded-pill px-2 py-1">{countdown.days} Days : {countdown.hours} Hours : {countdown.minutes} Min ⏳ </div>
-                            </div>
+                            <CampaignDiscount flag={1} />
                         )}
                         <div className="bg-unlimited-access">
                             <Row className="g-4">
