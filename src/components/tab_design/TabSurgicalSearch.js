@@ -228,9 +228,7 @@ function TabSurgicalSearch({ passIndex, onClose }) {
 
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      surgeriesData[selectedIndex].notes = capitalizeAfterSentence(
-        e.target.value
-      );
+      surgeriesData[selectedIndex].notes = e.target.value;
       setSurgeriesData((prev) => [...prev]);
     },
     [selectedIndex, surgeriesData]

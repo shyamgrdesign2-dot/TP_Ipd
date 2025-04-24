@@ -487,7 +487,7 @@ function TabSurgicalBox() {
     (e) => {
       setChildDrawerData({
         ...childDrawerData,
-        notes: capitalizeAfterSentence(e.target.value),
+        notes: e.target.value,
       });
     },
     [childDrawerData]
