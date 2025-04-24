@@ -59,6 +59,10 @@ export const S_TATVA_PRACTICE = "tatva_practice";
 export const S_VOICE_RX = "voice_rx";
 export const S_SMARTSYNC = "smartsync";
 export const S_RX_DIGITIZATION = "rx_digitization";
+export const S_DDX = "ddx";
+export const S_ASK_TATVA = "ask_tatva";
+export const S_BILLING = "billing";
+export const S_PHARMACY = "pharmacy";
 export const S_IPD = "ipd";
 
 export const EXTRA_OPTIONS = [

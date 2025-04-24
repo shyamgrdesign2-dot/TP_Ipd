@@ -2,17 +2,20 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Col, Row } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
+import { Spin, Drawer } from "antd";
 
 import HeaderUnlimitedAccess from "../../common/HeaderUnlimitedAccess";
 import TatvaPracticeEMR from "./components/TatvaPracticeEMR";
 import SmartSyncPro from "./components/SmartSyncPro";
 import AddonServices from "./components/AddonServices";
 import UnlimitedAccessSummary from "./components/UnlimitedAccessSummary";
-import { S_TATVA_PRACTICE, S_SMARTSYNC, S_RX_DIGITIZATION } from "../../utils/constants";
+import { S_TATVA_PRACTICE, S_SMARTSYNC, S_RX_DIGITIZATION, S_VOICE_RX, S_DDX } from "../../utils/constants";
 import { campaigns, services } from "../../redux/monetizationSlice";
+import GenRxKnowMore from "../../components/GenRxKnowMore";
 
 import "./GetUnlimitedAccess.scss";
-import { Spin } from "antd";
+import CvtKnowMore from "../smartSync/components/CvtKnowMore";
+import DDxKnowMore from "../../components/DDxKnowMore";
 
 function GetUnlimitedAccess() {
 
@@ -25,6 +28,9 @@ function GetUnlimitedAccess() {
         minutes: '00',
     });
     const [selectedServices, setSelectedServices] = useState([]);
+    const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
+    const [cvtDrawer, setCvtDrawer] = useState(false);
+    const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
 
     useEffect(() => {
         dispatch(campaigns());
@@ -104,6 +110,27 @@ function GetUnlimitedAccess() {
         }
     }, [selectedServices]);
 
+    const clickKnowMore = (service_name) => {
+        if (service_name === S_VOICE_RX) {
+            handleGenRxKnowMore()
+        } else if (service_name === S_SMARTSYNC) {
+            handleDrawerCvtKnowMore()
+        } else if (service_name === S_DDX) {
+            handleDDxKnowMore()
+        }
+    }
+    const handleGenRxKnowMore = () => {
+        setGenRxKnowMoreDrawer((prev) => !prev);
+    };
+
+    const handleDrawerCvtKnowMore = () => {
+        setCvtDrawer((prev) => !prev);
+    };
+
+    const handleDDxKnowMore = () => {
+        setDDxKnowMoreDrawer((prev) => !prev);
+    };
+
     return (
         <>
             <HeaderUnlimitedAccess />
@@ -129,16 +156,19 @@ function GetUnlimitedAccess() {
                                                         handleSmartSyncAddRemove={(checked) => handleSmartSyncAddRemove(item?.data, checked)}
                                                         selectedServices={selectedServices}
                                                         setSelectedServices={setSelectedServices}
+                                                        clickKnowMore={() => clickKnowMore(item?.data[0]?.service_name)}
                                                     />
                                                 ) : item.service_name === S_TATVA_PRACTICE ? (
                                                     <TatvaPracticeEMR
                                                         item={item}
+                                                        clickKnowMore={() => clickKnowMore(item.service_name)}
                                                     />
                                                 ) : (
                                                     <AddonServices
                                                         item={item}
                                                         addOrNot={selectedServices?.some(e => e.service_name === item.service_name)}
                                                         handleAddRemove={() => handleAddRemove(item)}
+                                                        clickKnowMore={() => clickKnowMore(item.service_name)}
                                                     />
                                                 )}
                                             </div>
@@ -158,6 +188,42 @@ function GetUnlimitedAccess() {
                     <Spin className="flex-fill align-self-center" />
                 )}
 
+                {genRxKnowMoreDrawer && (
+                    <Drawer
+                        closeIcon={false}
+                        placement="right"
+                        open={genRxKnowMoreDrawer}
+                        onClose={handleGenRxKnowMore}
+                        className=".modalWidth-800"
+                        width={825}
+                    >
+                        <GenRxKnowMore handleGenRxKnowMore={handleGenRxKnowMore} />
+                    </Drawer>
+                )}
+
+                <Drawer
+                    closeIcon={false}
+                    placement="right"
+                    onClose={handleDrawerCvtKnowMore}
+                    open={cvtDrawer}
+                    className=".modalWidth-800"
+                    width={800}
+                >
+                    <CvtKnowMore handleDrawerCvtKnowMore={handleDrawerCvtKnowMore} handleCollapsed={handleDrawerCvtKnowMore} />
+                </Drawer>
+
+                {ddxKnowMoreDrawer && (
+                    <Drawer
+                        closeIcon={false}
+                        placement="right"
+                        open={ddxKnowMoreDrawer}
+                        onClose={handleDDxKnowMore}
+                        className=".modalWidth-800"
+                        width={825}
+                    >
+                        <DDxKnowMore handleDDxKnowMore={handleDDxKnowMore} />
+                    </Drawer>
+                )}
             </div>
         </>
     );

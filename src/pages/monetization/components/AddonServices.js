@@ -7,7 +7,7 @@ import vaccinationImg from "../../../assets/images/Vaccination.svg";
 import aiPowered from "../../../assets/images/ai-powered.svg";
 import { formatAmount } from "../../../utils/utils";
 
-function AddonServices({ item, addOrNot, handleAddRemove }) {
+function AddonServices({ item, addOrNot, handleAddRemove, clickKnowMore }) {
 
     const { campaignsData } = useSelector((state) => state.monetization);
 
@@ -24,7 +24,11 @@ function AddonServices({ item, addOrNot, handleAddRemove }) {
                                 {/* <img src={aiPowered} alt="Icon" /> Uncomment in AI modules  */}
                             </div>
                             <div>
-                                <div className="fs-14">{item.service_description}<Link className="text-decoration-underline fw-medium text-main">Know more</Link></div>
+                                <div className="fs-14">{item.service_description}&nbsp;
+                                    <span className="text-decoration-underline fw-medium text-main cursor-pointer" onClick={clickKnowMore}>
+                                        Know more
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <div className="addon-box-price mx-4">

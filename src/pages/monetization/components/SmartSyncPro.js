@@ -7,7 +7,7 @@ import vaccinationImg from "../../../assets/images/Vaccination.svg";
 import deviderIncludes from "../../../assets/images/includes-devider.svg";
 import { formatAmount } from "../../../utils/utils";
 
-function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, selectedServices, setSelectedServices }) {
+function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, selectedServices, setSelectedServices, clickKnowMore }) {
 
     const { campaignsData } = useSelector((state) => state.monetization);
     const [checked, setChecked] = useState(false);
@@ -39,7 +39,11 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, selectedServic
                                 {data[0].service_display_name}
                             </div>
                             <div>
-                                <div className="fs-14">{data[0].service_description}<Link className="text-decoration-underline fw-medium text-main">Know more</Link></div>
+                                <div className="fs-14">{data[0].service_description}&nbsp;
+                                    <span className="text-decoration-underline fw-medium text-main cursor-pointer" onClick={clickKnowMore}>
+                                        Know more
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <div className="addon-box-price mx-4">

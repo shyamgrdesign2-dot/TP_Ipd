@@ -10,7 +10,7 @@ import listIcon from '../../../assets/images/list-icon.svg'
 import medcoIcon from '../../../assets/images/medco-icon.svg'
 import { formatAmount } from "../../../utils/utils";
 
-function TatvaPracticeEMR({ item }) {
+function TatvaPracticeEMR({ item,clickKnowMore }) {
 
     const { campaignsData } = useSelector((state) => state.monetization);
     const [showAll, setShowAll] = useState(false);
@@ -58,7 +58,10 @@ function TatvaPracticeEMR({ item }) {
                         <img className="me-3" src={medcoIcon} alt="Medco Icon" />
                         <div className="text-start">
                             <div className="fw-bold">Get the MedEco Doctor App free with EMR</div>
-                            <div className="fs-14">Enhance your clinical practice and stay updated with the latest medical insights. <Link className="text-decoration-underline fw-medium text-primary">Know More</Link></div>
+                            <div className="fs-14">{item.service_description}&nbsp;
+                                <span className="text-decoration-underline fw-medium text-main cursor-pointer" onClick={clickKnowMore}>
+                                    Know more
+                                </span></div>
                         </div>
                     </div>
                 }
