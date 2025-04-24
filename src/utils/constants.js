@@ -55,6 +55,12 @@ export const GB_PILLUP_MEDICINE = "pillup-medicine-switch"
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
 
+export const S_TATVA_PRACTICE = "tatva_practice";
+export const S_VOICE_RX = "voice_rx";
+export const S_SMARTSYNC = "smartsync";
+export const S_RX_DIGITIZATION = "rx_digitization";
+export const S_IPD = "ipd";
+
 export const EXTRA_OPTIONS = [
     {
         key: JSON.stringify({ value: "STAT", label: "Stat", tmm_days: parseInt(0), unique_id: uuidv4() }),

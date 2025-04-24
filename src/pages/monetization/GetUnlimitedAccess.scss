@@ -1,6 +1,8 @@
 @import '../../assets/scss/variables';
 
 .unlimited-access-wrapper {
+    display: flex;
+    flex-direction: column;
     .bg-unlimited-access {
         background-image: url(../../assets/images/bg-unlimited-access.svg);
         background-repeat: no-repeat;

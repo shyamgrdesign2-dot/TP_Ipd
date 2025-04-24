@@ -190,6 +190,10 @@ export const calculateDose = (dosage, weight, concentration) => {
   return !isNaN(dose) ? dose.toFixed(1).replace(/\.0$/, '') : "";
 }
 
+export const formatAmount = (amount) => {
+  return amount.toFixed(2).replace(/\.00$/, '');
+}
+
 export const dataUrlToFile = (url, fileName) => {
   const [mediaType, data] = url.split(",");
 
@@ -703,47 +707,47 @@ export const trackEvent = (eventName, attributes) => {
 }
 
 export const getIndianLanguageFont = (text, defaultFont = 'Roboto') => {
-        
+
   // Devanagari (Hindi, Marathi, Sanskrit, Nepali, etc.)
   if (/[\u0900-\u097F]/.test(text)) {
     return 'NotoSansDevanagari';
   }
-  
+
   // Bengali/Assamese
   if (/[\u0980-\u09FF]/.test(text)) {
     return 'NotoSansBengali';
   }
-  
+
   // Tamil
   if (/[\u0B80-\u0BFF]/.test(text)) {
     return 'NotoSansTamil';
   }
-  
+
   // Telugu
   if (/[\u0C00-\u0C7F]/.test(text)) {
     return 'NotoSansTelugu';
   }
-  
+
   // Kannada
   if (/[\u0C80-\u0CFF]/.test(text)) {
     return 'NotoSansKannada';
   }
-  
+
   // Malayalam
   if (/[\u0D00-\u0D7F]/.test(text)) {
     return 'NotoSansMalayalam';
   }
-  
+
   // Gujarati
   if (/[\u0A80-\u0AFF]/.test(text)) {
     return 'NotoSansGujarati';
   }
-  
+
   // Punjabi/Gurmukhi
   if (/[\u0A00-\u0A7F]/.test(text)) {
     return 'NotoSansGurmukhi';
   }
-  
+
   // Oriya/Odia
   if (/[\u0B00-\u0B7F]/.test(text)) {
     return 'NotoSansOriya';
@@ -751,9 +755,9 @@ export const getIndianLanguageFont = (text, defaultFont = 'Roboto') => {
 
   //urdu
   if (/[\u0600-\u06FF\u0750-\u077F]/.test(text)) {
-      return 'Urdu';
+    return 'Urdu';
   }
-  
+
   // Default to the regular font if no Indian script is detected
   return defaultFont;
 };

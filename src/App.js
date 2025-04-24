@@ -202,15 +202,14 @@ function App() {
     }
   }, [isRootPath, token, authToken, navigate]);
 
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleCancel = () => {
     setIsModalOpen(false);
   };
 
   return (
     <>
-
-
       <GrowthBookProvider growthbook={growthbook}>
         <ErrorBoundary
           FallbackComponent={ErrorFallback}
