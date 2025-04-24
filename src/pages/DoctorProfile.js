@@ -14,6 +14,7 @@ import ProfileClinicView from "../components/doctor_profile/ProfileClinicView";
 import { TAB_ADDRESS } from "../utils/constants";
 import Subscription from "../components/doctor_profile/Subscription";
 import PremiumUser from "../common/PremiumUser";
+import SubscriptionNew from "../components/doctor_profile/SubscriptionNew";
 
 function DoctorProfile() {
 
@@ -312,7 +313,9 @@ function DoctorProfile() {
             <ProfileClinicView />
           </div>
           {["TRIAL", "EXPIRED","PAID"].includes(planDetails?.currentPlanStatus) && <div className="mb-4">
-            <Subscription />
+            {/* <Subscription /> */}
+
+            <SubscriptionNew />
           </div>}
         </Container>
       </div>
