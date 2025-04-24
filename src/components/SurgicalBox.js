@@ -276,7 +276,7 @@ function SurgicalBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      surgeriesData[i].notes = capitalizeAfterSentence(e.target.value);
+      surgeriesData[i].notes = e.target.value;
       setSurgeriesData((prev) => [...prev]);
     },
     [surgeriesData]
