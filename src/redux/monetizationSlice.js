@@ -1,27 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import ApiMonetization from "../api/services/ApiMonetization";
+import { plans } from "./doctorsSlice";
 
 const initialState = {
-    campaignsData: null,
     servicesLoading: false,
     servicesList: [],
-    plansList: [],
     loading: false,
     errorObj: { visible: false, message: '' },
 };
-
-export const campaigns = createAsyncThunk(
-    "monetization/campaigns",
-    async (_, { rejectWithValue }) => {
-        try {
-            const result = await ApiMonetization.campaigns();
-            return result;
-        } catch (error) {
-            return rejectWithValue({ visible: false, message: error.response.data.message });
-        }
-    }
-);
 
 export const services = createAsyncThunk(
     "monetization/services",
@@ -59,11 +46,24 @@ export const verifyPayment = createAsyncThunk(
     }
 );
 
-export const plans = createAsyncThunk(
-    "monetization/plans",
-    async (b2c_id, { rejectWithValue }) => {
+export const checkCredits = createAsyncThunk(
+    "monetization/checkCredits",
+    async (data, { rejectWithValue }) => {
         try {
-            const result = await ApiMonetization.plans(b2c_id);
+            const result = await ApiMonetization.checkCredits(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
+export const updateCredits = createAsyncThunk(
+    "monetization/updateCredits",
+    async (data, { dispatch, rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.updateCredits(data);
+            dispatch(plans(data?.b2c_id))
             return result;
         } catch (error) {
             return rejectWithValue({ visible: false, message: error.response.data.message });
@@ -76,14 +76,6 @@ const monetizationSlice = createSlice({
     initialState,
     extraReducers: (builder) => {
         builder
-            .addCase(campaigns.fulfilled, (state, action) => {
-                const data = action.payload
-                const cleanedCampaign = { ...data, campaign_value: data.campaign_value.replace('%', '') };
-                state.campaignsData = cleanedCampaign
-            })
-            .addCase(campaigns.rejected, (state) => {
-                state.campaignsData = null;
-            })
             .addCase(services.pending, (state) => {
                 state.servicesLoading = true
             })
@@ -120,9 +112,6 @@ const monetizationSlice = createSlice({
             .addCase(services.rejected, (state) => {
                 state.servicesLoading = false
                 state.servicesList = [];
-            })
-            .addCase(plans.fulfilled, (state, action) => {
-                state.plansList = action.payload?.services
             })
     },
 });

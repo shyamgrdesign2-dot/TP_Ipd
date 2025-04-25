@@ -55,6 +55,7 @@ export const GB_PILLUP_MEDICINE = "pillup-medicine-switch"
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
 
+export const FREE = "FREE";
 export const S_TATVA_PRACTICE = "tatva_practice";
 export const S_VOICE_RX = "voice_rx";
 export const S_SMARTSYNC = "smartsync";

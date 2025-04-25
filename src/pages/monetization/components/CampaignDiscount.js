@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 function CampaignDiscount({ flag }) {
 
-    const { campaignsData } = useSelector((state) => state.monetization);
+    const { campaignsData } = useSelector((state) => state.doctors);
     const [countdown, setCountdown] = useState({
         days: '00',
         hours: '00',

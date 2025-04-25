@@ -16,14 +16,14 @@ import iconEdit from "../../../assets/images/edit.svg";
 import logoSm from '../../../assets/images/logo-sm.svg';
 import config from "../../../config";
 import { errorMessage, formatAmount } from "../../../utils/utils";
-import { paymentOrder, plans, verifyPayment } from "../../../redux/monetizationSlice";
+import { paymentOrder, verifyPayment } from "../../../redux/monetizationSlice";
+import { plans } from "../../../redux/doctorsSlice";
 
 import "../GetUnlimitedAccess.scss";
 
 function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
-    const { profile } = useSelector((state) => state.doctors);
-    const { campaignsData } = useSelector((state) => state.monetization);
+    const { profile, campaignsData } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -112,7 +112,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const initRazorPayPayment = (data) => {
         const options = {
-            key: config.razorPay_key,
+            key: 'rzp_test_NfYVp2U3ALGItU',
             amount: data.amount,
             currency: data.currency,
             name: 'Tatvacare',
@@ -148,7 +148,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         const action = await dispatch(verifyPayment(r_response));
         if (action.meta.requestStatus === "fulfilled") {
             if (action?.payload?.hasOwnProperty("id") && action?.payload?.status === 'captured') {
-                dispatch(plans('7401ba1b-aac7-49f1-8b88-bef3bffc1c1e'));
+                dispatch(plans(profile?.b2c));
             } else {
                 typeof action?.payload?.data?.error === 'object' ?
                     errorMessage(action?.payload?.data?.error?.description)

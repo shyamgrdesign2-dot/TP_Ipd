@@ -5,6 +5,7 @@ import ApiMedication from "../api/services/ApiMedication";
 import ApiPrintSettings from "../api/services/ApiPrintSettings";
 import ApiVideoLibrary from "../api/services/ApiVideoLibrary";
 import ApiMedicalCertificate from "../api/services/ApiMedicalCertificate";
+import ApiMonetization from "../api/services/ApiMonetization";
 
 const initialState = {
   sort_order: 'ascend',
@@ -30,7 +31,9 @@ const initialState = {
   dragDrop: {},
   siteId: null,
   empNo: [],
-  storeCode: null
+  storeCode: null,
+  campaignsData: null,
+  plansList: [],
 };
 
 export const getProfile = createAsyncThunk(
@@ -332,6 +335,30 @@ export const upsertDoctorSettingFlag = createAsyncThunk(
   }
 );
 
+export const campaigns = createAsyncThunk(
+  "monetization/campaigns",
+  async (_, { rejectWithValue }) => {
+    try {
+      const result = await ApiMonetization.campaigns();
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
+    }
+  }
+);
+
+export const plans = createAsyncThunk(
+  "monetization/plans",
+  async (b2c_id, { rejectWithValue }) => {
+    try {
+      const result = await ApiMonetization.plans(b2c_id);
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
+    }
+  }
+);
+
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
@@ -586,6 +613,17 @@ const doctorsSlice = createSlice({
         state.siteId = null;
         state.empNo = [];
         state.storeCode = null;
+      })
+      .addCase(campaigns.fulfilled, (state, action) => {
+        const data = action.payload
+        const cleanedCampaign = { ...data, campaign_value: data.campaign_value.replace('%', '') };
+        state.campaignsData = cleanedCampaign
+      })
+      .addCase(campaigns.rejected, (state) => {
+        state.campaignsData = null;
+      })
+      .addCase(plans.fulfilled, (state, action) => {
+        state.plansList = action.payload?.services
       });
   },
 });

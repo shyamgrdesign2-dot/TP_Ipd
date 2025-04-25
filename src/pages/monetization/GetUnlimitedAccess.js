@@ -20,7 +20,8 @@ import DDxKnowMore from "../../components/DDxKnowMore";
 
 function GetUnlimitedAccess() {
 
-    const { campaignsData, servicesLoading, servicesList } = useSelector((state) => state.monetization);
+    const { profile, campaignsData } = useSelector((state) => state.doctors);
+    const { servicesLoading, servicesList } = useSelector((state) => state.monetization);
     const dispatch = useDispatch();
 
     const [selectedServices, setSelectedServices] = useState([]);
@@ -29,7 +30,7 @@ function GetUnlimitedAccess() {
     const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
 
     useEffect(() => {
-        dispatch(services('7401ba1b-aac7-49f1-8b88-bef3bffc1c1e'));
+        dispatch(services(profile?.b2c));
     }, []);
 
     useEffect(() => {

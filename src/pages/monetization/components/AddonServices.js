@@ -9,7 +9,7 @@ import { formatAmount } from "../../../utils/utils";
 
 function AddonServices({ item, addOrNot, handleAddRemove, clickKnowMore }) {
 
-    const { campaignsData } = useSelector((state) => state.monetization);
+    const { campaignsData } = useSelector((state) => state.doctors);
 
     return (
         <>

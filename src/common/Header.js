@@ -29,7 +29,7 @@ import goldCrown from "../assets/images/gold-crown.svg";
 import crownIcon from "../assets/images/crown.svg";
 
 import config from "../config";
-import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds } from "../redux/doctorsSlice";
+import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds, campaigns, plans } from "../redux/doctorsSlice";
 import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
@@ -47,7 +47,6 @@ import CommonModal from "./CommonModal";
 import { useReactToPrint } from 'react-to-print';
 import { fetchAdvanceSetting, fetchPrintSetting } from "../pages/opdBilling/service";
 import { setAdvancedSettings, setBillPrintSettings } from "../redux/billingSlice";
-import { campaigns, plans } from "../redux/monetizationSlice";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
@@ -116,7 +115,7 @@ function Header({ locationPath }) {
       dispatch(getDefaultPrintsettings({ default: false }));
       dispatch(listVideo());
     }
-   
+
     const tokenData = decodedToken?.result;
     if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
       dispatch(zydusRefIds())
@@ -127,11 +126,11 @@ function Header({ locationPath }) {
     getAdvanceSettings();
     getBillPrintSettings();
     dispatch(campaigns());
-    dispatch(plans('7401ba1b-aac7-49f1-8b88-bef3bffc1c1e'));
   }, []);
 
   useEffect(() => {
     if (profile) {
+      dispatch(plans(profile?.b2c));
       if (profile.moengage_b2c_send === undefined) {
         window.Moengage.add_unique_user_id(profile?.b2c)
         dispatch(updateStatusMoengageB2C());
@@ -314,11 +313,11 @@ function Header({ locationPath }) {
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>
-                <Button 
+                <Button
                   onClick={() => {
                     window.Moengage.track_event("TP_Tatvapedia_Switch_cancelled");
                     showHideLogoModal()
-                  }} 
+                  }}
                   className="lh-lg btn btn-primary3 btn-41 px-4"
                 >
                   <span>No, Stay</span>
@@ -606,24 +605,24 @@ function Header({ locationPath }) {
           iframe.style.height = "0";
           iframe.style.border = "none";
           iframe.style.visibility = "hidden";
-  
+
           // Set a timeout to reject if the iframe doesn't load within 5 seconds
           const timeoutId = setTimeout(() => {
             reject({ url, status: "timeout" });
           }, 5000);
-  
+
           iframe.onload = () => {
             clearTimeout(timeoutId);
             resolve({ url, status: "success" });
           };
-  
+
           iframe.onerror = () => {
             clearTimeout(timeoutId);
             reject({ url, status: "error" });
           };
-  
+
           document.body.appendChild(iframe);
-  
+
           // Cleanup the iframe after it's loaded or failed
           setTimeout(() => {
             document.body.removeChild(iframe);
@@ -631,10 +630,10 @@ function Header({ locationPath }) {
         });
       })
     );
-  
+
     return iframeStatuses;
   };
-  
+
   const handleLogout = async () => {
     const urlsToOpen = [
       config.pedia_logout_url,
@@ -672,7 +671,7 @@ function Header({ locationPath }) {
       // Even if there's an error, clear storage and redirect
       localStorage.clear();
       sessionStorage.clear();
-      
+
       // Redirect to login page
       navigate("/login");
     } finally {
@@ -680,7 +679,7 @@ function Header({ locationPath }) {
       window.isLoggingOut = false;
     }
   };
-  
+
   const handleClick = () => {
     const clinic_name = getClinicName(profile?.hospital_data);
     window.Moengage.track_event("BuyPlanNow_Click", {
@@ -769,7 +768,7 @@ function Header({ locationPath }) {
       },
       {
         label:
-          <a onClick={() => ["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : setUpWebsiteUrl(1)}>
+          <a onClick={() => ["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : setUpWebsiteUrl(1)}>
             <div className="title-common me-5 d-flex align-items-center">
               {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
               {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{ filter: 'brightness(0%)' }} alt="" />}
@@ -791,7 +790,7 @@ function Header({ locationPath }) {
         label: (
           <>
             Your free trial ends in <span className="fw-semibold"> 7 days!</span>
-            <div className="title-common text-white border p-2 rounded-12px w-100 mt-2 cursor-pointer" style={{backgroundColor: '#FFFFFF1A'}} onClick={() => navigate("/get-unlimited-access")}>
+            <div className="title-common text-white border p-2 rounded-12px w-100 mt-2 cursor-pointer" style={{ backgroundColor: '#FFFFFF1A' }} onClick={() => navigate("/get-unlimited-access")}>
               <img loading="lazy" src={crownIcon} className="text-white me-2" alt="" />Get Unlimited Access
             </div>
           </>
@@ -816,7 +815,7 @@ function Header({ locationPath }) {
       // },
 
 
-            // CSS Also comment
+      // CSS Also comment
       // {
       //   type: 'divider',
       // },
@@ -825,7 +824,7 @@ function Header({ locationPath }) {
       //   key: '8',
       // },
     ];
-  
+
     const extraItems = [
       {
         label: (
@@ -840,10 +839,10 @@ function Header({ locationPath }) {
         key: "6",
       },
     ];
-  
-  // Log Out Section, If isBrowser is false, then don't include logoutItem
-  const logoutItem = isBrowser
-    ? [
+
+    // Log Out Section, If isBrowser is false, then don't include logoutItem
+    const logoutItem = isBrowser
+      ? [
         {
           type: "divider",
         },
@@ -859,14 +858,14 @@ function Header({ locationPath }) {
           className: "logout-menu-item"
         },
       ]
-    : [];
+      : [];
 
-  
+
     // Combine commonItems, extraItems (if applicable), and logoutItem (always at the end)
     const items = isOpdPlansAccessableFromGB
       ? [...commonItems, ...extraItems, ...logoutItem]
       : [...commonItems, ...logoutItem];
-  
+
     // If not admin, filter out account setting item, else return all items
     return !tokenData?.admin ? items.filter((item) => item.key !== "5") : items;
   };
@@ -888,17 +887,17 @@ function Header({ locationPath }) {
       'Content-Type': 'application/json'
     };
     try {
-        const response = await axios.post(apiUrl, data, { headers });
-        return response.data
+      const response = await axios.post(apiUrl, data, { headers });
+      return response.data
     } catch (error) {
-        console.error('Error:', error);
+      console.error('Error:', error);
     }
   };
 
   const clickOpdPlans = async () => {
     const clinic_Id = decodedToken?.result?.clinic_id;
     const doc_Id = decodedToken?.result?.doctor_unique_id;
-    
+
     const decryptData = { d_id: doc_Id, clinic_Id: clinic_Id };
 
     // Encrypt clinic and doctor ID
@@ -907,7 +906,7 @@ function Header({ locationPath }) {
     const url = `${opdVisitUrl}/tatva-care?p_id=${encryptedCata}`;
     setOpdPlansUrl(url);
   };
-  
+
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
     pageStyle: `
@@ -993,65 +992,65 @@ function Header({ locationPath }) {
             destroyOnClose
             className="opd-plan-qr"
           >
-              <div className="opd-qr">
-                <button className="qr-close-btn" onClick={showHideBackModal}>
+            <div className="opd-qr">
+              <button className="qr-close-btn" onClick={showHideBackModal}>
                 <i style={{ fontSize: "2rem" }} className="icon-Cross"></i>
-                </button>
-                <div ref={printRef} className="opd-plans-inner-contianer">
-                  <div className="opd-title" style={{ fontWeight: "700", fontSize: "2rem", color: "#1F2933 !important" }}>
-                    OPD Plans
-                  </div>
-                  <div className="opd-byline" style={{ marginBottom: "2rem", marginTop: "0.4rem" }}>
-                    by <strong>{profile?.um_name}</strong>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-center">
-                    <div className="opd-logo log-holder">
-                      <img src={logoIcom} style={{ height: "1.8rem" }} className="logo-text-icon" alt="Logo" />
-                    </div>
-                    <QRCodeSVG className="opd-qr-image" value={opdPlansUrl} size={180} />
-                  </div>
-                  <div className="opd-scan-text" style={{ marginTop: "2rem", fontSize: "1.2rem", color: "#454551 !important" }}>
-                    Scan the QR to view & buy OPD plans
-                  </div>
+              </button>
+              <div ref={printRef} className="opd-plans-inner-contianer">
+                <div className="opd-title" style={{ fontWeight: "700", fontSize: "2rem", color: "#1F2933 !important" }}>
+                  OPD Plans
                 </div>
-                  <div className="d-flex align-items-center justify-content-between gap-4 mt-4">
-                    <ButtonOPD
-                      onClick={handlePrint}
-                      className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
-                  style={{ width: "13rem", height: "3rem" }}
-                    >
-                      <span className="fs-18 align-items-center d-flex "><i className="icon-Print me-2"></i>Print</span>
-                    </ButtonOPD>
-                    <ButtonOPD
-                      onClick={handleDownload}
-                      className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
-                  style={{ width: "13rem", height: "3rem" }}
-                    >
-                      <span className="fs-18 align-items-center d-flex"><i className="icon-download me-2"></i>Download</span>
-                    </ButtonOPD>
+                <div className="opd-byline" style={{ marginBottom: "2rem", marginTop: "0.4rem" }}>
+                  by <strong>{profile?.um_name}</strong>
+                </div>
+                <div className="d-flex align-items-center justify-content-center">
+                  <div className="opd-logo log-holder">
+                    <img src={logoIcom} style={{ height: "1.8rem" }} className="logo-text-icon" alt="Logo" />
                   </div>
+                  <QRCodeSVG className="opd-qr-image" value={opdPlansUrl} size={180} />
+                </div>
+                <div className="opd-scan-text" style={{ marginTop: "2rem", fontSize: "1.2rem", color: "#454551 !important" }}>
+                  Scan the QR to view & buy OPD plans
+                </div>
               </div>
+              <div className="d-flex align-items-center justify-content-between gap-4 mt-4">
+                <ButtonOPD
+                  onClick={handlePrint}
+                  className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
+                  style={{ width: "13rem", height: "3rem" }}
+                >
+                  <span className="fs-18 align-items-center d-flex "><i className="icon-Print me-2"></i>Print</span>
+                </ButtonOPD>
+                <ButtonOPD
+                  onClick={handleDownload}
+                  className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
+                  style={{ width: "13rem", height: "3rem" }}
+                >
+                  <span className="fs-18 align-items-center d-flex"><i className="icon-download me-2"></i>Download</span>
+                </ButtonOPD>
+              </div>
+            </div>
           </Modal>
 
           {locationPath == "/" || locationPath == "/bulk_messages" ? (
             <div onClick={handleDrawervideo} className="cursor-pointer me-2 video-animat">
               <img src={playIcon} />
               <img src={videorotate} />
-            </div> ) : locationPath == "/billing-dashboard" ? (
-            <Popover
-              open={popOverVideo}
-              onOpenChange={showHideVideoListPopover}
-              content={VIDEO_CONTENT(16)}
-              trigger="click"
-              overlayClassName="pop-430 pp-0 videoTutorial"
-              placement="bottom"
-            >
-              <div className="cursor-pointer me-2 video-animat">
-                <img src={playIcon} />
-                <img src={videorotate} />
-              </div>
-            </Popover>
-          ) : (
+            </div>) : locationPath == "/billing-dashboard" ? (
+              <Popover
+                open={popOverVideo}
+                onOpenChange={showHideVideoListPopover}
+                content={VIDEO_CONTENT(16)}
+                trigger="click"
+                overlayClassName="pop-430 pp-0 videoTutorial"
+                placement="bottom"
+              >
+                <div className="cursor-pointer me-2 video-animat">
+                  <img src={playIcon} />
+                  <img src={videorotate} />
+                </div>
+              </Popover>
+            ) : (
             <Popover
               open={popOverVideo}
               onOpenChange={showHideVideoListPopover}
@@ -1114,7 +1113,7 @@ function Header({ locationPath }) {
 
           {SWITCH_TO_OLD_MODAL}
 
-          {!!tokenData?.admin && isOpdBillingAccessable && 
+          {!!tokenData?.admin && isOpdBillingAccessable &&
             <Dropdown
               menu={{
                 items: [

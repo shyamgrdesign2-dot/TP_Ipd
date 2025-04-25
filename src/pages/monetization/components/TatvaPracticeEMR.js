@@ -12,7 +12,7 @@ import { formatAmount } from "../../../utils/utils";
 
 function TatvaPracticeEMR({ item,clickKnowMore }) {
 
-    const { campaignsData } = useSelector((state) => state.monetization);
+    const { campaignsData } = useSelector((state) => state.doctors);
     const [showAll, setShowAll] = useState(false);
 
     const handleShowAll = useCallback(() => {

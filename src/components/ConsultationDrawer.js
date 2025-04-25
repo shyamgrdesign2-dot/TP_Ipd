@@ -36,7 +36,7 @@ import { getDecodedToken } from "../utils/localStorage";
 import { v4 as uuidv4 } from "uuid";
 import CashManagerContext from "../context/CashManagerContext";
 import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { errorMessage, getClinicName, trackEvent } from "../utils/utils";
 import { CheckOutlined, CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import deleteModuleIcon from "../assets/images/delete-icon-blue.svg";
@@ -48,20 +48,20 @@ import VoiceWaveVisualizer from "./WaveVisualizer";
 import GenRXLoaders from "./GenRxLoaders";
 import genRxSendCta from "../assets/images/genRxSendCta.svg";
 import tatvaAiChakra from "../assets/lotties/tatvaAiChakra.lottie";
-import { MESSAGE_KEY, S_VOICE_RX } from "../utils/constants";
+import { FREE, MESSAGE_KEY, S_VOICE_RX } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import expiredInfographic2 from '../assets/images/expired-infographic-2.svg'
-import { useSelector } from "react-redux";
 import CampaignDiscount from "../pages/monetization/components/CampaignDiscount";
+import { checkCredits, updateCredits } from "../redux/monetizationSlice";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
 const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
-  const { campaignsData, plansList } = useSelector((state) => state.monetization);
-  const planTier = plansList.find(e => e.service_name === S_VOICE_RX)
-  // const planTier = { ...plansList.find(e => e.service_name === S_VOICE_RX), credit_balance: 0 }
+  const { campaignsData, plansList } = useSelector((state) => state.doctors);
+  const planDetails = plansList.find(e => e.service_name === S_VOICE_RX)
+  // const planDetails = { ...plansList.find(e => e.service_name === S_VOICE_RX), credit_balance: 0 }
 
 
   const { state } = useLocation();
@@ -101,7 +101,15 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const { profile, userId } = useSelector((state) => state.doctors);
   const { TextArea } = Input;
 
-  const [isSubModalOpen, setIsSubModalOpen] = useState(true);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (planDetails !== undefined && planDetails?.plan_tier === FREE) {
+      setTimeout(() => {
+        setIsSubModalOpen(true)
+      }, 1000);
+    }
+  }, [planDetails]);
 
   const showHideSubModal = useCallback(() => {
     setIsSubModalOpen(!isSubModalOpen);
@@ -247,43 +255,63 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   const handleSend = async () => {
-    if (planTier?.credit_balance > 0) {
-      if (!isRecording && !(inputText || editableQuery)) return;
-      if (genRxDetails?._id) {
-        const clinic_name = getClinicName(profile?.hospital_data);
-        trackEvent("TP_VoiceRx_editRx", {
-          patient_contact: patient_data?.pm_contact_no || "",
-          patient_id: patient_data?.patient_unique_id || "",
-          doctor_speciality: profile?.dp_name,
-          doctor_unique_id: profile?.doctor_unique_id,
-          clinic_name,
-          rx_id: genRxDetails?._id,
-        });
-      }
-      setShowPrescription(true);
-      setRecordingTime(0);
-      setIsProcessing(true);
-
-      try {
-        if (isRecording) {
-          mediaRecorderRef.current?.stop();
-          await new Promise((resolve) => setTimeout(resolve, 100)); // Ensure audio is processed
-
-          const audioBlob = new Blob(audioChunksRef.current, {
-            type: "audio/webm",
-          });
-
-          await handleVoiceDigitize(audioBlob, "");
-        } else {
-          await handleVoiceDigitize(null, inputText || editableQuery);
-        }
-      } catch (error) {
-        console.error("Error processing prescription:", error);
-        message.error(error.message || "Failed to process prescription");
-        setIsProcessing(false);
-      }
-    } else {
+    if (planDetails?.plan_tier === FREE && planDetails?.credit_balance === 0) {
       showHideSubModal()
+    } else {
+      let sendData = {
+        b2c_id: profile?.b2c,
+        service_name: S_VOICE_RX
+      }
+      const action = await dispatch(checkCredits(sendData));
+      if (action.meta.requestStatus === "fulfilled") {
+        if (action?.payload?.hasOwnProperty("service_name")) {
+          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance === 0) {
+            showHideSubModal()
+          } else {
+            if (!isRecording && !(inputText || editableQuery)) return;
+            if (genRxDetails?._id) {
+              const clinic_name = getClinicName(profile?.hospital_data);
+              trackEvent("TP_VoiceRx_editRx", {
+                patient_contact: patient_data?.pm_contact_no || "",
+                patient_id: patient_data?.patient_unique_id || "",
+                doctor_speciality: profile?.dp_name,
+                doctor_unique_id: profile?.doctor_unique_id,
+                clinic_name,
+                rx_id: genRxDetails?._id,
+              });
+            }
+            setShowPrescription(true);
+            setRecordingTime(0);
+            setIsProcessing(true);
+
+            try {
+              if (isRecording) {
+                mediaRecorderRef.current?.stop();
+                await new Promise((resolve) => setTimeout(resolve, 100)); // Ensure audio is processed
+
+                const audioBlob = new Blob(audioChunksRef.current, {
+                  type: "audio/webm",
+                });
+
+                await handleVoiceDigitize(audioBlob, "");
+              } else {
+                await handleVoiceDigitize(null, inputText || editableQuery);
+              }
+            } catch (error) {
+              console.error("Error processing prescription:", error);
+              message.error(error.message || "Failed to process prescription");
+              setIsProcessing(false);
+            }
+          }
+        } else {
+          typeof action?.payload?.data?.error === 'object' ?
+            errorMessage(action?.payload?.data?.error?.description)
+            :
+            errorMessage(action?.payload?.data?.message)
+        }
+      } else {
+        errorMessage(action.payload.message)
+      }
     }
   };
 
@@ -345,6 +373,13 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       const response = genRxDetails?._id
         ? await updateGenRx(formData, genRxDetails?._id)
         : await generateRx(formData);
+
+      let sendData = {
+        b2c_id: profile?.b2c,
+        service_name: S_VOICE_RX
+      }
+      dispatch(updateCredits(sendData))
+      
       if (response.success) {
         setPrescriptionData(response.data.digitize);
         setPrescriptionData(() => {
@@ -1324,11 +1359,13 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                 </span>
               </button>
 
-              <Button className={`btn rounded-pill btn-free-trials me-3 ${planTier?.credit_balance === 0 && 'btn-free-0-trials'}`} onClick={showHideSubModal}>
-                <img src={planTier?.credit_balance === 0 ? coinSmRed : coinSm} className="me-2" alt="Tatva Icon" />
-                {planTier?.credit_balance} free trial
-                {planTier?.credit_balance > 0 && <i className="ms-2 icon-right iconrotate180"></i>}
-              </Button>
+              {planDetails !== undefined && planDetails?.plan_tier === FREE && (
+                <Button className={`btn rounded-pill btn-free-trials me-3 ${planDetails?.credit_balance === 0 && 'btn-free-0-trials'}`} onClick={showHideSubModal}>
+                  <img src={planDetails?.credit_balance === 0 ? coinSmRed : coinSm} className="me-2" alt="Tatva Icon" />
+                  {planDetails?.credit_balance} free trial
+                  {planDetails?.credit_balance > 0 && <i className="ms-2 icon-right iconrotate180"></i>}
+                </Button>
+              )}
 
               {showPrescription && (
                 <Button
@@ -1829,74 +1866,78 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           </div>
         </>
       </Suspense>
-      <Modal
-        open={isSubModalOpen}
-        closeIcon={false}
-        footer={null}
-        centered
-        className="voicerx-modal text-center"
-        width={435}
-        styles={{
-          mask: { marginLeft: showPrescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)', backdropFilter: 'blur(2px)' },
-          wrapper: { marginLeft: showPrescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)' },
-        }}
-      >
-        <Card
-          extra={
-            <>
-              {/* Uncomment for Trial modal */}
-              {planTier?.credit_balance > 0 && (
-                <img className="coinLg" src={coinLg} alt="Tatva Coin" />
-              )}
-              <button className="position-relative z-1 btn p-1 lh-1 btnclose closeButton" onClick={showHideSubModal}>
-                <i className="icon-Cross"></i>
-              </button>
-              <img className="expiredInfographic" src={expiredInfographic2} alt="Your free trail has Expired" />
-              <img className="expiredInfographic" style={{ opacity: 0.5 }} src={expiredInfographic2} alt="Your free trail has Expired" />
-            </>
-          }>
 
-          {planTier?.credit_balance > 0 ? (
-            // Uncomment for Trial modal
-            <div className="text-white fs-16">
-              <span className="fw-bold fs-2 text-white">{planTier?.credit_balance}</span>
-              <span className="text-white fw-semibold">/05</span> free Trial Left! <br />
-              You can generate up to <span className="fw-bold text-white">3 RX</span> using AI Voice Rx for absolutely free!
-            </div>
-          ) : (
-            // For Expire Modal
-            <>
-              <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
-              <div className="text-white">
-                Your<span className="text-white fw-semibold"> Voice Rx  free trail  </span>  has expired. <br />
-                Upgrade now to continue a hassle free experience!
+      {visible && planDetails !== undefined && (
+        <Modal
+          open={isSubModalOpen}
+          closeIcon={false}
+          footer={null}
+          centered
+          className="voicerx-modal text-center"
+          width={435}
+          styles={{
+            mask: { marginLeft: showPrescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)', backdropFilter: 'blur(2px)' },
+            wrapper: { marginLeft: showPrescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)' },
+          }}
+        >
+          <Card
+            extra={
+              <>
+                {/* Uncomment for Trial modal */}
+                {planDetails?.credit_balance > 0 && (
+                  <img className="coinLg" src={coinLg} alt="Tatva Coin" />
+                )}
+                <button className="position-relative z-1 btn p-1 lh-1 btnclose closeButton" onClick={showHideSubModal}>
+                  <i className="icon-Cross"></i>
+                </button>
+                <img className="expiredInfographic" src={expiredInfographic2} alt="Your free trail has Expired" />
+                <img className="expiredInfographic" style={{ opacity: 0.5 }} src={expiredInfographic2} alt="Your free trail has Expired" />
+              </>
+            }>
+
+            {planDetails?.credit_balance > 0 ? (
+              // Uncomment for Trial modal
+              <div className="text-white fs-16">
+                <span className="fw-bold fs-2 text-white">{planDetails?.credit_balance}</span>
+                <span className="text-white fw-semibold">/05</span> free Trial Left! <br />
+                You can generate up to <span className="fw-bold text-white">3 RX</span> using AI Voice Rx for absolutely free!
               </div>
-            </>
-          )}
-
-          <div className="bg-white p-4 rounded-5 mt-4">
-            <div className="fs-4 fw-bold text-price">Upgrade Now 🚀</div>
-            <div className="mt-3 text-price">Unlock unlimited AI Voice Rx, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
-
-            {campaignsData?.campaign_active && (
-              <CampaignDiscount flag={2} />
+            ) : (
+              // For Expire Modal
+              <>
+                <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
+                <div className="text-white">
+                  Your<span className="text-white fw-semibold"> Voice Rx  free trail  </span>  has expired. <br />
+                  Upgrade now to continue a hassle free experience!
+                </div>
+              </>
             )}
 
-            <div>
-              <Button type='button' className='mt-3 btn align-items-center mx-auto d-flex btn-41 btn-text btn-save' style={{ height: 52 }}>
-                <i className='icon-phone text-primary me-2'></i>
-                Request a call back
-              </Button>
+            <div className="bg-white p-4 rounded-5 mt-4">
+              <div className="fs-4 fw-bold text-price">Upgrade Now 🚀</div>
+              <div className="mt-3 text-price">Unlock unlimited AI Voice Rx, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
+
+              {campaignsData?.campaign_active && (
+                <CampaignDiscount flag={2} />
+              )}
+
+              <div>
+                <Button type='button' className='mt-3 btn align-items-center mx-auto d-flex btn-41 btn-text btn-save' style={{ height: 52 }}>
+                  <i className='icon-phone text-primary me-2'></i>
+                  Request a call back
+                </Button>
+              </div>
+              <div>
+                <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex">
+                  <img className="me-2" src={crown} alt="Crown" />
+                  Get Unlimited Access
+                </Button>
+              </div>
             </div>
-            <div>
-              <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex">
-                <img className="me-2" src={crown} alt="Crown" />
-                Get Unlimited Access
-              </Button>
-            </div>
-          </div>
-        </Card>
-      </Modal>
+          </Card>
+        </Modal>
+      )}
+
     </Drawer>
   );
 };

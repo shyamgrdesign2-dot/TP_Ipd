@@ -9,7 +9,7 @@ import { formatAmount } from "../../../utils/utils";
 
 function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, selectedServices, setSelectedServices, clickKnowMore }) {
 
-    const { campaignsData } = useSelector((state) => state.monetization);
+    const { campaignsData } = useSelector((state) => state.doctors);
     const [checked, setChecked] = useState(false);
 
     const onChange = (e) => {
