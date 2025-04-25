@@ -97,7 +97,7 @@ function TabMedicationBox() {
   const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
 
-  const { patient_data, medicationData, setMedicationData, pillupSwitch, setPillupSwitch } =
+  const { patient_data, medicationData, setMedicationData, pillupSwitch, setPillupSwitch, tcmId } =
     useContext(CashManagerContext);
 
   const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
@@ -507,6 +507,7 @@ function TabMedicationBox() {
     var sendData = {
       patient_unique_id:
         patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      tcm_id: tcmId,
     };
     const action = await dispatch(getLoadPreviousRx(sendData));
     if (action.meta.requestStatus === "fulfilled") {
@@ -2842,7 +2843,7 @@ function TabMedicationBox() {
                     >
                       {`${item.tmm_medicine_name}`}
                     </Button>
-                    {(item?.tmm_hm_type === 1 && item?.um_id === 0) && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
+                    {(item?.tmm_hm_type === 1 && item?.um_id === 0) && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{ width: 18, height: 18, background: '#c44ea2', right: 6, top: -6 }}>Z</span>}
                   </div>
                 );
               })}
