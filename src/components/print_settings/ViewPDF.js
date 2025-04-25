@@ -5082,7 +5082,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     )}
                 </View>
 
-                {printSettings?.page_format?.pagination === "show" && <PageNumberFooter />}
+                {printSettings?.page_format?.pagination === true && <PageNumberFooter />}
 
             </Page>
         </Document>
