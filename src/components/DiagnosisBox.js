@@ -52,7 +52,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
   } = useSelector((state) => state.diagnosis);
   const dispatch = useDispatch();
 
-  const { patient_data, diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
+  const { patient_data, diagnosisData, setDiagnosisData, tcmId } = useContext(CashManagerContext);
   // const [diagnosisData, setDiagnosisData] = useState([]);
 
   const isApexAIAccessable = useFeatureIsOn("cdss");
@@ -373,6 +373,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
   const loadPreviousClick = async () => {
     var sendData = {
       patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      tcm_id: tcmId,
     };
     const action = await dispatch(getLoadPreviousDiagnosis(sendData));
     if (action.meta.requestStatus === "fulfilled") {
