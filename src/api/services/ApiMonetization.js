@@ -21,6 +21,10 @@ ApiMonetization.verifyPayment = function (data) {
     return api.post(`/api/v1/payment/verify-payment`, data, baseUrl);
 };
 
+ApiMonetization.purchaseDetails = function (data) {
+    return api.post(`/api/v1/monetization/purchase-details?b2c_id=${data.b2c_id}`, data, baseUrl);
+};
+
 ApiMonetization.plans = function (b2c_id) {
     return api.get(`/api/v1/monetization/plans?b2c_id=${b2c_id}`, baseUrl);
 };

@@ -36,9 +36,21 @@ export const paymentOrder = createAsyncThunk(
 
 export const verifyPayment = createAsyncThunk(
     "monetization/verifyPayment",
-    async (data, { dispatch, rejectWithValue }) => {
+    async (data, { rejectWithValue }) => {
         try {
             const result = await ApiMonetization.verifyPayment(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
+export const purchaseDetails = createAsyncThunk(
+    "monetization/purchaseDetails",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.purchaseDetails(data);
             return result;
         } catch (error) {
             return rejectWithValue({ visible: false, message: error.response.data.message });

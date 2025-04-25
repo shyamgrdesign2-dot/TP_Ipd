@@ -5,6 +5,7 @@ import { DownOutlined } from '@ant-design/icons'
 import Slider from "react-slick";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import moment from "moment";
 
 import yearlyPlan from '../../../assets/images/year-plan-corner.svg'
 import upgradedLogo from '../../../assets/images/upgraded-logo.svg'
@@ -16,7 +17,7 @@ import iconEdit from "../../../assets/images/edit.svg";
 import logoSm from '../../../assets/images/logo-sm.svg';
 import config from "../../../config";
 import { errorMessage, formatAmount } from "../../../utils/utils";
-import { paymentOrder, verifyPayment } from "../../../redux/monetizationSlice";
+import { paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/monetizationSlice";
 import { plans } from "../../../redux/doctorsSlice";
 
 import "../GetUnlimitedAccess.scss";
@@ -148,6 +149,34 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         const action = await dispatch(verifyPayment(r_response));
         if (action.meta.requestStatus === "fulfilled") {
             if (action?.payload?.hasOwnProperty("id") && action?.payload?.status === 'captured') {
+                const summaryData = selectedServices.map(({ service_name, service_type, service_cost, validity }) => ({
+                    service_name,
+                    service_type,
+                    plan_validity_year: validity,
+                    plan_amount: campaignsData?.campaign_active ? formatAmount(service_cost - (service_cost * parseFloat(campaignsData?.campaign_value) / 100)) : formatAmount(service_cost)
+                }));
+                let sendData = {
+                    b2c_id: profile?.b2c,
+                    purchase_city: "Ahmedabad",
+                    purchase_state: "Gujarat",
+                    purchase_date: moment().toISOString(),
+                    purchase_amount: totalAmount,
+                    purchase_type: "subscription",
+                    purchase_status: "completed",
+                    discount_applied: true,
+                    payment_id: action?.payload?.id,
+                    campaign_applied: campaignsData?.campaign_active ? true : false,
+                    campaign_id: campaignsData?.campaign_active ? campaignsData?.campaign_id : '',
+                    summary: summaryData,
+                    discount_details: [
+                        {
+                            "kam_id": "",
+                            "discount_id": "",
+                            "discount_given": 0
+                        }
+                    ]
+                }
+                dispatch(purchaseDetails(sendData))
                 dispatch(plans(profile?.b2c));
             } else {
                 typeof action?.payload?.data?.error === 'object' ?
