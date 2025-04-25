@@ -1,0 +1,65 @@
+.onboarding-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 48px;
+    position: relative;
+  }
+  
+  .step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    flex: 1;
+  }
+  
+  .step-indicator {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #d1d5db;
+    background-color: white;
+    margin-bottom: 8px;
+  }
+  
+  .step-indicator.active {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+  }
+  
+  .step-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: white;
+  }
+  
+  .step-dot.active {
+    background-color: #4f46e5;
+  }
+  
+  .step-name {
+    font-size: 14px;
+    color: #4f46e5;
+    font-weight: 500;
+  }
+  
+  .step-connector {
+    width: 190px;
+    position: absolute;
+    height: 2px;
+    background-color: #d1d5db !important;
+    top: 16px;
+    left: calc(50% + 16px);
+    right: calc(50% + 16px);
+    z-index: 1;
+  }
+  
+  .step-connector.active {
+    background-color: #4f46e5 !important;
+  }

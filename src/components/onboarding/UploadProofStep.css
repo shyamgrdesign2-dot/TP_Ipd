@@ -1,0 +1,11 @@
+.upload-proof-step {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .upload-separator {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 12px;
+  }
