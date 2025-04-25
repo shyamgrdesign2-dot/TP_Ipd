@@ -1066,6 +1066,29 @@ body {
 .text-1F2933 {
     color: #1F2933 !important;
 }
+
+.text-themesecondarylight {
+    color: $themesecondarylight !important;
+}
+
 .opacity-08 {
     opacity: 0.8;
+}
+
+.ai-suite {
+    background-color: $boxBgLight;
+    border: 0.69px solid #4B4AD514;
+    padding: 24px;
+    border-radius: 18px;
+    p {
+        color: #5A6774 !important;
+    }
+    &.ai-purchased {
+        background: #EDDFF780;
+        border: 0.69px solid #A461D824
+    }
+    &.ai-expired {
+        background: #FCEDED80;
+        border: 0.69px solid #FCEDED
+    }
 }

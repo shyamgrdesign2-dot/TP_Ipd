@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
-import { Container, Navbar, Nav } from "react-bootstrap";
+import { Container, Navbar, Nav, Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { Select, Button, Checkbox, Popover, Drawer, Dropdown, Spin } from "antd";
 import { useSelector, useDispatch } from "react-redux";
@@ -27,6 +27,10 @@ import upgradeIcon from "../assets/images/upgrade.svg";
 import profileBg from "../assets/images/profile-bg.svg";
 import goldCrown from "../assets/images/gold-crown.svg";
 import crownIcon from "../assets/images/crown.svg";
+import AISuite from "../assets/images/ai-suite.png";
+import Vitals from "../assets/images/Vitals.svg";
+import purchased from "../assets/images/purchased.png";
+import expired from "../assets/images/expired.png";
 
 import config from "../config";
 import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds, campaigns, plans } from "../redux/doctorsSlice";
@@ -34,7 +38,7 @@ import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage, getDecodedToken } from "../utils/localStorage";
-import { GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_TATVA_PRACTICE } from "../utils/constants";
 import { errorMessage, getClinicName, makeDefaultLogo } from "../utils/utils";
 import { Modal, Card } from "antd";
 import alertIcon from '../assets/images/alertIcon.svg';
@@ -48,6 +52,7 @@ import { useReactToPrint } from 'react-to-print';
 import { fetchAdvanceSetting, fetchPrintSetting } from "../pages/opdBilling/service";
 import { setAdvancedSettings, setBillPrintSettings } from "../redux/billingSlice";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
+import moment from "moment";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -92,7 +97,7 @@ function Header({ locationPath }) {
 
   const navigate = useNavigate();
 
-  const { profile, loading, videoList, siteId, empNo } = useSelector((state) => state.doctors);
+  const { profile, loading, videoList, siteId, empNo, plansList } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
   const dispatch = useDispatch();
 
@@ -100,8 +105,9 @@ function Header({ locationPath }) {
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const [tokenData, setTokenData] = useState(null);
-
   const [isLoading, setIsLoading] = useState(false);
+  const [aiModal, setAiModal] = useState(false);
+
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
 
@@ -785,18 +791,6 @@ function Header({ locationPath }) {
       {
         type: "divider",
       },
-      {
-        className: "freeTrialMenu text-center rounded-12px p-3 my-3",
-        label: (
-          <>
-            Your free trial ends in <span className="fw-semibold"> 7 days!</span>
-            <div className="title-common text-white border p-2 rounded-12px w-100 mt-2 cursor-pointer" style={{ backgroundColor: '#FFFFFF1A' }} onClick={() => navigate("/get-unlimited-access")}>
-              <img loading="lazy" src={crownIcon} className="text-white me-2" alt="" />Get Unlimited Access
-            </div>
-          </>
-        ),
-        key: "8",
-      },
       // {
       //   label:
       //     <a>
@@ -824,6 +818,22 @@ function Header({ locationPath }) {
       //   key: '8',
       // },
     ];
+
+    const remaingDays = moment(plansList.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'days')
+    if (remaingDays > 0) {
+      commonItems.push({
+        className: "freeTrialMenu text-center rounded-12px p-3 my-3",
+        label: (
+          <>
+            Your free trial ends in <span className="fw-semibold">{`${remaingDays} days!`}</span>
+            <div className="title-common text-white border p-2 rounded-12px w-100 mt-2 cursor-pointer" style={{ backgroundColor: '#FFFFFF1A' }} onClick={() => navigate("/get-unlimited-access")}>
+              <img loading="lazy" src={crownIcon} className="text-white me-2" alt="" />Get Unlimited Access
+            </div>
+          </>
+        ),
+        key: "8",
+      })
+    }
 
     const extraItems = [
       {
@@ -949,225 +959,321 @@ function Header({ locationPath }) {
     pdf.save('OPD-Plans.pdf');
   };
 
+  const handleAiSuite = useCallback(() => {
+    setAiModal(!aiModal);
+  }, [aiModal]);
+
   return (
-    <Navbar className="justify-content-between portal-header">
-      {isLoading && (
-        <div className="spinner-overlay">
-          <Spin size="large" />
-        </div>
-      )}
-      <Container fluid>
-        <div>
-          <img onClick={() => {
-            window.Moengage.track_event("TP_Tatvapedia_clicked");
-            showHideLogoModal()
-          }}
-            src={require("../assets/images/logo.png")}
-            className={`d-inline-block align-top cursor-pointer`}
-            style={{ width: '110px' }}
-            alt="Logo"
-          />
-          <Popover open={popOver} onOpenChange={showHideNavigateToTatvaPedia} content={NAVIGATE_TO_TATVAPEDIA}
-            trigger="click" overlayClassName="pop-370 pp-0" placement="bottomRight">
-            <div></div>
-          </Popover>
-        </div>
-        {LOGO_MODAL}
-        <Nav className="ms-auto align-items-center d-flex">
-          {HOSPITAL_DATA}
-          {profile && profile.SwitchGrowthBook != 0 && (
-            <div onClick={checkModalOpenOrClose} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
-              <i className='icon-switch me-2'></i>
-              <span className="text-decoration-underline">Switch To Old View</span>
-            </div>
-          )}
+    <>
+      <Navbar className="justify-content-between portal-header">
+        {isLoading && (
+          <div className="spinner-overlay">
+            <Spin size="large" />
+          </div>
+        )}
+        <Container fluid>
+          <div>
+            <img onClick={() => {
+              window.Moengage.track_event("TP_Tatvapedia_clicked");
+              showHideLogoModal()
+            }}
+              src={require("../assets/images/logo.png")}
+              className={`d-inline-block align-top cursor-pointer`}
+              style={{ width: '110px' }}
+              alt="Logo"
+            />
+            <Popover open={popOver} onOpenChange={showHideNavigateToTatvaPedia} content={NAVIGATE_TO_TATVAPEDIA}
+              trigger="click" overlayClassName="pop-370 pp-0" placement="bottomRight">
+              <div></div>
+            </Popover>
+          </div>
+          {LOGO_MODAL}
+          <Nav className="ms-auto align-items-center d-flex">
+            {HOSPITAL_DATA}
+            {profile && profile.SwitchGrowthBook != 0 && (
+              <div onClick={checkModalOpenOrClose} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
+                <i className='icon-switch me-2'></i>
+                <span className="text-decoration-underline">Switch To Old View</span>
+              </div>
+            )}
 
-          <Modal
-            open={(isQRCodeVisible && opdPlansUrl)}
-            centered
-            closeIcon={false}
-            onCancel={showHideBackModal}
-            footer={null}
-            title={null}
-            destroyOnClose
-            className="opd-plan-qr"
-          >
-            <div className="opd-qr">
-              <button className="qr-close-btn" onClick={showHideBackModal}>
-                <i style={{ fontSize: "2rem" }} className="icon-Cross"></i>
-              </button>
-              <div ref={printRef} className="opd-plans-inner-contianer">
-                <div className="opd-title" style={{ fontWeight: "700", fontSize: "2rem", color: "#1F2933 !important" }}>
-                  OPD Plans
-                </div>
-                <div className="opd-byline" style={{ marginBottom: "2rem", marginTop: "0.4rem" }}>
-                  by <strong>{profile?.um_name}</strong>
-                </div>
-                <div className="d-flex align-items-center justify-content-center">
-                  <div className="opd-logo log-holder">
-                    <img src={logoIcom} style={{ height: "1.8rem" }} className="logo-text-icon" alt="Logo" />
+            <Modal
+              open={(isQRCodeVisible && opdPlansUrl)}
+              centered
+              closeIcon={false}
+              onCancel={showHideBackModal}
+              footer={null}
+              title={null}
+              destroyOnClose
+              className="opd-plan-qr"
+            >
+              <div className="opd-qr">
+                <button className="qr-close-btn" onClick={showHideBackModal}>
+                  <i style={{ fontSize: "2rem" }} className="icon-Cross"></i>
+                </button>
+                <div ref={printRef} className="opd-plans-inner-contianer">
+                  <div className="opd-title" style={{ fontWeight: "700", fontSize: "2rem", color: "#1F2933 !important" }}>
+                    OPD Plans
                   </div>
-                  <QRCodeSVG className="opd-qr-image" value={opdPlansUrl} size={180} />
+                  <div className="opd-byline" style={{ marginBottom: "2rem", marginTop: "0.4rem" }}>
+                    by <strong>{profile?.um_name}</strong>
+                  </div>
+                  <div className="d-flex align-items-center justify-content-center">
+                    <div className="opd-logo log-holder">
+                      <img src={logoIcom} style={{ height: "1.8rem" }} className="logo-text-icon" alt="Logo" />
+                    </div>
+                    <QRCodeSVG className="opd-qr-image" value={opdPlansUrl} size={180} />
+                  </div>
+                  <div className="opd-scan-text" style={{ marginTop: "2rem", fontSize: "1.2rem", color: "#454551 !important" }}>
+                    Scan the QR to view & buy OPD plans
+                  </div>
                 </div>
-                <div className="opd-scan-text" style={{ marginTop: "2rem", fontSize: "1.2rem", color: "#454551 !important" }}>
-                  Scan the QR to view & buy OPD plans
+                <div className="d-flex align-items-center justify-content-between gap-4 mt-4">
+                  <ButtonOPD
+                    onClick={handlePrint}
+                    className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
+                    style={{ width: "13rem", height: "3rem" }}
+                  >
+                    <span className="fs-18 align-items-center d-flex "><i className="icon-Print me-2"></i>Print</span>
+                  </ButtonOPD>
+                  <ButtonOPD
+                    onClick={handleDownload}
+                    className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
+                    style={{ width: "13rem", height: "3rem" }}
+                  >
+                    <span className="fs-18 align-items-center d-flex"><i className="icon-download me-2"></i>Download</span>
+                  </ButtonOPD>
                 </div>
               </div>
-              <div className="d-flex align-items-center justify-content-between gap-4 mt-4">
-                <ButtonOPD
-                  onClick={handlePrint}
-                  className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
-                  style={{ width: "13rem", height: "3rem" }}
-                >
-                  <span className="fs-18 align-items-center d-flex "><i className="icon-Print me-2"></i>Print</span>
-                </ButtonOPD>
-                <ButtonOPD
-                  onClick={handleDownload}
-                  className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
-                  style={{ width: "13rem", height: "3rem" }}
-                >
-                  <span className="fs-18 align-items-center d-flex"><i className="icon-download me-2"></i>Download</span>
-                </ButtonOPD>
-              </div>
-            </div>
-          </Modal>
+            </Modal>
 
-          {locationPath == "/" || locationPath == "/bulk_messages" ? (
-            <div onClick={handleDrawervideo} className="cursor-pointer me-2 video-animat">
-              <img src={playIcon} />
-              <img src={videorotate} />
-            </div>) : locationPath == "/billing-dashboard" ? (
+            {locationPath == "/" || locationPath == "/bulk_messages" ? (
+              <div onClick={handleDrawervideo} className="cursor-pointer me-2 video-animat">
+                <img src={playIcon} />
+                <img src={videorotate} />
+              </div>) : locationPath == "/billing-dashboard" ? (
+                <Popover
+                  open={popOverVideo}
+                  onOpenChange={showHideVideoListPopover}
+                  content={VIDEO_CONTENT(16)}
+                  trigger="click"
+                  overlayClassName="pop-430 pp-0 videoTutorial"
+                  placement="bottom"
+                >
+                  <div className="cursor-pointer me-2 video-animat">
+                    <img src={playIcon} />
+                    <img src={videorotate} />
+                  </div>
+                </Popover>
+              ) : (
               <Popover
                 open={popOverVideo}
                 onOpenChange={showHideVideoListPopover}
-                content={VIDEO_CONTENT(16)}
+                content={VIDEO_CONTENT(3)}
                 trigger="click"
                 overlayClassName="pop-430 pp-0 videoTutorial"
                 placement="bottom"
               >
-                <div className="cursor-pointer me-2 video-animat">
-                  <img src={playIcon} />
-                  <img src={videorotate} />
-                </div>
+                <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
+                  {/* onClick={showHideVideoListPopover} */}
+                  <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
+                </button>
               </Popover>
-            ) : (
-            <Popover
-              open={popOverVideo}
-              onOpenChange={showHideVideoListPopover}
-              content={VIDEO_CONTENT(3)}
-              trigger="click"
-              overlayClassName="pop-430 pp-0 videoTutorial"
-              placement="bottom"
-            >
-              <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
-                {/* onClick={showHideVideoListPopover} */}
-                <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
-              </button>
-            </Popover>
-          )}
+            )}
 
-          <Drawer title="Video Tutorial" placement="right" onClose={handleDrawervideo} open={videoDrawer} className="modalWidth-400 tab345 playdrawer" width="auto">
-            <div className="mt-20">
-              {videoList?.map((item, i) => {
-                return (
-                  item?.video?.length > 0 && (
-                    <div key={i} className=" ms-4 video-bottom-spacing">
-                      <div className="title-common text-welcome">{item?.category}</div>
-                      <div className="fs-12 fontroboto fw-normal text-main">{item?.description}</div>
-                      <div className="videodrawer-left mt-3">
-                        <Slider {...sliderSettings}>
-                          {item?.video?.map((item1, i1) => {
-                            return (
-                              <div key={i1} className="drawer-slider">
-                                <button type="button"
-                                  onClick={() => {
-                                    setVideoLink(item1)
-                                    const clinic_name = getClinicName(profile?.hospital_data);
-                                    window.Moengage.track_event("TP_Tutorial_Viewed", {
-                                      clinic_name,
-                                      tutorial_type: item?.category,
-                                    });
-                                  }}
-                                >
-                                  <img src={playIconutube} />
-                                </button>
-                                <img src={item1?.thumbnail} />
-                              </div>
-                            )
-                          })}
-                        </Slider>
-                      </div>
-                    </div>
-                  )
-                )
-              })}
+            <div className="mx-3 cursor-pointer" onClick={handleAiSuite}>
+              <img src={AISuite} alt="AI Suite" />
             </div>
-          </Drawer>
 
-          {videoLink && (
-            <VideoModal
-              videoLink={videoLink}
-              onCancel={() => setVideoLink(null)}
-            />
-          )}
+            <Drawer title="Video Tutorial" placement="right" onClose={handleDrawervideo} open={videoDrawer} className="modalWidth-400 tab345 playdrawer" width="auto">
+              <div className="mt-20">
+                {videoList?.map((item, i) => {
+                  return (
+                    item?.video?.length > 0 && (
+                      <div key={i} className=" ms-4 video-bottom-spacing">
+                        <div className="title-common text-welcome">{item?.category}</div>
+                        <div className="fs-12 fontroboto fw-normal text-main">{item?.description}</div>
+                        <div className="videodrawer-left mt-3">
+                          <Slider {...sliderSettings}>
+                            {item?.video?.map((item1, i1) => {
+                              return (
+                                <div key={i1} className="drawer-slider">
+                                  <button type="button"
+                                    onClick={() => {
+                                      setVideoLink(item1)
+                                      const clinic_name = getClinicName(profile?.hospital_data);
+                                      window.Moengage.track_event("TP_Tutorial_Viewed", {
+                                        clinic_name,
+                                        tutorial_type: item?.category,
+                                      });
+                                    }}
+                                  >
+                                    <img src={playIconutube} />
+                                  </button>
+                                  <img src={item1?.thumbnail} />
+                                </div>
+                              )
+                            })}
+                          </Slider>
+                        </div>
+                      </div>
+                    )
+                  )
+                })}
+              </div>
+            </Drawer>
 
-          {SWITCH_TO_OLD_MODAL}
+            {videoLink && (
+              <VideoModal
+                videoLink={videoLink}
+                onCancel={() => setVideoLink(null)}
+              />
+            )}
 
-          {!!tokenData?.admin && isOpdBillingAccessable &&
+            {SWITCH_TO_OLD_MODAL}
+
+            {!!tokenData?.admin && isOpdBillingAccessable &&
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      label: (
+                        <a onClick={() => navigate("/billing-settings")}>
+                          <div className="title-settings me-2 d-flex align-items-center">
+                            <img src={billingsIcon} alt="Billing" width={20} height={20} className="me-2" />
+                            Billing Settings
+                          </div>
+                          <i className="icon-right iconrotate180"></i>
+                        </a>
+                      ),
+                      key: "1",
+                    }
+                  ]
+                }}
+                trigger={['click']}
+                className="py-0 nav-link cursor-pointer"
+                overlayClassName="settings-dropdown"
+              >
+                <div className="d-flex align-items-center h-24 w-24">
+                  <i className="icon-setting me-2"></i>
+                </div>
+              </Dropdown>
+            }
+
             <Dropdown
               menu={{
-                items: [
-                  {
-                    label: (
-                      <a onClick={() => navigate("/billing-settings")}>
-                        <div className="title-settings me-2 d-flex align-items-center">
-                          <img src={billingsIcon} alt="Billing" width={20} height={20} className="me-2" />
-                          Billing Settings
-                        </div>
-                        <i className="icon-right iconrotate180"></i>
-                      </a>
-                    ),
-                    key: "1",
-                  }
-                ]
+                items: getMenuItems(),
               }}
               trigger={['click']}
               className="py-0 nav-link cursor-pointer"
-              overlayClassName="settings-dropdown"
+              overlayClassName="prfile-dropdown"
             >
-              <div className="d-flex align-items-center h-24 w-24">
-                <i className="icon-setting me-2"></i>
-              </div>
+              <a onClick={(e) => e.preventDefault()}>
+                {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
+                  <img
+                    src={profile?.um_image ?? defaultprofile}
+                    alt="Profile"
+                    className="rounded-circle"
+                    style={{ width: "35px", height: "35px" }}
+                  />
+                ) : planDetails?.currentPlanStatus === "PAID" ? (
+                  <PremiumUser />
+                ) :
+                  <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
+                }
+              </a>
             </Dropdown>
-          }
+          </Nav>
+        </Container>
+      </Navbar>
+      <Drawer
+        placement="right"
+        open={aiModal}
+        closeIcon={false}
+        onClose={handleAiSuite}
+        width={600}>
+        <div className="modalCard-header h-60 position-sticky top-0 z-2">
+          <div className="align-items-center d-flex h-100">
+            <div className="border-end h-100 text-center me-3">
+              <div onClick={handleAiSuite}
+                className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer">
+                <i className="icon-right"></i>
+              </div>
+            </div>
+            <div className="fs-18 fw-semibold">AI Suit</div>
+          </div>
+        </div>
+        <div className="px-4 h-100 bg-white overflow-y-auto" style={{ maxHeight: 'calc(100vh - 60px)' }}>
 
-          <Dropdown
-            menu={{
-              items: getMenuItems(),
-            }}
-            trigger={['click']}
-            className="py-0 nav-link cursor-pointer"
-            overlayClassName="prfile-dropdown"
-          >
-            <a onClick={(e) => e.preventDefault()}>
-              {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
-                <img
-                  src={profile?.um_image ?? defaultprofile}
-                  alt="Profile"
-                  className="rounded-circle"
-                  style={{ width: "35px", height: "35px" }}
-                />
-              ) : planDetails?.currentPlanStatus === "PAID" ? (
-                <PremiumUser />
-              ) :
-                <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
-              }
-            </a>
-          </Dropdown>
+          <div className="ai-suite ai-purchased my-4">
+            <Row className="align-items-center">
+              <Col lg={8}>
+                <div className="d-flex align-items-center mb-2">
+                  <img src={Vitals} style={{ background: '#E6C3FF80' }} className="p-1 rounded-10px me-2" />
+                  <div className="fs-18 fw-semibold text-1F2933">Voice Rx</div>
+                  <img src={purchased} className="ms-2" />
+                </div>
+                <p className="mb-0">
+                  AI-powered Voice Rx generation for seamless patient care Know more&nbsp;
+                  <Link className="text-decoration-underline fw-medium text-primary">Know more</Link>
+                </p>
+              </Col>
+              <Col lg={4} className="text-center">
+                <div className="text-themesecondarylight fs-12-1">Valid till</div>
+                <div className="text-secondary-custom fw-semibold">27th Jun 2026</div>
+              </Col>
+            </Row>
+          </div>
 
-        </Nav>
-      </Container>
-    </Navbar >
+          <div className="ai-suite ai-expired my-4">
+            <div className="d-flex align-items-center mb-3">
+              <img src={Vitals} style={{ background: '#EDDFF780' }} className="p-1 rounded-10px me-2" />
+              <div className="fs-18 fw-semibold text-1F2933">Ask Tatva</div>
+              <img src={expired} className="ms-2" />
+            </div>
+            <p>
+              AI-powered Voice Rx generation for seamless patient care, AI-powered Voice Rx generation for seamless patient care
+            </p>
+            <Row className="mt-4">
+              <Col lg={6}>
+                <Button className='w-100 btn ant-btn btn-41 btn-primary1 btn-outline-primary'>
+                  Know More
+                </Button>
+              </Col>
+              <Col lg={6}>
+                <Button className="btn btn-primary3 btn-41 w-100">
+                  Buy Now
+                </Button>
+              </Col>
+            </Row>
+          </div>
+
+          {[...Array(4)].map((_, index) => (
+            <div className="ai-suite my-4" key={index}>
+              <div className="d-flex align-items-center mb-3">
+                <img src={Vitals} style={{ background: '#EDDFF780' }} className="p-1 rounded-10px me-2" />
+                <div className="fs-18 fw-semibold text-1F2933">Voice Rx</div>
+              </div>
+              <p>
+                AI-powered Voice Rx generation for seamless patient care, AI-powered Voice Rx generation for seamless patient care
+              </p>
+              <Row className="mt-4">
+                <Col lg={6}>
+                  <Button className='w-100 btn ant-btn btn-41 btn-primary1 btn-outline-primary'>
+                    Know More
+                  </Button>
+                </Col>
+                <Col lg={6}>
+                  <Button className="btn btn-primary3 btn-41 w-100">
+                    Buy Now
+                  </Button>
+                </Col>
+              </Row>
+            </div>
+          ))}
+        </div>
+      </Drawer>
+    </>
   );
 }
 
