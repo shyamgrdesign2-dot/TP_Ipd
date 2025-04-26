@@ -8,6 +8,9 @@ import validateHealthcareIcon from "../assets/images/validate-heathcare.svg";
 import playIcons from "../assets/images/tube-icon.svg";
 import { Col, Row } from "react-bootstrap";
 import VideoModal from "../common/VideoModal";
+import ContactSupport from "../pages/monetization/components/ContactSupport";
+import ExpiredText from "../pages/monetization/components/ExpiredText";
+import { S_DDX } from "../utils/constants";
 
 const { TabPane } = Tabs;
 
@@ -47,6 +50,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
     trust: null,
     digitisationProcess: null,
     tips: null,
+    contactSupport: null,
   });
 
   const videoLink = {
@@ -127,6 +131,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
             <TabPane tab="Trust Indicators" key="trust" />
             <TabPane tab="Diagnostic Process" key="digitisationProcess" />
             <TabPane tab="Tips" key="tips" />
+            <TabPane tab="Contact Support" key="contactSupport" />
           </Tabs>
         </div>
       </div>
@@ -255,6 +260,9 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
             (such as symptoms, examinations, history, and medications), the
             better the accuracy of the differential diagnosis results.
           </div>
+            
+          <ContactSupport />
+          
           <div
             style={{ padding: "40px 0 80px 0", textAlign: "center" }}
             className="disclaimer-txt"
@@ -264,7 +272,11 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
             decisions.
           </div>
         </div>
+
       </div>
+            
+      <ExpiredText title={S_DDX} />
+
       {shouldShowVideo && (
         <VideoModal
           videoLink={videoLink}

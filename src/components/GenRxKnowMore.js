@@ -4,9 +4,10 @@ import genRxIcon from "../assets/images/gen-rx-icon.svg";
 import playIcons from "../assets/images/tube-icon.svg";
 import coinSm from "../assets/images/coin-sm.png";
 import coinSmRed from "../assets/images/coin-sm-red.png";
-import crown from '../assets/images/crown.svg'
 import VideoModal from "../common/VideoModal";
-import { Col, Row } from "react-bootstrap";
+import ExpiredText from "../pages/monetization/components/ExpiredText";
+import ContactSupport from "../pages/monetization/components/ContactSupport";
+import { S_VOICE_RX } from "../utils/constants";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -20,6 +21,7 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
     basicGenRxInfo: null,
     howGenRxWorks: null,
     genRxTips: null,
+    contactSupport: null
   });
 
   const videoLink = {
@@ -105,10 +107,11 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
 
           {/* Tabs */}
           <div className="drawer-tabs">
-            <Tabs activeKey={activeKey} onChange={scrollToSection}>
+            <Tabs activeKey={activeKey} onChange={(key) => scrollToSection(key)}>
               <TabPane tab="Basic Info" key="basicGenRxInfo" />
               <TabPane tab="How it works" key="howGenRxWorks" />
               <TabPane tab="Tips for better Rx" key="genRxTips" />
+              <TabPane tab="Contact Support" key="contactSupport" />
             </Tabs>
           </div>
         </div>
@@ -183,6 +186,7 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
               Tips to dictate/write an Rx for better Rx Digitisation
             </div>
             <GenRxTips isKnowMore />
+            <ContactSupport />
             <div
               style={{
                 padding: "40px 0 80px 0",
@@ -195,30 +199,10 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
               double-check all details to ensure they are correct and complete.
             </div>
           </div>
-
-          {/* Added for Trial Expired */}
-          <div className="position-absolute bottom-0 bg-white w-100 px-4 py-3">
-            <div className="fontroboto fs-16 text-center text-danger-custom">
-              Your <span className="fw-bold text-danger-custom">Voice Rx free trail</span> has expired. <br />
-              Upgrade now to continue a hassle free experience!
-            </div>
-            <Row className="mt-2">
-              <Col lg={6}>
-                <Button type='button' className='w-100 btn ant-btn align-items-center justify-content-center d-flex btn-41 btn-primary1 btn-outline-primary' style={{ height: 52 }}>
-                  <i className='icon-phone me-2'></i>
-                  Request a call back
-                </Button>
-              </Col>
-              <Col lg={6}>
-                <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex">
-                  <img className="me-2" src={crown} alt="Crown" />
-                  Get Unlimited Access
-                </Button>
-              </Col>
-            </Row>
-          </div>
-
         </div>
+
+        <ExpiredText title={S_VOICE_RX} />
+
         {shouldShowVideo && (
           <VideoModal
             videoLink={videoLink}

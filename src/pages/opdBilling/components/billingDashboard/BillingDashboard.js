@@ -32,6 +32,7 @@ import { clearSearch } from "../../../../redux/appointmentsSlice";
 import AddAdvance from "../advanceDeposit/AddAdvance";
 import CreateBill from "../createBill/CreateBill";
 import { fetchPatientWalletBalance } from "../../service";
+import BillingKnowMore from "../knowMore/BillingKnowMore";
 
 function BillingDashboard({ patientData, fromPath }) {
   const dispatch = useDispatch();
@@ -48,6 +49,7 @@ function BillingDashboard({ patientData, fromPath }) {
   const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
   const [createBillDrawer, setCreateBillDrawer] = useState(false);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const [billingDrawer, setBillingDrawer] = useState(false);
   const { planDetails } = useSelector((state) => state.subscription);
 
   // Add a ref to store the refresh function
@@ -208,10 +210,9 @@ function BillingDashboard({ patientData, fromPath }) {
             return (
               <div
                 key={i1}
-                className={`d-flex ${
-                  i1 !== videoList[15]?.video.length - 1 &&
+                className={`d-flex ${i1 !== videoList[15]?.video.length - 1 &&
                   "pb-3 mb-15 border-bottom"
-                }`}
+                  }`}
               >
                 <div className="tutorial-play me-14">
                   <button
@@ -247,6 +248,11 @@ function BillingDashboard({ patientData, fromPath }) {
     );
   }, [popOverVideo]);
 
+
+  const clickKnowMore = useCallback(() => {
+    setBillingDrawer(!billingDrawer);
+  }, [billingDrawer]);
+
   return (
     <>
       {!patientData && !isReceptionist && (
@@ -259,9 +265,8 @@ function BillingDashboard({ patientData, fromPath }) {
         <div className="w-100 bg-body wrapper">
           <>
             <div
-              className={`welcomesection position-relative mb-3 ${
-                isReceptionist ? "receptionist-welcome" : ""
-              }`}
+              className={`welcomesection position-relative mb-3 ${isReceptionist ? "receptionist-welcome" : ""
+                }`}
             >
               <div className="bg-welcome d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center">
@@ -298,7 +303,7 @@ function BillingDashboard({ patientData, fromPath }) {
                   )}
                 </div>
                 <div className="d-flex gap-1">
-                  {patientData && (
+                  {/* {patientData && (
                     <div className="d-sm-flex d-block">
                       <Popover
                         open={popOverVideo}
@@ -309,7 +314,7 @@ function BillingDashboard({ patientData, fromPath }) {
                         placement="bottom"
                       >
                         <button className="btn d-flex align-items-center btn-text mx-3 tutorial p-0">
-                          {/* onClick={showHideVideoListPopover} */}
+                          onClick={showHideVideoListPopover}
                           <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
                             <img height={42} src={tutorial} />
                             Tutorial
@@ -323,7 +328,15 @@ function BillingDashboard({ patientData, fromPath }) {
                         />
                       )}
                     </div>
-                  )}
+                  )} */}
+
+                  <button className="btn d-flex align-items-center btn-text mx-3 tutorial p-0" onClick={clickKnowMore}>
+                    <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
+                      <img height={42} src={tutorial} />
+                      Tutorial
+                    </span>
+                  </button>
+
                   {selectedTab === "billingtable" &&
                     !patientData &&
                     !isReceptionist && (
@@ -336,9 +349,8 @@ function BillingDashboard({ patientData, fromPath }) {
                     )}
                   {selectedTab !== "billingtable" && !patientData && (
                     <Button
-                      className={`btn-create-bill ${
-                        isReceptionist ? "receptionist-btn" : ""
-                      }`}
+                      className={`btn-create-bill ${isReceptionist ? "receptionist-btn" : ""
+                        }`}
                       onClick={handleAddAdvanceDrawer}
                     >
                       <span style={{ fontSize: "22px" }}>{"+"}</span>
@@ -347,9 +359,8 @@ function BillingDashboard({ patientData, fromPath }) {
                   )}
                   {(selectedTab === "billingtable" || patientData) && (
                     <Button
-                      className={`btn-create-bill ${
-                        isReceptionist ? "receptionist-btn" : ""
-                      }`}
+                      className={`btn-create-bill ${isReceptionist ? "receptionist-btn" : ""
+                        }`}
                       onClick={handleCreateBillDrawer}
                     >
                       <span style={{ fontSize: "22px" }}>+</span>
@@ -442,6 +453,15 @@ function BillingDashboard({ patientData, fromPath }) {
           </Drawer>
         )}
       </div>
+      <Drawer
+        closeIcon={false}
+        placement="right"
+        onClose={clickKnowMore}
+        open={billingDrawer}
+        width={600}
+      >
+        <BillingKnowMore clickKnowMore={clickKnowMore} handleCollapsed={clickKnowMore} />
+      </Drawer>
     </>
   );
 }

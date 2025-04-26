@@ -12,6 +12,9 @@ import redCrossIcon from "../../../assets/images/red-cross.svg";
 import greenRightIcon from "../../../assets/images/green-right.svg";
 import structuredRxGif from "../../../assets/images/structuredRx.gif";
 import VideoModal from "../../../common/VideoModal";
+import ContactSupport from "../../monetization/components/ContactSupport";
+import ExpiredText from "../../monetization/components/ExpiredText";
+import { S_RX_DIGITIZATION } from "../../../utils/constants";
 
 const { TabPane } = Tabs;
 
@@ -53,12 +56,13 @@ const CvtKnowMore = ({ handleCollapsed }) => {
             <TabPane tab="Benefits" key="benefits" />
             <TabPane tab="Digitisation Process" key="digitisationProcess" />
             <TabPane tab="Tips for Rx writing" key="tipsForRxWriting" />
+            <TabPane tab="Contact Support" key="contactSupport" />
           </Tabs>
         </div>
       </div>
 
       {/* Scrollable Content */}
-      <div className="drawer-scrollable-content">
+      <div className="drawer-scrollable-content pb-0">
         <div id="basicInfo" className="section">
           <span className="section-side-header">Basic Info</span>
           <div className="know-more-section-tilte">
@@ -128,8 +132,8 @@ const CvtKnowMore = ({ handleCollapsed }) => {
           </div>
         </div>
 
-        <div 
-          id="digitisationProcess" 
+        <div
+          id="digitisationProcess"
           className="video-section"
         >
           <span className="section-side-header">Digitisation Process</span>
@@ -161,14 +165,7 @@ const CvtKnowMore = ({ handleCollapsed }) => {
           </div>
         </div>
 
-        {videoLink && (
-          <VideoModal
-            videoLink={video_link}
-            onCancel={() => setVideoLink(false)}
-          />
-        )}
-
-        <div id="tipsForRxWriting" className="section">
+        <div id="tipsForRxWriting" className="section" style={{minHeight: 'auto'}}>
           <span className="section-side-header">Tips for Rx writting</span>
           <div className="know-more-section-tilte">
             Tips to write an Rx for better Rx Digitisation
@@ -183,21 +180,36 @@ const CvtKnowMore = ({ handleCollapsed }) => {
           <div className="tips-imgs-container">
             <div className="smartRx-cvt-img-container">
               <div className="d-flex gap-2 align-items-center">
-                <img src={redCrossIcon} /> 
+                <img src={redCrossIcon} />
                 <span>Unstructured</span>
               </div>
-              <img src={unstructuredRxImage} className="cvt-tips-image"/> 
+              <img src={unstructuredRxImage} className="cvt-tips-image" />
             </div>
             <div className="smartRx-cvt-img-container">
               <div className="d-flex gap-2 align-items-center">
                 <img src={greenRightIcon} />
                 <span>Well structured</span>
               </div>
-              <img src={structuredRxGif} className="cvt-tips-image"/> 
+              <img src={structuredRxGif} className="cvt-tips-image" />
             </div>
           </div>
         </div>
+
+        <div className="section" style={{marginTop: -90}}>
+          <ContactSupport className="my-0" />
+        </div>
+        
       </div>
+
+      <ExpiredText title={S_RX_DIGITIZATION} />
+
+      {videoLink && (
+        <VideoModal
+          videoLink={video_link}
+          onCancel={() => setVideoLink(false)}
+        />
+      )}
+
     </div>
   );
 };
