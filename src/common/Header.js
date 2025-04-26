@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
-import { Container, Navbar, Nav, Row, Col } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Container, Navbar, Nav } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { Select, Button, Checkbox, Popover, Drawer, Dropdown, Spin } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
@@ -28,9 +28,6 @@ import profileBg from "../assets/images/profile-bg.svg";
 import goldCrown from "../assets/images/gold-crown.svg";
 import crownIcon from "../assets/images/crown.svg";
 import AISuite from "../assets/images/ai-suite.png";
-import Vitals from "../assets/images/Vitals.svg";
-import purchased from "../assets/images/purchased.png";
-import expired from "../assets/images/expired.png";
 
 import config from "../config";
 import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds, campaigns, plans } from "../redux/doctorsSlice";
@@ -38,7 +35,7 @@ import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage, getDecodedToken } from "../utils/localStorage";
-import { GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_TATVA_PRACTICE } from "../utils/constants";
+import { FREE, GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_TATVA_PRACTICE } from "../utils/constants";
 import { errorMessage, getClinicName, makeDefaultLogo } from "../utils/utils";
 import { Modal, Card } from "antd";
 import alertIcon from '../assets/images/alertIcon.svg';
@@ -53,6 +50,7 @@ import { fetchAdvanceSetting, fetchPrintSetting } from "../pages/opdBilling/serv
 import { setAdvancedSettings, setBillPrintSettings } from "../redux/billingSlice";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 import moment from "moment";
+import AiSuite from "../pages/monetization/components/AiSuite";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -742,7 +740,7 @@ function Header({ locationPath }) {
         label: (
           <a onClick={handleAiSuite}>
             <div className="title-common me-5 d-flex align-items-center">
-              <img src={AISuite} className="me-3" style={{ filter: 'grayscale(100%)'}} alt="AI Suite" />AI Suite
+              <img src={AISuite} className="me-3" style={{ filter: 'grayscale(100%)' }} alt="AI Suite" />AI Suite
             </div>
             <i className="icon-right iconrotate180"></i>
           </a>
@@ -799,9 +797,6 @@ function Header({ locationPath }) {
           </a>,
         key: '7',
       },
-      {
-        type: "divider",
-      },
       // {
       //   label:
       //     <a>
@@ -830,20 +825,26 @@ function Header({ locationPath }) {
       // },
     ];
 
-    const remaingDays = moment(plansList.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'days')
+    const remaingDays = plansList.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === FREE ? moment(plansList.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
     if (remaingDays > 0) {
-      commonItems.push({
-        className: "freeTrialMenu text-center rounded-12px p-3 my-3",
-        label: (
-          <>
-            Your free trial ends in <span className="fw-semibold">{`${remaingDays} days!`}</span>
-            <div className="title-common text-white border p-2 rounded-12px w-100 mt-2 cursor-pointer" style={{ backgroundColor: '#FFFFFF1A' }} onClick={() => navigate("/get-unlimited-access")}>
-              <img loading="lazy" src={crownIcon} className="text-white me-2" alt="" />Get Unlimited Access
-            </div>
-          </>
-        ),
-        key: "8",
-      })
+      const freeTrialMenu = [
+        {
+          type: "divider",
+        },
+        {
+          className: "freeTrialMenu text-center rounded-12px p-3 my-3",
+          label: (
+            <>
+              Your free trial ends in <span className="fw-semibold">{`${remaingDays} days!`}</span>
+              <div className="title-common text-white border p-2 rounded-12px w-100 mt-2 cursor-pointer" style={{ backgroundColor: '#FFFFFF1A' }} onClick={() => navigate("/get-unlimited-access")}>
+                <img loading="lazy" src={crownIcon} className="text-white me-2" alt="" />Get Unlimited Access
+              </div>
+            </>
+          ),
+          key: "8",
+        }
+      ]
+      commonItems.push(...freeTrialMenu)
     }
 
     const extraItems = [
@@ -1197,93 +1198,8 @@ function Header({ locationPath }) {
           </Nav>
         </Container>
       </Navbar>
-      <Drawer
-        placement="right"
-        open={aiModal}
-        closeIcon={false}
-        onClose={handleAiSuite}
-        width={600}>
-        <div className="modalCard-header h-60 position-sticky top-0 z-2">
-          <div className="align-items-center d-flex h-100">
-            <div className="border-end h-100 text-center me-3">
-              <div onClick={handleAiSuite}
-                className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer">
-                <i className="icon-right"></i>
-              </div>
-            </div>
-            <div className="fs-18 fw-semibold">AI Suit</div>
-          </div>
-        </div>
-        <div className="px-4 h-100 bg-white overflow-y-auto" style={{ maxHeight: 'calc(100vh - 60px)' }}>
 
-          <div className="ai-suite ai-purchased my-4">
-            <Row className="align-items-center">
-              <Col lg={8}>
-                <div className="d-flex align-items-center mb-2">
-                  <img src={Vitals} style={{ background: '#E6C3FF80' }} className="p-1 rounded-10px me-2" />
-                  <div className="fs-18 fw-semibold text-1F2933">Voice Rx</div>
-                  <img src={purchased} className="ms-2" />
-                </div>
-                <p className="mb-0">
-                  AI-powered Voice Rx generation for seamless patient care Know more&nbsp;
-                  <Link className="text-decoration-underline fw-medium text-primary">Know more</Link>
-                </p>
-              </Col>
-              <Col lg={4} className="text-center">
-                <div className="text-themesecondarylight fs-12-1">Valid till</div>
-                <div className="text-secondary-custom fw-semibold">27th Jun 2026</div>
-              </Col>
-            </Row>
-          </div>
-
-          <div className="ai-suite ai-expired my-4">
-            <div className="d-flex align-items-center mb-3">
-              <img src={Vitals} style={{ background: '#EDDFF780' }} className="p-1 rounded-10px me-2" />
-              <div className="fs-18 fw-semibold text-1F2933">Ask Tatva</div>
-              <img src={expired} className="ms-2" />
-            </div>
-            <p>
-              AI-powered Voice Rx generation for seamless patient care, AI-powered Voice Rx generation for seamless patient care
-            </p>
-            <Row className="mt-4">
-              <Col lg={6}>
-                <Button className='w-100 btn ant-btn btn-41 btn-primary1 btn-outline-primary'>
-                  Know More
-                </Button>
-              </Col>
-              <Col lg={6}>
-                <Button className="btn btn-primary3 btn-41 w-100">
-                  Buy Now
-                </Button>
-              </Col>
-            </Row>
-          </div>
-
-          {[...Array(4)].map((_, index) => (
-            <div className="ai-suite my-4" key={index}>
-              <div className="d-flex align-items-center mb-3">
-                <img src={Vitals} style={{ background: '#EDDFF780' }} className="p-1 rounded-10px me-2" />
-                <div className="fs-18 fw-semibold text-1F2933">Voice Rx</div>
-              </div>
-              <p>
-                AI-powered Voice Rx generation for seamless patient care, AI-powered Voice Rx generation for seamless patient care
-              </p>
-              <Row className="mt-4">
-                <Col lg={6}>
-                  <Button className='w-100 btn ant-btn btn-41 btn-primary1 btn-outline-primary'>
-                    Know More
-                  </Button>
-                </Col>
-                <Col lg={6}>
-                  <Button className="btn btn-primary3 btn-41 w-100">
-                    Buy Now
-                  </Button>
-                </Col>
-              </Row>
-            </div>
-          ))}
-        </div>
-      </Drawer>
+      <AiSuite aiModal={aiModal} handleAiSuite={handleAiSuite} />
     </>
   );
 }

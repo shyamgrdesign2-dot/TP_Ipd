@@ -373,14 +373,14 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       const response = genRxDetails?._id
         ? await updateGenRx(formData, genRxDetails?._id)
         : await generateRx(formData);
-
-      let sendData = {
-        b2c_id: profile?.b2c,
-        service_name: S_VOICE_RX
-      }
-      dispatch(updateCredits(sendData))
       
       if (response.success) {
+        let sendData = {
+          b2c_id: profile?.b2c,
+          service_name: S_VOICE_RX
+        }
+        dispatch(updateCredits(sendData))
+        
         setPrescriptionData(response.data.digitize);
         setPrescriptionData(() => {
           // Merge localModules into dynamicFields
