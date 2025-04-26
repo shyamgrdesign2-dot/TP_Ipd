@@ -10,7 +10,7 @@ import SmartSyncPro from "./components/SmartSyncPro";
 import AddonServices from "./components/AddonServices";
 import CampaignDiscount from "./components/CampaignDiscount";
 import UnlimitedAccessSummary from "./components/UnlimitedAccessSummary";
-import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX } from "../../utils/constants";
+import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION } from "../../utils/constants";
 import { services } from "../../redux/monetizationSlice";
 import GenRxKnowMore from "../../components/GenRxKnowMore";
 
@@ -24,6 +24,7 @@ function GetUnlimitedAccess() {
     const { servicesLoading, servicesList } = useSelector((state) => state.monetization);
     const dispatch = useDispatch();
 
+    const [servicesData, setServicesData] = useState([]);
     const [selectedServices, setSelectedServices] = useState([]);
     const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
     const [cvtDrawer, setCvtDrawer] = useState(false);
@@ -35,7 +36,27 @@ function GetUnlimitedAccess() {
 
     useEffect(() => {
         if (servicesList?.length) {
-            const EMR = servicesList
+            const jsonArray = servicesList?.filter(({ purchased }) => purchased == 'false')
+            const result = [];
+            const groupedServices = [];
+
+            jsonArray.forEach(service => {
+                if (service.service_name === S_SMARTSYNC) {
+                    groupedServices.unshift(service);
+                } else if (service.service_name === S_RX_DIGITIZATION) {
+                    groupedServices.push(service);
+                } else {
+                    result.push(service);
+                }
+            });
+
+            if (groupedServices.length > 0) {
+                result.push({ data: groupedServices });
+            }
+
+            setServicesData(result)
+
+            const EMR = result
                 ?.filter(({ service_name }) => service_name === S_TATVA_PRACTICE)
                 ?.map(service => ({ ...service, validity: 1 }));
             setSelectedServices(EMR)
@@ -112,13 +133,13 @@ function GetUnlimitedAccess() {
                         <div className="bg-unlimited-access">
                             <Row className="g-4">
                                 <Col xl={8} lg={8} sm={7} xs={12}>
-                                    {servicesList?.map((item, index) => {
+                                    {servicesData?.map((item, index) => {
                                         return (
                                             <div key={index}>
                                                 {item.hasOwnProperty("data") ? (
                                                     <SmartSyncPro
                                                         data={item?.data}
-                                                        addOrNot={selectedServices?.some(e => e.service_name === S_SMARTSYNC)}
+                                                        addOrNot={selectedServices?.some(e => e.service_name === S_SMARTSYNC || e.service_name === S_RX_DIGITIZATION)}
                                                         handleSmartSyncAddRemove={(checked) => handleSmartSyncAddRemove(item?.data, checked)}
                                                         selectedServices={selectedServices}
                                                         setSelectedServices={setSelectedServices}

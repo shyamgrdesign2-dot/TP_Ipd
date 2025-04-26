@@ -93,33 +93,7 @@ const monetizationSlice = createSlice({
             })
             .addCase(services.fulfilled, (state, action) => {
                 state.servicesLoading = false
-
-                const jsonArray = action.payload
-                const result = [];
-                const groupedServices = [];
-
-                jsonArray.forEach(service => {
-                    // if (service.service_name === 'smartsync' && !service.purchased) {
-                    //     groupedServices.unshift(service);
-                    // } else if (service.service_name === 'rx_digitization' && !service.purchased) {
-                    //     groupedServices.push(service);
-                    // } else {
-                    //     result.push(service);
-                    // }
-                    if (service.service_name === 'smartsync') {
-                        groupedServices.unshift(service);
-                    } else if (service.service_name === 'rx_digitization') {
-                        groupedServices.push(service);
-                    } else {
-                        result.push(service);
-                    }
-                });
-
-                if (groupedServices.length > 0) {
-                    result.push({ data: groupedServices });
-                }
-
-                state.servicesList = result
+                state.servicesList = action.payload
             })
             .addCase(services.rejected, (state) => {
                 state.servicesLoading = false

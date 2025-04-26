@@ -176,7 +176,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                         }
                     ]
                 }
-                dispatch(purchaseDetails(sendData))
+                await dispatch(purchaseDetails(sendData))
                 dispatch(plans(profile?.b2c));
             } else {
                 typeof action?.payload?.data?.error === 'object' ?
