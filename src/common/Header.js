@@ -736,6 +736,17 @@ function Header({ locationPath }) {
             <i className="icon-right iconrotate180"></i>
           </a>
         ),
+        key: "1",
+      },
+      {
+        label: (
+          <a onClick={handleAiSuite}>
+            <div className="title-common me-5 d-flex align-items-center">
+              <img src={AISuite} className="me-3" style={{ filter: 'grayscale(100%)'}} alt="AI Suite" />AI Suite
+            </div>
+            <i className="icon-right iconrotate180"></i>
+          </a>
+        ),
         key: "2",
       },
       {
