@@ -1,26 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import ApiMonetization from "../api/services/ApiMonetization";
-import { plans } from "./doctorsSlice";
+import { services } from "./doctorsSlice";
 
 const initialState = {
-    servicesLoading: false,
-    servicesList: [],
     loading: false,
     errorObj: { visible: false, message: '' },
 };
-
-export const services = createAsyncThunk(
-    "monetization/services",
-    async (b2c_id, { rejectWithValue }) => {
-        try {
-            const result = await ApiMonetization.services(b2c_id);
-            return result;
-        } catch (error) {
-            return rejectWithValue({ visible: false, message: error.response.data.message });
-        }
-    }
-);
 
 export const paymentOrder = createAsyncThunk(
     "monetization/paymentOrder",
@@ -75,7 +61,7 @@ export const updateCredits = createAsyncThunk(
     async (data, { dispatch, rejectWithValue }) => {
         try {
             const result = await ApiMonetization.updateCredits(data);
-            dispatch(plans(data?.b2c_id))
+            dispatch(services(data?.b2c_id))
             return result;
         } catch (error) {
             return rejectWithValue({ visible: false, message: error.response.data.message });
@@ -86,20 +72,6 @@ export const updateCredits = createAsyncThunk(
 const monetizationSlice = createSlice({
     name: "monetization",
     initialState,
-    extraReducers: (builder) => {
-        builder
-            .addCase(services.pending, (state) => {
-                state.servicesLoading = true
-            })
-            .addCase(services.fulfilled, (state, action) => {
-                state.servicesLoading = false
-                state.servicesList = action.payload
-            })
-            .addCase(services.rejected, (state) => {
-                state.servicesLoading = false
-                state.servicesList = [];
-            })
-    },
 });
 
 export default monetizationSlice.reducer;

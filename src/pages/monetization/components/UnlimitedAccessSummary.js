@@ -18,7 +18,7 @@ import logoSm from '../../../assets/images/logo-sm.svg';
 import config from "../../../config";
 import { errorMessage, formatAmount } from "../../../utils/utils";
 import { paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/monetizationSlice";
-import { plans } from "../../../redux/doctorsSlice";
+import { services } from "../../../redux/doctorsSlice";
 
 import "../GetUnlimitedAccess.scss";
 
@@ -177,7 +177,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     ]
                 }
                 await dispatch(purchaseDetails(sendData))
-                dispatch(plans(profile?.b2c));
+                dispatch(services(profile?.b2c));
             } else {
                 typeof action?.payload?.data?.error === 'object' ?
                     errorMessage(action?.payload?.data?.error?.description)

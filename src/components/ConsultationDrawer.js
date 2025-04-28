@@ -59,10 +59,8 @@ const GenRxTips = lazy(() => import("./GenRxTips"));
 
 const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
-  const { campaignsData, plansList } = useSelector((state) => state.doctors);
-  const planDetails = plansList.find(e => e.service_name === S_VOICE_RX)
-  // const planDetails = { ...plansList.find(e => e.service_name === S_VOICE_RX), credit_balance: 0 }
-
+  const { campaignsData, servicesList } = useSelector((state) => state.doctors);
+  const planDetails = servicesList.find(e => e.service_name === S_VOICE_RX)
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
@@ -1883,7 +1881,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           <Card
             extra={
               <>
-                {/* Uncomment for Trial modal */}
                 {planDetails?.credit_balance > 0 && (
                   <img className="coinLg" src={coinLg} alt="Tatva Coin" />
                 )}

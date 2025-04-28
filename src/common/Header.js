@@ -30,7 +30,7 @@ import crownIcon from "../assets/images/crown.svg";
 import AISuite from "../assets/images/ai-suite.png";
 
 import config from "../config";
-import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds, campaigns, plans } from "../redux/doctorsSlice";
+import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds, campaigns, services } from "../redux/doctorsSlice";
 import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
@@ -95,7 +95,7 @@ function Header({ locationPath }) {
 
   const navigate = useNavigate();
 
-  const { profile, loading, videoList, siteId, empNo, plansList } = useSelector((state) => state.doctors);
+  const { profile, loading, videoList, siteId, empNo, servicesList } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
   const dispatch = useDispatch();
 
@@ -134,7 +134,7 @@ function Header({ locationPath }) {
 
   useEffect(() => {
     if (profile) {
-      dispatch(plans(profile?.b2c));
+      dispatch(services(profile?.b2c));
       if (profile.moengage_b2c_send === undefined) {
         window.Moengage.add_unique_user_id(profile?.b2c)
         dispatch(updateStatusMoengageB2C());
@@ -825,7 +825,7 @@ function Header({ locationPath }) {
       // },
     ];
 
-    const remaingDays = plansList.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === FREE ? moment(plansList.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
+    const remaingDays = servicesList.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === FREE ? moment(servicesList.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
     if (remaingDays > 0) {
       const freeTrialMenu = [
         {

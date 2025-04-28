@@ -11,7 +11,7 @@ import AddonServices from "./components/AddonServices";
 import CampaignDiscount from "./components/CampaignDiscount";
 import UnlimitedAccessSummary from "./components/UnlimitedAccessSummary";
 import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION } from "../../utils/constants";
-import { services } from "../../redux/monetizationSlice";
+import { services } from "../../redux/doctorsSlice";
 import GenRxKnowMore from "../../components/GenRxKnowMore";
 
 import "./GetUnlimitedAccess.scss";
@@ -20,8 +20,7 @@ import DDxKnowMore from "../../components/DDxKnowMore";
 
 function GetUnlimitedAccess() {
 
-    const { profile, campaignsData } = useSelector((state) => state.doctors);
-    const { servicesLoading, servicesList } = useSelector((state) => state.monetization);
+    const { profile, campaignsData, servicesLoading, servicesList } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const [servicesData, setServicesData] = useState([]);

@@ -32,8 +32,10 @@ const initialState = {
   siteId: null,
   empNo: [],
   storeCode: null,
+  servicesLoading: false,
+  servicesList: [],
   campaignsData: null,
-  plansList: [],
+  // plansList: [],
 };
 
 export const getProfile = createAsyncThunk(
@@ -347,17 +349,29 @@ export const campaigns = createAsyncThunk(
   }
 );
 
-export const plans = createAsyncThunk(
-  "monetization/plans",
+export const services = createAsyncThunk(
+  "monetization/services",
   async (b2c_id, { rejectWithValue }) => {
     try {
-      const result = await ApiMonetization.plans(b2c_id);
+      const result = await ApiMonetization.services(b2c_id);
       return result;
     } catch (error) {
       return rejectWithValue({ visible: false, message: error.response.data.message });
     }
   }
 );
+
+// export const plans = createAsyncThunk(
+//   "monetization/plans",
+//   async (b2c_id, { rejectWithValue }) => {
+//     try {
+//       const result = await ApiMonetization.plans(b2c_id);
+//       return result;
+//     } catch (error) {
+//       return rejectWithValue({ visible: false, message: error.response.data.message });
+//     }
+//   }
+// );
 
 const doctorsSlice = createSlice({
   name: "doctors",
@@ -614,6 +628,17 @@ const doctorsSlice = createSlice({
         state.empNo = [];
         state.storeCode = null;
       })
+      .addCase(services.pending, (state) => {
+        state.servicesLoading = true
+      })
+      .addCase(services.fulfilled, (state, action) => {
+        state.servicesLoading = false
+        state.servicesList = action.payload
+      })
+      .addCase(services.rejected, (state) => {
+        state.servicesLoading = false
+        state.servicesList = [];
+      })
       .addCase(campaigns.fulfilled, (state, action) => {
         const data = action.payload
         const cleanedCampaign = { ...data, campaign_value: data.campaign_value.replace('%', '') };
@@ -622,9 +647,9 @@ const doctorsSlice = createSlice({
       .addCase(campaigns.rejected, (state) => {
         state.campaignsData = null;
       })
-      .addCase(plans.fulfilled, (state, action) => {
-        state.plansList = action.payload?.services
-      });
+      // .addCase(plans.fulfilled, (state, action) => {
+      //   state.plansList = action.payload?.services
+      // });
   },
 });
 
