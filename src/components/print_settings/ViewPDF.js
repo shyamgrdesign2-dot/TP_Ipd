@@ -226,7 +226,16 @@ const styles = StyleSheet.create({
     },
     minHeight38: {
         minHeight: 38
-    }
+    },
+    pageNumber: {
+        position: 'absolute',
+        fontSize: 10,
+        fontWeight: 400,
+        bottom: 10,
+        right: 10,
+        textAlign: 'center',
+        color: '#454551',
+    },
 });
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
@@ -570,6 +579,14 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     };
 
     const paddingStyles = calculatePadding();
+
+    const PageNumberFooter = () => (
+        <Text 
+          fixed
+          style={styles.pageNumber} 
+          render={({ pageNumber, totalPages }) => `Page ${pageNumber}/${totalPages}`} 
+        />
+    );
 
     return (
         <Document>
@@ -5064,6 +5081,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         )
                     )}
                 </View>
+
+                {printSettings?.page_format?.pagination === true && <PageNumberFooter />}
 
             </Page>
         </Document>

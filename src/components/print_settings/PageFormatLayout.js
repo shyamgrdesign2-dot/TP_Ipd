@@ -1,5 +1,5 @@
 import React, { useCallback, useContext } from "react";
-import { Form, Select } from "antd";
+import { Form, Radio, Select } from "antd";
 
 import PrintSettingsContext from '../../context/PrintSettingsContext';
 import { FONTS_FAMILY_LIST, FONTS_SIZE_LIST } from "../../utils/constants";
@@ -43,6 +43,18 @@ function PageFormatLayout() {
         },
         [printSettings]
     );
+
+    const paginationHandler = useCallback((e) => {
+        const paginationValue = e.target.value;
+        
+        setPrintSettings(prevSettings => ({
+          ...prevSettings,
+          page_format: {
+            ...prevSettings.page_format,
+            pagination: paginationValue
+          }
+        }));
+    }, []);
 
     return (
         <div className="px-3 form_addnewpatient">
@@ -89,6 +101,14 @@ function PageFormatLayout() {
                     onSelect={onSelectPatientInfoFontSize}
                     allowClear
                 />
+            </Form.Item>
+
+             <Form.Item>
+                <label className="mb-1">Pagination</label>
+                <Radio.Group className="d-flex gender-radio" value={!!printSettings?.page_format?.pagination} onChange={paginationHandler}>
+                    <Radio.Button className="w-100 text-center" value={true}>Show</Radio.Button>
+                    <Radio.Button className="w-100 text-center" value={false}>Hide</Radio.Button>
+                </Radio.Group>
             </Form.Item>
         </div>
     );
