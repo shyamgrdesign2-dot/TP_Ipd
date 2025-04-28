@@ -57,6 +57,7 @@ import AddAppointment from "./pages/addAppointment/AddAppointment";
 import { checkAccountStatus } from './pages/auth/authService';
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
 import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
+import UpgradeServicesModal from "./pages/monetization/components/UpgradeServicesModal";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -202,10 +203,28 @@ function App() {
     }
   }, [isRootPath, token, authToken, navigate]);
 
+
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCancel = () => {
     setIsModalOpen(false);
+  };
+
+  //Upgraded Services Modal
+  const upgrade_services = searchParams.get("upgrade_services");
+  const [isUpgradeModal, setIsUpgradeModal] = useState(true);
+
+  useEffect(() => {
+    if (upgrade_services) {
+      setIsUpgradeModal(true)
+      searchParams.delete('upgrade_services');
+      navigate('/', { replace: true })
+    }
+  }, [upgrade_services]);
+
+  const handleUpgradeModal = () => {
+    setIsUpgradeModal(false);
   };
 
   return (
@@ -240,6 +259,9 @@ function App() {
                   <ExpiredPlanCard />
                   <DoctorModal />
                 </div>
+              )}
+              {isUpgradeModal && (
+                <UpgradeServicesModal isUpgradeModal={isUpgradeModal} handleUpgradeModal={handleUpgradeModal} />
               )}
               <Routes>
                 {/* Public route */}
@@ -348,7 +370,7 @@ function App() {
                   <div class="my-4 flat-20 py-2 fs-16">🔥Unlock Unlimited Access&nbsp;<span>- Flat 20% OFF!</span></div>
                   <Row>
                     <Col lg={6}>
-                      <Button type='button' className='w-100 btn align-items-center justify-content-center d-flex btn-41 btn-outline-primary' style={{height: 52}}>
+                      <Button type='button' className='w-100 btn align-items-center justify-content-center d-flex btn-41 btn-outline-primary' style={{ height: 52 }}>
                         <i className='icon-phone me-2'></i>
                         Request a call back
                       </Button>
@@ -362,16 +384,17 @@ function App() {
                   </Row>
                 </div>
                 <div className="d-flex align-items-center pt-3">
-                    <img className="me-2" src={contactSupport} alt="Contact Support" />
-                    <div className="fs-16 text-white opacity-08">Contact Support:</div>
-                    <a href="tel:+91-9974042363" className="fs-16 fw-medium text-white">&nbsp;+91-9974042363&nbsp;|</a>
-                    <a href="mailto:Support@tatvacare.in" className="fs-16 fw-medium text-white">&nbsp;Support@tatvacare.in</a>
-                  </div>
+                  <img className="me-2" src={contactSupport} alt="Contact Support" />
+                  <div className="fs-16 text-white opacity-08">Contact Support:</div>
+                  <a href="tel:+91-9974042363" className="fs-16 fw-medium text-white">&nbsp;+91-9974042363&nbsp;|</a>
+                  <a href="mailto:Support@tatvacare.in" className="fs-16 fw-medium text-white">&nbsp;Support@tatvacare.in</a>
+                </div>
               </Col>
             </Row>
           </>
         </Card>
       </Modal >
+
     </>
   );
 }

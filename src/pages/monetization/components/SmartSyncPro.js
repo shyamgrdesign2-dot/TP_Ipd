@@ -7,10 +7,9 @@ import vaccinationImg from "../../../assets/images/Vaccination.svg";
 import deviderIncludes from "../../../assets/images/includes-devider.svg";
 import { formatAmount } from "../../../utils/utils";
 
-function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, selectedServices, setSelectedServices, clickKnowMore }) {
+function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setChecked, selectedServices, setSelectedServices, clickKnowMore }) {
 
     const { campaignsData } = useSelector((state) => state.doctors);
-    const [checked, setChecked] = useState(false);
 
     const onChange = (e) => {
         setChecked(e.target.checked)
@@ -79,7 +78,7 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, selectedServic
                             </div>
                         </div>
                         <div>
-                            <Button className={`btn d-flex rounded-10px align-items-center justify-content-center ms-4 ${!addOrNot ? 'btn-addon' : 'btn-added'}`} onClick={() => handleSmartSyncAddRemove(checked)}>
+                            <Button className={`btn d-flex rounded-10px align-items-center justify-content-center ms-4 ${!addOrNot ? 'btn-addon' : 'btn-added'}`} onClick={handleSmartSyncAddRemove}>
                                 <i className={`me-2 ${!addOrNot ? 'icon-Add fs-18 ' : 'fs-4 icon-check'}`}></i> {!addOrNot ? 'Add' : 'Added'}
                             </Button>
                         </div>

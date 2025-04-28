@@ -50,6 +50,7 @@ import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { checkCredits, updateCredits } from "../redux/monetizationSlice";
 import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
+import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -1353,13 +1354,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                 </span>
               </button>
 
-              {planDetails !== undefined && planDetails?.plan_tier === FREE && (
-                <Button className={`btn rounded-pill btn-free-trials me-3 ${planDetails?.credit_balance === 0 && 'btn-free-0-trials'}`} onClick={showHideSubModal}>
-                  <img src={planDetails?.credit_balance === 0 ? coinSmRed : coinSm} className="me-2" alt="Tatva Icon" />
-                  {planDetails?.credit_balance} free trial
-                  {planDetails?.credit_balance > 0 && <i className="ms-2 icon-right iconrotate180"></i>}
-                </Button>
-              )}
+              <FreeTrialButton title={S_VOICE_RX} showHideSubModal={showHideSubModal} />
 
               {showPrescription && (
                 <Button

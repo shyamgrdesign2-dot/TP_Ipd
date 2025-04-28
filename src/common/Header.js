@@ -28,6 +28,7 @@ import profileBg from "../assets/images/profile-bg.svg";
 import goldCrown from "../assets/images/gold-crown.svg";
 import crownIcon from "../assets/images/crown.svg";
 import AISuite from "../assets/images/ai-suite.png";
+import iconMobile from "../assets/images/icon-mobile.svg";
 
 import config from "../config";
 import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds, campaigns, services } from "../redux/doctorsSlice";
@@ -51,6 +52,7 @@ import { setAdvancedSettings, setBillPrintSettings } from "../redux/billingSlice
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 import moment from "moment";
 import AiSuite from "../pages/monetization/components/AiSuite";
+import MedEcoAppKnowMore from "../pages/monetization/components/MedEcoAppKnowMore";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -105,6 +107,7 @@ function Header({ locationPath }) {
   const [tokenData, setTokenData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [aiModal, setAiModal] = useState(false);
+  const [medEcoKnowMoreDrawer, setMedEcoKnowMoreDrawer] = useState(false);
 
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
@@ -749,6 +752,17 @@ function Header({ locationPath }) {
       },
       {
         label: (
+          <a onClick={handleMedEcoKnowMore}>
+            <div className="title-common me-5 d-flex align-items-center">
+              <img src={iconMobile} className="me-3" style={{ filter: 'grayscale(100%)' }} alt="MedEco Mobile App" /> MedEco Mobile App
+            </div>
+            <i className="icon-right iconrotate180"></i>
+          </a>
+        ),
+        key: "3",
+      },
+      {
+        label: (
           <a onClick={() => setUpWebsiteUrl(2)}>
             <div className="title-common me-5 d-flex align-items-center">
               <i className="icon-group me-3"></i>
@@ -757,7 +771,7 @@ function Header({ locationPath }) {
             <i className="icon-right iconrotate180"></i>
           </a>
         ),
-        key: "3",
+        key: "4",
       },
       {
         label: (
@@ -768,7 +782,7 @@ function Header({ locationPath }) {
             <i className="icon-right iconrotate180"></i>
           </a>
         ),
-        key: "4",
+        key: "5",
       },
       {
         label: (
@@ -779,7 +793,7 @@ function Header({ locationPath }) {
             <i className="icon-right iconrotate180"></i>
           </a>
         ),
-        key: "5",
+        key: "6",
       },
       {
         label:
@@ -825,7 +839,7 @@ function Header({ locationPath }) {
       // },
     ];
 
-    const remaingDays = servicesList.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === FREE ? moment(servicesList.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
+    const remaingDays = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === FREE ? moment(servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
     if (remaingDays > 0) {
       const freeTrialMenu = [
         {
@@ -974,6 +988,10 @@ function Header({ locationPath }) {
   const handleAiSuite = useCallback(() => {
     setAiModal(!aiModal);
   }, [aiModal]);
+
+  const handleMedEcoKnowMore = () => {
+    setMedEcoKnowMoreDrawer((prev) => !prev);
+  };
 
   return (
     <>
@@ -1200,6 +1218,17 @@ function Header({ locationPath }) {
       </Navbar>
 
       <AiSuite aiModal={aiModal} handleAiSuite={handleAiSuite} />
+
+      <Drawer
+        closeIcon={false}
+        placement="right"
+        onClose={handleMedEcoKnowMore}
+        open={medEcoKnowMoreDrawer}
+        width={600}
+      >
+        <MedEcoAppKnowMore handleMedEcoKnowMore={handleMedEcoKnowMore} />
+      </Drawer>
+
     </>
   );
 }

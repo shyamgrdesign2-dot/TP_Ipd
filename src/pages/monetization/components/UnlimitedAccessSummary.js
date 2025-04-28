@@ -1,19 +1,14 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { Dropdown, Card, Modal, Drawer, Input } from "antd";
-import { Button, Col, Row } from "react-bootstrap";
+import { Dropdown, Card, Modal, Drawer, Input, Button } from "antd";
 import { DownOutlined } from '@ant-design/icons'
 import Slider from "react-slick";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
 
 import yearlyPlan from '../../../assets/images/year-plan-corner.svg'
-import upgradedLogo from '../../../assets/images/upgraded-logo.svg'
-import medcoAppScanner from '../../../assets/images/scanner-medco-app.svg'
-import listIcon from '../../../assets/images/list-icon.svg'
-import aiPowered from '../../../assets/images/ai-powered.svg'
-import vaccinationImg from "../../../assets/images/Vaccination.svg";
-import iconEdit from "../../../assets/images/edit.svg";
+
 import logoSm from '../../../assets/images/logo-sm.svg';
 import config from "../../../config";
 import { errorMessage, formatAmount } from "../../../utils/utils";
@@ -26,9 +21,11 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const { profile, campaignsData } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const showHideModal = () => {
         setIsModalOpen(!isModalOpen);
@@ -69,23 +66,10 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 key: '2',
             },
             {
-                type: 'divider',
-                key: '0',
-            },
-            {
                 label: <div onClick={() => handleValidity(service_name, 3)}>3 Year</div>,
                 key: '3',
             }
         ]
-    };
-
-    const settings = {
-        infinite: true,
-        speed: 500,
-        dots: true,
-        arrows: true,
-        adaptiveHeight: false,
-        autoplay: false,
     };
 
     const totalAmount = useMemo(() => {
@@ -93,6 +77,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     }, [selectedServices]);
 
     const clickBuyNow = async () => {
+        setLoading(true)
         let sendData = {
             amount: totalAmount,
         }
@@ -101,12 +86,14 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             if (action?.payload?.hasOwnProperty("id")) {
                 initRazorPayPayment(action?.payload);
             } else {
+                setLoading(false)
                 typeof action?.payload?.data?.error === 'object' ?
                     errorMessage(action?.payload?.data?.error?.description)
                     :
                     errorMessage(action?.payload?.data?.message)
             }
         } else {
+            setLoading(false)
             errorMessage(action.payload.message)
         }
     }
@@ -124,6 +111,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 try {
                     verifyRazorPayPayment(response, data)
                 } catch (error) {
+                    setLoading(false)
                     console.log(error);
                 }
             },
@@ -137,7 +125,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             },
             modal: {
                 ondismiss: function () {
-                    //   setLoading(false)
+                    setLoading(false)
                 }
             }
         };
@@ -178,13 +166,17 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 }
                 await dispatch(purchaseDetails(sendData))
                 dispatch(services(profile?.b2c));
+                setLoading(false)
+                navigate('/?upgrade_services=true', { replace: true })
             } else {
+                setLoading(false)
                 typeof action?.payload?.data?.error === 'object' ?
                     errorMessage(action?.payload?.data?.error?.description)
                     :
                     errorMessage(action?.payload?.data?.message)
             }
         } else {
+            setLoading(false)
             errorMessage(action.payload.message)
         }
     }
@@ -231,13 +223,14 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     <div className="fs-4 text-welcome fw-semibold">{`₹${totalAmount}`}</div>
                 </div>
 
-                <Button className="btn btn-proceed btn-primary3 my-4" onClick={clickBuyNow}>
+                <Button className="btn btn-proceed btn-primary3 my-4" onClick={clickBuyNow} loading={loading}>
                     {`Proceed to Pay ₹${totalAmount}`}
                 </Button>
                 <div className="text-center">
                     <Link className="text-decoration-underline fw-medium text-primary" onClick={showDrawer}>Have a sales referral code?</Link>
                 </div>
             </div>
+
             <Drawer
                 placement="right"
                 open={drawerOpen}
@@ -299,132 +292,6 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     </div>
                 </div>
             </Drawer>
-
-            <Modal
-                open={isModalOpen}
-                closeIcon={false}
-                footer={null}
-                width={750}
-                onCancel={showHideModal}
-                className="upgraded-model"
-                destroyOnClose>
-                <Card
-                    extra={
-                        <button className="btn p-1 lh-1 btnclose closeButton" onClick={showHideModal}>
-                            <i className="icon-Cross"></i>
-                        </button>
-                    }>
-                    <>
-                        <img src={upgradedLogo} alt="upgraded to premium" />
-                        <div className="fs-2 fw-bold mt-3">
-                            You have upgraded to premium
-                        </div>
-                        <div className="mt-3"> Here’s what’s now available to you.</div>
-                        <Slider
-                            {...settings}
-                            slidesToShow={1}>
-                            <div className='upgraded-premium-box w-92'>
-                                <Row>
-                                    <Col lg={6} className="py-2">
-                                        <div className="d-flex align-items-center">
-                                            <img className="mx-2" src={listIcon} alt="icon" />
-                                            <div className="fs-14 fw-medium text-price text-start">OPD Management</div>
-                                        </div>
-                                    </Col>
-                                    <Col lg={6} className="py-2">
-                                        <div className="d-flex align-items-center">
-                                            <img className="mx-2" src={listIcon} alt="icon" />
-                                            <div className="fs-14 fw-medium text-price text-start">Digital Rx Delivery</div>
-                                        </div>
-                                    </Col>
-                                    <Col lg={6} className="py-2">
-                                        <div className="d-flex align-items-center">
-                                            <img className="mx-2" src={listIcon} alt="icon" />
-                                            <div className="fs-14 fw-medium text-price text-start">Appointment Management</div>
-                                        </div>
-                                    </Col>
-                                    <Col lg={6} className="py-2">
-                                        <div className="d-flex align-items-center">
-                                            <img className="mx-2" src={listIcon} alt="icon" />
-                                            <div className="fs-14 fw-medium text-price text-start">Automated Follow-up Remainder</div>
-                                        </div>
-                                    </Col>
-                                    <Col lg={6} className="py-2">
-                                        <div className="d-flex align-items-center">
-                                            <img className="mx-2" src={listIcon} alt="icon" />
-                                            <div className="fs-14 fw-medium text-price text-start">Comprehnsive Patient Record</div>
-                                        </div>
-                                    </Col>
-                                    <Col lg={6} className="py-2">
-                                        <div className="d-flex align-items-center">
-                                            <img className="mx-2" src={listIcon} alt="icon" />
-                                            <div className="fs-14 fw-medium text-price text-start">Dedicated Support</div>
-                                        </div>
-                                    </Col>
-                                    <Col lg={6} className="py-2">
-                                        <div className="d-flex align-items-center">
-                                            <img className="mx-2" src={listIcon} alt="icon" />
-                                            <div className="fs-14 fw-medium text-price text-start">Specialised Rx Pad</div>
-                                        </div>
-                                    </Col>
-                                    <Col lg={6} className="py-2">
-                                        <div className="d-flex align-items-center">
-                                            <img className="mx-2" src={listIcon} alt="icon" />
-                                            <div className="fs-14 fw-medium text-price text-start">Appointment scheduling </div>
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <Button className="btn btn-proceed btn-primary3 w-100 mt-4">
-                                    Start Exploring
-                                </Button>
-                            </div>
-                            <div className='upgraded-premium-box w-92'>
-                                <Row>
-                                    <Col lg={6}>
-                                        <div className="py-3 upgrade-addon-box">
-                                            <div>
-                                                <div className="fs-18 d-flex align-items-center text-welcome fw-semibold my-2 text-truncate">
-                                                    <img style={{ background: '#EDD6FF' }} className="p-1 rounded-10px me-2" src={vaccinationImg} alt="Icon" />
-                                                    Voice Rx
-                                                    <img className="ms-3" src={aiPowered} alt="Icon" />
-                                                </div>
-                                                <div className="text-start">
-                                                    AI-powered Voice Rx generation for seamless patient care
-                                                </div>
-                                            </div>
-                                            <Button className="btn btn-outline-primary w-100 mt-4 mb-3">
-                                                Know more
-                                            </Button>
-                                        </div>
-                                    </Col>
-                                    <Col lg={6}>
-                                        <div className="py-3 upgrade-addon-box">
-                                            <div className="fs-18 d-flex align-items-center text-welcome fw-semibold my-2 text-truncate">
-                                                <img style={{ background: '#EDD6FF' }} className="p-1 rounded-10px me-2" src={vaccinationImg} alt="Icon" />
-                                                Ask Tatva
-                                                <img className="ms-3" src={aiPowered} alt="Icon" />
-                                            </div>
-                                            <div className="text-start">
-                                                Access reliable AI-driven medical insights from PubMed
-                                            </div>
-                                            <Button className="btn btn-outline-primary w-100 mt-4 mb-3">
-                                                Know more
-                                            </Button>
-                                        </div>
-                                    </Col>
-                                </Row>
-                            </div>
-                            <div className='upgraded-premium-box w-92'>
-                                <div className="w-75 mx-auto px-3">
-                                    <div className="fs-18 fw-semibold"> Scan the Below QR to Download MedEco App</div>
-                                    <img className="mx-auto my-4" src={medcoAppScanner} alt="Medco App QR Code" />
-                                    <div>Enhance your clinical practice and stay updated with the latest medical insights. <Link className="text-decoration-underline fw-medium text-primary">Know More</Link></div>
-                                </div>
-                            </div>
-                        </Slider>
-                    </>
-                </Card>
-            </Modal>
         </>
     );
 }

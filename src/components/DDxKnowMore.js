@@ -11,6 +11,7 @@ import VideoModal from "../common/VideoModal";
 import ContactSupport from "../pages/monetization/components/ContactSupport";
 import ExpiredText from "../pages/monetization/components/ExpiredText";
 import { S_DDX } from "../utils/constants";
+import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
 
 const { TabPane } = Tabs;
 
@@ -88,11 +89,10 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
       {
         root: null, // Default is the viewport
         threshold: 0, // Trigger as soon as the section starts intersecting
-        rootMargin: `0px 0px ${
-          activeKey === "basicInfo" || activeKey === "digitisationProcess"
-            ? "20%"
-            : "-20%"
-        } 0px`, // Focus on sections near the top of the viewport
+        rootMargin: `0px 0px ${activeKey === "basicInfo" || activeKey === "digitisationProcess"
+          ? "20%"
+          : "-20%"
+          } 0px`, // Focus on sections near the top of the viewport
       }
     );
 
@@ -113,15 +113,18 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
     <div className="drawer-container">
       {/* Modal Header */}
       <div className="drawer-header">
-        <div className="drawer-header-content border-bottom">
-          <Button
-            type="text"
-            className="close-drawer-btn"
-            onClick={handleDDxKnowMore}
-          >
-            <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
-          </Button>
-          <div className="drawer-title">AI-Powered Differential Diagnosis</div>
+        <div className="drawer-header-content justify-content-between border-bottom">
+          <div className="d-flex align-items-center">
+            <Button
+              type="text"
+              className="close-drawer-btn"
+              onClick={handleDDxKnowMore}
+            >
+              <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
+            </Button>
+            <div className="drawer-title">AI-Powered Differential Diagnosis</div>
+          </div>
+          <FreeTrialButton title={S_DDX} />
         </div>
 
         {/* Tabs */}
@@ -260,9 +263,9 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
             (such as symptoms, examinations, history, and medications), the
             better the accuracy of the differential diagnosis results.
           </div>
-            
+
           <ContactSupport />
-          
+
           <div
             style={{ padding: "40px 0 80px 0", textAlign: "center" }}
             className="disclaimer-txt"
@@ -274,7 +277,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
         </div>
 
       </div>
-            
+
       <ExpiredText title={S_DDX} />
 
       {shouldShowVideo && (

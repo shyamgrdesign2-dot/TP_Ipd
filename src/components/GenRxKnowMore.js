@@ -2,12 +2,11 @@ import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Button, Spin, Tabs } from "antd";
 import genRxIcon from "../assets/images/gen-rx-icon.svg";
 import playIcons from "../assets/images/tube-icon.svg";
-import coinSm from "../assets/images/coin-sm.png";
-import coinSmRed from "../assets/images/coin-sm-red.png";
 import VideoModal from "../common/VideoModal";
 import ExpiredText from "../pages/monetization/components/ExpiredText";
 import ContactSupport from "../pages/monetization/components/ContactSupport";
 import { S_VOICE_RX } from "../utils/constants";
+import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -88,7 +87,7 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
       <div className="drawer-container">
         {/* Modal Header */}
         <div className="drawer-header">
-          <div className="drawer-header-content justify-content-between  border-bottom">
+          <div className="drawer-header-content justify-content-between border-bottom">
             <div className="d-flex align-items-center">
               <Button
                 type="text"
@@ -99,10 +98,7 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
               </Button>
               <div className="drawer-title">AI-Powered Voice Rx</div>
             </div>
-            <Button className="btn rounded-pill btn-free-trials btn-free-0-trials me-3">
-              <img src={coinSmRed} className="me-2" alt="Tatva Icon" />
-              0 free trial
-            </Button>
+            <FreeTrialButton title={S_VOICE_RX} />
           </div>
 
           {/* Tabs */}

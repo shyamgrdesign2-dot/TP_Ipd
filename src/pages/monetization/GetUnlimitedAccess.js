@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Col, Row } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
-import moment from "moment";
 import { Spin, Drawer } from "antd";
+import { useLocation } from 'react-router-dom';
 
 import HeaderUnlimitedAccess from "../../common/HeaderUnlimitedAccess";
 import TatvaPracticeEMR from "./components/TatvaPracticeEMR";
@@ -10,24 +10,39 @@ import SmartSyncPro from "./components/SmartSyncPro";
 import AddonServices from "./components/AddonServices";
 import CampaignDiscount from "./components/CampaignDiscount";
 import UnlimitedAccessSummary from "./components/UnlimitedAccessSummary";
-import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION } from "../../utils/constants";
+import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION, S_IPD, S_ASK_TATVA, S_PHARMACY, S_BILLING } from "../../utils/constants";
 import { services } from "../../redux/doctorsSlice";
-import GenRxKnowMore from "../../components/GenRxKnowMore";
 
-import "./GetUnlimitedAccess.scss";
+import GenRxKnowMore from "../../components/GenRxKnowMore";
 import CvtKnowMore from "../smartSync/components/CvtKnowMore";
 import DDxKnowMore from "../../components/DDxKnowMore";
+import IPDKnowMore from "./components/IPDKnowMore";
+import AskTatvaKnowMore from "./components/AskTatvaKnowMore";
+import PharmacyKnowMore from "./components/PharmacyKnowMore";
+import BillingKnowMore from "./components/BillingKnowMore";
+import MedEcoAppKnowMore from "./components/MedEcoAppKnowMore";
+
+import "./GetUnlimitedAccess.scss";
 
 function GetUnlimitedAccess() {
 
     const { profile, campaignsData, servicesLoading, servicesList } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
+    const { state } = useLocation();
+    const { buyServiceName } = state != null && state;
+
     const [servicesData, setServicesData] = useState([]);
+    const [checked, setChecked] = useState(false);
     const [selectedServices, setSelectedServices] = useState([]);
     const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
-    const [cvtDrawer, setCvtDrawer] = useState(false);
     const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
+    const [cvtDrawer, setCvtDrawer] = useState(false);
+    const [askTatvaKnowMoreDrawer, setAskTatvaKnowMoreDrawer] = useState(false);
+    const [iPDKnowMoreDrawer, setIPDKnowMoreDrawer] = useState(false);
+    const [pharmacyKnowMoreDrawer, setPharmacyKnowMoreDrawer] = useState(false);
+    const [billingDrawer, setBillingDrawer] = useState(false);
+    const [medEcoKnowMoreDrawer, setMedEcoKnowMoreDrawer] = useState(false);
 
     useEffect(() => {
         dispatch(services(profile?.b2c));
@@ -55,10 +70,25 @@ function GetUnlimitedAccess() {
 
             setServicesData(result)
 
-            const EMR = result
-                ?.filter(({ service_name }) => service_name === S_TATVA_PRACTICE)
-                ?.map(service => ({ ...service, validity: 1 }));
-            setSelectedServices(EMR)
+            let defaultService = []
+            if (buyServiceName !== undefined) {
+                if (buyServiceName === S_RX_DIGITIZATION) {
+                    const isSmartRxPurchased = jsonArray?.some(e => e.service_name === S_SMARTSYNC)
+                    defaultService = jsonArray
+                        ?.filter(({ service_name }) => !isSmartRxPurchased ? service_name === buyServiceName : service_name === S_SMARTSYNC || service_name === S_RX_DIGITIZATION)
+                        ?.map(service => ({ ...service, validity: 1 }))
+                    setChecked(true)
+                } else {
+                    defaultService = jsonArray
+                        ?.filter(({ service_name }) => service_name === buyServiceName)
+                        ?.map(service => ({ ...service, validity: 1 }))
+                }
+            } else {
+                defaultService = jsonArray
+                    ?.filter(({ service_name }) => service_name === S_TATVA_PRACTICE)
+                    ?.map(service => ({ ...service, validity: 1 }))
+            }
+            setSelectedServices(defaultService)
         }
     }, [servicesList]);
 
@@ -73,7 +103,7 @@ function GetUnlimitedAccess() {
         });
     }, [selectedServices]);
 
-    const handleSmartSyncAddRemove = useCallback((item, checked) => {
+    const handleSmartSyncAddRemove = useCallback((item) => {
         if (checked) {
             setSelectedServices(prev => {
                 const newSelection = [...prev];
@@ -106,18 +136,49 @@ function GetUnlimitedAccess() {
             handleDrawerCvtKnowMore()
         } else if (service_name === S_DDX) {
             handleDDxKnowMore()
+        } else if (service_name === S_IPD) {
+            handleIPDKnowMore()
+        } else if (service_name === S_ASK_TATVA) {
+            handleAskTatvaKnowMore()
+        } else if (service_name === S_PHARMACY) {
+            handlePharmacyKnowMore()
+        } else if (service_name === S_BILLING) {
+            handleBillingKnowMore()
+        } else if (service_name === S_TATVA_PRACTICE) {
+            handleMedEcoKnowMore()
         }
     }
+
     const handleGenRxKnowMore = () => {
         setGenRxKnowMoreDrawer((prev) => !prev);
+    };
+
+    const handleDDxKnowMore = () => {
+        setDDxKnowMoreDrawer((prev) => !prev);
     };
 
     const handleDrawerCvtKnowMore = () => {
         setCvtDrawer((prev) => !prev);
     };
 
-    const handleDDxKnowMore = () => {
-        setDDxKnowMoreDrawer((prev) => !prev);
+    const handleAskTatvaKnowMore = () => {
+        setAskTatvaKnowMoreDrawer((prev) => !prev);
+    };
+
+    const handleIPDKnowMore = () => {
+        setIPDKnowMoreDrawer((prev) => !prev);
+    };
+
+    const handlePharmacyKnowMore = () => {
+        setPharmacyKnowMoreDrawer((prev) => !prev);
+    };
+
+    const handleBillingKnowMore = () => {
+        setBillingDrawer((prev) => !prev);
+    };
+
+    const handleMedEcoKnowMore = () => {
+        setMedEcoKnowMoreDrawer((prev) => !prev);
     };
 
     return (
@@ -139,7 +200,9 @@ function GetUnlimitedAccess() {
                                                     <SmartSyncPro
                                                         data={item?.data}
                                                         addOrNot={selectedServices?.some(e => e.service_name === S_SMARTSYNC || e.service_name === S_RX_DIGITIZATION)}
-                                                        handleSmartSyncAddRemove={(checked) => handleSmartSyncAddRemove(item?.data, checked)}
+                                                        handleSmartSyncAddRemove={() => handleSmartSyncAddRemove(item?.data)}
+                                                        checked={checked}
+                                                        setChecked={setChecked}
                                                         selectedServices={selectedServices}
                                                         setSelectedServices={setSelectedServices}
                                                         clickKnowMore={() => clickKnowMore(item?.data[0]?.service_name)}
@@ -187,17 +250,6 @@ function GetUnlimitedAccess() {
                     </Drawer>
                 )}
 
-                <Drawer
-                    closeIcon={false}
-                    placement="right"
-                    onClose={handleDrawerCvtKnowMore}
-                    open={cvtDrawer}
-                    className=".modalWidth-800"
-                    width={800}
-                >
-                    <CvtKnowMore handleDrawerCvtKnowMore={handleDrawerCvtKnowMore} handleCollapsed={handleDrawerCvtKnowMore} />
-                </Drawer>
-
                 {ddxKnowMoreDrawer && (
                     <Drawer
                         closeIcon={false}
@@ -208,6 +260,84 @@ function GetUnlimitedAccess() {
                         width={825}
                     >
                         <DDxKnowMore handleDDxKnowMore={handleDDxKnowMore} />
+                    </Drawer>
+                )}
+
+                {cvtDrawer && (
+                    <Drawer
+                        closeIcon={false}
+                        placement="right"
+                        onClose={handleDrawerCvtKnowMore}
+                        open={cvtDrawer}
+                        className=".modalWidth-800"
+                        width={800}
+                    >
+                        <CvtKnowMore handleDrawerCvtKnowMore={handleDrawerCvtKnowMore} handleCollapsed={handleDrawerCvtKnowMore} />
+                    </Drawer>
+                )}
+
+                {askTatvaKnowMoreDrawer && (
+                    <Drawer
+                        closeIcon={false}
+                        placement="right"
+                        open={askTatvaKnowMoreDrawer}
+                        onClose={handleAskTatvaKnowMore}
+                        className=".modalWidth-800"
+                        width={600}
+                    >
+                        <AskTatvaKnowMore handleAskTatvaKnowMore={handleAskTatvaKnowMore} />
+                    </Drawer>
+                )}
+
+                {iPDKnowMoreDrawer && (
+                    <Drawer
+                        closeIcon={false}
+                        placement="right"
+                        open={iPDKnowMoreDrawer}
+                        onClose={handleIPDKnowMore}
+                        className=".modalWidth-800"
+                        width={600}
+                    >
+                        <IPDKnowMore handleIPDKnowMore={handleIPDKnowMore} />
+                    </Drawer>
+                )}
+
+                {pharmacyKnowMoreDrawer && (
+                    <Drawer
+                        closeIcon={false}
+                        placement="right"
+                        open={pharmacyKnowMoreDrawer}
+                        onClose={handlePharmacyKnowMore}
+                        className=".modalWidth-800"
+                        width={600}
+                    >
+                        <PharmacyKnowMore handlePharmacyKnowMore={handlePharmacyKnowMore} />
+                    </Drawer>
+                )}
+
+                {billingDrawer && (
+                    <Drawer
+                        closeIcon={false}
+                        placement="right"
+                        open={billingDrawer}
+                        onClose={handleBillingKnowMore}
+                        className=".modalWidth-800"
+                        width={600}
+                    >
+                        <BillingKnowMore handleBillingKnowMore={handleBillingKnowMore} />
+                    </Drawer>
+                )}
+
+                {medEcoKnowMoreDrawer && (
+                    <Drawer
+                        closeIcon={false}
+                        placement="right"
+                        open={medEcoKnowMoreDrawer}
+                        onClose={handleMedEcoKnowMore}
+                        className=".modalWidth-800"
+                        width={600}
+                    >
+                        <MedEcoAppKnowMore handleMedEcoKnowMore={handleMedEcoKnowMore} />
                     </Drawer>
                 )}
             </div>

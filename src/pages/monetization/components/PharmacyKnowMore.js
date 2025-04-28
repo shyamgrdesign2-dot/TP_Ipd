@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { Button, Tabs } from "antd";
-import playIcons from "../../../../assets/images/tube-icon.svg";
-import coinSmRed from "../../../../assets/images/coin-sm-red.png";
-import VideoModal from "../../../../common/VideoModal";
-import ExpiredText from "../../../monetization/components/ExpiredText";
-import { S_BILLING } from "../../../../utils/constants";
-import ContactSupport from "../../../monetization/components/ContactSupport";
+import playIcons from "../../../assets/images/tube-icon.svg";
+
+import VideoModal from "../../../common/VideoModal";
+import ContactSupport from "./ContactSupport";
+import ExpiredText from "./ExpiredText";
+import { S_PHARMACY } from "../../../utils/constants";
 
 const { TabPane } = Tabs;
 
-const BillingKnowMore = ({ handleCollapsed }) => {
+const PharmacyKnowMore = ({ handlePharmacyKnowMore }) => {
   const [videoLink, setVideoLink] = useState(false);
 
   const scrollToSection = (sectionId) => {
@@ -27,19 +27,13 @@ const BillingKnowMore = ({ handleCollapsed }) => {
   return (
     <div className="drawer-container">
       <div className="drawer-header">
-        <div className="drawer-header-content justify-content-between border-bottom">
-          <div className="d-flex align-items-center">
-            <Button type="text"
-              className="close-drawer-btn"
-              onClick={() => handleCollapsed(5)}>
-              <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
-            </Button>
-            <div className="drawer-title">OPD Billing</div>
-          </div>
-          <Button className="btn rounded-pill btn-free-trials btn-free-0-trials me-3">
-            <img src={coinSmRed} className="me-2" alt="Tatva Icon" />
-            0 free trial
+        <div className="drawer-header-content border-bottom">
+          <Button type="text"
+            className="close-drawer-btn"
+            onClick={handlePharmacyKnowMore}>
+            <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
           </Button>
+          <div className="drawer-title">Pharmacy Management</div>
         </div>
 
         <div className="drawer-tabs">
@@ -56,17 +50,17 @@ const BillingKnowMore = ({ handleCollapsed }) => {
         <div id="basicInfo" className="my-5">
           <span className="fs-12-1 fw-medium text-primary">Basic Info</span>
           <div className="fw-semibold fs-20 text-black mb-3">
-            What is OPD Billing?
+            What is Pharmacy Management?
           </div>
           <div className="rounded-4 p-4" style={{ background: '#A461D81A' }}>
-            The <span className="fw-semibold">OPD Billing</span> Module is a streamlined solution for clinics and hospitals to manage billing efficiently. It allows users to generate bills for custom services with features like GST calculation, discounts, multiple payment modes (cash, UPI, card etc), and partial payments. The module also supports customizable letterheads, digital signatures, and patient billing history for better financial tracking and documentation.
+            <span className="fw-semibold">Pharmacy Management</span> makes it easy to manage purchases, sales, stock, and master data in one place. Track invoices, returns, and analytics in real-time. Optimize operations with complete visibility across the purchase-to-sale workflow. Powerful reporting ensures you're always audit-ready.
           </div>
         </div>
 
         <div id="howItWorks" className="my-5">
           <span className="fs-12-1 fw-medium text-primary">How it works</span>
-          <div className="fw-semibold fs-20 text-black mb-2">How Does OPD Billing Work?</div>
-          <div className="fs-12-1 mb-2">Please watch this video to know how OPD billing works👇</div>
+          <div className="fw-semibold fs-20 text-black mb-2">How Does Pharmacy Management Work?</div>
+          <div className="fs-12-1 mb-2">Please watch this video to know how Pharmacy Management works👇</div>
           <div
             className="d-flex align-items-center justify-content-center"
             style={{
@@ -90,7 +84,7 @@ const BillingKnowMore = ({ handleCollapsed }) => {
         <ContactSupport />
       </div>
 
-      <ExpiredText title={S_BILLING} />
+      <ExpiredText title={S_PHARMACY} />
 
       {videoLink && (
         <VideoModal
@@ -98,8 +92,8 @@ const BillingKnowMore = ({ handleCollapsed }) => {
           onCancel={() => setVideoLink(false)}
         />
       )}
-    </div >
+    </div>
   );
 };
 
-export default React.memo(BillingKnowMore);
+export default React.memo(PharmacyKnowMore);

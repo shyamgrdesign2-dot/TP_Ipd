@@ -32,7 +32,7 @@ import { clearSearch } from "../../../../redux/appointmentsSlice";
 import AddAdvance from "../advanceDeposit/AddAdvance";
 import CreateBill from "../createBill/CreateBill";
 import { fetchPatientWalletBalance } from "../../service";
-import BillingKnowMore from "../knowMore/BillingKnowMore";
+import BillingKnowMore from "../../../monetization/components/BillingKnowMore";
 
 function BillingDashboard({ patientData, fromPath }) {
   const dispatch = useDispatch();
@@ -249,9 +249,9 @@ function BillingDashboard({ patientData, fromPath }) {
   }, [popOverVideo]);
 
 
-  const clickKnowMore = useCallback(() => {
-    setBillingDrawer(!billingDrawer);
-  }, [billingDrawer]);
+  const handleBillingKnowMore = () => {
+    setBillingDrawer((prev) => !prev);
+  };
 
   return (
     <>
@@ -330,7 +330,7 @@ function BillingDashboard({ patientData, fromPath }) {
                     </div>
                   )} */}
 
-                  <button className="btn d-flex align-items-center btn-text mx-3 tutorial p-0" onClick={clickKnowMore}>
+                  <button className="btn d-flex align-items-center btn-text mx-3 tutorial p-0" onClick={handleBillingKnowMore}>
                     <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
                       <img height={42} src={tutorial} />
                       Tutorial
@@ -456,11 +456,11 @@ function BillingDashboard({ patientData, fromPath }) {
       <Drawer
         closeIcon={false}
         placement="right"
-        onClose={clickKnowMore}
+        onClose={handleBillingKnowMore}
         open={billingDrawer}
         width={600}
       >
-        <BillingKnowMore clickKnowMore={clickKnowMore} handleCollapsed={clickKnowMore} />
+        <BillingKnowMore handleBillingKnowMore={handleBillingKnowMore} />
       </Drawer>
     </>
   );

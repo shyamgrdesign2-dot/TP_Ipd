@@ -1,0 +1,121 @@
+import React from "react";
+import { Card, Modal } from "antd";
+import { Button, Col, Row } from "react-bootstrap";
+import Slider from "react-slick";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+import upgradedLogo from '../../../assets/images/upgraded-logo.svg'
+import medcoAppScanner from '../../../assets/images/scanner-medco-app.svg'
+import listIcon from '../../../assets/images/list-icon.svg'
+import aiPowered from '../../../assets/images/ai-powered.svg'
+import vaccinationImg from "../../../assets/images/Vaccination.svg";
+import iconEdit from "../../../assets/images/edit.svg";
+import { S_TATVA_PRACTICE } from "../../../utils/constants";
+
+function UpgradeServicesModal({ isUpgradeModal, handleUpgradeModal }) {
+
+    const { servicesList } = useSelector((state) => state.doctors);
+    const EMR_PlanDetails = servicesList.find(e => e.service_name === S_TATVA_PRACTICE)
+
+    const settings = {
+        infinite: true,
+        speed: 500,
+        dots: true,
+        arrows: true,
+        adaptiveHeight: false,
+        autoplay: false,
+    };
+
+    return (
+        <Modal
+            open={isUpgradeModal}
+            closeIcon={false}
+            footer={null}
+            width={750}
+            onCancel={handleUpgradeModal}
+            className="upgraded-model"
+            destroyOnClose>
+            <Card
+                extra={
+                    <button className="btn p-1 lh-1 btnclose closeButton" onClick={handleUpgradeModal}>
+                        <i className="icon-Cross"></i>
+                    </button>
+                }>
+                <>
+                    <img src={upgradedLogo} alt="upgraded to premium" />
+                    <div className="fs-2 fw-bold mt-3">
+                        You have upgraded to premium
+                    </div>
+                    <div className="mt-3"> Here’s what’s now available to you.</div>
+                    <Slider
+                        {...settings}
+                        slidesToShow={1}>
+                        <div className='upgraded-premium-box w-92'>
+                            <Row>
+                                {EMR_PlanDetails?.service_points?.map((item, index) => {
+                                    return (
+                                        <Col key={index} lg={6} className="py-2">
+                                            <div className="d-flex align-items-center">
+                                                <img className="mx-2" src={listIcon} alt="icon" />
+                                                <div className="fs-14 fw-medium text-price text-start">{item}</div>
+                                            </div>
+                                        </Col>
+                                    )
+                                })}
+                            </Row>
+                            <Button className="btn btn-proceed btn-primary3 w-100 mt-4">
+                                Start Exploring
+                            </Button>
+                        </div>
+                        <div className='upgraded-premium-box w-92'>
+                            <Row>
+                                <Col lg={6}>
+                                    <div className="py-3 upgrade-addon-box">
+                                        <div>
+                                            <div className="fs-18 d-flex align-items-center text-welcome fw-semibold my-2 text-truncate">
+                                                <img style={{ background: '#EDD6FF' }} className="p-1 rounded-10px me-2" src={vaccinationImg} alt="Icon" />
+                                                Voice Rx
+                                                <img className="ms-3" src={aiPowered} alt="Icon" />
+                                            </div>
+                                            <div className="text-start">
+                                                AI-powered Voice Rx generation for seamless patient care
+                                            </div>
+                                        </div>
+                                        <Button className="btn btn-outline-primary w-100 mt-4 mb-3">
+                                            Know more
+                                        </Button>
+                                    </div>
+                                </Col>
+                                <Col lg={6}>
+                                    <div className="py-3 upgrade-addon-box">
+                                        <div className="fs-18 d-flex align-items-center text-welcome fw-semibold my-2 text-truncate">
+                                            <img style={{ background: '#EDD6FF' }} className="p-1 rounded-10px me-2" src={vaccinationImg} alt="Icon" />
+                                            Ask Tatva
+                                            <img className="ms-3" src={aiPowered} alt="Icon" />
+                                        </div>
+                                        <div className="text-start">
+                                            Access reliable AI-driven medical insights from PubMed
+                                        </div>
+                                        <Button className="btn btn-outline-primary w-100 mt-4 mb-3">
+                                            Know more
+                                        </Button>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </div>
+                        <div className='upgraded-premium-box w-92'>
+                            <div className="w-75 mx-auto px-3">
+                                <div className="fs-18 fw-semibold"> Scan the Below QR to Download MedEco App</div>
+                                <img className="mx-auto my-4" src={medcoAppScanner} alt="Medco App QR Code" />
+                                <div>Enhance your clinical practice and stay updated with the latest medical insights. <Link className="text-decoration-underline fw-medium text-primary">Know More</Link></div>
+                            </div>
+                        </div>
+                    </Slider>
+                </>
+            </Card>
+        </Modal>
+    )
+}
+
+export default React.memo(UpgradeServicesModal);
