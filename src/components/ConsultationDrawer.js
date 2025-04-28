@@ -8,16 +8,13 @@ import React, {
   Suspense,
   lazy,
 } from "react";
-import { Drawer, Button, Input, message, Menu, Dropdown, Spin, Modal, Card } from "antd";
+import { Drawer, Button, Input, message, Menu, Dropdown, Spin } from "antd";
 import styles from "./ConsultationDrawer.module.css";
 import deleteIcon from "../assets/images/delete-gen-rx.svg";
 import micIcon from "../assets/images/mic-gen-rx.svg";
 import pauseIcon from "../assets/images/pause.svg";
 import coinSm from "../assets/images/coin-sm.png";
-import coinSmRed from "../assets/images/coin-sm-red.png";
-import coinLg from "../assets/images/coin-lg.png";
-import crown from '../assets/images/crown.svg'
-import planExpiredSandClock from '../assets/images/plan-expired-sand-clock.png'
+import coinSmRed from "../assets/images/coin-sm-red.png"
 
 import {
   editGenRxDetails,
@@ -51,9 +48,8 @@ import tatvaAiChakra from "../assets/lotties/tatvaAiChakra.lottie";
 import { FREE, MESSAGE_KEY, S_VOICE_RX } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
-import expiredInfographic2 from '../assets/images/expired-infographic-2.svg'
-import CampaignDiscount from "../pages/monetization/components/CampaignDiscount";
 import { checkCredits, updateCredits } from "../redux/monetizationSlice";
+import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -371,14 +367,14 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       const response = genRxDetails?._id
         ? await updateGenRx(formData, genRxDetails?._id)
         : await generateRx(formData);
-      
+
       if (response.success) {
         let sendData = {
           b2c_id: profile?.b2c,
           service_name: S_VOICE_RX
         }
         dispatch(updateCredits(sendData))
-        
+
         setPrescriptionData(response.data.digitize);
         setPrescriptionData(() => {
           // Merge localModules into dynamicFields
@@ -1865,74 +1861,15 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         </>
       </Suspense>
 
-      {visible && planDetails !== undefined && (
-        <Modal
-          open={isSubModalOpen}
-          closeIcon={false}
-          footer={null}
-          centered
-          className="voicerx-modal text-center"
-          width={435}
+      {visible && (
+        <ExpiredSubModal
+          title={S_VOICE_RX}
           styles={{
             mask: { marginLeft: showPrescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)', backdropFilter: 'blur(2px)' },
             wrapper: { marginLeft: showPrescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)' },
           }}
-        >
-          <Card
-            extra={
-              <>
-                {planDetails?.credit_balance > 0 && (
-                  <img className="coinLg" src={coinLg} alt="Tatva Coin" />
-                )}
-                <button className="position-relative z-1 btn p-1 lh-1 btnclose closeButton" onClick={showHideSubModal}>
-                  <i className="icon-Cross"></i>
-                </button>
-                <img className="expiredInfographic" src={expiredInfographic2} alt="Your free trail has Expired" />
-                <img className="expiredInfographic" style={{ opacity: 0.5 }} src={expiredInfographic2} alt="Your free trail has Expired" />
-              </>
-            }>
-
-            {planDetails?.credit_balance > 0 ? (
-              // Uncomment for Trial modal
-              <div className="text-white fs-16">
-                <span className="fw-bold fs-2 text-white">{planDetails?.credit_balance}</span>
-                <span className="text-white fw-semibold">/05</span> free Trial Left! <br />
-                You can generate up to <span className="fw-bold text-white">3 RX</span> using AI Voice Rx for absolutely free!
-              </div>
-            ) : (
-              // For Expire Modal
-              <>
-                <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
-                <div className="text-white">
-                  Your<span className="text-white fw-semibold"> Voice Rx  free trail  </span>  has expired. <br />
-                  Upgrade now to continue a hassle free experience!
-                </div>
-              </>
-            )}
-
-            <div className="bg-white p-4 rounded-5 mt-4">
-              <div className="fs-4 fw-bold text-price">Upgrade Now 🚀</div>
-              <div className="mt-3 text-price">Unlock unlimited AI Voice Rx, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
-
-              {campaignsData?.campaign_active && (
-                <CampaignDiscount flag={2} />
-              )}
-
-              <div>
-                <Button type='button' className='mt-3 btn align-items-center mx-auto d-flex btn-41 btn-text btn-save' style={{ height: 52 }}>
-                  <i className='icon-phone text-primary me-2'></i>
-                  Request a call back
-                </Button>
-              </div>
-              <div>
-                <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex">
-                  <img className="me-2" src={crown} alt="Crown" />
-                  Get Unlimited Access
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </Modal>
+          isSubModalOpen={isSubModalOpen}
+          showHideSubModal={showHideSubModal} />
       )}
 
     </Drawer>
