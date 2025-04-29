@@ -213,7 +213,7 @@ function App() {
 
   //Upgraded Services Modal
   const upgrade_services = searchParams.get("upgrade_services");
-  const [isUpgradeModal, setIsUpgradeModal] = useState(true);
+  const [isUpgradeModal, setIsUpgradeModal] = useState(false);
 
   useEffect(() => {
     if (upgrade_services) {
