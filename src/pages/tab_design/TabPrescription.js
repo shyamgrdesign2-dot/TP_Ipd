@@ -103,6 +103,7 @@ import TatvaAiBanner from "../../components/TatvaAiBanner";
 import TatvaAiKnowMore from "../../components/TatvaAiKnowMore";
 import ExpiredSubModal from "../monetization/components/ExpiredSubModal";
 import { checkCredits, updateCredits } from "../../redux/monetizationSlice";
+import { services } from "../../redux/doctorsSlice";
 
 function TabPrescription() {
   const {
@@ -813,6 +814,9 @@ function TabPrescription() {
       if (action.meta.requestStatus === "fulfilled") {
         if (action?.payload?.hasOwnProperty("service_name")) {
           if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance === 0) {
+            if (action?.payload?.credit_balance != planDetails?.credit_balance) {
+              await dispatch(services(data?.b2c_id))
+            }
             showHideSubModal({ service_name: S_DDX })
           } else {
             let sendData = {
@@ -820,7 +824,7 @@ function TabPrescription() {
               service_name: S_DDX
             }
             dispatch(updateCredits(sendData))
-            
+
             setIsDDxLoading(true);
             setIsDDxGenerated(true);
             window.Moengage.track_event("TP_CDSS_Ack_GenDx", {

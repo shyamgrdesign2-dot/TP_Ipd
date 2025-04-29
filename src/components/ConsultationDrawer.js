@@ -48,6 +48,7 @@ import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { checkCredits, updateCredits } from "../redux/monetizationSlice";
 import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
+import { services } from "../redux/doctorsSlice";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -254,6 +255,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       if (action.meta.requestStatus === "fulfilled") {
         if (action?.payload?.hasOwnProperty("service_name")) {
           if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance === 0) {
+            if (action?.payload?.credit_balance != planDetails?.credit_balance) {
+              await dispatch(services(data?.b2c_id))
+            }
             showHideSubModal({ service_name: S_VOICE_RX, show_prescription: showPrescription })
           } else {
             if (!isRecording && !(inputText || editableQuery)) return;
