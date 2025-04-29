@@ -16,6 +16,7 @@ import { paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/mon
 import { services } from "../../../redux/doctorsSlice";
 
 import "../GetUnlimitedAccess.scss";
+import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../../utils/constants";
 
 function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
@@ -188,19 +189,21 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 {selectedServices?.map((item, index) => {
                     return (
                         <div key={index} className="d-flex justify-content-between my-4">
-                            <div className="fs-18">{`${item?.service_display_name}:`}
-                                <div className="d-flex align-items-baseline">
-                                    <img className="ms-1" src={yearlyPlan} alt="icon" />
-                                    <div className="d-flex align-items-center">
-                                        <Dropdown menu={{ items: getMenuItems(item?.service_name) }} className="fs-14 fw-medium text-primary py-1 px-2 dd-yearly" trigger={['click']}>
-                                            <a onClick={e => e.preventDefault()}>
-                                                {`${item?.validity} Year`}
-                                                <DownOutlined className="ps-2 fs-14 fw-medium text-primary" />
-                                            </a>
-                                        </Dropdown>
-                                        <i className="icon-info fs-6 text-black-50 ms-2"></i>
+                            <div className="fs-18">{`${item?.service_display_name} ${item?.service_name !== S_TATVA_PRACTICE && item?.service_name !== S_SMARTSYNC ? '(Addon)' : item?.service_name === S_SMARTSYNC ? '(Device)' : ''}:`}
+                                {item?.service_name !== S_SMARTSYNC && (
+                                    <div className="d-flex align-items-baseline">
+                                        <img className="ms-1" src={yearlyPlan} alt="icon" />
+                                        <div className="d-flex align-items-center">
+                                            <Dropdown menu={{ items: getMenuItems(item?.service_name) }} className="fs-14 fw-medium text-primary py-1 px-2 dd-yearly" trigger={['click']}>
+                                                <a onClick={e => e.preventDefault()}>
+                                                    {`${item?.validity} Year`}
+                                                    <DownOutlined className="ps-2 fs-14 fw -medium text-primary" />
+                                                </a>
+                                            </Dropdown>
+                                            <i className="icon-info fs-6 text-black-50 ms-2"></i>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                             <div className="fs-18 fw-medium">
                                 {`₹${formatAmount(parseFloat(item.service_cost) * item.validity)}`}

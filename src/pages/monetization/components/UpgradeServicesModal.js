@@ -72,32 +72,33 @@ function UpgradeServicesModal({ isUpgradeModal, handleUpgradeModal }) {
                         {[...Array(Math.ceil(purchasedData.length / 2))]?.map((_, i) => {
                             return (
                                 <div key={i} className='upgraded-premium-box w-92'>
-                                    <Row>
+                                    <div className="d-flex">
                                         {purchasedData?.slice(2 * i, (2 * i) + 2)?.map((item, index) => {
                                             return (
-                                                <Col lg={6}>
-                                                    <div className="py-3 upgrade-addon-box">
-                                                        <div>
-                                                            <div className="fs-18 d-flex align-items-center text-welcome fw-semibold my-2 text-truncate">
-                                                                <img style={{ background: '#EDD6FF' }} className="p-1 rounded-10px me-2" src={vaccinationImg} alt="Icon" />
-                                                                {item?.service_display_name}
-                                                                <img className="ms-3" src={aiPowered} alt="Icon" />
-                                                            </div>
-                                                            <div className="text-start">
-                                                                {item?.service_description}
+                                                <div key={item?.service_name} className="py-3 upgrade-addon-box">
+                                                    <div>
+                                                        <div className="fs-18 d-flex align-items-center text-welcome fw-semibold my-2 text-truncate">
+                                                            <img style={{ background: '#EDD6FF' }} className="p-1 rounded-10px me-2" src={vaccinationImg} alt="Icon" />
+                                                            <div className="d-flex align-items-center" style={{ flexWrap: 'wrap' }}>
+                                                                <div className="me-3">{item?.service_display_name}</div>
+                                                                <img src={aiPowered} className="aipowered" alt="AI Powered" />
                                                             </div>
                                                         </div>
-                                                        <Button className="btn btn-outline-primary w-100 mt-4 mb-3">
-                                                            Know more
-                                                        </Button>
+                                                        <div className="text-start">
+                                                            {item?.service_description}
+                                                        </div>
                                                     </div>
-                                                </Col>
+                                                    <Button className="btn btn-outline-primary w-100 mt-4 mb-3">
+                                                        Know more
+                                                    </Button>
+                                                </div>
                                             )
                                         })}
-                                    </Row>
+                                    </div>
                                 </div>
                             )
                         })}
+
                         <div className='upgraded-premium-box w-92'>
                             <div className="w-75 mx-auto px-3">
                                 <div className="fs-18 fw-semibold"> Scan the Below QR to Download MedEco App</div>

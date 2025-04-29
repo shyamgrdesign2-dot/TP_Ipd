@@ -85,11 +85,15 @@ function GetUnlimitedAccess() {
                         ?.filter(({ service_name }) => service_name === buyServiceName)
                         ?.map(service => ({ ...service, validity: 1 }))
                 }
-            } else {
-                defaultService = jsonArray
-                    ?.filter(({ service_name }) => service_name === S_TATVA_PRACTICE)
-                    ?.map(service => ({ ...service, validity: 1 }))
             }
+            // else {
+            //     defaultService = jsonArray
+            //         ?.filter(({ service_name }) => service_name === S_TATVA_PRACTICE)
+            //         ?.map(service => ({ ...service, validity: 1 }))
+            // }
+            defaultService?.unshift(...jsonArray
+                ?.filter(({ service_name }) => service_name === S_TATVA_PRACTICE)
+                ?.map(service => ({ ...service, validity: 1 })))
             setSelectedServices(defaultService)
         }
     }, [servicesList]);
