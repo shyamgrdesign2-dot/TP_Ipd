@@ -12,6 +12,7 @@ import expired from "../../../assets/images/expired.png";
 import { FREE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_ASK_TATVA, S_RX_DIGITIZATION } from "../../../utils/constants";
 import GenRxKnowMore from "../../../components/GenRxKnowMore";
 import DDxKnowMore from "../../../components/DDxKnowMore";
+import SmartSyncKnowMore from "../components/SmartSyncKnowMore";
 import CvtKnowMore from "../../smartSync/components/CvtKnowMore";
 import AskTatvaKnowMore from "./AskTatvaKnowMore";
 
@@ -23,6 +24,7 @@ function AiSuite({ aiModal, handleAiSuite }) {
     const [aiServicesData, setAiServicesData] = useState([]);
     const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
     const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
+    const [smartSyncKnowMoreDrawer, setSmartSyncKnowMoreDrawer] = useState(false);
     const [cvtDrawer, setCvtDrawer] = useState(false);
     const [askTatvaKnowMoreDrawer, setAskTatvaKnowMoreDrawer] = useState(false);
 
@@ -36,7 +38,9 @@ function AiSuite({ aiModal, handleAiSuite }) {
     const clickKnowMore = (service_name) => {
         if (service_name === S_VOICE_RX) {
             handleGenRxKnowMore()
-        } else if (service_name === S_SMARTSYNC || service_name === S_RX_DIGITIZATION) {
+        } else if (service_name === S_SMARTSYNC) {
+            handleSmartSyncKnowMore()
+        } else if (service_name === S_RX_DIGITIZATION) {
             handleDrawerCvtKnowMore()
         } else if (service_name === S_DDX) {
             handleDDxKnowMore()
@@ -51,6 +55,10 @@ function AiSuite({ aiModal, handleAiSuite }) {
 
     const handleDDxKnowMore = () => {
         setDDxKnowMoreDrawer((prev) => !prev);
+    };
+
+    const handleSmartSyncKnowMore = () => {
+        setSmartSyncKnowMoreDrawer((prev) => !prev);
     };
 
     const handleDrawerCvtKnowMore = () => {
@@ -149,6 +157,19 @@ function AiSuite({ aiModal, handleAiSuite }) {
                     width={825}
                 >
                     <GenRxKnowMore handleGenRxKnowMore={handleGenRxKnowMore} />
+                </Drawer>
+            )}
+
+            {smartSyncKnowMoreDrawer && (
+                <Drawer
+                    closeIcon={false}
+                    placement="right"
+                    open={smartSyncKnowMoreDrawer}
+                    onClose={handleSmartSyncKnowMore}
+                    className=".modalWidth-800"
+                    width={600}
+                >
+                    <SmartSyncKnowMore handleSmartSyncKnowMore={handleSmartSyncKnowMore} />
                 </Drawer>
             )}
 

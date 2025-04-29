@@ -14,6 +14,7 @@ import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION, S_
 import { services } from "../../redux/doctorsSlice";
 
 import GenRxKnowMore from "../../components/GenRxKnowMore";
+import SmartSyncKnowMore from "./components/SmartSyncKnowMore";
 import CvtKnowMore from "../smartSync/components/CvtKnowMore";
 import DDxKnowMore from "../../components/DDxKnowMore";
 import IPDKnowMore from "./components/IPDKnowMore";
@@ -37,6 +38,7 @@ function GetUnlimitedAccess() {
     const [selectedServices, setSelectedServices] = useState([]);
     const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
     const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
+    const [smartSyncKnowMoreDrawer, setSmartSyncKnowMoreDrawer] = useState(false);
     const [cvtDrawer, setCvtDrawer] = useState(false);
     const [askTatvaKnowMoreDrawer, setAskTatvaKnowMoreDrawer] = useState(false);
     const [iPDKnowMoreDrawer, setIPDKnowMoreDrawer] = useState(false);
@@ -133,6 +135,8 @@ function GetUnlimitedAccess() {
         if (service_name === S_VOICE_RX) {
             handleGenRxKnowMore()
         } else if (service_name === S_SMARTSYNC) {
+            handleSmartSyncKnowMore()
+        } else if (service_name === S_RX_DIGITIZATION) {
             handleDrawerCvtKnowMore()
         } else if (service_name === S_DDX) {
             handleDDxKnowMore()
@@ -155,6 +159,10 @@ function GetUnlimitedAccess() {
 
     const handleDDxKnowMore = () => {
         setDDxKnowMoreDrawer((prev) => !prev);
+    };
+
+    const handleSmartSyncKnowMore = () => {
+        setSmartSyncKnowMoreDrawer((prev) => !prev);
     };
 
     const handleDrawerCvtKnowMore = () => {
@@ -263,6 +271,19 @@ function GetUnlimitedAccess() {
                     </Drawer>
                 )}
 
+                {smartSyncKnowMoreDrawer && (
+                    <Drawer
+                        closeIcon={false}
+                        placement="right"
+                        open={smartSyncKnowMoreDrawer}
+                        onClose={handleSmartSyncKnowMore}
+                        className=".modalWidth-800"
+                        width={600}
+                    >
+                        <SmartSyncKnowMore handleSmartSyncKnowMore={handleSmartSyncKnowMore} />
+                    </Drawer>
+                )}
+
                 {cvtDrawer && (
                     <Drawer
                         closeIcon={false}
@@ -340,6 +361,7 @@ function GetUnlimitedAccess() {
                         <MedEcoAppKnowMore handleMedEcoKnowMore={handleMedEcoKnowMore} />
                     </Drawer>
                 )}
+
             </div>
         </>
     );
