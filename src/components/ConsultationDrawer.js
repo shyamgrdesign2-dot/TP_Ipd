@@ -13,8 +13,6 @@ import styles from "./ConsultationDrawer.module.css";
 import deleteIcon from "../assets/images/delete-gen-rx.svg";
 import micIcon from "../assets/images/mic-gen-rx.svg";
 import pauseIcon from "../assets/images/pause.svg";
-import coinSm from "../assets/images/coin-sm.png";
-import coinSmRed from "../assets/images/coin-sm-red.png"
 
 import {
   editGenRxDetails,
@@ -49,15 +47,16 @@ import { FREE, MESSAGE_KEY, S_VOICE_RX } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { checkCredits, updateCredits } from "../redux/monetizationSlice";
-import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
 const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
-  const { campaignsData, servicesList } = useSelector((state) => state.doctors);
+  const { servicesList } = useSelector((state) => state.doctors);
   const planDetails = servicesList.find(e => e.service_name === S_VOICE_RX)
+
+  const { showHideSubModal } = useContext(CashManagerContext);
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
@@ -96,19 +95,13 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const { profile, userId } = useSelector((state) => state.doctors);
   const { TextArea } = Input;
 
-  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
-
   useEffect(() => {
     if (planDetails !== undefined && planDetails?.plan_tier === FREE) {
       setTimeout(() => {
-        setIsSubModalOpen(true)
+        showHideSubModal({ service_name: S_VOICE_RX, show_prescription: showPrescription })
       }, 1000);
     }
   }, [planDetails]);
-
-  const showHideSubModal = useCallback(() => {
-    setIsSubModalOpen(!isSubModalOpen);
-  }, [isSubModalOpen]);
 
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
@@ -251,7 +244,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
   const handleSend = async () => {
     if (planDetails?.plan_tier === FREE && planDetails?.credit_balance === 0) {
-      showHideSubModal()
+      showHideSubModal({ service_name: S_VOICE_RX, show_prescription: showPrescription })
     } else {
       let sendData = {
         b2c_id: profile?.b2c,
@@ -261,7 +254,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       if (action.meta.requestStatus === "fulfilled") {
         if (action?.payload?.hasOwnProperty("service_name")) {
           if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance === 0) {
-            showHideSubModal()
+            showHideSubModal({ service_name: S_VOICE_RX, show_prescription: showPrescription })
           } else {
             if (!isRecording && !(inputText || editableQuery)) return;
             if (genRxDetails?._id) {
@@ -1354,7 +1347,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                 </span>
               </button>
 
-              <FreeTrialButton title={S_VOICE_RX} showHideSubModal={showHideSubModal} />
+              <FreeTrialButton title={S_VOICE_RX} showHideSubModal={() => showHideSubModal({ service_name: S_VOICE_RX, show_prescription: showPrescription })} />
 
               {showPrescription && (
                 <Button
@@ -1855,18 +1848,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           </div>
         </>
       </Suspense>
-
-      {visible && (
-        <ExpiredSubModal
-          title={S_VOICE_RX}
-          styles={{
-            mask: { marginLeft: showPrescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)', backdropFilter: 'blur(2px)' },
-            wrapper: { marginLeft: showPrescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)' },
-          }}
-          isSubModalOpen={isSubModalOpen}
-          showHideSubModal={showHideSubModal} />
-      )}
-
     </Drawer>
   );
 };

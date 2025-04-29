@@ -440,4 +440,9 @@ body {
             }
         }
     }
+    &.ddx-side {
+        .ant-card-head {
+            min-height: 30px !important;
+        }
+    }
 }

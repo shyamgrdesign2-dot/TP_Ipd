@@ -21,7 +21,7 @@ function AddonServices({ item, addOrNot, handleAddRemove, clickKnowMore }) {
                             <div className="fs-4 text-welcome fw-semibold my-2">
                                 <img style={{ background: '#EDDFF780' }} className="p-1 rounded-10px me-2" src={vaccinationImg} alt="Icon" />
                                 {item.service_display_name}
-                                {/* <img src={aiPowered} alt="Icon" /> Uncomment in AI modules  */}
+                                {item.service_type === 'ai' && (<img src={aiPowered} alt="Icon" className="p-1 rounded-10px ms-2" />)}
                             </div>
                             <div>
                                 <div className="fs-14">{item.service_description}&nbsp;

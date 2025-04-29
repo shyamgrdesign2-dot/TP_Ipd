@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, GB_GYNEC_HISTORY, GB_ZYDUS_USER, GYNAECOLOGY, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, FREE, GB_GYNEC_HISTORY, GB_ZYDUS_USER, GYNAECOLOGY, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_DDX } from "../utils/constants";
 
 import { getPatientBirthWeight, getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../redux/medicalhistorySlice";
@@ -51,7 +51,7 @@ import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
 import { fetchObstetricDetails } from "./obstetric/service";
 import { addObstetricDetails } from "../redux/obstetricSlice";
-import { getClinicName, trackEvent } from "../utils/utils";
+import { errorMessage, getClinicName, trackEvent } from "../utils/utils";
 import UploadDocument from "./medicalRecords/UploadDocument";
 import MedicalRecords from "./medicalRecords/MedicalRecords";
 import {
@@ -91,6 +91,8 @@ import TatvaAiKnowMore from "../components/TatvaAiKnowMore";
 import GenRxBox from "../components/GenRxBox";
 import GenRxKnowMore from "../components/GenRxKnowMore";
 import ConsultationDrawer from "../components/ConsultationDrawer";
+import ExpiredSubModal from "./monetization/components/ExpiredSubModal";
+import { checkCredits, updateCredits } from "../redux/monetizationSlice";
 
 
 function Prescription() {
@@ -168,6 +170,11 @@ function Prescription() {
   const [isGenRxDrawerVisible, setIsGenRxDrawerVisible] = useState(caseManagerData?.smart_prescription_filename || false);
   const [pillupSwitch, setPillupSwitch] = useState(true);
 
+  const { servicesList } = useSelector((state) => state.doctors);
+
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+  const [subModalData, setSubModalData] = useState(null);
+
   const responsive = {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
@@ -182,6 +189,11 @@ function Prescription() {
       items: 1,
     },
   };
+
+  const showHideSubModal = (object) => {
+    object && setSubModalData(object)
+    setIsSubModalOpen(!isSubModalOpen);
+  }
 
   const contextApi = {
     patient_data,
@@ -217,7 +229,8 @@ function Prescription() {
     customModuleContents,
     setCustomModuleContents,
     pillupSwitch,
-    setPillupSwitch
+    setPillupSwitch,
+    showHideSubModal
   };
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
@@ -240,7 +253,7 @@ function Prescription() {
   const [shouldShowTatvaAiPopup, setShowTatvaAiPopup] = useState(true);
   const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
   const [activeTab, setActiveTab] = useState("basicInfo");
-  const [generatedDDx, setGeneratedDDx] = useState({results: []});
+  const [generatedDDx, setGeneratedDDx] = useState({ results: [] });
   const [isDDxLoading, setIsDDxLoading] = useState(false);
   const [ddxDrawer, setDDxDrawer] = useState(false);
   const [likeDislike, setLikeDislike] = useState([]);
@@ -475,7 +488,7 @@ function Prescription() {
       ) {
         setAdditionalNote(caseManagerData.visit_advice);
       }
-      if(caseManagerData?.moduleContents?.length){
+      if (caseManagerData?.moduleContents?.length) {
         setCustomModuleContents(caseManagerData?.moduleContents?.filter(
           (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
         ))
@@ -773,43 +786,74 @@ function Prescription() {
   };
 
   const getGenerateDDx = async (field) => {
-    setIsDDxLoading(true);
-    setIsDDxGenerated(true);
-    window.Moengage.track_event("TP_CDSS_Ack_GenDx", {
-      clinic_name: getClinicName(profile?.hospital_data),
-      doctor_id: profile?.doctor_unique_id,
-      patient_number: patient_data?.pm_contact_no,
-      patient_id: patient_data?.patient_unique_id,
-      field: field,
-    });
-    const payload = {
-      patientId: patient_data?.patient_unique_id,
-      symptoms: symptomsData?.map((symptom) => {
-        if (symptom) {
-          return {
-            name: symptom.symptom_name,
-            since: symptom.since,
-            severity: symptom.severity,
-            notes: symptom.note,
-          };
+    const planDetails = servicesList.find(e => e.service_name === S_DDX)
+    if (planDetails?.plan_tier === FREE && planDetails?.credit_balance === 0) {
+      showHideSubModal({ service_name: S_DDX })
+    } else {
+      let sendData = {
+        b2c_id: profile?.b2c,
+        service_name: S_DDX
+      }
+      const action = await dispatch(checkCredits(sendData));
+      if (action.meta.requestStatus === "fulfilled") {
+        if (action?.payload?.hasOwnProperty("service_name")) {
+          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance === 0) {
+            showHideSubModal({ service_name: S_DDX })
+          } else {
+            let sendData = {
+              b2c_id: profile?.b2c,
+              service_name: S_DDX
+            }
+            dispatch(updateCredits(sendData))
+            
+            setIsDDxLoading(true);
+            setIsDDxGenerated(true);
+            window.Moengage.track_event("TP_CDSS_Ack_GenDx", {
+              clinic_name: getClinicName(profile?.hospital_data),
+              doctor_id: profile?.doctor_unique_id,
+              patient_number: patient_data?.pm_contact_no,
+              patient_id: patient_data?.patient_unique_id,
+              field: field,
+            });
+            const payload = {
+              patientId: patient_data?.patient_unique_id,
+              symptoms: symptomsData?.map((symptom) => {
+                if (symptom) {
+                  return {
+                    name: symptom.symptom_name,
+                    since: symptom.since,
+                    severity: symptom.severity,
+                    notes: symptom.note,
+                  };
+                }
+              }),
+              examinations: examinationData?.map((examination) => {
+                if (examination) {
+                  return {
+                    name: examination.examination_name,
+                    notes: examination.note,
+                  };
+                }
+              }),
+            };
+            const generatedDDxResponse = await getDDxDetails(payload);
+            if (generatedDDxResponse?.results) {
+              setGeneratedDDx(generatedDDxResponse);
+              setLikeDislike(generatedDDxResponse?.results?.map(() => ""));
+            }
+            dispatch(setIsDDxReadyToGenerate(false));
+            setIsDDxLoading(false);
+          }
+        } else {
+          typeof action?.payload?.data?.error === 'object' ?
+            errorMessage(action?.payload?.data?.error?.description)
+            :
+            errorMessage(action?.payload?.data?.message)
         }
-      }),
-      examinations: examinationData?.map((examination) => {
-        if (examination) {
-          return {
-            name: examination.examination_name,
-            notes: examination.note,
-          };
-        }
-      }),
-    };
-    const generatedDDxResponse = await getDDxDetails(payload);
-    if (generatedDDxResponse?.results) {
-      setGeneratedDDx(generatedDDxResponse);
-      setLikeDislike(generatedDDxResponse?.results?.map(() => ""));
+      } else {
+        errorMessage(action.payload.message)
+      }
     }
-    dispatch(setIsDDxReadyToGenerate(false));
-    setIsDDxLoading(false);
   }
 
   const handleGenRxKnowMore = () => {
@@ -821,7 +865,7 @@ function Prescription() {
   };
 
   const CUSTOMIZED_PAD_LEFT_LIST = () => {
-  return  customizedPadLeftList?.map((e, i) => {
+    return customizedPadLeftList?.map((e, i) => {
       return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
         <div key={i} className="prescription-box-sm p-14">
           <div className="d-flex align-items-center justify-content-between">
@@ -1113,7 +1157,7 @@ function Prescription() {
                   </TabPane>
                   <TabPane
                     tab={
-                      <div style={{position: "relative"}}>
+                      <div style={{ position: "relative" }}>
                         <img
                           src={apexAIImg}
                           alt="apex-AI"
@@ -1128,7 +1172,7 @@ function Prescription() {
                             alt="blinking-dot"
                             width={20}
                             height={20}
-                              style={{position: "absolute", top: -12, right: -15}}
+                            style={{ position: "absolute", top: -12, right: -15 }}
                           />
                         )}
                       </div>
@@ -1447,6 +1491,19 @@ function Prescription() {
             <TatvaAiKnowMore handleTatvaAiKnowMore={handleTatvaAiKnowMore} handleDDxKnowMore={handleDDxKnowMore} handleGenRxKnowMore={handleGenRxKnowMore} />
           </Drawer>
         )}
+
+
+        {subModalData && subModalData?.hasOwnProperty('service_name') && (
+          <ExpiredSubModal
+            title={subModalData?.service_name}
+            isSubModalOpen={isSubModalOpen}
+            styles={subModalData?.hasOwnProperty('show_prescription') && {
+              mask: { marginLeft: subModalData?.show_prescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)', backdropFilter: 'blur(2px)' },
+              wrapper: { marginLeft: subModalData?.show_prescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)' },
+            }}
+            showHideSubModal={showHideSubModal} />
+        )}
+
       </>
     </CashManagerContext.Provider>
   );
