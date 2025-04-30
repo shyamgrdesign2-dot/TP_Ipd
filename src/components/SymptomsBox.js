@@ -43,6 +43,9 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
     templates,
     loading,
   } = useSelector((state) => state.symptoms);
+  const { isAutofillSelected, selectedSymptomsCollector } = useSelector(
+    (state) => state.ddx
+  );
   const dispatch = useDispatch();
 
   const { symptomsData, setSymptomsData, examinationData } = useContext(CashManagerContext);
@@ -217,6 +220,24 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
     setSearchParentQuery("");
     dispatch(setIsDDxReadyToGenerate(true));
   };
+
+  useEffect(() => {
+    if (
+      isAutofillSelected &&
+      selectedSymptomsCollector &&
+      Object.keys(selectedSymptomsCollector)?.length > 0
+    ) {
+      selectedSymptomsCollector?.symptoms?.map((symptom) => {
+        symptomsData.push({
+          symptom_name: symptom.name,
+          since: symptom.duration,
+          severity: symptom.severity,
+          note: symptom.notes,
+        });
+        setSymptomsData((prev) => [...prev]);
+      });
+    }
+  }, [isAutofillSelected, selectedSymptomsCollector]);
 
   //Child AutoComplete
   useEffect(() => {

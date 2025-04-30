@@ -85,6 +85,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const [audioBlob, setAudioBlob] = useState(null);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const { profile, userId } = useSelector((state) => state.doctors);
+  const { symptomCollector } = useSelector(
+    (state) => state.ddx
+  );
   const { TextArea } = Input;
 
   const showHideBackModal = useCallback(() => {
@@ -105,12 +108,16 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const textAreaRef = useRef(null);
 
   useEffect(() => {
-    getSymptomsCollectorData();
-  }, []);
-
-  useEffect(() => {
     if (caseManagerData?.smart_prescription_filename) getGenRxDetails();
   }, [caseManagerData?.smart_prescription_filename]);
+
+  useEffect(() => {
+    if (symptomCollector && Object.keys(symptomCollector)?.length > 0) {
+      setSymptomsCollectorData(symptomCollector);
+      setPrescriptionData(symptomCollector);
+      setShowPrescription(true);
+    }
+  }, [symptomCollector]);
 
   // Timer logic
   useEffect(() => {
@@ -148,21 +155,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       }
     } catch (error) {
       console.error("Error getting Rx details:", error);
-    }
-  };
-
-  const getSymptomsCollectorData = async () => {
-    const payload = {
-      um_id: String(userId),
-      patient_unique_id: String(patient_data?.patient_unique_id),
-      hm_id: String(decodedToken?.result?.clinic_id),
-      pam_id: "9266",
-    };
-    const response = await fetchSymptomsCollectorData(payload);
-    if (response && Object.keys(response)?.length > 0) {
-      setSymptomsCollectorData(response);
-      setPrescriptionData(response);
-      setShowPrescription(true);
     }
   };
 
