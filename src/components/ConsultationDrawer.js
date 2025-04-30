@@ -43,7 +43,7 @@ import VoiceWaveVisualizer from "./WaveVisualizer";
 import GenRXLoaders from "./GenRxLoaders";
 import genRxSendCta from "../assets/images/genRxSendCta.svg";
 import tatvaAiChakra from "../assets/lotties/tatvaAiChakra.lottie";
-import { FREE, MESSAGE_KEY, S_VOICE_RX } from "../utils/constants";
+import { FREE, MESSAGE_KEY, S_DDX, S_VOICE_RX } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { checkCredits, updateCredits } from "../redux/monetizationSlice";
@@ -57,7 +57,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const { servicesList } = useSelector((state) => state.doctors);
   const planDetails = servicesList.find(e => e.service_name === S_VOICE_RX)
 
-  const { showHideSubModal } = useContext(CashManagerContext);
+  const { showHideSubModal, useVoiceRx, setUseVoiceRx, useDDX } = useContext(CashManagerContext);
 
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
@@ -367,12 +367,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         : await generateRx(formData);
 
       if (response.success) {
-        let sendData = {
-          b2c_id: profile?.b2c,
-          service_name: S_VOICE_RX
-        }
-        dispatch(updateCredits(sendData))
-
         setPrescriptionData(response.data.digitize);
         setPrescriptionData(() => {
           // Merge localModules into dynamicFields
@@ -415,6 +409,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         );
         setInputText("");
         setIsEditing(false);
+        setUseVoiceRx(true);
       } else {
         throw new Error(response.error || "Failed to process prescription");
       }
@@ -770,6 +765,22 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         ),
         duration: 5,
       });
+
+      if (useVoiceRx) {
+        let sendData = {
+          b2c_id: profile?.b2c,
+          service_name: S_VOICE_RX
+        }
+        dispatch(updateCredits(sendData))
+      }
+      if (useDDX) {
+        let sendData = {
+          b2c_id: profile?.b2c,
+          service_name: S_DDX
+        }
+        dispatch(updateCredits(sendData))
+      }
+
       navigate("/gen-rx-print", {
         replace: true,
         state: {

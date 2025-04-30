@@ -102,7 +102,7 @@ import GenRxBanner from "../../components/GenRxBanner";
 import TatvaAiBanner from "../../components/TatvaAiBanner";
 import TatvaAiKnowMore from "../../components/TatvaAiKnowMore";
 import ExpiredSubModal from "../monetization/components/ExpiredSubModal";
-import { checkCredits, updateCredits } from "../../redux/monetizationSlice";
+import { checkCredits } from "../../redux/monetizationSlice";
 import { services } from "../../redux/doctorsSlice";
 
 function TabPrescription() {
@@ -199,6 +199,8 @@ function TabPrescription() {
 
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
   const [subModalData, setSubModalData] = useState(null);
+  const [useVoiceRx, setUseVoiceRx] = useState(false);
+  const [useDDX, setUseDDX] = useState(false);
 
   const showHideSubModal = (object) => {
     object && setSubModalData(object)
@@ -239,7 +241,11 @@ function TabPrescription() {
     setCustomModuleContents,
     pillupSwitch,
     setPillupSwitch,
-    showHideSubModal
+    showHideSubModal,
+    useVoiceRx,
+    setUseVoiceRx,
+    useDDX,
+    setUseDDX
   };
 
   const [collapsed, setCollapsed] = useState(false);
@@ -819,12 +825,6 @@ function TabPrescription() {
             }
             showHideSubModal({ service_name: S_DDX })
           } else {
-            let sendData = {
-              b2c_id: profile?.b2c,
-              service_name: S_DDX
-            }
-            dispatch(updateCredits(sendData))
-
             setIsDDxLoading(true);
             setIsDDxGenerated(true);
             window.Moengage.track_event("TP_CDSS_Ack_GenDx", {
@@ -859,6 +859,7 @@ function TabPrescription() {
             if (generatedDDxResponse?.results) {
               setGeneratedDDx(generatedDDxResponse);
               setLikeDislike(generatedDDxResponse?.results?.map(() => ""));
+              setUseDDX(true);
             }
             dispatch(setIsDDxReadyToGenerate(false));
             setIsDDxLoading(false);

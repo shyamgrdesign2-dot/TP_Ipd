@@ -22,7 +22,7 @@ import VideoModal from './VideoModal';
 
 import { errorMessage, getClinicName, removeBeforeWhiteSpace } from "../utils/utils";
 
-import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, GB_ZYDUS_USER, MESSAGE_KEY } from "../utils/constants";
+import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, GB_ZYDUS_USER, MESSAGE_KEY, S_DDX, S_VOICE_RX } from "../utils/constants";
 
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
@@ -45,6 +45,7 @@ import GenRxButton from '../components/GenRxButton';
 import { placeIctOrder } from '../redux/appointmentsSlice';
 import { getDecodedToken } from '../utils/localStorage';
 import { env } from '../EnvironmentConfig';
+import { updateCredits } from '../redux/monetizationSlice';
 
 var oneClickCosultationTemplateId = 0
 
@@ -68,7 +69,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
     const {customModules} = useSelector((state) => state.customModules);
 
     const navigate = useNavigate();
-    const { patient_data, send_path, tcmId, pamId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, surgeriesData, setSurgeriesData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, privateNotesData, setPrivateNotesData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime, customModuleContents, setCustomModuleContents, pillupSwitch } = useContext(CashManagerContext);
+    const { patient_data, send_path, tcmId, pamId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, surgeriesData, setSurgeriesData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, privateNotesData, setPrivateNotesData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime, customModuleContents, setCustomModuleContents, pillupSwitch, useVoiceRx, useDDX } = useContext(CashManagerContext);
 
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
@@ -975,6 +976,21 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     ),
                     duration: 5,
                 });
+
+                if (useVoiceRx) {
+                    let sendData = {
+                        b2c_id: profile?.b2c,
+                        service_name: S_VOICE_RX
+                    }
+                    dispatch(updateCredits(sendData))
+                }
+                if (useDDX) {
+                    let sendData = {
+                        b2c_id: profile?.b2c,
+                        service_name: S_DDX
+                    }
+                    dispatch(updateCredits(sendData))
+                }
 
                 window.Moengage.track_event("Z_enter_getInvestigationAndMedicine", {
                     clinic_name,
