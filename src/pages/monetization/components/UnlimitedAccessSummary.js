@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { Dropdown, Card, Modal, Drawer, Input, Button } from "antd";
+import { Dropdown, Card, Modal, Drawer, Input, Button, Popover } from "antd";
 import { DownOutlined } from '@ant-design/icons'
 import Slider from "react-slick";
 import { Link } from "react-router-dom";
@@ -200,7 +200,9 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                                     <DownOutlined className="ps-2 fs-14 fw -medium text-primary" />
                                                 </a>
                                             </Dropdown>
-                                            <i className="icon-info fs-6 text-black-50 ms-2"></i>
+                                            <Popover trigger="hover" content={<div className="py-2">{`₹${formatAmount(parseFloat(item.service_cost))} X ${formatAmount(item.validity)} years = ₹${formatAmount(parseFloat(item.service_cost) * item.validity)}`}</div>}>
+                                                <i className="icon-info fs-5 text-black-50 ms-2"></i>
+                                            </Popover>
                                         </div>
                                     </div>
                                 )}

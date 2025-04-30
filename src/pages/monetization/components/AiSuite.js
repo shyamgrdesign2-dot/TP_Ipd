@@ -9,6 +9,11 @@ import { useNavigate } from "react-router-dom";
 import Vitals from "../../../assets/images/Vitals.svg";
 import purchased from "../../../assets/images/purchased.png";
 import expired from "../../../assets/images/expired.png";
+import RxVoice from "../../../assets/images/microphone-voice-rx.png";
+import AskTatvaIcon from "../../../assets/images/icon-ask-tatva.png";
+import DDXIcon from "../../../assets/images/DDX-icon.png";
+import smartSyncIcon from "../../../assets/images/smart-sync-icon.png";
+
 import { FREE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_ASK_TATVA, S_RX_DIGITIZATION } from "../../../utils/constants";
 import GenRxKnowMore from "../../../components/GenRxKnowMore";
 import DDxKnowMore from "../../../components/DDxKnowMore";
@@ -73,6 +78,23 @@ function AiSuite({ aiModal, handleAiSuite }) {
         navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
     }
 
+    const getIcon = (service_name) => {
+        switch (service_name) {
+            case S_VOICE_RX:
+                return RxVoice;
+            case S_ASK_TATVA:
+                return AskTatvaIcon;
+            case S_DDX:
+                return DDXIcon;
+            case S_SMARTSYNC:
+                return smartSyncIcon;
+            case S_RX_DIGITIZATION:
+            return DDXIcon;
+            default:
+                return "";
+        }
+    }
+
     return (
         <>
             <Drawer
@@ -99,7 +121,7 @@ function AiSuite({ aiModal, handleAiSuite }) {
                                 {item?.plan_tier === FREE ? (
                                     <div className={`ai-suite my-4 ${item?.credit_balance === 0 && 'ai-expired'}`}>
                                         <div className="d-flex align-items-center mb-3">
-                                            <img src={Vitals} style={{ background: '#EDDFF780' }} className="p-1 rounded-10px me-2" />
+                                            <img style={{ background: '#EDDFF780', padding: 6 }} className="rounded-10px me-2" src={getIcon(item?.service_name)} alt="item.type" />
                                             <div className="fs-18 fw-semibold text-1F2933">{item?.service_display_name}</div>
                                             {item?.credit_balance === 0 && (<img src={expired} className="ms-2" />)}
                                         </div>
