@@ -800,7 +800,7 @@ function Prescription() {
         if (action?.payload?.hasOwnProperty("service_name")) {
           if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance === 0) {
             if (action?.payload?.credit_balance != planDetails?.credit_balance) {
-              await dispatch(services(data?.b2c_id))
+              await dispatch(services(sendData?.b2c_id))
             }
             showHideSubModal({ service_name: S_DDX })
           } else {
