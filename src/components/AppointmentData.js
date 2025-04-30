@@ -35,6 +35,7 @@ import { MESSAGE_KEY } from "../utils/constants";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import docimg from "../assets/images/docimg.png";
 import welcomdoc from "../assets/images/welcom-doc.svg";
+import symptoms from "../assets/images/symptoms-green.svg";
 import suporticon from "../assets/images/suport-icon.svg";
 import windoc from "../assets/images/win-doc.png";
 
@@ -76,6 +77,7 @@ import RecentBills from "../pages/opdBilling/components/recentBills/RecentBills"
 import AddAdvance from "../pages/opdBilling/components/advanceDeposit/AddAdvance";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 import { setAdvancedSettings, setBillPrintSettings, setShouldShowOpdBilling } from "../redux/billingSlice";
+import { checkSymptomsCollectorTour } from "../api/services/ApiGenRx";
 
 const { TextArea } = Input;
 
@@ -458,6 +460,7 @@ function AppointmentData({ locationPath }) {
     const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
     const [patientBills, setPatientBills] = useState([]);
     const [patientWalletBalance, setPatientWalletBalance] = useState(0);
+    const [isSymptomsCollectorTour, setIsSymptomsCollectorTour] = useState(false);
 
     const showHideBackModal = () => {
         setIsBackModalOpen(!isBackModalOpen);
@@ -477,6 +480,7 @@ function AppointmentData({ locationPath }) {
             dispatch(resetObstetricState());
             dispatch(resetUploadDocState());
             dispatch(resetDDxState());
+            getSymptomCollectorTourCheck();
         }
     }, []);
 
@@ -525,6 +529,18 @@ function AppointmentData({ locationPath }) {
             getShowOpdBilling();
         }
     }, []);
+
+    const getSymptomCollectorTourCheck = async () => {
+        const decodedToken = getDecodedToken();
+        const clinicId = String(decodedToken?.result?.clinic_id);
+        const isSymptomsCollectorTourRes = await checkSymptomsCollectorTour({
+          um_id: userId,
+          hm_id: clinicId,
+        });
+        if (!isSymptomsCollectorTourRes) {
+            setIsSymptomsCollectorTour(true);
+        }
+    };
 
     const getShowOpdBilling = async () => {
         const res = await checkToShowOpdBilling();
@@ -1330,6 +1346,7 @@ function AppointmentData({ locationPath }) {
                                 )}
                             </>
                         )}
+                        <img className="ms-3" src={symptoms} alt="symptoms" />
                         {!isDigitisationTab && selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT &&
                             <Dropdown
                                 className="btn btn-outline btn-more ms-3"

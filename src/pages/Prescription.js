@@ -79,7 +79,7 @@ import TabPane from "antd/es/tabs/TabPane";
 import apexAIImg from "../assets/images/apexAI.svg";
 import blinkingDot from "../assets/images/blinkingDot.gif";
 import DifferentialDiagnosisDrawer from "../components/DifferentialDiagnosisDrawer";
-import { setIsDDxReadyToGenerate } from "../redux/ddxSlice";
+import { setIsDDxReadyToGenerate, setShowSCPopup, setSymptomCollector } from "../redux/ddxSlice";
 import { getDDxDetails } from "../api/services/ApiDDx";
 import { getDecodedToken } from "../utils/localStorage";
 import DDxList from "../components/medical_certificate/DDxList";
@@ -91,6 +91,9 @@ import TatvaAiKnowMore from "../components/TatvaAiKnowMore";
 import GenRxBox from "../components/GenRxBox";
 import GenRxKnowMore from "../components/GenRxKnowMore";
 import ConsultationDrawer from "../components/ConsultationDrawer";
+import { fetchSymptomsCollectorData } from "../api/services/ApiGenRx";
+import SCPopup from "../components/SCPopup";
+import SCBanner from "../components/SCBanner";
 
 
 function Prescription() {
@@ -167,6 +170,7 @@ function Prescription() {
   const [customModuleContents, setCustomModuleContents] = useState([]);
   const [isGenRxDrawerVisible, setIsGenRxDrawerVisible] = useState(caseManagerData?.smart_prescription_filename || false);
   const [pillupSwitch, setPillupSwitch] = useState(true);
+  const [showSCBanner, setShowSCBanner] = useState(false);
 
   const responsive = {
     desktop: {
@@ -255,9 +259,8 @@ function Prescription() {
     isGrowthChartAccessable,
     isGynaecHistoryAccessable,
   } = useAccess(patient_data?.ageYears);
-  const { isDDxReadyToGenerate } = useSelector(
-    (state) => state.ddx
-  );
+  const { isDDxReadyToGenerate, showSCPopup } =
+    useSelector((state) => state.ddx);
 
   const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const baseUrl = env.lab_params_api_url;
@@ -651,7 +654,23 @@ function Prescription() {
 
   useEffect(() => {
     getLabParams();
+    getSymptomsCollectorData();
   }, []);
+
+  const getSymptomsCollectorData = async () => {
+    const payload = {
+      um_id: String(userId),
+      patient_unique_id: String(patient_data?.patient_unique_id),
+      hm_id: String(decodedToken?.result?.clinic_id),
+      pam_id: "9266",
+    };
+    const response = await fetchSymptomsCollectorData(payload);
+    if (response && Object.keys(response)?.length > 0) {
+      dispatch(setSymptomCollector(response));
+      dispatch(setShowSCPopup(true));
+      setShowSCBanner(true);
+    }
+  };
 
   const fetchGynecHistory = async () => {
     try {
@@ -1190,6 +1209,7 @@ function Prescription() {
                   )}
                   </Carousel>
                 } */}
+                {showSCBanner && <SCBanner handleBanner={() => setShowSCBanner(false)} />}
                 {customizedPadRightList?.map((e, i) => {
                   const customModule = customModules?.find(
                     (m) => m.module_id === e.tmdpm_id
@@ -1447,6 +1467,7 @@ function Prescription() {
             <TatvaAiKnowMore handleTatvaAiKnowMore={handleTatvaAiKnowMore} handleDDxKnowMore={handleDDxKnowMore} handleGenRxKnowMore={handleGenRxKnowMore} />
           </Drawer>
         )}
+        {showSCPopup && <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} />}
       </>
     </CashManagerContext.Provider>
   );
