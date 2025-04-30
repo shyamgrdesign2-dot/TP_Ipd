@@ -176,6 +176,7 @@ function SidebarDoctor() {
   };
 
   const handleTatvaAi = async () => {
+
     try {
       setLoading(true);
       window.Moengage.track_event("TP_TatvaAI_Open", {
