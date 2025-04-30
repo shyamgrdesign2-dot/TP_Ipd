@@ -1300,7 +1300,7 @@ function AppointmentData({ locationPath }) {
             width: 170,
             render: (_, record, index) => (
                 selectedTab != TAB_ZYDUS_APPOINTMENT ?
-                    <div size="middle" style={{ display: "flex" }}>
+                    <div size="middle" style={{ display: "flex", justifyContent: "space-between" }}>
                         {isSmartSyncAccessableFromGB && !isMobile && selectedTab != TAB_ZYDUS_ENCOUNTER ? (
                             isDigitisationTab ?
                                 <>
@@ -1346,7 +1346,7 @@ function AppointmentData({ locationPath }) {
                                 )}
                             </>
                         )}
-                        <img className="ms-3" src={symptoms} alt="symptoms" />
+                        {record?.symptomsGathered && <img src={symptoms} alt="symptoms" />}
                         {!isDigitisationTab && selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT &&
                             <Dropdown
                                 className="btn btn-outline btn-more ms-3"
