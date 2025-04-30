@@ -100,7 +100,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     if (planDetails !== undefined && planDetails?.plan_tier === FREE) {
       setTimeout(() => {
         showHideSubModal({ service_name: S_VOICE_RX, show_prescription: showPrescription })
-      }, 1000);
+      }, 500);
     }
   }, [planDetails]);
 

@@ -1480,7 +1480,10 @@ function Prescription() {
         {isGenRxDrawerVisible && (
           <ConsultationDrawer
             visible={isGenRxDrawerVisible}
-            onClose={() => setIsGenRxDrawerVisible(false)}
+            onClose={() => {
+              setIsSubModalOpen(false)
+              setIsGenRxDrawerVisible(false)
+            }}
             handleGenRxKnowMore={handleGenRxKnowMore}
           />
         )}
@@ -1497,17 +1500,14 @@ function Prescription() {
           </Drawer>
         )}
 
-
-        {subModalData && subModalData?.hasOwnProperty('service_name') && (
-          <ExpiredSubModal
-            title={subModalData?.service_name}
-            isSubModalOpen={isSubModalOpen}
-            styles={subModalData?.hasOwnProperty('show_prescription') && {
-              mask: { marginLeft: subModalData?.show_prescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)', backdropFilter: 'blur(2px)' },
-              wrapper: { marginLeft: subModalData?.show_prescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)' },
-            }}
-            showHideSubModal={showHideSubModal} />
-        )}
+        <ExpiredSubModal
+          title={subModalData && subModalData?.hasOwnProperty('service_name') && subModalData?.service_name}
+          isSubModalOpen={isSubModalOpen}
+          styles={subModalData?.hasOwnProperty('show_prescription') && {
+            mask: { zIndex: 9999, marginLeft: subModalData?.show_prescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)', backdropFilter: 'blur(2px)' },
+            wrapper: { zIndex: 9999, marginLeft: subModalData?.show_prescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)' },
+          }}
+          showHideSubModal={showHideSubModal} />
 
       </>
     </CashManagerContext.Provider>
