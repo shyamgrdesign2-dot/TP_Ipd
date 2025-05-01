@@ -701,7 +701,7 @@ function Header({ locationPath }) {
       {
         label: (
           <>
-            <div className="me-3">
+            <div className="mx-3">
               {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
                 <img
                   src={profile?.um_image ?? defaultprofile}
@@ -731,7 +731,7 @@ function Header({ locationPath }) {
       {
         label: (
           <a onClick={() => setUpWebsiteUrl(1)}>
-            <div className="title-common me-5 d-flex align-items-center">
+            <div className="title-common me-4 d-flex align-items-center">
               <i className="icon-profile me-3"></i>My Profile
             </div>
             <i className="icon-right iconrotate180"></i>
@@ -742,7 +742,7 @@ function Header({ locationPath }) {
       {
         label: (
           <a onClick={handleAiSuite}>
-            <div className="title-common me-5 d-flex align-items-center">
+            <div className="title-common me-4 d-flex align-items-center">
               <img src={AISuite} className="me-3" style={{ filter: 'grayscale(100%)' }} alt="AI Suite" />AI Suite
             </div>
             <i className="icon-right iconrotate180"></i>
@@ -753,7 +753,7 @@ function Header({ locationPath }) {
       {
         label: (
           <a onClick={handleMedEcoKnowMore}>
-            <div className="title-common me-5 d-flex align-items-center">
+            <div className="title-common me-4 d-flex align-items-center">
               <img src={iconMobile} className="me-3" style={{ filter: 'grayscale(100%)' }} alt="MedEco Mobile App" /> MedEco Mobile App
             </div>
             <i className="icon-right iconrotate180"></i>
@@ -764,7 +764,7 @@ function Header({ locationPath }) {
       {
         label: (
           <a onClick={() => setUpWebsiteUrl(2)}>
-            <div className="title-common me-5 d-flex align-items-center">
+            <div className="title-common me-4 d-flex align-items-center">
               <i className="icon-group me-3"></i>
               {`${profile?.website_publish && profile?.publish_url ? "Visit" : "Setup"} My Website`}
             </div>
@@ -776,7 +776,7 @@ function Header({ locationPath }) {
       {
         label: (
           <a onClick={myAvailability}>
-            <div className="title-common me-5 d-flex align-items-center">
+            <div className="title-common me-4 d-flex align-items-center">
               <i className="icon-calendar me-3"></i>My Availability
             </div>
             <i className="icon-right iconrotate180"></i>
@@ -787,7 +787,7 @@ function Header({ locationPath }) {
       {
         label: (
           <a onClick={accountSettings}>
-            <div className="title-common me-5 d-flex align-items-center">
+            <div className="title-common me-4 d-flex align-items-center">
               <i className="icon-setting me-3"></i>Account Setting
             </div>
             <i className="icon-right iconrotate180"></i>
@@ -798,7 +798,7 @@ function Header({ locationPath }) {
       {
         label:
           <a onClick={() => ["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : setUpWebsiteUrl(1)}>
-            <div className="title-common me-5 d-flex align-items-center">
+            <div className="title-common me-4 d-flex align-items-center">
               {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
               {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{ filter: 'brightness(0%)' }} alt="" />}
               {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
@@ -846,7 +846,7 @@ function Header({ locationPath }) {
           type: "divider",
         },
         {
-          className: "freeTrialMenu text-center rounded-12px p-3 my-3",
+          className: "freeTrialMenu text-center rounded-12px p-3 m-3",
           label: (
             <>
               Your free trial ends in <span className="fw-semibold">{`${remaingDays} days!`}</span>

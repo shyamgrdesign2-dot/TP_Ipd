@@ -640,16 +640,16 @@ const doctorsSlice = createSlice({
         state.servicesList = [];
       })
       .addCase(campaigns.fulfilled, (state, action) => {
-        const data = action.payload
-        const cleanedCampaign = { ...data, campaign_value: data.campaign_value.replace('%', '') };
+        const data = action?.payload?.hasOwnProperty('campaign_value')
+        const cleanedCampaign = data ? { ...data, campaign_value: data.campaign_value.replace('%', '') } : null;
         state.campaignsData = cleanedCampaign
       })
       .addCase(campaigns.rejected, (state) => {
         state.campaignsData = null;
       })
-      // .addCase(plans.fulfilled, (state, action) => {
-      //   state.plansList = action.payload?.services
-      // });
+    // .addCase(plans.fulfilled, (state, action) => {
+    //   state.plansList = action.payload?.services
+    // });
   },
 });
 
