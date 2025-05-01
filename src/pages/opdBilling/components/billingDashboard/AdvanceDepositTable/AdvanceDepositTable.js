@@ -43,6 +43,10 @@ import { throttle } from "lodash";
 import { setLoadingStatus } from "../../../../../redux/uploadDocSlice.js";
 import { useDispatch } from "react-redux";
 import html2pdf from "html2pdf.js";
+import { FREE, S_BILLING } from "../../../../../utils/constants.js";
+import { checkCredits } from "../../../../../redux/monetizationSlice.js";
+import { services } from "../../../../../redux/doctorsSlice.js";
+import { errorMessage } from "../../../../../utils/utils.js";
 const { RangePicker } = DatePicker;
 
 const cardsStaticData = [
@@ -75,8 +79,11 @@ const cardsStaticData = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateRange, totalAdvanceBalance, dateStatus, setDateStatus }, ref) => {
+const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateRange, totalAdvanceBalance, dateStatus, setDateStatus, showHideSubModal }, ref) => {
+  const { servicesList } = useSelector((state) => state.doctors);
+  const BILLING_planDetails = servicesList.find(e => e.service_name === S_BILLING)
   const dispatch = useDispatch();
+
   const { billPrintSettings, advancedSettings } = useSelector(
     (state) => state.billing
   );
@@ -218,27 +225,63 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
     }
   };
 
-  const onBillingDetailsClick = async (status, record) => {
-    if (patientData && Object.keys(patientData)?.length > 0) {
-      setBillData(record);
+  const checkBillingPurchased = async () => {
+    const billingEndDate = moment(BILLING_planDetails?.plan_end_date);
+    const currentDate = moment();
+    if (BILLING_planDetails?.plan_tier === FREE && billingEndDate.isBefore(currentDate, 'day')) {
+      showHideSubModal()
     } else {
-      setBillData({
-        ...record,
-        patient: {
-          ...record?.patient,
-        },
-      });
+      let sendData = {
+        b2c_id: profile?.b2c,
+        service_name: S_BILLING
+      }
+      const action = await dispatch(checkCredits(sendData));
+      if (action.meta.requestStatus === "fulfilled") {
+        if (action?.payload?.hasOwnProperty("service_name")) {
+          const plan_end_date = moment(action?.payload?.plan_end_date);
+          if (action?.payload?.plan_tier === FREE && plan_end_date.isBefore(currentDate, 'day')) {
+            if (!plan_end_date.isSame(billingEndDate, 'day')) {
+              await dispatch(services(sendData?.b2c_id))
+            }
+            showHideSubModal()
+          } else {
+            return true;
+          }
+        } else {
+          typeof action?.payload?.data?.error === 'object' ?
+            errorMessage(action?.payload?.data?.error?.description)
+            :
+            errorMessage(action?.payload?.data?.message)
+        }
+      } else {
+        errorMessage(action.payload.message)
+      }
     }
-    if (status === 1) {
-      handleDrawerPreviewBill();
-    } else if (status === 2) {
-      const blob = await pdf(
-        <ViewBillPdf
-          printSettings={billPrintSettings}
-          patientData={
-            patientData && Object.keys(patientData)?.length > 0
-              ? patientData
-              : {
+  }
+
+  const onBillingDetailsClick = async (status, record) => {
+    const isPurchased = await checkBillingPurchased()
+    if (isPurchased) {
+      if (patientData && Object.keys(patientData)?.length > 0) {
+        setBillData(record);
+      } else {
+        setBillData({
+          ...record,
+          patient: {
+            ...record?.patient,
+          },
+        });
+      }
+      if (status === 1) {
+        handleDrawerPreviewBill();
+      } else if (status === 2) {
+        const blob = await pdf(
+          <ViewBillPdf
+            printSettings={billPrintSettings}
+            patientData={
+              patientData && Object.keys(patientData)?.length > 0
+                ? patientData
+                : {
                   pm_pid: record?.patient?.id,
                   pm_fullname: record?.patient?.name,
                   pm_gender: record?.patient?.gender,
@@ -250,19 +293,20 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
                   pm_salutation: record?.patient?.salutation,
                   address: record?.patient?.address,
                 }
-          }
-          profile={profile}
-          billData={record}
-          isDepositReceipt={true}
-          totalAdvanceBalance={
-            patientData ? totalAdvanceBalance : patientWalletBalance
-          }
-          gstIn={advancedSettings?.GSTIN}
-          showCreatedBy={advancedSettings?.enableCreatedByInRx}
-        />
-      ).toBlob();
-      printContent(blob, record?.patientId, setStartLoader);
-    } else {
+            }
+            profile={profile}
+            billData={record}
+            isDepositReceipt={true}
+            totalAdvanceBalance={
+              patientData ? totalAdvanceBalance : patientWalletBalance
+            }
+            gstIn={advancedSettings?.GSTIN}
+            showCreatedBy={advancedSettings?.enableCreatedByInRx}
+          />
+        ).toBlob();
+        printContent(blob, record?.patientId, setStartLoader);
+      } else {
+      }
     }
   };
 

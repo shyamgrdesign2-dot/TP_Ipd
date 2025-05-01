@@ -46,6 +46,7 @@ const TableBillingDashboard = forwardRef(
       totalAdvanceBalance,
       createBillDrawer,
       addAdvanceDrawer,
+      showHideSubModal
     },
     ref
   ) => {
@@ -259,6 +260,7 @@ const TableBillingDashboard = forwardRef(
                 setSelectedDoctors={setSelectedDoctors}
                 createBillDrawer={createBillDrawer}
                 totalAdvanceBalance={totalAdvanceBalance}
+                showHideSubModal={showHideSubModal}
               />
             ) : (
               <AdvanceDepositTable
@@ -269,6 +271,7 @@ const TableBillingDashboard = forwardRef(
                 dateStatus={dateStatus}
                 setDateStatus={setDateStatus}
                 totalAdvanceBalance={totalAdvanceBalance}
+                showHideSubModal={showHideSubModal}
               />
             )}
           </div>

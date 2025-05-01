@@ -81,6 +81,7 @@ export default function BillingTable({
   setSelectedDoctors,
   createBillDrawer,
   totalAdvanceBalance,
+  showHideSubModal
 }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
@@ -886,6 +887,7 @@ export default function BillingTable({
             tableRef={tableRef}
             patientAdvanceData={patientData ? patientAdvanceData : ""}
             totalAdvanceBalance={totalAdvanceBalance}
+            showHideSubModal={showHideSubModal}
           />
         </Row>
 

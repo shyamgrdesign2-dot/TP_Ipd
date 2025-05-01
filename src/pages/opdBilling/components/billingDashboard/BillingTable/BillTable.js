@@ -5,11 +5,16 @@ import RefundBill from "../RefundBill/RefundBill";
 import { addBillsToForm3C, fetchPatientWalletBalance } from "../../../service";
 import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
 import visitEnd from "../../../../../assets/images/end-visit.svg";
-import { MESSAGE_KEY } from "../../../../../utils/constants";
+import { FREE, MESSAGE_KEY, S_BILLING } from "../../../../../utils/constants";
 import { formatDateWithOrdinal } from "../../../utils/helper";
 import InfoTooltip from "./InfoToolTip/InfoTooltip";
 import { isMobile } from "react-device-detect";
 import { throttle } from "lodash";
+import { useSelector, useDispatch } from "react-redux";
+import moment from "moment";
+import { checkCredits } from "../../../../../redux/monetizationSlice";
+import { services } from "../../../../../redux/doctorsSlice";
+import { errorMessage } from "../../../../../utils/utils";
 
 const BillTable = ({
   data,
@@ -23,7 +28,12 @@ const BillTable = ({
   tableRef,
   patientAdvanceData,
   totalAdvanceBalance,
+  showHideSubModal
 }) => {
+  const { profile, servicesList } = useSelector((state) => state.doctors);
+  const BILLING_planDetails = servicesList.find(e => e.service_name === S_BILLING)
+  const dispatch = useDispatch();
+
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [billData, setBillData] = useState(null);
@@ -36,44 +46,81 @@ const BillTable = ({
     }
   };
 
-  const onBillingDetailsClick = async (status, record) => {
-    setBillData(record);
-    if (status === 1) {
-      handleDrawerPreviewBill();
-    } else if (status === 2) {
-      handleRefundBillDrawer(record);
-    } else if (status === 3) {
-      try {
-        const payload = { billIds: [record.id] }; // Adjust payload as needed
-        const response = await addBillsToForm3C(payload);
-        if (response.status === 204) {
-          message.open({
-            key: MESSAGE_KEY,
-            type: "",
-            className: "message-appointment",
-            content: (
-              <div className="d-flex align-items-center">
-                <img src={visitEnd} className="me-3" />
-                <div>
-                  <div className="title-common text-start fontroboto">{`${record.billNumber} Added to Form 3C`}</div>
-                  {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
-                </div>
-                <img
-                  src={imgCloseVisit}
-                  className="ms-3"
-                  onClick={() => message.destroy()}
-                />
-              </div>
-            ),
-            duration: 5,
-          });
-
-          handleMessageForm3c();
+  const checkBillingPurchased = async () => {
+    const billingEndDate = moment(BILLING_planDetails?.plan_end_date);
+    const currentDate = moment();
+    if (BILLING_planDetails?.plan_tier === FREE && billingEndDate.isBefore(currentDate, 'day')) {
+      showHideSubModal()
+    } else {
+      let sendData = {
+        b2c_id: profile?.b2c,
+        service_name: S_BILLING
+      }
+      const action = await dispatch(checkCredits(sendData));
+      if (action.meta.requestStatus === "fulfilled") {
+        if (action?.payload?.hasOwnProperty("service_name")) {
+          const plan_end_date = moment(action?.payload?.plan_end_date);
+          if (action?.payload?.plan_tier === FREE && plan_end_date.isBefore(currentDate, 'day')) {
+            if (!plan_end_date.isSame(billingEndDate, 'day')) {
+              await dispatch(services(sendData?.b2c_id))
+            }
+            showHideSubModal()
+          } else {
+            return true;
+          }
         } else {
-          console.error("Failed to add bill to Form 3C");
+          typeof action?.payload?.data?.error === 'object' ?
+            errorMessage(action?.payload?.data?.error?.description)
+            :
+            errorMessage(action?.payload?.data?.message)
         }
-      } catch (error) {
-        console.error("Error in adding bill to Form 3C:", error);
+      } else {
+        errorMessage(action.payload.message)
+      }
+    }
+  }
+
+  const onBillingDetailsClick = async (status, record) => {
+    const isPurchased = await checkBillingPurchased()
+    if (isPurchased) {
+      setBillData(record);
+      if (status === 1) {
+        handleDrawerPreviewBill();
+      } else if (status === 2) {
+        handleRefundBillDrawer(record);
+      } else if (status === 3) {
+        try {
+          const payload = { billIds: [record.id] }; // Adjust payload as needed
+          const response = await addBillsToForm3C(payload);
+          if (response.status === 204) {
+            message.open({
+              key: MESSAGE_KEY,
+              type: "",
+              className: "message-appointment",
+              content: (
+                <div className="d-flex align-items-center">
+                  <img src={visitEnd} className="me-3" />
+                  <div>
+                    <div className="title-common text-start fontroboto">{`${record.billNumber} Added to Form 3C`}</div>
+                    {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
+                  </div>
+                  <img
+                    src={imgCloseVisit}
+                    className="ms-3"
+                    onClick={() => message.destroy()}
+                  />
+                </div>
+              ),
+              duration: 5,
+            });
+
+            handleMessageForm3c();
+          } else {
+            console.error("Failed to add bill to Form 3C");
+          }
+        } catch (error) {
+          console.error("Error in adding bill to Form 3C:", error);
+        }
       }
     }
   };

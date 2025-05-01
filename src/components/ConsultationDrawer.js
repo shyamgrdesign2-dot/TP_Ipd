@@ -56,7 +56,7 @@ const GenRxTips = lazy(() => import("./GenRxTips"));
 const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
   const { servicesList } = useSelector((state) => state.doctors);
-  const planDetails = servicesList.find(e => e.service_name === S_VOICE_RX)
+  const VOICE_RX_planDetails = servicesList.find(e => e.service_name === S_VOICE_RX)
 
   const { useVoiceRx, setUseVoiceRx, useDDX } = useContext(CashManagerContext);
 
@@ -100,12 +100,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
   useEffect(() => {
-    if (planDetails !== undefined && planDetails?.plan_tier === FREE) {
+    if (VOICE_RX_planDetails !== undefined && VOICE_RX_planDetails?.plan_tier === FREE) {
       setTimeout(() => {
         setIsSubModalOpen(true)
       }, 500);
     }
-  }, [planDetails]);
+  }, [VOICE_RX_planDetails]);
 
   const showHideSubModal = useCallback(() => {
     setIsSubModalOpen(!isSubModalOpen);
@@ -251,7 +251,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   const handleSend = async () => {
-    if (planDetails?.plan_tier === FREE && planDetails?.credit_balance === 0) {
+    if (VOICE_RX_planDetails?.plan_tier === FREE && VOICE_RX_planDetails?.credit_balance === 0) {
       showHideSubModal()
     } else {
       let sendData = {
@@ -262,7 +262,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       if (action.meta.requestStatus === "fulfilled") {
         if (action?.payload?.hasOwnProperty("service_name")) {
           if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance === 0) {
-            if (action?.payload?.credit_balance != planDetails?.credit_balance) {
+            if (action?.payload?.credit_balance != VOICE_RX_planDetails?.credit_balance) {
               await dispatch(services(sendData?.b2c_id))
             }
             showHideSubModal()

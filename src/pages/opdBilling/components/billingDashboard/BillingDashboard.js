@@ -8,12 +8,14 @@ import Welcome from "../../../../common/Welcome";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
+  FREE,
   MESSAGE_KEY,
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+  S_BILLING,
 } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
-import { setUserId } from "../../../../redux/doctorsSlice";
-import { getClinic, getClinicName, trackEvent } from "../../../../utils/utils";
+import { services, setUserId } from "../../../../redux/doctorsSlice";
+import { errorMessage, getClinic, getClinicName, trackEvent } from "../../../../utils/utils";
 import TableBillingDashboard from "./TableBillingDashboard";
 import { Button, Drawer, message } from "antd";
 import "./BillingDashboard.scss";
@@ -33,8 +35,14 @@ import AddAdvance from "../advanceDeposit/AddAdvance";
 import CreateBill from "../createBill/CreateBill";
 import { fetchPatientWalletBalance } from "../../service";
 import BillingKnowMore from "../../../monetization/components/BillingKnowMore";
+import moment from "moment";
+import { checkCredits } from "../../../../redux/monetizationSlice";
+import ExpiredSubModal from "../../../monetization/components/ExpiredSubModal";
 
 function BillingDashboard({ patientData, fromPath }) {
+  const { servicesList } = useSelector((state) => state.doctors);
+  const BILLING_planDetails = servicesList.find(e => e.service_name === S_BILLING)
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   let location = useLocation();
@@ -65,6 +73,50 @@ function BillingDashboard({ patientData, fromPath }) {
   const receptionistId = urlParams.get("receptionistId");
   const receptionistName = urlParams.get("receptionistName");
 
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+
+  const showHideSubModal = () => {
+    setIsSubModalOpen(!isSubModalOpen);
+  }
+
+  useEffect(() => {
+    checkBillingPurchased()
+  }, []);
+
+  const checkBillingPurchased = async () => {
+    const billingEndDate = moment(BILLING_planDetails?.plan_end_date);
+    const currentDate = moment();
+    if (BILLING_planDetails?.plan_tier === FREE && billingEndDate.isBefore(currentDate, 'day')) {
+      showHideSubModal()
+    } else {
+      let sendData = {
+        b2c_id: profile?.b2c,
+        service_name: S_BILLING
+      }
+      const action = await dispatch(checkCredits(sendData));
+      if (action.meta.requestStatus === "fulfilled") {
+        if (action?.payload?.hasOwnProperty("service_name")) {
+          const plan_end_date = moment(action?.payload?.plan_end_date);
+          if (action?.payload?.plan_tier === FREE && plan_end_date.isBefore(currentDate, 'day')) {
+            if (!plan_end_date.isSame(billingEndDate, 'day')) {
+              await dispatch(services(sendData?.b2c_id))
+            }
+            showHideSubModal()
+          } else {
+            return true;
+          }
+        } else {
+          typeof action?.payload?.data?.error === 'object' ?
+            errorMessage(action?.payload?.data?.error?.description)
+            :
+            errorMessage(action?.payload?.data?.message)
+        }
+      } else {
+        errorMessage(action.payload.message)
+      }
+    }
+  }
+
   useEffect(() => {
     setLocationPath(location.pathname);
   }, [location]);
@@ -86,33 +138,39 @@ function BillingDashboard({ patientData, fromPath }) {
   }, []);
 
   // Drawer form 3c
-  const handleManage3cBill = () => {
-    const clinic = getClinic();
-    trackEvent("TP_billing_ManageForm3C", {
-      doctorSpeciality: profile?.dp_name,
-      doctorId: profile?.doctor_unique_id,
-      doctorContact: profile?.um_contact,
-      city: clinic?.hm_city,
-      pincode: clinic?.hm_pincode,
-    });
-    setForm3cDrawer(!form3cDrawer);
-    setForm3cData(null);
+  const handleManage3cBill = async () => {
+    const isPurchased = await checkBillingPurchased()
+    if (isPurchased) {
+      const clinic = getClinic();
+      trackEvent("TP_billing_ManageForm3C", {
+        doctorSpeciality: profile?.dp_name,
+        doctorId: profile?.doctor_unique_id,
+        doctorContact: profile?.um_contact,
+        city: clinic?.hm_city,
+        pincode: clinic?.hm_pincode,
+      });
+      setForm3cDrawer(!form3cDrawer);
+      setForm3cData(null);
+    }
   };
 
-  const handleCreateBillDrawer = useCallback(() => {
-    const clinic = getClinic();
-    trackEvent("TP_Billing_CreateBill", {
-      doctorSpeciality: profile?.dp_name,
-      doctorId: profile?.doctor_unique_id,
-      doctorContact: profile?.um_contact,
-      source: fromPath || "billing_page",
-      city: clinic?.hm_city,
-      pincode: clinic?.hm_pincode,
-      subscriptionStatus: planDetails?.currentPlanStatus,
-      receptionistId: receptionistId,
-      receptionistName: receptionistName,
-    });
-    setCreateBillDrawer(!createBillDrawer);
+  const handleCreateBillDrawer = useCallback(async () => {
+    const isPurchased = await checkBillingPurchased()
+    if (isPurchased) {
+      const clinic = getClinic();
+      trackEvent("TP_Billing_CreateBill", {
+        doctorSpeciality: profile?.dp_name,
+        doctorId: profile?.doctor_unique_id,
+        doctorContact: profile?.um_contact,
+        source: fromPath || "billing_page",
+        city: clinic?.hm_city,
+        pincode: clinic?.hm_pincode,
+        subscriptionStatus: planDetails?.currentPlanStatus,
+        receptionistId: receptionistId,
+        receptionistName: receptionistName,
+      });
+      setCreateBillDrawer(!createBillDrawer);
+    }
   }, [createBillDrawer]);
 
   const showHideBackModal = () => {
@@ -380,6 +438,7 @@ function BillingDashboard({ patientData, fromPath }) {
             totalAdvanceBalance={totalAdvanceBalance}
             createBillDrawer={createBillDrawer}
             addAdvanceDrawer={addAdvanceDrawer}
+            showHideSubModal={showHideSubModal}
           />
         </div>
 
@@ -462,6 +521,15 @@ function BillingDashboard({ patientData, fromPath }) {
       >
         <BillingKnowMore handleBillingKnowMore={handleBillingKnowMore} />
       </Drawer>
+
+      <ExpiredSubModal
+        title={S_BILLING}
+        styles={{
+          mask: { zIndex: 9999 },
+          wrapper: { zIndex: 9999 },
+        }}
+        isSubModalOpen={isSubModalOpen}
+        showHideSubModal={showHideSubModal} />
     </>
   );
 }
