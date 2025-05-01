@@ -126,7 +126,7 @@ const qa_tp = {
   gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
-  symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
+  symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
 };
 

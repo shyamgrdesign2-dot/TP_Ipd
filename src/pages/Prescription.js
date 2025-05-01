@@ -662,7 +662,12 @@ function Prescription() {
       um_id: String(userId),
       patient_unique_id: String(patient_data?.patient_unique_id),
       hm_id: String(decodedToken?.result?.clinic_id),
-      pam_id: "9266",
+      pam_id:
+        patient_data !== undefined && patient_data.pam_id !== undefined
+          ? String(patient_data.pam_id)
+          : caseManagerData !== undefined
+          ? String(caseManagerData.pam_id)
+          : 0,
     };
     const response = await fetchSymptomsCollectorData(payload);
     if (response && Object.keys(response)?.length > 0) {
