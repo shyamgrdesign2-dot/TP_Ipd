@@ -3,12 +3,12 @@ import { Button } from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 
 import config from "../config";
 import { useLocalStorage } from "../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_IPD, S_PHARMACY } from "../utils/constants";
 import newGif from "../assets/images/new-gif.gif";
 import ipdIcon from "../assets/images/ipd.svg";
 import patientsIcon from "../assets/images/all-patients.svg";
@@ -28,8 +28,17 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { errorMessage, getClinicName, trackEvent } from "../utils/utils";
 import FullPageLoader from "../pages/vaccination/components/Loader";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
+import moment from "moment";
+import { checkCredits } from "../redux/monetizationSlice";
+import { services } from "../redux/doctorsSlice";
+import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 
 function SidebarDoctor() {
+  const dispatch = useDispatch();
+  const { servicesList } = useSelector((state) => state.doctors);
+  const PHARMACY_planDetails = servicesList.find(e => e.service_name === S_PHARMACY)
+  const IPD_planDetails = servicesList.find(e => e.service_name === S_IPD)
+
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
@@ -39,6 +48,7 @@ function SidebarDoctor() {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [tatvaHovered, SetTatvaHovered] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
   const navigate = useNavigate();
   const { isOpdBillingAccessable } = useOpdBilling();
@@ -75,7 +85,58 @@ function SidebarDoctor() {
     }
   }, [profile]);
 
-  const clickOldModule = (moduleName) => {
+  const showHideSubModal = () => {
+    setIsSubModalOpen(!isSubModalOpen);
+  }
+
+  const clickOldModule = async (moduleName) => {
+    if (moduleName === S_PHARMACY || moduleName === S_IPD) {
+      const pharmacyEndDate = moment(PHARMACY_planDetails?.plan_end_date);
+      const ipdEndDate = moment(IPD_planDetails?.plan_end_date);
+      const currentDate = moment();
+      if (PHARMACY_planDetails?.plan_tier === FREE && pharmacyEndDate.isBefore(currentDate, 'day')) {
+        showHideSubModal()
+      } else if (IPD_planDetails?.plan_tier === FREE && ipdEndDate.isBefore(currentDate, 'day')) {
+        showHideSubModal()
+      } else {
+        let sendData = {
+          b2c_id: profile?.b2c,
+          service_name: moduleName
+        }
+        const action = await dispatch(checkCredits(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+          if (action?.payload?.hasOwnProperty("service_name")) {
+            const plan_end_date = moment(action?.payload?.plan_end_date);
+            if (action?.payload?.plan_tier === FREE && plan_end_date.isBefore(currentDate, 'day')) {
+              if (moduleName === S_PHARMACY) {
+                if (!plan_end_date.isSame(pharmacyEndDate, 'day')) {
+                  await dispatch(services(sendData?.b2c_id))
+                }
+              } else if (moduleName === S_IPD) {
+                if (!plan_end_date.isSame(ipdEndDate, 'day')) {
+                  await dispatch(services(sendData?.b2c_id))
+                }
+              }
+              showHideSubModal()
+            } else {
+              check_SSO(moduleName);
+            }
+          } else {
+            typeof action?.payload?.data?.error === 'object' ?
+              errorMessage(action?.payload?.data?.error?.description)
+              :
+              errorMessage(action?.payload?.data?.message)
+          }
+        } else {
+          errorMessage(action.payload.message)
+        }
+      }
+    } else {
+      check_SSO(moduleName);
+    }
+  };
+
+  async function check_SSO(moduleName) {
     SSO_TO_PM().then(async (data) => {
       if (moduleName === "opd_billing" && isOpdBillingAccessable) {
         navigate("/billing-dashboard");
@@ -102,7 +163,7 @@ function SidebarDoctor() {
         }
       }
     });
-  };
+  }
 
   async function SSO_TO_PM() {
     try {
@@ -258,9 +319,8 @@ function SidebarDoctor() {
             }
           >
             <div
-              className={`d-flex align-items-center flex-column ${
-                tatvaHovered ? "hoveredColor" : ""
-              }`}
+              className={`d-flex align-items-center flex-column ${tatvaHovered ? "hoveredColor" : ""
+                }`}
               onMouseEnter={() => handleHover(true)} // Set the hovered item
               onMouseLeave={() => handleHover(false)} // Clear the hovered item
               onClick={handleTatvaAi}
@@ -296,15 +356,15 @@ function SidebarDoctor() {
                     replace={true}
                     className={({ isActive, isPending }) =>
                       item.type === "opd_billing" &&
-                      window.location.pathname === "/billing-dashboard"
+                        window.location.pathname === "/billing-dashboard"
                         ? "active"
                         : isHovered
-                        ? ""
-                        : isPending
-                        ? "pending"
-                        : isActive
-                        ? ""
-                        : "active"
+                          ? ""
+                          : isPending
+                            ? "pending"
+                            : isActive
+                              ? ""
+                              : "active"
                     }
                     onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
                     onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
@@ -389,6 +449,11 @@ function SidebarDoctor() {
           />
         </div>
       </div>
+
+      <ExpiredSubModal
+        title={S_PHARMACY}
+        isSubModalOpen={isSubModalOpen}
+        showHideSubModal={showHideSubModal} />
     </>
   );
 }
