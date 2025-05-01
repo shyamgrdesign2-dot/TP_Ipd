@@ -45,6 +45,7 @@ function GetUnlimitedAccess() {
     const [pharmacyKnowMoreDrawer, setPharmacyKnowMoreDrawer] = useState(false);
     const [billingDrawer, setBillingDrawer] = useState(false);
     const [medEcoKnowMoreDrawer, setMedEcoKnowMoreDrawer] = useState(false);
+    const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {
         dispatch(services(profile?.b2c));
@@ -193,6 +194,10 @@ function GetUnlimitedAccess() {
         setMedEcoKnowMoreDrawer((prev) => !prev);
     };
 
+    const handleShowAll = useCallback(() => {
+        setShowAll(!showAll)
+    }, [showAll]);
+
     return (
         <>
             <HeaderUnlimitedAccess />
@@ -202,47 +207,55 @@ function GetUnlimitedAccess() {
                         {campaignsData?.campaign_active && (
                             <CampaignDiscount flag={1} />
                         )}
-                        <div className="bg-unlimited-access">
-                            <Row className="g-4">
-                                <Col xl={8} lg={8} sm={7} xs={12}>
-                                    {servicesData?.map((item, index) => {
-                                        return (
-                                            <div key={index}>
-                                                {item.hasOwnProperty("data") ? (
-                                                    <SmartSyncPro
-                                                        data={item?.data}
-                                                        addOrNot={selectedServices?.some(e => e.service_name === S_SMARTSYNC || e.service_name === S_RX_DIGITIZATION)}
-                                                        handleSmartSyncAddRemove={() => handleSmartSyncAddRemove(item?.data)}
-                                                        checked={checked}
-                                                        setChecked={setChecked}
-                                                        selectedServices={selectedServices}
-                                                        setSelectedServices={setSelectedServices}
-                                                        clickKnowMore={() => clickKnowMore(item?.data[0]?.service_name)}
-                                                    />
-                                                ) : item.service_name === S_TATVA_PRACTICE ? (
-                                                    <TatvaPracticeEMR
-                                                        item={item}
-                                                        clickKnowMore={() => clickKnowMore(item.service_name)}
-                                                    />
-                                                ) : (
-                                                    <AddonServices
-                                                        item={item}
-                                                        addOrNot={selectedServices?.some(e => e.service_name === item.service_name)}
-                                                        handleAddRemove={() => handleAddRemove(item)}
-                                                        clickKnowMore={() => clickKnowMore(item.service_name)}
-                                                    />
-                                                )}
+                        <div className="bg-unlimited-access h-100">
+                            {servicesData?.length > 0 && (
+                                <Row className="g-4">
+                                    <Col xl={8} lg={8} sm={7} xs={12}>
+                                        {servicesData?.find(item => item.service_name === S_TATVA_PRACTICE) !== undefined && (
+                                            <TatvaPracticeEMR
+                                                item={servicesData?.find(item => item.service_name === S_TATVA_PRACTICE)}
+                                                clickKnowMore={() => clickKnowMore(servicesData?.find(item => item.service_name === S_TATVA_PRACTICE).service_name)}
+                                            />
+                                        )}
+                                        <div className="addon-access mt-2 mb-5">
+                                            {servicesData?.filter(item => item.service_name !== S_TATVA_PRACTICE)?.slice(0, showAll ? servicesData?.filter(item => item.service_name !== S_TATVA_PRACTICE)?.length : 3).map((item, index) => {
+                                                return (
+                                                    <div key={index}>
+                                                        {item.hasOwnProperty("data") ? (
+                                                            <SmartSyncPro
+                                                                data={item?.data}
+                                                                addOrNot={selectedServices?.some(e => e.service_name === S_SMARTSYNC || e.service_name === S_RX_DIGITIZATION)}
+                                                                handleSmartSyncAddRemove={() => handleSmartSyncAddRemove(item?.data)}
+                                                                checked={checked}
+                                                                setChecked={setChecked}
+                                                                selectedServices={selectedServices}
+                                                                setSelectedServices={setSelectedServices}
+                                                                clickKnowMore={() => clickKnowMore(item?.data[0]?.service_name)}
+                                                            />
+                                                        ) : (
+                                                            <AddonServices
+                                                                item={item}
+                                                                addOrNot={selectedServices?.some(e => e.service_name === item.service_name)}
+                                                                handleAddRemove={() => handleAddRemove(item)}
+                                                                clickKnowMore={() => clickKnowMore(item.service_name)}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                )
+                                            })}
+                                            <div className="addons-expand-collapse align-items-center d-flex" onClick={handleShowAll}>
+                                                View {showAll ? 'less' : 'more'} addons <i className={`ms-2 icon-right ${showAll ? 'iconrotatehistory90' : 'iconrotate270'} `}></i>
                                             </div>
-                                        )
-                                    })}
-                                </Col>
-                                <Col xl={4} lg={4} sm={5} xs={12}>
-                                    <UnlimitedAccessSummary
-                                        selectedServices={selectedServices}
-                                        setSelectedServices={setSelectedServices}
-                                    />
-                                </Col>
-                            </Row>
+                                        </div>
+                                    </Col>
+                                    <Col xl={4} lg={4} sm={5} xs={12}>
+                                        <UnlimitedAccessSummary
+                                            selectedServices={selectedServices}
+                                            setSelectedServices={setSelectedServices}
+                                        />
+                                    </Col>
+                                </Row>
+                            )}
                         </div>
                     </>
                 ) : (

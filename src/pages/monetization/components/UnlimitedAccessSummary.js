@@ -184,7 +184,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     return (
         <>
-            <div className="unlimited-access-summary ">
+            <div className="unlimited-access-summary position-sticky top-0">
                 <div className="fs-4 fw-semibold">Summary</div>
                 {selectedServices?.map((item, index) => {
                     return (

@@ -7,7 +7,7 @@
         background-image: url(../../assets/images/bg-unlimited-access.svg);
         background-repeat: no-repeat;
         background-position: top center;
-        padding: 32px 41px 0;
+        padding: 32px 35px 0;
         @media only screen and (max-width: 1400px) {
             padding: 25px 25px 0;
         }
@@ -26,6 +26,7 @@
             bottom: -26px;
             width: 42px;
             height: 42px;
+            z-index: 9;
         }
         @media only screen and (max-width: 1400px) {
             padding: 25px;
@@ -47,7 +48,8 @@
         background: $white;
         box-shadow: 0px 1px 6px 0px #4B4AD51F;
         border-radius: 0 0 26px 26px;
-        padding: 42px;
+        padding: 10px 40px;
+        position: relative;
         @media only screen and (max-width: 1400px) {
             padding: 25px;
         }
@@ -56,6 +58,7 @@
             border: 0.69px solid #4B4AD508;
             border-radius: 24px;
             padding: 32px;
+            margin: 32px 0;
             position: relative;
             &.box-added {
                 background: #EAFFEB33;
@@ -148,6 +151,20 @@
                     text-align: center;
                 }
             }
+        }
+        .addons-expand-collapse {
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translate(-50%, 0);
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 15px;
+            font-family: 'roboto' !important;
+            background: #EAE9F8;
+            color: $theme !important;
         }
     }
     .unlimited-access-summary {
