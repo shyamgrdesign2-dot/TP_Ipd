@@ -1,13 +1,19 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import BillingHistory from "./BillingHistory";
 import crownIcon from "../../assets/images/crown-purple.svg";
 import billingsIcon from "../../assets/images/billings.svg";
-import { Table } from "antd";
+import { Drawer, Table } from "antd";
 import BillingHistoryNew from "./BillingHistoryNew";
+import BillingPrint from "./BillingPrint";
 
 function SubscriptionNew() {
 
   const [showBillingHistory, setShowBillingHistory] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const handlePdfDrawer = useCallback(() => {
+    setOpen(!open);
+  }, [open])
 
   const dataSource = [
     {
@@ -15,31 +21,31 @@ function SubscriptionNew() {
       name: <><span className="fw-semibold">Voice Rx </span> <span>(Addon)</span></>,
       startDate: '24th Dec, 2024',
       nextPayment: '10 Downing Street',
-      invoice: <button className="btn btn-link text-primary p-0">INV2024_2883</button>,
+      invoice: <button className="btn btn-link text-primary p-0" onClick={handlePdfDrawer}>INV2024_2883</button>,
     },
     {
       key: '2',
       name: <span className="fw-semibold">Tatva Practice EMR</span>,
       startDate: '24th Dec, 2024',
       nextPayment: '10 Downing Street',
-      invoice: <button className="btn btn-link text-primary p-0">INV2024_2883</button>,
+      invoice: <button className="btn btn-link text-primary p-0" onClick={handlePdfDrawer}>INV2024_2883</button>,
     },
     {
       key: '3',
       name: <><span className="fw-semibold">Smart Sync PRO </span> <span>(Addon)</span></>,
       startDate: '24th Dec, 2024',
       nextPayment: '10 Downing Street',
-      invoice: <button className="btn btn-link text-primary p-0">INV2024_2883</button>,
+      invoice: <button className="btn btn-link text-primary p-0" onClick={handlePdfDrawer}>INV2024_2883</button>,
     },
     {
       key: '4',
       name: <><span className="fw-semibold">DDX </span> <span>(Addon)</span></>,
       startDate: '24th Dec, 2024',
       nextPayment: '10 Downing Street',
-      invoice: <button className="btn btn-link text-primary p-0">INV2024_2883</button>,
+      invoice: <button className="btn btn-link text-primary p-0" onClick={handlePdfDrawer}>INV2024_2883</button>,
     },
   ];
-  
+
   const columns = [
     {
       title: 'Current Active Plans',
@@ -91,11 +97,21 @@ function SubscriptionNew() {
           setShow={setShowBillingHistory}
         /> */}
 
-      <BillingHistoryNew
-      show={showBillingHistory}
-      setShow={setShowBillingHistory} />  
+        <BillingHistoryNew
+          show={showBillingHistory}
+          setShow={setShowBillingHistory} />
 
       </div>
+
+      <Drawer
+        width={800}
+        open={open}
+        footer={null}
+        onClose={() => setOpen(false)}
+        closeIcon={false}>
+        <BillingPrint handlePdfDrawer={handlePdfDrawer} />
+      </Drawer>
+
     </>
   );
 }

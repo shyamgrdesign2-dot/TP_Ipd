@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import crown from '../../../assets/images/crown.svg'
+import moment from "moment";
+import { FREE } from "../../../utils/constants";
 
 function ExpiredText({ title }) {
 
@@ -18,8 +20,30 @@ function ExpiredText({ title }) {
         navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
     }
 
+    const isPurchased = () => {
+        const planEndDate = moment(planDetails?.plan_end_date);
+        const currentDate = moment();
+        if (planDetails?.plan_tier === FREE && planEndDate.isBefore(currentDate, 'day')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     return (
-        pathname !== '/get-unlimited-access' && planDetails?.purchased == 'false' &&
+        pathname !== '/get-unlimited-access' &&
+        (
+            (
+                planDetails?.service_type === 'ai' &&
+                planDetails?.plan_tier === FREE &&
+                planDetails?.credit_balance === 0
+            )
+            ||
+            (
+                planDetails?.service_type === 'non_ai' &&
+                isPurchased()
+            )
+        ) &&
         <div className="position-sticky bottom-0 bg-white w-100 px-4 py-3">
             <div className="fontroboto fs-16 text-center text-danger-custom">
                 Your <span className="fw-bold text-danger-custom">{planDetails?.service_display_name} free trail</span> has expired. <br />

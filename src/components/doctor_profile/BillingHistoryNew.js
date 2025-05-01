@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Drawer, Table } from "antd";
-import { Col, Row, Container, Navbar } from "react-bootstrap";
+import { Col, Row, Navbar } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
+import BillingPrint from "./BillingPrint";
 
 const BillingHistoryNew = ({ show, setShow }) => {
   const navigate = useNavigate();
@@ -143,17 +144,7 @@ const BillingHistoryNew = ({ show, setShow }) => {
             </div>
           </div>
         </Navbar>
-        <div className="m-4 p-4 rounded-20px" style={{ backgroundColor: '#F2F2F2' }}>
-          <div className="text-center titleprint mb-3 text-main fw-semibold">Invoice</div>
-          <Row>
-            <Col lg={7} className="d-flex my-2">
-              <div className="fontroboto fw-medium text-welcome fs-15">Patient Name:&nbsp;</div>
-              <div className="fontroboto text-welcome fs-15">Rahul Sharma</div>
-            </Col>
-          </Row>
-          <hr />
-          <div><span className="fw-semibold">Notes:</span> Can take pain killer tablets during the menstrual time But make sure that there is no usage of more than 2  pain killers per day Can take pain killer tablets during the menstrual time.View less</div>
-        </div>
+        <BillingPrint />
       </Drawer>
     </>
   );

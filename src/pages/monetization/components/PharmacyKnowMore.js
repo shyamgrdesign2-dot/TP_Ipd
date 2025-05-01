@@ -6,6 +6,7 @@ import VideoModal from "../../../common/VideoModal";
 import ContactSupport from "./ContactSupport";
 import ExpiredText from "./ExpiredText";
 import { S_PHARMACY } from "../../../utils/constants";
+import FreeTrialButton from "./FreeTrialButton";
 
 const { TabPane } = Tabs;
 
@@ -27,13 +28,16 @@ const PharmacyKnowMore = ({ handlePharmacyKnowMore }) => {
   return (
     <div className="drawer-container">
       <div className="drawer-header">
-        <div className="drawer-header-content border-bottom">
-          <Button type="text"
-            className="close-drawer-btn"
-            onClick={handlePharmacyKnowMore}>
-            <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
-          </Button>
-          <div className="drawer-title">Pharmacy Management</div>
+        <div className="drawer-header-content justify-content-between border-bottom">
+          <div className="d-flex align-items-center">
+            <Button type="text"
+              className="close-drawer-btn"
+              onClick={handlePharmacyKnowMore}>
+              <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
+            </Button>
+            <div className="drawer-title">Pharmacy Management</div>
+          </div>
+          <FreeTrialButton title={S_PHARMACY} />
         </div>
 
         <div className="drawer-tabs">

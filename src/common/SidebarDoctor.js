@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "antd";
+import { Button, Drawer } from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -32,6 +32,8 @@ import moment from "moment";
 import { checkCredits } from "../redux/monetizationSlice";
 import { services } from "../redux/doctorsSlice";
 import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
+import IPDKnowMore from "../pages/monetization/components/IPDKnowMore";
+import PharmacyKnowMore from "../pages/monetization/components/PharmacyKnowMore";
 
 function SidebarDoctor() {
   const dispatch = useDispatch();
@@ -48,7 +50,9 @@ function SidebarDoctor() {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [tatvaHovered, SetTatvaHovered] = useState(null);
   const [loading, setLoading] = useState(false);
-  
+
+  const [iPDKnowMoreDrawer, setIPDKnowMoreDrawer] = useState(false);
+  const [pharmacyKnowMoreDrawer, setPharmacyKnowMoreDrawer] = useState(false);
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -86,6 +90,14 @@ function SidebarDoctor() {
     }
   }, [profile]);
 
+  const handleIPDKnowMore = () => {
+    setIPDKnowMoreDrawer((prev) => !prev);
+  };
+
+  const handlePharmacyKnowMore = () => {
+    setPharmacyKnowMoreDrawer((prev) => !prev);
+  };
+
   const showHideSubModal = () => {
     setIsSubModalOpen(!isSubModalOpen);
   }
@@ -96,8 +108,10 @@ function SidebarDoctor() {
       const ipdEndDate = moment(IPD_planDetails?.plan_end_date);
       const currentDate = moment();
       if (PHARMACY_planDetails?.plan_tier === FREE && pharmacyEndDate.isBefore(currentDate, 'day')) {
+        handlePharmacyKnowMore()
         showHideSubModal()
       } else if (IPD_planDetails?.plan_tier === FREE && ipdEndDate.isBefore(currentDate, 'day')) {
+        handleIPDKnowMore()
         showHideSubModal()
       } else {
         let sendData = {
@@ -113,10 +127,12 @@ function SidebarDoctor() {
                 if (!plan_end_date.isSame(pharmacyEndDate, 'day')) {
                   await dispatch(services(sendData?.b2c_id))
                 }
+                handlePharmacyKnowMore()
               } else if (moduleName === S_IPD) {
                 if (!plan_end_date.isSame(ipdEndDate, 'day')) {
                   await dispatch(services(sendData?.b2c_id))
                 }
+                handleIPDKnowMore()
               }
               showHideSubModal()
             } else {
@@ -450,6 +466,28 @@ function SidebarDoctor() {
           />
         </div>
       </div>
+
+      <Drawer
+        closeIcon={false}
+        placement="right"
+        open={iPDKnowMoreDrawer}
+        onClose={handleIPDKnowMore}
+        className=".modalWidth-800"
+        width={600}
+      >
+        <IPDKnowMore handleIPDKnowMore={handleIPDKnowMore} />
+      </Drawer>
+
+      <Drawer
+        closeIcon={false}
+        placement="right"
+        open={pharmacyKnowMoreDrawer}
+        onClose={handlePharmacyKnowMore}
+        className=".modalWidth-800"
+        width={600}
+      >
+        <PharmacyKnowMore handlePharmacyKnowMore={handlePharmacyKnowMore} />
+      </Drawer>
 
       <ExpiredSubModal
         title={S_PHARMACY}

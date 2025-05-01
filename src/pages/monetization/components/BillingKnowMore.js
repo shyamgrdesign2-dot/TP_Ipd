@@ -6,6 +6,7 @@ import VideoModal from "../../../common/VideoModal";
 import ExpiredText from "./ExpiredText";
 import { S_BILLING } from "../../../utils/constants";
 import ContactSupport from "./ContactSupport";
+import FreeTrialButton from "./FreeTrialButton";
 
 const { TabPane } = Tabs;
 
@@ -36,6 +37,7 @@ const BillingKnowMore = ({ handleBillingKnowMore }) => {
             </Button>
             <div className="drawer-title">OPD Billing</div>
           </div>
+          <FreeTrialButton title={S_BILLING} />
         </div>
 
         <div className="drawer-tabs">
