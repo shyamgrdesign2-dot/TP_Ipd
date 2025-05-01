@@ -125,7 +125,7 @@ const qa_tp = {
   gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
-  symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
+  symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
 };
 
 const qa = {
@@ -317,7 +317,7 @@ const prod = {
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-prod.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-prod.tatvacare.in",
-  tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in", 
+  tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in",
   symptoms_collector_api_url: "https://pm-tatva-agents-prod.tatvacare.in",
 };
 
