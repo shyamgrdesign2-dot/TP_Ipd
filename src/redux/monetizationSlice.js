@@ -69,6 +69,19 @@ export const updateCredits = createAsyncThunk(
     }
 );
 
+export const extendFreeTrial = createAsyncThunk(
+    "monetization/extendFreeTrial",
+    async (b2c_id, { dispatch, rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.extendFreeTrial(b2c_id);
+            dispatch(services(b2c_id))
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
 const monetizationSlice = createSlice({
     name: "monetization",
     initialState,
