@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Button, Tabs } from "antd";
+import { QRCodeSVG } from 'qrcode.react';
 import playIcons from "../../../assets/images/tube-icon.svg";
-import scannerMedcoApp from "../../../assets/images/scanner-medco-app.jpeg";
+import medcoIcon from "../../../assets/images/medco-icon.svg";
 import VideoModal from "../../../common/VideoModal";
 import ContactSupport from "./ContactSupport";
 
@@ -59,7 +60,16 @@ const MedEcoAppKnowMore = ({ handleMedEcoKnowMore }) => {
         <div id="getMedEcoApp" className="my-5">
           <span className="fs-12-1 fw-medium text-primary">Get MedEco App</span>
           <div className="fw-semibold fs-20 text-black mb-3">Scan the Below QR to Download the MedEco App</div>
-          <img width={143} height={140} src={scannerMedcoApp} alt="Get MedEco App" />
+          <QRCodeSVG className="rounded-3 my-1" value={"https://pm-doctor-tatva-pwa-prod.tatvacare.in/"} size={150}
+            // imageSettings={{
+            //   src: medcoIcon,
+            //   x: undefined,
+            //   y: undefined,
+            //   height: 26,
+            //   width: 26,
+            //   excavate: true
+            // }}
+          />
         </div>
 
         <div id="howItWorks" className="my-5">

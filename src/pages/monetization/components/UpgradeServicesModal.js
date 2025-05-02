@@ -6,12 +6,13 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import upgradedLogo from '../../../assets/images/upgraded-logo.svg'
-import medcoAppScanner from '../../../assets/images/scanner-medco-app.jpeg'
+import medcoIcon from "../../../assets/images/medco-icon.svg";
 import listIcon from '../../../assets/images/list-icon.svg'
 import aiPowered from '../../../assets/images/ai-powered.svg'
 import vaccinationImg from "../../../assets/images/Vaccination.svg";
 import iconEdit from "../../../assets/images/edit.svg";
 import { S_TATVA_PRACTICE } from "../../../utils/constants";
+import { QRCodeSVG } from "qrcode.react";
 
 function UpgradeServicesModal({ isUpgradeModal, handleUpgradeModal }) {
 
@@ -100,9 +101,18 @@ function UpgradeServicesModal({ isUpgradeModal, handleUpgradeModal }) {
                         })}
 
                         <div className='upgraded-premium-box w-92'>
-                            <div className="w-75 mx-auto px-3">
+                            <div className="w-100 mx-auto px-3">
                                 <div className="fs-18 fw-semibold"> Scan the Below QR to Download MedEco App</div>
-                                <img className="mx-auto my-4" width={148} height={144} src={medcoAppScanner} alt="Medco App QR Code" />
+                                <QRCodeSVG className="rounded-3 my-4" value={"https://pm-doctor-tatva-pwa-prod.tatvacare.in/"} size={150}
+                                    // imageSettings={{
+                                    //     src: medcoIcon,
+                                    //     x: undefined,
+                                    //     y: undefined,
+                                    //     height: 40,
+                                    //     width: 40,
+                                    //     excavate: true
+                                    // }}
+                                />
                                 <div>Enhance your clinical practice and stay updated with the latest medical insights. <Link className="text-decoration-underline fw-medium text-primary">Know More</Link></div>
                             </div>
                         </div>

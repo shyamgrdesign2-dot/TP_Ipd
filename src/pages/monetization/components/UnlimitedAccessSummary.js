@@ -142,7 +142,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     service_name,
                     service_type,
                     plan_validity_year: validity,
-                    plan_amount: campaignsData?.campaign_active ? formatAmount(service_cost - (service_cost * parseFloat(campaignsData?.campaign_value) / 100)) : formatAmount(service_cost)
+                    plan_amount: campaignsData?.campaign_active ? formatAmount(parseFloat(service_cost) - (parseFloat(service_cost) * parseFloat(campaignsData?.campaign_value) / 100)) : formatAmount(parseFloat(service_cost))
                 }));
                 let sendData = {
                     b2c_id: profile?.b2c,
