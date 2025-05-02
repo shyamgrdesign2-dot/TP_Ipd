@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import upgradedLogo from '../../../assets/images/upgraded-logo.svg'
-import medcoAppScanner from '../../../assets/images/scanner-medco-app.svg'
+import medcoAppScanner from '../../../assets/images/scanner-medco-app.jpeg'
 import listIcon from '../../../assets/images/list-icon.svg'
 import aiPowered from '../../../assets/images/ai-powered.svg'
 import vaccinationImg from "../../../assets/images/Vaccination.svg";
@@ -102,7 +102,7 @@ function UpgradeServicesModal({ isUpgradeModal, handleUpgradeModal }) {
                         <div className='upgraded-premium-box w-92'>
                             <div className="w-75 mx-auto px-3">
                                 <div className="fs-18 fw-semibold"> Scan the Below QR to Download MedEco App</div>
-                                <img className="mx-auto my-4" src={medcoAppScanner} alt="Medco App QR Code" />
+                                <img className="mx-auto my-4" width={148} height={144} src={medcoAppScanner} alt="Medco App QR Code" />
                                 <div>Enhance your clinical practice and stay updated with the latest medical insights. <Link className="text-decoration-underline fw-medium text-primary">Know More</Link></div>
                             </div>
                         </div>

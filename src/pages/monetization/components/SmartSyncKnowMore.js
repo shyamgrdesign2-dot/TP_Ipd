@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Button, Tabs } from "antd";
 import playIcons from "../../../assets/images/tube-icon.svg";
-import scannerMedcoApp from "../../../assets/images/scanner-medco-app.svg";
 import VideoModal from "../../../common/VideoModal";
 import ContactSupport from "./ContactSupport";
 

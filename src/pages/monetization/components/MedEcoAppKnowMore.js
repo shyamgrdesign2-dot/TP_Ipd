@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Tabs } from "antd";
 import playIcons from "../../../assets/images/tube-icon.svg";
-import scannerMedcoApp from "../../../assets/images/scanner-medco-app.svg";
+import scannerMedcoApp from "../../../assets/images/scanner-medco-app.jpeg";
 import VideoModal from "../../../common/VideoModal";
 import ContactSupport from "./ContactSupport";
 
@@ -59,7 +59,7 @@ const MedEcoAppKnowMore = ({ handleMedEcoKnowMore }) => {
         <div id="getMedEcoApp" className="my-5">
           <span className="fs-12-1 fw-medium text-primary">Get MedEco App</span>
           <div className="fw-semibold fs-20 text-black mb-3">Scan the Below QR to Download the MedEco App</div>
-          <img src={scannerMedcoApp} alt="Get MedEco App" />
+          <img width={143} height={140} src={scannerMedcoApp} alt="Get MedEco App" />
         </div>
 
         <div id="howItWorks" className="my-5">
