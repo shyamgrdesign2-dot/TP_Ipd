@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Drawer, Table } from "antd";
 import { Col, Row, Navbar } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
@@ -6,15 +6,12 @@ import BillingPrint from "./BillingPrint";
 
 const BillingHistoryNew = ({ show, setShow }) => {
   const navigate = useNavigate();
+
   const [open, setOpen] = useState(false);
 
-  const handlePdfDrawer = () => {
-    setOpen(true);
-  }
-
-  const onClose = () => {
-    setOpen(false);
-  };
+  const handlePdfDrawer = useCallback(() => {
+    setOpen(!open);
+  }, [open])
 
   const SubscriptionTable = () => {
     const dataSource = [
@@ -124,27 +121,7 @@ const BillingHistoryNew = ({ show, setShow }) => {
         footer={null}
         onClose={() => setOpen(false)}
         closeIcon={false}>
-        <Navbar className="justify-content-between headerprescription p-0">
-          <div className='h-100 d-flex align-items-center w-100 justify-content-between'>
-            <div className='align-items-center d-flex h-100'>
-              <div className='border-end h-100 text-center' onClick={() => setOpen(false)}>
-                <div className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
-                  <i className='icon-right'></i>
-                </div>
-              </div>
-              <div className='ms-3 title-common'>Invoice</div>
-            </div>
-            <div className='align-items-center d-flex h-100'>
-              <button className='btn'>
-                <i className="fs-3 text-primary icon-Print"></i>
-              </button>
-              <button className='btn'>
-                <i className="fs-3 text-primary icon-download"></i>
-              </button>
-            </div>
-          </div>
-        </Navbar>
-        <BillingPrint />
+        <BillingPrint handlePdfDrawer={handlePdfDrawer} />
       </Drawer>
     </>
   );
