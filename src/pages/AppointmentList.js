@@ -54,7 +54,7 @@ function AppointmentList() {
         b2c_id: profile?.b2c,
         service_name: S_TATVA_PRACTICE
       }
-      const action = await dispatch(checkCredits(sendData));
+      const action = await dispatch(checkCredits(sendData)); 
       if (action.meta.requestStatus === "fulfilled") {
         if (action?.payload?.hasOwnProperty("service_name")) {
           const plan_end_date = moment(action?.payload?.plan_end_date);
