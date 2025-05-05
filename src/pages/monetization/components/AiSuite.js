@@ -118,7 +118,7 @@ function AiSuite({ aiModal, handleAiSuite }) {
                     {aiServicesData?.map((item, index) => {
                         return (
                             <div key={index}>
-                                {item?.plan_tier === FREE ? (
+                                {item?.plan_tier===undefined || item?.plan_tier === FREE ? (
                                     <div className={`ai-suite my-4 ${item?.credit_balance === 0 && 'ai-expired'}`}>
                                         <div className="d-flex align-items-center mb-3">
                                             <img style={{ background: '#EDDFF780', padding: 6 }} className="rounded-10px me-2" src={getIcon(item?.service_name)} alt="item.type" />

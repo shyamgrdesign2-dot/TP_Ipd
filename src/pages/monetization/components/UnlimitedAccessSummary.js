@@ -20,7 +20,8 @@ import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../../utils/constants";
 
 function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
-    const { profile, campaignsData } = useSelector((state) => state.doctors);
+    const { profile, campaignsData, servicesList } = useSelector((state) => state.doctors);
+    const EMR_planDetails = servicesList.find(e => e.service_name === S_TATVA_PRACTICE && e.purchased === 'true')
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -39,38 +40,94 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         setDrawerOpen(false);
     };
 
-    const handleValidity = useCallback((service_name, newValidity) => {
-        setSelectedServices(prev =>
-            prev.map(e =>
-                e.service_name === service_name
-                    ? { ...e, validity: newValidity }
-                    : e
-            )
-        );
+    const handleValidity = useCallback((item, newValidity) => {
+        if (EMR_planDetails !== undefined) {
+            setSelectedServices(prev =>
+                prev.map(e =>
+                    e.service_name === item.service_name
+                        ? { ...e, validity: newValidity }
+                        : e
+                )
+            );
+        } else {
+            if (item.service_name === S_TATVA_PRACTICE) {
+                setSelectedServices(prev =>
+                    prev.map(e =>
+                        (e.service_name === item.service_name || e.validity > newValidity)
+                            ? { ...e, validity: newValidity }
+                            : e
+                    )
+                );
+            } else {
+                const EMR_validity = selectedServices.find(e => e.service_name === S_TATVA_PRACTICE)?.validity
+                if (newValidity > EMR_validity) {
+                    setSelectedServices(prev =>
+                        prev.map(e =>
+                            (e.service_name === item.service_name || e.service_name === S_TATVA_PRACTICE)
+                                ? { ...e, validity: newValidity }
+                                : e
+                        )
+                    );
+                } else {
+                    setSelectedServices(prev =>
+                        prev.map(e =>
+                            e.service_name === item.service_name
+                                ? { ...e, validity: newValidity }
+                                : e
+                        )
+                    );
+                }
+            }
+        }
     }, [selectedServices]);
 
     const subTotal = useMemo(() => {
         return selectedServices.reduce(
-            (sum, item) => sum + (parseFloat(item.service_cost) * item.validity),
+            (sum, item) => sum + (parseFloat(item.service_cost) * (item.validity / 12)),
             0
         );
     }, [selectedServices]);
 
-    const getMenuItems = (service_name) => {
-        return [
-            {
-                label: <div onClick={() => handleValidity(service_name, 1)}>1 Year</div>,
-                key: '1',
-            },
-            {
-                label: <div onClick={() => handleValidity(service_name, 2)}>2 Year</div>,
-                key: '2',
-            },
-            {
-                label: <div onClick={() => handleValidity(service_name, 3)}>3 Year</div>,
-                key: '3',
+    const getMenuItems = (item) => {
+        if (servicesList?.length) {
+            if (EMR_planDetails !== undefined) {
+                const remaingMonths = moment(EMR_planDetails?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'months')
+                if (remaingMonths > 12) {
+                    return [
+                        {
+                            label: <div onClick={() => handleValidity(item, 12)}>1 Year</div>,
+                            key: '12',
+                        },
+                        {
+                            label: <div onClick={() => handleValidity(item, remaingMonths)}>{`Till EMR Expiry(${remaingMonths} months)`}</div>,
+                            key: String(remaingMonths),
+                        }
+                    ]
+                } else {
+                    return [
+                        {
+                            label: <div onClick={() => handleValidity(item, remaingMonths)}>{`Till EMR Expiry(${remaingMonths} months)`}</div>,
+                            key: String(remaingMonths),
+                        }
+                    ]
+                }
+            } else {
+                return [
+                    {
+                        label: <div onClick={() => handleValidity(item, 12)}>1 Year</div>,
+                        key: '12',
+                    },
+                    {
+                        label: <div onClick={() => handleValidity(item, 24)}>2 Year</div>,
+                        key: '24',
+                    },
+                    {
+                        label: <div onClick={() => handleValidity(item, 36)}>3 Year</div>,
+                        key: '36',
+                    }
+                ]
             }
-        ]
+        }
     };
 
     const totalAmount = useMemo(() => {
@@ -141,7 +198,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 const summaryData = selectedServices.map(({ service_name, service_type, service_cost, validity }) => ({
                     service_name,
                     service_type,
-                    plan_validity_year: validity,
+                    plan_validity_months: validity,
                     plan_amount: campaignsData?.campaign_active ? formatAmount(parseFloat(service_cost) - (parseFloat(service_cost) * parseFloat(campaignsData?.campaign_value) / 100)) : formatAmount(parseFloat(service_cost))
                 }));
                 let sendData = {
@@ -194,13 +251,13 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                     <div className="d-flex align-items-baseline">
                                         <img className="ms-1" src={yearlyPlan} alt="icon" />
                                         <div className="d-flex align-items-center">
-                                            <Dropdown menu={{ items: getMenuItems(item?.service_name) }} className="fs-14 fw-medium text-primary py-1 px-2 dd-yearly" trigger={['click']}>
+                                            <Dropdown menu={{ items: getMenuItems(item) }} className="fs-14 fw-medium text-primary py-1 px-2 dd-yearly" trigger={['click']}>
                                                 <a onClick={e => e.preventDefault()}>
-                                                    {`${item?.validity} Year`}
+                                                    {item?.validity % 12 === 0 ? `${item?.validity / 12} Year` : `Till EMR Expiry(${item?.validity} Month)`}
                                                     <DownOutlined className="ps-2 fs-14 fw -medium text-primary" />
                                                 </a>
                                             </Dropdown>
-                                            <Popover trigger="hover" content={<div className="py-2">{`₹${formatAmount(parseFloat(item.service_cost))} X ${formatAmount(item.validity)} years = ₹${formatAmount(parseFloat(item.service_cost) * item.validity)}`}</div>}>
+                                            <Popover trigger="hover" content={<div className="py-2">{`₹${formatAmount(parseFloat(item.service_cost))} X ${item?.validity % 12 === 0 ? `${formatAmount(item.validity / 12)} year` : `${formatAmount(item.validity)} month`} = ₹${formatAmount(parseFloat(item.service_cost) * (item.validity / 12))}`}</div>}>
                                                 <i className="icon-info fs-5 text-black-50 ms-2"></i>
                                             </Popover>
                                         </div>
@@ -208,7 +265,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                 )}
                             </div>
                             <div className="fs-18 fw-medium">
-                                {`₹${formatAmount(parseFloat(item.service_cost) * item.validity)}`}
+                                {`₹${formatAmount(parseFloat(item.service_cost) * (item.validity / 12))}`}
                             </div>
                         </div>
                     )

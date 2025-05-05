@@ -3,6 +3,7 @@ import { Col, Row } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { Spin, Drawer } from "antd";
 import { useLocation } from 'react-router-dom';
+import moment from "moment";
 
 import HeaderUnlimitedAccess from "../../common/HeaderUnlimitedAccess";
 import TatvaPracticeEMR from "./components/TatvaPracticeEMR";
@@ -51,6 +52,16 @@ function GetUnlimitedAccess() {
         dispatch(services(profile?.b2c));
     }, []);
 
+    const calculateValidity = () => {
+        const EMR_planDetails = servicesList.find(e => e.service_name === S_TATVA_PRACTICE && e.purchased === 'true')
+        if (EMR_planDetails !== undefined) {
+            const remaingMonths = moment(EMR_planDetails?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'months')
+            return remaingMonths;
+        } else {
+            return 12;
+        }
+    }
+
     useEffect(() => {
         if (servicesList?.length) {
             const jsonArray = servicesList?.filter(({ purchased }) => purchased == 'false')
@@ -73,18 +84,20 @@ function GetUnlimitedAccess() {
 
             setServicesData(result)
 
+
             let defaultService = []
             if (buyServiceName !== undefined) {
+                let validity = calculateValidity()
                 if (buyServiceName === S_RX_DIGITIZATION) {
                     const isSmartRxPurchased = jsonArray?.some(e => e.service_name === S_SMARTSYNC)
                     defaultService = jsonArray
                         ?.filter(({ service_name }) => !isSmartRxPurchased ? service_name === buyServiceName : service_name === S_SMARTSYNC || service_name === S_RX_DIGITIZATION)
-                        ?.map(service => ({ ...service, validity: 1 }))
+                        ?.map(service => ({ ...service, validity: service.service_name === S_SMARTSYNC ? 12 : validity }))
                     setChecked(true)
                 } else {
                     defaultService = jsonArray
                         ?.filter(({ service_name }) => service_name === buyServiceName)
-                        ?.map(service => ({ ...service, validity: 1 }))
+                        ?.map(service => ({ ...service, validity: service.service_name === S_SMARTSYNC ? 12 : validity }))
                 }
             }
             // else {
@@ -94,23 +107,26 @@ function GetUnlimitedAccess() {
             // }
             defaultService?.unshift(...jsonArray
                 ?.filter(({ service_name }) => service_name === S_TATVA_PRACTICE)
-                ?.map(service => ({ ...service, validity: 1 })))
+                ?.map(service => ({ ...service, validity: 12 })))
             setSelectedServices(defaultService)
         }
     }, [servicesList]);
 
     const handleAddRemove = useCallback((item) => {
+        let validity = calculateValidity()
         setSelectedServices(prev => {
             const exists = prev.find(e => e.service_name === item.service_name);
             if (exists) {
                 return prev.filter(e => e.service_name !== item.service_name);
             } else {
-                return [...prev, { ...item, validity: 1 }];
+                return [...prev, { ...item, validity: validity }];
             }
         });
     }, [selectedServices]);
 
     const handleSmartSyncAddRemove = useCallback((item) => {
+        console.log(item)
+        let validity = calculateValidity()
         if (checked) {
             setSelectedServices(prev => {
                 const newSelection = [...prev];
@@ -119,7 +135,7 @@ function GetUnlimitedAccess() {
                     if (index !== -1) {
                         newSelection.splice(index, 1);
                     } else {
-                        newSelection.push({ ...service, validity: 1 });
+                        newSelection.push({ ...service, validity: service.service_name === S_SMARTSYNC ? 12 : validity });
                     }
                 });
                 return newSelection;
@@ -130,11 +146,11 @@ function GetUnlimitedAccess() {
                 if (exists) {
                     return prev.filter(e => e.service_name !== item[0].service_name);
                 } else {
-                    return [...prev, { ...item[0], validity: 1 }];
+                    return [...prev, { ...item[0], validity: item[0].service_name === S_SMARTSYNC ? 12 : validity }];
                 }
             });
         }
-    }, [selectedServices]);
+    }, [selectedServices, checked]);
 
     const clickKnowMore = (service_name) => {
         if (service_name === S_VOICE_RX) {

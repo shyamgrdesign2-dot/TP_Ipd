@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Modal, Card } from "antd";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import CampaignDiscount from "./CampaignDiscount";
 import expiredInfographic2 from '../../../assets/images/expired-infographic-2.svg'
@@ -10,8 +11,14 @@ import planExpiredSandClock from '../../../assets/images/plan-expired-sand-clock
 
 function ContactSupport({ title, styles, isSubModalOpen, showHideSubModal }) {
 
+    const navigate = useNavigate();
+    
     const { campaignsData, servicesList } = useSelector((state) => state.doctors);
     const planDetails = servicesList.find(e => e.service_name === title)
+
+    const clickBuyNow = (service_name) => {
+        navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
+    }
 
     return (
         <Modal
@@ -68,7 +75,7 @@ function ContactSupport({ title, styles, isSubModalOpen, showHideSubModal }) {
                         </Button>
                     </div>
                     <div>
-                        <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex">
+                        <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(title)}>
                             <img className="me-2" src={crown} alt="Crown" />
                             Get Unlimited Access
                         </Button>
