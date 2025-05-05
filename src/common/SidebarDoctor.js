@@ -8,7 +8,7 @@ import axios from "axios";
 
 import config from "../config";
 import { useLocalStorage } from "../utils/localStorage";
-import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_IPD, S_PHARMACY } from "../utils/constants";
+import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_ASK_TATVA, S_IPD, S_PHARMACY } from "../utils/constants";
 import newGif from "../assets/images/new-gif.gif";
 import ipdIcon from "../assets/images/ipd.svg";
 import patientsIcon from "../assets/images/all-patients.svg";
@@ -34,12 +34,14 @@ import { services } from "../redux/doctorsSlice";
 import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 import IPDKnowMore from "../pages/monetization/components/IPDKnowMore";
 import PharmacyKnowMore from "../pages/monetization/components/PharmacyKnowMore";
+import AskTatvaKnowMore from "../pages/monetization/components/AskTatvaKnowMore";
 
 function SidebarDoctor() {
   const dispatch = useDispatch();
   const { servicesList } = useSelector((state) => state.doctors);
   const PHARMACY_planDetails = servicesList.find(e => e.service_name === S_PHARMACY)
   const IPD_planDetails = servicesList.find(e => e.service_name === S_IPD)
+  const ASK_TATVA_planDetails = servicesList.find(e => e.service_name === S_ASK_TATVA)
 
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
@@ -51,8 +53,10 @@ function SidebarDoctor() {
   const [tatvaHovered, SetTatvaHovered] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const [askTatvaKnowMoreDrawer, setAskTatvaKnowMoreDrawer] = useState(false);
   const [iPDKnowMoreDrawer, setIPDKnowMoreDrawer] = useState(false);
   const [pharmacyKnowMoreDrawer, setPharmacyKnowMoreDrawer] = useState(false);
+  const [subModalData, setSubModalData] = useState(null);
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -90,6 +94,10 @@ function SidebarDoctor() {
     }
   }, [profile]);
 
+  const handleAskTatvaKnowMore = () => {
+    setAskTatvaKnowMoreDrawer((prev) => !prev);
+  };
+
   const handleIPDKnowMore = () => {
     setIPDKnowMoreDrawer((prev) => !prev);
   };
@@ -104,6 +112,7 @@ function SidebarDoctor() {
 
   const clickOldModule = async (moduleName) => {
     if (moduleName === S_PHARMACY || moduleName === S_IPD) {
+      setSubModalData({ service_name: moduleName })
       const pharmacyEndDate = moment(PHARMACY_planDetails?.plan_end_date);
       const ipdEndDate = moment(IPD_planDetails?.plan_end_date);
       const currentDate = moment();
@@ -299,6 +308,40 @@ function SidebarDoctor() {
     }
   };
 
+  const checkTatvaAiPurchased = async () => {
+    setSubModalData({ service_name: S_ASK_TATVA })
+    if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance === 0) {
+      handleAskTatvaKnowMore()
+      showHideSubModal()
+    } else {
+      let sendData = {
+        b2c_id: profile?.b2c,
+        service_name: S_ASK_TATVA
+      }
+      const action = await dispatch(checkCredits(sendData));
+      if (action.meta.requestStatus === "fulfilled") {
+        if (action?.payload?.hasOwnProperty("service_name")) {
+          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance === 0) {
+            if (action?.payload?.credit_balance != ASK_TATVA_planDetails?.credit_balance) {
+              await dispatch(services(sendData?.b2c_id))
+            }
+            handleAskTatvaKnowMore()
+            showHideSubModal()
+          } else {
+            handleTatvaAi();
+          }
+        } else {
+          typeof action?.payload?.data?.error === 'object' ?
+            errorMessage(action?.payload?.data?.error?.description)
+            :
+            errorMessage(action?.payload?.data?.message)
+        }
+      } else {
+        errorMessage(action.payload.message)
+      }
+    }
+  }
+
   const handleHover = (data) => {
     if (data) {
       setHoveredItem(null);
@@ -340,7 +383,7 @@ function SidebarDoctor() {
                 }`}
               onMouseEnter={() => handleHover(true)} // Set the hovered item
               onMouseLeave={() => handleHover(false)} // Clear the hovered item
-              onClick={handleTatvaAi}
+              onClick={checkTatvaAiPurchased}
             >
               <img src={getIcon("tatva_ai", tatvaHovered)} alt="tatva_ai" />
               <div
@@ -470,6 +513,17 @@ function SidebarDoctor() {
       <Drawer
         closeIcon={false}
         placement="right"
+        open={askTatvaKnowMoreDrawer}
+        onClose={handleAskTatvaKnowMore}
+        className=".modalWidth-800"
+        width={600}
+      >
+        <AskTatvaKnowMore handleAskTatvaKnowMore={handleAskTatvaKnowMore} />
+      </Drawer>
+
+      <Drawer
+        closeIcon={false}
+        placement="right"
         open={iPDKnowMoreDrawer}
         onClose={handleIPDKnowMore}
         className=".modalWidth-800"
@@ -490,7 +544,7 @@ function SidebarDoctor() {
       </Drawer>
 
       <ExpiredSubModal
-        title={S_PHARMACY}
+        title={subModalData && subModalData?.hasOwnProperty('service_name') && subModalData?.service_name}
         isSubModalOpen={isSubModalOpen}
         showHideSubModal={showHideSubModal} />
     </>
