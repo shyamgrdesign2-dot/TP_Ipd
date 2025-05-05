@@ -47,9 +47,7 @@ import BillingSettings from "./pages/opdBilling/components/advanceBillSettings/B
 import AllPatients from "./pages/allPatients.js/AllPatients";
 import AddAppointment from "./pages/addAppointment/AddAppointment";
 import { checkAccountStatus } from './pages/auth/authService';
-import PrivateRoute from "./pages/auth/components/PrivateRoute";
-import Onboarding from "./pages/onBoarding/components/Onboarding";
-import DoctorOnboarding from "./components/onboarding/DoctorOnboarding";
+import OnboardingWrapper from "./components/userOnboarding";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -226,9 +224,9 @@ function App() {
                   <PlanExpirationBanner />
                   <ExpiredPlanCard />
                   <DoctorModal />
-                  <DoctorOnboarding />
                 </div>
               )}
+              <OnboardingWrapper />
               <Routes>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route path="create-campaign" element={<MessageCreateCampaign />} />

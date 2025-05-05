@@ -1,0 +1,194 @@
+.onboardingContainer {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.stepContainer {
+  margin-bottom: 30px;
+}
+
+.formContainer {
+  margin-top: 30px;
+}
+
+.formLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.required::after {
+  content: '*';
+  color: #ff4d4f;
+  margin-left: 4px;
+}
+
+.inputField {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.uploadContainer {
+  border: 1px dashed #d9d9d9;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.uploadIcon {
+  font-size: 24px;
+  color: #1890ff;
+  margin-bottom: 8px;
+}
+
+.uploadText {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.uploadDescription {
+  color: #666;
+  margin-top: 8px;
+}
+
+.uploadedFile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f6ffed;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.fileInfo {
+  display: flex;
+  align-items: center;
+}
+
+.fileIcon {
+  margin-right: 12px;
+}
+
+.fileName {
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.fileSize {
+  color: #666;
+  font-size: 12px;
+}
+
+.fileActions {
+  display: flex;
+  gap: 8px;
+}
+
+.warningAlert {
+  margin-bottom: 24px;
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.warningIcon {
+  color: #ff4d4f;
+  font-size: 18px;
+  margin-right: 12px;
+  margin-top: 2px;
+}
+
+.warningText {
+  color: #ff4d4f;
+}
+
+.contactSupport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40px;
+  color: #666;
+}
+
+.contactIcon {
+  margin-right: 8px;
+}
+
+.supportText {
+  margin-right: 8px;
+}
+
+.supportLink {
+  color: #1890ff;
+  text-decoration: none;
+}
+
+.supportDivider {
+  margin: 0 8px;
+  color: #d9d9d9;
+}
+
+.detectLocationBtn {
+  display: flex;
+  align-items: center;
+  color: #1890ff;
+  border: 1px dashed #1890ff;
+  background: transparent;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.locationIcon {
+  margin-right: 8px;
+}
+
+.buttonsContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.skipButton {
+  background-color: transparent;
+  border: 1px solid #d9d9d9;
+}
+
+@media (max-width: 768px) {
+  .onboardingContainer {
+    padding: 15px;
+  }
+  
+  .buttonsContainer {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .buttonsContainer button {
+    width: 100%;
+  }
+} 
