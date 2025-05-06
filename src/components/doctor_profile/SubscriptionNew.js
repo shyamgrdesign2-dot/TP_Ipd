@@ -1,16 +1,21 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Drawer, Table } from "antd";
+import { Button } from "react-bootstrap";
 
 import BillingHistory from "./BillingHistory";
 import crownIcon from "../../assets/images/crown-purple.svg";
 import billingsIcon from "../../assets/images/billings.svg";
+import crown from '../../assets/images/crown.svg'
 import BillingHistoryNew from "./BillingHistoryNew";
 import BillingPrint from "./BillingPrint";
 import { billingHistory } from "../../redux/monetizationSlice";
 import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../utils/constants";
+import { useNavigate } from "react-router-dom";
 
 function SubscriptionNew() {
+
+  const navigate = useNavigate();
 
   const { profile } = useSelector((state) => state.doctors);
   const { billingHistoryList } = useSelector((state) => state.monetization);
@@ -64,6 +69,7 @@ function SubscriptionNew() {
   ];
 
   return (
+
     <>
       <div className="rounded-20px bg-white mb-5">
         <div className="d-flex align-items-center justify-content-between p-20 border-bottom"
@@ -74,36 +80,43 @@ function SubscriptionNew() {
             </div>
             <div className="titleprint">Subscription</div>
           </div>
-          <button className="btn d-flex align-items-center btn-text"
-            onClick={() => {
-              setShowBillingHistory(true);
-            }}>
-            <img loading="lazy" src={billingsIcon}
-              style={{ color: "#EE7200", marginRight: "5px" }} alt="" />
-            <span> Billing History </span>
-          </button>
+          {!billingHistoryList?.length > 0 &&
+            <button className="btn d-flex align-items-center btn-text"
+              onClick={() => {
+                setShowBillingHistory(true);
+              }}>
+              <img loading="lazy" src={billingsIcon}
+                style={{ color: "#EE7200", marginRight: "5px" }} alt="" />
+              <span> Billing History </span>
+            </button>
+          }
         </div>
 
-        <Table
-          className="table-billing p-20"
-          dataSource={billingHistoryList}
-          columns={columns}
-          bordered
-          pagination={false} />
-
-        {/* <BillingHistory
-          show={showBillingHistory}
-          setShow={setShowBillingHistory}
-        /> */}
-
-        <BillingHistoryNew
-          show={showBillingHistory}
-          setShow={setShowBillingHistory}
-          handlePdfDrawer={handlePdfDrawer}
-          billingHistoryList={billingHistoryList} />
+        {billingHistoryList?.length > 0 ? (
+          <>
+            <Table
+              className="table-billing p-20"
+              dataSource={billingHistoryList}
+              columns={columns}
+              bordered
+              pagination={false} />
+            <BillingHistoryNew
+              show={showBillingHistory}
+              setShow={setShowBillingHistory}
+              handlePdfDrawer={handlePdfDrawer}
+              billingHistoryList={billingHistoryList} />
+          </>
+        ) : (
+          <div className="text-center p-4">
+            <div className="mb-4 text-black-50 fw-medium">You have no active plan!</div>
+            <Button className="btn btn-proceed btn-primary3 w-25 mx-auto align-items-center justify-content-center d-flex" onClick={() => navigate("/get-unlimited-access")}>
+              <img className="me-2" src={crown} alt="Crown" />
+              Buy plan now
+            </Button>
+          </div>
+        )}
 
       </div>
-
       <Drawer
         width={800}
         open={open}
@@ -116,7 +129,6 @@ function SubscriptionNew() {
         closeIcon={false}>
         <BillingPrint handlePdfDrawer={handlePdfDrawer} />
       </Drawer>
-
     </>
   );
 }
