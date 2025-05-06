@@ -66,7 +66,7 @@ function SmartRxPreview() {
 
     const [isRxDigitiseComplete, setRxDigitiseComplete] = useState(false);
     const [rxDigitiseApiResponse, setRxDigitiseApiResponse] = useState(null);
-    const [showProgressbar, setShowProgressbar] = useState(true);
+    const [showProgressbar, setShowProgressbar] = useState(false);
     const [isEditedData, setIsEditedData] = useState(null);
     const [rxDigitisedData, setRxDigitisedData] = useState(null);
     const [showDigitalRx, setShowDigitalRx] = useState(false);
@@ -134,6 +134,16 @@ function SmartRxPreview() {
         }
     };
 
+    useEffect(() => {
+        const fetchData = async () => {
+            if(state.tcm_id && patient_data?.patient_unique_id){
+                const viewCaseManagerData = await getCaseManagerData();
+                setViewCaseManagerData(viewCaseManagerData)
+            }
+        };
+        fetchData();
+    }, [state.tcm_id, patient_data?.patient_unique_id]);
+
     const fetchRxDigitisedData = async () => {
         try {
             const cleanedToken = token.replace(/['"]+/g, '');
@@ -158,7 +168,7 @@ function SmartRxPreview() {
             setToken(token)
             const decoded = jwtDecode(token);
             setTokenData(decoded.result)
-            setShowProgressbar(state?.showProgressbar === false ? false : true)
+            setShowProgressbar(state?.showProgressbar === true ? true : false)
           } catch (e) {
             console.error(e);
           }
@@ -253,8 +263,7 @@ function SmartRxPreview() {
     };
 
     const uploadFiles = async () => {
-    
-        const apiDuration = 40000; // Simulated 40 seconds
+        const apiDuration = 60000; // Simulated 40 seconds
         const intervalTime = 100; // Update progress every 100ms
         let elapsed = 0;
     
@@ -321,11 +330,13 @@ function SmartRxPreview() {
         }catch (error) {
             console.error('Error uploading files:', error);
             clearInterval(interval);
+            setShowProgressbar(false);
         }
     }; 
 
-    useEffect(() => {
-        const fetchDataAndUpload = async () => {
+    const handleDigitiseRx = async () => {
+        if(smartRxFile?.length > 0 && token && state?.tcm_id && isSmartSyncCVTAccessableFromGB){
+            setShowProgressbar(true);
             try {
                 // Fetch both case manager data and Rx digitized data
                 const viewCaseManagerData = await getCaseManagerData();
@@ -341,19 +352,20 @@ function SmartRxPreview() {
                 // }
 
                 // After both API calls are completed, check their responses
-                if (smartRxFile?.length > 0 && token && showProgressbar) {
+                if (smartRxFile?.length > 0 && token) {
                     // Proceed with the file upload
                     await uploadFiles();
                 }
             } catch (error) {
-                console.error('Error in fetchDataAndUpload:', error);
+                console.error('Error in handleDigitiseRx:', error);
             }
-        };
-    
-        if (smartRxFile?.length > 0 && token && state?.tcm_id && isSmartSyncCVTAccessableFromGB) {
-            fetchDataAndUpload();
         }
-    }, [smartRxFile, token, state?.tcm_id]);
+    };
+    
+        // if (smartRxFile?.length > 0 && token && state?.tcm_id && isSmartSyncCVTAccessableFromGB) {
+        //     fetchDataAndUpload();
+        // }
+    // }, [smartRxFile, token, state?.tcm_id]);
 
     // Function to update rxDigitize parameter in the URL
     const updateRxDigitizeInUrl = (url, showDigitalRx) => {
@@ -473,7 +485,7 @@ function SmartRxPreview() {
         }
     };
 
-    const handleDigitiseRx = async() => {
+    const handleViewDigitiseRx = async() => {
         navigate("/smart-rx-digitise", {
             state: {
                 patient_data: patient_data,
@@ -486,6 +498,37 @@ function SmartRxPreview() {
             },
         })
     };
+
+    // useEffect(() => {
+    //     const fetchDataAndUpload = async () => {
+    //         try {
+    //             // Fetch both case manager data and Rx digitized data
+    //             const viewCaseManagerData = await getCaseManagerData();
+    //             setViewCaseManagerData(viewCaseManagerData)
+
+    //             // const digitisedData = await fetchRxDigitisedData();
+    //             // if (digitisedData.data) {
+    //             //     setRxDigitisedData(true);
+    //             //     setRxDigitiseApiResponse(digitisedData.data);
+    //             //     setIsEditedData(digitisedData.data)
+    //             // } else {
+    //             //     setRxDigitisedData(false);
+    //             // }
+
+    //             // After both API calls are completed, check their responses
+    //             if (smartRxFile?.length > 0 && token && showProgressbar) {
+    //                 // Proceed with the file upload
+    //                 await uploadFiles();
+    //             }
+    //         } catch (error) {
+    //             console.error('Error in fetchDataAndUpload:', error);
+    //         }
+    //     };
+    
+    //     if (smartRxFile?.length > 0 && token && state?.tcm_id && isSmartSyncCVTAccessableFromGB) {
+    //         fetchDataAndUpload();
+    //     }
+    // }, [smartRxFile, token, state?.tcm_id]);
 
     return (
         <>
@@ -545,7 +588,7 @@ function SmartRxPreview() {
                             </button>
                             { isSmartSyncCVTAccessableFromGB && (
                                 <>
-                                    {!rxDigitiseApiResponse && showProgressbar && smartRxFile?.length > 0 && (
+                                    {showProgressbar && !isRxDigitiseComplete && (
                                         <div className="digitise-container d-flex p-3 rounded-10px">
                                             <div style={containerStyle}>
                                                 <div ref={progressRef} style={progressStyle}></div>
@@ -558,7 +601,7 @@ function SmartRxPreview() {
                                             </p>
                                         </div>
                                     )}
-                                    {rxDigitiseApiResponse && (
+                                    {!rxDigitiseApiResponse && !showProgressbar && smartRxFile?.length > 0 && (
                                         <div className="digitise-container p-3 rounded-10px">
                                             <div className="digitise-box-top">
                                                 <img src={successIcon} alt="success" width="40px" height="40px" />
@@ -580,6 +623,32 @@ function SmartRxPreview() {
                                                 </div>
                                             </div>
                                             <button onClick={handleDigitiseRx} className="digitise-btn">
+                                                Digitise Rx Now <span>&#8594;</span> 
+                                            </button>
+                                        </div>
+                                    )}
+                                    {isRxDigitiseComplete && (
+                                        <div className="digitise-container p-3 rounded-10px">
+                                            <div className="digitise-box-top">
+                                                <img src={successIcon} alt="success" width="40px" height="40px" />
+                                                <div>
+                                                    <p className="digitise-header">
+                                                        {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
+                                                    </p>
+                                                    <p className="digitise-info">
+                                                        Digitise Rx to enhance patient care, streamline workflow, and unlock new revenue.
+                                                        <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>
+                                                            <span className="know-more-text" style={{
+                                                                color:"rgba(255, 255, 255, 0.80) !important",
+                                                                fontSize: "14px",
+                                                                textDecoration: "underline",
+                                                                textDecorationColor: "rgba(255, 255, 255, 0.80)"
+                                                            }}>Know More</span>
+                                                        </button>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button onClick={handleViewDigitiseRx} className="digitise-btn">
                                                 View Digitised Rx <span>&#8594;</span> 
                                             </button>
                                         </div>
