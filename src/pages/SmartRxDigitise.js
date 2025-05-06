@@ -36,7 +36,7 @@ function SmartRxDigitise() {
     const [divWidth, setDivWidth] = useState(0);
     const [data, setData] = useState(null);
     const [isDigitiseRxSubmit, setIsDigitiseRxSubmit] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [smartRxFile, setSmartRxFile] = useState(smartRxFilesData);
 
     const baseUrlRxDigitise = env.rx_digitization ;
@@ -46,12 +46,12 @@ function SmartRxDigitise() {
     }, [divRef]);
 
     useEffect(() => {
-        if(digitisedData?.editedData && state.type === "edit"){
-            setData(digitisedData?.editedData);
-        } else {
-            setData(digitisedData?.refinedData);
+        if (smartRxFile?.length > 0 && token && state.type === "new") {
+            uploadFiles();
+        } else if (state.type === "edit" && digitisedData) {
+            uploadFiles();
         }
-    }, [digitisedData]);
+    }, [token, smartRxFile, digitisedData]);
 
     useEffect(() => {
         const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
@@ -96,7 +96,7 @@ function SmartRxDigitise() {
                             patient_data,
                             smartRxData: smartRxFilesData,
                             tcm_id,
-                            pam_id,
+                            pam_id: pam_id || patient_data?.pam_id,
                             print_url,
                             showProgressbar: false,
                             page: "digitise"
@@ -107,6 +107,66 @@ function SmartRxDigitise() {
 
         } catch (error) {
             console.error('Error saving data:', error);
+        }
+    };
+
+    const fetchImageAsFile = async (url, fileName) => {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return new File([blob], fileName, { type: blob.type });
+        } catch (error) {
+            console.error("Error fetching image:", error);
+            return null;
+        }
+    };
+
+    const uploadFiles = async () => {
+        try {
+            setIsLoading(true);
+            const formData = new FormData();
+    
+            // Convert images to File objects and append to FormData
+            const files = await Promise.all(
+                smartRxFile.map(async (file) => {
+                    const fileUrl = file.smart_prescription_file;
+                    const fileName = file.smart_prescription_filename;
+                    return await fetchImageAsFile(fileUrl, fileName);
+                })
+            );
+    
+            files.forEach((file) => {
+                if (file) {
+                    formData.append('files', file);
+                }
+            });
+
+            // Append other required fields
+            formData.append('doctorId', tokenData.user_id);
+            formData.append('patientId', patient_data.patient_unique_id);
+            formData.append('appointmentId', pam_id);
+            formData.append('caseId', tcm_id);
+    
+            const cleanedToken = token.replace(/['"]+/g, '');
+            const response = await axios.post(
+                `${baseUrlRxDigitise}/api/v1/rxdigitize/rx`, 
+                formData, 
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${cleanedToken}`,
+                    },
+                }
+            );
+            
+            // Update the digitized data
+            if (response?.data?.data) {
+                setData(response.data.data.refinedData);
+            }
+        } catch (error) {
+            console.error('Error uploading files:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -173,19 +233,13 @@ function SmartRxDigitise() {
                                             </div>
                                         </div>
                                     </Card.Header>
-                                    {/* {loading && (
-                                    <div
-                                        className="d-flex flex-column justify-content-center"
-                                        style={{ height: "calc(100vh - 218px)" }}
-                                    >
-                                        <div className="align-items-center text-center">
-                                        <Spin />
-                                        </div>
-                                    </div>
-                                    )} */}
                                     <Card.Body className="p-0 cardbody-data scrollable-body">
                                         <div style={{padding: "5px"}}>
-                                            <DigitisedPrescription  data={data} setData={setData}/>
+                                            <DigitisedPrescription 
+                                                data={data} 
+                                                setData={setData}
+                                                loading={isLoading}
+                                            />
                                         </div>
                                     </Card.Body>
                                 </>

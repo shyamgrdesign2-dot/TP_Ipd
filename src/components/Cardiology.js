@@ -500,8 +500,10 @@ function Cardiology(props) {
         smartRxFilesData: smartRxFile,
         tcm_id: viewCaseManagerData?.tcm_id,
         print_url: viewCaseManagerData?.print_rx_url,
+        pam_id: patient_data?.pam_id,
         digitisedData: rxDigitisedData,
-        page:"patient-summary"
+        page:"patient-summary",
+        type:"new"
       },
     })
   };

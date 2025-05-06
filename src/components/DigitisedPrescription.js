@@ -1,24 +1,14 @@
 import { Button } from "antd";
 import React, { useState, useEffect, useRef } from "react";
 
-const DigitisedPrescription = ({ data, setData }) => {
+const DigitisedPrescription = ({ data, setData, loading }) => {
   const [activeIndex, setActiveIndex] = useState(null);
   const [activeType, setActiveType] = useState(null);
   const [editableText, setEditableText] = useState("");
   const [editableLineItem, setEditableLineItem] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [loading, setLoading] = useState(true);
   const suggestionRef = useRef(null);
   const inputRef = useRef(null);
-
-  useEffect(() => {
-    //loading for 1 second
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-
-    return () => clearTimeout(timer); // Cleanup the timer on unmount
-  }, []);
 
   // Handle input blur (closing edit mode)
   const handleInputBlur = (type, index) => {
@@ -164,7 +154,12 @@ const DigitisedPrescription = ({ data, setData }) => {
         <div className="digitised-section">
           {loading ? (
             <div className="shimmer-container">
-              <div className="shimmer"></div>
+              <div className="shimmer-header">
+                <div className="shimmer"></div>
+              </div>
+              <div className="shimmer-content">
+                <div className="shimmer"></div>
+              </div>
             </div>
           ) : (
             <ul>
@@ -226,7 +221,12 @@ const DigitisedPrescription = ({ data, setData }) => {
       <div className="digitised-section">
         {loading ? (
           <div className="shimmer-container">
-            <div className="shimmer"></div>
+            <div className="shimmer-header">
+              <div className="shimmer"></div>
+            </div>
+            <div className="shimmer-content">
+              <div className="shimmer"></div>
+            </div>
           </div>
         ) : Array.isArray(data[type]) && data[type].length > 0 ? (
           <ul>
@@ -369,66 +369,104 @@ const DigitisedPrescription = ({ data, setData }) => {
 
   return (
     <div className="digitised-container">
-      {data?.vitals && Object.values(data.vitals).some(value => value?.trim?.().length > 0) && (
+      {loading ? (
+        // Updated shimmer layout
         <>
-          <div className="title-digitise-section mb-2">Vitals</div>
-          {renderItems("vitals")}
+          {/* First Section */}
+          <div className="shimmer-container">
+            <div className="shimmer-header">
+              <div className="shimmer"></div>
+            </div>
+            <div className="shimmer-content">
+              <div className="shimmer"></div>
+            </div>
+          </div>
+          
+          {/* Second Section */}
+          <div className="shimmer-container">
+            <div className="shimmer-header">
+              <div className="shimmer"></div>
+            </div>
+            <div className="shimmer-content">
+              <div className="shimmer"></div>
+            </div>
+          </div>
+          
+          {/* Third Section */}
+          <div className="shimmer-container">
+            <div className="shimmer-header">
+              <div className="shimmer"></div>
+            </div>
+            <div className="shimmer-content">
+              <div className="shimmer"></div>
+            </div>
+          </div>
         </>
-      )}
-
-      {data?.medicalHistory && hasValidContent("medicalHistory") && (
+      ) : (
+        // Show actual content when not loading
         <>
-          <div className="title-digitise-section mb-2">Medical History</div>
-          {renderItems("medicalHistory")}
-        </>
-      )}
+          {data?.vitals && Object.values(data.vitals).some(value => value?.trim?.().length > 0) && (
+            <>
+              <div className="title-digitise-section mb-2">Vitals</div>
+              {renderItems("vitals")}
+            </>
+          )}
 
-      {data?.symptoms && hasValidContent("symptoms") && (
-        <>
-          <div className="title-digitise-section mb-2">Symptoms</div>
-          {renderItems("symptoms")}
-        </>
-      )}
+          {data?.medicalHistory && hasValidContent("medicalHistory") && (
+            <>
+              <div className="title-digitise-section mb-2">Medical History</div>
+              {renderItems("medicalHistory")}
+            </>
+          )}
 
-      {data?.examination && hasValidContent("examination") && (
-        <>
-          <div className="title-digitise-section mb-2">Examination</div>
-          {renderItems("examination")}
-        </>
-      )}
+          {data?.symptoms && hasValidContent("symptoms") && (
+            <>
+              <div className="title-digitise-section mb-2">Symptoms</div>
+              {renderItems("symptoms")}
+            </>
+          )}
 
-      {data?.diagnosis && hasValidContent("diagnosis") && (
-        <>
-          <div className="title-digitise-section mb-2">Diagnosis</div>
-          {renderItems("diagnosis")}
-        </>
-      )}
+          {data?.examination && hasValidContent("examination") && (
+            <>
+              <div className="title-digitise-section mb-2">Examination</div>
+              {renderItems("examination")}
+            </>
+          )}
 
-      {data?.medications && hasValidContent("medications") && (
-        <>
-          <div className="title-digitise-section mb-2">Medicine</div>
-          {renderItems("medications")}
-        </>
-      )}
+          {data?.diagnosis && hasValidContent("diagnosis") && (
+            <>
+              <div className="title-digitise-section mb-2">Diagnosis</div>
+              {renderItems("diagnosis")}
+            </>
+          )}
 
-      {data?.tests && hasValidContent("tests") && (
-        <>
-          <div className="title-digitise-section mb-2">Lab Investigation</div>
-          {renderItems("tests")}
-        </>
-      )}
+          {data?.medications && hasValidContent("medications") && (
+            <>
+              <div className="title-digitise-section mb-2">Medicine</div>
+              {renderItems("medications")}
+            </>
+          )}
 
-      {data?.advice && hasValidContent("advice") && (
-        <>
-          <div className="title-digitise-section mb-2">Advices</div>
-          {renderItems("advice")}
-        </>
-      )}
+          {data?.tests && hasValidContent("tests") && (
+            <>
+              <div className="title-digitise-section mb-2">Lab Investigation</div>
+              {renderItems("tests")}
+            </>
+          )}
 
-      {data?.vaccinations && hasValidContent("vaccinations") && (
-        <>
-          <div className="title-digitise-section mb-2">Vaccination</div>
-          {renderItems('vaccinations')}
+          {data?.advice && hasValidContent("advice") && (
+            <>
+              <div className="title-digitise-section mb-2">Advices</div>
+              {renderItems("advice")}
+            </>
+          )}
+
+          {data?.vaccinations && hasValidContent("vaccinations") && (
+            <>
+              <div className="title-digitise-section mb-2">Vaccination</div>
+              {renderItems('vaccinations')}
+            </>
+          )}
         </>
       )}
     </div>

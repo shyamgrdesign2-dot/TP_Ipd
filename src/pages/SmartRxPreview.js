@@ -251,54 +251,10 @@ function SmartRxPreview() {
         fetchData();
     }, []);
 
-    const fetchImageAsFile = async (url, fileName) => {
-        try {
-          const response = await fetch(url);
-          const blob = await response.blob(); // Convert response to a Blob
-          return new File([blob], fileName, { type: blob.type }); // Create a File object
-        } catch (error) {
-          console.error("Error fetching image:", error);
-          return null;
-        }
-    };
-
-    const uploadFiles = async () => {
-        const apiDuration = 60000; // Simulated 40 seconds
-        const intervalTime = 100; // Update progress every 100ms
-        let elapsed = 0;
-    
-        // Start the progress bar interval
-        const interval = setInterval(() => {
-            elapsed += intervalTime;
-            progressValue.current = (elapsed / apiDuration) * 100;
-            if (progressRef.current) {
-                progressRef.current.style.width = `${progressValue.current}%`;
-            }
-    
-            // Clear the interval when the progress completes
-            if (elapsed >= apiDuration) {
-                clearInterval(interval);
-            }
-        }, intervalTime);
+    const tempRxDigitise = async () => {
     
         const data = getDecodedToken();
         const formData = new FormData();
-    
-        // Fetch and convert all images to File objects
-        const files = await Promise.all(
-            smartRxFile.map(async (file) => {
-                const fileUrl = file.smart_prescription_file;
-                const fileName = file.smart_prescription_filename;
-                return await fetchImageAsFile(fileUrl, fileName);
-            })
-        );
-    
-        // Append each file to FormData
-        files.forEach((file) => {
-            if (file) {
-                formData.append('files', file);
-            }
-        });
 
         const digitisedData = await fetchRxDigitisedData();
         const appointmentId = digitisedData?.data?.appointmentId;
@@ -313,53 +269,48 @@ function SmartRxPreview() {
             const cleanedToken = token.replace(/['"]+/g, '');
 
                 // API call for Rx Digitisation
-                const response = await axios.post(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx`, formData, {
+                const response = await axios.post(`${baseUrlRxDigitise}/api/v1/rxdigitize/temp-rx`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         'Authorization': `Bearer ${cleanedToken}`,
                     },
                 });
-        
-                // Clear the interval when the upload is done
-                clearInterval(interval);
-        
-                // Set the response to state (this will trigger the success message)
-
-                setRxDigitiseApiResponse(response?.data?.data);
-                setRxDigitiseComplete(true); // Mark the digitisation as complete
+                // console.log(response,"response")
         }catch (error) {
             console.error('Error uploading files:', error);
-            clearInterval(interval);
-            setShowProgressbar(false);
         }
     }; 
 
-    const handleDigitiseRx = async () => {
-        if(smartRxFile?.length > 0 && token && state?.tcm_id && isSmartSyncCVTAccessableFromGB){
-            setShowProgressbar(true);
-            try {
-                // Fetch both case manager data and Rx digitized data
-                const viewCaseManagerData = await getCaseManagerData();
-                setViewCaseManagerData(viewCaseManagerData)
+    useEffect(() => {
+        if(smartRxFile?.length > 0 && token && state?.tcm_id){
+            tempRxDigitise();
+        }
+    }, [smartRxFile, token, state?.tcm_id]);
 
-                // const digitisedData = await fetchRxDigitisedData();
-                // if (digitisedData.data) {
-                //     setRxDigitisedData(true);
-                //     setRxDigitiseApiResponse(digitisedData.data);
-                //     setIsEditedData(digitisedData.data)
-                // } else {
-                //     setRxDigitisedData(false);
-                // }
+    const handleDigitiseRx = async () => {
+            try {
 
                 // After both API calls are completed, check their responses
                 if (smartRxFile?.length > 0 && token) {
+
                     // Proceed with the file upload
-                    await uploadFiles();
+                    navigate("/smart-rx-digitise", {
+                        state: {
+                            patient_data: patient_data,
+                            smartRxFilesData: smartRxFile,
+                            tcm_id: state.tcm_id,
+                            pam_id: state?.pam_id,
+                            print_url: state.print_url,
+                            // digitisedData: rxDigitiseApiResponse,
+                            type:"new"
+
+                        },
+                    })
                 }
             } catch (error) {
                 console.error('Error in handleDigitiseRx:', error);
             }
-        }
+        // }
     };
     
         // if (smartRxFile?.length > 0 && token && state?.tcm_id && isSmartSyncCVTAccessableFromGB) {
@@ -498,37 +449,6 @@ function SmartRxPreview() {
             },
         })
     };
-
-    // useEffect(() => {
-    //     const fetchDataAndUpload = async () => {
-    //         try {
-    //             // Fetch both case manager data and Rx digitized data
-    //             const viewCaseManagerData = await getCaseManagerData();
-    //             setViewCaseManagerData(viewCaseManagerData)
-
-    //             // const digitisedData = await fetchRxDigitisedData();
-    //             // if (digitisedData.data) {
-    //             //     setRxDigitisedData(true);
-    //             //     setRxDigitiseApiResponse(digitisedData.data);
-    //             //     setIsEditedData(digitisedData.data)
-    //             // } else {
-    //             //     setRxDigitisedData(false);
-    //             // }
-
-    //             // After both API calls are completed, check their responses
-    //             if (smartRxFile?.length > 0 && token && showProgressbar) {
-    //                 // Proceed with the file upload
-    //                 await uploadFiles();
-    //             }
-    //         } catch (error) {
-    //             console.error('Error in fetchDataAndUpload:', error);
-    //         }
-    //     };
-    
-    //     if (smartRxFile?.length > 0 && token && state?.tcm_id && isSmartSyncCVTAccessableFromGB) {
-    //         fetchDataAndUpload();
-    //     }
-    // }, [smartRxFile, token, state?.tcm_id]);
 
     return (
         <>
