@@ -80,7 +80,7 @@ function SubscriptionNew() {
             </div>
             <div className="titleprint">Subscription</div>
           </div>
-          {!billingHistoryList?.length > 0 &&
+          {billingHistoryList?.length > 0 &&
             <button className="btn d-flex align-items-center btn-text"
               onClick={() => {
                 setShowBillingHistory(true);
