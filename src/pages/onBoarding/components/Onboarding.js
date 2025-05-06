@@ -1,23 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Carousel from "./OnboardCarousel";
 import SignUp from "./SignUp";
-import "./Onboarding.scss";
 import SetPassword from "./SetPassword";
 import VerifyOTP from "./VerifyOTP";
+import VerifyPassword from "./VerifyPassword.js";
 import FeatureTabCard from "./FeatureTabCard/FeatureTabCard.js";
-import "./FeatureTabCard/FeatureTabCard.scss";
 import TrustBy from "./TrustBy/TrustedBy.js";
 import Testimonials from "./Testimonials/Testimonials.js";
 import FAQ from "./FAQ/FAQ.js";
 import OurScale from "./OurScale/OurScale.js";
-import VerifyPassword from "./VerifyPassword.js";
+import Footer from "./Footer/Footer.js";
+import Hook from "../../../assets/images/website-images/Hook.png";
+import "./Onboarding.scss";
+import "./FeatureTabCard/FeatureTabCard.scss";
 
 const Onboarding = () => {
   const [view, setView] = useState("signup");
   const [mobileNumber, setMobileNumber] = useState("");
-  const [isLoginFlow, setIsLoginFlow] = useState(false);
+  const [isLoginFlow, setIsLoginFlow] = useState(true);
+  const [isUserExists, setIsUserExists] = useState(false);
+  const [isFromCampaign, setIsFromCampaign] = useState(false);
 
-  const handleViewChange = (newView, number = "") => {
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const campaign = searchParams.get("utm_campaign");
+    setIsFromCampaign(!!campaign);
+    if (!!campaign) {
+      setIsFromCampaign(true);
+      setIsLoginFlow(false);
+    } else {
+      setIsFromCampaign(false);
+      setIsLoginFlow(true);
+    }
+  }, []);
+
+  const handleViewChange = (newView, number = "", isUserExists = false) => {
     setView(newView);
     if (newView === "loginOTP") {
       setIsLoginFlow(true);
@@ -26,6 +43,9 @@ const Onboarding = () => {
     }
     if (number) {
       setMobileNumber(number);
+    }
+    if (isUserExists) {
+      setIsUserExists(isUserExists);
     }
   };
 
@@ -48,6 +68,7 @@ const Onboarding = () => {
               onViewChange={handleViewChange}
               mobileNumber={mobileNumber}
               isLoginFlow={isLoginFlow}
+              isUserExists={isUserExists}
             />
           )}
           {view === "setPassword" && (
@@ -72,57 +93,25 @@ const Onboarding = () => {
           title="An EMR the meets all"
           subTitle="your needs to streamline"
           tabs={["Clinic Care", "Admin Tasks", "Analytics"]}
-          heading={"Supercharge\nYour Online Reach"}
-          points={[
-            { icon: "🖥️", text: "Get a personalized practice website" },
-            { icon: "📦", text: "Optimize your Google Business Profile" },
-            { icon: "📅", text: "Accept online appointments effortlessly" },
-          ]}
-          imageContent={
-            <img
-              src="/images/demo-doctor-profile.png"
-              alt="Doctor Website Demo"
-            />
-          }
         />
         <FeatureTabCard
           feature="Ai Features"
           title="Empower your"
           subTitle="practice with Tatva AI"
           tabs={["DDx", "Smart Sync", "Voice Rx", "Tatva Assist"]}
-          heading={"Supercharge\nYour Online Reach"}
-          points={[
-            { icon: "🖥️", text: "Get a personalized practice website" },
-            { icon: "📦", text: "Optimize your Google Business Profile" },
-            { icon: "📅", text: "Accept online appointments effortlessly" },
-          ]}
-          imageContent={
-            <img
-              src="/images/demo-doctor-profile.png"
-              alt="Doctor Website Demo"
-            />
-          }
         />{" "}
         <FeatureTabCard
           feature="Digital Features"
           title="Grow your"
           subTitle="practice with us"
           tabs={["Digital Presence", "Remote Care", "ABDM"]}
-          heading={"Supercharge\nYour Online Reach"}
-          points={[
-            { icon: "🖥️", text: "Get a personalized practice website" },
-            { icon: "📦", text: "Optimize your Google Business Profile" },
-            { icon: "📅", text: "Accept online appointments effortlessly" },
-          ]}
-          imageContent={
-            <img
-              src="/images/demo-doctor-profile.png"
-              alt="Doctor Website Demo"
-            />
-          }
         />
         <Testimonials />
         <FAQ />
+        <div className="onboarding-footer">
+          <img src={Hook} alt="footer banner" />
+          <Footer />
+        </div>
       </div>
     </>
   );

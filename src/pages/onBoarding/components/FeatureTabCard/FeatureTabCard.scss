@@ -28,7 +28,7 @@
 .feature-tab-card {
   position: relative;
   // background: linear-gradient(120deg, #FEF6E1 0%, #FEF0C7 100%);
-  border-radius: 24px;
+  border-radius: 3rem;
   padding: 3rem 2rem;
   margin-top: 2rem;
   opacity: 0.9;
@@ -134,12 +134,12 @@
   }
 
   &__image {
-    position: relative;
+    position: absolute;
+    right: 0;
+    bottom: 0;
     
     img {
       width: 100%;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
   }
 

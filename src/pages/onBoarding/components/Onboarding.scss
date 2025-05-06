@@ -137,7 +137,6 @@
   .signup-form-container {
     flex: 1;
     margin: 0 auto;
-    // min-height: 0%;
     background: white;
     border-radius: 2.6rem;
     padding: 2rem;
@@ -394,7 +393,6 @@
 }
 
 .signup-container {
-  max-width: 400px;
   width: 100%;
 
   h2 {
@@ -412,6 +410,7 @@
   }
 
   .captcha-container {
+    width: 100%;
     margin-bottom: 16px;
   }
 

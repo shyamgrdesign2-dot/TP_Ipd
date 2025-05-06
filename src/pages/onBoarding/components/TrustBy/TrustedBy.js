@@ -8,7 +8,7 @@ const TrustBy = () => {
     require('../../../../assets/images/website-images/ApolloCradleLogo.png'),
     require('../../../../assets/images/website-images/MunshiHospitalLogo.png'),
     require('../../../../assets/images/website-images/ZydusLogo.png'),
-    require('../../../../assets/images/clincsLogo.svg'),
+    require('../../../../assets/images/website-images/clincsLogo.png'),
   ];
 
   return (
@@ -22,6 +22,12 @@ const TrustBy = () => {
           {/* First set of logos */}
           {logos.map((logo, index) => (
             <div key={`logo-1-${index}`} className="logo-item">
+              <img src={logo} alt={`Partner ${index + 1}`} />
+            </div>
+          ))}
+          {/* Duplicate set of logos for seamless loop */}
+          {logos.map((logo, index) => (
+            <div key={`logo-2-${index}`} className="logo-item">
               <img src={logo} alt={`Partner ${index + 1}`} />
             </div>
           ))}

@@ -7,7 +7,7 @@ import nhaLogo from "../../../assets/images/nha-logo.svg";
 import googlePartner from "../../../assets/images/website-images/image.png";
 import { verifyAccessToken } from "../../auth/authService";
 
-const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow }) => {
+const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists }) => {
   const [timer, setTimer] = useState(15);
   const [canResend, setCanResend] = useState(false);
   const [otp, setOtp] = useState("");
@@ -61,42 +61,23 @@ const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow }) => {
         window.verifyOtp(
           otp,
           async (data) => {
-            const { message } = data;
-            const response = await verifyAccessToken(mobileNumber, message);
-            console.log("response", response);
+            const { message, type } = data;
 
-            if (response) {
-              const { message: responseMessage, ssoUrl, passwordSet } = response;
-              console.log("responseMessage", responseMessage);
-              switch (responseMessage) {
-                case "Password not set":
-                  if (isLoginFlow) {
-                    onViewChange("setPassword");
-                  } else {
-                    // Redirect to SSO URL for campaign signups
-                    if (ssoUrl) {
-                      const deviceType = isMobile ? "mobile" : "desktop";
-                      window.location.href = `${ssoUrl}&device_type=${deviceType}`;
-                    }
-                  }
-                  break;
+            if(isUserExists){
+              const response = await verifyAccessToken(mobileNumber, message);
 
-                case "Doctor exists!":
-                  if (ssoUrl) {
-                    const deviceType = isMobile ? "mobile" : "desktop";
-                    window.location.href = `${ssoUrl}&device_type=${deviceType}`;
-                  }
-                  break;
+              if (response) {
+                const { message: responseMessage, ssoUrl, passwordSet } = response;
 
-                default:
-                  if (ssoUrl) {
-                    console.log("ssoUrl", ssoUrl);
-                    const deviceType = isMobile ? "mobile" : "desktop";
-                    window.location.href = `${ssoUrl}&device_type=${deviceType}`;
-                  }
+                if (ssoUrl) {
+                  const deviceType = isMobile ? "mobile" : "desktop";
+                  window.location.href = `${ssoUrl}&device_type=${deviceType}`;
+                }
+              } else {
+                setError("Failed to verify access token. Please try again.");
               }
             } else {
-              setError("Invalid OTP. Please try again.");
+              onViewChange("onboarding");
             }
           },
           (error) => {

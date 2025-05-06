@@ -11,17 +11,26 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isFromCampaign, setIsFromCampaign] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
 
   useEffect(() => {
     // MSG91 Integration
     window.isMSG91Active = true;
     const scriptId = "msg91-otp-script";
+    
+    // Check if script already exists
+    const existingScript = document.getElementById(scriptId);
+    if (existingScript) {
+      setScriptLoaded(true);
+      return;
+    }
 
     const configuration = {
       widgetId: "346b79686352303336343033",
       tokenAuth: "365375TaYB4FU32WrR67443055P1",
-      // captchaRenderId: "captch-id",
+      captchaRenderId: "captch-id",
       exposeMethods: true,
       success: (data) => {
         void 0;
@@ -31,28 +40,76 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
       },
     };
 
-    // Load MSG91 script
-    const loadMSG91Script = () => {
-      const script = document.createElement("script");
-      script.id = scriptId;
-      script.src =
-        "https://control.msg91.com/app/assets/otp-provider/otp-provider.js";
-      script.async = true;
+    // Load MSG91 script with retry mechanism
+    const loadScript = async () => {
+      try {
+        const script = document.createElement("script");
+        script.id = scriptId;
+        script.src = "https://control.msg91.com/app/assets/otp-provider/otp-provider.js";
+        script.async = true;
 
-      script.onload = () => {
-        if (window.initSendOTP && window.isMSG91Active) {
-          window.initSendOTP(configuration);
-        }
-      };
+        // Promise-based script loading
+        const loadPromise = new Promise((resolve, reject) => {
+          script.onload = () => {
+            if (window.initSendOTP && window.isMSG91Active) {
+              setTimeout(() => {
+                try {
+                  window.initSendOTP(configuration);
+                  setScriptLoaded(true);
+                  resolve();
+                } catch (error) {
+                  reject(error);
+                }
+              }, 1000); // Add small delay to ensure proper initialization
+            } else {
+              reject(new Error("initSendOTP not available"));
+            }
+          };
+          script.onerror = () => reject(new Error("Script load failed"));
+        });
 
-      document.body.appendChild(script);
+        document.body.appendChild(script);
+        await loadPromise;
+      } catch (error) {
+        console.error("Error loading MSG91 script:", error);
+        // Optional: Implement retry logic here if needed
+      }
     };
 
-    loadMSG91Script();
+    loadScript();
 
-    // Cleanup function
     return () => {
-      // Your cleanup code from the provided MSG91 implementation
+      // Cleanup function
+      if (window.isMSG91Active) {
+        window.isMSG91Active = false;
+        
+        // Remove the MSG91 provider element if it exists
+        const msg91Provider = document.querySelector('msg91-otp-provider');
+        if (msg91Provider) {
+          try {
+            if (msg91Provider.disconnectedCallback) {
+              msg91Provider.disconnectedCallback();
+            }
+            msg91Provider.remove();
+          } catch (e) {
+            console.error('Error removing MSG91 provider:', e);
+          }
+        }
+
+        // Remove the script
+        const script = document.getElementById(scriptId);
+        if (script) {
+          document.body.removeChild(script);
+        }
+
+        // Reset captcha container
+        const captchaElement = document.getElementById('captch-id');
+        if (captchaElement) {
+          while (captchaElement.firstChild) {
+            captchaElement.removeChild(captchaElement.firstChild);
+          }
+        }
+      }
     };
   }, []);
 
@@ -63,36 +120,41 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
   }, []);
 
   const handleGetStarted = async () => {
+    if (!scriptLoaded) {
+      setError("OTP service is initializing. Please try again in a moment.");
+      return;
+    }
+
     try {
       setIsButtonDisabled(true);
       setLoading(true);
-      
+
       // First check user status
       const response = await validateUser(mobileNumber);
       const { message } = response;
 
       switch (message) {
         case "Doctor exists!":
-          if (isFromCampaign || isLoginFlow) {
-            // For campaign URLs or login flow, proceed with OTP
-            if (window.sendOtp) {
-              window.sendOtp(
-                `91${mobileNumber}`,
-                () => {
-                  onViewChange("verifyOTP", mobileNumber);
-                },
-                (error) => {
-                  setError("Failed to send OTP. Please try again.");
-                  setIsButtonDisabled(false);
-                }
-              );
-            }
-          } else {
-            // For regular signup, show exists message
+          // For campaign URLs or login flow, proceed with OTP
+          
+          setIsFromCampaign(false);
+          if (isFromCampaign || !isLoginFlow) {
             setError("User already exists. Please login.");
             setTimeout(() => {
-              onViewChange("loginOTP");
+              onViewChange("loginOTP", mobileNumber, true);
             }, 2000);
+          }
+          else if (window.sendOtp) {
+            window.sendOtp(
+              `91${mobileNumber}`,
+              () => {
+                onViewChange("verifyOTP", mobileNumber, true);
+              },
+              (error) => {
+                setError("Failed to send OTP. Please try again.");
+                setIsButtonDisabled(false);
+              }
+            );
           }
           break;
 
@@ -100,7 +162,7 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
           if (isLoginFlow) {
             setError("User does not exist. Please sign up first.");
             setTimeout(() => {
-              onViewChange("signup");
+              onViewChange("signup", mobileNumber, false);
             }, 2000);
           } else {
             // Proceed with signup flow
@@ -108,7 +170,7 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
               window.sendOtp(
                 `91${mobileNumber}`,
                 () => {
-                  onViewChange("verifyOTP", mobileNumber);
+                  onViewChange("verifyOTP", mobileNumber, false);
                 },
                 (error) => {
                   setError("Failed to send OTP. Please try again.");
@@ -169,6 +231,11 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
     }
   };
 
+  // Add this helper function
+  const isCaptchaVerified = () => {
+    return window.isCaptchaVerified ? window.isCaptchaVerified() : false;
+  };
+
   return (
     <div className="signup-form-wrapper">
       <div className="signup-form-container">
@@ -209,9 +276,9 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
             />
           </Form.Item>
 
-          {/* <div className="captcha-wrapper">
+          <div className="captcha-wrapper" style={{marginTop: "1.5rem"}}>
             <div id="captch-id" className="captcha-container" />
-          </div> */}
+          </div>
 
           {error && <div className="error-message">{error}</div>}
 
@@ -220,7 +287,7 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
             loading={loading}
             onClick={handleGetStarted}
             className="get-started-btn"
-            disabled={!isValidMobileNumber(mobileNumber) || isButtonDisabled}
+            disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled) || !isCaptchaVerified()}
           >
             {isLoginFlow ? "Login via OTP" : "Get Started"}
           </Button>
@@ -232,7 +299,7 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
               type="primary"
               onClick={() => onViewChange("loginPassword")}
               className="get-started-btn"
-              disabled={!isValidMobileNumber(mobileNumber)}
+              disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled) || !isCaptchaVerified()}
             >
               Login via Password
             </Button>
@@ -243,12 +310,7 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
               <>
                 Not an existing user?{" "}
                 <span onClick={() => onViewChange("signup")}>
-                  <>
-                    Signup {" "}
-                    {isFromCampaign && (
-                      <>for free</>
-                    )}
-                  </>
+                  <>Signup {isFromCampaign && <>for free</>}</>
                 </span>
               </>
             ) : (

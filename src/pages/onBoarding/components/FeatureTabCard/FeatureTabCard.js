@@ -5,6 +5,16 @@ import { FaDesktop, FaGoogle, FaCalendar, FaUserMd, FaChartLine, FaClipboardList
 import Emr from "../../../../assets/images/Emr.svg";
 import Practice from "../../../../assets/images/Practice.svg";
 import Ai from "../../../../assets/images/AIsymbol.svg";
+import Abdm from "../../../../assets/images/website-images/LP_ABDM.png";
+import AdminTasks from "../../../../assets/images/website-images/LP_AdminTasks.png";
+import Analytics from "../../../../assets/images/website-images/LP_Analytics.png";
+import ClinicCare from "../../../../assets/images/website-images/LP_ClinicCare.png";
+import TatvaAssist from "../../../../assets/images/website-images/LP_Ddx.png";
+import DigitalCare from "../../../../assets/images/website-images/LP_DigitalCare.png";
+import RemoteCare from "../../../../assets/images/website-images/LP_RemoteCare.png";
+import SmartSync from "../../../../assets/images/website-images/LP_SmartSync.png";
+import TatvaAi from "../../../../assets/images/website-images/LP_TatvaAi.png";
+import VoiceRx from "../../../../assets/images/website-images/LP_VoiceRx.png";
 
 const featureCardConfig = {
   "EMR Features": {
@@ -14,11 +24,11 @@ const featureCardConfig = {
     },
     tabConfig: {
       "Clinic Care": {
-        heading: "Streamline\nYour Clinical Workflow",
+        heading: "Improve Clinic Care",
         points: [
           {
             icon: <FaUserMd />,
-            text: "Quick and easy patient consultations"
+            text: "Speciality Specific Modules"
           },
           {
             icon: <FaClipboardList />,
@@ -26,46 +36,46 @@ const featureCardConfig = {
           },
           {
             icon: <FaChartLine />,
-            text: "Track patient progress efficiently"
+            text: "Patient Engagement"
           }
         ],
-        image: "/images/demo-doctor-profile.png"
+        image: ClinicCare
       },
       "Admin Tasks": {
-        heading: "Simplify\nPractice Management",
+        heading: "Simplify\nClinic Management",
         points: [
           {
             icon: <FaCalendar />,
-            text: "Automated appointment scheduling"
+            text: "Manage walk-ins and appointments"
           },
           {
             icon: <FaDesktop />,
-            text: "Easy billing and invoicing"
+            text: "Streamline billing and payments"
           },
           {
             icon: <FaClipboardList />,
-            text: "Digital record keeping"
+            text: "Send Bulk Campaign Messages"
           }
         ],
-        image: "/images/demo-doctor-profile.png"
+        image: AdminTasks
       },
       "Analytics": {
-        heading: "Data-Driven\nInsights",
+        heading: "Practice\nAnalytics Simplified",
         points: [
           {
             icon: <FaChartLine />,
-            text: "Practice performance metrics"
+            text: "Monitor patient trends"
           },
           {
             icon: <FaDesktop />,
-            text: "Patient analytics"
+            text: "Evaluate treatment outcomes"
           },
           {
             icon: <FaClipboardList />,
-            text: "Financial reporting"
+            text: "Access real-time revenue data"
           }
         ],
-        image: "/images/demo-doctor-profile.png"
+        image: Analytics
       }
     },
     icon:Emr
@@ -77,22 +87,22 @@ const featureCardConfig = {
     },
     tabConfig: {
       "DDx": {
-        heading: "AI-Powered\nDiagnostic Support",
+        heading: "AI Powered \n Differential Diagnosis",
         points: [
           {
             icon: <FaUserMd />,
-            text: "Differential diagnosis suggestions"
+            text: "Get DDx within Second"
           },
           {
             icon: <FaClipboardList />,
-            text: "Evidence-based recommendations"
+            text: "Identify Potential Condition"
           },
           {
             icon: <FaChartLine />,
-            text: "Clinical decision support"
+            text: "Discover effective treatment options"
           }
         ],
-        image: "/images/demo-doctor-profile.png"
+        image: TatvaAssist
       },
       "Smart Sync": {
         heading: "Intelligent\nData Integration",
@@ -110,43 +120,43 @@ const featureCardConfig = {
             text: "Real-time updates"
           }
         ],
-        image: "/images/demo-doctor-profile.png"
+        image: SmartSync
       },
       "Voice Rx": {
-        heading: "Voice-Enabled\nPrescriptions",
+        heading: "Simplify\nPrescription Writing",
         points: [
           {
             icon: <FaUserMd />,
-            text: "Voice-to-text prescriptions"
+            text: "Write naturally with digital ink technology"
           },
           {
             icon: <FaClipboardList />,
-            text: "Quick documentation"
+            text: "Instantly capture and digitise prescriptions"
           },
           {
             icon: <FaCalendar />,
-            text: "Efficient workflow"
+            text: "Sync effortlessly across all your devices"
           }
         ],
-        image: "/images/demo-doctor-profile.png"
+        image: VoiceRx
       },
       "Tatva Assist": {
-        heading: "AI Assistant\nSupport",
+        heading: "AI-Powered\nPlatform for Doctors",
         points: [
           {
             icon: <FaUserMd />,
-            text: "24/7 AI assistance"
+            text: "Personalized AI platform for smart care"
           },
           {
             icon: <FaDesktop />,
-            text: "Smart recommendations"
+            text: "Access reliable insights from PubMed"
           },
           {
             icon: <FaClipboardList />,
-            text: "Automated support"
+            text: "Make informed decisions with ease"
           }
         ],
-        image: "/images/demo-doctor-profile.png"
+        image: TatvaAi
       }
     },
     icon:Ai
@@ -158,58 +168,58 @@ const featureCardConfig = {
     },
     tabConfig: {
       "Digital Presence": {
-        heading: "Enhance Your\nOnline Presence",
+        heading: "Supercharge\nYour Online Reach",
         points: [
           {
             icon: <FaDesktop />,
-            text: "Professional website"
+            text: "Get a personalized practice website"
           },
           {
             icon: <FaGoogle />,
-            text: "Google Business Profile"
+            text: "Optimize your Google Business Profile"
           },
           {
             icon: <FaCalendar />,
-            text: "Online appointment booking"
+            text: "Accept online appointments effortlessly"
           }
         ],
-        image: "/images/demo-doctor-profile.png"
+        image: DigitalCare
       },
       "Remote Care": {
-        heading: "Virtual\nHealthcare Solutions",
+        heading: "Empower\nPatient Care Anywhere",
         points: [
           {
             icon: <FaUserMd />,
-            text: "Telemedicine consultations"
+            text: "Earn by referring care programs"
           },
           {
             icon: <FaClipboardList />,
-            text: "Digital prescriptions"
+            text: "Easily access and review patient logs"
           },
           {
             icon: <FaCalendar />,
-            text: "Remote patient monitoring"
+            text: "Stay connected with patients through chats"
           }
         ],
-        image: "/images/demo-doctor-profile.png"
+        image: RemoteCare
       },
       "ABDM": {
-        heading: "Ayushman Bharat\nDigital Mission",
+        heading: "Maximize\nEarnings with ABDM",
         points: [
           {
             icon: <FaUserMd />,
-            text: "ABDM compliance"
+            text: "Earn DHIS incentives via ABDM"
           },
           {
             icon: <FaClipboardList />,
-            text: "Health ID integration"
+            text: "Boost income with government support"
           },
           {
             icon: <FaDesktop />,
-            text: "Digital health records"
+            text: "Enhance practice visibility and credibility"
           }
         ],
-        image: "/images/demo-doctor-profile.png"
+        image: Abdm
       }
     },
     icon:Practice

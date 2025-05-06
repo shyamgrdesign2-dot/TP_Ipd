@@ -14,28 +14,28 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
   const [error, setError] = useState(null);
 
   const handleLogin = async () => {
-    try {
-      setLoading(true);
-      const response = await verifyAccessToken(mobileNumber);
+    // try {
+    //   setLoading(true);
+    //   const response = await verifyAccessToken(mobileNumber, password);
       
-      if (response.success) {
-        const { ssoUrl, passwordSet } = response;
+    //   if (response.success) {
+    //     const { ssoUrl, passwordSet } = response;
         
-        if (!passwordSet) {
-          onViewChange("setPassword");
-        } else if (ssoUrl) {
-          const deviceType = isMobile ? "mobile" : "desktop";
-          window.location.href = `${ssoUrl}&device_type=${deviceType}`;
-        }
-      } else {
-        setError("Invalid credentials. Please try again.");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    //     if (!passwordSet) {
+    //       onViewChange("setPassword");
+    //     } else if (ssoUrl) {
+    //       const deviceType = isMobile ? "mobile" : "desktop";
+    //       window.location.href = `${ssoUrl}&device_type=${deviceType}`;
+    //     }
+    //   } else {
+    //     setError("Invalid credentials. Please try again.");
+    //   }
+    // } catch (error) {
+    //   console.error("Login error:", error);
+    //   setError("Something went wrong. Please try again.");
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   const handleGoBack = () => {
