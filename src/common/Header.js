@@ -687,13 +687,18 @@ function Header({ locationPath }) {
     }
   };
 
+  const clickBuyNow = () => {
+    navigate('/get-unlimited-access')
+  }
+
   const handleClick = () => {
     const clinic_name = getClinicName(profile?.hospital_data);
     window.Moengage.track_event("BuyPlanNow_Click", {
       doctor_id: profile?.doctor_unique_id,
       clinic_name,
     });
-    dispatch(openModal());
+    // dispatch(openModal());
+    clickBuyNow()
   };
 
   const getMenuItems = () => {
@@ -850,7 +855,7 @@ function Header({ locationPath }) {
           label: (
             <>
               Your free trial ends in <span className="fw-semibold">{`${remaingDays} days!`}</span>
-              <div className="title-common text-white border p-2 rounded-12px w-100 mt-2 cursor-pointer" style={{ backgroundColor: '#FFFFFF1A' }} onClick={() => navigate("/get-unlimited-access")}>
+              <div className="title-common text-white border p-2 rounded-12px w-100 mt-2 cursor-pointer" style={{ backgroundColor: '#FFFFFF1A' }} onClick={clickBuyNow}>
                 <img loading="lazy" src={crownIcon} className="text-white me-2" alt="" />Get Unlimited Access
               </div>
             </>

@@ -13,7 +13,7 @@ import {
 import { useContext, useState } from "react";
 import CashManagerContext from "../../context/CashManagerContext";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getClinicName } from "../../utils/utils";
 import { FREE, S_DDX } from "../../utils/constants";
 import CampaignDiscount from "../../pages/monetization/components/CampaignDiscount";
@@ -29,6 +29,7 @@ const DDxList = ({
   handleDrawerVital,
   isDDxGenerated,
 }) => {
+  const navigate = useNavigate();
   const { campaignsData, servicesList } = useSelector((state) => state.doctors);
   const planDetails = servicesList?.find(e => e.service_name === S_DDX)
 
@@ -44,6 +45,10 @@ const DDxList = ({
   const handlePanelChange = () => {
     setIsCollapseActive((prev) => !prev);
   };
+
+  const clickBuyNow = (service_name) => {
+    navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
+  }
 
   const accordionItems = [
     {
@@ -144,7 +149,7 @@ const DDxList = ({
                     </Button>
                   </div>
                   <div>
-                    <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex">
+                    <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(planDetails?.service_name)}>
                       <img className="me-2" src={crown} alt="Crown" />
                       Get Unlimited Access
                     </Button>

@@ -16,7 +16,7 @@ import { setIsDiagnosisBox } from "../../redux/ddxSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { getClinicName } from "../../utils/utils";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FREE, S_DDX } from "../../utils/constants";
 import CampaignDiscount from "../../pages/monetization/components/CampaignDiscount";
 import crown from '../../assets/images/crown.svg'
@@ -30,6 +30,7 @@ const TabDDxList = ({
   getGenerateDDx,
   isDDxGenerated,
 }) => {
+  const navigate = useNavigate();
   const { campaignsData, servicesList } = useSelector((state) => state.doctors);
   const planDetails = servicesList?.find(e => e.service_name === S_DDX)
 
@@ -39,6 +40,10 @@ const TabDDxList = ({
   const { state } = useLocation();
   const { patient_data } = state;
   const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
+
+  const clickBuyNow = (service_name) => {
+    navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
+  }
 
   return (
     <div
@@ -151,7 +156,7 @@ const TabDDxList = ({
                     </Button>
                   </div>
                   <div>
-                    <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex">
+                    <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(planDetails?.service_name)}>
                       <img className="me-2" src={crown} alt="Crown" />
                       Get Unlimited Access
                     </Button>

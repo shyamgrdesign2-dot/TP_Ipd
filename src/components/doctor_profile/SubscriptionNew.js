@@ -109,7 +109,7 @@ function SubscriptionNew() {
         ) : (
           <div className="text-center p-4">
             <div className="mb-4 text-black-50 fw-medium">You have no active plan!</div>
-            <Button className="btn btn-proceed btn-primary3 w-25 mx-auto align-items-center justify-content-center d-flex" onClick={() => navigate("/get-unlimited-access")}>
+            <Button className="btn btn-proceed btn-primary3 w-25 mx-auto align-items-center justify-content-center d-flex" onClick={() => navigate('/get-unlimited-access')}>
               <img className="me-2" src={crown} alt="Crown" />
               Buy plan now
             </Button>

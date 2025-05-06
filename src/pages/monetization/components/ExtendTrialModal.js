@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, Modal } from "antd";
 import { Button, Col, Row } from "react-bootstrap";
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
 
 import { useSelector, useDispatch } from "react-redux";
 import { FREE, S_TATVA_PRACTICE } from "../../../utils/constants";
@@ -16,6 +17,7 @@ import planExpiredSandClock from '../../../assets/images/plan-expired-sand-clock
 import { checkCredits, extendFreeTrial } from "../../../redux/monetizationSlice";
 
 function ExtendTrialModal() {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const { profile, servicesList, campaignsData } = useSelector((state) => state.doctors);
     const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
@@ -64,6 +66,10 @@ function ExtendTrialModal() {
 
     const onExtendFreeTrialClick = () => {
         dispatch(extendFreeTrial(profile?.b2c))
+    }
+
+    const clickBuyNow = () => {
+        navigate('/get-unlimited-access')
     }
 
     return (
@@ -131,7 +137,7 @@ function ExtendTrialModal() {
                                         </Button>
                                     </Col>
                                     <Col lg={6}>
-                                        <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex">
+                                        <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={clickBuyNow}>
                                             <img className="me-2" src={crown} alt="Crown" />
                                             Get Unlimited Access
                                         </Button>
