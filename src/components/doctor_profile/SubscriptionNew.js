@@ -98,7 +98,9 @@ function SubscriptionNew() {
 
         <BillingHistoryNew
           show={showBillingHistory}
-          setShow={setShowBillingHistory} />
+          setShow={setShowBillingHistory}
+          handlePdfDrawer={handlePdfDrawer}
+          billingHistoryList={billingHistoryList} />
 
       </div>
 
@@ -107,6 +109,10 @@ function SubscriptionNew() {
         open={open}
         footer={null}
         onClose={() => setOpen(false)}
+        styles={{
+          mask: { zIndex: 999 },
+          wrapper: { zIndex: 999 },
+        }}
         closeIcon={false}>
         <BillingPrint handlePdfDrawer={handlePdfDrawer} />
       </Drawer>

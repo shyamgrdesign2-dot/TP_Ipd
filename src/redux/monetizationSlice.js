@@ -3,6 +3,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import ApiMonetization from "../api/services/ApiMonetization";
 import { services } from "./doctorsSlice";
 import moment from "moment";
+import { formatAmount } from "../utils/utils";
 
 const initialState = {
     billingHistoryList: [],
@@ -114,7 +115,7 @@ const monetizationSlice = createSlice({
                             service_display_name: plan.service_display_name,
                             service_name: plan.service_name,
                             plan_validity_months: plan.plan_validity_months,
-                            plan_amount: plan.plan_amount,
+                            plan_amount: `₹${formatAmount(plan.plan_amount)}`,
                             plan_start_date: moment(plan.plan_start_date).format('Do MMM, YYYY'),
                             plan_end_date: moment(plan.plan_end_date).format('Do MMM, YYYY'),
                             status: plan.status,
