@@ -31,7 +31,7 @@ const TabDDxList = ({
   isDDxGenerated,
 }) => {
   const { campaignsData, servicesList } = useSelector((state) => state.doctors);
-  const planDetails = servicesList.find(e => e.service_name === S_DDX)
+  const planDetails = servicesList?.find(e => e.service_name === S_DDX)
 
   const dispatch = useDispatch();
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);

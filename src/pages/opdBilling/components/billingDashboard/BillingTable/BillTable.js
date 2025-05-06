@@ -31,7 +31,7 @@ const BillTable = ({
   showHideSubModal
 }) => {
   const { profile, servicesList } = useSelector((state) => state.doctors);
-  const BILLING_planDetails = servicesList.find(e => e.service_name === S_BILLING)
+  const BILLING_planDetails = servicesList?.find(e => e.service_name === S_BILLING)
   const dispatch = useDispatch();
 
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);

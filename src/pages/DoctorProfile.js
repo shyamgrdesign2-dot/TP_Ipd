@@ -312,11 +312,10 @@ function DoctorProfile() {
           <div className="mb-4">
             <ProfileClinicView />
           </div>
-          {["TRIAL", "EXPIRED","PAID"].includes(planDetails?.currentPlanStatus) && <div className="mb-4">
-            {/* <Subscription /> */}
-
-            <SubscriptionNew />
-          </div>}
+          {/* {["TRIAL", "EXPIRED", "PAID"].includes(planDetails?.currentPlanStatus) && <div className="mb-4">
+            <Subscription />
+          </div>} */}
+          <SubscriptionNew />
         </Container>
       </div>
     </>

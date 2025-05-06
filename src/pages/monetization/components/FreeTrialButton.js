@@ -10,7 +10,7 @@ import moment from "moment";
 function FreeTrialButton({ title, showHideSubModal }) {
 
     const { servicesList } = useSelector((state) => state.doctors);
-    const planDetails = servicesList.find(e => e.service_name === title)
+    const planDetails = servicesList?.find(e => e.service_name === title)
 
     const isPurchased = () => {
         const planEndDate = moment(planDetails?.plan_end_date);

@@ -39,9 +39,9 @@ import AskTatvaKnowMore from "../pages/monetization/components/AskTatvaKnowMore"
 function SidebarDoctor() {
   const dispatch = useDispatch();
   const { servicesList } = useSelector((state) => state.doctors);
-  const PHARMACY_planDetails = servicesList.find(e => e.service_name === S_PHARMACY)
-  const IPD_planDetails = servicesList.find(e => e.service_name === S_IPD)
-  const ASK_TATVA_planDetails = servicesList.find(e => e.service_name === S_ASK_TATVA)
+  const PHARMACY_planDetails = servicesList?.find(e => e.service_name === S_PHARMACY)
+  const IPD_planDetails = servicesList?.find(e => e.service_name === S_IPD)
+  const ASK_TATVA_planDetails = servicesList?.find(e => e.service_name === S_ASK_TATVA)
 
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN

@@ -56,7 +56,7 @@ const GenRxTips = lazy(() => import("./GenRxTips"));
 const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
   const { servicesList } = useSelector((state) => state.doctors);
-  const VOICE_RX_planDetails = servicesList.find(e => e.service_name === S_VOICE_RX)
+  const VOICE_RX_planDetails = servicesList?.find(e => e.service_name === S_VOICE_RX)
 
   const { useVoiceRx, setUseVoiceRx, useDDX } = useContext(CashManagerContext);
 

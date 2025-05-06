@@ -1,71 +1,65 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Drawer, Table } from "antd";
+
 import BillingHistory from "./BillingHistory";
 import crownIcon from "../../assets/images/crown-purple.svg";
 import billingsIcon from "../../assets/images/billings.svg";
-import { Drawer, Table } from "antd";
 import BillingHistoryNew from "./BillingHistoryNew";
 import BillingPrint from "./BillingPrint";
+import { billingHistory } from "../../redux/monetizationSlice";
+import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../utils/constants";
 
 function SubscriptionNew() {
 
+  const { profile } = useSelector((state) => state.doctors);
+  const { billingHistoryList } = useSelector((state) => state.monetization);
+  const dispatch = useDispatch();
+
   const [showBillingHistory, setShowBillingHistory] = useState(false);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    dispatch(billingHistory(profile?.b2c));
+  }, []);
 
   const handlePdfDrawer = useCallback(() => {
     setOpen(!open);
   }, [open])
 
-  const dataSource = [
-    {
-      key: '1',
-      name: <><span className="fw-semibold">Voice Rx </span> <span>(Addon)</span></>,
-      startDate: '24th Dec, 2024',
-      nextPayment: '10 Downing Street',
-      invoice: <button className="btn btn-link text-primary p-0" onClick={handlePdfDrawer}>INV2024_2883</button>,
-    },
-    {
-      key: '2',
-      name: <span className="fw-semibold">Tatva Practice EMR</span>,
-      startDate: '24th Dec, 2024',
-      nextPayment: '10 Downing Street',
-      invoice: <button className="btn btn-link text-primary p-0" onClick={handlePdfDrawer}>INV2024_2883</button>,
-    },
-    {
-      key: '3',
-      name: <><span className="fw-semibold">Smart Sync PRO </span> <span>(Addon)</span></>,
-      startDate: '24th Dec, 2024',
-      nextPayment: '10 Downing Street',
-      invoice: <button className="btn btn-link text-primary p-0" onClick={handlePdfDrawer}>INV2024_2883</button>,
-    },
-    {
-      key: '4',
-      name: <><span className="fw-semibold">DDX </span> <span>(Addon)</span></>,
-      startDate: '24th Dec, 2024',
-      nextPayment: '10 Downing Street',
-      invoice: <button className="btn btn-link text-primary p-0" onClick={handlePdfDrawer}>INV2024_2883</button>,
-    },
-  ];
-
   const columns = [
     {
       title: 'Current Active Plans',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'service_display_name',
+      key: 'service_display_name',
+      render: (text, record) => (
+        <><span className="fw-semibold">{text} </span> {record?.service_name !== S_TATVA_PRACTICE && record?.service_name !== S_SMARTSYNC ? <span>(Addon)</span> : record?.service_name === S_SMARTSYNC ? <span>(Device)</span> : ''}</>
+      ),
     },
     {
       title: 'Start Date',
-      dataIndex: 'startDate',
-      key: 'startDate',
+      dataIndex: 'plan_start_date',
+      key: 'plan_start_date',
     },
     {
       title: 'Next Payment',
-      dataIndex: 'nextPayment',
-      key: 'nextPayment',
+      dataIndex: 'plan_end_date',
+      key: 'plan_end_date',
     },
     {
       title: 'Invoice',
-      dataIndex: 'invoice',
-      key: 'invoice',
+      dataIndex: 'invoice_generated',
+      key: 'invoice_generated',
+      render: (text) => <button className="btn btn-link text-primary p-0" onClick={handlePdfDrawer}>{text}</button> || "N/A",
+      onCell: (record) => ({
+        rowSpan: record.rowSpan,
+      }),
+      // render: (text, row) => ({
+      //   children: <button className="btn btn-link text-primary p-0" onClick={handlePdfDrawer}>{text}</button> || "N/A",
+      //   props: {
+      //     rowSpan: row.rowSpan,
+      //   },
+      // }),
     },
   ];
 
@@ -90,7 +84,12 @@ function SubscriptionNew() {
           </button>
         </div>
 
-        <Table className="table-billing p-20" dataSource={dataSource} columns={columns} bordered pagination={false} />
+        <Table
+          className="table-billing p-20"
+          dataSource={billingHistoryList}
+          columns={columns}
+          bordered
+          pagination={false} />
 
         {/* <BillingHistory
           show={showBillingHistory}

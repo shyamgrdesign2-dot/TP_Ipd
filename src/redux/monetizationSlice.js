@@ -2,8 +2,10 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import ApiMonetization from "../api/services/ApiMonetization";
 import { services } from "./doctorsSlice";
+import moment from "moment";
 
 const initialState = {
+    billingHistoryList: [],
     loading: false,
     errorObj: { visible: false, message: '' },
 };
@@ -82,9 +84,51 @@ export const extendFreeTrial = createAsyncThunk(
     }
 );
 
+export const billingHistory = createAsyncThunk(
+    "monetization/billingHistory",
+    async (b2c_id, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.billingHistory(b2c_id);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
 const monetizationSlice = createSlice({
     name: "monetization",
     initialState,
+    extraReducers: (builder) => {
+        builder
+            .addCase(billingHistory.fulfilled, (state, action) => {
+                const mainData = action.payload.billingHistory;
+                const tableData = [];
+                mainData.forEach((entry, groupIndex) => {
+                    const rowSpan = entry.plans.length;
+
+                    entry.plans.forEach((plan, planIndex) => {
+                        tableData.push({
+                            key: `${groupIndex}-${planIndex}`,
+                            invoice_generated: entry.invoice_generated,
+                            service_display_name: plan.service_display_name,
+                            service_name: plan.service_name,
+                            plan_validity_months: plan.plan_validity_months,
+                            plan_amount: plan.plan_amount,
+                            plan_start_date: moment(plan.plan_start_date).format('Do MMM, YYYY'),
+                            plan_end_date: moment(plan.plan_end_date).format('Do MMM, YYYY'),
+                            status: plan.status,
+                            rowSpan: planIndex === 0 ? rowSpan : 0,
+                        });
+                    });
+                });
+
+                state.billingHistoryList = tableData;
+            })
+            .addCase(billingHistory.rejected, (state) => {
+                state.billingHistoryList = [];
+            })
+    },
 });
 
 export default monetizationSlice.reducer;

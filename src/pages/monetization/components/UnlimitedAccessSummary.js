@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { Dropdown, Card, Modal, Drawer, Input, Button, Popover } from "antd";
+import { Dropdown, Drawer, Input, Button, Popover } from "antd";
 import { DownOutlined } from '@ant-design/icons'
-import Slider from "react-slick";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
@@ -10,18 +9,16 @@ import { useNavigate } from "react-router-dom";
 import yearlyPlan from '../../../assets/images/year-plan-corner.svg'
 
 import logoSm from '../../../assets/images/logo-sm.svg';
-import config from "../../../config";
 import { errorMessage, formatAmount } from "../../../utils/utils";
 import { paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/monetizationSlice";
 import { services } from "../../../redux/doctorsSlice";
+import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../../utils/constants";
 
 import "../GetUnlimitedAccess.scss";
-import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../../utils/constants";
 
 function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const { profile, campaignsData, servicesList } = useSelector((state) => state.doctors);
-    const EMR_planDetails = servicesList.find(e => e.service_name === S_TATVA_PRACTICE && e.purchased === 'true')
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -41,6 +38,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     };
 
     const handleValidity = useCallback((item, newValidity) => {
+        const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE && e.purchased === 'true')
         if (EMR_planDetails !== undefined) {
             setSelectedServices(prev =>
                 prev.map(e =>
@@ -90,6 +88,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const getMenuItems = (item) => {
         if (servicesList?.length) {
+            const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE && e.purchased === 'true')
             if (EMR_planDetails !== undefined) {
                 const remaingMonths = moment(EMR_planDetails?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'months')
                 if (remaingMonths > 12) {

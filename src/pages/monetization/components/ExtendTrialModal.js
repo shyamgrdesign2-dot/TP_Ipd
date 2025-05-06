@@ -18,7 +18,7 @@ import { checkCredits, extendFreeTrial } from "../../../redux/monetizationSlice"
 function ExtendTrialModal() {
     const dispatch = useDispatch();
     const { profile, servicesList, campaignsData } = useSelector((state) => state.doctors);
-    const EMR_planDetails = servicesList.find(e => e.service_name === S_TATVA_PRACTICE)
+    const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
 
     const [isExpiredModalOpen, setIsExpiredModalOpen] = useState(false);
 

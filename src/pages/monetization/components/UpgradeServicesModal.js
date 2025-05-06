@@ -17,8 +17,8 @@ import { QRCodeSVG } from "qrcode.react";
 function UpgradeServicesModal({ isUpgradeModal, handleUpgradeModal }) {
 
     const { servicesList } = useSelector((state) => state.doctors);
-    const EMR_PlanDetails = servicesList.find(e => e.service_name === S_TATVA_PRACTICE)
-    const purchasedData = servicesList.filter(e => e.service_name !== S_TATVA_PRACTICE && e.purchased === 'true')
+    const EMR_PlanDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
+    const purchasedData = servicesList?.filter(e => e.service_name !== S_TATVA_PRACTICE && e.purchased === 'true')
 
     const settings = {
         infinite: true,

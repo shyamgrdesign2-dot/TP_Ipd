@@ -53,7 +53,7 @@ function GetUnlimitedAccess() {
     }, []);
 
     const calculateValidity = () => {
-        const EMR_planDetails = servicesList.find(e => e.service_name === S_TATVA_PRACTICE && e.purchased === 'true')
+        const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE && e.purchased === 'true')
         if (EMR_planDetails !== undefined) {
             const remaingMonths = moment(EMR_planDetails?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'months')
             return remaingMonths;

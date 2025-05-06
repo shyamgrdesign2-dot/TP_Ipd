@@ -793,7 +793,7 @@ function Prescription() {
   };
 
   const getGenerateDDx = async (field) => {
-    const DDX_planDetails = servicesList.find(e => e.service_name === S_DDX)
+    const DDX_planDetails = servicesList?.find(e => e.service_name === S_DDX)
     if (DDX_planDetails?.plan_tier === FREE && DDX_planDetails?.credit_balance === 0) {
       showHideSubModal({ service_name: S_DDX })
     } else {

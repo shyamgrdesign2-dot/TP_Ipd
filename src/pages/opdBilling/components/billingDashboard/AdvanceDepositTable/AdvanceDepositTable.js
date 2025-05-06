@@ -81,7 +81,7 @@ const showDateFormat = "DD MMM YYYY";
 
 const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateRange, totalAdvanceBalance, dateStatus, setDateStatus, showHideSubModal }, ref) => {
   const { servicesList } = useSelector((state) => state.doctors);
-  const BILLING_planDetails = servicesList.find(e => e.service_name === S_BILLING)
+  const BILLING_planDetails = servicesList?.find(e => e.service_name === S_BILLING)
   const dispatch = useDispatch();
 
   const { billPrintSettings, advancedSettings } = useSelector(

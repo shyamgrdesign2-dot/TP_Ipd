@@ -14,7 +14,7 @@ function ExpiredText({ title }) {
     const { pathname } = useLocation();
 
     const { servicesList } = useSelector((state) => state.doctors);
-    const planDetails = servicesList.find(e => e.service_name === title)
+    const planDetails = servicesList?.find(e => e.service_name === title)
 
     const clickBuyNow = (service_name) => {
         navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })

@@ -14,7 +14,7 @@ function ContactSupport({ title, styles, isSubModalOpen, showHideSubModal }) {
     const navigate = useNavigate();
     
     const { campaignsData, servicesList } = useSelector((state) => state.doctors);
-    const planDetails = servicesList.find(e => e.service_name === title)
+    const planDetails = servicesList?.find(e => e.service_name === title)
 
     const clickBuyNow = (service_name) => {
         navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
