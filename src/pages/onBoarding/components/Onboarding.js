@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import Carousel from "./OnboardCarousel";
 import SignUp from "./SignUp";
-// import LoginOTP from './components/LoginOTP';
-// import LoginPassword from './components/LoginPassword';
-// import ResetPassword from './components/ResetPassword';
 import "./Onboarding.scss";
 import SetPassword from "./SetPassword";
-import LoginPassword from "./LoginPassword";
 import VerifyOTP from "./VerifyOTP";
-import FeatureTabCard from "./FeatureTabCard";
-import "./FeatureTabCard.scss";
+import FeatureTabCard from "./FeatureTabCard/FeatureTabCard.js";
+import "./FeatureTabCard/FeatureTabCard.scss";
+import TrustBy from "./TrustBy/TrustedBy.js";
+import Testimonials from "./Testimonials/Testimonials.js";
+import FAQ from "./FAQ/FAQ.js";
+import OurScale from "./OurScale/OurScale.js";
+import VerifyPassword from "./VerifyPassword.js";
 
 const Onboarding = () => {
   const [view, setView] = useState("signup");
@@ -30,25 +31,6 @@ const Onboarding = () => {
 
   return (
     <>
-      <div className="feature-tab-card-container">
-        <FeatureTabCard
-          tabs={["Digital Presence", "Remote Care", "ABDM"]}
-          activeTab="Digital Presence"
-          onTabClick={(tab) => console.log("Switched to:", tab)}
-          heading={"Supercharge\nYour Online Reach"}
-          points={[
-            { icon: "🖥️", text: "Get a personalized practice website" },
-            { icon: "📦", text: "Optimize your Google Business Profile" },
-            { icon: "📅", text: "Accept online appointments effortlessly" },
-          ]}
-          imageContent={
-            <img
-              src="/images/demo-doctor-profile.png"
-              alt="Doctor Website Demo"
-            />
-          }
-        />
-      </div>
       <div className="onboarding-container">
         <div className="onboarding-left">
           <Carousel />
@@ -75,15 +57,72 @@ const Onboarding = () => {
             />
           )}
           {view === "loginPassword" && (
-            <LoginPassword
+            <VerifyPassword
               onViewChange={handleViewChange}
               mobileNumber={mobileNumber}
             />
           )}
-          {/* {view === 'loginOTP' && <LoginOTP onViewChange={setView} />}
-        {view === 'loginPassword' && <LoginPassword onViewChange={setView} />}
-        {view === 'resetPassword' && <ResetPassword onViewChange={setView} />} */}
         </div>
+      </div>
+      <div className="feature-tab-card-container">
+        <TrustBy />
+        <OurScale />
+        <FeatureTabCard
+          feature="EMR Features"
+          title="An EMR the meets all"
+          subTitle="your needs to streamline"
+          tabs={["Clinic Care", "Admin Tasks", "Analytics"]}
+          heading={"Supercharge\nYour Online Reach"}
+          points={[
+            { icon: "🖥️", text: "Get a personalized practice website" },
+            { icon: "📦", text: "Optimize your Google Business Profile" },
+            { icon: "📅", text: "Accept online appointments effortlessly" },
+          ]}
+          imageContent={
+            <img
+              src="/images/demo-doctor-profile.png"
+              alt="Doctor Website Demo"
+            />
+          }
+        />
+        <FeatureTabCard
+          feature="Ai Features"
+          title="Empower your"
+          subTitle="practice with Tatva AI"
+          tabs={["DDx", "Smart Sync", "Voice Rx", "Tatva Assist"]}
+          heading={"Supercharge\nYour Online Reach"}
+          points={[
+            { icon: "🖥️", text: "Get a personalized practice website" },
+            { icon: "📦", text: "Optimize your Google Business Profile" },
+            { icon: "📅", text: "Accept online appointments effortlessly" },
+          ]}
+          imageContent={
+            <img
+              src="/images/demo-doctor-profile.png"
+              alt="Doctor Website Demo"
+            />
+          }
+        />{" "}
+        <FeatureTabCard
+          feature="Digital Features"
+          title="Grow your"
+          subTitle="practice with us"
+          tabs={["Digital Presence", "Remote Care", "ABDM"]}
+          heading={"Supercharge\nYour Online Reach"}
+          points={[
+            { icon: "🖥️", text: "Get a personalized practice website" },
+            { icon: "📦", text: "Optimize your Google Business Profile" },
+            { icon: "📅", text: "Accept online appointments effortlessly" },
+          ]}
+          imageContent={
+            <img
+              src="/images/demo-doctor-profile.png"
+              alt="Doctor Website Demo"
+            />
+          }
+        />
+        <Testimonials />
+        <FAQ />
       </div>
     </>
   );

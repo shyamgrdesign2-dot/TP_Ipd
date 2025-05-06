@@ -4,11 +4,14 @@ import "./Onboarding.scss";
 import abdmLogo from "../../../assets/images/abdm-logo.svg";
 import nhaLogo from "../../../assets/images/nha-logo.svg";
 import googlePartner from "../../../assets/images/website-images/image.png";
+import { validateUser } from "../../auth/authService";
 
 const SignUp = ({ onViewChange, isLoginFlow }) => {
   const [mobileNumber, setMobileNumber] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isFromCampaign, setIsFromCampaign] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   useEffect(() => {
     // MSG91 Integration
@@ -16,9 +19,9 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
     const scriptId = "msg91-otp-script";
 
     const configuration = {
-      widgetId: "3343",
-      tokenAuth: "3431",
-      captchaRenderId: "captch-id",
+      widgetId: "346b79686352303336343033",
+      tokenAuth: "365375TaYB4FU32WrR67443055P1",
+      // captchaRenderId: "captch-id",
       exposeMethods: true,
       success: (data) => {
         void 0;
@@ -53,12 +56,85 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
     };
   }, []);
 
-  const handleSendOtp = async () => {
-    // Your handleSendOtp implementation from the provided code
-  };
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const campaign = searchParams.get("utm_campaign");
+    setIsFromCampaign(!!campaign);
+  }, []);
 
-  const handleGetStarted = () => {
-    onViewChange("verifyOTP", mobileNumber);
+  const handleGetStarted = async () => {
+    try {
+      setIsButtonDisabled(true);
+      setLoading(true);
+      
+      // First check user status
+      const response = await validateUser(mobileNumber);
+      const { message } = response;
+
+      switch (message) {
+        case "Doctor exists!":
+          if (isFromCampaign || isLoginFlow) {
+            // For campaign URLs or login flow, proceed with OTP
+            if (window.sendOtp) {
+              window.sendOtp(
+                `91${mobileNumber}`,
+                () => {
+                  onViewChange("verifyOTP", mobileNumber);
+                },
+                (error) => {
+                  setError("Failed to send OTP. Please try again.");
+                  setIsButtonDisabled(false);
+                }
+              );
+            }
+          } else {
+            // For regular signup, show exists message
+            setError("User already exists. Please login.");
+            setTimeout(() => {
+              onViewChange("loginOTP");
+            }, 2000);
+          }
+          break;
+
+        case "Doctor does not exists!":
+          if (isLoginFlow) {
+            setError("User does not exist. Please sign up first.");
+            setTimeout(() => {
+              onViewChange("signup");
+            }, 2000);
+          } else {
+            // Proceed with signup flow
+            if (window.sendOtp) {
+              window.sendOtp(
+                `91${mobileNumber}`,
+                () => {
+                  onViewChange("verifyOTP", mobileNumber);
+                },
+                (error) => {
+                  setError("Failed to send OTP. Please try again.");
+                  setIsButtonDisabled(false);
+                }
+              );
+            }
+          }
+          break;
+
+        case "Doctor is inactive":
+          setError(
+            "Your account has been locked by Admin. Please contact support@tatvacare.in/9974042363"
+          );
+          break;
+
+        default:
+          setError("Unexpected response from server.");
+      }
+    } catch (error) {
+      console.error("Error checking user status:", error);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+      setIsButtonDisabled(false);
+    }
   };
 
   const prefixSelector = (
@@ -101,7 +177,12 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
             "Welcome Back"
           ) : (
             <>
-              Sign up for <span className="gradient-text">free</span>
+              Sign up{" "}
+              {isFromCampaign && (
+                <>
+                  for <span className="gradient-text"> free</span>
+                </>
+              )}
             </>
           )}
         </h2>
@@ -128,9 +209,9 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
             />
           </Form.Item>
 
-          <div className="captcha-wrapper">
+          {/* <div className="captcha-wrapper">
             <div id="captch-id" className="captcha-container" />
-          </div>
+          </div> */}
 
           {error && <div className="error-message">{error}</div>}
 
@@ -139,7 +220,7 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
             loading={loading}
             onClick={handleGetStarted}
             className="get-started-btn"
-            disabled={!isValidMobileNumber(mobileNumber)}
+            disabled={!isValidMobileNumber(mobileNumber) || isButtonDisabled}
           >
             {isLoginFlow ? "Login via OTP" : "Get Started"}
           </Button>
@@ -162,7 +243,12 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
               <>
                 Not an existing user?{" "}
                 <span onClick={() => onViewChange("signup")}>
-                  Signup for free
+                  <>
+                    Signup {" "}
+                    {isFromCampaign && (
+                      <>for free</>
+                    )}
+                  </>
                 </span>
               </>
             ) : (

@@ -228,7 +228,7 @@ function App() {
             )}
             <Routes>
               {/* Public route */}
-              <Route path="/login" element={<AuthContainer />} />
+              {/* <Route path="/login" element={<AuthContainer />} /> */}
               
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
@@ -269,7 +269,7 @@ function App() {
                 <Route path="all_patients" element={<AllPatients />} />
                 <Route path="billing-settings" element={<BillingSettings />} />
                 <Route path="add-appointment" element={<AddAppointment />} />
-                <Route path="onboard" element={<Onboarding />} />
+                <Route path="login" element={<Onboarding />} />
               </Route>
             </Routes>
           </PersistGate>
