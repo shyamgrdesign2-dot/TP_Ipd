@@ -128,8 +128,6 @@ function Header({ locationPath }) {
   }, [isZydusUserAccessableFromGB]);
 
   useEffect(() => {
-    getAdvanceSettings();
-    getBillPrintSettings();
     dispatch(campaigns());
   }, []);
 
