@@ -671,7 +671,7 @@ function Prescription() {
     };
     const response = await fetchSymptomsCollectorData(payload);
     if (response && Object.keys(response)?.length > 0) {
-      dispatch(setSymptomCollector(response));
+      dispatch(setSymptomCollector(response?.summary_json_doctor));
       dispatch(setShowSCPopup(true));
       setShowSCBanner(true);
     }

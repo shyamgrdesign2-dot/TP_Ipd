@@ -97,6 +97,10 @@ import {
 import LabParametersList from "../components/LabParametersList";
 import LabParams from "../components/LabParams";
 import ViewLabParam from "../components/ViewLabParams";
+import { setShowSCPopup, setSymptomCollector } from "../redux/ddxSlice";
+import { fetchSymptomsCollectorData } from "../api/services/ApiGenRx";
+import SCBanner from "../components/SCBanner";
+import SCPopup from "../components/SCPopup";
 
 function SmartPrescription() {
   const {
@@ -253,6 +257,11 @@ function SmartPrescription() {
   const [isEditDocument, setIsEditDocument] = useState(false);
   const fileInputRef = useRef(null);
   const [cvtDrawer, setCvtDrawer] = useState(false);
+  const [showSCBanner, setShowSCBanner] = useState(false);
+
+  const { showSCPopup } = useSelector(
+    (state) => state.ddx
+  );
 
   const {
     isVaccinationAccessable,
@@ -453,6 +462,32 @@ function SmartPrescription() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (tokenData) {
+      getSymptomsCollectorData();
+    }
+  }, [tokenData]);
+
+  const getSymptomsCollectorData = async () => {
+    const payload = {
+      um_id: String(userId),
+      patient_unique_id: String(patient_data?.patient_unique_id),
+      hm_id: String(tokenData?.clinic_id),
+      pam_id:
+        patient_data !== undefined && patient_data.pam_id !== undefined
+          ? String(patient_data.pam_id)
+          : caseManagerData !== undefined
+          ? String(caseManagerData.pam_id)
+          : 0,
+    };
+    const response = await fetchSymptomsCollectorData(payload);
+    if (response && Object.keys(response)?.length > 0) {
+      dispatch(setSymptomCollector(response?.summary_json_doctor));
+      dispatch(setShowSCPopup(true));
+      setShowSCBanner(true);
+    }
+  };
 
   // Drawer Vitals
   const handleDrawerVital = useCallback(() => {
@@ -1506,6 +1541,10 @@ function SmartPrescription() {
                   </div>
                 </div>
               )}
+              {/* add symptoms box if there is symptoms in SC */}
+              {showSCBanner && (
+                <SCBanner handleBanner={() => setShowSCBanner(false)} />
+              )}
               {CUSTOMIZED_PAD_LEFT_LIST()}
               <div className="prescription-box-sm p-14">
                 <SmartRxFollowUpBox />
@@ -1825,6 +1864,9 @@ function SmartPrescription() {
             </>
           }
         />
+        {showSCPopup && (
+          <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} />
+        )}
       </>
     </CashManagerContext.Provider>
   );
