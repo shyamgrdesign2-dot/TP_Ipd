@@ -2,17 +2,21 @@ import { Button, Checkbox, Divider, Modal } from "antd";
 import { useState } from "react";
 import autoFill from "../assets/images/autofill-white.svg";
 import scHeaderBg from "../assets/images/sc-header-bg.png";
+import autoFillRx from "../assets/images/sc-rx.svg";
+import autoFillRxDark from "../assets/images/sc-voice-rx.svg";
 import scBg from "../assets/images/sc-bg.svg";
 import close from "../assets/images/close-square.svg";
 import scStrip from "../assets/images/sc-strip.png";
 import { useSelector } from "react-redux";
 import symptoms from "../assets/images/Symptoms.svg";
+import custom from "../assets/images/custom-module.svg";
 import medicalHistory from "../assets/images/medical-history-dark.svg";
 import { useDispatch } from "react-redux";
 import {
   setSelectAutofill,
   setSelectedSymptomsCollector,
 } from "../redux/ddxSlice";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 const VALID_TYPES = {
   medical_condition: "Medical Condition",
@@ -148,6 +152,7 @@ const formatMedicalHistoryForDisplay = (data) => {
 
 const SCPopup = ({ handlePopup }) => {
   const dispatch = useDispatch();
+  const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
   const { symptomCollector } = useSelector((state) => state.ddx);
 
   // Initialize with all symptoms selected
@@ -159,6 +164,8 @@ const SCPopup = ({ handlePopup }) => {
   const [selectedMedicalHistory, setSelectedMedicalHistory] = useState(
     symptomCollector?.medicalHistory?.map((item) => item.name) || []
   );
+
+  const [selectedNotes, setSelectedNotes] = useState(true);
 
   // Format medical history for display
   const formattedMedicalHistory = formatMedicalHistoryForDisplay(
@@ -196,8 +203,6 @@ const SCPopup = ({ handlePopup }) => {
     dispatch(setSelectAutofill(true));
     handlePopup();
   };
-
-  console.log("formattedMedicalHistory", formattedMedicalHistory);
 
   return (
     <Modal
@@ -285,7 +290,6 @@ const SCPopup = ({ handlePopup }) => {
           You can edit these details after they are autofilled into the Rx Pad
           or Voice Rx.
         </div>
-
         {symptomCollector?.symptoms?.length > 0 && (
           <div
             style={{
@@ -378,7 +382,6 @@ const SCPopup = ({ handlePopup }) => {
             </div>
           </div>
         )}
-
         {formattedMedicalHistory.length > 0 && (
           <div
             style={{
@@ -529,21 +532,83 @@ const SCPopup = ({ handlePopup }) => {
             ))}
           </div>
         )}
+        {symptomCollector?.notes?.length > 0 && (
+          <div
+            style={{
+              overflow: "auto",
+              background: "white",
+              padding: 18,
+              borderRadius: 10,
+              marginTop: 20,
+            }}
+          >
+            <div className="d-flex align-items-center justify-content-between mb-3">
+              <div className="d-flex gap-3 patient-details">
+                <img src={custom} alt="custom" />
+                <span style={{ color: "#454551" }}>Notes</span>
+              </div>
+
+              <span
+                className="hyperling-text-style cursor-pointer"
+                onClick={() => {
+                  setSelectedNotes((prev) => !prev);
+                }}
+              >
+                {selectedNotes ? "Unselect All" : "Select All"}
+              </span>
+            </div>
+            <Divider style={{ margin: "15px 0px" }} />
+            <div className="space-y-6">
+              <div className="ml-3 mb-2 relative pl-4 d-flex gap-2">
+                <span className="text-[14px] font-medium text-gray-900 mb-1">
+                  <Checkbox
+                    className="me-2"
+                    checked={selectedNotes}
+                    onChange={() => setSelectedNotes((prev) => !prev)}
+                  />
+                  {symptomCollector?.notes}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div
         className="d-flex align-items-center justify-content-center"
         style={{
           height: 88,
+          padding: "18px 32px",
+          gap: 32,
         }}
       >
+        {isVoiceRxAccessable && (
+          <Button
+            type="button"
+            className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-center"
+            style={{
+              width: "50%",
+              gap: "8px",
+            }}
+            onClick={handleAutofill}
+          >
+            <img src={autoFillRxDark} alt="auto-fill" />
+            <span>{"Autofill to Voice Rx"}</span>
+          </Button>
+        )}
+
         <Button
           className="btn btn-primary3 btn-41 px-4 d-flex align-items-center justify-content-center"
-          style={{ gap: 10, width: "80%" }}
+          style={{ gap: "8px", width: isVoiceRxAccessable ? "50%" : "100%" }}
           onClick={handleAutofill}
         >
-          <img src={autoFill} alt="auto-fill" />
-          <span>Autofill details</span>
+          <img
+            src={isVoiceRxAccessable ? autoFillRx : autoFill}
+            alt="auto-fill"
+          />
+          <span>
+            {isVoiceRxAccessable ? "Autofill to Rx Pad" : "Autofill details"}
+          </span>
         </Button>
       </div>
     </Modal>

@@ -46,6 +46,7 @@ import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { useSelector } from "react-redux";
+import SCBanner from "./SCBanner";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -84,8 +85,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const doctorId = decodedToken?.result?.user_id;
   const [audioBlob, setAudioBlob] = useState(null);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const [showSCBanner, setShowSCBanner] = useState(false);
   const { profile, userId } = useSelector((state) => state.doctors);
-  const { symptomCollector } = useSelector(
+  const { symptomCollector, isAutofillSelected } = useSelector(
     (state) => state.ddx
   );
   const { TextArea } = Input;
@@ -113,11 +115,20 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
   useEffect(() => {
     if (symptomCollector && Object.keys(symptomCollector)?.length > 0) {
+      setShowSCBanner(true);
+    }
+  }, [symptomCollector]);
+
+  useEffect(() => {
+    if (
+      isAutofillSelected && symptomCollector &&
+      Object.keys(symptomCollector)?.length > 0
+    ) {
       setSymptomsCollectorData(symptomCollector);
       setPrescriptionData(symptomCollector);
       setShowPrescription(true);
     }
-  }, [symptomCollector]);
+  }, [symptomCollector, isAutofillSelected]);
 
   // Timer logic
   useEffect(() => {
@@ -1305,6 +1316,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
               )}
             </div>
           </div>
+          {showSCBanner && !showPrescription && (
+            <div style={{ margin: "20px 30px" }}>
+              <SCBanner handleBanner={() => setShowSCBanner(false)} />
+            </div>
+          )}
           <div
             className={!showPrescription ? styles.gradientBorder : ""}
             style={{ background: !showPrescription ? `url(${genRxBg})` : "" }}

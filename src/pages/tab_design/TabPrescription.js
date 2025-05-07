@@ -83,7 +83,7 @@ import { isAndroid, isBrowser } from "react-device-detect";
 import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "../medicalRecords/utils/helper";
 import ApexAIPopup from "../../components/ApexAIPopup";
 import TabDDxList from "../../components/tab_design/TabDDxList";
-import { setIsApexAISelected, setIsDDxReadyToGenerate } from "../../redux/ddxSlice";
+import { setIsApexAISelected, setIsDDxReadyToGenerate, setShowSCPopup, setSymptomCollector } from "../../redux/ddxSlice";
 import DifferentialDiagnosisDrawer from "../../components/DifferentialDiagnosisDrawer";
 import CommonModal from "../../common/CommonModal";
 import DDxKnowMore from "../../components/DDxKnowMore";
@@ -101,6 +101,9 @@ import Carousel from "react-multi-carousel";
 import GenRxBanner from "../../components/GenRxBanner";
 import TatvaAiBanner from "../../components/TatvaAiBanner";
 import TatvaAiKnowMore from "../../components/TatvaAiKnowMore";
+import SCPopup from "../../components/SCPopup";
+import { fetchSymptomsCollectorData } from "../../api/services/ApiGenRx";
+import SCBanner from "../../components/SCBanner";
 
 function TabPrescription() {
   const {
@@ -140,7 +143,7 @@ function TabPrescription() {
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
-  const { isApexAISelected, isDDxReadyToGenerate } = useSelector(
+  const { isApexAISelected, showSCPopup, isDDxReadyToGenerate } = useSelector(
     (state) => state.ddx
   );
   const { profile } = useSelector((state) => state.doctors);
@@ -191,6 +194,7 @@ function TabPrescription() {
   const [isDDxLoading, setIsDDxLoading] = useState(false);
   const [customModuleContents, setCustomModuleContents] = useState([]);
   const [pillupSwitch, setPillupSwitch] = useState(true);
+  const [showSCBanner, setShowSCBanner] = useState(false);
 
   const contextApi = {
     patient_data,
@@ -300,6 +304,7 @@ function TabPrescription() {
       patient_unique_id: patient_data?.patient_unique_id,
     };
     dispatch(viewPatient(sendData));
+    getSymptomsCollectorData();
   }, []);
 
   useEffect(() => {
@@ -450,6 +455,26 @@ function TabPrescription() {
       setPillupSwitch(caseManagerData?.pillup_fulfilment == 1 ? true : false)
     }
   }, []);
+
+  const getSymptomsCollectorData = async () => {
+    const payload = {
+      um_id: String(userId),
+      patient_unique_id: String(patient_data?.patient_unique_id),
+      hm_id: String(decodedToken?.result?.clinic_id),
+      pam_id:
+        patient_data !== undefined && patient_data.pam_id !== undefined
+          ? String(patient_data.pam_id)
+          : caseManagerData !== undefined
+          ? String(caseManagerData.pam_id)
+          : 0,
+    };
+    const response = await fetchSymptomsCollectorData(payload);
+    if (response && Object.keys(response)?.length > 0) {
+      dispatch(setSymptomCollector(response?.summary_json_doctor));
+      dispatch(setShowSCPopup(true));
+      setShowSCBanner(true);
+    }
+  };
 
   // Drawer Vitals
   const handleDrawerVital = useCallback(() => {
@@ -879,38 +904,38 @@ function TabPrescription() {
                     </div>
                   </button>
                   {isVoiceRxAccessable && <button
-                    type="button"
-                    className="mb-3 text-center btn btn-action"
-                    onClick={() => openCollapsed(10)}
-                  >
-                    <div
-                      className={`prescription-tab-button rounded-10px`}
-                      style={{backgroundColor: "inherit"}}
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={() => openCollapsed(10)}
                     >
-                      <img
-                        src={collapsedFlag == 10 ? genRxImg : voiceRxDefault}
-                        alt="VoiceRx"
-                        width={42}
-                        height={42}
-                      />
-                    </div>
-                    <label className="text-white mt-1">Voice Rx</label>
+                      <div
+                        className={`prescription-tab-button rounded-10px`}
+                      style={{backgroundColor: "inherit"}}
+                      >
+                        <img
+                          src={collapsedFlag == 10 ? genRxImg : voiceRxDefault}
+                          alt="VoiceRx"
+                          width={42}
+                          height={42}
+                        />
+                      </div>
+                      <label className="text-white mt-1">Voice Rx</label>
                   </button>}
                   {isApexAIAccessable && <button
-                    type="button"
-                    className="mb-3 text-center btn btn-action"
-                    onClick={() => openCollapsed(9)}
-                  >
-                    <div
-                      className={`prescription-tab-button rounded-10px`}
-                      style={{backgroundColor: "inherit"}}
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={() => openCollapsed(9)}
                     >
-                      <img
-                        src={collapsedFlag == 9 ? ddxImg : ddxInactiveImg}
-                        alt="Vitals"
-                      />
-                    </div>
-                    <label className="text-white mt-1">DDx</label>
+                      <div
+                        className={`prescription-tab-button rounded-10px`}
+                      style={{backgroundColor: "inherit"}}
+                      >
+                        <img
+                          src={collapsedFlag == 9 ? ddxImg : ddxInactiveImg}
+                          alt="Vitals"
+                        />
+                      </div>
+                      <label className="text-white mt-1">DDx</label>
                   </button>}
                 </>
               ) : (
@@ -1282,14 +1307,14 @@ function TabPrescription() {
                 />
               ) : 
                 collapsedFlag === 9 && isApexAIAccessable ? (
-                  <TabDDxList
-                    generatedDDx={generatedDDx?.results}
-                    handleDDxDrawer={handleDDxDrawer}
-                    isDDxLoading={isDDxLoading}
-                    handleDDxKnowMore={handleDDxKnowMore}
-                    getGenerateDDx={getGenerateDDx}
-                    isDDxGenerated={isDDxGenerated}
-                  />
+                <TabDDxList
+                  generatedDDx={generatedDDx?.results}
+                  handleDDxDrawer={handleDDxDrawer}
+                  isDDxLoading={isDDxLoading}
+                  handleDDxKnowMore={handleDDxKnowMore}
+                  getGenerateDDx={getGenerateDDx}
+                  isDDxGenerated={isDDxGenerated}
+                />
                 ) :
                 collapsedFlag === 10 && isVoiceRxAccessable && (
                   <TabVoiceRx
@@ -1304,7 +1329,7 @@ function TabPrescription() {
               style={{ height: "calc(100vh - 60px)" }}
             >
               <Content>
-              {/* {(shouldShowGenRxPopup || shouldShowApexPopup || shouldShowTatvaAiPopup) && 
+                {/* {(shouldShowGenRxPopup || shouldShowApexPopup || shouldShowTatvaAiPopup) && 
                   <Carousel
                   responsive={{
                     desktop: {
@@ -1342,6 +1367,7 @@ function TabPrescription() {
                     )}
                   </Carousel>
                 } */}
+                {showSCBanner && <SCBanner handleBanner={() => setShowSCBanner(false)} />}
                 {customizedPadRightList?.map((e, i) => {
                   const customModule = customModules?.find(
                     (m) => m.module_id === e.tmdpm_id
@@ -1391,16 +1417,16 @@ function TabPrescription() {
                   ) : 
                     e.tmdpm_id === 15 &&
                     e.tmdpm_status === 0 ? (
-                      <div key={i} className="prescription-box-sm">
-                        <TabFollowUpBox />
-                      </div>
+                    <div key={i} className="prescription-box-sm">
+                      <TabFollowUpBox />
+                    </div>
                     ): e.is_custom_module && e.tmdpm_status === 0 && customModule && (
                       <div className="prescription-box-sm">
                         <TabCustomModule module={customModule} />
                       </div>
                     )
                 })}
-                  <TabAddCustomModule />
+                <TabAddCustomModule />
               </Content>
             </div>
           </Layout>
@@ -1622,11 +1648,11 @@ function TabPrescription() {
         )}
 
         {isGenRxDrawerVisible && (
-            <ConsultationDrawer
-              visible={isGenRxDrawerVisible} 
-              onClose={() => setIsGenRxDrawerVisible(false)} 
-              handleGenRxKnowMore={handleGenRxKnowMore}
-            />
+          <ConsultationDrawer
+            visible={isGenRxDrawerVisible}
+            onClose={() => setIsGenRxDrawerVisible(false)}
+            handleGenRxKnowMore={handleGenRxKnowMore}
+          />
         )}
 
         {genRxKnowMoreDrawer && (
@@ -1644,13 +1670,13 @@ function TabPrescription() {
 
         {tatvaAiKnowMoreDrawer && 
           <Drawer
-              closeIcon={false}
-              placement="right"
-              open={tatvaAiKnowMoreDrawer}
-              onClose={handleTatvaAiKnowMore}
-              className=".modalWidth-800"
-              width={825}
-            >
+            closeIcon={false}
+            placement="right"
+            open={tatvaAiKnowMoreDrawer}
+            onClose={handleTatvaAiKnowMore}
+            className=".modalWidth-800"
+            width={825}
+          >
             <TatvaAiKnowMore handleTatvaAiKnowMore={handleTatvaAiKnowMore} handleDDxKnowMore={handleDDxKnowMore} handleGenRxKnowMore={handleGenRxKnowMore} />
           </Drawer>
         }
@@ -1728,6 +1754,9 @@ function TabPrescription() {
           }
         />
       ) : null}
+      {showSCPopup && (
+        <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} />
+      )}
     </CashManagerContext.Provider>
   );
 }

@@ -22,15 +22,14 @@ const SCBanner = ({ handleBanner }) => {
             <span>
               Hey! You’ve received <b style={{ fontWeight: 600 }}>symptoms</b>{" "}
               and <b style={{ fontWeight: 600 }}>medical history</b> details
-              from the
-            </span>
-            patient.
-            <span
-              className="theme-color cursor-pointer"
-              style={{ textDecoration: "underline", marginLeft: 5 }}
-              onClick={() => dispatch(setShowSCPopup(true))}
-            >
-              View now
+              from the patient.
+              <span
+                className="theme-color cursor-pointer"
+                style={{ textDecoration: "underline", marginLeft: 5 }}
+                onClick={() => dispatch(setShowSCPopup(true))}
+              >
+                View now
+              </span>
             </span>
           </div>
         </div>

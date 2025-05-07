@@ -91,7 +91,27 @@ function TabSymptomsBox({ handleDDxDrawer, generatedDDx }) {
     const [sinceValue, setSinceValue] = useState(1);
     const [inputSince, setInputSince] = useState('');
     const [sinceOptions, setSinceOptions] = useState([]);
+    const { isAutofillSelected, selectedSymptomsCollector } = useSelector(
+      (state) => state.ddx
+    );
 
+    useEffect(() => {
+    if (
+        isAutofillSelected &&
+        selectedSymptomsCollector &&
+        Object.keys(selectedSymptomsCollector)?.length > 0
+    ) {
+        selectedSymptomsCollector?.symptoms?.map((symptom) => {
+        symptomsData.push({
+            symptom_name: symptom.name,
+            since: symptom.duration,
+            severity: symptom.severity,
+            note: symptom.notes,
+        });
+        setSymptomsData((prev) => [...prev]);
+        });
+    }
+    }, [isAutofillSelected, selectedSymptomsCollector]);
 
     useEffect(() => {
         if (selectedSymptomsList.length > 0) {
