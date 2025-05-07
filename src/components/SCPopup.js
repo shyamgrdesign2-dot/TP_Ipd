@@ -63,7 +63,8 @@ const segregateDataByType = (data) => {
     symptoms: [], // Keep existing symptoms if any
     medicalHistory: [
       {
-        title: "Medical Condition",
+        title: "Medical Condition ",
+        tmmhs_id: 2,
         items: segregatedData["Medical Condition"].map((item) => ({
           name: item.name,
           duration: item.duration,
@@ -74,6 +75,7 @@ const segregateDataByType = (data) => {
       },
       {
         title: "Allergies",
+        tmmhs_id: 4,
         items: segregatedData["Allergies"].map((item) => ({
           name: item.name,
           duration: item.duration,
@@ -83,6 +85,7 @@ const segregateDataByType = (data) => {
       },
       {
         title: "Family History",
+        tmmhs_id: 3,
         items: segregatedData["Family History"].map((item) => ({
           name: item.name,
           duration: item.duration,
@@ -92,6 +95,7 @@ const segregateDataByType = (data) => {
       },
       {
         title: "Lifestyle",
+        tmmhs_id: 1,
         items: segregatedData["Lifestyle"].map((item) => ({
           name: item.name,
           duration: item.duration,
@@ -106,6 +110,7 @@ const segregateDataByType = (data) => {
         })),
       },
     ].filter((section) => section.items.length > 0), // Only include sections with items
+    notes: "",
   };
 };
 
@@ -150,9 +155,11 @@ const formatMedicalHistoryForDisplay = (data) => {
     }));
 };
 
-const SCPopup = ({ handlePopup }) => {
+const SCPopup = ({ handlePopup, handleGenRx }) => {
   const dispatch = useDispatch();
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
+  const isSmartPrescription =
+    window.location.href.includes("smart-prescription");
   const { symptomCollector } = useSelector((state) => state.ddx);
 
   // Initialize with all symptoms selected
@@ -197,7 +204,7 @@ const SCPopup = ({ handlePopup }) => {
 
     // Add selected symptoms to the formatted data
     formattedData.symptoms = selectedSymptomData;
-
+    formattedData.notes = symptomCollector.notes;
     // Dispatch the selected data
     dispatch(setSelectedSymptomsCollector(formattedData));
     dispatch(setSelectAutofill(true));
@@ -582,34 +589,52 @@ const SCPopup = ({ handlePopup }) => {
           gap: 32,
         }}
       >
-        {isVoiceRxAccessable && (
+        {!isVoiceRxAccessable || isSmartPrescription ? (
           <Button
-            type="button"
-            className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-center"
-            style={{
-              width: "50%",
-              gap: "8px",
-            }}
+            className="btn btn-primary3 btn-41 px-4 d-flex align-items-center justify-content-center"
+            style={{ gap: "8px", width: isVoiceRxAccessable ? "50%" : "100%" }}
             onClick={handleAutofill}
           >
-            <img src={autoFillRxDark} alt="auto-fill" />
-            <span>{"Autofill to Voice Rx"}</span>
+            <img src={autoFill} alt="auto-fill" />
+            <span>{"Autofill details"}</span>
           </Button>
+        ) : (
+          <>
+            <Button
+              type="button"
+              className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-center"
+              style={{
+                width: "50%",
+                gap: "8px",
+              }}
+              onClick={() => {
+                handleGenRx();
+                handleAutofill();
+              }}
+            >
+              <img src={autoFillRxDark} alt="auto-fill" />
+              <span>{"Autofill to Voice Rx"}</span>
+            </Button>
+            <Button
+              className="btn btn-primary3 btn-41 px-4 d-flex align-items-center justify-content-center"
+              style={{
+                gap: "8px",
+                width: isVoiceRxAccessable ? "50%" : "100%",
+              }}
+              onClick={handleAutofill}
+            >
+              <img
+                src={isVoiceRxAccessable ? autoFillRx : autoFill}
+                alt="auto-fill"
+              />
+              <span>
+                {isVoiceRxAccessable
+                  ? "Autofill to Rx Pad"
+                  : "Autofill details"}
+              </span>
+            </Button>
+          </>
         )}
-
-        <Button
-          className="btn btn-primary3 btn-41 px-4 d-flex align-items-center justify-content-center"
-          style={{ gap: "8px", width: isVoiceRxAccessable ? "50%" : "100%" }}
-          onClick={handleAutofill}
-        >
-          <img
-            src={isVoiceRxAccessable ? autoFillRx : autoFill}
-            alt="auto-fill"
-          />
-          <span>
-            {isVoiceRxAccessable ? "Autofill to Rx Pad" : "Autofill details"}
-          </span>
-        </Button>
       </div>
     </Modal>
   );

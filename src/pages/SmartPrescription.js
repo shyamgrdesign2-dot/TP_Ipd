@@ -62,6 +62,7 @@ import vaccinationImg from "../assets/images/Vaccination.svg";
 import growthChartImg from "../assets/images/growth-chart-dark.svg";
 import obstetricImg from "../assets/images/obstetric-dark.svg";
 import uploadDocImg from "../assets/images/upload-doc-dark.svg";
+import symptomsImg from "../assets/images/Symptoms.svg";
 import labResultImg from "../assets/images/Lab.svg";
 import Vaccination from "./vaccination/Vaccination";
 import GrowthChart from "./growthChart/GrowthChart";
@@ -258,10 +259,10 @@ function SmartPrescription() {
   const fileInputRef = useRef(null);
   const [cvtDrawer, setCvtDrawer] = useState(false);
   const [showSCBanner, setShowSCBanner] = useState(false);
+  const [showAllSymptoms, setShowAllSymptoms] = useState(false);
 
-  const { showSCPopup } = useSelector(
-    (state) => state.ddx
-  );
+  const { showSCPopup, isAutofillSelected, selectedSymptomsCollector } =
+    useSelector((state) => state.ddx);
 
   const {
     isVaccinationAccessable,
@@ -1542,7 +1543,106 @@ function SmartPrescription() {
                 </div>
               )}
               {/* add symptoms box if there is symptoms in SC */}
-              {showSCBanner && (
+              {isAutofillSelected &&
+                selectedSymptomsCollector?.symptoms?.length > 0 && (
+                  <div className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center">
+                      <img src={symptomsImg} alt="symptoms" className="me-2" />
+                      <div className="title-common">Symptoms</div>
+                      <div
+                        className="d-flex align-items-center justify-content-center gap-1"
+                        style={{
+                          backgroundColor: "rgba(181, 181, 255, 0.4)",
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          marginLeft: "4px",
+                        }}
+                      >
+                        <span
+                          className="text-primary"
+                          style={{
+                            fontSize: "14px",
+                          }}
+                        >
+                          For reference only
+                        </span>
+                        <i
+                          class="icon-info"
+                          style={{
+                            color: "#4B4AD5",
+                            fontSize: 14,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mt-3">
+                      {selectedSymptomsCollector?.symptoms
+                        ?.slice(0, showAllSymptoms ? undefined : 2)
+                        .map((symptomsData, index) => (
+                          <div className="symptoms-box mb-2">
+                            <div className="symptoms-box-left">
+                              <span
+                                className="backbar"
+                                style={{ fontSize: "14px" }}
+                              >
+                                • {symptomsData.name}
+                                {symptomsData.duration &&
+                                  ` (${symptomsData.duration}`}
+                                {symptomsData.severity &&
+                                  `, ${symptomsData.severity}`}
+                                {symptomsData.notes &&
+                                  `, ${symptomsData.notes}`}
+                                {(symptomsData.duration ||
+                                  symptomsData.severity ||
+                                  symptomsData.notes) &&
+                                  ")"}
+                                {index === 1 &&
+                                  !showAllSymptoms &&
+                                  selectedSymptomsCollector?.symptoms?.length >
+                                    2 && (
+                                    <button
+                                      className="btn-link text-primary ms-1"
+                                      style={{
+                                        border: "none",
+                                        background: "none",
+                                        padding: 0,
+                                        textDecoration: "underline",
+                                        display: "inline",
+                                      }}
+                                      onClick={() =>
+                                        setShowAllSymptoms(!showAllSymptoms)
+                                      }
+                                    >
+                                      {showAllSymptoms
+                                        ? "View less"
+                                        : "View more"}
+                                    </button>
+                                  )}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+
+                      {showAllSymptoms &&
+                        selectedSymptomsCollector?.symptoms?.length > 2 && (
+                          <button
+                            className="btn-link text-primary"
+                            style={{
+                              border: "none",
+                              background: "none",
+                              padding: 0,
+                              textDecoration: "none",
+                            }}
+                            onClick={() => setShowAllSymptoms(false)}
+                          >
+                            View less
+                          </button>
+                        )}
+                    </div>
+                  </div>
+                )}
+              {showSCBanner && !isAutofillSelected && (
                 <SCBanner handleBanner={() => setShowSCBanner(false)} />
               )}
               {CUSTOMIZED_PAD_LEFT_LIST()}

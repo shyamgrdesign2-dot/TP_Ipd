@@ -189,7 +189,7 @@ function MedicalHistoryBox(props) {
     })
 
     const customMenarcheValue = gynecHistory?.ageAtMenarche > 17 ? gynecHistory.ageAtMenarche : inputMenarche;
-    const MENARCHE_LIST = Array.from({ length: 11 }, (_, i) => ({
+    const MENARCHE_LIST = Array?.from({ length: 11 }, (_, i) => ({
         value: 7 + i,
         label: (7 + i).toString()
     })).concat({
@@ -289,23 +289,32 @@ function MedicalHistoryBox(props) {
     }, []);
 
     useEffect(() => {
-        if (defaultList.length > 0) {
-            const data1 = JSON.parse(JSON.stringify(defaultList))
-            const data2 = JSON.parse(JSON.stringify(medicalHistoryData))
-            const mergedArray = data2.length > 0 ? [
-                ...data1.map(e => ({
-                    ...e,
-                    ...(data2?.find(x => x.tmmhs_id === e.tmmhs_id) || {}),
-                    tags: [
-                        ...e?.tags.map(tag => ({
-                            ...tag,
-                            ...(data2?.find(x => x.tmmhs_id === e.tmmhs_id)?.tags?.find(x1 => x1.tmmhst_id === tag.tmmhst_id) || {})
-                        })),
-                        ...data2?.find(x => x.tmmhs_id === e.tmmhs_id)?.tags?.filter(item2 => !e?.tags?.find(item1 => item1.tmmhst_id === item2.tmmhst_id))
-                    ],
-                }))
+      if (defaultList?.length > 0) {
+        try {
+            const data1 = defaultList ? JSON.parse(JSON.stringify(defaultList)) : [];
+            const data2 = medicalHistoryData ? JSON.parse(JSON.stringify(medicalHistoryData)) : [];
+            
+            const mergedArray = data2?.length > 0 ? [
+            ...data1?.map(e => ({
+                ...e,
+                ...(data2?.find(x => x?.tmmhs_id === e?.tmmhs_id) || {}),
+                tags: [
+                ...(e?.tags || [])?.map(tag => ({
+                    ...tag,
+                    ...(data2?.find(x => x?.tmmhs_id === e?.tmmhs_id)?.tags?.find(x1 => x1?.tmmhst_id === tag?.tmmhst_id) || {})
+                })),
+                ...(data2?.find(x => x?.tmmhs_id === e?.tmmhs_id)?.tags || [])?.filter(item2 => 
+                    !(e?.tags || [])?.find(item1 => item1?.tmmhst_id === item2?.tmmhst_id)
+                )
+                ],
+            }))
             ] : data1;
-            setCloneMedicalHistoryData(JSON.parse(JSON.stringify(mergedArray)));
+
+            setCloneMedicalHistoryData(mergedArray ? JSON.parse(JSON.stringify(mergedArray)) : []);
+        } catch (error) {
+            console.error("Error merging medical history data:", error);
+            setCloneMedicalHistoryData([]);
+        }
         }
     }, [defaultList]);
 

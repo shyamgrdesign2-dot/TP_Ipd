@@ -123,14 +123,26 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
             selectedSymptomsCollector.medicalHistory.length > 0
           ) {
             // Create a new array to store the updated medical history
-            const updatedMedicalHistory = [...medicalHistoryData];
+            let updatedMedicalHistory = [...medicalHistoryData];
+
+            if (updatedMedicalHistory.length === 0) {
+                updatedMedicalHistory = selectedSymptomsCollector.medicalHistory?.map((e, i) => {
+                  return {
+                    title: e?.title,
+                    tmmhs_id: e?.tmmhs_id,
+                    no_know_history:
+                      false,
+                    tags: [],
+                  };
+                });
+            }
 
             // Process each section from selectedSymptomsCollector
             selectedSymptomsCollector.medicalHistory.forEach((section) => {
               // Find the matching section in medicalHistoryData
               const sectionIndex = updatedMedicalHistory.findIndex(
                 (item) =>
-                  item.title.toLowerCase() === section.title.toLowerCase()
+                  item.title === section.title
               );
 
               if (sectionIndex !== -1) {
