@@ -39,7 +39,20 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
   };
 
   const handleGoBack = () => {
-    onViewChange("loginOTP");
+    // Reset the MSG91 provider before navigating
+    const msg91Provider = document.querySelector('msg91-otp-provider');
+    if (msg91Provider) {
+      try {
+        if (msg91Provider.disconnectedCallback) {
+          msg91Provider.disconnectedCallback();
+        }
+        msg91Provider.remove();
+      } catch (e) {
+        console.error('Error removing MSG91 provider:', e);
+      }
+    }
+    
+    onViewChange("loginOTP", mobileNumber);
   };
 
   return (

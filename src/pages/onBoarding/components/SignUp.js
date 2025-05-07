@@ -6,8 +6,8 @@ import nhaLogo from "../../../assets/images/nha-logo.svg";
 import googlePartner from "../../../assets/images/website-images/image.png";
 import { validateUser } from "../../auth/authService";
 
-const SignUp = ({ onViewChange, isLoginFlow }) => {
-  const [mobileNumber, setMobileNumber] = useState("");
+const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }) => {
+  const [mobileNumber, setMobileNumber] = useState(initialMobileNumber || "");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isFromCampaign, setIsFromCampaign] = useState(false);
@@ -20,25 +20,36 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
     window.isMSG91Active = true;
     const scriptId = "msg91-otp-script";
     
+    const initializeCaptcha = () => {
+      if (window.initSendOTP && window.isMSG91Active) {
+        const configuration = {
+          widgetId: "346b79686352303336343033",
+          tokenAuth: "365375TaYB4FU32WrR67443055P1",
+          captchaRenderId: "captch-id",
+          exposeMethods: true,
+          success: (data) => {
+            void 0;
+          },
+          failure: (error) => {
+            console.error("OTP Verification Failed:", error);
+          },
+        };
+        
+        try {
+          window.initSendOTP(configuration);
+          setScriptLoaded(true);
+        } catch (error) {
+          console.error("Error initializing captcha:", error);
+        }
+      }
+    };
+
     // Check if script already exists
     const existingScript = document.getElementById(scriptId);
     if (existingScript) {
-      setScriptLoaded(true);
+      initializeCaptcha();
       return;
     }
-
-    const configuration = {
-      widgetId: "346b79686352303336343033",
-      tokenAuth: "365375TaYB4FU32WrR67443055P1",
-      captchaRenderId: "captch-id",
-      exposeMethods: true,
-      success: (data) => {
-        void 0;
-      },
-      failure: (error) => {
-        console.error("OTP Verification Failed:", error);
-      },
-    };
 
     // Load MSG91 script with retry mechanism
     const loadScript = async () => {
@@ -51,19 +62,10 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
         // Promise-based script loading
         const loadPromise = new Promise((resolve, reject) => {
           script.onload = () => {
-            if (window.initSendOTP && window.isMSG91Active) {
-              setTimeout(() => {
-                try {
-                  window.initSendOTP(configuration);
-                  setScriptLoaded(true);
-                  resolve();
-                } catch (error) {
-                  reject(error);
-                }
-              }, 1000); // Add small delay to ensure proper initialization
-            } else {
-              reject(new Error("initSendOTP not available"));
-            }
+            setTimeout(() => {
+              initializeCaptcha();
+              resolve();
+            }, 1000);
           };
           script.onerror = () => reject(new Error("Script load failed"));
         });
@@ -72,7 +74,6 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
         await loadPromise;
       } catch (error) {
         console.error("Error loading MSG91 script:", error);
-        // Optional: Implement retry logic here if needed
       }
     };
 
@@ -122,6 +123,11 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
   const handleGetStarted = async () => {
     if (!scriptLoaded) {
       setError("OTP service is initializing. Please try again in a moment.");
+      return;
+    }
+
+    if(!isCaptchaVerified()){
+      setError("Please verify the captcha");
       return;
     }
 
@@ -197,6 +203,14 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
       setLoading(false);
       setIsButtonDisabled(false);
     }
+  };
+
+  const handleLoginPassword = () => {
+    if(!isCaptchaVerified()){
+      setError("Please verify the captcha");
+      return;
+    }
+    onViewChange("loginPassword", mobileNumber);
   };
 
   const prefixSelector = (
@@ -287,7 +301,7 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
             loading={loading}
             onClick={handleGetStarted}
             className="get-started-btn"
-            disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled) || !isCaptchaVerified()}
+            disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
           >
             {isLoginFlow ? "Login via OTP" : "Get Started"}
           </Button>
@@ -297,9 +311,9 @@ const SignUp = ({ onViewChange, isLoginFlow }) => {
           {isLoginFlow && (
             <Button
               type="primary"
-              onClick={() => onViewChange("loginPassword")}
+              onClick={handleLoginPassword}
               className="get-started-btn"
-              disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled) || !isCaptchaVerified()}
+              disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
             >
               Login via Password
             </Button>
