@@ -143,7 +143,7 @@ function TabPrescription() {
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
-  const { isApexAISelected, showSCPopup, isDDxReadyToGenerate } = useSelector(
+  const { isApexAISelected, showSCPopup, isDDxReadyToGenerate, isAutofillSelected } = useSelector(
     (state) => state.ddx
   );
   const { profile } = useSelector((state) => state.doctors);
@@ -1367,7 +1367,7 @@ function TabPrescription() {
                     )}
                   </Carousel>
                 } */}
-                {showSCBanner && <SCBanner handleBanner={() => setShowSCBanner(false)} />}
+                {showSCBanner && !isAutofillSelected && <SCBanner handleBanner={() => setShowSCBanner(false)} />}
                 {customizedPadRightList?.map((e, i) => {
                   const customModule = customModules?.find(
                     (m) => m.module_id === e.tmdpm_id

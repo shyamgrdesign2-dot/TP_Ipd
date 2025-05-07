@@ -737,7 +737,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   }
 
   const renderItems = (type) => {
-    if (type === "followUp") {
+    if (type === "followUp" || type === "notes") {
       // Dynamically calculate input width
       let textWidth = 0;
       if (activeType === "followUp") {
@@ -756,23 +756,53 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
             <div className="shimmer-container">
               <div className="shimmer"></div>
             </div>
-          ) : activeType === "followUp" ? (
-            <input
-              type="text"
-              value={editableText}
-              className="editable-digitised-item"
-              onChange={handleInputChange}
-              onBlur={() => handleInputBlur("followUp")}
-              autoFocus
-              // style={{ width: `${textWidth + 10}px` }}
-            />
           ) : (
-            <span
-              onClick={() => handleItemClick("followUp")}
-              className="digitised-item"
-            >
-              {prescriptionData?.followUp}
-            </span>
+            <>
+              {type === "followUp" && (
+                <>
+                  {activeType === "followUp" ? (
+                    <input
+                      type="text"
+                      value={editableText}
+                      className="editable-digitised-item"
+                      onChange={handleInputChange}
+                      onBlur={() => handleInputBlur("followUp")}
+                      autoFocus
+                      // style={{ width: `${textWidth + 10}px` }}
+                    />
+                  ) : (
+                    <span
+                      onClick={() => handleItemClick("followUp")}
+                      className="digitised-item"
+                    >
+                      {prescriptionData?.followUp}
+                    </span>
+                  )}
+                </>
+              )}
+
+              {type === "notes" && (
+                <>
+                  {activeType === "notes" ? (
+                    <input
+                      type="text"
+                      value={editableText}
+                      className="editable-digitised-item"
+                      onChange={handleInputChange}
+                      onBlur={() => handleInputBlur("notes")}
+                      autoFocus
+                    />
+                  ) : (
+                    <span
+                      onClick={() => handleItemClick("notes")}
+                      className="digitised-item"
+                    >
+                      {prescriptionData?.notes}
+                    </span>
+                  )}
+                </>
+              )}
+            </>
           )}
         </div>
       );
@@ -1316,7 +1346,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
               )}
             </div>
           </div>
-          {showSCBanner && !showPrescription && (
+          {showSCBanner && !showPrescription && !isAutofillSelected && (
             <div style={{ margin: "20px 30px" }}>
               <SCBanner handleBanner={() => setShowSCBanner(false)} />
             </div>
@@ -1709,6 +1739,15 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                 Others
                               </div>
                               {renderItems("others")}
+                            </>
+                          )}
+                        {prescriptionData?.notes &&
+                          prescriptionData.notes.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Additional Notes
+                              </div>
+                              {renderItems("notes")}
                             </>
                           )}
                         {renderCustomModules()}

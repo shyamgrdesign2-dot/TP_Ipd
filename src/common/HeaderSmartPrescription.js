@@ -144,7 +144,20 @@ function HeaderPrescription({
       selectedSymptomsCollector.medicalHistory.length > 0
     ) {
       // Create a new array to store the updated medical history
-      const updatedMedicalHistory = [...medicalHistoryData];
+      let updatedMedicalHistory = [...medicalHistoryData];
+
+      if (updatedMedicalHistory.length === 0) {
+        updatedMedicalHistory = selectedSymptomsCollector.medicalHistory?.map(
+          (e, i) => {
+            return {
+              title: e?.title,
+              tmmhs_id: e?.tmmhs_id,
+              no_know_history: false,
+              tags: [],
+            };
+          }
+        );
+      }
 
       // Process each section from selectedSymptomsCollector
       selectedSymptomsCollector.medicalHistory.forEach((section) => {

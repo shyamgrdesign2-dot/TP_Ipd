@@ -259,8 +259,9 @@ function Prescription() {
     isGrowthChartAccessable,
     isGynaecHistoryAccessable,
   } = useAccess(patient_data?.ageYears);
-  const { isDDxReadyToGenerate, showSCPopup } =
-    useSelector((state) => state.ddx);
+  const { isDDxReadyToGenerate, showSCPopup, isAutofillSelected } = useSelector(
+    (state) => state.ddx
+  );
 
   const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const baseUrl = env.lab_params_api_url;
@@ -1214,7 +1215,7 @@ function Prescription() {
                   )}
                   </Carousel>
                 } */}
-                {showSCBanner && <SCBanner handleBanner={() => setShowSCBanner(false)} />}
+                {showSCBanner && !isAutofillSelected && <SCBanner handleBanner={() => setShowSCBanner(false)} />}
                 {customizedPadRightList?.map((e, i) => {
                   const customModule = customModules?.find(
                     (m) => m.module_id === e.tmdpm_id
@@ -1472,7 +1473,7 @@ function Prescription() {
             <TatvaAiKnowMore handleTatvaAiKnowMore={handleTatvaAiKnowMore} handleDDxKnowMore={handleDDxKnowMore} handleGenRxKnowMore={handleGenRxKnowMore} />
           </Drawer>
         )}
-        {showSCPopup && <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} />}
+        {showSCPopup && <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} handleGenRx={handleGenRx} />}
       </>
     </CashManagerContext.Provider>
   );
