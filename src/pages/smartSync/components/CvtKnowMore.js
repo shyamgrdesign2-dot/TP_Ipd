@@ -15,6 +15,7 @@ import VideoModal from "../../../common/VideoModal";
 import ContactSupport from "../../monetization/components/ContactSupport";
 import ExpiredText from "../../monetization/components/ExpiredText";
 import { S_RX_DIGITIZATION } from "../../../utils/constants";
+import FreeTrialButton from "../../monetization/components/FreeTrialButton";
 
 const { TabPane } = Tabs;
 
@@ -38,15 +39,16 @@ const CvtKnowMore = ({ handleCollapsed }) => {
     <div className="drawer-container">
       {/* Modal Header */}
       <div className="drawer-header">
-        <div className="drawer-header-content border-bottom">
-          <Button
-            type="text"
-            className="close-drawer-btn"
-            onClick={() => handleCollapsed(5)}
-          >
-            <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
-          </Button>
-          <div className="drawer-title">AI-Powered Smart Rx Digitisation</div>
+        <div className="drawer-header-content justify-content-between border-bottom">
+          <div className="d-flex align-items-center">
+            <Button type="text"
+              className="close-drawer-btn"
+              onClick={() => handleCollapsed(5)}>
+              <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
+            </Button>
+            <div className="drawer-title">AI-Powered Smart Rx Digitisation</div>
+          </div>
+          <FreeTrialButton title={S_RX_DIGITIZATION} />
         </div>
 
         {/* Tabs */}

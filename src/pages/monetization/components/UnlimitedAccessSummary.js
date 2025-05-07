@@ -15,6 +15,7 @@ import { services } from "../../../redux/doctorsSlice";
 import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../../utils/constants";
 
 import "../GetUnlimitedAccess.scss";
+import config from "../../../config";
 
 function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
@@ -157,7 +158,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const initRazorPayPayment = (data) => {
         const options = {
-            key: 'rzp_test_NfYVp2U3ALGItU',
+            key: config.razorPay_key,
             amount: data.amount,
             currency: data.currency,
             name: 'Tatvacare',
