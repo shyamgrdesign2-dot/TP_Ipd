@@ -10,7 +10,7 @@ const defaultContextValue = {
 const OnboardingContext = createContext(defaultContextValue);
 
 export const OnboardingProvider = ({ children }) => {
-  const [isOnboardingVisible, setIsOnboardingVisible] = useState(true);
+  const [isOnboardingVisible, setIsOnboardingVisible] = useState(false);
 
   const showOnboarding = () => {
     setIsOnboardingVisible(true);

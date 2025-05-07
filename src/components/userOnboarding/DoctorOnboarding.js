@@ -19,7 +19,7 @@ import CustomStepper from "./CustomStepper";
 import { useNavigate } from "react-router-dom";
 
 const DoctorOnboarding = ({ visible, onClose }) => {
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [userData, setUserData] = useState(null);
