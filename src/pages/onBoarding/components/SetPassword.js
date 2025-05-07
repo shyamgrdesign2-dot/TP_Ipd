@@ -1,11 +1,40 @@
 import React from "react";
 import { Input, Button, Form } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+import "./Onboarding.scss";
+import abdmLogo from "../../../assets/images/abdm-logo.svg";
+import nhaLogo from "../../../assets/images/nha-logo.svg";
+import googlePartner from "../../../assets/images/website-images/image.png";
 
-const SetPassword = ({ onViewChange }) => {
+const SetPassword = ({ onViewChange, mobileNumber }) => {
+  const [form] = Form.useForm();
 
   const handleGoBack = () => {
     onViewChange("loginPassword");
+  };
+
+  const handleContinue = async () => {
+    try {
+      const values = await form.validateFields();
+      
+      // Send OTP using the window.sendOtp function
+      if (window.sendOtp) {
+        window.sendOtp(
+          mobileNumber,
+          "11",
+          (data) => {
+            // Pass password directly through component props
+            onViewChange("verifyOTP", mobileNumber, false, true, values.password);
+          },
+          (error) => {
+            console.error("Error sending OTP:", error);
+            // Handle error
+          }
+        );
+      }
+    } catch (error) {
+      console.error("Validation failed:", error);
+    }
   };
 
   return (
@@ -54,9 +83,7 @@ const SetPassword = ({ onViewChange }) => {
             </label>
             <Input.Password
               placeholder="Confirm password"
-              iconRender={(visible) =>
-                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-              }
+              visibilityToggle={false}
               className="password-input"
               bordered={false}
             />
@@ -65,7 +92,7 @@ const SetPassword = ({ onViewChange }) => {
           <Button
             type="primary"
             className="get-started-btn"
-            onClick={() => onViewChange("loginSuccess")}
+            onClick={handleContinue}
           >
             Continue
           </Button>
@@ -74,6 +101,15 @@ const SetPassword = ({ onViewChange }) => {
             Go back
           </div>
         </Form>
+      </div>
+      <div className="partners-section">
+        <img src={abdmLogo} alt="ABDM" className="abdm-logo" />
+        <img src={nhaLogo} alt="NHA" className="nha-logo" />
+        <img
+          src={googlePartner}
+          alt="Google Partner"
+          className="google-partner"
+        />
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 .our-scale-container {
+  width: 100vw;
   padding: 4rem 1rem;
   text-align: center;
 
@@ -32,7 +33,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
 
     @media (max-width: 768px) {

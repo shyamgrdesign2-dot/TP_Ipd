@@ -6,8 +6,10 @@ import abdmLogo from "../../../assets/images/abdm-logo.svg";
 import nhaLogo from "../../../assets/images/nha-logo.svg";
 import googlePartner from "../../../assets/images/website-images/image.png";
 import { verifyAccessToken } from "../../auth/authService";
+import { setPassword } from "../../auth/authService";
+import { loginWithPassword } from "../../auth/authService";
 
-const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists }) => {
+const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPasswordSetFlow, tempPassword }) => {
   const [timer, setTimer] = useState(15);
   const [canResend, setCanResend] = useState(false);
   const [otp, setOtp] = useState("");
@@ -63,7 +65,25 @@ const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists }) =>
           async (data) => {
             const { message, type } = data;
 
-            if(isUserExists){
+            if (isPasswordSetFlow) {
+              try {
+                const response = await setPassword(mobileNumber, tempPassword);
+                
+                if (response.success) {
+                  const loginResponse = await loginWithPassword(mobileNumber, tempPassword);
+                  
+                  if (loginResponse.ssoUrl) {
+                    const deviceType = isMobile ? "mobile" : "desktop";
+                    window.location.href = `${loginResponse.ssoUrl}&device_type=${deviceType}`;
+                  }
+                } else {
+                  setError("Failed to set password. Please try again.");
+                }
+              } catch (error) {
+                console.error("Error setting password:", error);
+                setError("Failed to set password. Please try again.");
+              }
+            } else if (isUserExists) {
               const response = await verifyAccessToken(mobileNumber, message);
 
               if (response) {

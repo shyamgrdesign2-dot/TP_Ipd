@@ -1,26 +1,27 @@
 import React from 'react';
 import { Row, Col } from 'antd';
 import { FacebookOutlined, TwitterOutlined, LinkedinOutlined, YoutubeOutlined } from '@ant-design/icons';
+import "./Footer.scss";
 // import Logo from '../assets/images/logo.png';
 
 const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-container">
-        <Row gutter={[32, 32]}>
+        {/* <Row gutter={[32, 32]}> */}
           {/* Company Info */}
-          <Col xs={24} sm={24} md={8} lg={8}>
+          {/* <Col xs={24} sm={24} md={8} lg={8}> */}
             <div className="company-info">
               {/* <img src={Logo} alt="Tatvacare Logo" className="footer-logo" /> */}
               <p className="company-description">
                 We are a full-spectrum technology solution that solves across various aspects of both patients' and doctors' needs and their interactions to significantly improve health positives.
               </p>
             </div>
-          </Col>
+          {/* </Col> */}
 
           {/* Quick Links */}
-          <Col xs={24} sm={12} md={5} lg={5}>
-            <div className="footer-section">
+          {/* <Col xs={24} sm={12} md={5} lg={5}> */}
+            {/* <div className="footer-section">
               <h3>Quick Links</h3>
               <ul className="footer-links">
                 <li><a href="/blog">Blog</a></li>
@@ -29,11 +30,11 @@ const Footer = () => {
                 <li><a href="/contact">Contact</a></li>
                 <li><a href="/news-room">News Room</a></li>
               </ul>
-            </div>
-          </Col>
+            </div> */}
+          {/* </Col> */}
 
           {/* Offices */}
-          <Col xs={24} sm={12} md={6} lg={6}>
+          {/* <Col xs={24} sm={12} md={6} lg={6}> */}
             <div className="footer-section">
               <h3>Offices</h3>
               <div className="office-locations">
@@ -47,10 +48,10 @@ const Footer = () => {
                 </div>
               </div>
             </div>
-          </Col>
+          {/* </Col> */}
 
           {/* Contact Us */}
-          <Col xs={24} sm={12} md={5} lg={5}>
+          {/* <Col xs={24} sm={12} md={5} lg={5}> */}
             <div className="footer-section">
               <h3>Contact Us</h3>
               <div className="contact-info">
@@ -67,8 +68,8 @@ const Footer = () => {
                 </div>
               </div>
             </div>
-          </Col>
-        </Row>
+          {/* </Col> */}
+        {/* </Row> */}
       </div>
     </footer>
   );

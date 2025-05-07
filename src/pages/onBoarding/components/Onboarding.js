@@ -20,6 +20,8 @@ const Onboarding = () => {
   const [isLoginFlow, setIsLoginFlow] = useState(true);
   const [isUserExists, setIsUserExists] = useState(false);
   const [isFromCampaign, setIsFromCampaign] = useState(false);
+  const [isPasswordSetFlow, setIsPasswordSetFlow] = useState(false);
+  const [tempPassword, setTempPassword] = useState("");
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -34,7 +36,7 @@ const Onboarding = () => {
     }
   }, []);
 
-  const handleViewChange = (newView, number = "", isUserExists = false) => {
+  const handleViewChange = (newView, number = "", isUserExists = false, isPasswordSetFlow = false, password = "") => {
     setView(newView);
     if (newView === "loginOTP") {
       setIsLoginFlow(true);
@@ -46,6 +48,9 @@ const Onboarding = () => {
     }
     if (isUserExists) {
       setIsUserExists(isUserExists);
+    }
+    if (password) {
+      setTempPassword(password);
     }
   };
 
@@ -69,6 +74,16 @@ const Onboarding = () => {
               mobileNumber={mobileNumber}
               isLoginFlow={isLoginFlow}
               isUserExists={isUserExists}
+              isPasswordSetFlow={isPasswordSetFlow}
+              tempPassword={tempPassword}
+            />
+          )}
+          {view === "verifyPassword" && (
+            <VerifyPassword
+              onViewChange={handleViewChange}
+              mobileNumber={mobileNumber}
+              // isLoginFlow={isLoginFlow}
+              // isUserExists={isUserExists}
             />
           )}
           {view === "setPassword" && (

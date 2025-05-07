@@ -205,12 +205,43 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     }
   };
 
-  const handleLoginPassword = () => {
-    if(!isCaptchaVerified()){
+  const handleLoginPassword = async () => {
+    if (!isCaptchaVerified()) {
       setError("Please verify the captcha");
       return;
     }
-    onViewChange("loginPassword", mobileNumber);
+
+    try {
+      setIsButtonDisabled(true);
+      setLoading(true);
+
+      const response = await validateUser(mobileNumber);
+      const { message, passwordSet } = response;
+
+      if (message === "Doctor exists!") {
+        if (passwordSet) {
+          // If password is set, go to verify password page
+          onViewChange("verifyPassword", mobileNumber, true);
+        } else {
+          // If password is not set, go to set password page
+          setError("Please set up your password first");
+          setTimeout(() => {
+            onViewChange("setPassword", mobileNumber, true);
+          }, 2000);
+        }
+      } else if (message === "Doctor does not exists!") {
+        setError("User does not exist. Please sign up first.");
+        setTimeout(() => {
+          onViewChange("signup", mobileNumber, false);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error checking user status:", error);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+      setIsButtonDisabled(false);
+    }
   };
 
   const prefixSelector = (
@@ -290,7 +321,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             />
           </Form.Item>
 
-          <div className="captcha-wrapper" style={{marginTop: "1.5rem"}}>
+          <div className="captcha-wrapper" style={{margin: "1.5rem 0 1rem 0"}}>
             <div id="captch-id" className="captcha-container" />
           </div>
 
@@ -312,7 +343,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             <Button
               type="primary"
               onClick={handleLoginPassword}
-              className="get-started-btn"
+              className="get-started-btn-secondary"
               disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
             >
               Login via Password

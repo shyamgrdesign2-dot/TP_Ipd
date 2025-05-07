@@ -4,7 +4,7 @@ import "./Onboarding.scss";
 import abdmLogo from "../../../assets/images/abdm-logo.svg";
 import nhaLogo from "../../../assets/images/nha-logo.svg";
 import googlePartner from "../../../assets/images/website-images/image.png";
-import { verifyAccessToken } from "../../auth/authService";
+import { loginWithPassword, verifyAccessToken } from "../../auth/authService";
 import { isMobile } from "react-device-detect";
 
 const VerifyPassword = ({ onViewChange, mobileNumber }) => {
@@ -14,28 +14,42 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
   const [error, setError] = useState(null);
 
   const handleLogin = async () => {
-    // try {
-    //   setLoading(true);
-    //   const response = await verifyAccessToken(mobileNumber, password);
-      
-    //   if (response.success) {
-    //     const { ssoUrl, passwordSet } = response;
-        
-    //     if (!passwordSet) {
-    //       onViewChange("setPassword");
-    //     } else if (ssoUrl) {
-    //       const deviceType = isMobile ? "mobile" : "desktop";
-    //       window.location.href = `${ssoUrl}&device_type=${deviceType}`;
-    //     }
-    //   } else {
-    //     setError("Invalid credentials. Please try again.");
-    //   }
-    // } catch (error) {
-    //   console.error("Login error:", error);
-    //   setError("Something went wrong. Please try again.");
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      setLoading(true);
+      const response = await loginWithPassword(mobileNumber, password);
+      // window.Moengage.track_event('TP_Login_Success', {
+      //   utm_campaign, utm_source, utm_medium, utm_content
+      // });
+      const { message, ssoUrl } = response;
+
+      switch (message) {
+        case "Doctor is inactive":
+          setError("Your account has been locked by Admin. Please contact support@tatvacare.in/9974042363");
+          return;
+
+        case "Invalid username and password":
+          setError("Incorrect password. Please try again.");
+          return;
+
+        default:
+          // Handle successful login with SSO URL
+          if (ssoUrl) {
+            const updatedSsoUrl = isMobile
+              ? `${ssoUrl}&device_type=mobile`
+              : `${ssoUrl}&device_type=desktop`;
+
+            window.location.href = updatedSsoUrl;
+            return;
+          }
+          // If no ssoUrl and no known error message, throw error
+          throw new Error("Unexpected response from server.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoBack = () => {
@@ -146,9 +160,10 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
               )}
             />
           </Form.Item>
+          <div className="error-message">{error}</div>
 
           <div className="forgot-password">
-            <span onClick={() => onViewChange("setPassword")}>
+            <span onClick={() => onViewChange("setPassword", mobileNumber, true)}>
               Forget password
             </span>
           </div>
