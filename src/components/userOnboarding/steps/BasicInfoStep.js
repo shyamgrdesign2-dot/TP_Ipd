@@ -30,8 +30,17 @@ const BasicInfoStep = ({ formData, setFormData }) => {
   return (
     <div>
       <div className={styles.inputField}>
-        <label className={`${styles.formLabel} ${styles.required}`}>
+        <label
+          style={{
+            display: "block",
+            marginBottom: "8px",
+            fontSize: "14px",
+            fontWeight: "500",
+            color: "#111827",
+          }}
+        >
           Your Full name ( First & Last name)
+          <span style={{ color: "#ef4444", marginLeft: "2px" }}>*</span>
         </label>
         <Input
           placeholder="Dr Shyam Sundar"
@@ -40,24 +49,44 @@ const BasicInfoStep = ({ formData, setFormData }) => {
           onChange={handleInputChange}
           size="large"
           status={formData.fullName ? "" : "error"}
+          style={{
+            width: "100%",
+            height: "48px",
+            borderRadius: "6px",
+            borderColor: formData.fullName ? "#d1d5db" : "#ef4444",
+            fontSize: "16px",
+          }}
         />
         {!formData.fullName && (
-          <div style={{ color: "#ff4d4f", fontSize: "12px", marginTop: "4px" }}>
+          <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px" }}>
             Please enter your full name
           </div>
         )}
       </div>
 
-      <div className={styles.inputField}>
-        <label className={`${styles.formLabel} ${styles.required}`}>
+      <div className={styles.inputField} style={{ marginTop: "24px" }}>
+        <label
+          style={{
+            display: "block",
+            marginBottom: "8px",
+            fontSize: "14px",
+            fontWeight: "500",
+            color: "#111827",
+          }}
+        >
           Speciality
+          <span style={{ color: "#ef4444", marginLeft: "2px" }}>*</span>
         </label>
         <Select
           placeholder="Select your speciality"
           value={formData.speciality}
           onChange={handleSpecialityChange}
           size="large"
-          style={{ width: "100%" }}
+          style={{
+            width: "100%",
+            height: "48px",
+          }}
+          dropdownStyle={{ borderRadius: "6px" }}
           status={formData.speciality ? "" : "error"}
         >
           {specialities.map((speciality) => (
@@ -67,7 +96,7 @@ const BasicInfoStep = ({ formData, setFormData }) => {
           ))}
         </Select>
         {!formData.speciality && (
-          <div style={{ color: "#ff4d4f", fontSize: "12px", marginTop: "4px" }}>
+          <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px" }}>
             Please select your speciality
           </div>
         )}

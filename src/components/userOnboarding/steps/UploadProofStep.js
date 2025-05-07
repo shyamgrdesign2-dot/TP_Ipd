@@ -9,6 +9,7 @@ import {
 } from "@ant-design/icons";
 import styles from "../DoctorOnboarding.module.css";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
+import { CloudUploadOutlined } from "@ant-design/icons";
 
 const UploadProofStep = ({ formData, setFormData }) => {
   const [isAccountLocked, setIsAccountLocked] = useState(false);
@@ -139,7 +140,7 @@ const UploadProofStep = ({ formData, setFormData }) => {
             accept=".pdf,.jpg,.jpeg,.png"
           >
             <div className={styles.uploadContainer}>
-              <UploadOutlined className={styles.uploadIcon} />
+              <CloudUploadOutlined className={styles.uploadIcon} />
               <div className={styles.uploadText}>Click to Upload</div>
               <div className={styles.uploadDescription}>
                 Upload Aadhar Card /PAN Card/any available Government ID proofs
@@ -148,27 +149,43 @@ const UploadProofStep = ({ formData, setFormData }) => {
             </div>
           </Upload>
         ) : (
-          <div className={styles.uploadedFile}>
-            <div className={styles.fileInfo}>
-              <FileOutlined className={styles.fileIcon} />
-              <span className={styles.fileName}>{governmentIdFile.name}</span>
-              <span className={styles.fileSize}>
-                {formatFileSize(governmentIdFile.size)}
-              </span>
-            </div>
-            <div className={styles.fileActions}>
-              <Button
-                type="primary"
-                ghost
+          <div className={styles.uploadContainerSuccess}>
+            <div className={styles.uploadedFilePreview}>
+              <div className={styles.fileThumb}>
+                {governmentIdFile.type.startsWith("image/") ? (
+                  <img
+                    src={governmentIdFile.url}
+                    alt={governmentIdFile.name}
+                    style={{
+                      width: 48,
+                      height: 64,
+                      objectFit: "cover",
+                      borderRadius: 6,
+                    }}
+                  />
+                ) : governmentIdFile.type === "application/pdf" ? (
+                  <FileOutlined style={{ fontSize: 36, color: "#22c55e" }} />
+                ) : (
+                  <FileOutlined style={{ fontSize: 36, color: "#22c55e" }} />
+                )}
+              </div>
+              <div className={styles.fileInfoPreview}>
+                <div className={styles.fileNamePreview}>
+                  {governmentIdFile.name}
+                </div>
+                <div className={styles.fileSizePreview}>
+                  {formatFileSize(governmentIdFile.size)}
+                </div>
+              </div>
+              <button
+                className={styles.replaceBtn}
                 onClick={() => setGovernmentIdFile(null)}
               >
                 Replace File
-              </Button>
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                onClick={handleGovIdRemove}
-              />
+              </button>
+              <button className={styles.deleteBtn} onClick={handleGovIdRemove}>
+                <DeleteOutlined />
+              </button>
             </div>
           </div>
         )}
@@ -191,7 +208,7 @@ const UploadProofStep = ({ formData, setFormData }) => {
             accept=".pdf,.jpg,.jpeg,.png"
           >
             <div className={styles.uploadContainer}>
-              <UploadOutlined className={styles.uploadIcon} />
+              <CloudUploadOutlined className={styles.uploadIcon} />
               <div className={styles.uploadText}>Click to Upload</div>
               <div className={styles.uploadDescription}>
                 Upload Medical Registration Certificate for verification
@@ -199,23 +216,41 @@ const UploadProofStep = ({ formData, setFormData }) => {
             </div>
           </Upload>
         ) : (
-          <div className={styles.uploadedFile}>
-            <div className={styles.fileInfo}>
-              <FileOutlined className={styles.fileIcon} />
-              <span className={styles.fileName}>{mrcFile.name}</span>
-              <span className={styles.fileSize}>
-                {formatFileSize(mrcFile.size)}
-              </span>
-            </div>
-            <div className={styles.fileActions}>
-              <Button type="primary" ghost onClick={() => setMRCFile(null)}>
+          <div className={styles.uploadContainerSuccess}>
+            <div className={styles.uploadedFilePreview}>
+              <div className={styles.fileThumb}>
+                {mrcFile.type.startsWith("image/") ? (
+                  <img
+                    src={mrcFile.url}
+                    alt={mrcFile.name}
+                    style={{
+                      width: 48,
+                      height: 64,
+                      objectFit: "cover",
+                      borderRadius: 6,
+                    }}
+                  />
+                ) : mrcFile.type === "application/pdf" ? (
+                  <FileOutlined style={{ fontSize: 36, color: "#22c55e" }} />
+                ) : (
+                  <FileOutlined style={{ fontSize: 36, color: "#22c55e" }} />
+                )}
+              </div>
+              <div className={styles.fileInfoPreview}>
+                <div className={styles.fileNamePreview}>{mrcFile.name}</div>
+                <div className={styles.fileSizePreview}>
+                  {formatFileSize(mrcFile.size)}
+                </div>
+              </div>
+              <button
+                className={styles.replaceBtn}
+                onClick={() => setMRCFile(null)}
+              >
                 Replace File
-              </Button>
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                onClick={handleMRCRemove}
-              />
+              </button>
+              <button className={styles.deleteBtn} onClick={handleMRCRemove}>
+                <DeleteOutlined color="red" />
+              </button>
             </div>
           </div>
         )}

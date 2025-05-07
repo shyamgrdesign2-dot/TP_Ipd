@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Steps, Button, Drawer, message } from "antd";
+import { CheckOutlined } from "@ant-design/icons";
 import BasicInfoStep from "./steps/BasicInfoStep";
 import ClinicDetailsStep from "./steps/ClinicDetailsStep";
 import UploadProofStep from "./steps/UploadProofStep";
@@ -9,15 +10,21 @@ import {
   specialityToDepartmentId,
   finalizeOnboarding,
   uploadDocuments,
+  initOnboarding,
+  updateLocation,
 } from "./services/onboardingService";
 import { getUserData, getUtmParams } from "./services/userDataService";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
+import CustomStepper from "./CustomStepper";
+import { useNavigate } from "react-router-dom";
 
 const DoctorOnboarding = ({ visible, onClose }) => {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(2);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [userData, setUserData] = useState(null);
   const [utmParams, setUtmParams] = useState(null);
+  const [userOnboardingId, setUserOnboardingId] = useState(null);
   const [formData, setFormData] = useState({
     fullName: "",
     speciality: "",
@@ -29,6 +36,62 @@ const DoctorOnboarding = ({ visible, onClose }) => {
     governmentIdProof: null,
     mrcCertificate: null,
   });
+  const navigate = useNavigate();
+
+  // Init API call to get user details and determine starting step
+  const initializeOnboarding = async (phoneNumber, utm) => {
+    setIsInitializing(true);
+    try {
+      const response = await initOnboarding(phoneNumber, utm);
+      console.log("Init response:", response);
+
+      // Store the onboarding ID for future API calls
+      setUserOnboardingId(response.id);
+
+      // Pre-fill form data from response
+      let updatedFormData = { ...formData };
+
+      // Basic details
+      if (response.basicDetails) {
+        updatedFormData = {
+          ...updatedFormData,
+          fullName: response.basicDetails.doctorName || "",
+          speciality:
+            Object.keys(specialityToDepartmentId).find(
+              (key) =>
+                specialityToDepartmentId[key] ===
+                response.basicDetails.departmentId
+            ) || "",
+        };
+      }
+
+      // Hospital details
+      if (response.hospitalDetails) {
+        updatedFormData = {
+          ...updatedFormData,
+          clinicName: response.hospitalDetails.clinicName || "",
+          clinicAddress: response.hospitalDetails.clinicAddress || "",
+          clinicPincode: response.hospitalDetails.clinicPincode || "",
+        };
+      }
+
+      setFormData(updatedFormData);
+
+      // if (response.hospitalDetails && response.basicDetails) {
+      //   setCurrentStep(2);
+      // } else if (response.basicDetails) {
+      //   setCurrentStep(1);
+      // } else {
+      //   setCurrentStep(0);
+      // }
+    } catch (error) {
+      console.error("Error initializing onboarding:", error);
+      // If initialization fails, just start from the beginning
+      setCurrentStep(0);
+    } finally {
+      setIsInitializing(false);
+    }
+  };
 
   // Load user data and UTM params on mount
   useEffect(() => {
@@ -38,14 +101,29 @@ const DoctorOnboarding = ({ visible, onClose }) => {
     setUserData(user);
     setUtmParams(utm);
 
-    // Pre-fill form data if available
-    if (user.doctorName) {
-      setFormData((prev) => ({
-        ...prev,
-        fullName: user.doctorName,
-      }));
+    // If the drawer is visible, initialize onboarding
+    if (visible) {
+      initializeOnboarding(user.phoneNumber, utm);
     }
-  }, []);
+  }, [visible]);
+
+  // Reset step to first step whenever drawer is opened
+  useEffect(() => {
+    if (!visible) {
+      // Reset the form when the drawer is closed
+      setFormData({
+        fullName: "",
+        speciality: "",
+        clinicName: "",
+        clinicPincode: "",
+        clinicAddress: "",
+        clinic_lat: "",
+        clinic_long: "",
+        governmentIdProof: null,
+        mrcCertificate: null,
+      });
+    }
+  }, [visible]);
 
   const steps = [
     {
@@ -82,7 +160,7 @@ const DoctorOnboarding = ({ visible, onClose }) => {
     try {
       // Use real user data from context/token
       const doctorData = {
-        id: userData?.id || "6814921b5e22fe117c85ccc4",
+        id: userOnboardingId || userData?.id || "6814921b5e22fe117c85ccc4",
         phone_number: userData?.phoneNumber || "2288333366",
         doctorName: formData.fullName,
         departmentId: specialityToDepartmentId[formData.speciality] || 1,
@@ -124,9 +202,32 @@ const DoctorOnboarding = ({ visible, onClose }) => {
     setIsSubmitting(true);
 
     try {
+      // If we have location coordinates, update them first
+      if (formData.clinic_lat && formData.clinic_long) {
+        try {
+          const rawToken = localStorage.getItem(
+            PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+          );
+          if (rawToken) {
+            const authToken = JSON.parse(rawToken);
+            const locationData = {
+              clinic_lat: formData.clinic_lat,
+              clinic_long: formData.clinic_long,
+            };
+
+            // Call the updateLocation API
+            await updateLocation(locationData, authToken);
+            console.log("Location coordinates updated successfully");
+          }
+        } catch (locationError) {
+          console.error("Error updating location coordinates:", locationError);
+          // Continue with the process even if location update fails
+        }
+      }
+
       // Combine all the data for the finalize API
       const finalizeData = {
-        id: userData?.id || "6814921b5e22fe117c85ccc4",
+        id: userOnboardingId || userData?.id || "6814921b5e22fe117c85ccc4",
         phone_number: userData?.phoneNumber || "2288333366",
         doctorName: formData.fullName,
         departmentId: specialityToDepartmentId[formData.speciality] || 1,
@@ -140,8 +241,8 @@ const DoctorOnboarding = ({ visible, onClose }) => {
         clinicName: formData.clinicName,
         clinicAddress: formData.clinicAddress,
         clinicPincode: formData.clinicPincode,
-        clinic_lat: formData.clinic_lat || "23.1092", // Default if not detected
-        clinic_long: formData.clinic_long || "72.5848", // Default if not detected
+        clinic_lat: formData.clinic_lat || "", // No default fallback in production
+        clinic_long: formData.clinic_long || "", // No default fallback in production
       };
 
       await finalizeOnboarding(finalizeData);
@@ -166,12 +267,14 @@ const DoctorOnboarding = ({ visible, onClose }) => {
 
     try {
       // Get the auth token
-      const authToken = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+      const rawToken = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
 
-      if (!authToken) {
+      if (!rawToken) {
         message.error("Authentication token not found. Please login again.");
         return false;
       }
+
+      const authToken = JSON.parse(rawToken);
 
       // Upload the documents
       await uploadDocuments(
@@ -194,10 +297,20 @@ const DoctorOnboarding = ({ visible, onClose }) => {
   const nextStep = async () => {
     if (currentStep === 0) {
       const success = await handleUpdateOnboardingDetails();
-      // if (!success) return;
+      if (!success) return;
     } else if (currentStep === 1) {
       const success = await handleFinalizeOnboarding();
       if (!success) return;
+    } else if (currentStep === 2) {
+      // Upload documents and redirect to home on success
+      const success = await handleUploadDocuments();
+      if (success) {
+        onClose();
+        navigate("/");
+        return;
+      } else {
+        return;
+      }
     }
     setCurrentStep(currentStep + 1);
   };
@@ -206,58 +319,93 @@ const DoctorOnboarding = ({ visible, onClose }) => {
     setCurrentStep(currentStep - 1);
   };
 
-  const skipAndUploadLater = () => {
-    // Close drawer and handle later upload logic
-    onClose();
-  };
-
-  const finishSetup = async () => {
-    // Upload documents
-    const success = await handleUploadDocuments();
-    if (!success) return;
-
-    // If successful, close the drawer
-    message.success("Setup completed successfully!");
-    onClose();
-  };
-
   const drawerContent = (
-    <div className={styles.onboardingContainer}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Final Setup!</h1>
-        {currentStep < steps.length - 1 && (
-          <Button type="primary" onClick={nextStep} loading={isSubmitting}>
+    <div style={{ padding: "20px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+          paddingBottom: "20px",
+          borderBottom: "1px solid #f0f0f0",
+        }}
+      >
+        <h1
+          style={{
+            fontSize: "24px",
+            fontWeight: "600",
+            margin: 0,
+            color: "#111827",
+          }}
+        >
+          Final Setup!
+        </h1>
+        {currentStep === 2 ? (
+          <div style={{ display: "flex", gap: "12px" }}>
+            <Button
+              onClick={() => {
+                onClose();
+                navigate("/");
+              }}
+              className={styles.skipButton}
+            >
+              Skip & upload later
+            </Button>
+            <Button
+              type="primary"
+              onClick={nextStep}
+              loading={isSubmitting}
+              style={{
+                backgroundColor: "#4f46e5",
+                borderColor: "#4f46e5",
+                borderRadius: "8px",
+                height: "40px",
+              }}
+            >
+              Finish Setup
+            </Button>
+          </div>
+        ) : (
+          <Button
+            type="primary"
+            onClick={nextStep}
+            loading={isSubmitting}
+            style={{
+              backgroundColor: "#4f46e5",
+              borderColor: "#4f46e5",
+              borderRadius: "8px",
+              height: "40px",
+            }}
+          >
             Next
           </Button>
         )}
-        {currentStep === steps.length - 1 && (
-          <Button type="primary" onClick={finishSetup} loading={isSubmitting}>
-            Finish Setup
-          </Button>
+      </div>
+
+      <div style={{ marginBottom: "60px" }}>
+        <div className={styles.stepperOuter}>
+          <CustomStepper
+            steps={[
+              { label: "Basic Info" },
+              { label: "Clinic Details" },
+              { label: "Upload Proof" },
+            ]}
+            currentStep={currentStep}
+          />
+        </div>
+      </div>
+
+      <div style={{ paddingTop: "20px" }}>
+        {isInitializing ? (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Loading your information...</p>
+          </div>
+        ) : (
+          steps[currentStep].content
         )}
       </div>
-
-      <div className={styles.stepContainer}>
-        <Steps
-          current={currentStep}
-          items={steps.map((item) => ({
-            title: item.title,
-          }))}
-        />
-      </div>
-
-      <div className={styles.formContainer}>{steps[currentStep].content}</div>
-
-      {currentStep === steps.length - 1 && (
-        <div className={styles.buttonsContainer}>
-          <Button className={styles.skipButton} onClick={skipAndUploadLater}>
-            Skip & upload later
-          </Button>
-          <Button type="primary" onClick={finishSetup} loading={isSubmitting}>
-            Finish Setup
-          </Button>
-        </div>
-      )}
     </div>
   );
 
@@ -268,8 +416,11 @@ const DoctorOnboarding = ({ visible, onClose }) => {
       closable={false}
       onClose={onClose}
       open={visible}
-      width={600}
+      width={650}
       maskClosable={false}
+      mask={true}
+      maskStyle={{ backgroundColor: "rgba(0, 0, 0, 0.45)" }}
+      zIndex={1100}
       footer={null}
       bodyStyle={{ padding: 0 }}
     >

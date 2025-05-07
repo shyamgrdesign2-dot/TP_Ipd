@@ -14,6 +14,7 @@ import ProfileClinicView from "../components/doctor_profile/ProfileClinicView";
 import { TAB_ADDRESS } from "../utils/constants";
 import Subscription from "../components/doctor_profile/Subscription";
 import PremiumUser from "../common/PremiumUser";
+import IdProof from "../components/userOnboarding/IdProof";
 
 function DoctorProfile() {
 
@@ -308,12 +309,17 @@ function DoctorProfile() {
           <div className="mb-4">
             <ProfilePersonalDetailsView />
           </div>
-          <div className="mb-4">
-            <ProfileClinicView />
+            <div className="mb-4">
+              <ProfileClinicView />
           </div>
-          {["TRIAL", "EXPIRED","PAID"].includes(planDetails?.currentPlanStatus) && <div className="mb-4">
-            <Subscription />
-          </div>}
+          {/* <div className="mb-4">
+            <IdProof />
+          </div> */}
+          {["TRIAL", "EXPIRED", "PAID"].includes(planDetails?.currentPlanStatus) && (
+            <div className="mb-4">
+              <Subscription />
+            </div>
+          )}
         </Container>
       </div>
     </>

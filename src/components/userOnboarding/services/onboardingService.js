@@ -1,4 +1,32 @@
 import axios from "axios";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
+
+/**
+ * Initializes the onboarding process and gets any pre-existing user data
+ * @param {string} phone_number - User's phone number
+ * @param {Object} utmParams - UTM parameters
+ * @returns {Promise} Promise with the response containing user data
+ */
+export const initOnboarding = async (phone_number, utmParams) => {
+  try {
+    const response = await axios.post(
+      "https://pm-central-auth-uat.tatvacare.in/api/v1/onBoarding/InIt",
+      {
+        phone_number,
+        ...utmParams,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error initializing onboarding:", error);
+    throw error;
+  }
+};
 
 /**
  * Updates doctor onboarding details
@@ -28,6 +56,44 @@ export const updateOnboardingDetails = async (doctorData) => {
     return response.data;
   } catch (error) {
     console.error("Error updating onboarding details:", error);
+    throw error;
+  }
+};
+
+/**
+ * Updates clinic location coordinates
+ * @param {Object} locationData - Clinic location data
+ * @param {string} locationData.clinic_lat - Latitude of the clinic
+ * @param {string} locationData.clinic_long - Longitude of the clinic
+ * @param {string} authToken - JWT authentication token
+ * @returns {Promise} Promise with the response
+ */
+export const updateLocation = async (locationData, authToken) => {
+  try {
+    // Get auth token from localStorage if not provided
+    let token = authToken;
+
+    if (!token) {
+      const rawToken = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+      if (!rawToken) {
+        throw new Error("Authentication token not found");
+      }
+      token = JSON.parse(rawToken);
+    }
+
+    const response = await axios.post(
+      "https://pm-central-auth-uat.tatvacare.in/api/v1/onBoarding/updateLocation",
+      locationData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating location:", error);
     throw error;
   }
 };
@@ -92,10 +158,14 @@ export const uploadDocuments = async (
     }
 
     // Get auth token from localStorage if not provided
-    const token = authToken || localStorage.getItem("AUTH_TOKEN");
+    let token = authToken;
 
     if (!token) {
-      throw new Error("Authentication token not found");
+      const rawToken = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+      if (!rawToken) {
+        throw new Error("Authentication token not found");
+      }
+      token = JSON.parse(rawToken);
     }
 
     const response = await axios.post(

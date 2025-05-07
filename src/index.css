@@ -15,3 +15,20 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Styles for the onboarding drawer blur effect */
+body.drawer-open-blur {
+  overflow: hidden;
+}
+
+body.drawer-open-blur #root > *:not(.ant-drawer-root) {
+  filter: blur(5px);
+  transition: filter 0.3s ease;
+  pointer-events: none;
+  user-select: none;
+}
+
+.ant-drawer-mask {
+  backdrop-filter: blur(5px);
+  background-color: rgba(0, 0, 0, 0.65) !important;
+}
