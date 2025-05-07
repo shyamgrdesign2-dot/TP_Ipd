@@ -1126,16 +1126,18 @@ function AppointmentData({ locationPath }) {
             });
             const tcm_id = response.data[0]?.tcm_id
             const smartRxData = await fetchData(tcm_id);
-            const ocrData = await fetchRxDigitisedData(tcm_id);
+            // const ocrData = await fetchRxDigitisedData(tcm_id);
 
             navigate("/smart-rx-digitise", {
                 state: {
                     patient_data: record,
                     smartRxFilesData: smartRxData,
                     tcm_id: tcm_id,
+                    pam_id: record.pam_id,
                     print_url: record.print_rx_url,
-                    digitisedData: ocrData.data,
-                    page: "pending-digitization"
+                    // digitisedData: ocrData.data,
+                    page: "pending-digitization",
+                    type: "new"
                 },
             })
         } catch (error) {
@@ -1469,6 +1471,7 @@ function AppointmentData({ locationPath }) {
             limit: 25,
             patientId: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id,
             appointmentId: isReceptionist ? undefined : record?.pam_id || appointmentSelectedFromMenu?.pam_id,
+            type: "new"
         };
 
         if (!isReceptionist) {
