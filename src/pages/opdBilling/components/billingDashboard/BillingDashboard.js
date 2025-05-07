@@ -33,11 +33,12 @@ import { Popover } from "antd";
 import { clearSearch } from "../../../../redux/appointmentsSlice";
 import AddAdvance from "../advanceDeposit/AddAdvance";
 import CreateBill from "../createBill/CreateBill";
-import { fetchPatientWalletBalance } from "../../service";
 import BillingKnowMore from "../../../monetization/components/BillingKnowMore";
 import moment from "moment";
 import { checkCredits } from "../../../../redux/monetizationSlice";
 import ExpiredSubModal from "../../../monetization/components/ExpiredSubModal";
+import { fetchAdvanceSetting, fetchPatientWalletBalance } from "../../service";
+import { setAdvancedSettings } from "../../../../redux/billingSlice";
 
 function BillingDashboard({ patientData, fromPath }) {
   const { servicesList } = useSelector((state) => state.doctors);
@@ -59,6 +60,9 @@ function BillingDashboard({ patientData, fromPath }) {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [billingDrawer, setBillingDrawer] = useState(false);
   const { planDetails } = useSelector((state) => state.subscription);
+  const { advancedSettings } = useSelector(
+    (state) => state.billing
+  );
 
   // Add a ref to store the refresh function
   const billingTableRef = useRef(null);
@@ -135,7 +139,17 @@ function BillingDashboard({ patientData, fromPath }) {
     } catch (e) {
       console.error("Error while token decoding: ", e);
     }
+    if (advancedSettings && Object.keys(advancedSettings).length === 0) {
+      getAdvanceSettings();
+    }
   }, []);
+
+  const getAdvanceSettings = async () => {
+    const advanceSettingsResponse = await fetchAdvanceSetting();
+    if (advanceSettingsResponse) {
+      dispatch(setAdvancedSettings(advanceSettingsResponse));
+    }
+  };
 
   // Drawer form 3c
   const handleManage3cBill = async () => {
@@ -184,17 +198,6 @@ function BillingDashboard({ patientData, fromPath }) {
 
   // Modify the Add Advance Drawer handler
   const handleAddAdvanceDrawer = () => {
-    const clinic = getClinic();
-    trackEvent("TP_billing_addadvance", {
-      doctorSpeciality: profile?.dp_name,
-      doctorId: profile?.doctor_unique_id,
-      doctorContact: profile?.um_contact,
-      city: clinic?.hm_city,
-      pincode: clinic?.hm_pincode,
-      source: fromPath || "billing_page",
-      receptionistId: receptionistId,
-      receptionistName: receptionistName,
-    });
     setAddAdvanceDrawer(!addAdvanceDrawer);
     // If drawer is closing and we have a refresh function, call it
     if (addAdvanceDrawer && billingTableRef.current?.refreshData) {

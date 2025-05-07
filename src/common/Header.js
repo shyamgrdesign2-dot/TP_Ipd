@@ -47,8 +47,6 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { env } from "../EnvironmentConfig";
 import CommonModal from "./CommonModal";
 import { useReactToPrint } from 'react-to-print';
-import { fetchAdvanceSetting, fetchPrintSetting } from "../pages/opdBilling/service";
-import { setAdvancedSettings, setBillPrintSettings } from "../redux/billingSlice";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 import moment from "moment";
 import AiSuite from "../pages/monetization/components/AiSuite";
@@ -172,20 +170,6 @@ function Header({ locationPath }) {
       getStorageData()
     }
   }, [clinicOptions]);
-
-  const getAdvanceSettings = async () => {
-    const advanceSettingsResponse = await fetchAdvanceSetting();
-    if (advanceSettingsResponse) {
-      dispatch(setAdvancedSettings(advanceSettingsResponse));
-    }
-  };
-
-  const getBillPrintSettings = async () => {
-    const printSettingsResponse = await fetchPrintSetting(isReceptionist ? urlParams.get("um_id") : "");
-    if (printSettingsResponse) {
-      dispatch(setBillPrintSettings(printSettingsResponse));
-    }
-  };
 
   const HOSPITAL_DATA = useMemo(() => {
     return (

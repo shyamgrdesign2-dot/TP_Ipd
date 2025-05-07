@@ -49,6 +49,7 @@ const ConsultationDetailsPage = () => {
   const [visibleModal, setVisibleModal] = useState(false);
   const [modalContent, setModalContent] = useState({ title: "", list: [] });
   const MAX_REMARKS_LENGTH = 50;
+  const [excelLoading, setExcelLoading] = useState(false);
 
   useEffect(() => {
     if (doctors?.length > 0) {
@@ -395,6 +396,7 @@ const ConsultationDetailsPage = () => {
         search: filters.search || "",
         download: true
       };
+      setExcelLoading(true)
       const { consultationsList } = await fetchApolloConsultations(params);
       const workSheetColumnNames = [
         'Patient Name',
@@ -534,7 +536,7 @@ const ConsultationDetailsPage = () => {
       const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
       const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
       saveAs(blob, `Apollo.xlsx`);
-
+      setExcelLoading(false)
     } catch (error) {
       message.error("Failed to fetch consultations");
     }
@@ -586,7 +588,7 @@ const ConsultationDetailsPage = () => {
                     }
                   />
                   <b>Total Count: {totalRecords}</b>
-                  <Button onClick={exportToExcel} className="btn btn-input rounded-1 px-2 ms-2" disabled={filters?.startDate && filters?.endDate && dayjs(filters?.endDate).diff(dayjs(filters?.startDate), 'days') <= 7 ? false : true}>
+                  <Button onClick={exportToExcel} loading={excelLoading} className="btn btn-input rounded-1 px-2 ms-2" disabled={filters?.startDate && filters?.endDate && dayjs(filters?.endDate).diff(dayjs(filters?.startDate), 'days') <= 7 ? false : true}>
                     <i className="icon-download"></i>
                   </Button>
                 </Space>

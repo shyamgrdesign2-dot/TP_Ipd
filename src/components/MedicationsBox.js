@@ -59,7 +59,7 @@ function MedicationsBox() {
   const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
 
-  const { patient_data, medicationData, setMedicationData, pillupSwitch, setPillupSwitch } = useContext(CashManagerContext);
+  const { patient_data, medicationData, setMedicationData, pillupSwitch, setPillupSwitch, tcmId } = useContext(CashManagerContext);
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -151,7 +151,7 @@ function MedicationsBox() {
       return data.push({
         key: JSON.stringify({ ...e, unique_id: uuidv4() }),
         value: e.tmm_medicine_name,
-        label: <div><span className="fw-medium">{e.tmm_medicine_name}</span>, <span>{e.tmm_generic}</span>  {(e?.tmm_hm_type === 1 && e?.um_id === 0) && <span className="align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2'}}>Z</span>}</div>,
+        label: <div><span className="fw-medium">{e.tmm_medicine_name}</span>, <span>{e.tmm_generic}</span>  {(e?.tmm_hm_type === 1 && e?.um_id === 0) && <span className="align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{ width: 18, height: 18, background: '#c44ea2' }}>Z</span>}</div>,
       });
     });
     if (doseCalculatorDrawer) {
@@ -618,7 +618,7 @@ function MedicationsBox() {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      medicationData[i].tmm_remarks = capitalizeAfterSentence(e.target.value);
+      medicationData[i].tmm_remarks = e.target.value;
       setMedicationData((prev) => [...prev]);
     },
     [medicationData]
@@ -651,6 +651,7 @@ function MedicationsBox() {
   const loadPreviousRxClick = async () => {
     var sendData = {
       patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      tcm_id: tcmId,
     };
     const action = await dispatch(getLoadPreviousRx(sendData));
     if (action.meta.requestStatus === "fulfilled") {

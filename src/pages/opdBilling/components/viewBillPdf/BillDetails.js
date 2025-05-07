@@ -41,7 +41,7 @@ const BillDetails = ({ pageFormat, billData, totalAdvanceBalance }) => {
       value: `₹${applicableGst}`,
       divider: dueFromPreviousBill === 0,
     },
-    { label: "Extra Discount:", value: `₹${extraDiscountAmount}` },
+    { label: "Extra Discount:", value: `₹${extraDiscountAmount?.toFixed(2)}` },
     dueFromPreviousBill > 0
       ? {
           label: "Due from Previous bill:",

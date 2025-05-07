@@ -71,11 +71,11 @@ import UploadDocPopup from "../pages/medicalRecords/components/uploadDocPopup/Up
 import { generateUniqueFileName, getCorrectedFileName } from "../pages/medicalRecords/utils/helper";
 import { resetDDxState } from "../redux/ddxSlice";
 import CreateBill from "../pages/opdBilling/components/createBill/CreateBill";
-import { checkToShowOpdBilling, fetchBillsByPatient, fetchPatientWalletBalance } from "../pages/opdBilling/service";
+import { checkToShowOpdBilling, fetchAdvanceSetting, fetchBillsByPatient, fetchPatientWalletBalance, fetchPrintSetting } from "../pages/opdBilling/service";
 import RecentBills from "../pages/opdBilling/components/recentBills/RecentBills";
 import AddAdvance from "../pages/opdBilling/components/advanceDeposit/AddAdvance";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
-import { setShouldShowOpdBilling } from "../redux/billingSlice";
+import { setAdvancedSettings, setBillPrintSettings, setShouldShowOpdBilling } from "../redux/billingSlice";
 
 const { TextArea } = Input;
 
@@ -217,10 +217,18 @@ function AppointmentData({ locationPath }) {
     };
 
     useEffect(() => {
-        if (uploadDocCategories.length === 0 && !isReceptionist) {
-            getAllDocumentCategories();
-        }
-    }, []);
+      if (uploadDocCategories.length === 0 && !isReceptionist) {
+        getAllDocumentCategories();
+      }
+      if (
+        advancedSettings &&
+        Object.keys(advancedSettings).length === 0 &&
+        isOpdBillingAccessable
+      ) {
+        getAdvanceSettings();
+      }
+      getBillPrintSettings();
+    }, [isOpdBillingAccessable]);
 
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
@@ -254,6 +262,22 @@ function AppointmentData({ locationPath }) {
             }
         }
     }, []);
+
+    const getAdvanceSettings = async () => {
+        const advanceSettingsResponse = await fetchAdvanceSetting();
+        if (advanceSettingsResponse) {
+            dispatch(setAdvancedSettings(advanceSettingsResponse));
+        }
+    };
+
+    const getBillPrintSettings = async () => {
+        const printSettingsResponse = await fetchPrintSetting(
+            isReceptionist ? urlParams.get("um_id") : ""
+        );
+        if (printSettingsResponse) {
+            dispatch(setBillPrintSettings(printSettingsResponse));
+        }
+    };
 
     const fetchPendingDigitisationRx = async () => {
 
@@ -1102,16 +1126,18 @@ function AppointmentData({ locationPath }) {
             });
             const tcm_id = response.data[0]?.tcm_id
             const smartRxData = await fetchData(tcm_id);
-            const ocrData = await fetchRxDigitisedData(tcm_id);
+            // const ocrData = await fetchRxDigitisedData(tcm_id);
 
             navigate("/smart-rx-digitise", {
                 state: {
                     patient_data: record,
                     smartRxFilesData: smartRxData,
                     tcm_id: tcm_id,
+                    pam_id: record.pam_id,
                     print_url: record.print_rx_url,
-                    digitisedData: ocrData.data,
-                    page: "pending-digitization"
+                    // digitisedData: ocrData.data,
+                    page: "pending-digitization",
+                    type: "new"
                 },
             })
         } catch (error) {
@@ -1445,6 +1471,7 @@ function AppointmentData({ locationPath }) {
             limit: 25,
             patientId: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id,
             appointmentId: isReceptionist ? undefined : record?.pam_id || appointmentSelectedFromMenu?.pam_id,
+            type: "new"
         };
 
         if (!isReceptionist) {
@@ -1455,7 +1482,7 @@ function AppointmentData({ locationPath }) {
         const response = await fetchBillsByPatient(queryParams);
             if (isReceptionist) {
                 const patientData = {
-                  patient_unique_id: record?.patient_unique_id,
+                  patient_unique_id: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id || urlParams.get("patient_unique_id"),
                   pm_pid: record?.pm_pid,
                   pam_id: record?.pam_id,
                   source: record?.source,
@@ -1487,7 +1514,8 @@ function AppointmentData({ locationPath }) {
         }
         const patientWalletBalanceRes = await fetchPatientWalletBalance(
             record?.patient_unique_id ||
-            appointmentSelectedFromMenu?.patient_unique_id
+            appointmentSelectedFromMenu?.patient_unique_id ||
+            urlParams.get("patient_unique_id")
         );
         setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
     };
@@ -1724,7 +1752,7 @@ function AppointmentData({ locationPath }) {
 
     return (
         <>
-            <div className="border rounded-4 appointment-wrap dateborder">
+            {!isReceptionist && (<div className="border rounded-4 appointment-wrap dateborder">
                 <Tabs
                     defaultActiveKey={TAB_QUEUE}
                     items={items}
@@ -1902,7 +1930,7 @@ function AppointmentData({ locationPath }) {
                 >
                     <LabParams handleAddLabParamsDrawer={handleAddLabParamsDrawer} patient_unique_id={appointmentSelectedFromMenu?.patient_unique_id} isBackModalOpen={isBackModalOpen} showHideBackModal={showHideBackModal} onSave={handleLabParamsUpdate} />
                 </Drawer>)}
-            </div>
+            </div>)}
 
             {modalOpen && (
                 <Modal
@@ -2001,7 +2029,7 @@ function AppointmentData({ locationPath }) {
                     setIsFileTypeError={setIsFileTypeError}
                 />
             )}
-            {isLoading ? (
+            {(isLoading || (isReceptionist && (!recentBillDrawer && !addAdvanceDrawer))) ? (
                 <div>
                     <Spin
                         style={{
@@ -2099,6 +2127,7 @@ function AppointmentData({ locationPath }) {
                         patientBills={patientBills}
                         getPatientBills={getPatientBills}
                         totalAdvanceBalance={patientWalletBalance}
+                        patientData={appointmentSelectedFromMenu}
                     />
                 </Drawer>
             )}

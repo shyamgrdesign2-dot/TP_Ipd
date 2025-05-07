@@ -3,7 +3,7 @@ import moment from "moment";
 import config from "../config";
 import { message } from "antd";
 import { MESSAGE_KEY } from "../utils/constants";
-import { isBrowser } from "react-device-detect";
+import { browserName, isBrowser } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
@@ -559,7 +559,7 @@ export const handlePrintClick = (
   handlePrintWeb,
   chartType
 ) => {
-  if (typeof window === "undefined") {
+  if (browserName == "Chrome WebView" || browserName == "WebKit") {
     if (!element) {
       console.error("Element not found");
       return;

@@ -90,11 +90,11 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToApp
                         </div>
                     </div>
                 </div>
-                <Button onClick={onEndVisitClick}
+                {!isReceptionist && <Button onClick={onEndVisitClick}
                     loading={loadingEndVisit}
-                    className={`btn align-items-center d-flex btn-41 me-3 px-4 ${isReceptionist ? "receptionist-btn" : "btn-primary3"}`}>
+                    className={`btn align-items-center d-flex btn-41 me-3 px-4 btn-primary3`}>
                     Go to Appointment
-                </Button>
+                </Button>}
             </div>
         </Navbar>
     );

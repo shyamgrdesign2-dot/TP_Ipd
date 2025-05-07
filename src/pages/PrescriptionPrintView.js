@@ -530,6 +530,7 @@ function PrescriptionPrintView() {
                         patientBills={patientBills} 
                         getPatientBills={getPatientBills}
                         totalAdvanceBalance={patientWalletBalance}
+                        patientData={patient_data}
                     />
                 </Drawer>
             }

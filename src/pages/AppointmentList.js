@@ -25,6 +25,8 @@ function AppointmentList() {
   let location = useLocation();
   const [locationPath, setLocationPath] = useState("/");
   const { profile } = useSelector((state) => state.doctors);
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
 
   useEffect(() => {
     setLocationPath(location.pathname);
@@ -48,11 +50,11 @@ function AppointmentList() {
 
   return (
     <>
-      {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && <Header locationPath={locationPath} />}
+      {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && !isReceptionist && <Header locationPath={locationPath} />}
       <div className="d-flex">
-        {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && <SidebarDoctor />}
+        {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && !isReceptionist && <SidebarDoctor />}
         <div className={`w-100 bg-body ${isMobile && locationPath != '/' && locationPath != '/bulk_messages' ? 'vh-100' : 'wrapper'}`}>
-          {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && (
+          {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && !isReceptionist && (
             <Welcome
               locationPath={locationPath}
               backVisible={locationPath == "/" || locationPath == "/bulk_messages" ? false : true}

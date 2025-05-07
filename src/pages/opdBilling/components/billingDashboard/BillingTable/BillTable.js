@@ -38,10 +38,12 @@ const BillTable = ({
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [billData, setBillData] = useState(null);
   const [patientWalletBalance, setPatientWalletBalance] = useState(0);
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
 
   const handleDrawerPreviewBill = () => {
     setPreviewBillDrawer(!previewBillDrawer);
-    if (previewBillDrawer) {
+    if (previewBillDrawer && !isReceptionist) {
       handleRecentBillDrawer && handleRecentBillDrawer();
     }
   };
@@ -206,7 +208,7 @@ const BillTable = ({
       dataIndex: "totalAmount",
       key: "totalAmount",
       ellipsis: true,
-      width: "13%",
+      width: "14%",
       sorter: true,
       onFilter: (value, record) => record.send_on.startsWith(value),
       render: (text, record) => (
@@ -294,7 +296,7 @@ const BillTable = ({
     {
       title: "Action",
       key: "action",
-      width: "10%",
+      width: "9%",
       render: (text, record) => (
         <Dropdown
           className="cursor-pointer"

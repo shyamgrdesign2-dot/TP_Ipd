@@ -233,7 +233,7 @@ const CreateBill = ({
   const filteredOptions = PaymentOptions.filter(
     (option) =>
       !usedPaymentModes.includes(option.value) &&
-      (option.value !== "Advance Deposit" || patientWalletBalance > 0)
+      (option.value !== "Advance Deposit" || totalAdvanceBalance > 0)
   );
   const receptionistId = urlParams.get("receptionistId");
   const receptionistName = urlParams.get("receptionistName");
@@ -325,6 +325,14 @@ const CreateBill = ({
     } else {
       setDisableSaveBtn(false);
     }
+    if (
+      dataSource?.find(
+        (item, index) =>
+          item?.masterId === "" && index !== dataSource.length - 1
+      )
+    ) {
+      setDisableSaveBtn(true);
+    }
   }, [dataSource, paymentModes, patientDetails]);
 
   useEffect(() => {
@@ -338,9 +346,7 @@ const CreateBill = ({
 
   const getPatientDueAmount = async (patientUniqueId) => {
     const patientDueRes = await fetchPatientDueAmount(patientUniqueId);
-    if (patientDueRes?.previousDueAmount) {
       setPatientDueAmount(patientDueRes?.previousDueAmount);
-    }
   };
 
   const getPatientWalletBalance = async (patientUniqueId) => {
@@ -1477,7 +1483,10 @@ const CreateBill = ({
             <div className="d-flex flex-column h-100 gap-2 px-3 py-4">
               <div className="d-flex gap-3">
                 <div className="w-100">
-                  <div className="mb-1">Patient Name, Mobile no & ID </div>
+                  <div className="mb-1">
+                    Patient Name, Mobile no & ID{" "}
+                    <span className="lab-params-warning">*</span>{" "}
+                  </div>
                   {isEditingName &&
                   (!patientData || Object.keys(patientData).length === 0) ? (
                     <AutoComplete
@@ -1561,7 +1570,9 @@ const CreateBill = ({
                   />
                 </div>
                 <div>
-                  <div style={{ paddingBottom: "5px" }}>Doctor Name</div>
+                  <div style={{ paddingBottom: "5px" }}>
+                    Doctor Name <span className="lab-params-warning">*</span>
+                  </div>
                   {!isReceptionist || doctorsList.length === 1 ? (
                     <Input
                       className="input-create-bill"
@@ -1749,12 +1760,12 @@ const CreateBill = ({
                         </div>
                       )}
                       {payment?.paymentMode === "Advance Deposit" &&
-                        payment?.amount > patientWalletBalance && (
+                        payment?.amount > totalAdvanceBalance && (
                           <div className="d-flex align-items-start gap-2">
                             <span className="icon-info fs-18 mt-1 bdg-danger" />
                             <span className="bdg-danger">
                               Amount exceeds available balance of ₹
-                              {patientWalletBalance}. Please adjust or add funds
+                              {totalAdvanceBalance}. Please adjust or add funds
                             </span>
                           </div>
                         )}
@@ -2028,6 +2039,7 @@ const CreateBill = ({
               patientData?.pm_fullname ? patientData : patientDetails
             }
             updateTotalAdvanceBalance={setTotalAdvanceBalance}
+            isReceptionistDashboard={isReceptionist}
           />
         </Drawer>
       )}
