@@ -8,6 +8,7 @@ import googlePartner from "../../../assets/images/website-images/image.png";
 import { verifyAccessToken } from "../../auth/authService";
 import { setPassword } from "../../auth/authService";
 import { loginWithPassword } from "../../auth/authService";
+import useOnboardingTrigger from "../../../components/userOnboarding/useOnboardingTrigger";
 
 const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPasswordSetFlow, tempPassword }) => {
   const [timer, setTimer] = useState(15);
@@ -15,6 +16,7 @@ const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPa
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { triggerOnboarding } = useOnboardingTrigger();
 
   useEffect(() => {
     if (timer > 0) {
@@ -97,7 +99,7 @@ const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPa
                 setError("Failed to verify access token. Please try again.");
               }
             } else {
-              onViewChange("onboarding");
+              triggerOnboarding();
             }
           },
           (error) => {
