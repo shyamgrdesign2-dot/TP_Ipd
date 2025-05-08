@@ -1,0 +1,105 @@
+.testimonials-container {
+  padding: 4rem 2rem;
+  background: #FFF;
+
+  .testimonials-title {
+    text-align: center;
+    color: #6941C6;
+    font-size: 3rem;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 3rem;
+    line-height: 1.2;
+
+    .crown {
+      font-size: 2rem;
+    }
+  }
+
+  .testimonials-carousel {
+    display: flex;
+    gap: 2rem;
+    padding: 1rem;
+    overflow-x: hidden;
+  }
+
+  .testimonial-card {
+    flex: 0 0 400px;
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    .testimonial-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+
+      .doctor-info {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+
+        .doctor-image {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+
+        h3 {
+          margin: 0;
+          color: #101828;
+          font-size: 1.1rem;
+        }
+
+        p {
+          margin: 0.2rem 0;
+          color: #667085;
+          font-size: 0.9rem;
+        }
+      }
+
+      .hospital-logo {
+        height: 30px;
+        object-fit: contain;
+      }
+    }
+
+    .rating {
+      .star {
+        color: #D0D5DD;
+        &.filled {
+          color: #FDB022;
+        }
+      }
+    }
+
+    .testimonial-text {
+      color: #475467;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+  }
+
+  .carousel-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+
+    button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid #E4E7EC;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #F9FAFB;
+      }
+    }
+  }
+} 

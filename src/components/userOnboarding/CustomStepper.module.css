@@ -1,0 +1,115 @@
+.stepperOuter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.circlesRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 0;
+}
+
+.connector {
+  height: 4px;
+  width: 80px;
+  margin: 0 8px;
+  border-radius: 2px;
+  background: #d1d5db;
+  z-index: 0;
+  flex-shrink: 0;
+}
+
+.circleCompleted {
+  /* width: 56px;
+  height: 56px; */
+  border-radius: 50%;
+  background: #4f46e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: none;
+  font-size: 24px;
+  transition: background 0.2s;
+
+  width: 2.5675rem;
+height: 2.5675rem;
+flex-shrink: 0;
+}
+
+.circleCompleted .anticon,
+.circleCompleted .anticon > svg,
+.circleCompleted .anticon > svg > path {
+  color: #fff !important;
+  fill: #fff !important;
+  stroke: #fff !important;
+}
+
+.circleActive {
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #4f46e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  position: relative;
+  width: 2.5675rem;
+height: 2.5675rem;
+flex-shrink: 0;
+}
+
+.innerDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #4f46e5;
+}
+
+.circleUpcoming {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #bfc5d2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+}
+
+.labelsRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.labelActive {
+  color: #4f46e5 !important;
+  font-weight: 400;
+  font-size: 0.875rem;
+  text-align: center;
+  flex: 0 0 56px;
+  width: 56px;
+  margin: 0 44px;
+  letter-spacing: 0.01em;
+}
+
+.labelUpcoming {
+  color: #6b7280;
+  font-weight: 400;
+  font-size: 0.875rem;
+  text-align: center;
+  flex: 0 0 56px;
+  width: 56px;
+  margin: 0 44px;
+  letter-spacing: 0.01em;
+} 

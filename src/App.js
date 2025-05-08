@@ -48,6 +48,8 @@ import AllPatients from "./pages/allPatients.js/AllPatients";
 import AddAppointment from "./pages/addAppointment/AddAppointment";
 import { checkAccountStatus } from './pages/auth/authService';
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
+import Onboarding from "./pages/onBoarding/components/Onboarding";
+import OnboardingWrapper from "./components/userOnboarding";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -219,15 +221,17 @@ function App() {
                 top: 0,
                 zIndex: 1000,
               }}>
-                <DemoExpirationBanner />
+                {/* <DemoExpirationBanner /> */}
                 <PlanExpirationBanner />
                 <ExpiredPlanCard />
                 <DoctorModal />
               </div>
             )}
+            <OnboardingWrapper />
             <Routes>
               {/* Public route */}
-              <Route path="/login" element={<AuthContainer />} />
+              {/* <Route path="/login" element={<AuthContainer />} /> */}
+              <Route path="/login" element={<Onboarding />} />
               
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
