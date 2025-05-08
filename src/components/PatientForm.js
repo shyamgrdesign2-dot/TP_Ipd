@@ -25,6 +25,7 @@ import saveIcon from '../assets/images/save.svg';
 import smartPad from '../assets/images/smartPad.svg';
 import startConsultIcon from '../assets/images/startConsult.svg';
 import { updateDob } from "../pages/vaccination/service";
+import { getDecodedToken } from "../utils/localStorage";
 
 const { TabPane } = Tabs;
 
@@ -70,6 +71,8 @@ function PatientForm({ mode = ADD, patient_data }) {
     }
 
     const onFinish = () => {
+        const decodedToken = getDecodedToken();
+        const hospital_bid = decodedToken?.result?.hospital_business_id;
         form.validateFields().then(async (values) => {
             const finalValues = {
                 ...values,
@@ -104,7 +107,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                         patient_pid: patient_data?.pm_pid,
                         hospital_bid:
                             patient_data?.hm_business_id ||
-                            patient_data?.hospital_business_id,
+                            patient_data?.hospital_business_id || hospital_bid,
                         hospital_id:
                             patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
                         updated_dob: finalValues.pm_dob,
