@@ -118,7 +118,7 @@ const qa_tp = {
   bulk_messages: "https://pm-communication-qa.tatvacare.in",
   searchengine_url: "https://pm-searchengine-qa.tatvacare.in",
   razorPay_key: "rzp_test_NfYVp2U3ALGItU",
-  tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
+  tatvaAi_api_url: "https://pm-doctor-tatva-qa.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
   tatvaAi_logout_url:"https://tatva-ai-uat.tatvacare.in/logout",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
