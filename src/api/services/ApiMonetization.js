@@ -2,6 +2,14 @@ import api from "./axiosService";
 import config from "../../config";
 
 const baseUrl = { customBaseUrl: config.monetization_url };
+const baseTatvaAiUrl = { customBaseUrl: config.tatvaAi_api_url };
+const baseUserManagementUrl = {
+    customBaseUrl: config.user_management_api_url,
+    headers: {
+        api_key: config.lite_api_key,
+        api_secret_key: config.lite_secret_key,
+    }
+};
 
 const ApiMonetization = {};
 
@@ -11,6 +19,18 @@ ApiMonetization.campaigns = function () {
 
 ApiMonetization.services = function (b2c_id) {
     return api.get(`/api/v1/monetization/services?b2c_id=${b2c_id}`, baseUrl);
+};
+
+ApiMonetization.kamList = function (data) {
+    return api.post(`/user/tatva/kam-list`, data, baseUserManagementUrl);
+};
+
+ApiMonetization.otpSend = function (data) {
+    return api.post(`/api/v1/onboarding/otp/send`, data, baseTatvaAiUrl);
+};
+
+ApiMonetization.otpVerify = function (data) {
+    return api.post(`/api/v1/onboarding/otp/verify`, data, baseTatvaAiUrl);
 };
 
 ApiMonetization.paymentOrder = function (data) {

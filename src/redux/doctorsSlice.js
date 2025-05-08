@@ -49,6 +49,7 @@ export const getProfile = createAsyncThunk(
       } else {
         throw Error(result.error);
       }
+      
     } catch (error) {
       console.log("error: ", error);
       throw Error(error);
@@ -641,7 +642,7 @@ const doctorsSlice = createSlice({
       })
       .addCase(campaigns.fulfilled, (state, action) => {
         const data = action?.payload?.hasOwnProperty('campaign_value')
-        const cleanedCampaign = data ? { ...data, campaign_value: data.campaign_value.replace('%', '') } : null;
+        const cleanedCampaign = data ? { ...action?.payload, campaign_value: action?.payload?.campaign_value.replace('%', '') } : null;
         state.campaignsData = cleanedCampaign
       })
       .addCase(campaigns.rejected, (state) => {

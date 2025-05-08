@@ -25,10 +25,12 @@ function ExtendTrialModal() {
     const [isExpiredModalOpen, setIsExpiredModalOpen] = useState(false);
 
     useEffect(() => {
-        if (profile && servicesList?.length > 0) {
-            checkBillingPurchased()
-        }
-    }, [profile, servicesList]);
+        dispatch(services(profile?.b2c));
+    }, [profile?.b2c]);
+
+    useEffect(() => {
+        checkBillingPurchased()
+    }, [servicesList?.length > 0]);
 
     const checkBillingPurchased = async () => {
         const emrEndDate = moment(EMR_planDetails?.plan_end_date);
@@ -158,4 +160,4 @@ function ExtendTrialModal() {
     );
 }
 
-export default ExtendTrialModal;
+export default React.memo(ExtendTrialModal);

@@ -31,7 +31,7 @@ import AISuite from "../assets/images/ai-suite.png";
 import iconMobile from "../assets/images/icon-mobile.svg";
 
 import config from "../config";
-import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds, campaigns, services } from "../redux/doctorsSlice";
+import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds, campaigns } from "../redux/doctorsSlice";
 import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
@@ -133,7 +133,6 @@ function Header({ locationPath }) {
 
   useEffect(() => {
     if (profile) {
-      dispatch(services(profile?.b2c));
       if (profile.moengage_b2c_send === undefined) {
         window.Moengage.add_unique_user_id(profile?.b2c)
         dispatch(updateStatusMoengageB2C());
@@ -782,22 +781,22 @@ function Header({ locationPath }) {
         ),
         key: "6",
       },
-      {
-        label:
-          <a onClick={() => ["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : setUpWebsiteUrl(1)}>
-            <div className="title-common me-4 d-flex align-items-center">
-              {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
-              {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{ filter: 'brightness(0%)' }} alt="" />}
-              {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
-              {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <div className="gradientBackground d-flex">
-                <div className="demoModeIndicatorSmall bg-danger" />
-                <span className='demoModeLabel'>Demo mode</span>
-              </div>}
-            </div>
-            <i className="icon-right iconrotate180"></i>
-          </a>,
-        key: '7',
-      },
+      // {
+      //   label:
+      //     <a onClick={() => ["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : setUpWebsiteUrl(1)}>
+      //       <div className="title-common me-4 d-flex align-items-center">
+      //         {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
+      //         {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{ filter: 'brightness(0%)' }} alt="" />}
+      //         {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
+      //         {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <div className="gradientBackground d-flex">
+      //           <div className="demoModeIndicatorSmall bg-danger" />
+      //           <span className='demoModeLabel'>Demo mode</span>
+      //         </div>}
+      //       </div>
+      //       <i className="icon-right iconrotate180"></i>
+      //     </a>,
+      //   key: '7',
+      // },
       // {
       //   label:
       //     <a>
@@ -829,6 +828,22 @@ function Header({ locationPath }) {
     const remaingDays = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === FREE ? moment(servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
     if (remaingDays > 0) {
       const freeTrialMenu = [
+        {
+          label:
+            <a onClick={() => ["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : setUpWebsiteUrl(1)}>
+              <div className="title-common me-4 d-flex align-items-center">
+                {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
+                {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{ filter: 'brightness(0%)' }} alt="" />}
+                {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
+                {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <div className="gradientBackground d-flex">
+                  <div className="demoModeIndicatorSmall bg-danger" />
+                  <span className='demoModeLabel'>Demo mode</span>
+                </div>}
+              </div>
+              <i className="icon-right iconrotate180"></i>
+            </a>,
+          key: '7',
+        },
         {
           type: "divider",
         },

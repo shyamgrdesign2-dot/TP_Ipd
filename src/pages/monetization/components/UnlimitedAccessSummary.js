@@ -9,13 +9,14 @@ import { useNavigate } from "react-router-dom";
 import yearlyPlan from '../../../assets/images/year-plan-corner.svg'
 
 import logoSm from '../../../assets/images/logo-sm.svg';
-import { errorMessage, formatAmount } from "../../../utils/utils";
-import { paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/monetizationSlice";
+import iconEdit from "../../../assets/images/edit.svg";
+import { errorMessage, formatAmount, onlyDecimalFormat, onlyNumberFormat, removeBeforeWhiteSpace } from "../../../utils/utils";
+import { kamList, otpSend, otpVerify, paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/monetizationSlice";
 import { services } from "../../../redux/doctorsSlice";
 import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../../utils/constants";
+import config from "../../../config";
 
 import "../GetUnlimitedAccess.scss";
-import config from "../../../config";
 
 function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
@@ -25,18 +26,11 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [flag, setFlag] = useState(1);
+    const [mobileNo, setMobileNo] = useState('');
+    const [otp, setOTP] = useState('');
+    const [salesDiscount, setSalesDiscount] = useState('');
     const [loading, setLoading] = useState(false);
-
-    const showHideModal = () => {
-        setIsModalOpen(!isModalOpen);
-    };
-
-    const showDrawer = () => {
-        setDrawerOpen(true);
-    };
-    const onClose = () => {
-        setDrawerOpen(false);
-    };
 
     const handleValidity = useCallback((item, newValidity) => {
         const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE && e.purchased === 'true')
@@ -78,13 +72,6 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 }
             }
         }
-    }, [selectedServices]);
-
-    const subTotal = useMemo(() => {
-        return selectedServices.reduce(
-            (sum, item) => sum + (parseFloat(item.service_cost) * (item.validity / 12)),
-            0
-        );
     }, [selectedServices]);
 
     const getMenuItems = (item) => {
@@ -130,9 +117,26 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         }
     };
 
-    const totalAmount = useMemo(() => {
-        return campaignsData?.campaign_active ? formatAmount(subTotal - (subTotal * parseFloat(campaignsData?.campaign_value) / 100)) : formatAmount(subTotal);
+    const subTotal = useMemo(() => {
+        return selectedServices.reduce(
+            (sum, item) => sum + (parseFloat(item.service_cost) * (item.validity / 12)),
+            0
+        );
     }, [selectedServices]);
+
+    const salesDiscountAmount = useMemo(() => {
+        return selectedServices.reduce(
+            (sum, item) => sum + parseFloat(item.max_applicable_discount),
+            0
+        );
+    }, [selectedServices]);
+
+    const totalAmount = useMemo(() => {
+        return campaignsData?.campaign_active ?
+            formatAmount(subTotal - (subTotal * parseFloat(campaignsData?.campaign_value) / 100) - parseFloat(salesDiscount ? salesDiscount : 0))
+            :
+            formatAmount(subTotal - parseFloat(salesDiscount ? salesDiscount : 0));
+    }, [selectedServices, salesDiscount]);
 
     const clickBuyNow = async () => {
         setLoading(true)
@@ -239,6 +243,98 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         }
     }
 
+    const handleDrawer = useCallback(() => {
+        setSalesDiscount('')
+        setDrawerOpen(!drawerOpen);
+    }, [drawerOpen]);
+
+    const clickReferralCode = () => {
+        if (selectedServices?.length > 0) {
+            setFlag(1)
+            setDrawerOpen(true);
+        } else {
+            errorMessage('Please add any service')
+        }
+    }
+
+    const onMobileNoChange = useCallback((e) => {
+        const updateQuery = removeBeforeWhiteSpace(onlyNumberFormat(e.target.value))
+        setMobileNo(updateQuery);
+    }, [mobileNo]);
+
+    const kamValidation = async () => {
+        if (mobileNo?.length < 10) {
+            errorMessage('Please enter valid mobile number')
+        } else {
+            let sendData = {
+                page: 0,
+                size: 1,
+                search: mobileNo
+            }
+            const action = await dispatch(kamList(sendData));
+            if (action.meta.requestStatus === "fulfilled") {
+                if (action?.payload?.body?.content?.length > 0 && action?.payload?.body?.content[0]?.active) {
+                    sendOTP()
+                } else {
+                    errorMessage('Something went wrong! please try again later')
+                }
+            } else {
+                errorMessage(action.payload.message)
+            }
+        }
+    }
+
+    const sendOTP = async () => {
+        let sendData = {
+            mobileNumber: `91${mobileNo}`,
+        }
+        const action = await dispatch(otpSend(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            if (action?.payload?.type === 'success') {
+                setFlag(2)
+            } else {
+                errorMessage('Something went wrong! please try again later')
+            }
+        } else {
+            errorMessage(action.payload.message)
+        }
+    }
+
+    const onOTPChange = useCallback((value) => {
+        const updateQuery = removeBeforeWhiteSpace(onlyNumberFormat(value))
+        setOTP(updateQuery);
+    }, [otp]);
+
+    const verifyOTP = async () => {
+        if (otp?.length != 6) {
+            errorMessage('Please enter valid otp')
+        } else {
+            let sendData = {
+                mobileNumber: `91${mobileNo}`,
+                otp: otp
+            }
+            const action = await dispatch(otpVerify(sendData));
+            if (action.meta.requestStatus === "fulfilled") {
+                if (action?.payload?.type === 'success') {
+                    setFlag(3)
+                } else {
+                    errorMessage('Something went wrong! please try again later')
+                }
+            } else {
+                errorMessage(action.payload.message)
+            }
+        }
+    }
+
+    const onSalesDiscountChange = useCallback((e) => {
+        const updateQuery = removeBeforeWhiteSpace(onlyDecimalFormat(e.target.value))
+        setSalesDiscount(updateQuery);
+    }, [salesDiscount]);
+
+    const clickSalesDiscount = () => {
+        setDrawerOpen(false);
+    }
+
     return (
         <>
             <div className="unlimited-access-summary position-sticky top-0">
@@ -279,6 +375,10 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     <div className="fs-18">Flat Discount:</div>
                     <div className="fs-18 fw-medium text-discount">{`-₹${campaignsData?.campaign_active ? formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100) : 0}`}</div>
                 </div>
+                <div className="d-flex justify-content-between my-3">
+                    <div className="fs-18">Sales Discount:</div>
+                    <div className="fs-18 fw-medium text-discount">{`-₹${salesDiscount ? formatAmount(parseFloat(salesDiscount)) : 0}`}</div>
+                </div>
                 <hr />
                 <div className="d-flex justify-content-between my-3">
                     <div className="fs-4 text-welcome fw-semibold">Total Amount:</div>
@@ -289,7 +389,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     {`Proceed to Pay ₹${totalAmount}`}
                 </Button>
                 <div className="text-center">
-                    <Link className="text-decoration-underline fw-medium text-primary" onClick={showDrawer}>Have a sales referral code?</Link>
+                    <Link className="text-decoration-underline fw-medium text-primary" onClick={clickReferralCode}>Have a sales referral code?</Link>
                 </div>
             </div>
 
@@ -303,7 +403,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 <div className="modalCard-header h-60 position-sticky top-0 z-2">
                     <div className="align-items-center d-flex h-100">
                         <div className="border-end h-100 text-center me-3">
-                            <div onClick={onClose}
+                            <div onClick={handleDrawer}
                                 className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer">
                                 <i className="icon-right"></i>
                             </div>
@@ -311,46 +411,60 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                         <div className="title-common">Referral Code</div>
                     </div>
                     <div className="p-4">
-                        {/* OTP Mobile Number */}
-                        {/* <div className="fontroboto mb-2">Enter Sales Mobile Number <sup className="text-danger-custom fs-14">*</sup></div>
-                        <Input className="inputheight45 rounded-10px" />
-                        <Button className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={showModal}>
-                            Continue
-                        </Button> */}
+                        {flag === 1 ? (
+                            <>
+                                <div className="fontroboto mb-2">Enter Sales Mobile Number <sup className="text-danger-custom fs-14">*</sup></div>
+                                <Input className="inputheight45 rounded-10px" value={mobileNo} onChange={onMobileNoChange} />
+                                <Button className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={kamValidation}>
+                                    Continue
+                                </Button>
+                            </>
+                        ) : flag === 2 ? (
+                            <>
+                                <div className="fontroboto mb-2 text-1F2933">Enter OTP sent to <span className="fw-bold text-decoration-underline text-1F2933">{mobileNo}</span> <img className="ms-2 cursor-pointer" height={16} src={iconEdit} onClick={() => setFlag(1)} /></div>
+                                <Input.OTP className="input-otp-size45" length={6} value={String(otp)} formatter={str => onlyNumberFormat(str)} onChange={onOTPChange} />
+                                <div className="fontroboto mt-3">Didn’t receive OTP? <Link className="text-decoration-underline fw-semibold text-primary" onClick={sendOTP}>Resend OTP</Link></div>
+                                <Button className="btn btn-proceed btn-primary3 my-4 fs-18" onClick={verifyOTP}>
+                                    Continue
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <div className="fontroboto mb-2">Enter Sales Discount Amount <sup className="text-danger-custom fs-14">*</sup></div>
+                                <Input className="inputheight45 rounded-10px fw-medium" placeholder="0" prefix="₹" value={salesDiscount} onChange={onSalesDiscountChange} />
+                                {parseFloat(salesDiscount) > parseFloat(salesDiscountAmount) && (
+                                    <div className="text-danger-custom fs-12">The discount amount entered is too high. Please try a valid amount within the allowed range.</div>
+                                )}
+                                <div className="discount-amount-box p-4 mt-4">
 
-                        {/* OTP Code */}
-                        {/* <div className="fontroboto mb-2 text-1F2933">Enter OTP sent to <span className="fw-bold text-decoration-underline text-1F2933">+91-9344414944</span> <img className="ms-2 cursor-pointer" height={16} src={iconEdit} /></div>
-                        <Input.OTP className="input-otp-size45" length={6} />
-                        <div className="fontroboto mt-3">Didn’t receive OTP? <Link className="text-decoration-underline fw-semibold text-primary">Resend OTP</Link></div>
-                        <Button className="btn btn-proceed btn-primary3 my-4 fs-18" onClick={showModal}>
-                            Continue
-                        </Button> */}
+                                    {selectedServices?.map((item, index) => {
+                                        return (
+                                            <div key={index} className="d-flex align-items-center justify-content-between py-2">
+                                                <div>{`${item?.service_display_name} ${item?.service_name !== S_SMARTSYNC ? `(${item.validity / 12} year)` : '(Device)'}:`}</div>
+                                                <div className="fw-medium text-green">{`₹${formatAmount(parseFloat(item.service_cost) * (item.validity / 12))}`}</div>
+                                            </div>
+                                        )
+                                    })}
+                                    <div className="d-flex align-items-center justify-content-between py-2">
+                                        <div>Flat Discount:</div>
+                                        <div className="fw-medium text-green">{`-₹${campaignsData?.campaign_active ? formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100) : 0}`}</div>
+                                    </div>
+                                    <div className="d-flex align-items-center justify-content-between py-2">
+                                        <div>Sales Discount:</div>
+                                        <div className="fw-medium text-green">{`-₹${salesDiscount ? formatAmount(parseFloat(salesDiscount)) : 0}`}</div>
+                                    </div>
+                                    <hr />
+                                    <div className="d-flex align-items-center justify-content-between py-2">
+                                        <div className="text-welcome fw-semibold fs-18">Total Amount :</div>
+                                        <div className="text-welcome fw-semibold fs-18">{`₹${totalAmount}`}</div>
+                                    </div>
+                                </div>
 
-                        {/* Discount Amount */}
-                        <div className="fontroboto mb-2">Enter Sales Discount Amount <sup className="text-danger-custom fs-14">*</sup></div>
-                        <Input className="inputheight45 rounded-10px fw-medium" placeholder="0" prefix="₹" />
-                        <div className="discount-amount-box p-4 mt-4">
-                            <div className="d-flex align-items-center justify-content-between py-2">
-                                <div>TatvaPractice EMR (1 year):</div>
-                                <div className="fw-medium text-green">₹12,999</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between py-2">
-                                <div>Flat Discount:</div>
-                                <div className="fw-medium text-green">-₹3000</div>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between py-2">
-                                <div>Sales Discount:</div>
-                                <div className="fw-medium text-green">-₹0</div>
-                            </div>
-                            <hr />
-                            <div className="d-flex align-items-center justify-content-between py-2">
-                                <div className="text-welcome fw-semibold fs-18">Total Amount :</div>
-                                <div className="text-welcome fw-semibold fs-18">₹9,999</div>
-                            </div>
-                        </div>
-                        <Button disabled className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={() => { }}>
-                            Continue
-                        </Button>
+                                <Button disabled={parseFloat(salesDiscount) > parseFloat(salesDiscountAmount) ? true : false} className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={clickSalesDiscount}>
+                                    Continue
+                                </Button>
+                            </>
+                        )}
                     </div>
                 </div>
             </Drawer>

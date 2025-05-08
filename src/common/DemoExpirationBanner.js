@@ -5,10 +5,13 @@ import crownIcon from "../assets/images/crown.svg";
 import { openModal } from "../redux/doctorModalSlice";
 import { fetchSubscriptionDetails } from "../redux/subscriptionSlice";
 import { getClinicName } from "../utils/utils";
+import moment from "moment";
+import { FREE, S_TATVA_PRACTICE } from "../utils/constants";
 
 const DemoExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
-  const { profile } = useSelector((state) => state.doctors);
+  const { profile, servicesList } = useSelector((state) => state.doctors);
+  const remaingDays = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === FREE ? moment(servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
 
   const {
     currentPlanStatus,
@@ -36,6 +39,7 @@ const DemoExpirationBanner = () => {
   };
 
   return (
+    remaingDays > 0 &&
     ["TRIAL", "EXPIRED"].includes(currentPlanStatus) && (
       <header className="banner">
         <div className="demoModeWrapper">

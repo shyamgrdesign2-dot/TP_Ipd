@@ -11,6 +11,42 @@ const initialState = {
     errorObj: { visible: false, message: '' },
 };
 
+export const kamList = createAsyncThunk(
+    "monetization/kamList",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.kamList(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
+export const otpSend = createAsyncThunk(
+    "monetization/otpSend",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.otpSend(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
+export const otpVerify = createAsyncThunk(
+    "monetization/otpVerify",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.otpVerify(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
 export const paymentOrder = createAsyncThunk(
     "monetization/paymentOrder",
     async (data, { rejectWithValue }) => {
