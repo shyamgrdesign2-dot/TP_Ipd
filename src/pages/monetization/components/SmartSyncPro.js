@@ -100,8 +100,8 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setCh
                 </div>
 
                 {data[1] !== undefined && (
-                    <div className="includes-box mt-5">
-                        <div className="d-flex align-items-center justify-content-between my-3">
+                    <div className="includes-box mt-3">
+                        <div className="d-flex align-items-center justify-content-between my-2">
                             <div className="d-flex align-items-center">
                                 <Checkbox defaultChecked disabled className="include-checkbox">{data[0].service_display_name}</Checkbox>
                                 <Popover trigger="hover" content={contentSmartSync}>
@@ -126,8 +126,8 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setCh
                                 Included by default
                             </div>
                         </div>
-                        <img className="d-block img-fluid mx-auto my-3 my-xl-4" src={deviderIncludes} alt="Includes" />
-                        <div className="d-flex align-items-center justify-content-between my-3">
+                        <img className="d-block img-fluid mx-auto my-2 my-xl-4" src={deviderIncludes} alt="Includes" />
+                        <div className="d-flex align-items-center justify-content-between my-2">
                             <div className="d-flex align-items-center">
                                 <Checkbox checked={checked} onChange={onChange} className="include-checkbox">{data[1].service_display_name}</Checkbox>
                                 <Popover trigger="hover" content={contentRxDigitization}>
