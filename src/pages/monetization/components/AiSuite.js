@@ -111,7 +111,7 @@ function AiSuite({ aiModal, handleAiSuite }) {
                                 <i className="icon-right"></i>
                             </div>
                         </div>
-                        <div className="fs-18 fw-semibold">AI Suit</div>
+                        <div className="fs-18 fw-semibold">AI Suite</div>
                     </div>
                 </div>
                 <div className="px-4 h-100 bg-white overflow-y-auto" style={{ maxHeight: 'calc(100vh - 60px)' }}>

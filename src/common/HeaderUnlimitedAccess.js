@@ -47,7 +47,7 @@ function HeaderUnlimitedAccess() {
                                             </div>
                                             <div className="mt-4">
                                                 <div className="d-flex align-items-center mt-2 justify-content-end">
-                                                    <div onClick={() => navigate('/')} className="me-4 text-decoration-underline btn p-0 text-main">
+                                                    <div onClick={() => navigate(-1)} className="me-4 text-decoration-underline btn p-0 text-main">
                                                         Yes Leave
                                                     </div>
                                                     <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">

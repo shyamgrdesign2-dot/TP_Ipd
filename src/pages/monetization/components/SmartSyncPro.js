@@ -1,38 +1,24 @@
-import React, { useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
 import { Button, Checkbox, Popover } from "antd";
 import { useSelector } from "react-redux";
-import moment from "moment";
 
 import smartSyncIcon from "../../../assets/images/smart-sync-icon.png";
 import deviderIncludes from "../../../assets/images/includes-devider.svg";
 import { formatAmount } from "../../../utils/utils";
-import { S_TATVA_PRACTICE } from "../../../utils/constants";
 
 function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setChecked, selectedServices, setSelectedServices, clickKnowMore }) {
 
-    const { campaignsData, servicesList } = useSelector((state) => state.doctors);
-
-    const calculateValidity = () => {
-        const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE && e.purchased === 'true')
-        if (EMR_planDetails !== undefined) {
-            const remaingMonths = moment(EMR_planDetails?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'months')
-            return remaingMonths;
-        } else {
-            return 12;
-        }
-    }
+    const { campaignsData } = useSelector((state) => state.doctors);
 
     const onChange = (e) => {
         setChecked(e.target.checked)
         if (addOrNot) {
-            let validity = calculateValidity()
             setSelectedServices(prev => {
                 const exists = prev.find(e => e.service_name === data[1].service_name);
                 if (exists) {
                     return prev.filter(e => e.service_name !== data[1].service_name);
                 } else {
-                    return [...prev, { ...data[1], validity: validity }];
+                    return [...prev, { ...data[1], validity: 12 }];
                 }
             });
         }
@@ -59,7 +45,7 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setCh
     return (
         <>
             <div className={`addon-box ${addOrNot && 'box-added'}`}>
-                {data[0].must_have && (<div className="tag-recommend">Must Have</div>)}
+                {data[0].must_have === 'true' && (<div className="tag-recommend">Must Have</div>)}
                 <div className="d-flex align-items-center justify-content-between">
                     <div>
                         <div className="fs-4 text-welcome fw-semibold my-2">

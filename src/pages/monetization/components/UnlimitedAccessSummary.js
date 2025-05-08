@@ -27,94 +27,58 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [flag, setFlag] = useState(1);
+    const [kamDetails, setKamDetails] = useState(null);
     const [mobileNo, setMobileNo] = useState('');
     const [otp, setOTP] = useState('');
     const [salesDiscount, setSalesDiscount] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleValidity = useCallback((item, newValidity) => {
-        const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE && e.purchased === 'true')
-        if (EMR_planDetails !== undefined) {
+        if (item.service_name === S_TATVA_PRACTICE) {
             setSelectedServices(prev =>
                 prev.map(e =>
-                    e.service_name === item.service_name
+                    (e.service_name === item.service_name || e.validity > newValidity)
                         ? { ...e, validity: newValidity }
                         : e
                 )
             );
         } else {
-            if (item.service_name === S_TATVA_PRACTICE) {
+            const EMR_validity = selectedServices.find(e => e.service_name === S_TATVA_PRACTICE)?.validity
+            if (newValidity > EMR_validity) {
                 setSelectedServices(prev =>
                     prev.map(e =>
-                        (e.service_name === item.service_name || e.validity > newValidity)
+                        (e.service_name === item.service_name || e.service_name === S_TATVA_PRACTICE)
                             ? { ...e, validity: newValidity }
                             : e
                     )
                 );
             } else {
-                const EMR_validity = selectedServices.find(e => e.service_name === S_TATVA_PRACTICE)?.validity
-                if (newValidity > EMR_validity) {
-                    setSelectedServices(prev =>
-                        prev.map(e =>
-                            (e.service_name === item.service_name || e.service_name === S_TATVA_PRACTICE)
-                                ? { ...e, validity: newValidity }
-                                : e
-                        )
-                    );
-                } else {
-                    setSelectedServices(prev =>
-                        prev.map(e =>
-                            e.service_name === item.service_name
-                                ? { ...e, validity: newValidity }
-                                : e
-                        )
-                    );
-                }
+                setSelectedServices(prev =>
+                    prev.map(e =>
+                        e.service_name === item.service_name
+                            ? { ...e, validity: newValidity }
+                            : e
+                    )
+                );
             }
         }
     }, [selectedServices]);
 
     const getMenuItems = (item) => {
-        if (servicesList?.length) {
-            const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE && e.purchased === 'true')
-            if (EMR_planDetails !== undefined) {
-                const remaingMonths = moment(EMR_planDetails?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'months')
-                if (remaingMonths > 12) {
-                    return [
-                        {
-                            label: <div onClick={() => handleValidity(item, 12)}>1 Year</div>,
-                            key: '12',
-                        },
-                        {
-                            label: <div onClick={() => handleValidity(item, remaingMonths)}>{`Till EMR Expiry(${remaingMonths} months)`}</div>,
-                            key: String(remaingMonths),
-                        }
-                    ]
-                } else {
-                    return [
-                        {
-                            label: <div onClick={() => handleValidity(item, remaingMonths)}>{`Till EMR Expiry(${remaingMonths} months)`}</div>,
-                            key: String(remaingMonths),
-                        }
-                    ]
-                }
-            } else {
-                return [
-                    {
-                        label: <div onClick={() => handleValidity(item, 12)}>1 Year</div>,
-                        key: '12',
-                    },
-                    {
-                        label: <div onClick={() => handleValidity(item, 24)}>2 Year</div>,
-                        key: '24',
-                    },
-                    {
-                        label: <div onClick={() => handleValidity(item, 36)}>3 Year</div>,
-                        key: '36',
-                    }
-                ]
+        return [
+            {
+                label: <div onClick={() => handleValidity(item, 12)}>1 Year</div>,
+                key: '12',
+            },
+            {
+                label: <div onClick={() => handleValidity(item, 24)}>2 Year</div>,
+                key: '24',
+            },
+            {
+                label: <div onClick={() => handleValidity(item, 36)}>3 Year</div>,
+                key: '36',
             }
-        }
+        ]
     };
 
     const subTotal = useMemo(() => {
@@ -195,6 +159,12 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         rzp1.open();
     };
 
+    function generateDiscountId() {
+        const prefix = 'DIS-';
+        const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+        return prefix + randomNumber;
+    }
+
     const verifyRazorPayPayment = async (r_response, data) => {
         const action = await dispatch(verifyPayment(r_response));
         if (action.meta.requestStatus === "fulfilled") {
@@ -220,9 +190,9 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     summary: summaryData,
                     discount_details: [
                         {
-                            "kam_id": "",
-                            "discount_id": "",
-                            "discount_given": 0
+                            "kam_id": kamDetails ? kamDetails : '',
+                            "discount_id": generateDiscountId(),
+                            "discount_given": salesDiscount ? formatAmount(parseFloat(salesDiscount)) : 0
                         }
                     ]
                 }
@@ -274,6 +244,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             const action = await dispatch(kamList(sendData));
             if (action.meta.requestStatus === "fulfilled") {
                 if (action?.payload?.body?.content?.length > 0 && action?.payload?.body?.content[0]?.active) {
+                    setKamDetails(action?.payload?.body?.content[0]?.id)
                     sendOTP()
                 } else {
                     errorMessage('Something went wrong! please try again later')
@@ -349,11 +320,11 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                         <div className="d-flex align-items-center">
                                             <Dropdown menu={{ items: getMenuItems(item) }} className="fs-14 fw-medium text-primary py-1 px-2 dd-yearly" trigger={['click']}>
                                                 <a onClick={e => e.preventDefault()}>
-                                                    {item?.validity % 12 === 0 ? `${item?.validity / 12} Year` : `Till EMR Expiry(${item?.validity} Month)`}
+                                                    {`${item?.validity / 12} Year`}
                                                     <DownOutlined className="ps-2 fs-14 fw -medium text-primary" />
                                                 </a>
                                             </Dropdown>
-                                            <Popover trigger="hover" content={<div className="py-2">{`₹${formatAmount(parseFloat(item.service_cost))} X ${item?.validity % 12 === 0 ? `${formatAmount(item.validity / 12)} year` : `${formatAmount(item.validity)} month`} = ₹${formatAmount(parseFloat(item.service_cost) * (item.validity / 12))}`}</div>}>
+                                            <Popover trigger="hover" content={<div className="py-2">{`₹${formatAmount(parseFloat(item.service_cost))} X ${formatAmount(item.validity / 12)} = ₹${formatAmount(parseFloat(item.service_cost) * (item.validity / 12))}`}</div>}>
                                                 <i className="icon-info fs-5 text-black-50 ms-2"></i>
                                             </Popover>
                                         </div>

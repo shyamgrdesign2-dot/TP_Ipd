@@ -39,7 +39,7 @@ function AddonServices({ item, addOrNot, handleAddRemove, clickKnowMore }) {
     return (
         <>
             <div className={`addon-box ${addOrNot && 'box-added'}`}>
-                {item.must_have && (<div className="tag-recommend">Must Have</div>)}
+                {item.must_have === 'true' && (<div className="tag-recommend">Must Have</div>)}
                 <div className="d-flex align-items-center justify-content-between">
                     <div>
                         <div className="fs-4 text-welcome fw-semibold my-2">
