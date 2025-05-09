@@ -94,7 +94,7 @@ import ConsultationDrawer from "../components/ConsultationDrawer";
 import { fetchSymptomsCollectorData } from "../api/services/ApiGenRx";
 import SCPopup from "../components/SCPopup";
 import SCBanner from "../components/SCBanner";
-
+import genRxBg from "../assets/images/gen-rx-bg.gif";
 
 function Prescription() {
   const {
@@ -251,6 +251,7 @@ function Prescription() {
   const [isDDxGenerated, setIsDDxGenerated] = useState(false);
   const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
   const [tatvaAiKnowMoreDrawer, setTatvaAiKnowMoreDrawer] = useState(false);
+  const [showShimmer, setShowShimmer] = useState(false);
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
@@ -299,6 +300,17 @@ function Prescription() {
     const response = await fetchAllDocumentCategories();
     dispatch(setUploadDocCategories(response));
   };
+
+  useEffect(() => {
+    if (isAutofillSelected) {
+      setShowShimmer(true);
+      const timer = setTimeout(() => {
+        setShowShimmer(false);
+      }, 1000); // 2 seconds
+
+      return () => clearTimeout(timer); // Cleanup timeout
+    }
+  }, [isAutofillSelected]);
 
   useEffect(() => {
     const clinic_name = getClinicName(profile?.hospital_data);
@@ -845,6 +857,22 @@ function Prescription() {
     setTatvaAiKnowMoreDrawer((prev) => !prev);
   };
 
+  const ShimmerLoader = () => {
+    return (
+      <div className="sc-shimmer-container">
+        <div className="shimmer-box">
+          <div className="shimmer-header">
+            <div className="shimmer-title"></div>
+            <div className="shimmer-edit"></div>
+          </div>
+          <div className="shimmer-line"></div>
+          <div className="shimmer-line"></div>
+          <div className="shimmer-line"></div>
+        </div>
+      </div>
+    );
+  };
+
   const CUSTOMIZED_PAD_LEFT_LIST = () => {
   return  customizedPadLeftList?.map((e, i) => {
       return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
@@ -876,36 +904,40 @@ function Prescription() {
           )}
         </div>
       ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
-        <div key={i} className="prescription-box-sm p-14">
-          <div className="d-flex align-items-center justify-content-between">
-            <div className="d-flex align-items-center">
-              <img
-                src={MedicalHistory}
-                alt="Medical History"
-                className="me-3"
-              />
-              <div className="title-common">{isGynaecHistoryAccessable ? `Gynec History` : `Medical History`}</div>
-              {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
-                <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
-              </Button> */}
-            </div>
+        <div style={showShimmer ? { background: `url(${genRxBg})`, padding: "2px", borderRadius: "20px", marginBottom: "15px" } : {}}>
+          <div key={i} className="prescription-box-sm p-14" style={showShimmer ? {} : {marginBottom: "15px"}}>
+            <div style={{ background: "white", borderRadius: "17px" }}>
+              <div className="d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center">
+                  <img
+                    src={MedicalHistory}
+                    alt="Medical History"
+                    className="me-3"
+                  />
+                  <div className="title-common">{isGynaecHistoryAccessable ? `Gynec History` : `Medical History`}</div>
+                  {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
+                    <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                  </Button> */}
+                </div>
 
-            <button
-              className="btn d-flex align-items-center btn-text"
-              onClick={handleDrawerMedicalHistory}
-            >
-              {" "}
-              <i
-                className={`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)
-                  ? "icon-Edit"
-                  : "icon-Add"
-                  } me-1 fs-5`}
-              ></i>{" "}
-              <span>{`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ? "Edit" : "Add"
-                }`}</span>
-            </button>
+                <button
+                  className="btn d-flex align-items-center btn-text"
+                  onClick={handleDrawerMedicalHistory}
+                >
+                  {" "}
+                  <i
+                    className={`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)
+                      ? "icon-Edit"
+                      : "icon-Add"
+                      } me-1 fs-5`}
+                  ></i>{" "}
+                  <span>{`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ? "Edit" : "Add"
+                    }`}</span>
+                </button>
+              </div>
+              {showShimmer ? <ShimmerLoader /> : (medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)) && <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
+            </div>
           </div>
-          {(medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)) && <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
         </div>
       ) :
         e.tmdpm_id === 7 &&
@@ -1221,8 +1253,10 @@ function Prescription() {
                     (m) => m.module_id === e.tmdpm_id
                   )
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
-                    <div key={i} className="prescription-box-sm">
-                      <SymptomsBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
+                    <div key={i} className="prescription-box-sm" style={showShimmer ? { background: `url(${genRxBg})`, padding: "2px" } : {}}>
+                      <div style={showShimmer ? {background: "white", borderRadius: "17px"} : {}}>
+                        <SymptomsBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
+                      </div>
                     </div>
                   ) : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
