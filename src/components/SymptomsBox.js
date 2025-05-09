@@ -110,6 +110,19 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
     { key: TAB_UPDATE_TEMPLATE, label: "Update Template" },
   ];
   const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
+  const [showShimmer, setShowShimmer] = useState(false);
+
+  useEffect(() => {
+    if (isAutofillSelected) {
+      setShowShimmer(true);
+      const timer = setTimeout(() => {
+        setShowShimmer(false);
+      }, 1000); // 2 seconds
+
+      return () => clearTimeout(timer); // Cleanup timeout
+    }
+  }, [isAutofillSelected]);
+
 
   useEffect(() => {
     if (selectedSymptomsList.length > 0) {
@@ -936,6 +949,28 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
     );
   }, [isModalOpen1]);
 
+  const TableShimmerLoader = () => {
+    return (
+      <div className="sc-shimmer-container-table p-14">
+        {/* First row */}
+        <div className="shimmer-row">
+          <div className="shimmer-cell"></div>
+          <div className="shimmer-cell"></div>
+          <div className="shimmer-cell"></div>
+          <div className="shimmer-cell"></div>
+        </div>
+
+        {/* Second row */}
+        <div className="shimmer-row">
+          <div className="shimmer-cell"></div>
+          <div className="shimmer-cell"></div>
+          <div className="shimmer-cell"></div>
+          <div className="shimmer-cell"></div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <div>
@@ -980,10 +1015,11 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
             </button>
           </div>
         </div>
-
-        {DELETE_MODAL}
-        {REMOVE_ALL_ROWS}
-        {TABLE_SYMPTOMS}
+        {showShimmer ? <TableShimmerLoader /> : (
+          <>
+            {DELETE_MODAL}
+            {REMOVE_ALL_ROWS}
+            {TABLE_SYMPTOMS}
 
         {/* {ddxOptionsList?.length > 0 && (
           <div style={{ padding: "0 14px" }}>
@@ -996,7 +1032,7 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
           </div>
         )} */}
         <div className="p-14">
-          <AutoComplete
+         <AutoComplete
             // defaultValue={searchParentQuery}
             value={searchParentQuery}
             onSearch={onSearchParent}
@@ -1010,8 +1046,10 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
               placeholder="Search Symptoms"
               prefix={<i className="icon-search"></i>}
             />
-          </AutoComplete>
+          </AutoComplete>     
         </div>
+        </>
+        )}
       </div>
     </>
   );
