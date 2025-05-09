@@ -10,7 +10,7 @@ import { setPassword } from "../../auth/authService";
 import { loginWithPassword } from "../../auth/authService";
 import useOnboardingTrigger from "../../../components/userOnboarding/useOnboardingTrigger";
 
-const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPasswordSetFlow, tempPassword }) => {
+const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPasswordSetFlow, tempPassword, reqId }) => {
   const [timer, setTimer] = useState(15);
   const [canResend, setCanResend] = useState(false);
   const [otp, setOtp] = useState("");
@@ -35,6 +35,7 @@ const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPa
     setLoading(true);
     if (window.retryOtp) {
       window.retryOtp(
+        `91${mobileNumber}`,
         "11",
         (data) => {
           setTimer(15);
@@ -105,7 +106,8 @@ const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPa
           (error) => {
             console.error("OTP Verification Failed:", error);
             setError("Invalid OTP. Please try again.");
-          }
+          },
+          ...(reqId ? [reqId] : [])
         );
       }
     } catch (error) {
@@ -117,18 +119,18 @@ const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPa
   };
 
   const handleEditNumber = () => {
-    // Reset the MSG91 provider before navigating
-    const msg91Provider = document.querySelector('msg91-otp-provider');
-    if (msg91Provider) {
-      try {
-        if (msg91Provider.disconnectedCallback) {
-          msg91Provider.disconnectedCallback();
-        }
-        msg91Provider.remove();
-      } catch (e) {
-        console.error('Error removing MSG91 provider:', e);
-      }
-    }
+    // // Reset the MSG91 provider before navigating
+    // const msg91Provider = document.querySelector('msg91-otp-provider');
+    // if (msg91Provider) {
+    //   try {
+    //     if (msg91Provider.disconnectedCallback) {
+    //       msg91Provider.disconnectedCallback();
+    //     }
+    //     msg91Provider.remove();
+    //   } catch (e) {
+    //     console.error('Error removing MSG91 provider:', e);
+    //   }
+    // }
     
     onViewChange(isLoginFlow ? "loginOTP" : "signup", mobileNumber);
   };

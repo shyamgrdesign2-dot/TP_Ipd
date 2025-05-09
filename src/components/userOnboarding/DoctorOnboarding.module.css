@@ -222,13 +222,13 @@
 .skipButton:hover span {
   color: #4338ca !important;
 }
-
-/* Add styles for the blur effect and dark overlay */
-:global(.drawer-open-blur) :not(.ant-drawer-content-wrapper) :not(.ant-drawer-content) :not(.ant-drawer-mask) {
+/* :global style are getting applied to the whole project style we need to wrap it inside the class and apply */
+/* Add styles for the blur effect and dark overlay */   
+/* :global(.drawer-open-blur) :not(.ant-drawer-content-wrapper) :not(.ant-drawer-content) :not(.ant-drawer-mask) {
   filter: blur(5px);
   pointer-events: none;
   user-select: none;
-}
+} */
 
 .darkOverlay {
   position: fixed;
@@ -242,9 +242,9 @@
 }
 
 /* Override ant-drawer styles for a more immersive experience */
-:global(.ant-drawer-mask) {
+/* :global(.ant-drawer-mask) {
   backdrop-filter: blur(5px);
-}
+} */
 
 @media (max-width: 768px) {
   .onboardingContainer {
@@ -280,17 +280,17 @@
 }
 
 /* Make all text inputs have consistent styling */
-:global(.ant-input),
+/* :global(.ant-input),
 :global(.ant-select-selector) {
   height: 48px !important;
   border-radius: 6px !important;
   font-size: 16px !important;
-}
+} */
 
-:global(.ant-select-selector) {
+/* :global(.ant-select-selector) {
   display: flex;
   align-items: center;
-}
+} */
 
 :global(.ant-input-status-error) {
   border-color: #ef4444 !important;
