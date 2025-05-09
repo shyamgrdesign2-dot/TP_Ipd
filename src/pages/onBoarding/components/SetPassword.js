@@ -17,20 +17,29 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
     try {
       const values = await form.validateFields();
       
-      // Send OTP using the window.sendOtp function
       if (window.sendOtp) {
+        // Format should be countrycode + number without '+'
+        const formattedNumber = `91${mobileNumber}`.replace('+', '');
+        
         window.sendOtp(
-          mobileNumber,
-          "11",
-          (data) => {
-            // Pass password directly through component props
-            onViewChange("verifyOTP", mobileNumber, false, true, values.password);
+          formattedNumber,
+          (successData) => {
+            console.log("OTP sent successfully:", successData);
+            // The response should contain the requestId in successData
+            if (successData && successData.message) {
+              const reqId = successData.message;
+              onViewChange("verifyOTP", mobileNumber, false, true, values.password, reqId);
+            } else {
+              console.error("No requestId in response:", successData);
+            }
           },
           (error) => {
             console.error("Error sending OTP:", error);
-            // Handle error
+            // Handle error appropriately - maybe show a notification to user
           }
         );
+      } else {
+        console.error("sendOtp method not found on window object");
       }
     } catch (error) {
       console.error("Validation failed:", error);
@@ -42,7 +51,7 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
       <div className="signup-form-container">
         <h2 className="title">Set Password</h2>
 
-        <Form name="setPassword" className="signup-form" style={{padding: "0"}}>
+        <Form name="setPassword" className="set-password-form" style={{padding: "0"}}>
           <Form.Item
             name="password"
             className="phone-form-item"

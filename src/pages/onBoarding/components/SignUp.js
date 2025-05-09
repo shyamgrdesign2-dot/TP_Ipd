@@ -28,7 +28,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           captchaRenderId: "captch-id",
           exposeMethods: true,
           success: (data) => {
-            void 0;
+            console.log('success response', data);
           },
           failure: (error) => {
             console.error("OTP Verification Failed:", error);
@@ -127,7 +127,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     }
 
     if(!isCaptchaVerified()){
-      setError("Please verify the captcha");
+      setError("Please verify the captcha, Before proceeding");
       return;
     }
 
@@ -145,7 +145,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           
           setIsFromCampaign(false);
           if (isFromCampaign || !isLoginFlow) {
-            setError("User already exists. Please login.");
+            setError("Looks like this account already exists. Please log in instead");
             setTimeout(() => {
               onViewChange("loginOTP", mobileNumber, true);
             }, 2000);
@@ -155,6 +155,9 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               `91${mobileNumber}`,
               () => {
                 onViewChange("verifyOTP", mobileNumber, true);
+              },
+              (data) => {
+                console.log(data,"data")
               },
               (error) => {
                 setError("Failed to send OTP. Please try again.");
@@ -207,7 +210,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
 
   const handleLoginPassword = async () => {
     if (!isCaptchaVerified()) {
-      setError("Please verify the captcha");
+      setError("Please verify the captcha, Before proceeding");
       return;
     }
 
@@ -319,13 +322,14 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               bordered={false}
               maxLength={10}
             />
+            {error && (error === "Looks like this account already exists. Please log in instead") && <div className="error-message" style={{marginTop: "0.5rem"}}>{error}</div>}
           </Form.Item>
 
           <div className="captcha-wrapper" style={{margin: "1.5rem 0 1rem 0"}}>
             <div id="captch-id" className="captcha-container" />
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && (error !== "Looks like this account already exists. Please log in instead") && <div className="error-message">{error}</div>}
 
           <Button
             type="primary"
