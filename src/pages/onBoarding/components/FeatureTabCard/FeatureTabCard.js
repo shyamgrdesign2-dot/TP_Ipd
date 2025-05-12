@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 
 import "./FeatureTabCard.scss";
-import { FaDesktop, FaGoogle, FaCalendar, FaUserMd, FaChartLine, FaClipboardList } from "react-icons/fa";
 import Emr from "../../../../assets/images/Emr.svg";
 import Practice from "../../../../assets/images/Practice.svg";
 import Ai from "../../../../assets/images/AIsymbol.svg";
@@ -16,6 +15,34 @@ import SmartSync from "../../../../assets/images/website-images/LP_SmartSync.png
 import TatvaAi from "../../../../assets/images/website-images/LP_TatvaAi.png";
 import VoiceRx from "../../../../assets/images/website-images/LP_VoiceRx.png";
 
+// Import all landing page icons for the feature tab cards
+import briefcase from "../../../../assets/images/onboard-page-icons/briefcase.svg";
+import clipboardText from "../../../../assets/images/onboard-page-icons/clipboard-text.svg";
+import ddx from "../../../../assets/images/onboard-page-icons/ddx.svg";
+import documentCloud from "../../../../assets/images/onboard-page-icons/document-cloud.svg";
+import documentText from "../../../../assets/images/onboard-page-icons/document-text.svg";
+import examination from "../../../../assets/images/onboard-page-icons/Examination.svg";
+import graph from "../../../../assets/images/onboard-page-icons/graph.svg";
+import health from "../../../../assets/images/onboard-page-icons/health.svg";
+import lampCharge from "../../../../assets/images/onboard-page-icons/lamp-charge.svg";
+import medication from "../../../../assets/images/onboard-page-icons/Medication.svg";
+import messages1 from "../../../../assets/images/onboard-page-icons/messages1.svg";
+import messages2 from "../../../../assets/images/onboard-page-icons/messages2.svg";
+import monitor from "../../../../assets/images/onboard-page-icons/monitor.svg";
+import note from "../../../../assets/images/onboard-page-icons/note.svg";
+import note1 from "../../../../assets/images/onboard-page-icons/note1.svg";
+import note2 from "../../../../assets/images/onboard-page-icons/note2.svg";
+import people from "../../../../assets/images/onboard-page-icons/people.svg";
+import profile2user from "../../../../assets/images/onboard-page-icons/profile-2user.svg";
+import receiptText from "../../../../assets/images/onboard-page-icons/receipt-text.svg";
+import statusUp from "../../../../assets/images/onboard-page-icons/status-up.svg";
+import statusUp1 from "../../../../assets/images/onboard-page-icons/status-up1.svg";
+import statusUp2 from "../../../../assets/images/onboard-page-icons/status-up2.svg";
+import taskSquare from "../../../../assets/images/onboard-page-icons/task-square.svg";
+import vitals from "../../../../assets/images/onboard-page-icons/Vitals.svg";
+import voiceSquare from "../../../../assets/images/onboard-page-icons/voice-square.svg";
+import wallet from "../../../../assets/images/onboard-page-icons/wallet.svg";
+
 const featureCardConfig = {
   "EMR Features": {
     colors: {
@@ -24,54 +51,54 @@ const featureCardConfig = {
     },
     tabConfig: {
       "Clinic Care": {
-        heading: "Improve Clinic Care",
+        heading: <>Improve Clinic Care</>,
         points: [
           {
-            icon: <FaUserMd />,
+            icon: clipboardText,
             text: "Speciality Specific Modules"
           },
           {
-            icon: <FaClipboardList />,
+            icon: examination,
             text: "Digital prescriptions and notes"
           },
           {
-            icon: <FaChartLine />,
+            icon: profile2user,
             text: "Patient Engagement"
           }
         ],
         image: ClinicCare
       },
       "Admin Tasks": {
-        heading: "Simplify\nClinic Management",
+        heading: <>Simplify<br/>Clinic Management</>,
         points: [
           {
-            icon: <FaCalendar />,
+            icon: note,
             text: "Manage walk-ins and appointments"
           },
           {
-            icon: <FaDesktop />,
+            icon: receiptText,
             text: "Streamline billing and payments"
           },
           {
-            icon: <FaClipboardList />,
+            icon: messages1,
             text: "Send Bulk Campaign Messages"
           }
         ],
         image: AdminTasks
       },
       "Analytics": {
-        heading: "Practice\nAnalytics Simplified",
+        heading: <>Practice<br/>Analytics Simplified</>,
         points: [
           {
-            icon: <FaChartLine />,
+            icon: graph,
             text: "Monitor patient trends"
           },
           {
-            icon: <FaDesktop />,
+            icon: health,
             text: "Evaluate treatment outcomes"
           },
           {
-            icon: <FaClipboardList />,
+            icon: statusUp,
             text: "Access real-time revenue data"
           }
         ],
@@ -87,72 +114,72 @@ const featureCardConfig = {
     },
     tabConfig: {
       "DDx": {
-        heading: "AI Powered \n Differential Diagnosis",
+        heading: <>AI Powered<br/>Differential Diagnosis</>,
         points: [
           {
-            icon: <FaUserMd />,
+            icon: vitals,
             text: "Get DDx within Second"
           },
           {
-            icon: <FaClipboardList />,
+            icon: ddx,
             text: "Identify Potential Condition"
           },
           {
-            icon: <FaChartLine />,
+            icon: medication,
             text: "Discover effective treatment options"
           }
         ],
         image: TatvaAssist
       },
       "Smart Sync": {
-        heading: "Intelligent\nData Integration",
+        heading: <>Intelligent<br/>Data Integration</>,
         points: [
           {
-            icon: <FaDesktop />,
+            icon: documentText,
             text: "Automated data synchronization"
           },
           {
-            icon: <FaClipboardList />,
+            icon: ddx,
             text: "Smart record management"
           },
           {
-            icon: <FaChartLine />,
+            icon: receiptText,
             text: "Real-time updates"
           }
         ],
         image: SmartSync
       },
       "Voice Rx": {
-        heading: "Simplify\nPrescription Writing",
+        heading: <>Simplify<br/>Prescription Writing</>,
         points: [
           {
-            icon: <FaUserMd />,
+            icon: documentText,
             text: "Write naturally with digital ink technology"
           },
           {
-            icon: <FaClipboardList />,
+            icon: VoiceRx,
             text: "Instantly capture and digitise prescriptions"
           },
           {
-            icon: <FaCalendar />,
+            icon: lampCharge,
             text: "Sync effortlessly across all your devices"
           }
         ],
         image: VoiceRx
       },
       "Tatva Assist": {
-        heading: "AI-Powered\nPlatform for Doctors",
+        heading: <>AI-Powered<br/>Platform for Doctors</>,
         points: [
           {
-            icon: <FaUserMd />,
+            icon: documentCloud,
             text: "Personalized AI platform for smart care"
           },
           {
-            icon: <FaDesktop />,
+            icon: lampCharge,
             text: "Access reliable insights from PubMed"
           },
           {
-            icon: <FaClipboardList />,
+            icon: taskSquare,
             text: "Make informed decisions with ease"
           }
         ],
@@ -168,54 +195,54 @@ const featureCardConfig = {
     },
     tabConfig: {
       "Digital Presence": {
-        heading: "Supercharge\nYour Online Reach",
+        heading: <>Supercharge<br/>Your Online Reach</>,
         points: [
           {
-            icon: <FaDesktop />,
+            icon: monitor,
             text: "Get a personalized practice website"
           },
           {
-            icon: <FaGoogle />,
+            icon: briefcase,
             text: "Optimize your Google Business Profile"
           },
           {
-            icon: <FaCalendar />,
+            icon: note2,
             text: "Accept online appointments effortlessly"
           }
         ],
         image: DigitalCare
       },
       "Remote Care": {
-        heading: "Empower\nPatient Care Anywhere",
+        heading: <>Empower<br/>Patient Care Anywhere</>,
         points: [
           {
-            icon: <FaUserMd />,
+            icon: wallet,
             text: "Earn by referring care programs"
           },
           {
-            icon: <FaClipboardList />,
+            icon: people,
             text: "Easily access and review patient logs"
           },
           {
-            icon: <FaCalendar />,
+            icon: messages2,
             text: "Stay connected with patients through chats"
           }
         ],
         image: RemoteCare
       },
       "ABDM": {
-        heading: "Maximize\nEarnings with ABDM",
+        heading: <>Maximize<br/>Earnings with ABDM</>,
         points: [
           {
-            icon: <FaUserMd />,
+            icon: wallet,
             text: "Earn DHIS incentives via ABDM"
           },
           {
-            icon: <FaClipboardList />,
+            icon: statusUp,
             text: "Boost income with government support"
           },
           {
-            icon: <FaDesktop />,
+            icon: messages2,
             text: "Enhance practice visibility and credibility"
           }
         ],
@@ -350,15 +377,15 @@ const FeatureTabCard = ({ feature, title, subTitle, tabs }) => {
 
         <div className="feature-tab-card__content">
           <div className="feature-tab-card__text">
-            <h2 className="feature-tab-card__heading">
+            <h2 className="feature-tab-card__heading" style={{ color: feature === "Ai Features" || feature === "Digital Features" ? "#000000" : "#fff" }}>
               {activeTabContent?.heading || ''}
             </h2>
 
             <ul className="feature-tab-card__points">
               {(activeTabContent?.points || []).map((point, idx) => (
-                <li key={idx}>
-                  <span className="icon">{point.icon}</span>
-                  <span>{point.text}</span>
+                <li key={idx} style={{ color: feature === "Ai Features" || feature === "Digital Features" ? "#000000" : "#fff" }}>
+                  <img src={point.icon} alt="icon" className="icon"/>
+                  {point.text}
                 </li>
               ))}
             </ul>

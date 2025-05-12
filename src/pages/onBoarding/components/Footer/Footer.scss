@@ -1,15 +1,15 @@
 .footer {
   background-color: #3D2777 !important; // Purple background color
-  color: #fff;
+  color: #fff !important;
   padding: 3rem 6rem;
   // width: 100vw;
 
   .footer-container {
     // width: 100vw;
-    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
     padding: 0 20px;
     display: flex;
-
   }
 
   .footer-logo {
@@ -17,33 +17,43 @@
     margin-bottom: 20px;
   }
 
-.company-info{
-  width: 38%;
-  p {
-    color: #fff;
+  .company-info {
+    width: 35%;
+
+    p {
+      color: #fff !important;
+    }
   }
-}
+
   .company-description {
-    width: 70%;
+    width: 85%;
     font-size: 14px;
     line-height: 1.6;
-    margin-top: 2rem;
   }
 
   .footer-section {
     width: 28%;
-    margin-right: 2rem;
+    margin-right: 3rem;
+
     h3 {
-      color: #ffffff;
+      color: #ffffff !important;
       font-size: 18px;
       font-weight: 600;
       margin-bottom: 20px;
     }
 
     h4 {
-      color: #ffffff;
+      color: #ffffff !important;
       font-size: 16px;
       margin-bottom: 10px;
+    }
+  }
+
+  .footer-section-contact {
+    width: 20%;
+
+    h5 {
+      color: #ffffff !important;
     }
   }
 
@@ -56,7 +66,7 @@
       margin-bottom: 12px;
 
       a {
-        color: #ffffff;
+        color: #ffffff !important;
         text-decoration: none;
         font-size: 14px;
         transition: opacity 0.3s;
@@ -75,18 +85,19 @@
       p {
         font-size: 14px;
         line-height: 1.6;
+        color: #fff !important;
       }
     }
   }
 
   .contact-info {
-    margin-bottom: 20px;
+    margin-bottom: 2rem;
 
     p {
       margin-bottom: 10px;
 
       a {
-        color: #ffffff;
+        color: #ffffff !important;
         text-decoration: none;
         font-size: 14px;
         transition: opacity 0.3s;
@@ -108,7 +119,14 @@
       gap: 15px;
 
       a {
-        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+        background-color: #fff;
+        color: #4d4d4d !important;
         font-size: 20px;
         transition: opacity 0.3s;
 

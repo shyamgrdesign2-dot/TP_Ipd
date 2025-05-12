@@ -87,12 +87,12 @@
   &__content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4rem;
     margin-top: 2rem;
   }
 
   &__text {
     padding-top: 2rem;
+    padding-left: 2.5rem;
     color: #fff;
   }
 
@@ -113,20 +113,21 @@
       align-items: center;
       gap: 1rem;
       font-size: 1.25rem;
-      color: #fff;
       margin-bottom: 1.5rem;
-
-      span{
-        color: #fff !important;
-      }
+      color: #E3E3FF;
+      font-family: Poppins;
+      font-size: 1.5rem;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 3.94963rem;
 
       .icon {
-        width: 32px;
-        height: 32px;
+        width: 40px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #B08D57;
+        // background: #B08D57;
         color: white;
         border-radius: 6px;
       }
