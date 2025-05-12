@@ -555,11 +555,11 @@
 .password-input {
   height: 48px;
   border-radius: 12px;
-  border: 2px solid #D0D5DD;
+  border: 1px solid #D0D5DD;
   
   &:hover, &:focus {
     border-color: #6941C6;
-    box-shadow: 0 0 0 4px rgba(105, 65, 198, 0.1);
+    // box-shadow: 0 0 0 4px rgba(105, 65, 198, 0.1);
   }
 }
 
@@ -599,12 +599,12 @@
 .otp-input {
   height: 48px;
   border-radius: 12px;
-  border: 2px solid #D0D5DD;
+  border: 1px solid #D0D5DD;
   font-size: 16px;
   
   &:hover, &:focus {
     border-color: #6941C6;
-    box-shadow: 0 0 0 4px rgba(105, 65, 198, 0.1);
+    // box-shadow: 0 0 0 4px rgba(105, 65, 198, 0.1);
   }
 
   &::placeholder {
@@ -669,7 +669,7 @@
     
     &:hover, &:focus {
       border-color: #4E46B4;
-      box-shadow: 0 0 0 2px rgba(78, 70, 180, 0.1);
+      // box-shadow: 0 0 0 2px rgba(78, 70, 180, 0.1);
     }
   }
 }
@@ -783,17 +783,21 @@
   }
 }
 
+.set-password-form{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 .password-input {
   &.ant-input-affix-wrapper {
     border: 1px solid #E2E8F0;
     border-radius: 8px;
     height: 48px;
     background: white;
-    margin-bottom: 1rem;
     
     &:hover, &:focus {
       border-color: #6366F1;
-      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+      // box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
     }
 
     &.error-input {
@@ -802,7 +806,7 @@
       
       &:hover, &:focus {
         border-color: #FF4D4F;
-        box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.1);
+        // box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.1);
       }
     }
   }
@@ -908,4 +912,64 @@
       }
     }
   }
+}
+
+.password-requirements {
+  position: absolute;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: max-content;
+  z-index: 1000;
+
+  // Add tooltip arrow
+  &::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 20px;
+    width: 16px;
+    height: 16px;
+    background: white;
+    transform: rotate(45deg);
+    box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.05);
+  }
+
+  .requirement {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+    white-space: nowrap;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &.valid {
+      color: #4CAF50 !important;
+      &::before {
+        content: "✓";
+        margin-right: 8px;
+        color: #4CAF50 !important;
+      }
+    }
+
+    &.invalid {
+      color: #FF4D4F !important;
+      &::before {
+        content: "✗";
+        margin-right: 8px;
+        color: #FF4D4F !important;
+      }
+    }
+  }
+}
+
+// Update Form.Item to handle tooltip positioning
+.phone-form-item {
+  position: relative;
 }

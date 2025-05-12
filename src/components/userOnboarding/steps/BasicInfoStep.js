@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Input, Select, Form } from "antd";
 import styles from "../DoctorOnboarding.module.css";
 
 const { Option } = Select;
 
-const BasicInfoStep = ({ formData, setFormData }) => {
+const BasicInfoStep = ({ formData, setFormData, specialities, loading }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -14,18 +14,34 @@ const BasicInfoStep = ({ formData, setFormData }) => {
     setFormData({ ...formData, speciality: value });
   };
 
-  const specialities = [
-    "Dermatologist",
-    "Cardiologist",
-    "Neurologist",
-    "Pediatrician",
-    "Orthopedist",
-    "Gynecologist",
-    "Oncologist",
-    "Psychiatrist",
-    "Ophthalmologist",
-    "ENT Specialist",
-  ];
+  // Add styles to head
+  useEffect(() => {
+    const styleElement = document.createElement("style");
+    styleElement.innerHTML = `
+      .ant-input::placeholder {
+        color: #98A2B3 !important;
+        font-family: Poppins !important;
+        font-size: 0.875rem !important;
+        font-style: normal !important;
+        font-weight: 400 !important;
+        line-height: 1.5rem !important;
+      }
+      
+      .ant-select-selection-placeholder {
+        color: #98A2B3 !important;
+        font-family: Poppins !important;
+        font-size: 0.875rem !important;
+        font-style: normal !important;
+        font-weight: 400 !important;
+        line-height: 1.5rem !important;
+      }
+    `;
+    document.head.appendChild(styleElement);
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   return (
     <div>
@@ -34,16 +50,19 @@ const BasicInfoStep = ({ formData, setFormData }) => {
           style={{
             display: "block",
             marginBottom: "8px",
-            fontSize: "14px",
-            fontWeight: "500",
-            color: "#111827",
+            color: "#454551",
+            fontFamily: "Poppins",
+            fontSize: "0.875rem",
+            fontStyle: "normal",
+            fontWeight: 400,
+            lineHeight: "1.25rem",
           }}
         >
-          Your Full name ( First & Last name)
-          <span style={{ color: "#ef4444", marginLeft: "2px" }}>*</span>
+          Your Full name (First & Last name)
+          <span className={styles.requiredAsterisk}>*</span>
         </label>
         <Input
-          placeholder="Dr Shyam Sundar"
+          placeholder="Enter your Full name"
           name="fullName"
           value={formData.fullName}
           onChange={handleInputChange}
@@ -51,17 +70,28 @@ const BasicInfoStep = ({ formData, setFormData }) => {
           status={formData.fullName ? "" : "error"}
           style={{
             width: "100%",
-            height: "48px",
+            height: "3.5rem",
             borderRadius: "6px",
-            borderColor: formData.fullName ? "#d1d5db" : "#ef4444",
+            borderColor: formData.fullName ? "#d1d5db" : "#E2E2EA",
             fontSize: "16px",
+            paddingLeft: "35px",
           }}
+          className={styles.focusedInput}
+          prefix={
+            <span
+              style={{
+                position: "absolute",
+                left: "16px",
+                color: "#374151",
+                fontWeight: "500",
+                pointerEvents: "none",
+                fontSize: "16px",
+              }}
+            >
+              Dr
+            </span>
+          }
         />
-        {!formData.fullName && (
-          <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px" }}>
-            Please enter your full name
-          </div>
-        )}
       </div>
 
       <div className={styles.inputField} style={{ marginTop: "24px" }}>
@@ -69,37 +99,38 @@ const BasicInfoStep = ({ formData, setFormData }) => {
           style={{
             display: "block",
             marginBottom: "8px",
-            fontSize: "14px",
-            fontWeight: "500",
-            color: "#111827",
+            color: "#454551",
+            fontFamily: "Poppins",
+            fontSize: "0.875rem",
+            fontStyle: "normal",
+            fontWeight: 400,
+            lineHeight: "1.25rem",
           }}
         >
           Speciality
-          <span style={{ color: "#ef4444", marginLeft: "2px" }}>*</span>
+          <span className={styles.requiredAsterisk}>*</span>
         </label>
         <Select
           placeholder="Select your speciality"
-          value={formData.speciality}
+          value={formData.speciality || undefined}
           onChange={handleSpecialityChange}
           size="large"
           style={{
             width: "100%",
-            height: "48px",
+            height: "3.5rem",
           }}
+          className={`${styles.specialitySelect} ${styles.focusedInput}`}
+          popupClassName={styles.specialityDropdown}
           dropdownStyle={{ borderRadius: "6px" }}
           status={formData.speciality ? "" : "error"}
+          loading={loading}
         >
           {specialities.map((speciality) => (
-            <Option key={speciality} value={speciality}>
-              {speciality}
+            <Option key={speciality.pmMasterId} value={speciality.pmMasterId}>
+              {speciality.displayName}
             </Option>
           ))}
         </Select>
-        {!formData.speciality && (
-          <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px" }}>
-            Please select your speciality
-          </div>
-        )}
       </div>
     </div>
   );

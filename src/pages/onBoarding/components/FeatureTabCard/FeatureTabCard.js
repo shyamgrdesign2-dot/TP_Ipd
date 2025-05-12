@@ -42,6 +42,7 @@ import taskSquare from "../../../../assets/images/onboard-page-icons/task-square
 import vitals from "../../../../assets/images/onboard-page-icons/Vitals.svg";
 import voiceSquare from "../../../../assets/images/onboard-page-icons/voice-square.svg";
 import wallet from "../../../../assets/images/onboard-page-icons/wallet.svg";
+import repeatCircle from "../../../../assets/images/onboard-page-icons/repeat-circle.svg";
 
 const featureCardConfig = {
   "EMR Features": {
@@ -143,7 +144,7 @@ const featureCardConfig = {
             text: "Smart record management"
           },
           {
-            icon: receiptText,
+            icon: repeatCircle,
             text: "Real-time updates"
           }
         ],
@@ -157,7 +158,7 @@ const featureCardConfig = {
             text: "Write naturally with digital ink technology"
           },
           {
-            icon: VoiceRx,
+            icon: voiceSquare,
             text: "Instantly capture and digitise prescriptions"
           },
           {
@@ -238,7 +239,7 @@ const featureCardConfig = {
             text: "Earn DHIS incentives via ABDM"
           },
           {
-            icon: statusUp,
+            icon: statusUp2,
             text: "Boost income with government support"
           },
           {
