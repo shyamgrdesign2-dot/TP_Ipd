@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import DoctorOnboarding from "./DoctorOnboarding";
 import { useOnboarding } from "./OnboardingContext";
-import BlurredOverlay from "./BlurredOverlay";
 
 const OnboardingDrawer = () => {
   const onboardingContext = useOnboarding();
@@ -13,12 +12,17 @@ const OnboardingDrawer = () => {
   useEffect(() => {
     if (isVisible) {
       document.body.style.overflow = "hidden";
+      // Add class to body for blur effect
+      document.body.classList.add("drawer-open-blur");
     } else {
       document.body.style.overflow = "";
+      // Remove class from body when drawer is closed
+      document.body.classList.remove("drawer-open-blur");
     }
 
     return () => {
       document.body.style.overflow = "";
+      document.body.classList.remove("drawer-open-blur");
     };
   }, [isVisible]);
 
@@ -32,7 +36,6 @@ const OnboardingDrawer = () => {
 
   return (
     <>
-      <BlurredOverlay visible={isOnboardingVisible} />
       <DoctorOnboarding
         visible={isOnboardingVisible}
         onClose={hideOnboarding}

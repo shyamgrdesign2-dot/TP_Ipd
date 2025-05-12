@@ -31,9 +31,11 @@
 .formLabel {
   display: block;
   margin-bottom: 8px;
-  font-weight: 500;
-  font-size: 14px;
-  color: #111827;
+  color: #5A6774;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.375rem;
 }
 
 .required::after {
@@ -45,6 +47,39 @@
 .inputField {
   width: 100%;
   margin-bottom: 24px;
+}
+
+.requiredAsterisk {
+  color: #FC5A5A !important;
+  font-family: Poppins;
+  font-size: 0.875rem;
+  margin-left: 2px;
+}
+
+.focusedInput:focus,
+.focusedInput:focus-within {
+  border-color: #4B4AD5 !important;
+  outline: none !important;
+}
+
+/* Input placeholder styles */
+.customInput::placeholder {
+  color: #98A2B3 !important;
+  font-family: Poppins !important;
+  font-size: 0.875rem !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: 1.5rem !important;
+}
+
+/* Select placeholder styles */
+.specialitySelect .ant-select-selection-placeholder {
+  color: #98A2B3 !important;
+  font-family: Poppins !important;
+  font-size: 0.875rem !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: 1.5rem !important;
 }
 
 .uploadContainer {
@@ -156,7 +191,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 80px;
   color: #666;
 }
 
@@ -166,11 +201,12 @@
 
 .supportText {
   margin-right: 8px;
+  margin-left: 5px;
 }
 
 .supportLink {
-  color: #1890ff;
-  text-decoration: none;
+  color: #000;
+  text-decoration: underline;
 }
 
 .supportDivider {
@@ -222,6 +258,46 @@
 .skipButton:hover span {
   color: #4338ca !important;
 }
+
+/* Disabled button styles */
+.disabledButton {
+  background-color: #C7C5F8 !important;
+  border-color: #C7C5F8 !important;
+  color: white !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+.disabledButton:hover {
+  background-color: #C7C5F8 !important;
+  border-color: #C7C5F8 !important;
+  color: white !important;
+}
+
+/* Detect Location button styles */
+.detectLocationButton {
+  display: inline-flex;
+  height: 2rem;
+  padding: 0 0.875rem;
+  align-items: center;
+  gap: 0.5625rem;
+  cursor: pointer;
+  border-radius: 0.375rem;
+  border: 1px dashed #4B4AD5;
+  background: rgba(75, 74, 213, 0.08);
+  margin-right: 5px !important;
+}
+
+.detectLocationText {
+  color: #4B4AD5 !important;
+  font-family: Poppins;
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.5rem;
+}
+
 /* :global style are getting applied to the whole project style we need to wrap it inside the class and apply */
 /* Add styles for the blur effect and dark overlay */   
 /* :global(.drawer-open-blur) :not(.ant-drawer-content-wrapper) :not(.ant-drawer-content) :not(.ant-drawer-mask) {
@@ -292,7 +368,7 @@
   align-items: center;
 } */
 
-:global(.ant-input-status-error) {
+/* :global(.ant-input-status-error) {
   border-color: #ef4444 !important;
 }
 
@@ -310,7 +386,7 @@
 :global(.ant-btn-primary:hover) {
   background-color: #4338ca !important;
   border-color: #4338ca !important;
-}
+} */
 
 /* Steps container */
 .stepsContainer {
@@ -362,7 +438,7 @@
 }
 
 /* Steps styling */
-:global(.ant-steps-item-title) {
+/* :global(.ant-steps-item-title) {
   font-size: 14px !important;
   color: #6b7280 !important;
 }
@@ -377,7 +453,7 @@
 }
 
 /* Additional step customizations */
-:global(.ant-steps) {
+/* :global(.ant-steps) {
   display: flex !important;
   justify-content: space-between !important;
 }
@@ -395,9 +471,9 @@
 }
 
 /* Hide the default ant design connector lines */
-:global(.ant-steps-item-tail) {
+/* :global(.ant-steps-item-tail) {
   display: none !important;
-}
+} */
 
 .uploadContainerSuccess {
   border: 2px dashed #22c55e;
@@ -445,7 +521,7 @@
 
 .fileNamePreview {
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #222;
   margin-bottom: 4px;
 }
@@ -477,11 +553,47 @@
 }
 
 .deleteBtn {
-  color: #ef4444;
-  font-size: 26px;
-  background: none;
-  border: none;
-  margin-left: 0;
   cursor: pointer;
-  vertical-align: middle;
+}
+
+/* Speciality select dropdown styling */
+.specialitySelect .ant-select-selector .ant-select-selection-placeholder {
+  opacity: 1 !important;
+  color: #bfbfbf !important;
+}
+
+.specialitySelect .ant-select-selector {
+  height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 11px !important;
+}
+
+.specialityDropdown {
+  border-radius: 8px !important;
+}
+
+/* Divider styles */
+.dividerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1.5rem 0;
+  width: 100%;
+}
+
+.dividerLine {
+  height: 1px;
+  background-color: #E2E2EA;
+  flex-grow: 1;
+}
+
+.dividerText {
+  padding: 0 1rem;
+  color: #A2A2A8 !important;
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.25rem;
+  letter-spacing: 0.015rem;
 }

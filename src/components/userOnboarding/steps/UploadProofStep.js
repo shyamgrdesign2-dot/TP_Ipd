@@ -183,17 +183,32 @@ const UploadProofStep = ({ formData, setFormData }) => {
               >
                 Replace File
               </button>
-              <button className={styles.deleteBtn} onClick={handleGovIdRemove}>
-                <DeleteOutlined />
-              </button>
+              <div className={styles.deleteBtn} onClick={handleGovIdRemove}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="21"
+                  viewBox="0 0 20 21"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M6.38642 4.79419L6.94648 3.114C7.05991 2.77371 7.37836 2.54419 7.73705 2.54419H12.2371C12.5957 2.54419 12.9142 2.77371 13.0276 3.114L13.5877 4.79419H17.487C17.9473 4.79419 18.3204 5.16729 18.3204 5.62752C18.3204 6.08776 17.9473 6.46086 17.487 6.46086H16.7728L16.1612 16.8577C16.0835 18.1791 14.9892 19.2109 13.6655 19.2109H6.30856C4.98487 19.2109 3.8906 18.1791 3.81287 16.8577L3.2013 6.46086H2.50033C2.04009 6.46086 1.66699 6.08776 1.66699 5.62752C1.66699 5.16729 2.04009 4.79419 2.50033 4.79419H6.38642ZM8.14324 4.79419H11.8309L11.6364 4.21086H8.33768L8.14324 4.79419ZM15.1033 6.46086H4.87084L5.47666 16.7598C5.50257 17.2003 5.86733 17.5442 6.30856 17.5442H13.6655C14.1068 17.5442 14.4715 17.2003 14.4974 16.7598L15.1033 6.46086ZM11.4053 8.57554C11.434 8.1162 11.8297 7.7671 12.289 7.79581C12.7484 7.82452 13.0975 8.22016 13.0688 8.6795L12.6938 14.6795C12.6651 15.1388 12.2694 15.4879 11.8101 15.4592C11.3507 15.4305 11.0016 15.0349 11.0303 14.5755L11.4053 8.57554ZM8.94376 14.5755C8.97247 15.0349 8.62337 15.4305 8.16403 15.4592C7.70469 15.4879 7.30905 15.1388 7.28034 14.6795L6.90534 8.6795C6.87663 8.22016 7.22573 7.82452 7.68507 7.79581C8.14441 7.7671 8.54005 8.1162 8.56876 8.57554L8.94376 14.5755Z"
+                    fill="#FC5A5A"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         )}
-        {!governmentIdFile && (
-          <div style={{ color: "#ff4d4f", fontSize: "12px", marginTop: "4px" }}>
-            Please upload your government ID proof
-          </div>
-        )}
+      </div>
+
+      {/* Divider with "and" text */}
+      <div className={styles.dividerContainer}>
+        <div className={styles.dividerLine}></div>
+        <div className={styles.dividerText}>and</div>
+        <div className={styles.dividerLine}></div>
       </div>
 
       <div className={styles.inputField}>
@@ -254,24 +269,43 @@ const UploadProofStep = ({ formData, setFormData }) => {
             </div>
           </div>
         )}
-        {!mrcFile && (
-          <div style={{ color: "#ff4d4f", fontSize: "12px", marginTop: "4px" }}>
-            Please upload your MRC certificate
-          </div>
-        )}
       </div>
 
-      <div className={styles.contactSupport}>
-        <PhoneOutlined className={styles.contactIcon} />
-        <span className={styles.supportText}>Contact Support:</span>
-        <a href="tel:+91-9974042363" className={styles.supportLink}>
-          +91-9974042363
-        </a>
-        <span className={styles.supportDivider}>|</span>
-        <a href="mailto:Support@tatvacare.in" className={styles.supportLink}>
-          Support@tatvacare.in
-        </a>
-      </div>
+      {/* Show contact support only if account is locked */}
+      {isAccountLocked && (
+        <div className={styles.contactSupport}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+          >
+            <path
+              d="M15.3912 14.0251L15.7162 16.6584C15.7995 17.3501 15.0579 17.8334 14.4662 17.4751L10.9745 15.4001C10.5912 15.4001 10.2162 15.3751 9.84955 15.3251C10.4662 14.6001 10.8329 13.6834 10.8329 12.6917C10.8329 10.3251 8.78288 8.40844 6.24955 8.40844C5.28288 8.40844 4.39122 8.68341 3.64955 9.16675C3.62455 8.95841 3.61621 8.75007 3.61621 8.53341C3.61621 4.74174 6.90788 1.66675 10.9745 1.66675C15.0412 1.66675 18.3329 4.74174 18.3329 8.53341C18.3329 10.7834 17.1745 12.7751 15.3912 14.0251Z"
+              stroke="#454551"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M10.8337 12.6917C10.8337 13.6834 10.467 14.6001 9.85033 15.3251C9.02533 16.3251 7.71699 16.9667 6.25033 16.9667L4.07532 18.2584C3.70866 18.4834 3.24199 18.1751 3.29199 17.7501L3.50032 16.1084C2.38366 15.3334 1.66699 14.0917 1.66699 12.6917C1.66699 11.2251 2.45033 9.93342 3.65033 9.16676C4.392 8.68342 5.28366 8.40845 6.25033 8.40845C8.78366 8.40845 10.8337 10.3251 10.8337 12.6917Z"
+              stroke="#454551"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span className={styles.supportText}>Contact Support:</span>
+          <a href="tel:+91-9974042363" className={styles.supportLink}>
+            +91-9974042363
+          </a>
+          <span className={styles.supportDivider}>|</span>
+          <a href="mailto:Support@tatvacare.in" className={styles.supportLink}>
+            Support@tatvacare.in
+          </a>
+        </div>
+      )}
     </div>
   );
 };
