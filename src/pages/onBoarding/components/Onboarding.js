@@ -38,6 +38,7 @@ const Onboarding = () => {
   }, []);
 
   const handleViewChange = (newView, number = "", isUserExists = false, isPasswordSetFlow = false, password = "", reqId = "") => {
+
     setView(newView);
     if (newView === "loginOTP") {
       setIsLoginFlow(true);
@@ -45,6 +46,7 @@ const Onboarding = () => {
       setIsLoginFlow(false);
     }
     if (number) {
+      localStorage.setItem('mobileNumber', number);
       setMobileNumber(number);
     }
     if (isUserExists) {
