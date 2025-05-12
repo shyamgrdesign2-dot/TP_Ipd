@@ -14,7 +14,7 @@ import expiredInfographic from '../../../assets/images/expired-infographic.svg'
 import contactSupport from '../../../assets/images/messages-2.svg'
 import crown from '../../../assets/images/crown.svg'
 import planExpiredSandClock from '../../../assets/images/plan-expired-sand-clock.png'
-import { checkCredits, extendFreeTrial } from "../../../redux/monetizationSlice";
+import { checkCredits, extendFreeTrial, interest } from "../../../redux/monetizationSlice";
 
 function ExtendTrialModal() {
     const navigate = useNavigate();
@@ -72,6 +72,18 @@ function ExtendTrialModal() {
 
     const clickBuyNow = () => {
         navigate('/get-unlimited-access')
+    }
+
+    const clickRequestCallback = async () => {
+        let sendData = {
+            mbl_no: profile?.um_contact,
+            is_pm_renew_requested: true,
+            service_name: EMR_planDetails?.service_name
+        }
+        const action = await dispatch(interest(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            errorMessage(action.payload.message)
+        }
     }
 
     return (
@@ -133,7 +145,7 @@ function ExtendTrialModal() {
                                 )}
                                 <Row>
                                     <Col lg={6}>
-                                        <Button type='button' className='w-100 btn align-items-center justify-content-center d-flex btn-41 btn-outline-primary' style={{ height: 52 }}>
+                                        <Button type='button' className='w-100 btn align-items-center justify-content-center d-flex btn-41 btn-outline-primary' style={{ height: 52 }} onClick={clickRequestCallback}>
                                             <i className='icon-phone me-2'></i>
                                             Request a call back
                                         </Button>

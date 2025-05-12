@@ -1,23 +1,38 @@
 import React from "react";
 import { Button } from "antd";
 import { Col, Row } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import crown from '../../../assets/images/crown.svg'
 import moment from "moment";
 import { FREE } from "../../../utils/constants";
+import { interest } from "../../../redux/monetizationSlice";
+import { errorMessage } from "../../../utils/utils";
 
 function ExpiredText({ title }) {
 
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const { pathname } = useLocation();
 
-    const { servicesList } = useSelector((state) => state.doctors);
+    const { profile, servicesList } = useSelector((state) => state.doctors);
     const planDetails = servicesList?.find(e => e.service_name === title)
 
     const clickBuyNow = (service_name) => {
         navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
+    }
+
+    const clickRequestCallback = async (service_name) => {
+        let sendData = {
+            mbl_no: profile?.um_contact,
+            is_pm_renew_requested: true,
+            service_name: service_name
+        }
+        const action = await dispatch(interest(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            errorMessage(action.payload.message)
+        }
     }
 
     const isPurchased = () => {
@@ -51,7 +66,7 @@ function ExpiredText({ title }) {
             </div>
             <Row className="mt-2">
                 <Col lg={6}>
-                    <Button type='button' className='w-100 btn ant-btn align-items-center justify-content-center d-flex btn-41 btn-primary1 btn-outline-primary' style={{ height: 52 }}>
+                    <Button type='button' className='w-100 btn ant-btn align-items-center justify-content-center d-flex btn-41 btn-primary1 btn-outline-primary' style={{ height: 52 }} onClick={() => clickRequestCallback(title)}>
                         <i className='icon-phone me-2'></i>
                         Request a call back
                     </Button>

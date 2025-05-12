@@ -61,4 +61,8 @@ ApiMonetization.billingHistory = function (b2c_id) {
     return api.get(`/api/v1/monetization/billing-history?b2c_id=${b2c_id}`, baseUrl);
 };
 
+ApiMonetization.interest = function (data) {
+    return api.post(`/user/tatva/interest`, data, baseUserManagementUrl);
+};
+
 export default ApiMonetization;

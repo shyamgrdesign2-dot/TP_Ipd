@@ -15,12 +15,13 @@ import CashManagerContext from "../../context/CashManagerContext";
 import { setIsDiagnosisBox } from "../../redux/ddxSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { getClinicName } from "../../utils/utils";
+import { errorMessage, getClinicName } from "../../utils/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FREE, S_DDX } from "../../utils/constants";
 import CampaignDiscount from "../../pages/monetization/components/CampaignDiscount";
 import crown from '../../assets/images/crown.svg'
 import expiredInfographic2 from '../../assets/images/expired-infographic-2.svg'
+import { interest } from "../../redux/monetizationSlice";
 
 const TabDDxList = ({
   generatedDDx,
@@ -43,6 +44,18 @@ const TabDDxList = ({
 
   const clickBuyNow = (service_name) => {
     navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
+  }
+
+  const clickRequestCallback = async (service_name) => {
+    let sendData = {
+      mbl_no: profile?.um_contact,
+      is_pm_renew_requested: true,
+      service_name: service_name
+    }
+    const action = await dispatch(interest(sendData));
+    if (action.meta.requestStatus === "fulfilled") {
+      errorMessage(action.payload.message)
+    }
   }
 
   return (
@@ -150,7 +163,7 @@ const TabDDxList = ({
                   )}
 
                   <div>
-                    <Button type='button' className='mt-3 btn align-items-center mx-auto d-flex btn-41 btn-text btn-save' style={{ height: 52 }}>
+                    <Button type='button' className='mt-3 btn align-items-center mx-auto d-flex btn-41 btn-text btn-save' style={{ height: 52 }} onClick={() => clickRequestCallback(planDetails?.service_name)}>
                       <i className='icon-phone text-primary me-2'></i>
                       Request a call back
                     </Button>

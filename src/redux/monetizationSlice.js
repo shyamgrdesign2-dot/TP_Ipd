@@ -133,6 +133,18 @@ export const billingHistory = createAsyncThunk(
     }
 );
 
+export const interest = createAsyncThunk(
+    "monetization/interest",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.interest(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
 const monetizationSlice = createSlice({
     name: "monetization",
     initialState,
