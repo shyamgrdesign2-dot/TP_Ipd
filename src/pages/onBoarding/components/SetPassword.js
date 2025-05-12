@@ -1,5 +1,5 @@
-import React from "react";
-import { Input, Button, Form } from "antd";
+import React, { useState } from "react";
+import { Input, Button } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import "./Onboarding.scss";
 import abdmLogo from "../../../assets/images/abdm-logo.svg";
@@ -7,96 +7,183 @@ import nhaLogo from "../../../assets/images/nha-logo.svg";
 import googlePartner from "../../../assets/images/website-images/image.png";
 
 const SetPassword = ({ onViewChange, mobileNumber }) => {
-  const [form] = Form.useForm();
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [errors, setErrors] = useState({
+    password: "",
+    confirmPassword: ""
+  });
+  const [passwordStrength, setPasswordStrength] = useState({
+    length: false,
+    capital: false,
+    small: false,
+    special: false,
+    number: false,
+    space: true
+  });
 
-  const handleGoBack = () => {
-    onViewChange("loginPassword");
+  const isPasswordValid = () => {
+    console.log("Checking password validity:", passwordStrength);
+    return Object.values(passwordStrength).every(value => value === true);
   };
 
-  const handleContinue = async () => {
-    try {
-      const values = await form.validateFields();
-      
-      if (window.sendOtp) {
-        // Format should be countrycode + number without '+'
-        const formattedNumber = `91${mobileNumber}`.replace('+', '');
-        
-        window.sendOtp(
-          formattedNumber,
-          (successData) => {
-            console.log("OTP sent successfully:", successData);
-            // The response should contain the requestId in successData
-            if (successData && successData.message) {
-              const reqId = successData.message;
-              onViewChange("verifyOTP", mobileNumber, false, true, values.password, reqId);
-            } else {
-              console.error("No requestId in response:", successData);
-            }
-          },
-          (error) => {
-            console.error("Error sending OTP:", error);
-            // Handle error appropriately - maybe show a notification to user
-          }
-        );
-      } else {
-        console.error("sendOtp method not found on window object");
-      }
-    } catch (error) {
-      console.error("Validation failed:", error);
+  const checkPasswordStrength = (password) => {
+    console.log("Checking password strength for:", password);
+    if (password) {
+      const newPasswordStrength = {
+        length: password.length >= 6,
+        capital: /[A-Z]/.test(password),
+        small: /[a-z]/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+        number: /[0-9]/.test(password),
+        space: !/\s/.test(password)
+      };
+      console.log("Password strength results:", newPasswordStrength);
+      setPasswordStrength(newPasswordStrength);
+      setShowTooltip(password.length > 0 && !Object.values(newPasswordStrength).every(value => value === true));
+    } else {
+      setShowTooltip(false);
+      setPasswordStrength({
+        length: false,
+        capital: false,
+        small: false,
+        special: false,
+        number: false,
+        space: true
+      });
     }
   };
+
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    checkPasswordStrength(newPassword);
+    setErrors({ ...errors, password: "" });
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const newConfirmPassword = e.target.value;
+    setConfirmPassword(newConfirmPassword);
+    setErrors({ ...errors, confirmPassword: "" });
+  };
+
+  const handleContinue = () => {
+    console.log("Continue clicked. Current state:", {
+      password,
+      confirmPassword,
+      passwordStrength,
+      isValid: isPasswordValid()
+    });
+
+    // Reset errors
+    setErrors({ password: "", confirmPassword: "" });
+
+    // Validate password
+    if (!password) {
+      setErrors(prev => ({ ...prev, password: "Please input your password!" }));
+      return;
+    }
+
+    if (!isPasswordValid()) {
+      setErrors(prev => ({ ...prev, password: "Password does not meet all requirements" }));
+      return;
+    }
+
+    // Validate confirm password
+    if (!confirmPassword) {
+      setErrors(prev => ({ ...prev, confirmPassword: "Please confirm your password!" }));
+      return;
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      setErrors(prev => ({ ...prev, confirmPassword: "Passwords don't match. Please re-enter." }));
+      return;
+    }
+
+    // If all validations pass, proceed with OTP
+    if (window.sendOtp) {
+      const formattedNumber = `91${mobileNumber}`.replace('+', '');
+      window.sendOtp(
+        formattedNumber,
+        (successData) => {
+          console.log("OTP sent successfully:", successData);
+          if (successData && successData.message) {
+            const reqId = successData.message;
+            onViewChange("verifyOTP", mobileNumber, false, true, password, reqId);
+          } else {
+            console.error("No requestId in response:", successData);
+          }
+        },
+        (error) => {
+          console.error("Error sending OTP:", error);
+        }
+      );
+    }
+  };
+
+  const tooltipContent = (
+    <div className="password-requirements">
+      <div className={`requirement ${passwordStrength.length ? 'valid' : 'invalid'}`}>
+        6 Character
+      </div>
+      <div className={`requirement ${passwordStrength.capital ? 'valid' : 'invalid'}`}>
+        At least One Capital Letter
+      </div>
+      <div className={`requirement ${passwordStrength.small ? 'valid' : 'invalid'}`}>
+        At least One Small Letter
+      </div>
+      <div className={`requirement ${passwordStrength.special ? 'valid' : 'invalid'}`}>
+        At least One Special Character
+      </div>
+      <div className={`requirement ${passwordStrength.number ? 'valid' : 'invalid'}`}>
+        At least One number
+      </div>
+      <div className={`requirement ${passwordStrength.space ? 'valid' : 'invalid'}`}>
+        No Space
+      </div>
+    </div>
+  );
 
   return (
     <div className="signup-form-wrapper">
       <div className="signup-form-container">
         <h2 className="title">Set Password</h2>
 
-        <Form name="setPassword" className="set-password-form" style={{padding: "0"}}>
-          <Form.Item
-            name="password"
-            className="phone-form-item"
-            rules={[{ required: true, message: "Please input your password!" }]}
-          >
-            <label htmlFor="password" className="onboard-fields-label">
+        <div className="set-password-form" style={{padding: "0"}}>
+          <div className="phone-form-item">
+            <label className="onboard-fields-label">
               Create a Password
             </label>
             <Input.Password
+              value={password}
               placeholder="Enter password"
               iconRender={(visible) =>
                 visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
               }
               className="password-input"
+              onChange={handlePasswordChange}
               bordered={false}
             />
-          </Form.Item>
+            {errors.password && <div className="error-message">{errors.password}</div>}
+            {showTooltip && tooltipContent}
+          </div>
 
-          <Form.Item
-            name="confirmPassword"
-            className="phone-form-item"
-            rules={[
-              { required: true, message: "Please confirm your password!" },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("password") === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(
-                    new Error("The passwords do not match!")
-                  );
-                },
-              }),
-            ]}
-          >
-            <label htmlFor="confirmPassword" className="onboard-fields-label">
+          <div className="phone-form-item">
+            <label className="onboard-fields-label">
               Re-enter Password
             </label>
             <Input.Password
+              value={confirmPassword}
               placeholder="Confirm password"
-              visibilityToggle={false}
               className="password-input"
+              onChange={handleConfirmPasswordChange}
               bordered={false}
+              visibilityToggle={false}
             />
-          </Form.Item>
+            {errors.confirmPassword && <div className="error-message">{errors.confirmPassword}</div>}
+          </div>
 
           <Button
             type="primary"
@@ -106,19 +193,15 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
             Continue
           </Button>
 
-          <div className="go-back"  style={{marginTop: "20px"}} onClick={handleGoBack}>
+          <div className="go-back" style={{marginTop: "20px"}} onClick={() => onViewChange("loginPassword")}>
             Go back
           </div>
-        </Form>
+        </div>
       </div>
       <div className="partners-section">
         <img src={abdmLogo} alt="ABDM" className="abdm-logo" />
         <img src={nhaLogo} alt="NHA" className="nha-logo" />
-        <img
-          src={googlePartner}
-          alt="Google Partner"
-          className="google-partner"
-        />
+        <img src={googlePartner} alt="Google Partner" className="google-partner" />
       </div>
     </div>
   );
