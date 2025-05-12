@@ -33,7 +33,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    width: 100%;
+    width: 75%;
     margin: 0 auto;
 
     @media (max-width: 768px) {
@@ -46,13 +46,14 @@
   }
 
   .stat-card {
-    padding: 2rem;
     display: flex;
     align-items: center;
+    padding-top: 1rem;
     gap: 1rem;
     transition: transform 0.3s ease;
     border-radius: 2rem;
     border: 1px solid #F2E2FF;
+    overflow: hidden;
     background: linear-gradient(282deg, rgba(233, 204, 255, 0.00) -0.04%, rgba(242, 225, 255, 0.80) 130.11%);
 
     &:hover {
@@ -62,22 +63,27 @@
     .stat-icon {
       font-size: 2rem;
       opacity: 0.7;
+      position: relative;
+      bottom: -4%;
     }
 
     .stat-content {
       text-align: left;
 
       .stat-number {
-        font-size: 1.8rem;
+        color: #64388D;
+        font-family: Poppins;
+        font-size: 1.75rem;
         font-weight: 700;
-        color: #27276F;
-        margin: 0;
+        line-height: 2.07194rem; /* 118.397% */
       }
 
       .stat-description {
-        font-size: 1rem;
-        color: #666;
-        margin: 0.5rem 0 0;
+        color: #64388D !important;
+        font-family: Poppins !important;
+        font-size: 1.25rem !important;
+        font-weight: 400 !important;
+        line-height: 2.07194rem !important; 
       }
     }
   }

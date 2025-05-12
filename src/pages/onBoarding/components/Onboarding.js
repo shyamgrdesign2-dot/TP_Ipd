@@ -129,7 +129,18 @@ const Onboarding = () => {
         <Testimonials />
         <FAQ />
         <div className="onboarding-footer">
-          <img src={Hook} alt="footer banner" />
+          <div className="onboarding-footer-container">
+            <img src={Hook} alt="footer banner" style={{ width: "100%" }}/>
+            {/* Elevation Card */}
+            <div className="elevation-card">
+            <h2 className="gradient-card-text">Ready To Elevate Your Practice?</h2>
+            <p>Sign up for free now or chat with us to get more personalized insights and updates.</p>
+            <div className="button-group">
+              <button className="sign-up-btn">Sign Up</button>
+              <button className="chat-btn">Chat with us</button>
+            </div>
+            </div>
+          </div>
           <Footer />
         </div>
       </div>
