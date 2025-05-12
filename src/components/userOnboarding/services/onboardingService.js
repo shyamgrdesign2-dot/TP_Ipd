@@ -184,20 +184,3 @@ export const uploadDocuments = async (
     throw error;
   }
 };
-
-/**
- * Map between speciality names and department IDs
- * This is a placeholder mapping - you should replace with actual values
- */
-export const specialityToDepartmentId = {
-  Dermatologist: 14,
-  Cardiologist: 2,
-  Neurologist: 3,
-  Pediatrician: 4,
-  Orthopedist: 5,
-  Gynecologist: 6,
-  Oncologist: 7,
-  Psychiatrist: 8,
-  Ophthalmologist: 9,
-  "ENT Specialist": 10,
-};

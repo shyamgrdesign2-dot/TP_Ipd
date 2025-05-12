@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Steps, Button, Drawer, message } from "antd";
-import { CheckOutlined } from "@ant-design/icons";
+import { Button, Drawer, message } from "antd";
 import BasicInfoStep from "./steps/BasicInfoStep";
 import ClinicDetailsStep from "./steps/ClinicDetailsStep";
 import UploadProofStep from "./steps/UploadProofStep";
 import styles from "./DoctorOnboarding.module.css";
+import axios from "axios";
+import config from "../../config";
 import {
   updateOnboardingDetails,
-  specialityToDepartmentId,
   finalizeOnboarding,
   uploadDocuments,
   initOnboarding,
-  updateLocation,
 } from "./services/onboardingService";
-import { getUserData, getUtmParams } from "./services/userDataService";
+import { getUserMobileNumber, getUtmParams } from "./services/userDataService";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import CustomStepper from "./CustomStepper";
 import { useNavigate } from "react-router-dom";
@@ -22,9 +21,11 @@ const DoctorOnboarding = ({ visible, onClose }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
-  const [userData, setUserData] = useState(null);
+  const [userMobileNumber, setUserMobileNumber] = useState(null);
   const [utmParams, setUtmParams] = useState(null);
   const [userOnboardingId, setUserOnboardingId] = useState(null);
+  const [specialities, setSpecialities] = useState([]);
+  const [specialitiesLoading, setSpecialitiesLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     speciality: "",
@@ -37,6 +38,48 @@ const DoctorOnboarding = ({ visible, onClose }) => {
     mrcCertificate: null,
   });
   const navigate = useNavigate();
+
+  // Fetch specialities from API
+  const fetchSpecialities = async () => {
+    setSpecialitiesLoading(true);
+    try {
+      const response = await axios.post(
+        `${config.user_management_api_url}/master/data`,
+        {
+          dataType: ["Speciality"],
+        },
+        {
+          headers: {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (response.data && response.data.speciality) {
+        setSpecialities(response.data.speciality);
+      }
+    } catch (error) {
+      console.error("Error fetching specialities:", error);
+    } finally {
+      setSpecialitiesLoading(false);
+    }
+  };
+
+  // Check if form is valid for current step
+  const isFormValidForCurrentStep = () => {
+    if (currentStep === 0) {
+      return formData.fullName && formData.speciality;
+    }
+    if (currentStep === 1) {
+      return formData.clinicName && formData.clinicPincode;
+    }
+    if (currentStep === 2) {
+      return formData.governmentIdProof && formData.mrcCertificate;
+    }
+    return true;
+  };
 
   // Init API call to get user details and determine starting step
   const initializeOnboarding = async (phoneNumber, utm) => {
@@ -52,21 +95,16 @@ const DoctorOnboarding = ({ visible, onClose }) => {
       let updatedFormData = { ...formData };
 
       // Basic details
-      if (response.basicDetails) {
+      if (response?.basicDetails?.departmentId) {
         updatedFormData = {
           ...updatedFormData,
           fullName: response.basicDetails.doctorName || "",
-          speciality:
-            Object.keys(specialityToDepartmentId).find(
-              (key) =>
-                specialityToDepartmentId[key] ===
-                response.basicDetails.departmentId
-            ) || "",
+          speciality: response.basicDetails.departmentId,
         };
       }
 
       // Hospital details
-      if (response.hospitalDetails) {
+      if (response?.hospitalDetails?.clinicName) {
         updatedFormData = {
           ...updatedFormData,
           clinicName: response.hospitalDetails.clinicName || "",
@@ -77,13 +115,16 @@ const DoctorOnboarding = ({ visible, onClose }) => {
 
       setFormData(updatedFormData);
 
-      // if (response.hospitalDetails && response.basicDetails) {
-      //   setCurrentStep(2);
-      // } else if (response.basicDetails) {
-      //   setCurrentStep(1);
-      // } else {
-      //   setCurrentStep(0);
-      // }
+      if (
+        response?.hospitalDetails?.clinicName &&
+        response?.basicDetails?.departmentId
+      ) {
+        setCurrentStep(2);
+      } else if (response?.basicDetails?.departmentId) {
+        setCurrentStep(1);
+      } else {
+        setCurrentStep(0);
+      }
     } catch (error) {
       console.error("Error initializing onboarding:", error);
       // If initialization fails, just start from the beginning
@@ -95,15 +136,18 @@ const DoctorOnboarding = ({ visible, onClose }) => {
 
   // Load user data and UTM params on mount
   useEffect(() => {
-    const user = getUserData();
+    const user = getUserMobileNumber();
     const utm = getUtmParams();
 
-    setUserData(user);
+    setUserMobileNumber(user);
     setUtmParams(utm);
+
+    // Fetch specialities
+    fetchSpecialities();
 
     // If the drawer is visible, initialize onboarding
     if (visible) {
-      initializeOnboarding(user.phoneNumber, utm);
+      initializeOnboarding(user, utm);
     }
   }, [visible]);
 
@@ -128,7 +172,14 @@ const DoctorOnboarding = ({ visible, onClose }) => {
   const steps = [
     {
       title: "Basic Info",
-      content: <BasicInfoStep formData={formData} setFormData={setFormData} />,
+      content: (
+        <BasicInfoStep
+          formData={formData}
+          setFormData={setFormData}
+          specialities={specialities}
+          loading={specialitiesLoading}
+        />
+      ),
     },
     {
       title: "Clinic Details",
@@ -160,20 +211,19 @@ const DoctorOnboarding = ({ visible, onClose }) => {
     try {
       // Use real user data from context/token
       const doctorData = {
-        id: userOnboardingId || userData?.id || "6814921b5e22fe117c85ccc4",
-        phone_number: userData?.phoneNumber || "2288333366",
+        id: userOnboardingId,
+        phone_number: userMobileNumber,
         doctorName: formData.fullName,
-        departmentId: specialityToDepartmentId[formData.speciality] || 1,
+        departmentId: formData.speciality,
         // Use real UTM data
-        utm_source: utmParams?.utm_source || "Source 4589",
-        utm_campaign: utmParams?.utm_campaign || "Campaign 4589",
-        utm_term: utmParams?.utm_term || "Term 4589",
-        utm_content: utmParams?.utm_content || "Content 4589",
-        utm_medium: utmParams?.utm_medium || "Medium 4589",
+        utm_source: utmParams?.utm_source,
+        utm_campaign: utmParams?.utm_campaign,
+        utm_term: utmParams?.utm_term,
+        utm_content: utmParams?.utm_content,
+        utm_medium: utmParams?.utm_medium,
       };
 
       await updateOnboardingDetails(doctorData);
-      message.success("Basic information saved successfully");
       return true;
     } catch (error) {
       message.error("Failed to update your information. Please try again.");
@@ -202,41 +252,18 @@ const DoctorOnboarding = ({ visible, onClose }) => {
     setIsSubmitting(true);
 
     try {
-      // If we have location coordinates, update them first
-      if (formData.clinic_lat && formData.clinic_long) {
-        try {
-          const rawToken = localStorage.getItem(
-            PERSISTANT_STORAGE_KEY_AUTH_TOKEN
-          );
-          if (rawToken) {
-            const authToken = JSON.parse(rawToken);
-            const locationData = {
-              clinic_lat: formData.clinic_lat,
-              clinic_long: formData.clinic_long,
-            };
-
-            // Call the updateLocation API
-            await updateLocation(locationData, authToken);
-            console.log("Location coordinates updated successfully");
-          }
-        } catch (locationError) {
-          console.error("Error updating location coordinates:", locationError);
-          // Continue with the process even if location update fails
-        }
-      }
-
       // Combine all the data for the finalize API
       const finalizeData = {
-        id: userOnboardingId || userData?.id || "6814921b5e22fe117c85ccc4",
-        phone_number: userData?.phoneNumber || "2288333366",
+        id: userOnboardingId,
+        phone_number: userMobileNumber,
         doctorName: formData.fullName,
-        departmentId: specialityToDepartmentId[formData.speciality] || 1,
+        departmentId: formData.speciality,
         // UTM data
-        utm_source: utmParams?.utm_source || "Source 4589",
-        utm_campaign: utmParams?.utm_campaign || "Campaign 4589",
-        utm_term: utmParams?.utm_term || "Term 4589",
-        utm_content: utmParams?.utm_content || "Content 4589",
-        utm_medium: utmParams?.utm_medium || "Medium 4589",
+        utm_source: utmParams?.utm_source,
+        utm_campaign: utmParams?.utm_campaign,
+        utm_term: utmParams?.utm_term,
+        utm_content: utmParams?.utm_content,
+        utm_medium: utmParams?.utm_medium,
         // Clinic data
         clinicName: formData.clinicName,
         clinicAddress: formData.clinicAddress,
@@ -245,7 +272,17 @@ const DoctorOnboarding = ({ visible, onClose }) => {
         clinic_long: formData.clinic_long || "", // No default fallback in production
       };
 
-      await finalizeOnboarding(finalizeData);
+      const response = await finalizeOnboarding(finalizeData);
+
+      // If response is successful and contains a token, update it in localStorage
+      if (response && response.token) {
+        localStorage.setItem(
+          PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+          JSON.stringify(response.token)
+        );
+        console.log("Token updated in localStorage");
+      }
+
       message.success("Clinic details saved successfully");
       return true;
     } catch (error) {
@@ -326,7 +363,7 @@ const DoctorOnboarding = ({ visible, onClose }) => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "20px",
+          marginBottom: "30px",
           paddingBottom: "20px",
           borderBottom: "1px solid #f0f0f0",
         }}
@@ -356,9 +393,17 @@ const DoctorOnboarding = ({ visible, onClose }) => {
               type="primary"
               onClick={nextStep}
               loading={isSubmitting}
+              disabled={!isFormValidForCurrentStep()}
+              className={
+                !isFormValidForCurrentStep() ? styles.disabledButton : ""
+              }
               style={{
-                backgroundColor: "#4f46e5",
-                borderColor: "#4f46e5",
+                backgroundColor: isFormValidForCurrentStep()
+                  ? "#4f46e5"
+                  : undefined,
+                borderColor: isFormValidForCurrentStep()
+                  ? "#4f46e5"
+                  : undefined,
                 borderRadius: "8px",
                 height: "40px",
               }}
@@ -371,11 +416,18 @@ const DoctorOnboarding = ({ visible, onClose }) => {
             type="primary"
             onClick={nextStep}
             loading={isSubmitting}
+            disabled={!isFormValidForCurrentStep()}
+            className={
+              !isFormValidForCurrentStep() ? styles.disabledButton : ""
+            }
             style={{
-              backgroundColor: "#4f46e5",
-              borderColor: "#4f46e5",
+              backgroundColor: isFormValidForCurrentStep()
+                ? "#4f46e5"
+                : undefined,
+              borderColor: isFormValidForCurrentStep() ? "#4f46e5" : undefined,
               borderRadius: "8px",
               height: "40px",
+              padding: "0 25px",
             }}
           >
             Next
@@ -389,7 +441,7 @@ const DoctorOnboarding = ({ visible, onClose }) => {
             steps={[
               { label: "Basic Info" },
               { label: "Clinic Details" },
-              { label: "Upload Proof" },
+              { label: "Upload ID" },
             ]}
             currentStep={currentStep}
           />
@@ -419,10 +471,11 @@ const DoctorOnboarding = ({ visible, onClose }) => {
       width={650}
       maskClosable={false}
       mask={true}
-      maskStyle={{ backgroundColor: "rgba(0, 0, 0, 0.45)" }}
+      maskStyle={{ backgroundColor: "transparent" }}
       zIndex={1100}
       footer={null}
       bodyStyle={{ padding: 0 }}
+      className="onboarding-drawer"
     >
       {drawerContent}
     </Drawer>

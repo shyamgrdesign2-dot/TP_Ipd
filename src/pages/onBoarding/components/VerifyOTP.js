@@ -10,7 +10,15 @@ import { setPassword } from "../../auth/authService";
 import { loginWithPassword } from "../../auth/authService";
 import useOnboardingTrigger from "../../../components/userOnboarding/useOnboardingTrigger";
 
-const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPasswordSetFlow, tempPassword, reqId }) => {
+const VerifyOTP = ({
+  onViewChange,
+  mobileNumber,
+  isLoginFlow,
+  isUserExists,
+  isPasswordSetFlow,
+  tempPassword,
+  reqId,
+}) => {
   const [timer, setTimer] = useState(15);
   const [canResend, setCanResend] = useState(false);
   const [otp, setOtp] = useState("");
@@ -71,10 +79,13 @@ const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPa
             if (isPasswordSetFlow) {
               try {
                 const response = await setPassword(mobileNumber, tempPassword);
-                
+
                 if (response.success) {
-                  const loginResponse = await loginWithPassword(mobileNumber, tempPassword);
-                  
+                  const loginResponse = await loginWithPassword(
+                    mobileNumber,
+                    tempPassword
+                  );
+
                   if (loginResponse.ssoUrl) {
                     const deviceType = isMobile ? "mobile" : "desktop";
                     window.location.href = `${loginResponse.ssoUrl}&device_type=${deviceType}`;
@@ -90,7 +101,11 @@ const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPa
               const response = await verifyAccessToken(mobileNumber, message);
 
               if (response) {
-                const { message: responseMessage, ssoUrl, passwordSet } = response;
+                const {
+                  message: responseMessage,
+                  ssoUrl,
+                  passwordSet,
+                } = response;
 
                 if (ssoUrl) {
                   const deviceType = isMobile ? "mobile" : "desktop";
@@ -131,7 +146,7 @@ const VerifyOTP = ({ onViewChange, mobileNumber, isLoginFlow, isUserExists, isPa
     //     console.error('Error removing MSG91 provider:', e);
     //   }
     // }
-    
+
     onViewChange(isLoginFlow ? "loginOTP" : "signup", mobileNumber);
   };
 

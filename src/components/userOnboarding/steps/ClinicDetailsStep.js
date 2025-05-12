@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Input, Button, message } from "antd";
-import { EnvironmentOutlined } from "@ant-design/icons";
+import { Input, message } from "antd";
 import styles from "../DoctorOnboarding.module.css";
 import axios from "axios";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
+import currentLocation from "../../../assets/images/current-location.svg";
 
 const ClinicDetailsStep = ({ formData, setFormData }) => {
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
@@ -83,7 +83,7 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
     }
 
     // Show a message to check browser permissions
-    message.info("Please allow location access when prompted by your browser");
+    // message.info("Please allow location access when prompted by your browser");
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -101,7 +101,7 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
 
         // Set coordinates as detected - this will hide the button
         setCoordsDetected(true);
-        message.success("Location coordinates detected successfully!");
+        // message.success("Location coordinates detected successfully!");
 
         // Try to get pincode from coordinates using reverse geocoding
         // This is just a simple example - in production you might use a more robust service
@@ -169,7 +169,7 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
       }
     } catch (error) {
       console.error("Error in reverse geocoding:", error);
-      message.info("Unable to determine pincode. Please enter manually.");
+      // message.info("Unable to determine pincode. Please enter manually.");
     } finally {
       setIsDetectingLocation(false);
     }
@@ -178,8 +178,20 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
   return (
     <div>
       <div className={styles.inputField}>
-        <label className={`${styles.formLabel} ${styles.required}`}>
+        <label
+          style={{
+            display: "block",
+            marginBottom: "8px",
+            color: "#454551",
+            fontFamily: "Poppins",
+            fontSize: "0.875rem",
+            fontStyle: "normal",
+            fontWeight: 400,
+            lineHeight: "1.25rem",
+          }}
+        >
           Clinic Name
+          <span className={styles.requiredAsterisk}>*</span>
         </label>
         <Input
           placeholder="Enter your Clinic Name"
@@ -188,17 +200,32 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
           onChange={handleInputChange}
           size="large"
           status={formData.clinicName ? "" : "error"}
+          style={{
+            width: "100%",
+            height: "3.5rem",
+            borderRadius: "6px",
+            borderColor: formData.clinicName ? "#d1d5db" : "#E2E2EA",
+            fontSize: "16px",
+          }}
+          className={styles.focusedInput}
         />
-        {!formData.clinicName && (
-          <div style={{ color: "#ff4d4f", fontSize: "12px", marginTop: "4px" }}>
-            Please enter your clinic name
-          </div>
-        )}
       </div>
 
       <div className={styles.inputField}>
-        <label className={`${styles.formLabel} ${styles.required}`}>
+        <label
+          style={{
+            display: "block",
+            marginBottom: "8px",
+            color: "#454551",
+            fontFamily: "Poppins",
+            fontSize: "0.875rem",
+            fontStyle: "normal",
+            fontWeight: 400,
+            lineHeight: "1.25rem",
+          }}
+        >
           Clinic Pincode
+          <span className={styles.requiredAsterisk}>*</span>
         </label>
         <div style={{ position: "relative" }}>
           <Input
@@ -208,30 +235,31 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
             onChange={handleInputChange}
             size="large"
             status={formData.clinicPincode ? "" : "error"}
-            style={{ width: "100%" }}
+            style={{
+              width: "100%",
+              height: "3.5rem",
+              borderRadius: "6px",
+              borderColor: formData.clinicPincode ? "#d1d5db" : "#E2E2EA",
+              fontSize: "16px",
+            }}
+            className={styles.focusedInput}
             suffix={
               !coordsDetected && (
-                <Button
-                  type="link"
-                  onClick={handleDetectLocation}
-                  loading={isDetectingLocation}
-                  disabled={isSearchingPincode}
+                <div
+                  className={styles.detectLocationButton}
+                  onClick={
+                    !isSearchingPincode ? handleDetectLocation : undefined
+                  }
                   style={{
-                    color: "#4f46e5",
-                    border: "1px dashed #4f46e5",
-                    height: "32px",
-                    padding: "0 12px",
-                    display: "flex",
-                    alignItems: "center",
-                    borderRadius: "4px",
-                    fontSize: "14px",
-                    lineHeight: "1",
+                    cursor: isSearchingPincode ? "not-allowed" : "pointer",
                     marginRight: "-7px",
                   }}
                 >
-                  <EnvironmentOutlined style={{ marginRight: "4px" }} />
-                  Detect Location
-                </Button>
+                  <img src={currentLocation} alt="Current Location" />
+                  <span className={styles.detectLocationText}>
+                    {isDetectingLocation ? "Detecting..." : "Detect Location"}
+                  </span>
+                </div>
               )
             }
           />
@@ -251,11 +279,6 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
             </div>
           )}
         </div>
-        {!formData.clinicPincode && !locationError && (
-          <div style={{ color: "#ff4d4f", fontSize: "12px", marginTop: "4px" }}>
-            Please enter your clinic pincode
-          </div>
-        )}
         {locationError && (
           <div style={{ color: "#ff4d4f", fontSize: "12px", marginTop: "4px" }}>
             {locationError}
@@ -264,23 +287,36 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
       </div>
 
       <div className={styles.inputField}>
-        <label className={`${styles.formLabel} ${styles.required}`}>
+        <label
+          style={{
+            display: "block",
+            marginBottom: "8px",
+            color: "#454551",
+            fontFamily: "Poppins",
+            fontSize: "0.875rem",
+            fontStyle: "normal",
+            fontWeight: 400,
+            lineHeight: "1.25rem",
+          }}
+        >
           Clinic Address
         </label>
-        <Input.TextArea
+        <Input
           placeholder="Enter your Clinic Address ( Building, Street etc)"
           name="clinicAddress"
           value={formData.clinicAddress}
           onChange={handleInputChange}
           size="large"
-          rows={4}
           status={formData.clinicAddress ? "" : "error"}
+          style={{
+            width: "100%",
+            height: "3.5rem",
+            borderRadius: "6px",
+            borderColor: formData.clinicAddress ? "#d1d5db" : "#E2E2EA",
+            fontSize: "16px",
+          }}
+          className={styles.focusedInput}
         />
-        {!formData.clinicAddress && (
-          <div style={{ color: "#ff4d4f", fontSize: "12px", marginTop: "4px" }}>
-            Please enter your clinic address
-          </div>
-        )}
       </div>
     </div>
   );

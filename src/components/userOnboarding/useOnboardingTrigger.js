@@ -20,10 +20,10 @@ const useOnboardingTrigger = ({
   useEffect(() => {
     // Show onboarding drawer if account status is false (needs verification)
     // or onboarding is not complete, or if forceShow is true
-    if (!accountStatus || !onboardingComplete || forceShow) {
+    if (forceShow) {
       showOnboarding();
     }
-  }, [accountStatus, onboardingComplete, forceShow, showOnboarding]);
+  }, [forceShow, showOnboarding]);
 
   return { triggerOnboarding: showOnboarding };
 };

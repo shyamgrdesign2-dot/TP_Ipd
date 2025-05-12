@@ -1,66 +1,67 @@
 import React from "react";
 import styles from "./CustomStepper.module.css";
-import { CheckOutlined } from "@ant-design/icons";
 
 const CustomStepper = ({ steps, currentStep }) => {
   return (
     <div className={styles.stepperOuter}>
-      <div className={styles.circlesRow}>
+      <div className={styles.stepsContainer}>
         {steps.map((step, idx) => {
           const isCompleted = idx < currentStep;
           const isActive = idx === currentStep;
+
+          // Calculate label position to align with circle
           return (
-            <React.Fragment key={step.label}>
-              <div
-                className={
-                  isCompleted
-                    ? styles.circleCompleted
-                    : isActive
-                    ? styles.circleActive
-                    : styles.circleUpcoming
-                }
-              >
-                {isCompleted ? (
-                  <svg width="32" height="32" viewBox="0 0 22 22" fill="none">
-                    <path
-                      d="M6 11.5L10 15.5L16 8.5"
-                      stroke="#fff"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                ) : isActive ? (
-                  <div className={styles.innerDot} />
-                ) : null}
-              </div>
-              {/* Connector to next step */}
-              {idx !== steps.length - 1 && (
+            <div key={step.label} className={styles.stepWithLabel}>
+              <div className={styles.stepCircleWrapper}>
                 <div
-                  className={styles.connector}
-                  style={{
-                    background: idx < currentStep ? "#4f46e5" : "#d1d5db",
-                  }}
-                />
-              )}
-            </React.Fragment>
-          );
-        })}
-      </div>
-      <div className={styles.labelsRow}>
-        {steps.map((step, idx) => {
-          const isCompleted = idx < currentStep;
-          const isActive = idx === currentStep;
-          return (
-            <div
-              key={step.label}
-              className={
-                isCompleted || isActive
-                  ? styles.labelActive
-                  : styles.labelUpcoming
-              }
-            >
-              {step.label}
+                  className={
+                    isCompleted
+                      ? styles.circleCompleted
+                      : isActive
+                      ? styles.circleActive
+                      : styles.circleUpcoming
+                  }
+                >
+                  {isCompleted ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="31"
+                      height="31"
+                      viewBox="0 0 31 31"
+                      fill="none"
+                    >
+                      <path
+                        d="M11.6471 20.2158L24.025 7.83789L25.6686 9.48141L11.6471 23.5028L5.12793 16.9856L6.77145 15.3421L11.6471 20.2158Z"
+                        fill="white"
+                      />
+                    </svg>
+                  ) : isActive ? (
+                    <div className={styles.innerDot} />
+                  ) : null}
+                </div>
+
+                {/* Only show connector if not the last step */}
+                {idx < steps.length - 1 && (
+                  <div
+                    className={styles.connector}
+                    style={{
+                      background: idx < currentStep ? "#4f46e5" : "#d1d5db",
+                    }}
+                  />
+                )}
+              </div>
+
+              <div className={styles.labelContainer}>
+                <span
+                  className={
+                    isCompleted || isActive
+                      ? styles.labelActive
+                      : styles.labelUpcoming
+                  }
+                >
+                  {step.label}
+                </span>
+              </div>
             </div>
           );
         })}

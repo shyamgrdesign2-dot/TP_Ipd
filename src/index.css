@@ -29,6 +29,25 @@ body.drawer-open-blur #root > *:not(.ant-drawer-root) {
 }
 
 .ant-drawer-mask {
-  backdrop-filter: blur(5px);
-  background-color: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(2px) !important;
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  background-image: url('./assets/images/blur-bg.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Style the onboarding drawer */
+.onboarding-drawer .ant-drawer-content-wrapper {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+.onboarding-drawer .ant-drawer-content {
+  border-radius: 16px 0 0 16px !important;
+  overflow: hidden !important;
+}
+
+/* Make sure the onboarding drawer is in front of the blur overlay */
+.onboarding-drawer {
+  z-index: 1001 !important;
 }
