@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './Testimonials.scss';
+import testimonialIcon from "../../../../assets/images/onboard-page-icons/LP-Testimonial-icon.svg";
+
 
 const Testimonials = () => {
   const testimonials = [
@@ -33,7 +35,11 @@ const Testimonials = () => {
     <div className="testimonials-container">
       <h2 className="testimonials-title">
         Hear from<br />
-        Healthcare Professionals <span className="crown">👑</span>
+        Healthcare Professionals 
+        <img
+          src={testimonialIcon}
+          alt="feature-icon"
+        />
       </h2>
       
       <div className="testimonials-carousel">
