@@ -65,4 +65,8 @@ ApiMonetization.interest = function (data) {
     return api.post(`/user/tatva/interest`, data, baseUserManagementUrl);
 };
 
+ApiMonetization.invoiceGenerate = function (invoice_id) {
+    return api.get(`/user/tatva/invoice/${invoice_id}`, baseUserManagementUrl);
+};
+
 export default ApiMonetization;

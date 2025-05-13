@@ -4,7 +4,7 @@ import { Navbar } from "react-bootstrap";
 
 import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../utils/constants";
 
-const BillingHistoryNew = ({ show, setShow, handlePdfDrawer, billingHistoryList }) => {
+const BillingHistoryNew = ({ show, setShow, generateInvoice, billingHistoryList }) => {
 
   const columns = [
     {
@@ -34,7 +34,7 @@ const BillingHistoryNew = ({ show, setShow, handlePdfDrawer, billingHistoryList 
       title: 'Invoice',
       dataIndex: 'invoice_generated',
       key: 'invoice_generated',
-      render: (text) => <button className="btn btn-link text-primary p-0" onClick={handlePdfDrawer}>{text}</button> || "N/A",
+      render: (text) => <button className="btn btn-link text-primary p-0" onClick={() => generateInvoice(text)}>{text}</button> || "N/A",
       onCell: (record) => ({
         rowSpan: record.rowSpan,
       }),

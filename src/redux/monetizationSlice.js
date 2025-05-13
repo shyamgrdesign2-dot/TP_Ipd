@@ -145,6 +145,18 @@ export const interest = createAsyncThunk(
     }
 );
 
+export const invoiceGenerate = createAsyncThunk(
+    "monetization/invoiceGenerate",
+    async (invoice_id, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.invoiceGenerate(invoice_id);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
 const monetizationSlice = createSlice({
     name: "monetization",
     initialState,

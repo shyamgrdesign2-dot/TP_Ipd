@@ -11,7 +11,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = worker
 function BillingPrint({ handlePdfDrawer, PDF_URL }) {
 
   const divRef = useRef(null);
-  const printableRef = useRef(null);
 
   const [divWidth, setDivWidth] = useState(0);
   const [numPages, setNumPages] = useState();
