@@ -266,7 +266,7 @@ function GetUnlimitedAccess() {
                                                 )
                                             })}
                                             <div className="addons-expand-collapse align-items-center d-flex" onClick={handleShowAll}>
-                                                View {showAll ? 'less' : 'more'} addons <i className={`ms-2 icon-right ${showAll ? 'iconrotatehistory90' : 'iconrotate270'} `}></i>
+                                                View {showAll ? 'less' : 'more'} add-ons <i className={`ms-2 icon-right ${showAll ? 'iconrotatehistory90' : 'iconrotate270'} `}></i>
                                             </div>
                                         </div>
                                     </Col>
