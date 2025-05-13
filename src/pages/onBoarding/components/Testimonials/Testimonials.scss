@@ -10,8 +10,10 @@
     margin-bottom: 3rem;
     line-height: 1.2;
 
-    .crown {
-      font-size: 2rem;
+    img {
+      width: 3rem;
+      height: 3rem;
+      margin: -6rem 0.3rem !important;
     }
   }
 
@@ -69,6 +71,7 @@
     .rating {
       .star {
         color: #D0D5DD;
+
         &.filled {
           color: #FDB022;
         }
@@ -102,4 +105,36 @@
       }
     }
   }
-} 
+}
+
+@media (max-width: 768px) {
+  .testimonials-container {
+    padding: 1rem 1rem !important;
+
+    .testimonials-title {
+      font-size: 1.7rem !important;
+      img {
+        width: 2rem !important;
+        height: 2rem !important;
+        margin: -6rem 0.3rem !important;
+      }
+    }
+
+    .testimonials-carousel {
+      flex-direction: row !important;
+      // overflow-x: scroll !important;
+      // max-width: 80% !important;
+    }
+
+    .testimonial-card {
+      flex: 0 0 300px !important;
+      max-width: 90% !important;
+      padding: 1rem;
+      border-radius: 20px;
+
+      .testimonial-header .hospital-logo {
+        display: none;
+      }
+    }
+  }
+}

@@ -11,6 +11,7 @@ import FAQ from "./FAQ/FAQ.js";
 import OurScale from "./OurScale/OurScale.js";
 import Footer from "./Footer/Footer.js";
 import Hook from "../../../assets/images/website-images/Hook.png";
+import Hook1 from "../../../assets/images/website-images/Hook1.png";
 import "./Onboarding.scss";
 import "./FeatureTabCard/FeatureTabCard.scss";
 import { OnboardingProvider } from "../../../components/userOnboarding/OnboardingContext";
@@ -25,6 +26,7 @@ const Onboarding = () => {
   const [isPasswordSetFlow, setIsPasswordSetFlow] = useState(false);
   const [tempPassword, setTempPassword] = useState("");
   const [reqId, setReqId] = useState("");
+  const [footerImage, setFooterImage] = useState(Hook);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -39,8 +41,29 @@ const Onboarding = () => {
     }
   }, []);
 
-  const handleViewChange = (newView, number = "", isUserExists = false, isPasswordSetFlow = false, password = "", reqId = "") => {
+  useEffect(() => {
+    const handleResize = () => {
+      setFooterImage(window.innerWidth <= 768 ? Hook1 : Hook);
+    };
 
+    // Set initial image
+    handleResize();
+
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handleViewChange = (
+    newView,
+    number = "",
+    isUserExists = false,
+    isPasswordSetFlow = false,
+    password = "",
+    reqId = ""
+  ) => {
     setView(newView);
     if (newView === "loginOTP") {
       setIsLoginFlow(true);
@@ -48,7 +71,7 @@ const Onboarding = () => {
       setIsLoginFlow(false);
     }
     if (number) {
-      localStorage.setItem('mobileNumber', number);
+      localStorage.setItem("mobileNumber", number);
       setMobileNumber(number);
     }
     if (isUserExists) {
@@ -135,37 +158,8 @@ const Onboarding = () => {
           <Testimonials />
           <FAQ />
           <div className="onboarding-footer">
-            <img src={Hook} alt="footer banner" />
-            <Footer />
-          </div>
-        </div>
-
-        <div className="feature-tab-card-container">
-          <TrustBy />
-          <OurScale />
-          <FeatureTabCard
-            feature="EMR Features"
-            title="An EMR the meets all"
-            subTitle="your needs to streamline"
-            tabs={["Clinic Care", "Admin Tasks", "Analytics"]}
-          />
-          <FeatureTabCard
-            feature="Ai Features"
-            title="Empower your"
-            subTitle="practice with Tatva AI"
-            tabs={["DDx", "Smart Sync", "Voice Rx", "Tatva Assist"]}
-          />{" "}
-          <FeatureTabCard
-            feature="Digital Features"
-            title="Grow your"
-            subTitle="practice with us"
-            tabs={["Digital Presence", "Remote Care", "ABDM"]}
-          />
-          <Testimonials />
-          <FAQ />
-          <div className="onboarding-footer">
             <div className="onboarding-footer-container">
-              <img src={Hook} alt="footer banner" style={{ width: "100%" }} />
+              <img src={footerImage} alt="footer banner" />
               {/* Elevation Card */}
               <div className="elevation-card">
                 <h2 className="gradient-card-text">
