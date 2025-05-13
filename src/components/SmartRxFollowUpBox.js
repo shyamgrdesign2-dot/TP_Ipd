@@ -10,10 +10,11 @@ import CashManagerContext from '../context/CashManagerContext';
 import { errorMessage, getFormattedDate, onlyNumberFormat, capitalizeAfterSentence, removeBeforeWhiteSpace } from "../utils/utils";
 import dayjs from "dayjs";
 import followUp from "../assets/images/followup.svg";
+import others from "../assets/images/custom-module.svg";
 
 const dateFormat = 'YYYY-MM-DD'
 
-function SmartRxFollowUpBox() {
+function SmartRxFollowUpBox({isNotes = false}) {
     const {
         // selectedAdviceList,
         templates,
@@ -23,6 +24,8 @@ function SmartRxFollowUpBox() {
 
     const { followUpDate, setFollowUpDate} = useContext(CashManagerContext);
     const [followUpInput, setFollowUpInput] = useState('');
+    const { selectedSymptomsCollector } =
+    useSelector((state) => state.ddx);
 
     const [dateOptions, setDateOptions] = useState([
         { value: '2', unit: 'day', label: "2 Days" },
@@ -99,7 +102,17 @@ function SmartRxFollowUpBox() {
 
     return (
         <>
-            <div style={{padding: "6px"}}>
+            {isNotes ? (
+                <div style={{ padding: "6px" }}>
+                    <div className="d-flex align-items-center mb-14">
+                        <img className="me-3" src={others} alt="others" />
+                        <div className="title-common">Others</div>
+                     </div>
+                    <div className="d-flex calender-merge-input mt-3" style={{fontSize: 14}}>
+                        {selectedSymptomsCollector?.notes}
+                    </div>
+                </div>
+            ) : <div style={{padding: "6px"}}>
                 <div className="d-flex align-items-center mb-14">
                     <img className='me-3' src={followUp} alt="Symptoms" />
                     <div className="title-common">Follow-up</div>
@@ -121,7 +134,7 @@ function SmartRxFollowUpBox() {
                             )
                         })}
                 </div>  
-            </div>
+            </div>}
         </>
     );
 }

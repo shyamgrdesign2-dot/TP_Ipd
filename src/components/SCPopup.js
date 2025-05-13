@@ -47,6 +47,7 @@ const segregateDataByType = (data) => {
       relation: item.relation || "",
       status: "Active",
       medication: normalizedType === "medical_condition" ? "Yes" : "",
+      lineItem: item.lineItem || "",
     };
 
     if (mappedType) {
@@ -71,6 +72,7 @@ const segregateDataByType = (data) => {
           status: item.status,
           medication: item.medication,
           notes: item.notes,
+          lineItem: item.lineItem,
         })),
       },
       {
@@ -81,6 +83,7 @@ const segregateDataByType = (data) => {
           duration: item.duration,
           status: item.status,
           notes: item.notes,
+          lineItem: item.lineItem,
         })),
       },
       {
@@ -91,6 +94,7 @@ const segregateDataByType = (data) => {
           duration: item.duration,
           relation: item.relation,
           notes: item.notes,
+          lineItem: item.lineItem,
         })),
       },
       {
@@ -101,6 +105,7 @@ const segregateDataByType = (data) => {
           duration: item.duration,
           status: item.status,
           notes: item.notes,
+          lineItem: item.lineItem,
         })),
       },
       {

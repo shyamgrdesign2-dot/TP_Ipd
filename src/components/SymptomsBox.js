@@ -117,7 +117,7 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
       setShowShimmer(true);
       const timer = setTimeout(() => {
         setShowShimmer(false);
-      }, 1000); // 2 seconds
+      }, 1000); // 1 seconds
 
       return () => clearTimeout(timer); // Cleanup timeout
     }
@@ -954,18 +954,18 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
       <div className="sc-shimmer-container-table p-14">
         {/* First row */}
         <div className="shimmer-row">
-          <div className="shimmer-cell"></div>
-          <div className="shimmer-cell"></div>
-          <div className="shimmer-cell"></div>
-          <div className="shimmer-cell"></div>
+          <div className="shimmer-cell" />
+          <div className="shimmer-cell" />
+          <div className="shimmer-cell" />
+          <div className="shimmer-cell" />
         </div>
 
         {/* Second row */}
         <div className="shimmer-row">
-          <div className="shimmer-cell"></div>
-          <div className="shimmer-cell"></div>
-          <div className="shimmer-cell"></div>
-          <div className="shimmer-cell"></div>
+          <div className="shimmer-cell" />
+          <div className="shimmer-cell" />
+          <div className="shimmer-cell" />
+          <div className="shimmer-cell" />
         </div>
       </div>
     );

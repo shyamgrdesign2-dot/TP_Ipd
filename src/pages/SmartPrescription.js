@@ -1646,6 +1646,9 @@ function SmartPrescription() {
                 <SCBanner handleBanner={() => setShowSCBanner(false)} />
               )}
               {CUSTOMIZED_PAD_LEFT_LIST()}
+              {selectedSymptomsCollector?.notes && <div className="prescription-box-sm p-14">
+                <SmartRxFollowUpBox isNotes={true} />
+              </div>}
               <div className="prescription-box-sm p-14">
                 <SmartRxFollowUpBox />
               </div>

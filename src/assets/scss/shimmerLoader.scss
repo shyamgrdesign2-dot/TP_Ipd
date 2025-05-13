@@ -98,3 +98,78 @@
     animation: shimmer 2s infinite linear;
   }
 }
+
+.medical-history-shimmer {
+  background: white;
+  border: 1px solid #e5d8f6;
+  border-radius: 20px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.section-shimmer {
+  margin-bottom: 24px;
+}
+
+.section-title-shimmer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.title-bar-shimmer {
+  height: 24px;
+  width: 180px;
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+.icon-shimmer {
+  height: 24px;
+  width: 24px;
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+.content-line-shimmer {
+  height: 20px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.content-line-shimmer.short {
+  width: 40%;
+}
+
+.content-line-shimmer.medium {
+  width: 60%;
+}
+
+.content-line-shimmer.long {
+  width: 80%;
+}
+
+.divider-shimmer {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 16px 0;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.title-bar-shimmer,
+.icon-shimmer,
+.content-line-shimmer {
+  background: linear-gradient(to right, #f3f4f6 4%, #e5e7eb 25%, #f3f4f6 36%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}

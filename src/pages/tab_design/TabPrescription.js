@@ -56,7 +56,7 @@ import medicalRecordsWhite from "../../assets/images/upload-doc-white.svg";
 import medicalRecordsDark from "../../assets/images/upload-doc-dark.svg";
 import labParamsWhite from "../../assets/images/lab-parameters-white.svg";
 import labParamsDark from "../../assets/images/Lab-Parameters.svg";
-
+import genRxBg from "../../assets/images/gen-rx-bg.gif";
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
 // import docsWhite from '../../assets/images/docs-white.svg';
@@ -90,7 +90,7 @@ import DDxKnowMore from "../../components/DDxKnowMore";
 import { getDDxDetails } from "../../api/services/ApiDDx";
 import { getDecodedToken } from "../../utils/localStorage";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { getClinicName } from "../../utils/utils";
+import { getClinicName, trackEvent } from "../../utils/utils";
 import TabSurgicalBox from "../../components/tab_design/TabSurgicalBox";
 import TabAddCustomModule from "../../components/tab_design/TabAddCustomModule";
 import TabCustomModule from "../../components/tab_design/TabCustomModule";
@@ -143,7 +143,7 @@ function TabPrescription() {
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
-  const { isApexAISelected, showSCPopup, isDDxReadyToGenerate, isAutofillSelected } = useSelector(
+  const { isApexAISelected, showSCPopup, isDDxReadyToGenerate, isAutofillSelected, selectedSymptomsCollector } = useSelector(
     (state) => state.ddx
   );
   const { profile } = useSelector((state) => state.doctors);
@@ -257,6 +257,7 @@ function TabPrescription() {
   const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
   const [isGenRxDrawerVisible, setIsGenRxDrawerVisible] = useState(caseManagerData?.smart_prescription_filename || false);
   const [tatvaAiKnowMoreDrawer, setTatvaAiKnowMoreDrawer] = useState(false);
+  const [showShimmer, setShowShimmer] = useState(false);
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchObstetricDetails(patient_data.patient_unique_id);
@@ -289,6 +290,20 @@ function TabPrescription() {
     const response = await fetchAllDocumentCategories();
     dispatch(setUploadDocCategories(response));
   };
+
+  useEffect(() => {
+    if (isAutofillSelected) {
+      setShowShimmer(true);
+      if (selectedSymptomsCollector?.medicalHistory?.length > 0) {
+        openCollapsed(2);
+      }
+      const timer = setTimeout(() => {
+        setShowShimmer(false);
+      }, 1000); // 1 seconds
+
+      return () => clearTimeout(timer); // Cleanup timeout
+    }
+  }, [isAutofillSelected]);
 
   useEffect(() => {
     if (uploadDocCategories.length === 0) {
@@ -869,6 +884,18 @@ function TabPrescription() {
     });
   }
 
+  const handleGenRx = () => {
+    setIsGenRxDrawerVisible(true);
+    const clinic_name = getClinicName(profile?.hospital_data);
+    trackEvent("TP_VoiceRx_Start", {
+      patient_contact: patient_data?.pm_contact_no || "",
+      patient_id: patient_data?.patient_unique_id || "",
+      doctor_speciality: profile?.dp_name,
+      doctor_unique_id: profile?.doctor_unique_id,
+      clinic_name,
+    });
+  };
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -1373,11 +1400,13 @@ function TabPrescription() {
                     (m) => m.module_id === e.tmdpm_id
                   )
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
-                    <div key={i} className="prescription-box-sm">
+                    <div key={i} className="prescription-box-sm" style={showShimmer ? { background: `url(${genRxBg})`, padding: "2px" } : {}}>
+                     <div style={showShimmer ? {background: "white", borderRadius: "17px"} : {}}>
                       <TabSymptomsBox
-                        handleDDxDrawer={handleDDxDrawer}
-                        generatedDDx={generatedDDx?.results}
-                      />
+                          handleDDxDrawer={handleDDxDrawer}
+                          generatedDDx={generatedDDx?.results}
+                        />
+                      </div>
                     </div>
                   ) : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1754,8 +1783,8 @@ function TabPrescription() {
           }
         />
       ) : null}
-      {showSCPopup && (
-        <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} />
+      {showSCPopup && !caseManagerData?.smart_prescription_filename && (
+        <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} handleGenRx={handleGenRx} />
       )}
     </CashManagerContext.Provider>
   );
