@@ -28,7 +28,8 @@ body.drawer-open-blur #root > *:not(.ant-drawer-root) {
   user-select: none;
 }
 
-.ant-drawer-mask {
+/* Apply background styling only to onboarding-drawer */
+.onboarding-drawer .ant-drawer-mask {
   backdrop-filter: blur(2px) !important;
   background-color: rgba(0, 0, 0, 0.2) !important;
   background-image: url('./assets/images/blur-bg.png') !important;
