@@ -35,6 +35,22 @@ const BasicInfoStep = ({ formData, setFormData, specialities, loading }) => {
         font-weight: 400 !important;
         line-height: 1.5rem !important;
       }
+      
+      .ant-select-selector {
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+      }
+      
+      .ant-select-selection-search {
+        display: flex !important;
+        align-items: center !important;
+      }
+      
+      .ant-select-selection-item {
+        display: flex !important;
+        align-items: center !important;
+      }
     `;
     document.head.appendChild(styleElement);
 
@@ -111,7 +127,7 @@ const BasicInfoStep = ({ formData, setFormData, specialities, loading }) => {
           <span className={styles.requiredAsterisk}>*</span>
         </label>
         <Select
-          placeholder="Select your speciality"
+          placeholder="Enter your speciality"
           value={formData.speciality || undefined}
           onChange={handleSpecialityChange}
           size="large"
@@ -124,9 +140,15 @@ const BasicInfoStep = ({ formData, setFormData, specialities, loading }) => {
           dropdownStyle={{ borderRadius: "6px" }}
           status={formData.speciality ? "" : "error"}
           loading={loading}
+          showSearch
+          filterOption={(input, option) =>
+            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+          }
+          optionFilterProp="children"
+          allowClear
         >
           {specialities.map((speciality) => (
-            <Option key={speciality.pmMasterId} value={speciality.pmMasterId}>
+            <Option key={speciality.id} value={speciality.pmMasterId}>
               {speciality.displayName}
             </Option>
           ))}

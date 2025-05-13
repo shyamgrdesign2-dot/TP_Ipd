@@ -83,20 +83,6 @@
 }
 
 .uploadContainer {
-  /* border: 2px dashed #6366f1;
-  border-radius: 16px;
-  background: #f8f8ff;
-  padding: 36px 20px 24px 20px;
-  text-align: center;
-  cursor: pointer;
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 120px;
-  min-width: 200px; */
-
   display: flex;
   padding: 0.875rem;
   flex-direction: column;
@@ -168,12 +154,15 @@
 
 .warningAlert {
   margin-bottom: 24px;
-  background-color: #fff2f0;
-  border: 1px solid #ffccc7;
   padding: 12px 16px;
-  border-radius: 8px;
   display: flex;
+  width: 37.625rem;
+  padding: 1rem;
+  justify-content: center;
   align-items: flex-start;
+  gap: 0.75rem;
+  border-radius: 0.625rem;
+  background: rgba(252, 90, 90, 0.10);
 }
 
 .warningIcon {
@@ -184,7 +173,11 @@
 }
 
 .warningText {
-  color: #ff4d4f;
+  color: #FC5A5A !important;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.375rem;
 }
 
 .contactSupport {
@@ -563,10 +556,22 @@
 }
 
 .specialitySelect .ant-select-selector {
-  height: 48px !important;
   display: flex !important;
   align-items: center !important;
-  padding: 0 11px !important;
+  height: 100% !important;
+}
+
+.specialitySelect .ant-select-selection-search {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+.specialitySelect .ant-select-selection-placeholder,
+.specialitySelect .ant-select-selection-item {
+  display: flex !important;
+  align-items: center !important;
+  line-height: normal !important;
 }
 
 .specialityDropdown {
