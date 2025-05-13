@@ -143,6 +143,28 @@
   .footer {
     padding: 40px 0;
 
+    .footer-container {
+      flex-direction: column !important;
+      gap: 1rem !important;
+
+
+      .company-info {
+        width: 100%;
+      }
+
+      .company-description {
+        width: 100%;
+      }
+
+      .footer-section {
+        width: 100%;
+      }
+
+      .footer-section-contact {
+        width: 100%;
+      }
+    }
+
     .footer-section {
       margin-bottom: 30px;
     }
