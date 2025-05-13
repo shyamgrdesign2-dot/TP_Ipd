@@ -87,9 +87,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [showSCBanner, setShowSCBanner] = useState(false);
   const { profile, userId } = useSelector((state) => state.doctors);
-  const { symptomCollector, isAutofillSelected } = useSelector(
-    (state) => state.ddx
-  );
+  const { symptomCollector, isAutofillSelected, selectedSymptomsCollector } =
+    useSelector((state) => state.ddx);
   const { TextArea } = Input;
 
   const showHideBackModal = useCallback(() => {
@@ -119,16 +118,42 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     }
   }, [symptomCollector]);
 
+  const getFormattedSymptomsCollectorData = (selectedSymptomsCollector) => {
+    return {
+      ...(selectedSymptomsCollector?.symptoms?.length && {
+        symptoms: selectedSymptomsCollector.symptoms,
+      }),
+      ...(selectedSymptomsCollector?.medicalHistory?.some(
+        (obj) => obj.items?.length
+      ) && {
+        medicalHistory: selectedSymptomsCollector.medicalHistory.flatMap(
+          (obj) => obj.items
+        ),
+      }),
+      ...(selectedSymptomsCollector?.notes && {
+        others: [selectedSymptomsCollector.notes],
+      }),
+    };
+  };
+
   useEffect(() => {
     if (
-      isAutofillSelected && symptomCollector &&
-      Object.keys(symptomCollector)?.length > 0
+      isAutofillSelected &&
+      selectedSymptomsCollector &&
+      Object.keys(selectedSymptomsCollector)?.length > 0
     ) {
-      setSymptomsCollectorData(symptomCollector);
-      setPrescriptionData(symptomCollector);
+      const formattedSymptomsCollectorData = getFormattedSymptomsCollectorData(
+        selectedSymptomsCollector
+      );
+      setSymptomsCollectorData(formattedSymptomsCollectorData);
+      setPrescriptionData(formattedSymptomsCollectorData);
       setShowPrescription(true);
+
+      if (!caseManagerData?.smart_prescription_filename) {
+        handleVoiceDigitize(null, null, true);
+      }
     }
-  }, [symptomCollector, isAutofillSelected]);
+  }, [selectedSymptomsCollector, isAutofillSelected]);
 
   // Timer logic
   useEffect(() => {
@@ -158,9 +183,16 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           type: response.data.type,
           _id: response.data._id,
         });
-        setQueries(
-          response.data?.history?.map(({ transcription }) => transcription)
-        );
+        // Check if history exists and has data before mapping
+        if (response.data?.history?.length > 0) {
+          const validTranscriptions = response.data.history
+            .map(({ transcription }) => transcription)
+            .filter((text) => text && text !== "null");
+
+          if (validTranscriptions.length > 0) {
+            setQueries(validTranscriptions);
+          }
+        }
       } else {
         throw new Error(response.error || "Failed to get Rx");
       }
@@ -296,7 +328,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     };
   };
 
-  const handleVoiceDigitize = async (audioBlob, transcribedText) => {
+  const handleVoiceDigitize = async (
+    audioBlob,
+    transcribedText,
+    isFromSC = false
+  ) => {
     try {
       const formData = new FormData();
       if (audioBlob) {
@@ -325,28 +361,44 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         ? await updateGenRx(formData, genRxDetails?._id)
         : await generateRx(formData);
       if (response.success) {
-        setPrescriptionData(response.data.digitize);
-        setPrescriptionData(() => {
-          // Merge localModules into dynamicFields
-          const mergedDynamicFields = {
-            ...response.data.digitize?.dynamicFields, // Retain API-provided dynamicFields
-            ...localModules.reduce((acc, moduleName) => {
-              acc[moduleName] = []; // Add local modules with default values
-              return acc;
-            }, {}),
-          };
+        if (!isFromSC) {
+          setPrescriptionData(response.data.digitize);
+          setPrescriptionData(() => {
+            // Merge localModules into dynamicFields
+            const mergedDynamicFields = {
+              ...response.data.digitize?.dynamicFields, // Retain API-provided dynamicFields
+              ...localModules.reduce((acc, moduleName) => {
+                acc[moduleName] = []; // Add local modules with default values
+                return acc;
+              }, {}),
+            };
 
-          const mergedData =
-            symptomsCollectorData &&
-            Object.keys(symptomsCollectorData)?.length > 0
-              ? mergeData(response.data.digitize, symptomsCollectorData)
-              : response.data.digitize;
+            const formattedSymptomsCollectorData =
+              getFormattedSymptomsCollectorData(selectedSymptomsCollector);
+            const mergedData =
+              formattedSymptomsCollectorData &&
+              Object.keys(formattedSymptomsCollectorData)?.length > 0
+                ? mergeData(
+                    response.data.digitize,
+                    formattedSymptomsCollectorData
+                  )
+                : response.data.digitize;
 
-          return {
-            ...mergedData,
-            dynamicFields: mergedDynamicFields, // Updated dynamicFields with localModules
-          };
-        });
+            return {
+              ...mergedData,
+              dynamicFields: mergedDynamicFields, // Updated dynamicFields with localModules
+            };
+          });
+
+          setQueries(
+            isEditing
+              ? [
+                  ...queries.slice(0, queries.length - 1),
+                  response.data.transcription,
+                ]
+              : [...queries, response.data.transcription]
+          );
+        }
 
         // Clear localModules after merging (optional)
         // setLocalModules([]);
@@ -357,14 +409,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           type: response.data.type,
           _id: response.data._id,
         });
-        setQueries(
-          isEditing
-            ? [
-                ...queries.slice(0, queries.length - 1),
-                response.data.transcription,
-              ]
-            : [...queries, response.data.transcription]
-        );
         setInputText("");
         setIsEditing(false);
       } else {
@@ -597,7 +641,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           } else if (type === "followUp") {
             updatedData.followUp = "";
           } else {
-            updatedData[type] = updatedData[type].filter((_, i) => i !== index);
+            updatedData[type] = updatedData?.[type]?.filter(
+              (_, i) => i !== index
+            );
           }
           return updatedData;
         }
@@ -677,7 +723,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   async function onEndVisitClick() {
-    if (isRxEdited || localModules?.length || (symptomsCollectorData && Object.keys(symptomsCollectorData)?.length > 0)) handleUpdateGenRX();
+    if (
+      isRxEdited ||
+      localModules?.length ||
+      (symptomsCollectorData && Object.keys(symptomsCollectorData)?.length > 0)
+    )
+      handleUpdateGenRX();
     const sendData = {
       action: tcmId === 0 ? "add" : "edit",
       tcm_id: tcmId,
@@ -737,7 +788,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   }
 
   const renderItems = (type) => {
-    if (type === "followUp" || type === "notes") {
+    if (type === "followUp") {
       // Dynamically calculate input width
       let textWidth = 0;
       if (activeType === "followUp") {
@@ -756,53 +807,23 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
             <div className="shimmer-container">
               <div className="shimmer"></div>
             </div>
+          ) : activeType === "followUp" ? (
+            <input
+              type="text"
+              value={editableText}
+              className="editable-digitised-item"
+              onChange={handleInputChange}
+              onBlur={() => handleInputBlur("followUp")}
+              autoFocus
+              // style={{ width: `${textWidth + 10}px` }}
+            />
           ) : (
-            <>
-              {type === "followUp" && (
-                <>
-                  {activeType === "followUp" ? (
-                    <input
-                      type="text"
-                      value={editableText}
-                      className="editable-digitised-item"
-                      onChange={handleInputChange}
-                      onBlur={() => handleInputBlur("followUp")}
-                      autoFocus
-                      // style={{ width: `${textWidth + 10}px` }}
-                    />
-                  ) : (
-                    <span
-                      onClick={() => handleItemClick("followUp")}
-                      className="digitised-item"
-                    >
-                      {prescriptionData?.followUp}
-                    </span>
-                  )}
-                </>
-              )}
-
-              {type === "notes" && (
-                <>
-                  {activeType === "notes" ? (
-                    <input
-                      type="text"
-                      value={editableText}
-                      className="editable-digitised-item"
-                      onChange={handleInputChange}
-                      onBlur={() => handleInputBlur("notes")}
-                      autoFocus
-                    />
-                  ) : (
-                    <span
-                      onClick={() => handleItemClick("notes")}
-                      className="digitised-item"
-                    >
-                      {prescriptionData?.notes}
-                    </span>
-                  )}
-                </>
-              )}
-            </>
+            <span
+              onClick={() => handleItemClick("followUp")}
+              className="digitised-item"
+            >
+              {prescriptionData?.followUp}
+            </span>
           )}
         </div>
       );
@@ -1739,15 +1760,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                 Others
                               </div>
                               {renderItems("others")}
-                            </>
-                          )}
-                        {prescriptionData?.notes &&
-                          prescriptionData.notes.length > 0 && (
-                            <>
-                              <div className="title-digitise-section mb-2">
-                                Additional Notes
-                              </div>
-                              {renderItems("notes")}
                             </>
                           )}
                         {renderCustomModules()}

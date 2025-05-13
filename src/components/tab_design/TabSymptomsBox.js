@@ -70,7 +70,7 @@ function TabSymptomsBox({ handleDDxDrawer, generatedDDx }) {
     const [isModalOpen1, setIsModalOpen1] = useState(false);
     const [removeTemplateId, setRemoveTemplateId] = useState(null);
     const [saveDrawer, setSaveDrawer] = useState(false);
-
+    const [showShimmer, setShowShimmer] = useState(false);
     const [inputTemplateName, setInputTemplateName] = useState(null);
     const TAB_ADD_TEMPLATE = 1;
     const TAB_UPDATE_TEMPLATE = 2;
@@ -94,6 +94,17 @@ function TabSymptomsBox({ handleDDxDrawer, generatedDDx }) {
     const { isAutofillSelected, selectedSymptomsCollector } = useSelector(
       (state) => state.ddx
     );
+
+    useEffect(() => {
+        if (isAutofillSelected) {
+            setShowShimmer(true);
+            const timer = setTimeout(() => {
+            setShowShimmer(false);
+            }, 1000); // 1 seconds
+
+            return () => clearTimeout(timer); // Cleanup timeout
+        }
+    }, [isAutofillSelected]);
 
     useEffect(() => {
     if (
@@ -794,6 +805,28 @@ function TabSymptomsBox({ handleDDxDrawer, generatedDDx }) {
         );
     }, [isModalOpen1]);
 
+    const TableShimmerLoader = () => {
+      return (
+        <div className="sc-shimmer-container-table p-14">
+          {/* First row */}
+          <div className="shimmer-row">
+            <div className="shimmer-cell" />
+            <div className="shimmer-cell" />
+            <div className="shimmer-cell" />
+            <div className="shimmer-cell" />
+          </div>
+
+          {/* Second row */}
+          <div className="shimmer-row">
+            <div className="shimmer-cell" />
+            <div className="shimmer-cell" />
+            <div className="shimmer-cell" />
+            <div className="shimmer-cell" />
+          </div>
+        </div>
+      );
+    };
+
     return (
         <>
             <div>
@@ -820,6 +853,8 @@ function TabSymptomsBox({ handleDDxDrawer, generatedDDx }) {
                         {SAVE_CONTENT}
                     </Drawer>
                 </div>
+                {showShimmer ? <TableShimmerLoader /> : (
+                <>
                 <div className="d-flex flex-wrap p-14-pb0">
                     {TABLE_SYMPTOMS}
                     <Drawer closeIcon={false} placement="right" onClose={handleDrawerChild} open={childDrawer} className="modalWidth-563" width="auto">
@@ -846,6 +881,7 @@ function TabSymptomsBox({ handleDDxDrawer, generatedDDx }) {
                 </div>
                 {DELETE_MODAL}
                 {REMOVE_ALL_ROWS}
+                </>)}
             </div>
         </>
     );

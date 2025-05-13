@@ -306,7 +306,7 @@ function Prescription() {
       setShowShimmer(true);
       const timer = setTimeout(() => {
         setShowShimmer(false);
-      }, 1000); // 2 seconds
+      }, 1000); // 1 seconds
 
       return () => clearTimeout(timer); // Cleanup timeout
     }
@@ -1507,7 +1507,7 @@ function Prescription() {
             <TatvaAiKnowMore handleTatvaAiKnowMore={handleTatvaAiKnowMore} handleDDxKnowMore={handleDDxKnowMore} handleGenRxKnowMore={handleGenRxKnowMore} />
           </Drawer>
         )}
-        {showSCPopup && <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} handleGenRx={handleGenRx} />}
+        {showSCPopup && !caseManagerData?.smart_prescription_filename && <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} handleGenRx={handleGenRx} />}
       </>
     </CashManagerContext.Provider>
   );
