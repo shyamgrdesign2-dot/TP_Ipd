@@ -1040,7 +1040,7 @@ function MessageCreateCampaign() {
                             maxLength={30}
                             value={service_name}
                             onChange={(e) => setservice_name(e.target.value)}
-                            placeholder="Enter Surgery Name"
+                            placeholder="Enter Service Name"
                             className="me-1 my-1 fw-medium"
                         />
                     );
@@ -1057,7 +1057,7 @@ function MessageCreateCampaign() {
                             maxLength={30}
                             value={about_service}
                             onChange={(e) => setabout_service(e.target.value)}
-                            placeholder="Enter Surgery Name"
+                            placeholder="About Service"
                             className="me-1 my-1 fw-medium"
                         />
                     );
