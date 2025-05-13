@@ -46,10 +46,11 @@ import BillingDashboard from "./pages/opdBilling/components/billingDashboard/Bil
 import BillingSettings from "./pages/opdBilling/components/advanceBillSettings/BillingSettings";
 import AllPatients from "./pages/allPatients.js/AllPatients";
 import AddAppointment from "./pages/addAppointment/AddAppointment";
-import { checkAccountStatus } from './pages/auth/authService';
+import { checkAccountStatus } from "./pages/auth/authService";
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import OnboardingWrapper from "./components/userOnboarding";
+import DocumentVerificationPopup from "./components/common/DocumentVerificationPopup";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -62,8 +63,10 @@ function App() {
   const authToken = searchParams.get("authToken");
   const location = useLocation();
   const navigate = useNavigate();
-  const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-  
+  const [getToken, setToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+  );
+
   const isLoginPage = location.pathname === "/login";
   const isRootPath = location.pathname === "/";
   const token = getToken();
@@ -75,21 +78,17 @@ function App() {
     return Promise.all(
       urls.map(async (url) => {
         try {
-          const response = await fetch(url, { method: 'GET', mode: 'no-cors' });
-          return { url, status: 'success' };
+          const response = await fetch(url, { method: "GET", mode: "no-cors" });
+          return { url, status: "success" };
         } catch (error) {
-          return { url, status: 'error', error };
+          return { url, status: "error", error };
         }
       })
     );
   };
 
   const handleLogout = async () => {
-  
-    const urlsToOpen = [
-      config.pedia_logout_url,
-      config.tatvaAi_logout_url,
-    ];
+    const urlsToOpen = [config.pedia_logout_url, config.tatvaAi_logout_url];
 
     try {
       if (window.isLoggingOut) return;
@@ -97,16 +96,17 @@ function App() {
 
       const statuses = await openUrlsSilently(urlsToOpen);
       console.log("URL statuses:", statuses);
-  
-      const allSuccessful = statuses.every(({ status }) => status === "success");
+
+      const allSuccessful = statuses.every(
+        ({ status }) => status === "success"
+      );
       if (!allSuccessful) {
         console.warn("Some logout URLs failed:", statuses);
       }
 
       localStorage.clear();
       sessionStorage.clear();
-      window.location.href = "/login"; 
-
+      window.location.href = "/login";
     } catch (error) {
       console.error("Error during logout:", error);
       window.location.href = "/login";
@@ -123,10 +123,13 @@ function App() {
           const decoded = jwtDecode(token);
           const phoneNumber = decoded?.result?.mobile_no;
           const doctorUniqueId = decoded?.result?.doctor_unique_id;
-          
+
           if (phoneNumber && doctorUniqueId) {
-            const response = await checkAccountStatus(phoneNumber, doctorUniqueId);
-            if (response?.account_status === false) { 
+            const response = await checkAccountStatus(
+              phoneNumber,
+              doctorUniqueId
+            );
+            if (response?.account_status === false) {
               handleLogout();
             }
           }
@@ -166,7 +169,7 @@ function App() {
     // Handle authToken in URL
     if (authToken) {
       setToken(authToken);
-      
+
       // Clean up URL but preserve other params
       const params = new URLSearchParams(location.search);
       if (!isReceptionist) {
@@ -181,7 +184,6 @@ function App() {
           { replace: true }
         );
       }
-      
     }
   }, [authToken, setToken, navigate]);
 
@@ -216,27 +218,33 @@ function App() {
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             {!isLoginPage && (
-              <div style={{
-                position: 'sticky',
-                top: 0,
-                zIndex: 1000,
-              }}>
+              <div
+                style={{
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 1000,
+                }}
+              >
                 {/* <DemoExpirationBanner /> */}
                 <PlanExpirationBanner />
                 <ExpiredPlanCard />
                 <DoctorModal />
               </div>
             )}
+            <DocumentVerificationPopup />
             <OnboardingWrapper />
             <Routes>
               {/* Public route */}
               {/* <Route path="/login" element={<AuthContainer />} /> */}
               <Route path="/login" element={<Onboarding />} />
-              
+
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
                 <Route path="/*" element={<AppointmentList />} />
-                <Route path="create-campaign" element={<MessageCreateCampaign />} />
+                <Route
+                  path="create-campaign"
+                  element={<MessageCreateCampaign />}
+                />
                 <Route path="patient_details" element={<PatientDetails />} />
                 <Route
                   path="prescription"
@@ -266,9 +274,18 @@ function App() {
                   element={<DoctorWebsiteSetting />}
                 />
                 <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
-                <Route path="apollo-consultations" element={<ApolloConsultations />} />
-                <Route path="gen-rx-print" element={<GenRxPrescriptionPrintView />} />
-                <Route path="billing-dashboard" element={<BillingDashboard />} />
+                <Route
+                  path="apollo-consultations"
+                  element={<ApolloConsultations />}
+                />
+                <Route
+                  path="gen-rx-print"
+                  element={<GenRxPrescriptionPrintView />}
+                />
+                <Route
+                  path="billing-dashboard"
+                  element={<BillingDashboard />}
+                />
                 <Route path="all_patients" element={<AllPatients />} />
                 <Route path="billing-settings" element={<BillingSettings />} />
                 <Route path="add-appointment" element={<AddAppointment />} />

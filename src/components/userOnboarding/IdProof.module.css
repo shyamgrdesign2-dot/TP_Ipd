@@ -52,122 +52,150 @@
 }
 
 .pendingBadge {
-  background-color: #fff8f1;
-  color: #f59e0b;
   font-size: 12px;
   font-weight: 500;
   padding: 4px 10px;
-  border-radius: 16px;
   margin-left: 8px;
+  border-radius: 6.25rem;
+  background: rgba(237, 138, 0, 0.10);
+  color: #ED8A00 !important;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0.00406rem;
 }
 
 .verifiedBadge {
-  background-color: #ecfdf5;
-  color: #10b981;
-  font-size: 12px;
-  font-weight: 500;
   padding: 4px 10px;
-  border-radius: 16px;
   margin-left: 8px;
   display: flex;
   align-items: center;
   gap: 4px;
+
+  border-radius: 6.25rem;
+  background: rgba(61, 140, 64, 0.10);
+  color: #3D8C40 !important;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0.00406rem;
 }
 
 .failedBadge {
-  background-color: #fef2f2;
-  color: #ef4444;
-  font-size: 12px;
-  font-weight: 500;
   padding: 4px 10px;
-  border-radius: 16px;
   margin-left: 8px;
+  border-radius: 6.25rem;
+  background: rgba(252, 90, 90, 0.10);
+  color: #FC5A5A !important;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0.00406rem;
 }
 
 .changeDocumentBtn {
   background: none;
   border: none;
-  color: #4b4ad5;
-  font-size: 14px;
-  font-weight: 600;
+  color: #454551;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.00625rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
+  text-decoration: none;
+}
+
+.changeDocumentBtn span {
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: none;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+}
+
+.changeDocumentBtn i {
+  text-decoration: none;
+}
+
+.uploadWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 2rem 1rem;
+  cursor: pointer;
 }
 
 .uploadContainer {
-  background: #f9fafb;
-  border: 2px dashed #e5e7eb;
-  border-radius: 12px;
-  padding: 24px;
   display: flex;
+  padding: 0.875rem;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  text-align: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  min-height: 160px;
-}
-
-.uploadContainer:hover {
-  border-color: #4b4ad5;
-  background: #f8f8ff;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: stretch;
+  border-radius: 0.625rem;
+  /* border: 1px dashed var(--P-CTA-100, #4B4AD5); */
+  background: white;
+  border: none;
+  width: 100%;
+  max-width: 80%;
+  margin: 0 auto;
 }
 
 .uploadIcon {
-  font-size: 28px;
-  color: #4b4ad5;
-}
-
-.uploadTextContainer {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 4px;
+  font-size: 36px;
+  color: #6366f1 !important;
+  margin-bottom: 12px;
 }
 
 .uploadText {
-  color: #4b4ad5;
-  font-size: 16px;
+  color: #4f46e5 !important;
   font-weight: 600;
+  font-size: 0.875rem;
   text-decoration: underline;
-}
-
-.uploadOr {
-  color: #6b7280;
-  font-size: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
 }
 
 .uploadDescription {
-  color: #374151;
-  font-size: 14px;
+  color: #222;
+  font-size: 0.75rem;
+  margin-top: 8px;
   font-weight: 400;
 }
 
 .documentPreviewContainer {
   width: 100%;
-  border-radius: 12px;
-  overflow: hidden;
+  padding: 1rem;
+  display: flex;
+  justify-content: flex-start;
 }
 
 .documentPreview {
   width: 100%;
-  min-height: 160px;
-  max-height: 300px;
+  max-width: 350px;
+  min-height: 180px;
+  max-height: 220px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f9fafb;
-  border-radius: 8px;
+  background: #FFF;
+  border-radius: 1.25rem;
+  border: 1px solid #E2E2EA;
+  box-shadow: none;
 }
 
 .documentPreviewImage {
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: contain;
 }
 
@@ -183,4 +211,106 @@
 .pdfIcon {
   font-size: 60px;
   color: #f56565;
-} 
+}
+
+.uploadSvg {
+  margin-bottom: 1rem;
+}
+
+.clickToUploadText {
+  color: #92929D !important;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.clickToUpload {
+  color: #4B4AD5 !important;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: auto;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+}
+
+.uploadDescriptionText {
+  color: #44444F;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.25rem;
+}
+
+.fileSizeExceededModal {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.fileSizeExceededModal p {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  color: #44444F;
+}
+
+.modalButtonContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.modalButtonContainer button {
+  min-width: 6rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  background-color: #4B4AD5;
+}
+
+.warningContainer {
+  display: flex;
+  margin-bottom: 20px;
+  padding: 1.25rem 1.3125rem;
+  align-items: flex-start;
+  border-radius: 0.625rem;
+  background: rgba(237, 138, 0, 0.10);
+}
+
+.warningIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  margin-right: 16px;
+}
+
+.warningMessage {
+  color: #44444F;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-family: 'Poppins', sans-serif;
+}
+
+.retryButton {
+  background-color: #4F46E5;
+  height: 48px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  text-transform: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.retryButton:hover {
+  background-color: #4338CA !important;
+}

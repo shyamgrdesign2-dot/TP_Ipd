@@ -283,10 +283,8 @@ const DoctorOnboarding = ({ visible, onClose }) => {
         console.log("Token updated in localStorage");
       }
 
-      message.success("Clinic details saved successfully");
       return true;
     } catch (error) {
-      message.error("Failed to save clinic details. Please try again.");
       console.error("Error finalizing onboarding:", error);
       return false;
     } finally {
@@ -314,16 +312,16 @@ const DoctorOnboarding = ({ visible, onClose }) => {
       const authToken = JSON.parse(rawToken);
 
       // Upload the documents
-      await uploadDocuments(
+      const response = await uploadDocuments(
         formData.governmentIdProof,
         formData.mrcCertificate,
         authToken
       );
 
-      message.success("Documents uploaded successfully");
+      navigate("/");
+
       return true;
     } catch (error) {
-      message.error("Failed to upload documents. Please try again.");
       console.error("Error uploading documents:", error);
       return false;
     } finally {
@@ -342,8 +340,9 @@ const DoctorOnboarding = ({ visible, onClose }) => {
       // Upload documents and redirect to home on success
       const success = await handleUploadDocuments();
       if (success) {
+        // Close the drawer
         onClose();
-        navigate("/");
+        // Don't navigate or reload - stay on current page
         return;
       } else {
         return;
