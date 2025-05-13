@@ -8,7 +8,7 @@ import axios from "axios";
 
 import config from "../config";
 import { useLocalStorage } from "../utils/localStorage";
-import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_ASK_TATVA, S_IPD, S_PHARMACY } from "../utils/constants";
+import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_ASK_TATVA, S_IPD, S_PHARMACY, S_TATVA_PRACTICE, S_OPD_BILLING, S_BILLING } from "../utils/constants";
 import newGif from "../assets/images/new-gif.gif";
 import ipdIcon from "../assets/images/ipd.svg";
 import patientsIcon from "../assets/images/all-patients.svg";
@@ -23,6 +23,7 @@ import analyticsActiveIcon from "../assets/images/analytics-active.svg";
 import pharmacyActiveIcon from "../assets/images/pharmacy-active.svg";
 import billingsActiveIcon from "../assets/images/billings-active.svg";
 import followUpActiveIcon from "../assets/images/follow-up-active.svg";
+import LockIcon from "../assets/images/lock-icon.svg";
 import tatvaAiActiveIcon from "../assets/images/website-images/tatvaAiActiveIcon.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { errorMessage, getClinicName, trackEvent } from "../utils/utils";
@@ -39,8 +40,10 @@ import AskTatvaKnowMore from "../pages/monetization/components/AskTatvaKnowMore"
 function SidebarDoctor() {
   const dispatch = useDispatch();
   const { servicesList } = useSelector((state) => state.doctors);
+  const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
   const PHARMACY_planDetails = servicesList?.find(e => e.service_name === S_PHARMACY)
   const IPD_planDetails = servicesList?.find(e => e.service_name === S_IPD)
+  const BILLING_planDetails = servicesList?.find(e => e.service_name === S_BILLING)
   const ASK_TATVA_planDetails = servicesList?.find(e => e.service_name === S_ASK_TATVA)
 
   const [getToken, setToken] = useLocalStorage(
@@ -113,49 +116,14 @@ function SidebarDoctor() {
   const clickOldModule = async (moduleName) => {
     if (moduleName === S_PHARMACY || moduleName === S_IPD) {
       setSubModalData({ service_name: moduleName })
-      const pharmacyEndDate = moment(PHARMACY_planDetails?.plan_end_date);
-      const ipdEndDate = moment(IPD_planDetails?.plan_end_date);
-      const currentDate = moment();
-      if (PHARMACY_planDetails?.plan_tier === FREE && pharmacyEndDate.isBefore(currentDate, 'day')) {
+      if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== FREE && PHARMACY_planDetails?.plan_tier === FREE) {
         handlePharmacyKnowMore()
         showHideSubModal()
-      } else if (IPD_planDetails?.plan_tier === FREE && ipdEndDate.isBefore(currentDate, 'day')) {
+      } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier !== FREE && IPD_planDetails?.plan_tier === FREE) {
         handleIPDKnowMore()
         showHideSubModal()
       } else {
-        let sendData = {
-          b2c_id: profile?.b2c,
-          service_name: moduleName
-        }
-        const action = await dispatch(checkCredits(sendData));
-        if (action.meta.requestStatus === "fulfilled") {
-          if (action?.payload?.hasOwnProperty("service_name")) {
-            const plan_end_date = moment(action?.payload?.plan_end_date);
-            if (action?.payload?.plan_tier === FREE && plan_end_date.isBefore(currentDate, 'day')) {
-              if (moduleName === S_PHARMACY) {
-                if (!plan_end_date.isSame(pharmacyEndDate, 'day')) {
-                  await dispatch(services(sendData?.b2c_id))
-                }
-                handlePharmacyKnowMore()
-              } else if (moduleName === S_IPD) {
-                if (!plan_end_date.isSame(ipdEndDate, 'day')) {
-                  await dispatch(services(sendData?.b2c_id))
-                }
-                handleIPDKnowMore()
-              }
-              showHideSubModal()
-            } else {
-              check_SSO(moduleName);
-            }
-          } else {
-            typeof action?.payload?.data?.error === 'object' ?
-              errorMessage(action?.payload?.data?.error?.description)
-              :
-              errorMessage(action?.payload?.data?.message)
-          }
-        } else {
-          errorMessage(action.payload.message)
-        }
+        check_SSO(moduleName);
       }
     } else {
       check_SSO(moduleName);
@@ -310,7 +278,7 @@ function SidebarDoctor() {
 
   const checkTatvaAiPurchased = async () => {
     setSubModalData({ service_name: S_ASK_TATVA })
-    if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance === 0) {
+    if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
       handleAskTatvaKnowMore()
       showHideSubModal()
     } else {
@@ -321,7 +289,7 @@ function SidebarDoctor() {
       const action = await dispatch(checkCredits(sendData));
       if (action.meta.requestStatus === "fulfilled") {
         if (action?.payload?.hasOwnProperty("service_name")) {
-          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance === 0) {
+          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
             if (action?.payload?.credit_balance != ASK_TATVA_planDetails?.credit_balance) {
               await dispatch(services(sendData?.b2c_id))
             }
@@ -410,31 +378,58 @@ function SidebarDoctor() {
               ?.map((item, i) => {
                 const isHovered = hoveredItem === i;
                 return (
-                  <NavLink
-                    key={i}
-                    onClick={() => clickOldModule(item.type)}
-                    replace={true}
-                    className={({ isActive, isPending }) =>
-                      item.type === "opd_billing" &&
-                        window.location.pathname === "/billing-dashboard"
-                        ? "active"
-                        : isHovered
-                          ? ""
-                          : isPending
-                            ? "pending"
-                            : isActive
-                              ? ""
-                              : "active"
-                    }
-                    onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
-                    onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
-                  >
-                    <img
-                      src={getIcon(item.type, isHovered)}
-                      alt={`${item.type}`}
-                    />
-                    <div className="mt-1 px-2">{item.title}</div>
-                  </NavLink>
+                  <div className="position-relative">
+                    <NavLink
+                      key={i}
+                      onClick={() => clickOldModule(item.type)}
+                      replace={true}
+                      className={({ isActive, isPending }) =>
+                        item.type === "opd_billing" &&
+                          window.location.pathname === "/billing-dashboard"
+                          ? "active"
+                          : isHovered
+                            ? ""
+                            : isPending
+                              ? "pending"
+                              : isActive
+                                ? ""
+                                : "active"
+                      }
+                      onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
+                      onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
+                    >
+                      <img
+                        src={getIcon(item.type, isHovered)}
+                        alt={`${item.type}`}
+                      />
+                      <div className="mt-1 px-2">{item.title}</div>
+                    </NavLink>
+                    {item.type === S_PHARMACY ? (
+                      <div className="trial-sidebar">
+                        {(EMR_planDetails?.plan_tier === FREE && PHARMACY_planDetails?.plan_tier === FREE) ? (
+                          <span>Trial</span>
+                        ) : (EMR_planDetails?.plan_tier !== FREE && PHARMACY_planDetails?.plan_tier === FREE) && (
+                          <img src={LockIcon} alt="Trial" />
+                        )}
+                      </div>
+                    ) : item.type === S_IPD ? (
+                      <div className="trial-sidebar">
+                        {(EMR_planDetails?.plan_tier === FREE && IPD_planDetails?.plan_tier === FREE) ? (
+                          <span>Trial</span>
+                        ) : (EMR_planDetails?.plan_tier !== FREE && IPD_planDetails?.plan_tier === FREE) && (
+                          <img src={LockIcon} alt="Trial" />
+                        )}
+                      </div>
+                    ) : item.type === S_OPD_BILLING && (
+                      <div className="trial-sidebar">
+                        {(EMR_planDetails?.plan_tier === FREE && BILLING_planDetails?.plan_tier === FREE) ? (
+                          <span>Trial</span>
+                        ) : (EMR_planDetails?.plan_tier !== FREE && BILLING_planDetails?.plan_tier === FREE) && (
+                          <img src={LockIcon} alt="Trial" />
+                        )}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
 
@@ -545,6 +540,10 @@ function SidebarDoctor() {
 
       <ExpiredSubModal
         title={subModalData && subModalData?.hasOwnProperty('service_name') && subModalData?.service_name}
+        styles={{
+          mask: { zIndex: 9999 },
+          wrapper: { zIndex: 9999 },
+        }}
         isSubModalOpen={isSubModalOpen}
         showHideSubModal={showHideSubModal} />
     </>

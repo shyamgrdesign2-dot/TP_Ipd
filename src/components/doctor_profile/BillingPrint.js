@@ -1,47 +1,88 @@
-import React, { useRef } from "react";
-import { Navbar, Col, Row } from "react-bootstrap";
-import html2pdf from "html2pdf.js";
+import React, { useState, useEffect, useRef } from "react";
+import { Spin } from "antd";
+import { Navbar } from "react-bootstrap";
+import { isMobile, osName } from "react-device-detect";
+import axios from 'axios';
+import { saveAs } from 'file-saver';
+import { pdfjs, Document, Page } from "react-pdf";
+const worker = require('pdfjs-dist/build/pdf.worker.min.js')
+pdfjs.GlobalWorkerOptions.workerSrc = worker
 
-function BillingPrint({ handlePdfDrawer }) {
+function BillingPrint({ handlePdfDrawer, PDF_URL }) {
 
+  const divRef = useRef(null);
   const printableRef = useRef(null);
 
-  const handleDownloadData = () => {
-    const element = printableRef.current;
-    const options = {
-      filename: `billing_${Math.random() || "report"}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-    };
+  const [divWidth, setDivWidth] = useState(0);
+  const [numPages, setNumPages] = useState();
+  const [printBlob, setPrintBlob] = useState(null);
 
-    html2pdf()
-      ?.from(element)
-      ?.set(options)
-      ?.output("blob")
-      ?.then((blob) => {
-        const blobURL = URL.createObjectURL(blob);
-        // Remove all existing iframes
-        document.querySelectorAll('iframe').forEach(function (iframe) {
-          iframe.parentNode.removeChild(iframe);
-        });
-        var iframe = document.createElement('iframe'); //load content in an iframe to print later
-        document.body.appendChild(iframe);
-        iframe.style.display = 'none';
-        iframe.src = blobURL;
-        iframe.onload = function () {
-          setTimeout(function () {
-            iframe.focus();
-            iframe.contentWindow.print();
-            // Revoke the Blob URL to avoid memory leaks
+  useEffect(() => {
+    setDivWidth(divRef.current?.offsetWidth);
+  }, [divRef]);
+
+  const printContent = async () => {
+    if (isMobile || osName == 'Linux') {
+      try {
+        const blobURL = URL.createObjectURL(printBlob);
+        const printWindow = window.open(blobURL, '_blank');
+
+        if (!printWindow) {
+          console.error('Unable to open new window for printing');
+          return;
+        }
+
+        printWindow.onload = () => {
+          setTimeout(() => {
+            printWindow.print();
             URL.revokeObjectURL(blobURL);
-          }, 1);
+          }, 1000);
         };
-      })
-      .catch((err) => {
-        console.error("Error generating PDF:", err);
+      } catch (error) {
+        console.error('Error occurred while printing:', error);
+      }
+    } else {
+      var blobURL = URL.createObjectURL(printBlob);
+      // Remove all existing iframes
+      document.querySelectorAll('iframe').forEach(function (iframe) {
+        iframe.parentNode.removeChild(iframe);
       });
+      var iframe = document.createElement('iframe'); //load content in an iframe to print later
+      document.body.appendChild(iframe);
+      iframe.style.display = 'none';
+      iframe.src = blobURL;
+      iframe.onload = function () {
+        setTimeout(function () {
+          iframe.focus();
+          iframe.contentWindow.print();
+          // Revoke the Blob URL to avoid memory leaks
+          URL.revokeObjectURL(blobURL);
+        }, 1);
+      };
+    }
   };
+
+  const handleDownload = async () => {
+    try {
+      const response = await axios({
+        url: PDF_URL,
+        method: 'GET',
+        responseType: 'blob',
+      });
+
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      saveAs(blob, `${Date.now()}.pdf`);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+    }
+  };
+
+  async function onDocumentLoadSuccess(successEvent) {
+    setNumPages(successEvent?.numPages);
+    const data = await successEvent.getData()
+    const blob = new Blob([data], { type: 'application/pdf' })
+    setPrintBlob(blob)
+  }
   return (
     <>
       <Navbar className="justify-content-between headerprescription p-0">
@@ -55,171 +96,40 @@ function BillingPrint({ handlePdfDrawer }) {
             <div className='ms-3 title-common'>Invoice</div>
           </div>
           <div className='align-items-center d-flex h-100'>
-            <button className='btn' onClick={handleDownloadData}>
+            <button className='btn' onClick={printContent}>
               <i className="fs-3 text-primary icon-Print"></i>
             </button>
-            <button className='btn'>
+            <button className='btn' onClick={handleDownload}>
               <i className="fs-3 text-primary icon-download"></i>
             </button>
           </div>
         </div>
       </Navbar>
 
-      <div ref={printableRef}>
-        <div className="m-4 p-4 rounded-20px" style={{ backgroundColor: '#F2F2F2' }}>
-          <div className="text-center titleprint mb-3 text-main fw-semibold">Invoice</div>
-          <Row className="justify-content-between">
-            <Col lg={6}>
-              <div className="d-flex my-1">
-                <div className="fontroboto fw-medium text-welcome fs-15">Patient Name:&nbsp;</div>
-                <div className="fontroboto text-welcome fs-15">Rahul Sharma</div>
-              </div>
-            </Col>
-            <Col lg={5}>
-              <div className="d-flex my-1">
-                <div className="fontroboto fw-medium text-welcome fs-15">Bill No:&nbsp;</div>
-                <div className="fontroboto text-welcome fs-15">INV_20240001</div>
-              </div>
-            </Col>
-            <Col lg={6}>
-              <div className="d-flex my-1">
-                <div className="fontroboto fw-medium text-welcome fs-15">Patient ID:&nbsp;</div>
-                <div className="fontroboto text-welcome fs-15">PI202305003</div>
-              </div>
-            </Col>
-            <Col lg={5}>
-              <div className="d-flex my-1">
-                <div className="fontroboto fw-medium text-welcome fs-15">Receipt No:&nbsp;</div>
-                <div className="fontroboto text-welcome fs-15">REP_20240001</div>
-              </div>
-            </Col>
-            <Col lg={6}>
-              <div className="d-flex my-1">
-                <div className="fontroboto fw-medium text-welcome fs-15">Mobile number:&nbsp;</div>
-                <div className="fontroboto text-welcome fs-15">Female, 28y</div>
-              </div>
-            </Col>
-            <Col lg={5}>
-              <div className="d-flex my-1">
-                <div className="fontroboto fw-medium text-welcome fs-15">Bill Date:&nbsp;</div>
-                <div className="fontroboto text-welcome fs-15">22/11/2023</div>
-              </div>
-            </Col>
-            <Col lg={6}>
-              <div className="d-flex my-1">
-                <div className="fontroboto fw-medium text-welcome fs-15">Bill Status:&nbsp;</div>
-                <div className="fontroboto text-welcome fs-15">Paid</div>
-              </div>
-            </Col>
-            <Col lg={5}>
-              <div className="d-flex my-1">
-                <div className="fontroboto fw-medium text-welcome fs-15">GSTIN:&nbsp;</div>
-                <div className="fontroboto text-welcome fs-15">1293ADCF89</div>
-              </div>
-            </Col>
-            <Col lg={12}>
-              <div className="d-flex my-1">
-                <div className="fontroboto fw-medium text-welcome fs-15">Address:&nbsp;</div>
-                <div className="fontroboto text-welcome fs-15">Chennai</div>
-              </div>
-            </Col>
-          </Row>
-          <hr />
-
-          <table cellpadding="5" cellspacing="5" style={{ width: '100%' }}>
-            <tr>
-              <th>#</th>
-              <th>ITEMS </th>
-              <th>QYT</th>
-              <th>AMOUNT</th>
-              <th>DISCOUNT</th>
-              <th>GST(%)</th>
-              <th>TOTAL</th>
-            </tr>
-            <tr>
-              <th>1</th>
-              <td>Consultation</td>
-              <td>1</td>
-              <td>₹500</td>
-              <td>₹120</td>
-              <td>5%</td>
-              <th>₹399</th>
-            </tr>
-            <tr>
-              <th>2</th>
-              <td>Dressing (Fracture)</td>
-              <td>1</td>
-              <td>₹500</td>
-              <td>₹120</td>
-              <td>5%</td>
-              <th>₹451</th>
-            </tr>
-          </table>
-
-          <br />
-
-          <Row className="justify-content-between">
-            <Col lg={6}></Col>
-            <Col lg={6}>
-              <div className="d-flex justify-content-between my-2">
-                <div className="fs-15">Subtotal:&nbsp;</div>
-                <div className="fontroboto fs-15">₹950</div>
-              </div>
-            </Col>
-            <Col lg={6}></Col>
-            <Col lg={6}>
-              <div className="d-flex justify-content-between my-2">
-                <div className="fs-15">Line Item Discount:&nbsp;</div>
-                <div className="fontroboto fs-15">-₹140</div>
-              </div>
-            </Col>
-            <Col lg={6}></Col>
-            <Col lg={6}>
-              <div className="d-flex justify-content-between my-2">
-                <div className="fs-15">Extra Discount:&nbsp;</div>
-                <div className="fontroboto fs-15">-₹0</div>
-              </div>
-            </Col>
-            <Col lg={6}></Col>
-            <Col lg={6}>
-              <div className="d-flex justify-content-between my-2">
-                <div className="fs-15">Applicable GST:&nbsp;</div>
-                <div className="fontroboto fs-15">₹40</div>
-              </div>
-            </Col>
-            <Col lg={6}></Col>
-            <Col lg={6}>
-              <div className="d-flex justify-content-between my-2">
-                <div className="fw-medium fs-18">Total Payable Amount:&nbsp;</div>
-                <div className="fontroboto fw-medium fs-18">₹850</div>
-              </div>
-            </Col>
-            <Col lg={6}></Col>
-            <Col lg={6}>
-              <div className="d-flex justify-content-between my-2">
-                <div className="fs-15">Paid Via “Cash”:&nbsp;</div>
-                <div className="fontroboto fs-15">₹800</div>
-              </div>
-            </Col>
-            <Col lg={6}></Col>
-            <Col lg={6}>
-              <div className="d-flex justify-content-between my-2">
-                <div className="fs-15">Paid Via “UPI”:&nbsp;</div>
-                <div className="fontroboto fs-15">₹50</div>
-              </div>
-            </Col>
-            <Col lg={6}></Col>
-            <Col lg={6}>
-              <div className="d-flex justify-content-between my-2">
-                <div className="fw-medium text-green fs-18">Total Amount Paid:&nbsp;</div>
-                <div className="fontroboto fw-medium text-green fs-18">₹850</div>
-              </div>
-            </Col>
-          </Row>
-          <div className="mt-4"><span className="fw-semibold">Notes:</span> Can take pain killer tablets during the menstrual time But make sure that there is no usage of more than 2  pain killers per day Can take pain killer tablets during the menstrual time.</div>
-        </div>
+      <div ref={divRef} style={{ height: 'calc(100vh - 60px)', overflowY: 'auto', overflowX: 'hidden' }}>
+        <Document
+          loading={<Spin style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} />}
+          error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
+          noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
+          file={PDF_URL}
+          onLoadSuccess={onDocumentLoadSuccess}>
+          {Array.apply(null, Array(numPages))
+            .map((x, i) => i + 1)
+            .map((page) => {
+              return (
+                <Page
+                  key={Math.random()}
+                  className={printBlob ? 'react-pdf__Page_afterload' : null}
+                  loading={null}
+                  width={divWidth}
+                  pageNumber={page}
+                  renderTextLayer={false}
+                  renderAnnotationLayer={false}
+                />
+              );
+            })}
+        </Document>
       </div>
-
     </>
   );
 }

@@ -5,16 +5,12 @@ import RefundBill from "../RefundBill/RefundBill";
 import { addBillsToForm3C, fetchPatientWalletBalance } from "../../../service";
 import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
 import visitEnd from "../../../../../assets/images/end-visit.svg";
-import { FREE, MESSAGE_KEY, S_BILLING } from "../../../../../utils/constants";
+import { FREE, MESSAGE_KEY, S_BILLING, S_TATVA_PRACTICE } from "../../../../../utils/constants";
 import { formatDateWithOrdinal } from "../../../utils/helper";
 import InfoTooltip from "./InfoToolTip/InfoTooltip";
 import { isMobile } from "react-device-detect";
 import { throttle } from "lodash";
 import { useSelector, useDispatch } from "react-redux";
-import moment from "moment";
-import { checkCredits } from "../../../../../redux/monetizationSlice";
-import { services } from "../../../../../redux/doctorsSlice";
-import { errorMessage } from "../../../../../utils/utils";
 
 const BillTable = ({
   data,
@@ -31,8 +27,8 @@ const BillTable = ({
   showHideSubModal
 }) => {
   const { profile, servicesList } = useSelector((state) => state.doctors);
+  const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
   const BILLING_planDetails = servicesList?.find(e => e.service_name === S_BILLING)
-  const dispatch = useDispatch();
 
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
@@ -49,36 +45,10 @@ const BillTable = ({
   };
 
   const checkBillingPurchased = async () => {
-    const billingEndDate = moment(BILLING_planDetails?.plan_end_date);
-    const currentDate = moment();
-    if (BILLING_planDetails?.plan_tier === FREE && billingEndDate.isBefore(currentDate, 'day')) {
+    if (EMR_planDetails?.plan_tier !== FREE && BILLING_planDetails?.plan_tier === FREE) {
       showHideSubModal()
     } else {
-      let sendData = {
-        b2c_id: profile?.b2c,
-        service_name: S_BILLING
-      }
-      const action = await dispatch(checkCredits(sendData));
-      if (action.meta.requestStatus === "fulfilled") {
-        if (action?.payload?.hasOwnProperty("service_name")) {
-          const plan_end_date = moment(action?.payload?.plan_end_date);
-          if (action?.payload?.plan_tier === FREE && plan_end_date.isBefore(currentDate, 'day')) {
-            if (!plan_end_date.isSame(billingEndDate, 'day')) {
-              await dispatch(services(sendData?.b2c_id))
-            }
-            showHideSubModal()
-          } else {
-            return true;
-          }
-        } else {
-          typeof action?.payload?.data?.error === 'object' ?
-            errorMessage(action?.payload?.data?.error?.description)
-            :
-            errorMessage(action?.payload?.data?.message)
-        }
-      } else {
-        errorMessage(action.payload.message)
-      }
+      return true;
     }
   }
 

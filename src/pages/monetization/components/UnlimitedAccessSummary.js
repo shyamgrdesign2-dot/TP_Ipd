@@ -347,12 +347,12 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     <div className="fs-18 fw-medium text-discount">{`-₹${campaignsData?.campaign_active ? formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100) : 0}`}</div>
                 </div>
                 <div className="d-flex justify-content-between my-3">
-                    <div className="fs-18">Sales Discount:</div>
+                    <div className="fs-18">Sales Discount {salesDiscount && `(${formatAmount(salesDiscount * 100 / subTotal)}%)`} :</div>
                     <div className="fs-18 fw-medium text-discount">{`-₹${salesDiscount ? formatAmount(parseFloat(salesDiscount)) : 0}`}</div>
                 </div>
                 <hr />
                 <div className="d-flex justify-content-between my-3">
-                    <div className="fs-4 text-welcome fw-semibold">Total Amount:</div>
+                    <div className="fs-4 text-welcome fw-semibold">Total Amount <span className="fs-14 fw-normal text-welcome">(Inc GST)</span> :</div>
                     <div className="fs-4 text-welcome fw-semibold">{`₹${totalAmount}`}</div>
                 </div>
 
@@ -421,12 +421,12 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                         <div className="fw-medium text-green">{`-₹${campaignsData?.campaign_active ? formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100) : 0}`}</div>
                                     </div>
                                     <div className="d-flex align-items-center justify-content-between py-2">
-                                        <div>Sales Discount:</div>
+                                        <div>Sales Discount {salesDiscount && `(${formatAmount(salesDiscount * 100 / subTotal)}%)`} :</div>
                                         <div className="fw-medium text-green">{`-₹${salesDiscount ? formatAmount(parseFloat(salesDiscount)) : 0}`}</div>
                                     </div>
                                     <hr />
                                     <div className="d-flex align-items-center justify-content-between py-2">
-                                        <div className="text-welcome fw-semibold fs-18">Total Amount :</div>
+                                        <div className="text-welcome fw-semibold fs-18">Total Amount <span className="fs-14 fw-normal text-welcome">(Inc GST)</span> :</div>
                                         <div className="text-welcome fw-semibold fs-18">{`₹${totalAmount}`}</div>
                                     </div>
                                 </div>

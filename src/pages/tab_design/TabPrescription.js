@@ -809,7 +809,7 @@ function TabPrescription() {
 
   const getGenerateDDx = async (field) => {
     const DDX_planDetails = servicesList?.find(e => e.service_name === S_DDX)
-    if (DDX_planDetails?.plan_tier === FREE && DDX_planDetails?.credit_balance === 0) {
+    if (DDX_planDetails?.plan_tier === FREE && DDX_planDetails?.credit_balance <= 0) {
       showHideSubModal({ service_name: S_DDX })
     } else {
       let sendData = {
@@ -819,7 +819,7 @@ function TabPrescription() {
       const action = await dispatch(checkCredits(sendData));
       if (action.meta.requestStatus === "fulfilled") {
         if (action?.payload?.hasOwnProperty("service_name")) {
-          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance === 0) {
+          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
             if (action?.payload?.credit_balance != DDX_planDetails?.credit_balance) {
               await dispatch(services(sendData?.b2c_id))
             }

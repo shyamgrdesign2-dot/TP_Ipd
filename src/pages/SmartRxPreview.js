@@ -299,7 +299,7 @@ function SmartRxPreview() {
     }, [isSubModalOpen]);
 
     const handleDigitiseRx = async () => {
-        if (RX_DIGITIZATION_planDetails?.plan_tier === FREE && RX_DIGITIZATION_planDetails?.credit_balance === 0) {
+        if (RX_DIGITIZATION_planDetails?.plan_tier === FREE && RX_DIGITIZATION_planDetails?.credit_balance <= 0) {
             showHideSubModal()
         } else {
             let sendData = {
@@ -309,7 +309,7 @@ function SmartRxPreview() {
             const action = await dispatch(checkCredits(sendData));
             if (action.meta.requestStatus === "fulfilled") {
                 if (action?.payload?.hasOwnProperty("service_name")) {
-                    if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance === 0) {
+                    if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
                         if (action?.payload?.credit_balance != RX_DIGITIZATION_planDetails?.credit_balance) {
                             await dispatch(services(sendData?.b2c_id))
                         }

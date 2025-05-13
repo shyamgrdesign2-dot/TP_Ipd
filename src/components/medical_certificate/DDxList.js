@@ -133,7 +133,7 @@ const DDxList = ({
       ),
       children: (
         <div>
-          {(planDetails?.plan_tier === FREE && planDetails?.credit_balance === 0) ? (
+          {(planDetails?.plan_tier === FREE && planDetails?.credit_balance <= 0) ? (
             <div className="voicerx-modal ddx-side text-center m-2">
               <Card
                 extra={

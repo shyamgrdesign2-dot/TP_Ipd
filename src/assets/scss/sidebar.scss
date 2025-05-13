@@ -61,7 +61,7 @@ body {
 
         }
         @media only screen and (max-width: 1400px) {
-            max-width: 80px;
+            max-width: 85px;
         }
         a {
             display: block;
@@ -383,5 +383,33 @@ body {
     }
     .disclaimer-txt {
         color: #A2A2A8 !important;
+    }
+    .trial-sidebar {
+        background: linear-gradient(262.87deg, #F15223 0%, #FF987A 47.22%, #F15223 94.44%);
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+        position: absolute;
+        right: 0;
+        top: 6px;
+        span {
+            margin: 4px 7px;
+            display: block;
+            color: $white !important;
+            font-size: 10px;
+            line-height: 10px;
+        }
+        img {
+            margin: 5px 6px;
+            width: 10px;
+            display: block;
+        }
+        @media only screen and (max-width: 1400px) {
+            span {
+                margin: 3px;
+                color: $white !important;
+                font-size: 9px;
+                line-height: 8px;
+            }
+        }
     }
 }

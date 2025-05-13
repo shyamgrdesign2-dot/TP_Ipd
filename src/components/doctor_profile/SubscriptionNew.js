@@ -127,7 +127,7 @@ function SubscriptionNew() {
           wrapper: { zIndex: 999 },
         }}
         closeIcon={false}>
-        <BillingPrint handlePdfDrawer={handlePdfDrawer} />
+        <BillingPrint handlePdfDrawer={handlePdfDrawer} PDF_URL={'https://tatvapracticedoctor.blob.core.windows.net/payments/invoices_ab69c17b-d0d5-4898-a45f-282efa26d301_1735798297691.pdf?sig=5KJT%2BOYB9l0NnWxbAdz73wCNKRbr9L9SFTz1%2FPoKbV0%3D&se=2025-05-13T07%3A48%3A08Z&sv=2019-02-02&sp=r&sr=b'}/>
       </Drawer>
     </>
   );

@@ -11,7 +11,7 @@ import planExpiredSandClock from '../../../assets/images/plan-expired-sand-clock
 import { interest } from "../../../redux/monetizationSlice";
 import { errorMessage } from "../../../utils/utils";
 
-function ContactSupport({ title, styles, isSubModalOpen, showHideSubModal }) {
+function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -101,4 +101,4 @@ function ContactSupport({ title, styles, isSubModalOpen, showHideSubModal }) {
     )
 }
 
-export default React.memo(ContactSupport);
+export default React.memo(ExpiredSubModal);

@@ -12,10 +12,11 @@ import {
   MESSAGE_KEY,
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
   S_BILLING,
+  S_TATVA_PRACTICE,
 } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
-import { services, setUserId } from "../../../../redux/doctorsSlice";
-import { errorMessage, getClinic, getClinicName, trackEvent } from "../../../../utils/utils";
+import { setUserId } from "../../../../redux/doctorsSlice";
+import { getClinic, getClinicName, trackEvent } from "../../../../utils/utils";
 import TableBillingDashboard from "./TableBillingDashboard";
 import { Button, Drawer, message } from "antd";
 import "./BillingDashboard.scss";
@@ -34,14 +35,13 @@ import { clearSearch } from "../../../../redux/appointmentsSlice";
 import AddAdvance from "../advanceDeposit/AddAdvance";
 import CreateBill from "../createBill/CreateBill";
 import BillingKnowMore from "../../../monetization/components/BillingKnowMore";
-import moment from "moment";
-import { checkCredits } from "../../../../redux/monetizationSlice";
 import ExpiredSubModal from "../../../monetization/components/ExpiredSubModal";
 import { fetchAdvanceSetting, fetchPatientWalletBalance } from "../../service";
 import { setAdvancedSettings } from "../../../../redux/billingSlice";
 
 function BillingDashboard({ patientData, fromPath }) {
   const { servicesList } = useSelector((state) => state.doctors);
+  const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
   const BILLING_planDetails = servicesList?.find(e => e.service_name === S_BILLING)
 
   const dispatch = useDispatch();
@@ -88,36 +88,10 @@ function BillingDashboard({ patientData, fromPath }) {
   }, []);
 
   const checkBillingPurchased = async () => {
-    const billingEndDate = moment(BILLING_planDetails?.plan_end_date);
-    const currentDate = moment();
-    if (BILLING_planDetails?.plan_tier === FREE && billingEndDate.isBefore(currentDate, 'day')) {
+    if (EMR_planDetails?.plan_tier !== FREE && BILLING_planDetails?.plan_tier === FREE) {
       showHideSubModal()
     } else {
-      let sendData = {
-        b2c_id: profile?.b2c,
-        service_name: S_BILLING
-      }
-      const action = await dispatch(checkCredits(sendData));
-      if (action.meta.requestStatus === "fulfilled") {
-        if (action?.payload?.hasOwnProperty("service_name")) {
-          const plan_end_date = moment(action?.payload?.plan_end_date);
-          if (action?.payload?.plan_tier === FREE && plan_end_date.isBefore(currentDate, 'day')) {
-            if (!plan_end_date.isSame(billingEndDate, 'day')) {
-              await dispatch(services(sendData?.b2c_id))
-            }
-            showHideSubModal()
-          } else {
-            return true;
-          }
-        } else {
-          typeof action?.payload?.data?.error === 'object' ?
-            errorMessage(action?.payload?.data?.error?.description)
-            :
-            errorMessage(action?.payload?.data?.message)
-        }
-      } else {
-        errorMessage(action.payload.message)
-      }
+      return true;
     }
   }
 

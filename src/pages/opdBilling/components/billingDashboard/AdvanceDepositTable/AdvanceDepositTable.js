@@ -43,10 +43,7 @@ import { throttle } from "lodash";
 import { setLoadingStatus } from "../../../../../redux/uploadDocSlice.js";
 import { useDispatch } from "react-redux";
 import html2pdf from "html2pdf.js";
-import { FREE, S_BILLING } from "../../../../../utils/constants.js";
-import { checkCredits } from "../../../../../redux/monetizationSlice.js";
-import { services } from "../../../../../redux/doctorsSlice.js";
-import { errorMessage } from "../../../../../utils/utils.js";
+import { FREE, S_BILLING, S_TATVA_PRACTICE } from "../../../../../utils/constants.js";
 const { RangePicker } = DatePicker;
 
 const cardsStaticData = [
@@ -81,6 +78,7 @@ const showDateFormat = "DD MMM YYYY";
 
 const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateRange, totalAdvanceBalance, dateStatus, setDateStatus, showHideSubModal }, ref) => {
   const { servicesList } = useSelector((state) => state.doctors);
+  const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
   const BILLING_planDetails = servicesList?.find(e => e.service_name === S_BILLING)
   const dispatch = useDispatch();
 
@@ -226,36 +224,10 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
   };
 
   const checkBillingPurchased = async () => {
-    const billingEndDate = moment(BILLING_planDetails?.plan_end_date);
-    const currentDate = moment();
-    if (BILLING_planDetails?.plan_tier === FREE && billingEndDate.isBefore(currentDate, 'day')) {
+    if (EMR_planDetails?.plan_tier !== FREE && BILLING_planDetails?.plan_tier === FREE) {
       showHideSubModal()
     } else {
-      let sendData = {
-        b2c_id: profile?.b2c,
-        service_name: S_BILLING
-      }
-      const action = await dispatch(checkCredits(sendData));
-      if (action.meta.requestStatus === "fulfilled") {
-        if (action?.payload?.hasOwnProperty("service_name")) {
-          const plan_end_date = moment(action?.payload?.plan_end_date);
-          if (action?.payload?.plan_tier === FREE && plan_end_date.isBefore(currentDate, 'day')) {
-            if (!plan_end_date.isSame(billingEndDate, 'day')) {
-              await dispatch(services(sendData?.b2c_id))
-            }
-            showHideSubModal()
-          } else {
-            return true;
-          }
-        } else {
-          typeof action?.payload?.data?.error === 'object' ?
-            errorMessage(action?.payload?.data?.error?.description)
-            :
-            errorMessage(action?.payload?.data?.message)
-        }
-      } else {
-        errorMessage(action.payload.message)
-      }
+      return true;
     }
   }
 

@@ -5,8 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import crown from '../../../assets/images/crown.svg'
-import moment from "moment";
-import { FREE } from "../../../utils/constants";
+import { FREE, S_TATVA_PRACTICE } from "../../../utils/constants";
 import { interest } from "../../../redux/monetizationSlice";
 import { errorMessage } from "../../../utils/utils";
 
@@ -17,6 +16,7 @@ function ExpiredText({ title }) {
     const { pathname } = useLocation();
 
     const { profile, servicesList } = useSelector((state) => state.doctors);
+    const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
     const planDetails = servicesList?.find(e => e.service_name === title)
 
     const clickBuyNow = (service_name) => {
@@ -36,9 +36,7 @@ function ExpiredText({ title }) {
     }
 
     const isPurchased = () => {
-        const planEndDate = moment(planDetails?.plan_end_date);
-        const currentDate = moment();
-        if (planDetails?.plan_tier === FREE && planEndDate.isBefore(currentDate, 'day')) {
+        if (EMR_planDetails?.plan_tier !== FREE && planDetails?.plan_tier === FREE) {
             return true;
         } else {
             return false;
@@ -51,7 +49,7 @@ function ExpiredText({ title }) {
             (
                 planDetails?.service_type === 'ai' &&
                 planDetails?.plan_tier === FREE &&
-                planDetails?.credit_balance === 0
+                planDetails?.credit_balance <= 0
             )
             ||
             (

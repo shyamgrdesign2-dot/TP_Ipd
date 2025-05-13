@@ -251,7 +251,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   const handleSend = async () => {
-    if (VOICE_RX_planDetails?.plan_tier === FREE && VOICE_RX_planDetails?.credit_balance === 0) {
+    if (VOICE_RX_planDetails?.plan_tier === FREE && VOICE_RX_planDetails?.credit_balance <= 0) {
       showHideSubModal()
     } else {
       let sendData = {
@@ -261,7 +261,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       const action = await dispatch(checkCredits(sendData));
       if (action.meta.requestStatus === "fulfilled") {
         if (action?.payload?.hasOwnProperty("service_name")) {
-          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance === 0) {
+          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
             if (action?.payload?.credit_balance != VOICE_RX_planDetails?.credit_balance) {
               await dispatch(services(sendData?.b2c_id))
             }

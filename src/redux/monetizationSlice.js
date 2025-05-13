@@ -159,7 +159,8 @@ const monetizationSlice = createSlice({
                     entry.plans.forEach((plan, planIndex) => {
                         tableData.push({
                             key: `${groupIndex}-${planIndex}`,
-                            invoice_generated: entry.invoice_generated,
+                            // invoice_generated: entry.invoice_generated,
+                            invoice_generated: 88,
                             service_display_name: plan.service_display_name,
                             service_name: plan.service_name,
                             plan_validity_months: plan.plan_validity_months,

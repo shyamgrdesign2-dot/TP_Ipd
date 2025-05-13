@@ -119,11 +119,11 @@ function AiSuite({ aiModal, handleAiSuite }) {
                         return (
                             <div key={index}>
                                 {item?.plan_tier === undefined || item?.plan_tier === FREE ? (
-                                    <div className={`ai-suite my-4 ${item?.credit_balance === 0 && 'ai-expired'}`}>
+                                    <div className={`ai-suite my-4 ${item?.credit_balance <= 0 && 'ai-expired'}`}>
                                         <div className="d-flex align-items-center mb-3">
                                             <img style={{ background: '#EDDFF780', padding: 6 }} className="rounded-10px me-2" src={getIcon(item?.service_name)} alt="item.type" />
                                             <div className="fs-18 fw-semibold text-1F2933">{item?.service_display_name}</div>
-                                            {item?.credit_balance === 0 && (<img src={expired} className="ms-2" />)}
+                                            {item?.credit_balance <= 0 && (<img src={expired} className="ms-2" />)}
                                         </div>
                                         <p>
                                             {item?.service_description}
