@@ -6,6 +6,7 @@ import ApiPrintSettings from "../api/services/ApiPrintSettings";
 import ApiVideoLibrary from "../api/services/ApiVideoLibrary";
 import ApiMedicalCertificate from "../api/services/ApiMedicalCertificate";
 import ApiMonetization from "../api/services/ApiMonetization";
+import { S_ASK_TATVA, S_BILLING, S_DDX, S_IPD, S_PHARMACY, S_RX_DIGITIZATION, S_SMARTSYNC, S_TATVA_PRACTICE, S_VOICE_RX } from "../utils/constants";
 
 const initialState = {
   sort_order: 'ascend',
@@ -634,7 +635,9 @@ const doctorsSlice = createSlice({
       })
       .addCase(services.fulfilled, (state, action) => {
         state.servicesLoading = false
-        state.servicesList = action.payload
+        const serviceOrder = [S_TATVA_PRACTICE, S_VOICE_RX, S_SMARTSYNC, S_RX_DIGITIZATION, S_ASK_TATVA, S_DDX, S_BILLING, S_PHARMACY, S_IPD];
+        const sortedData = action.payload.sort((a, b) => serviceOrder.indexOf(a.service_name) - serviceOrder.indexOf(b.service_name));
+        state.servicesList = sortedData
       })
       .addCase(services.rejected, (state) => {
         state.servicesLoading = false

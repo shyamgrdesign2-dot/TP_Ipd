@@ -67,12 +67,33 @@ function GetUnlimitedAccess() {
                 }
             });
 
+            // if (groupedServices.length > 0) {
+            //     result.splice(1, 0, { data: groupedServices });
+            // }
             if (groupedServices.length > 0) {
-                result.splice(1, 0, { data: groupedServices });
+                result.unshift({ data: groupedServices });
             }
 
-            setServicesData(result)
-
+            if (buyServiceName !== undefined) {
+                let updatedResult = result
+                if (buyServiceName === S_RX_DIGITIZATION) {
+                    setServicesData(updatedResult)
+                } else {
+                    const EMR_index = updatedResult.findIndex(e => e.service_name === S_TATVA_PRACTICE);
+                    const index = updatedResult.findIndex(e => e.service_name === buyServiceName);
+                    if (EMR_index != -1) {
+                        const [obj] = updatedResult.splice(index, 1);
+                        updatedResult.splice(1, 0, obj);
+                        setServicesData(updatedResult)
+                    } else {
+                        const [obj] = updatedResult.splice(index, 1);
+                        updatedResult.unshift(obj);
+                        setServicesData(updatedResult)
+                    }
+                }
+            } else {
+                setServicesData(result)
+            }
 
             let defaultService = []
             if (buyServiceName !== undefined) {
@@ -206,7 +227,7 @@ function GetUnlimitedAccess() {
                 {!servicesLoading ? (
                     <>
                         {campaignsData?.campaign_active && (
-                            <CampaignDiscount flag={1} />
+                            <CampaignDiscount flag={1} title={servicesList.find(e => e.service_name === buyServiceName)?.service_display_name} />
                         )}
                         <div className="bg-unlimited-access h-100">
                             {servicesData?.length > 0 && (
@@ -219,7 +240,7 @@ function GetUnlimitedAccess() {
                                             />
                                         )}
                                         <div className="addon-access mt-2 mb-5">
-                                            {servicesData?.filter(item => item.service_name !== S_TATVA_PRACTICE)?.slice(0, showAll ? servicesData?.filter(item => item.service_name !== S_TATVA_PRACTICE)?.length : 3).map((item, index) => {
+                                            {servicesData?.filter(item => item.service_name !== S_TATVA_PRACTICE)?.slice(0, showAll ? servicesData?.filter(item => item.service_name !== S_TATVA_PRACTICE)?.length : buyServiceName !== undefined ? 1 : 3).map((item, index) => {
                                                 return (
                                                     <div key={index}>
                                                         {item.hasOwnProperty("data") ? (

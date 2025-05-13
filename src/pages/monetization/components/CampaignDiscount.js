@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import moment from "moment";
 
-function CampaignDiscount({ flag }) {
+function CampaignDiscount({ flag, title = undefined }) {
 
     const { campaignsData } = useSelector((state) => state.doctors);
     const [countdown, setCountdown] = useState({
@@ -41,7 +41,7 @@ function CampaignDiscount({ flag }) {
         <>
             {flag === 1 ? (
                 <div className="flat-20 py-3">
-                    🎉<span>&nbsp;Flat {campaignsData?.campaign_value}% off</span>&nbsp;on EMR—limited time offer!&nbsp;&nbsp;
+                    🎉<span>&nbsp;Flat {campaignsData?.campaign_value}% off</span>&nbsp;on {title !== undefined ? title : 'EMR'}—limited time offer!&nbsp;&nbsp;
                     <div className="rounded-pill px-2 py-1">{countdown.days} Days : {countdown.hours} Hours : {countdown.minutes} Min ⏳ </div>
                 </div>
             ) : (
