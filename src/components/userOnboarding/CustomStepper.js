@@ -1,17 +1,33 @@
 import React from "react";
 import styles from "./CustomStepper.module.css";
 
-const CustomStepper = ({ steps, currentStep }) => {
+const CustomStepper = ({ steps, currentStep, onStepClick }) => {
+  // Handler for step clicks
+  const handleStepClick = (stepIndex) => {
+    // Only allow clicking on completed steps
+    if (stepIndex < currentStep && onStepClick) {
+      onStepClick(stepIndex);
+    }
+  };
+
   return (
     <div className={styles.stepperOuter}>
       <div className={styles.stepsContainer}>
         {steps.map((step, idx) => {
           const isCompleted = idx < currentStep;
           const isActive = idx === currentStep;
+          const isClickable = isCompleted && onStepClick;
 
           // Calculate label position to align with circle
           return (
-            <div key={step.label} className={styles.stepWithLabel}>
+            <div
+              key={step.label}
+              className={`${styles.stepWithLabel} ${
+                isClickable ? styles.clickableStep : ""
+              }`}
+              onClick={() => handleStepClick(idx)}
+              style={{ cursor: isClickable ? "pointer" : "default" }}
+            >
               <div className={styles.stepCircleWrapper}>
                 <div
                   className={
