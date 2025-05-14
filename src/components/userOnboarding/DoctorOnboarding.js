@@ -73,7 +73,12 @@ const DoctorOnboarding = ({ visible, onClose }) => {
       return formData.fullName && formData.speciality;
     }
     if (currentStep === 1) {
-      return formData.clinicName && formData.clinicPincode;
+      return (
+        formData.clinicName &&
+        formData.clinicPincode &&
+        formData.clinic_long &&
+        formData.clinic_lat
+      );
     }
     if (currentStep === 2) {
       return formData.governmentIdProof && formData.mrcCertificate;
@@ -110,13 +115,18 @@ const DoctorOnboarding = ({ visible, onClose }) => {
           clinicName: response.hospitalDetails.clinicName || "",
           clinicAddress: response.hospitalDetails.clinicAddress || "",
           clinicPincode: response.hospitalDetails.clinicPincode || "",
+          clinic_long: response.hospitalDetails.clinic_long || "",
+          clinic_lat: response.hospitalDetails.clinic_lat || "",
+          clinic_id: response.hospitalDetails.clinic_id || "",
+          hm_business_id: response.hospitalDetails.hm_business_id || "",
         };
       }
 
       setFormData(updatedFormData);
 
       if (
-        response?.hospitalDetails?.clinicName &&
+        response?.hospitalDetails?.clinic_long &&
+        response?.hospitalDetails?.clinic_lat &&
         response?.basicDetails?.departmentId
       ) {
         setCurrentStep(2);
@@ -243,7 +253,8 @@ const DoctorOnboarding = ({ visible, onClose }) => {
     if (
       !formData.clinicName ||
       !formData.clinicPincode ||
-      !formData.clinicAddress
+      !formData.clinic_long ||
+      !formData.clinic_lat
     ) {
       message.error("Please fill in all required clinic details");
       return false;
@@ -268,8 +279,12 @@ const DoctorOnboarding = ({ visible, onClose }) => {
         clinicName: formData.clinicName,
         clinicAddress: formData.clinicAddress,
         clinicPincode: formData.clinicPincode,
-        clinic_lat: formData.clinic_lat || "", // No default fallback in production
-        clinic_long: formData.clinic_long || "", // No default fallback in production
+        clinic_lat: formData.clinic_lat || "",
+        clinic_long: formData.clinic_long || "",
+        ...(formData.clinic_id && { clinic_id: formData.clinic_id }),
+        ...(formData.hm_business_id && {
+          hm_business_id: formData.hm_business_id,
+        }),
       };
 
       const response = await finalizeOnboarding(finalizeData);
@@ -353,6 +368,12 @@ const DoctorOnboarding = ({ visible, onClose }) => {
 
   const prevStep = () => {
     setCurrentStep(currentStep - 1);
+  };
+
+  // Handle clicking on a completed step
+  const handleStepClick = (stepIndex) => {
+    // Navigate to the clicked step
+    setCurrentStep(stepIndex);
   };
 
   const drawerContent = (
@@ -443,6 +464,7 @@ const DoctorOnboarding = ({ visible, onClose }) => {
               { label: "Upload ID" },
             ]}
             currentStep={currentStep}
+            onStepClick={handleStepClick}
           />
         </div>
       </div>

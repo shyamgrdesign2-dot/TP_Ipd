@@ -6,7 +6,7 @@ import nhaLogo from "../../../assets/images/nha-logo.svg";
 import googlePartner from "../../../assets/images/website-images/image.png";
 import leftGroup from "../../../assets/images/onboard-page-icons/Left-Group.svg";
 import rightGroup from "../../../assets/images/onboard-page-icons/Right-Group.svg";
-import { validateUser } from "../../auth/authService";
+import { validateUser, checkPediaExists } from "../../auth/authService";
 
 const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }) => {
   const [mobileNumber, setMobileNumber] = useState(initialMobileNumber || "");
@@ -138,11 +138,13 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
       setLoading(true);
 
       // First check user status
-      const response = await validateUser(mobileNumber);
-      const { message } = response;
+      const response = isLoginFlow ? await validateUser(mobileNumber) : await checkPediaExists({mbl_no: `91${mobileNumber}`});
+
+      const { message } = isLoginFlow ? response : response.data;
 
       switch (message) {
         case "Doctor exists!":
+        case "User exists!":
           // For campaign URLs or login flow, proceed with OTP
           
           setIsFromCampaign(false);
@@ -170,6 +172,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           break;
 
         case "Doctor does not exists!":
+        case "User does not exists":
           if (isLoginFlow) {
             setError("User does not exist. Please sign up first.");
             setTimeout(() => {

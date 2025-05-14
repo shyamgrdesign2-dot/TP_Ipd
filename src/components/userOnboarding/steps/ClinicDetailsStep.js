@@ -82,16 +82,12 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
       return;
     }
 
-    // Show a message to check browser permissions
-    // message.info("Please allow location access when prompted by your browser");
-
     navigator.geolocation.getCurrentPosition(
       (position) => {
         // Get coordinates
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
         console.log("Location detected:", latitude, longitude);
-
         // Store coordinates in formData - these will be sent to the API when user clicks Next
         setFormData({
           ...formData,
@@ -101,10 +97,8 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
 
         // Set coordinates as detected - this will hide the button
         setCoordsDetected(true);
-        // message.success("Location coordinates detected successfully!");
 
-        // Try to get pincode from coordinates using reverse geocoding
-        // This is just a simple example - in production you might use a more robust service
+        // Get reverse geocoding data including pincode, city, and state
         reverseGeocode(latitude, longitude);
       },
       (error) => {
@@ -126,6 +120,11 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
 
         setLocationError(errorMsg);
         setIsDetectingLocation(false);
+
+        // Show a user-friendly message
+        message.error(
+          "Location detection failed. Please enter your pincode manually."
+        );
       },
       {
         enableHighAccuracy: true,
@@ -135,11 +134,10 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
     );
   };
 
-  // Simple reverse geocoding to get pincode
+  // Enhanced reverse geocoding to get pincode, city and state
   const reverseGeocode = async (latitude, longitude) => {
     try {
-      // For demo, we'll use Nominatim to get the pincode
-      // In production, use a more robust service with proper API keys
+      // First try with Nominatim for open source geocoding
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
         {
@@ -152,24 +150,39 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
 
       const data = await response.json();
 
-      if (data && data.address && data.address.postcode) {
-        const pincode = data.address.postcode;
+      let pincode = "";
+      let city = "";
+      let state = "";
+
+      if (data && data.address) {
+        pincode = data.address.postcode || "";
+        city =
+          data.address.city || data.address.town || data.address.village || "";
+        state = data.address.state || "";
 
         // Update form with pincode
-        setFormData((prev) => ({
-          ...prev,
-          clinicPincode: pincode,
-        }));
+        if (pincode) {
+          setFormData((prev) => ({
+            ...prev,
+            clinicPincode: pincode,
+          }));
+        }
 
-        // The useEffect will handle fetching city and state
+        // Set the detected location for display
+        if (city && state) {
+          setDetectedLocation(`${city}, ${state}`);
+        }
       } else {
+        // If Nominatim fails, try a secondary API or inform the user
         message.info(
-          "Pincode not found from coordinates. Please enter manually."
+          "Location details not found. Please enter pincode manually."
         );
       }
     } catch (error) {
       console.error("Error in reverse geocoding:", error);
-      // message.info("Unable to determine pincode. Please enter manually.");
+      message.info(
+        "Unable to determine location details. Please enter manually."
+      );
     } finally {
       setIsDetectingLocation(false);
     }
@@ -208,6 +221,7 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
             fontSize: "16px",
           }}
           className={styles.focusedInput}
+          disabled={formData.clinic_id && formData.hm_business_id}
         />
       </div>
 
@@ -270,8 +284,8 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
                 right: coordsDetected ? "12px" : "150px",
                 top: "50%",
                 transform: "translateY(-50%)",
-                color: "#52c41a",
-                fontSize: "14px",
+                color: "#A2A2A8",
+                fontSize: "1rem",
                 pointerEvents: "none",
               }}
             >
@@ -307,12 +321,11 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
           value={formData.clinicAddress}
           onChange={handleInputChange}
           size="large"
-          status={formData.clinicAddress ? "" : "error"}
           style={{
             width: "100%",
             height: "3.5rem",
             borderRadius: "6px",
-            borderColor: formData.clinicAddress ? "#d1d5db" : "#E2E2EA",
+            borderColor: "#d1d5db",
             fontSize: "16px",
           }}
           className={styles.focusedInput}
