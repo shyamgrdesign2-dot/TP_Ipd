@@ -464,7 +464,7 @@ function AppointmentData({ locationPath }) {
     };
 
     useEffect(() => {
-        if (locationPath == '/' && from == 'onboarding') {
+        if (locationPath == '/' && ['onboarding', 'finalSetup'].includes(from)) {
             setModalOpen(true)
         }
     }, [locationPath, from]);

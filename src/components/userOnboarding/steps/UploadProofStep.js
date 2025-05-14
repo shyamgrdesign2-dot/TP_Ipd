@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Upload, message } from "antd";
 import { FileOutlined } from "@ant-design/icons";
 import styles from "../DoctorOnboarding.module.css";
 import { CloudUploadOutlined } from "@ant-design/icons";
 import CommonModal from "../../../common/CommonModal";
 import alertIcon from "../../../assets/images/alertIcon.svg";
+import axios from "axios";
+import config from "../../../config";
 
 const UploadProofStep = ({ formData, setFormData }) => {
   const [isAccountLocked, setIsAccountLocked] = useState(false);
@@ -14,6 +16,43 @@ const UploadProofStep = ({ formData, setFormData }) => {
   );
   const [mrcFile, setMRCFile] = useState(formData.mrcCertificate);
   const [isFileSizeExceeded, setIsFileSizeExceeded] = useState(false);
+
+  // Add useEffect to check account lock status
+  useEffect(() => {
+    const checkAccountStatus = async () => {
+      try {
+        // Get user mobile number from wherever it's stored
+        const mobileNumber =
+          formData.mobileNumber || localStorage.getItem("mobileNumber");
+
+        if (!mobileNumber) {
+          console.error("Mobile number not found");
+          return;
+        }
+
+        const response = await axios.get(
+          `${config.user_management_api_url}/user/pm/info/status?mblNo=${mobileNumber}`,
+          {
+            headers: {
+              api_key: config.api_key,
+              api_secret_key: config.api_secret_key,
+            },
+          }
+        );
+
+        // If status is true, account is active (not locked)
+        if (response.data && response.data.status === true) {
+          setIsAccountLocked(false);
+        } else {
+          setIsAccountLocked(true);
+        }
+      } catch (error) {
+        console.error("Error checking account status:", error);
+      }
+    };
+
+    checkAccountStatus();
+  }, [formData.mobileNumber]);
 
   const handleGovIdUpload = (file) => {
     // Validate file type and size
