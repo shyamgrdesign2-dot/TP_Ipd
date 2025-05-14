@@ -12,7 +12,7 @@ const TrustBy = () => {
   ];
 
   return (
-    <div className="trusted-by-container">
+    <div id="trusted-by-section" className="trusted-by-container">
       <h2 className="trusted-by-title">
         Trusted by <img src={Trustby} alt="heart" className="heart" />
       </h2>

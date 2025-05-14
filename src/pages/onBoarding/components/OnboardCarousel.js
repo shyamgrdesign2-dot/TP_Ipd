@@ -73,6 +73,13 @@ const OnboardingCarousel = () => {
     }
   };
 
+  const handleExploreMore = () => {
+    const trustedBySection = document.getElementById('trusted-by-section');
+    if (trustedBySection) {
+      trustedBySection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="onboarding-carousel-wrapper">
       <div className="logo-container">
@@ -124,7 +131,7 @@ const OnboardingCarousel = () => {
       </div>
 
       <div className="explore-more">
-        <button>Explore more</button>
+        <button onClick={handleExploreMore}>Explore more</button>
       </div>
     </div>
   );
