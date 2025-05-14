@@ -25,12 +25,12 @@ function ExtendTrialModal() {
     const [isExpiredModalOpen, setIsExpiredModalOpen] = useState(false);
 
     useEffect(() => {
-        dispatch(services(profile?.b2c));
+        profile?.b2c !== null && profile?.b2c !== undefined && dispatch(services(profile?.b2c));
     }, [profile?.b2c]);
 
     useEffect(() => {
-        checkBillingPurchased()
-    }, [servicesList?.length > 0]);
+        servicesList?.length > 0 && checkBillingPurchased()
+    }, [servicesList]);
 
     const checkBillingPurchased = async () => {
         const emrEndDate = moment(EMR_planDetails?.plan_end_date);
