@@ -333,7 +333,7 @@ const DoctorOnboarding = ({ visible, onClose }) => {
         authToken
       );
 
-      navigate("/");
+      navigate("/?from=finalSetup");
 
       return true;
     } catch (error) {
@@ -403,7 +403,7 @@ const DoctorOnboarding = ({ visible, onClose }) => {
             <Button
               onClick={() => {
                 onClose();
-                navigate("/");
+                navigate("/?from=finalSetup");
               }}
               className={styles.skipButton}
             >

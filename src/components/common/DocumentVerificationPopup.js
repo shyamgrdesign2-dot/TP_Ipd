@@ -55,8 +55,8 @@ const DocumentVerificationPopup = () => {
         `${config.user_management_api_url}/user/tatva/documents?mbl_no=${phoneNumber}`,
         {
           headers: {
-            api_key: config.api_key,
-            api_secret_key: config.api_secret_key,
+            api_key: config.lite_api_key,
+            api_secret_key: config.lite_secret_key,
             "Content-Type": "application/json",
           },
         }
