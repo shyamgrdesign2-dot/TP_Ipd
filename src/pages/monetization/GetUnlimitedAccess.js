@@ -83,7 +83,7 @@ function GetUnlimitedAccess() {
                     const index = updatedResult.findIndex(e => e.service_name === buyServiceName);
                     if (EMR_index != -1) {
                         const [obj] = updatedResult.splice(index, 1);
-                        updatedResult.splice(1, 0, obj);
+                        updatedResult.unshift(obj);
                         setServicesData(updatedResult)
                     } else {
                         const [obj] = updatedResult.splice(index, 1);
