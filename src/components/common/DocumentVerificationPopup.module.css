@@ -91,6 +91,19 @@
   font-size: 0.99025rem;
 }
 
+.laterButton:hover {
+  background: transparent !important;
+  color: white !important;
+  border-color: white !important;
+}
+
+/* Override any Ant Design internal hover styles */
+.laterButton.ant-btn:hover {
+  background: transparent !important;
+  color: white !important;
+  border-color: white !important;
+}
+
 .uploadButton {
   width: 10.36194rem;
   height: 2.7585rem;
@@ -112,3 +125,15 @@
 .contentWrapper {
   width: 100%;
 } 
+
+.laterButtonText {
+  font-size: 0.99025rem;
+  font-weight: 600;
+  color: white !important;
+}
+
+/* Make sure the button text stays white even with Ant Design overrides */
+button.laterButton span,
+.laterButton * {
+  color: white !important;
+}

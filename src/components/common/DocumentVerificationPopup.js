@@ -120,9 +120,9 @@ const DocumentVerificationPopup = () => {
       <div className={styles.titleContainer}>
         <span className={styles.title}>
           {title}
-          <span className={styles.daysLeft}>
+          {/* <span className={styles.daysLeft}>
             &nbsp;({docStatus.daysLeft} Days left)
-          </span>
+          </span> */}
         </span>
       </div>
     );
@@ -130,11 +130,11 @@ const DocumentVerificationPopup = () => {
 
   const getPopupContent = () => {
     if (docStatus.bothMissing) {
-      return "Complete your profile by uploading proof or else you access will be blocked in 3 days";
+      return "Complete your profile by uploading proof or else you access will be blocked";
     } else if (docStatus.idProofMissing) {
-      return "Complete your profile by uploading ID proof or else you access will be blocked in 3 days";
+      return "Complete your profile by uploading ID proof or else you access will be blocked";
     } else if (docStatus.mrcMissing) {
-      return "Complete your profile by uploading MRC Certificate or else you access will be blocked in 3 days";
+      return "Complete your profile by uploading MRC Certificate or else you access will be blocked";
     }
     return "";
   };
