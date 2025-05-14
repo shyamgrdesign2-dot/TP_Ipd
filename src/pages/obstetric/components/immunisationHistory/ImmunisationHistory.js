@@ -174,6 +174,8 @@ const ImmunisationHistory = ({
     const handleImmunisationChange = (key, index, value, isOnBlur) => {
       const updatedData = [...immunisationHistory];
       updatedData[index] = { ...updatedData[index], [key]: value };
+      updatedData[index].modifiedAt = new Date().toISOString();
+      updatedData[index].modifiedBy = userId;
       if (key !== "enablePrint" && !isOnBlur) {
         updatedData[index] = { ...updatedData[index], enablePrint: true };
       }
