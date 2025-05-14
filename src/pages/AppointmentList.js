@@ -17,6 +17,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { setUserId } from "../redux/doctorsSlice";
 import { getClinicName } from "../utils/utils";
+import DocumentVerificationPopup from "../components/common/DocumentVerificationPopup";
 
 
 function AppointmentList() {
@@ -67,6 +68,7 @@ function AppointmentList() {
             <Route path="edit_patient" element={<EditNewPatient />} />
             <Route path="bulk_messages" element={<MessagesData />} />
           </Routes>
+          <DocumentVerificationPopup />
         </div>
       </div>
     </>
