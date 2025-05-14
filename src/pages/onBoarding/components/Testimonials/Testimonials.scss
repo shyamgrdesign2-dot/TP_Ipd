@@ -22,14 +22,43 @@
     gap: 2rem;
     padding: 1rem;
     overflow-x: hidden;
-  }
+    justify-content: center;
+    align-items: center;
 
+    .prev {border: none;
+      padding: 0 1rem;
+      border-radius: 50%;
+      border: none;
+      height: 3rem;
+      position: absolute;
+      left: 1.5rem;
+    }
+
+    .next {
+      padding: 0 1rem;
+      border-radius: 50%;
+      border: none;
+      height: 3rem;
+      position: absolute;
+      right: 1.5rem;
+      z-index: 1000;
+    }
+  }
+  .testimonials-wrapper {
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+  }
   .testimonial-card {
+    margin: 1rem 0;
     flex: 0 0 400px;
     background: white;
     padding: 2rem;
     border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
 
     .testimonial-header {
       display: flex;
@@ -134,6 +163,27 @@
 
       .testimonial-header .hospital-logo {
         display: none;
+      }
+    }
+  }
+}
+@media (max-width: 1024px) {
+  .testimonials-container {
+    .testimonials-wrapper {
+      gap: 1rem !important;
+    }
+
+    .testimonial-card {
+      padding: 1rem !important;
+      max-width: 31% !important;
+    }
+
+    .testimonials-carousel{
+      .prev {
+        left: 0.5rem;
+      }
+      .next {
+        right: 0.5rem;
       }
     }
   }
