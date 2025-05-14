@@ -49,8 +49,7 @@ import AddAppointment from "./pages/addAppointment/AddAppointment";
 import { checkAccountStatus } from "./pages/auth/authService";
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
-import OnboardingWrapper from "./components/userOnboarding";
-import DocumentVerificationPopup from "./components/common/DocumentVerificationPopup";
+import FinalSetup from "./pages/FinalSetup";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -231,12 +230,11 @@ function App() {
                 <DoctorModal />
               </div>
             )}
-            <DocumentVerificationPopup />
-            <OnboardingWrapper />
             <Routes>
               {/* Public route */}
               {/* <Route path="/login" element={<AuthContainer />} /> */}
               <Route path="/login" element={<Onboarding />} />
+              <Route path="/final-setup" element={<FinalSetup />} />
 
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
