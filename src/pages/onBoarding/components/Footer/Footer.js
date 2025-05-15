@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row, Col } from 'antd';
-import { FacebookOutlined, TwitterOutlined, LinkedinOutlined, YoutubeOutlined } from '@ant-design/icons';
+import { FacebookOutlined, TwitterOutlined, LinkedinOutlined, YoutubeOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons';
 import "./Footer.scss";
 import Logo from '../../../../assets/images/website-images/tatvacare-logo.png';
 
@@ -30,8 +30,15 @@ const Footer = () => {
         <div className="footer-section-contact">
           <h5>Contact Us</h5>
           <div className="contact-info">
-            <p><a href="tel:+919974042363">+91 99740 42363</a></p>
-            <p><a href="mailto:support@tatvacare.in">support@tatvacare.in</a></p>
+            <div className="contact-item">
+              <PhoneOutlined className="contact-icon" />
+              +91 99740 42363
+            </div>
+            <p className="timing">(Monday - Saturday | 9am to 8pm)</p>
+            <div className="contact-item">
+              <MailOutlined className="contact-icon" />
+              support@tatvacare.in
+            </div>
           </div>
           <div className="social-links">
             <h5>Follow Us</h5>

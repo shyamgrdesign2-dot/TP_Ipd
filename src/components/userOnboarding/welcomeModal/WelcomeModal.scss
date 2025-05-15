@@ -1,0 +1,124 @@
+.video-carousel {
+    position: relative;
+    padding-bottom: 12px;
+
+    .video-dots {
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
+        gap: 8px;
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #D9D9D9;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+
+            &.active {
+                background-color: #1890ff;
+            }
+
+            &:hover {
+                background-color: #40a9ff;
+            }
+        }
+    }
+}
+
+.welcome-modals-wrapper {
+    position: relative;
+
+    .modal-onboarding {
+        .ant-modal-content {
+            border-radius: 16px;
+            background: white;
+            padding: 15px 20px 1px 20px !important;
+        }
+    }
+
+    .device-warning-content {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 16px;
+        background: #7de781;
+        border-radius: 16px;
+        padding: 20px;
+        max-width: 500px;
+        width: calc(100% - 32px);
+        text-align: center;
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+        .desktop-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 12px;
+        }
+
+        .warning-title {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            font-weight: normal;
+        }
+
+        .link-wrapper {
+            //   background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 0 -8px;
+
+            .platform-link {
+                color: white;
+                text-decoration: underline;
+                background: rgba(255, 255, 255, 0.1);
+
+                display: block;
+                // margin-bottom: 12px;
+                word-break: break-all;
+                font-size: 14px;
+            }
+
+            .action-buttons {
+                display: flex;
+                justify-content: center;
+                gap: 12px;
+
+                .action-btn {
+                    background: none;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 8px;
+                    padding: 8px 12px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    img {
+                        width: 20px;
+                        height: 20px;
+                        filter: brightness(0) invert(1); // Make icons white
+                    }
+
+                    &:hover {
+                        background: rgba(255, 255, 255, 0.1);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Ensure proper stacking
+.ant-modal-wrap {
+    &.modal-onboarding {
+        z-index: 1000;
+    }
+
+    &.device-warning-modal {
+        z-index: 1001;
+    }
+}

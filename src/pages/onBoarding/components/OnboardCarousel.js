@@ -6,39 +6,67 @@ import practiceManagement from "../../../assets/images/website-images/PracticeMa
 import ddxBanner from "../../../assets/images/website-images/DdxBanner.jpeg";
 import emrBanner from "../../../assets/images/website-images/EMRBanner.jpeg";
 import tatvaAiBanner from "../../../assets/images/website-images/TatvaAiBanner.jpeg";
+import { getUtmParams } from "../../../components/userOnboarding/services/userDataService";
 
 const OnboardingCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
   const carouselRef = useRef(null);
 
-  const carouselItems = [
+  const baseCarouselItems = [
     {
+      id: 1,
       title: "Boost Your Practice with",
       subtitle: "Our AI-Powered Smart Sync",
       image: smartSync,
+      utmKey: "smartsync"
     },
     {
+      id: 2,
       title: "AI-Powered",
       subtitle: "Clinical Decision Support",
       image: practiceManagement,
+      utmKey: "practice"
     },
     {
+      id: 3,
       title: "Build and Scale Your",
       subtitle: "Online Presence with Us",
       image: ddxBanner,
+      utmKey: "ddx"
     },
     {
+      id: 4,
       title: "Supercharge Your",
       subtitle: "Research with Tatva AI",
       image: emrBanner,
+      utmKey: "tatvaai"
     },
     {
+      id: 5,
       title: "India's Best EMR",
       subtitle: "Trusted by 10,000+ Doctor",
       image: tatvaAiBanner,
+      utmKey: "emr"
     },
   ];
+
+  const sortCarouselItems = () => {
+
+    const utm = getUtmParams();
+    const utmTerm = utm.utm_term;
+    // If no UTM term, return original order
+    if (!utmTerm) return baseCarouselItems;
+
+    return [
+      // First, find the item that matches the UTM term
+      ...baseCarouselItems.filter(item => item.utmKey === utmTerm),
+      // Then add all other items
+      ...baseCarouselItems.filter(item => item.utmKey !== utmTerm)
+    ];
+  };
+
+  const carouselItems = sortCarouselItems();
 
   useEffect(() => {
     const timer = setInterval(() => {

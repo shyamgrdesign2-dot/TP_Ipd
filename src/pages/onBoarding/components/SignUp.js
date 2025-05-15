@@ -129,7 +129,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     }
 
     if(!isCaptchaVerified()){
-      setError("Please verify the captcha, Before proceeding");
+      setError("Please complete the captcha verification before continuing");
       return;
     }
 
@@ -144,7 +144,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
 
       switch (message) {
         case "Doctor exists!":
-        case "User exists!":
+        case "User exists":
           // For campaign URLs or login flow, proceed with OTP
           
           setIsFromCampaign(false);
@@ -157,11 +157,8 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           else if (window.sendOtp) {
             window.sendOtp(
               `91${mobileNumber}`,
-              () => {
-                onViewChange("verifyOTP", mobileNumber, true);
-              },
               (data) => {
-                console.log(data,"data")
+                onViewChange("verifyOTP", mobileNumber, true , "", false,data.message);
               },
               (error) => {
                 setError("Failed to send OTP. Please try again.");
@@ -183,8 +180,8 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             if (window.sendOtp) {
               window.sendOtp(
                 `91${mobileNumber}`,
-                () => {
-                  onViewChange("verifyOTP", mobileNumber, false);
+                (data) => {
+                  onViewChange("verifyOTP", mobileNumber, false, "", false, data.message);
                 },
                 (error) => {
                   setError("Failed to send OTP. Please try again.");
@@ -215,7 +212,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
 
   const handleLoginPassword = async () => {
     if (!isCaptchaVerified()) {
-      setError("Please verify the captcha, Before proceeding");
+      setError("Please complete the captcha verification before continuing");
       return;
     }
 
@@ -346,7 +343,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             {isLoginFlow ? "Login via OTP" : "Get Started"}
           </Button>
 
-          <div className="divider">or</div>
+          {isLoginFlow ? <div className="divider">or</div> : <div style={{height: "2rem"}}></div>}
 
           {isLoginFlow && (
             <Button
