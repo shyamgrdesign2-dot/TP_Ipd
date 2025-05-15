@@ -5,6 +5,10 @@ import axios from "axios";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import styles from "./DocumentVerificationPopup.module.css";
 import config from "../../config";
+import { useSelector } from "react-redux";
+import moment from "moment";
+import { fetchSubscriptionDetails } from "../../redux/subscriptionSlice";
+import { useDispatch } from "react-redux";
 
 const DISMISS_TIMESTAMP_KEY = "document_verification_dismissed_at";
 const DISMISS_HOURS = 12; // Show popup again after 12 hours
@@ -19,10 +23,22 @@ const DocumentVerificationPopup = () => {
     daysLeft: 3,
   });
   const navigate = useNavigate();
+  const { planDetails } = useSelector((state) => state.subscription);
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReceptionist = urlParams.has("receptionist");
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    checkDocumentStatus();
-  }, []);
+    if (!isReceptionist) {
+      dispatch(fetchSubscriptionDetails()); // Fetch subscription details on every reload
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (planDetails?.onboarding_date) {
+      checkDocumentStatus();
+    }
+  }, [planDetails]);
 
   const checkDocumentStatus = async () => {
     try {
@@ -67,12 +83,17 @@ const DocumentVerificationPopup = () => {
         const body = response.data.body;
         const mrcExists = !!body?.mrc?.certificatePreviewUrl;
         const idProofExists = !!body?.pi?.doc_url;
+        let daysLeft = 0;
+        if (planDetails?.onboarding_date) {
+          const deadline = moment(planDetails?.onboarding_date).add(3, "days");
+          daysLeft = Math.ceil(moment(deadline).diff(moment(), "hours") / 24);
+        }
 
         setDocStatus({
           bothMissing: !mrcExists && !idProofExists,
           idProofMissing: !idProofExists && mrcExists,
           mrcMissing: !mrcExists && idProofExists,
-          daysLeft: 3,
+          daysLeft: daysLeft > 0 ? daysLeft : 0,
         });
 
         // Show popup if any document is missing and dismiss timeout has passed
@@ -120,9 +141,9 @@ const DocumentVerificationPopup = () => {
       <div className={styles.titleContainer}>
         <span className={styles.title}>
           {title}
-          {/* <span className={styles.daysLeft}>
+          <span className={styles.daysLeft}>
             &nbsp;({docStatus.daysLeft} Days left)
-          </span> */}
+          </span>
         </span>
       </div>
     );
@@ -130,11 +151,11 @@ const DocumentVerificationPopup = () => {
 
   const getPopupContent = () => {
     if (docStatus.bothMissing) {
-      return "Complete your profile by uploading proof or else you access will be blocked";
+      return `Complete your profile by uploading proof or else you access will be blocked in ${docStatus.daysLeft} days`;
     } else if (docStatus.idProofMissing) {
-      return "Complete your profile by uploading ID proof or else you access will be blocked";
+      return `Complete your profile by uploading ID proof or else you access will be blocked in ${docStatus.daysLeft} days`;
     } else if (docStatus.mrcMissing) {
-      return "Complete your profile by uploading MRC Certificate or else you access will be blocked";
+      return `Complete your profile by uploading MRC Certificate or else you access will be blocked in ${docStatus.daysLeft} days`;
     }
     return "";
   };

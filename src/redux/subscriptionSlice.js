@@ -62,6 +62,7 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         expiresIn: moment(plan_expiry_date)
           .startOf("day")
           .diff(moment().startOf("day"), "days"),
+        onboarding_date: response?.body?.profile?.onboarding_date,
       };
     }
   }

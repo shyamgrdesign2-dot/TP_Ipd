@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Upload, message, Drawer } from "antd";
+import { Button, Upload, Drawer } from "antd";
 import { FileOutlined } from "@ant-design/icons";
 import styles from "../DoctorOnboarding.module.css";
 import { CloudUploadOutlined } from "@ant-design/icons";
@@ -90,7 +90,7 @@ const UploadProofStep = ({ formData, setFormData }) => {
       file.type === "application/pdf";
 
     if (!isJpgOrPngOrPdf) {
-      message.error("You can only upload JPG/PNG/PDF files!");
+      setIsFileFormatNotSupported(true);
       return false;
     }
 
@@ -125,13 +125,13 @@ const UploadProofStep = ({ formData, setFormData }) => {
       file.type === "application/pdf";
 
     if (!isJpgOrPngOrPdf) {
-      message.error("You can only upload JPG/PNG/PDF files!");
+      setIsFileFormatNotSupported(true);
       return false;
     }
 
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
-      message.error("File must be smaller than 5MB!");
+      setIsFileSizeExceeded(true);
       return false;
     }
 
@@ -195,6 +195,7 @@ const UploadProofStep = ({ formData, setFormData }) => {
 
   const handleRetry = () => {
     setIsFileSizeExceeded(false);
+    setIsFileFormatNotSupported(false);
   };
 
   const deleteSvg = (
@@ -664,7 +665,7 @@ const UploadProofStep = ({ formData, setFormData }) => {
             <Button
               type="primary"
               block
-              onClick={() => setIsFileFormatNotSupported(false)}
+              onClick={handleRetry}
               className={styles.retryButton}
             >
               Retry

@@ -1,14 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import DoctorOnboarding from "../components/userOnboarding/DoctorOnboarding";
-import {
-  getUserMobileNumber,
-  getUtmParams,
-} from "../components/userOnboarding/services/userDataService";
+import { getUserMobileNumber } from "../components/userOnboarding/services/userDataService";
 
 const FinalSetup = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [visible, setVisible] = useState(true);
+  const [initialStep, setInitialStep] = useState(0);
+
+  // Get the step parameter from the URL if present
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const stepParam = params.get("step");
+
+    if (stepParam) {
+      // Convert to number and set as initial step
+      setInitialStep(parseInt(stepParam, 10) - 1); // Adjust for 0-indexed steps
+    }
+  }, [location]);
 
   // Check if user has necessary data to proceed and handle page reloads
   useEffect(() => {
@@ -42,7 +52,11 @@ const FinalSetup = () => {
 
   return (
     <div className="final-setup-page">
-      <DoctorOnboarding visible={visible} onClose={handleClose} />
+      <DoctorOnboarding
+        visible={visible}
+        onClose={handleClose}
+        initialStep={initialStep}
+      />
     </div>
   );
 };
