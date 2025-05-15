@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Input, message } from "antd";
 import styles from "../DoctorOnboarding.module.css";
-import axios from "axios";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
 import currentLocation from "../../../assets/images/current-location.svg";
+import config from "../../../config";
+
+const { TextArea } = Input;
 
 const ClinicDetailsStep = ({ formData, setFormData }) => {
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
-  const [isSearchingPincode, setIsSearchingPincode] = useState(false);
   const [locationError, setLocationError] = useState("");
   const [detectedLocation, setDetectedLocation] = useState("");
   const [coordsDetected, setCoordsDetected] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  // Listen for window resize to update mobile state
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Initialize coordsDetected based on formData
   useEffect(() => {
@@ -18,52 +29,6 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
       setCoordsDetected(true);
     }
   }, []);
-
-  // Fetch city and state using pincode whenever pincode changes
-  useEffect(() => {
-    // Only search if pincode is valid (6 digits for India)
-    if (formData.clinicPincode && formData.clinicPincode.length === 6) {
-      searchPincodeDetails(formData.clinicPincode);
-    }
-  }, [formData.clinicPincode]);
-
-  const searchPincodeDetails = async (pincode) => {
-    setIsSearchingPincode(true);
-    try {
-      // Get auth token from localStorage and parse it
-      const rawToken = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-      if (!rawToken) {
-        console.warn("Auth token not found for pincode search");
-        return;
-      }
-
-      const authToken = JSON.parse(rawToken);
-
-      const response = await axios.post(
-        "https://pm-master-uat-webservice.tatvacare.in/api/v1/appointment/searchPincode",
-        { searchPincode: pincode },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-
-      // Extract city and state data
-      if (response.data && response.data.data) {
-        const { city, state } = response.data.data;
-        if (city && state) {
-          setDetectedLocation(`${city}, ${state}`);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching pincode details:", error);
-      // Don't show error to user, just log it
-    } finally {
-      setIsSearchingPincode(false);
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -137,28 +102,66 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
   // Enhanced reverse geocoding to get pincode, city and state
   const reverseGeocode = async (latitude, longitude) => {
     try {
-      // First try with Nominatim for open source geocoding
+      // Google Maps Geocoding API
+      const apiKey = config.GOOGLE_MAPS_API_KEY || ""; // Make sure to add this to your config
+
+      if (!apiKey) {
+        console.warn("Google Maps API key not found");
+      }
+
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
-        {
-          headers: {
-            "Accept-Language": "en",
-            "User-Agent": "TatvaCare/1.0",
-          },
-        }
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
       );
 
       const data = await response.json();
 
-      let pincode = "";
-      let city = "";
-      let state = "";
+      if (data.status === "OK" && data.results && data.results.length > 0) {
+        const result = data.results[0];
+        const components = result.address_components;
 
-      if (data && data.address) {
-        pincode = data.address.postcode || "";
-        city =
-          data.address.city || data.address.town || data.address.village || "";
-        state = data.address.state || "";
+        let pincode = "";
+        let city = "";
+        let state = "";
+        // let streetAddress = "";
+
+        // Extract address components
+        components.forEach((component) => {
+          const types = component.types;
+
+          if (types.includes("postal_code")) {
+            pincode = component.long_name;
+          } else if (types.includes("locality")) {
+            city = component.long_name;
+          } else if (types.includes("administrative_area_level_1")) {
+            state = component.long_name;
+          }
+          // else if (types.includes("route")) {
+          //   streetAddress += component.long_name + " ";
+          // } else if (types.includes("street_number")) {
+          //   streetAddress = component.long_name + " " + streetAddress;
+          // }
+        });
+
+        // If city wasn't found in locality, check for sublocality or administrative_area_level_2
+        if (!city) {
+          const sublocalityComponent = components.find(
+            (component) =>
+              component.types.includes("sublocality") ||
+              component.types.includes("sublocality_level_1")
+          );
+
+          if (sublocalityComponent) {
+            city = sublocalityComponent.long_name;
+          } else {
+            const adminArea2Component = components.find((component) =>
+              component.types.includes("administrative_area_level_2")
+            );
+
+            if (adminArea2Component) {
+              city = adminArea2Component.long_name;
+            }
+          }
+        }
 
         // Update form with pincode
         if (pincode) {
@@ -172,19 +175,21 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
         if (city && state) {
           setDetectedLocation(`${city}, ${state}`);
         }
+
+        // Optionally update the address field if it's empty
+        // if (streetAddress.trim() && !formData.clinicAddress) {
+        //   setFormData((prev) => ({
+        //     ...prev,
+        //     clinicAddress: streetAddress.trim(),
+        //   }));
+        // }
+
+        return true;
       } else {
-        // If Nominatim fails, try a secondary API or inform the user
-        message.info(
-          "Location details not found. Please enter pincode manually."
-        );
+        console.warn("Google Geocoding API error or no results:", data.status);
       }
     } catch (error) {
-      console.error("Error in reverse geocoding:", error);
-      message.info(
-        "Unable to determine location details. Please enter manually."
-      );
-    } finally {
-      setIsDetectingLocation(false);
+      console.error("Error in Google Maps geocoding:", error);
     }
   };
 
@@ -261,11 +266,9 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
               !coordsDetected && (
                 <div
                   className={styles.detectLocationButton}
-                  onClick={
-                    !isSearchingPincode ? handleDetectLocation : undefined
-                  }
+                  onClick={handleDetectLocation}
                   style={{
-                    cursor: isSearchingPincode ? "not-allowed" : "pointer",
+                    cursor: "pointer",
                     marginRight: "-7px",
                   }}
                 >
@@ -315,18 +318,21 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
         >
           Clinic Address
         </label>
-        <Input
+        <TextArea
           placeholder="Enter your Clinic Address ( Building, Street etc)"
           name="clinicAddress"
           value={formData.clinicAddress}
           onChange={handleInputChange}
-          size="large"
+          rows={isMobile ? 2 : 1}
           style={{
             width: "100%",
-            height: "3.5rem",
             borderRadius: "6px",
             borderColor: "#d1d5db",
             fontSize: "16px",
+            resize: "none",
+            padding: isMobile ? "12px" : "0.875rem",
+            minHeight: isMobile ? "auto" : "3.5rem",
+            lineHeight: "1.5",
           }}
           className={styles.focusedInput}
         />

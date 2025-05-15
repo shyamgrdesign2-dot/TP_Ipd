@@ -26,6 +26,7 @@ const DoctorOnboarding = ({ visible, onClose }) => {
   const [userOnboardingId, setUserOnboardingId] = useState(null);
   const [specialities, setSpecialities] = useState([]);
   const [specialitiesLoading, setSpecialitiesLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [formData, setFormData] = useState({
     fullName: "",
     speciality: "",
@@ -38,6 +39,47 @@ const DoctorOnboarding = ({ visible, onClose }) => {
     mrcCertificate: null,
   });
   const navigate = useNavigate();
+
+  // Listen for window resize to update mobile state
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Apply styles directly to drawer elements for mobile
+  useEffect(() => {
+    if (visible && isMobile) {
+      const styleDrawer = () => {
+        const drawerElements = document.querySelectorAll(
+          ".onboarding-drawer .ant-drawer-content"
+        );
+        const drawerWrappers = document.querySelectorAll(
+          ".onboarding-drawer .ant-drawer-content-wrapper"
+        );
+
+        drawerElements.forEach((el) => {
+          el.style.borderRadius = "24px 24px 0 0";
+        });
+
+        drawerWrappers.forEach((el) => {
+          el.style.borderRadius = "24px 24px 0 0";
+          el.style.overflow = "hidden";
+        });
+      };
+
+      // Initial styling
+      styleDrawer();
+
+      // Additional styling after a short delay to ensure drawer is rendered
+      const timeoutId = setTimeout(styleDrawer, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [visible, isMobile]);
 
   // Fetch specialities from API
   const fetchSpecialities = async () => {
@@ -366,10 +408,6 @@ const DoctorOnboarding = ({ visible, onClose }) => {
     setCurrentStep(currentStep + 1);
   };
 
-  const prevStep = () => {
-    setCurrentStep(currentStep - 1);
-  };
-
   // Handle clicking on a completed step
   const handleStepClick = (stepIndex) => {
     // Navigate to the clicked step
@@ -377,38 +415,80 @@ const DoctorOnboarding = ({ visible, onClose }) => {
   };
 
   const drawerContent = (
-    <div style={{ padding: "20px" }}>
+    <div
+      style={{
+        padding: isMobile ? "0" : "20px",
+        height: isMobile ? "100%" : "auto",
+        display: isMobile ? "flex" : "block",
+        flexDirection: isMobile ? "column" : "unset",
+        overflow: isMobile ? "hidden" : "auto",
+      }}
+    >
+      {/* Fixed header - always visible */}
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "30px",
-          paddingBottom: "20px",
-          borderBottom: "1px solid #f0f0f0",
+          padding: isMobile ? "24px 16px 12px" : "0",
+          borderBottom: isMobile ? "1px solid #f0f0f0" : "none",
+          position: isMobile ? "sticky" : "relative",
+          top: 0,
+          backgroundColor: isMobile ? "white" : "transparent",
+          zIndex: 10,
         }}
       >
-        <h1
+        <div
           style={{
-            fontSize: "24px",
-            fontWeight: "600",
-            margin: 0,
-            color: "#111827",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: isMobile ? "12px" : "30px",
+            paddingBottom: isMobile ? "0" : "20px",
+            borderBottom: !isMobile ? "1px solid #f0f0f0" : "none",
           }}
         >
-          Final Setup!
-        </h1>
-        {currentStep === 2 ? (
-          <div style={{ display: "flex", gap: "12px" }}>
-            <Button
-              onClick={() => {
-                onClose();
-                navigate("/?from=finalSetup");
-              }}
-              className={styles.skipButton}
-            >
-              Skip & upload later
-            </Button>
+          <h1
+            style={{
+              fontSize: isMobile ? "20px" : "24px",
+              fontWeight: "600",
+              color: "#111827",
+              margin: isMobile ? "auto" : "0",
+            }}
+          >
+            Final Setup!
+          </h1>
+          {!isMobile && currentStep === 2 ? (
+            <div style={{ display: "flex", gap: "12px" }}>
+              <Button
+                onClick={() => {
+                  onClose();
+                  navigate("/?from=finalSetup");
+                }}
+                className={styles.skipButton}
+              >
+                Skip & upload later
+              </Button>
+              <Button
+                type="primary"
+                onClick={nextStep}
+                loading={isSubmitting}
+                disabled={!isFormValidForCurrentStep()}
+                className={
+                  !isFormValidForCurrentStep() ? styles.disabledButton : ""
+                }
+                style={{
+                  backgroundColor: isFormValidForCurrentStep()
+                    ? "#4f46e5"
+                    : undefined,
+                  borderColor: isFormValidForCurrentStep()
+                    ? "#4f46e5"
+                    : undefined,
+                  borderRadius: "8px",
+                  height: "40px",
+                }}
+              >
+                Finish Setup
+              </Button>
+            </div>
+          ) : !isMobile ? (
             <Button
               type="primary"
               onClick={nextStep}
@@ -426,50 +506,47 @@ const DoctorOnboarding = ({ visible, onClose }) => {
                   : undefined,
                 borderRadius: "8px",
                 height: "40px",
+                padding: "0 25px",
               }}
             >
-              Finish Setup
+              Next
             </Button>
-          </div>
-        ) : (
-          <Button
-            type="primary"
-            onClick={nextStep}
-            loading={isSubmitting}
-            disabled={!isFormValidForCurrentStep()}
-            className={
-              !isFormValidForCurrentStep() ? styles.disabledButton : ""
-            }
-            style={{
-              backgroundColor: isFormValidForCurrentStep()
-                ? "#4f46e5"
-                : undefined,
-              borderColor: isFormValidForCurrentStep() ? "#4f46e5" : undefined,
-              borderRadius: "8px",
-              height: "40px",
-              padding: "0 25px",
-            }}
-          >
-            Next
-          </Button>
-        )}
-      </div>
+          ) : null}
+        </div>
 
-      <div style={{ marginBottom: "60px" }}>
-        <div className={styles.stepperOuter}>
-          <CustomStepper
-            steps={[
-              { label: "Basic Info" },
-              { label: "Clinic Details" },
-              { label: "Upload ID" },
-            ]}
-            currentStep={currentStep}
-            onStepClick={handleStepClick}
-          />
+        {/* Fixed stepper - always visible */}
+        <div
+          style={{
+            marginBottom: isMobile ? "0" : "60px",
+            marginTop: isMobile ? "40px" : "0",
+            paddingBottom: isMobile ? "12px" : "0",
+          }}
+        >
+          <div className={styles.stepperOuter}>
+            <CustomStepper
+              steps={[
+                { label: "Basic Info" },
+                { label: "Clinic Details" },
+                { label: "Upload ID" },
+              ]}
+              currentStep={currentStep}
+              onStepClick={handleStepClick}
+            />
+          </div>
         </div>
       </div>
 
-      <div style={{ paddingTop: "20px" }}>
+      {/* Scrollable content area */}
+      <div
+        style={{
+          padding: isMobile ? "16px" : "0px",
+          paddingTop: isMobile ? "12px" : "20px",
+          flex: isMobile ? "1" : "unset",
+          overflowY: isMobile ? "auto" : "visible",
+          paddingBottom: isMobile ? "90px" : "20px", // Extra padding for fixed footer
+          backgroundColor: isMobile ? "white" : "transparent",
+        }}
+      >
         {isInitializing ? (
           <div style={{ textAlign: "center", padding: "40px 0" }}>
             <div className={styles.loadingSpinner}></div>
@@ -479,26 +556,117 @@ const DoctorOnboarding = ({ visible, onClose }) => {
           steps[currentStep].content
         )}
       </div>
+
+      {/* Mobile footer with Next/Finish button */}
+      {isMobile && (
+        <div className={styles.mobileFooter}>
+          {currentStep === 2 ? (
+            <>
+              <Button
+                block
+                onClick={() => {
+                  onClose();
+                  navigate("/?from=finalSetup");
+                }}
+                className={`${styles.skipButton} ${styles.mobileSkipButton}`}
+              >
+                Skip & upload later
+              </Button>
+              <Button
+                block
+                type="primary"
+                onClick={nextStep}
+                loading={isSubmitting}
+                disabled={!isFormValidForCurrentStep()}
+                className={
+                  !isFormValidForCurrentStep()
+                    ? `${styles.disabledButton} ${styles.mobileActionButton}`
+                    : styles.mobileActionButton
+                }
+                style={{
+                  backgroundColor: isFormValidForCurrentStep()
+                    ? "#4f46e5"
+                    : undefined,
+                  borderColor: isFormValidForCurrentStep()
+                    ? "#4f46e5"
+                    : undefined,
+                }}
+              >
+                Finish Setup
+              </Button>
+            </>
+          ) : (
+            <Button
+              block
+              type="primary"
+              onClick={nextStep}
+              loading={isSubmitting}
+              disabled={!isFormValidForCurrentStep()}
+              className={
+                !isFormValidForCurrentStep()
+                  ? `${styles.disabledButton} ${styles.mobileActionButton}`
+                  : styles.mobileActionButton
+              }
+              style={{
+                backgroundColor: isFormValidForCurrentStep()
+                  ? "#4f46e5"
+                  : undefined,
+                borderColor: isFormValidForCurrentStep()
+                  ? "#4f46e5"
+                  : undefined,
+              }}
+            >
+              Next
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 
   return (
     <Drawer
       title={null}
-      placement="right"
+      placement={isMobile ? "bottom" : "right"}
       closable={false}
       onClose={onClose}
       open={visible}
-      width={650}
+      height={isMobile ? "93%" : 650}
+      width={isMobile ? "100%" : 650}
       maskClosable={false}
       mask={true}
       maskStyle={{ backgroundColor: "transparent" }}
       zIndex={1100}
       footer={null}
-      bodyStyle={{ padding: 0 }}
+      bodyStyle={{ padding: 0, overflow: isMobile ? "hidden" : "auto" }}
       className="onboarding-drawer"
+      style={
+        isMobile
+          ? {
+              borderTopLeftRadius: "1rem",
+              borderTopRightRadius: "1rem",
+            }
+          : {}
+      }
     >
-      {drawerContent}
+      {isMobile ? (
+        <div
+          style={{
+            borderTopLeftRadius: "1rem",
+            borderTopRightRadius: "1rem",
+            overflow: "hidden",
+            height: "100%",
+            width: "100%",
+            position: "relative",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {drawerContent}
+        </div>
+      ) : (
+        drawerContent
+      )}
     </Drawer>
   );
 };

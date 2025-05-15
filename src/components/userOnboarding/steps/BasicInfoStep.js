@@ -1,10 +1,22 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Select, Form } from "antd";
 import styles from "../DoctorOnboarding.module.css";
 
 const { Option } = Select;
 
 const BasicInfoStep = ({ formData, setFormData, specialities, loading }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  // Check for mobile device
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -51,6 +63,15 @@ const BasicInfoStep = ({ formData, setFormData, specialities, loading }) => {
         display: flex !important;
         align-items: center !important;
       }
+      
+      @media (max-width: 768px) {
+        .ant-select {
+          font-size: 16px !important;
+        }
+        .ant-input {
+          font-size: 16px !important;
+        }
+      }
     `;
     document.head.appendChild(styleElement);
 
@@ -68,7 +89,7 @@ const BasicInfoStep = ({ formData, setFormData, specialities, loading }) => {
             marginBottom: "8px",
             color: "#454551",
             fontFamily: "Poppins",
-            fontSize: "0.875rem",
+            fontSize: isMobile ? "0.8125rem" : "0.875rem",
             fontStyle: "normal",
             fontWeight: 400,
             lineHeight: "1.25rem",
@@ -86,7 +107,7 @@ const BasicInfoStep = ({ formData, setFormData, specialities, loading }) => {
           status={formData.fullName ? "" : "error"}
           style={{
             width: "100%",
-            height: "3.5rem",
+            height: isMobile ? "3rem" : "3.5rem",
             borderRadius: "6px",
             borderColor: formData.fullName ? "#d1d5db" : "#E2E2EA",
             fontSize: "16px",
@@ -117,7 +138,7 @@ const BasicInfoStep = ({ formData, setFormData, specialities, loading }) => {
             marginBottom: "8px",
             color: "#454551",
             fontFamily: "Poppins",
-            fontSize: "0.875rem",
+            fontSize: isMobile ? "0.8125rem" : "0.875rem",
             fontStyle: "normal",
             fontWeight: 400,
             lineHeight: "1.25rem",
@@ -133,7 +154,7 @@ const BasicInfoStep = ({ formData, setFormData, specialities, loading }) => {
           size="large"
           style={{
             width: "100%",
-            height: "3.5rem",
+            height: isMobile ? "3rem" : "3.5rem",
           }}
           className={`${styles.specialitySelect} ${styles.focusedInput}`}
           popupClassName={styles.specialityDropdown}
