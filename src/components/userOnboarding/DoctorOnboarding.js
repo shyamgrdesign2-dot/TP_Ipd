@@ -17,8 +17,8 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import CustomStepper from "./CustomStepper";
 import { useNavigate } from "react-router-dom";
 
-const DoctorOnboarding = ({ visible, onClose }) => {
-  const [currentStep, setCurrentStep] = useState(0);
+const DoctorOnboarding = ({ visible, onClose, initialStep = 0 }) => {
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [userMobileNumber, setUserMobileNumber] = useState(null);
@@ -39,6 +39,11 @@ const DoctorOnboarding = ({ visible, onClose }) => {
     mrcCertificate: null,
   });
   const navigate = useNavigate();
+
+  // Update currentStep when initialStep changes
+  useEffect(() => {
+    setCurrentStep(initialStep);
+  }, [initialStep]);
 
   // Listen for window resize to update mobile state
   useEffect(() => {
@@ -166,21 +171,26 @@ const DoctorOnboarding = ({ visible, onClose }) => {
 
       setFormData(updatedFormData);
 
-      if (
-        response?.hospitalDetails?.clinic_long &&
-        response?.hospitalDetails?.clinic_lat &&
-        response?.basicDetails?.departmentId
-      ) {
-        setCurrentStep(2);
-      } else if (response?.basicDetails?.departmentId) {
-        setCurrentStep(1);
-      } else {
-        setCurrentStep(0);
+      // Only set current step if initialStep wasn't explicitly provided
+      if (initialStep === 0) {
+        if (
+          response?.hospitalDetails?.clinic_long &&
+          response?.hospitalDetails?.clinic_lat &&
+          response?.basicDetails?.departmentId
+        ) {
+          setCurrentStep(2);
+        } else if (response?.basicDetails?.departmentId) {
+          setCurrentStep(1);
+        } else {
+          setCurrentStep(0);
+        }
       }
     } catch (error) {
       console.error("Error initializing onboarding:", error);
-      // If initialization fails, just start from the beginning
-      setCurrentStep(0);
+      // If initialization fails and initialStep wasn't explicitly provided, start from the beginning
+      if (initialStep === 0) {
+        setCurrentStep(0);
+      }
     } finally {
       setIsInitializing(false);
     }
