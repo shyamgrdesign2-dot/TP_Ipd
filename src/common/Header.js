@@ -90,7 +90,7 @@ function Header({ locationPath }) {
 
   const navigate = useNavigate();
 
-  const { profile, loading, videoList, siteId, empNo } = useSelector((state) => state.doctors);
+  const { profile, loading, videoList, siteId, empNo, hasLocation } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
   const dispatch = useDispatch();
 
@@ -119,6 +119,12 @@ function Header({ locationPath }) {
       dispatch(zydusRefIds())
     }
   }, [isZydusUserAccessableFromGB]);
+
+  useEffect(() => {
+    if (hasLocation === false && !isReceptionist) {
+      navigate('/final-setup?step=2', { replace: true });
+    }
+  }, [hasLocation, navigate, isReceptionist]);
 
   useEffect(() => {
     if (profile) {
