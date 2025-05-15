@@ -602,3 +602,198 @@
   line-height: 1.25rem;
   letter-spacing: 0.015rem;
 }
+
+/* Mobile styles for the footer and buttons */
+.mobileFooter {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  padding: 16px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  /* flex-direction: column; */
+  gap: 12px;
+  z-index: 1100;
+}
+
+.mobileActionButton {
+  height: 48px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+}
+
+/* Media queries for responsive layouts */
+@media (max-width: 768px) {
+  .uploadContainer {
+    min-width: unset !important;
+    width: 100% !important;
+  }
+  
+  .uploadContainerSuccess {
+    width: 100% !important;
+  }
+  
+  .stepperOuter {
+    padding: 0 !important;
+  }
+  
+  /* Add padding to bottom of content to account for fixed footer */
+  .onboardingContainer {
+    padding-bottom: 120px !important;
+  }
+  
+  /* Add bottom padding to all form steps to make space for the fixed footer */
+  .formContainer {
+    padding-bottom: 100px !important;
+  }
+  
+  .dividerContainer {
+    width: 100% !important;
+  }
+}
+
+/* Mobile styles for upload components */
+.mobileUploadContainer {
+  padding-bottom: 80px; /* Space for the footer buttons */
+}
+
+.mobileUploadBox {
+  border: 1px dashed #6366F1;
+  border-radius: 1rem;
+  background-color: rgba(75, 74, 213, 0.04);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.mobileUploadInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.mobileUploadButton {
+  background-color: transparent;
+  color: #6366F1;
+  border: 1px solid #6366F1;
+  border-radius: 0.75rem;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  width: 100%;
+  cursor: pointer;
+}
+
+.mobileUploadedContainer {
+  border: 1px dashed #6366F1;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.mobileUploadedFilePreview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobileChangeDocument {
+  width: 100%;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.mobileChangeButton {
+  color: #4B4AD5;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.mobileDocFooter {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: white;
+  box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.mobileSkipButton {
+  width: 48% !important;
+  height: 48px !important;
+  background-color: white !important;
+  border: 1px solid #4f46e5 !important;
+  border-radius: 8px !important;
+  color: #4f46e5 !important;
+  font-weight: 500 !important;
+}
+
+.mobileFinishButton {
+  width: 48% !important;
+  height: 48px !important;
+  background-color: #4f46e5 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+/* Attachment drawer styles */
+.attachmentOptions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0.75rem 1.5rem 1rem 1.5rem;
+}
+
+.attachOption {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+
+.attachOption:last-child {
+  border-bottom: none;
+}
+
+.attachOptionIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 6.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  background-color: #F6EFFB !important;
+}
+
+.attachOptionText {
+  flex-grow: 1;
+  font-size: 16px;
+  color: #111827;
+}
+
+.attachOptionArrow {
+  color: #9ca3af;
+  font-size: 16px;
+  margin-right: 8px;
+}
