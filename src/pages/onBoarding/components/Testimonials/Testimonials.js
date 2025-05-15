@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./Testimonials.scss";
 import testimonialIcon from "../../../../assets/images/onboard-page-icons/LP-Testimonial-icon.svg";
 
@@ -61,23 +61,64 @@ const Testimonials = () => {
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const cardsToShow = 3;
+  const wrapperRef = useRef(null);
+  const isScrolling = useRef(false);
+
+  const handleScroll = () => {
+    if (!isScrolling.current && wrapperRef.current) {
+      const scrollPosition = wrapperRef.current.scrollLeft;
+      const cardWidth = wrapperRef.current.offsetWidth;
+      const newIndex = Math.round(scrollPosition / cardWidth);
+      setCurrentIndex(newIndex);
+    }
+  };
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (wrapper) {
+      wrapper.addEventListener('scroll', handleScroll);
+      return () => wrapper.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
+  const scrollToIndex = (index) => {
+    if (wrapperRef.current && !isScrolling.current) {
+      isScrolling.current = true;
+      const cardWidth = wrapperRef.current.offsetWidth;
+      wrapperRef.current.scrollTo({
+        left: index * cardWidth,
+        behavior: 'smooth'
+      });
+      
+      // Reset scrolling flag after animation
+      setTimeout(() => {
+        isScrolling.current = false;
+        setCurrentIndex(index);
+      }, 500); // Match this with your transition duration
+    }
+  };
 
   const handlePrev = () => {
-    setCurrentIndex((prevIndex) => {
-      const newIndex = prevIndex - cardsToShow;
-      return newIndex < 0 ? testimonials.length - cardsToShow : newIndex;
-    });
+    if (wrapperRef.current) {
+      const scrollAmount = wrapperRef.current.offsetWidth;
+      wrapperRef.current.scrollBy({
+        left: -scrollAmount,
+        behavior: 'smooth'
+      });
+    }
   };
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) => {
-      const newIndex = prevIndex + cardsToShow;
-      return newIndex >= testimonials.length ? 0 : newIndex;
-    });
+    if (wrapperRef.current) {
+      const scrollAmount = wrapperRef.current.offsetWidth;
+      wrapperRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+    }
   };
 
-  const visibleTestimonials = testimonials.slice(currentIndex, currentIndex + cardsToShow);
+  const visibleTestimonials = testimonials.slice(currentIndex, currentIndex + 3);
 
   return (
     <div className="testimonials-container">
@@ -91,10 +132,13 @@ const Testimonials = () => {
       </h2>
       <div className="testimonials-carousel">
         <button className="prev" onClick={handlePrev}>←</button>
-        <div className="testimonials-wrapper">
-          {visibleTestimonials.map((testimonial, index) => (
+        <div 
+          className="testimonials-wrapper"
+          ref={wrapperRef}
+        >
+          {testimonials.map((testimonial, index) => (
             <div 
-              key={currentIndex + index} 
+              key={index} 
               className="testimonial-card"
             >
               <div className="testimonial-header">
@@ -132,6 +176,17 @@ const Testimonials = () => {
           ))}
         </div>
         <button className="next" onClick={handleNext}>→</button>
+      </div>
+      <div className="mobile-dots">
+        <button
+          className={`dot ${currentIndex === 0 ? 'active' : ''}`}
+          onClick={() => scrollToIndex(0)}
+        />
+        <div className="slider-dash" />
+        <button
+          className={`dot ${currentIndex === 1 ? 'active' : ''}`}
+          onClick={() => scrollToIndex(1)}
+        />
       </div>
     </div>
   );
