@@ -361,6 +361,8 @@ function AddAppointment() {
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
   const { videoList } = useSelector((state) => state.doctors);
+  // Add new state for loading
+  const [isBookingAppointment, setIsBookingAppointment] = useState(false);
 
   // Helper function to find the first available section
   const getFirstAvailableSection = (timeSlots) => {
@@ -637,63 +639,68 @@ function AddAppointment() {
   }, []);
 
   const onBookAppointmentPress = async () => {
-    let sendData = {
-      doctor_id: selectedDoctor,
-      patient_unique_id: clickedPatient?.patient_unique_id,
-      pm_pid: clickedPatient?.pm_pid,
-      appointment_date: dayjs(selectedDate).format("YYYY-MM-DD"),
-      appointment_start_time: dayjs(
-        selectedSlotDetails.start,
-        "HH:mm:ss"
-      ).format("HH:mm"),
-      appointment_end_time: dayjs(selectedSlotDetails.end, "HH:mm:ss").format(
-        "HH:mm"
-      ),
-      appointment_duration: selectedSlotDetails?.availability?.increment || 5,
-      toct_id: selectedCaseType,
-    };
+    // Prevent multiple clicks
+    if (isBookingAppointment) return;
+    
+    try {
+      setIsBookingAppointment(true);
+      let sendData = {
+        doctor_id: selectedDoctor,
+        patient_unique_id: clickedPatient?.patient_unique_id,
+        pm_pid: clickedPatient?.pm_pid,
+        appointment_date: dayjs(selectedDate).format("YYYY-MM-DD"),
+        appointment_start_time: dayjs(
+          selectedSlotDetails.start,
+          "HH:mm:ss"
+        ).format("HH:mm"),
+        appointment_end_time: dayjs(selectedSlotDetails.end, "HH:mm:ss").format(
+          "HH:mm"
+        ),
+        appointment_duration: selectedSlotDetails?.availability?.increment || 5,
+        toct_id: selectedCaseType,
+      };
 
-    // First, add these helper functions to get names from IDs
-    const getCaseTypeName = (caseTypeId, caseTypes) => {
-      const caseType = caseTypes?.find(type => type.toct_id === Number(caseTypeId));
-      return caseType?.toct_type || '';
-    };
+      // First, add these helper functions to get names from IDs
+      const getCaseTypeName = (caseTypeId, caseTypes) => {
+        const caseType = caseTypes?.find(type => type.toct_id === Number(caseTypeId));
+        return caseType?.toct_type || '';
+      };
 
-    const getCategoryName = (categoryId, categoriesList) => {
-      const category = categoriesList?.find(cat => cat.pt_id === Number(categoryId));
-      return category?.pt_name || '';
-    };
+      const getCategoryName = (categoryId, categoriesList) => {
+        const category = categoriesList?.find(cat => cat.pt_id === Number(categoryId));
+        return category?.pt_name || '';
+      };
 
-    // In your tracking event, use these functions
-    window.Moengage.track_event("TP_AddAppointment_bookappointment", {
-      "Doctor_specialty": profile?.dp_name,
-      "Doctor_unique_id": profile?.doctor_unique_id,
-      "Doctor_name": profile?.um_name,
-      "Doctor_mobile_No": profile?.um_contact,
-      "Patient_unique_id": clickedPatient?.patient_unique_id,
-      "Patient_name": clickedPatient?.pm_first_name,
-      "Pm_pid": clickedPatient?.pm_pid,
-      "Appointment_date": dayjs(selectedDate).format("YYYY-MM-DD"),
-      "Appointment_start_time": dayjs(
-        selectedSlotDetails.start,
-        "HH:mm:ss"
-      ).format("HH:mm"),
-      "Appointment_end_time": dayjs(selectedSlotDetails.end, "HH:mm:ss").format(
-        "HH:mm"
-      ),
-      "Case_type": getCaseTypeName(selectedCaseType, caseTypes),
-      "Category": getCategoryName(selectedCategories, categoriesList),
-    });
+      // In your tracking event, use these functions
+      window.Moengage.track_event("TP_AddAppointment_bookappointment", {
+        "Doctor_specialty": profile?.dp_name,
+        "Doctor_unique_id": profile?.doctor_unique_id,
+        "Doctor_name": profile?.um_name,
+        "Doctor_mobile_No": profile?.um_contact,
+        "Patient_unique_id": clickedPatient?.patient_unique_id,
+        "Patient_name": clickedPatient?.pm_first_name,
+        "Pm_pid": clickedPatient?.pm_pid,
+        "Appointment_date": dayjs(selectedDate).format("YYYY-MM-DD"),
+        "Appointment_start_time": dayjs(
+          selectedSlotDetails.start,
+          "HH:mm:ss"
+        ).format("HH:mm"),
+        "Appointment_end_time": dayjs(selectedSlotDetails.end, "HH:mm:ss").format(
+          "HH:mm"
+        ),
+        "Case_type": getCaseTypeName(selectedCaseType, caseTypes),
+        "Category": getCategoryName(selectedCategories, categoriesList),
+      });
 
-    // Only add category_id if selectedCategories exists
-    if (selectedCategories) {
-      sendData.category_id = selectedCategories;
-    }
+      // Only add category_id if selectedCategories exists
+      if (selectedCategories) {
+        sendData.category_id = selectedCategories;
+      }
 
-    // Only add remarks if it exists and is not empty
-    if (remarks && remarks.trim()) {
-      sendData.appointment_remark = remarks;
-    }
+      // Only add remarks if it exists and is not empty
+      if (remarks && remarks.trim()) {
+        sendData.appointment_remark = remarks;
+      }
 
     const response = await addAppointment(sendData);
     if (response?.status) {
@@ -720,25 +727,31 @@ function AddAppointment() {
         duration: 5,
       });
 
-      // Reset form states
-      setSearchQuery('')
-      setSelectedTimeSlot(null);
-      setSelectedSlotDetails(null);
-      setSelectedCategories(null);
-      setSelectedCaseType(null);
-      setRemarks("");
-      setClickedPatient(null);
+        // Reset form states
+        setSearchQuery('')
+        setSelectedTimeSlot(null);
+        setSelectedSlotDetails(null);
+        setSelectedCategories(null);
+        setSelectedCaseType(null);
+        setRemarks("");
+        setClickedPatient(null);
 
-      // Refresh the slots data for the selected date
-      const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
-      const slotsResponse = await getSlotsList(selectedDoctor, formattedDate);
-      if (slotsResponse?.status) {
-        const generatedSlots = generateTimeSlots(slotsResponse.slots || []);
-        setTimeSlots(generatedSlots);
+        // Refresh slots
+        const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
+        const slotsResponse = await getSlotsList(selectedDoctor, formattedDate);
+        if (slotsResponse?.status) {
+          const generatedSlots = generateTimeSlots(slotsResponse.slots || []);
+          setTimeSlots(generatedSlots);
+        }
+        navigate(-1);
+      } else {
+        errorMessage(response?.message);
       }
-      navigate(-1);
-    } else {
-      errorMessage(response?.message);
+    } catch (error) {
+      console.error('Error booking appointment:', error);
+      errorMessage('Failed to book appointment');
+    } finally {
+      setIsBookingAppointment(false);
     }
   };
 
@@ -1147,7 +1160,7 @@ function AddAppointment() {
           <Button
             type="primary"
             className="btn-41"
-            disabled={validation()}
+            disabled={validation() || isBookingAppointment}
             onClick={onBookAppointmentPress}
           >
             Book Appointment
