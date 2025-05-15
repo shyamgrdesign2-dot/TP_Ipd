@@ -43,6 +43,7 @@ import vitals from "../../../../assets/images/onboard-page-icons/Vitals.svg";
 import voiceSquare from "../../../../assets/images/onboard-page-icons/voice-square.svg";
 import wallet from "../../../../assets/images/onboard-page-icons/wallet.svg";
 import repeatCircle from "../../../../assets/images/onboard-page-icons/repeat-circle.svg";
+import webStructure from "../../../../assets/images/webStructure.svg";
 
 const featureCardConfig = {
   "EMR Features": {
@@ -312,9 +313,9 @@ const FeatureTabCard = ({ feature, title, subTitle, tabs }) => {
     if (isActive && !isBackground) {
       // Define gradients based on feature type
       const gradients = {
-        "EMR Features": "linear-gradient(92deg, #27276F -7.09%, #5C5BD6 46.98%, #27276F 107.96%)",
-        "Ai Features": "linear-gradient(92deg, #4558D0 -7.09%, #C95BC3 46.98%, #E0657B 107.96%)",
-        "Digital Features": "linear-gradient(92deg, #27276F -7.09%, #5C5BD6 46.98%, #27276F 107.96%)"
+        "EMR Features": "url('../../../../assets/images/webStructure.svg') right center/45% no-repeat,linear-gradient(92deg, #27276F -7.09%, #5C5BD6 46.98%, #27276F 107.96%)",
+        "Ai Features": "url('../../../../assets/images/webStructure.svg') right center/45% no-repeat,linear-gradient(92deg, #4558D0 -7.09%, #C95BC3 46.98%, #E0657B 107.96%)",
+        "Digital Features": "url('../../../../assets/images/webStructure.svg') right center/45% no-repeat,linear-gradient(92deg, #27276F -7.09%, #5C5BD6 46.98%, #27276F 107.96%)"
       };
 
       return {
@@ -323,13 +324,19 @@ const FeatureTabCard = ({ feature, title, subTitle, tabs }) => {
       };
     }
     if (isActive && isBackground) {
+      // Option 1: Import the SVG directly at the top of the file and use it
       const backgroundGradients = {
-        "EMR Features": "linear-gradient(119deg, #46286C -8.1%, #481C7F 14.33%, #181346 45.83%, #1A1A2F 94.62%), #FFF",
-        "Ai Features": "linear-gradient(112deg, #F8E1FB 1.39%, #D7A5EB 30.56%, #7946CB 89.33%), #FFF",
-        "Digital Features": "linear-gradient(114deg, #FEEDC0 -2.49%, #FDEAB8 16.82%, #FAD882 39.96%, #D59700 71.6%)"
+        "EMR Features": `url(${webStructure}) right center/45% no-repeat, linear-gradient(119deg, #46286C -8.1%, #481C7F 14.33%, #181346 45.83%, #1A1A2F 94.62%)`,
+        "Ai Features": `url(${webStructure}) right center/45% no-repeat, linear-gradient(112deg, #F8E1FB 1.39%, #D7A5EB 30.56%, #7946CB 89.33%)`,
+        "Digital Features": `url(${webStructure}) right center/45% no-repeat, linear-gradient(114deg, #FEEDC0 -2.49%, #FDEAB8 16.82%, #FAD882 39.96%, #D59700 71.6%)`
       };
+
+      // Option 2: Add additional background properties
       return {
         background: backgroundGradients[feature] || backgroundGradients["EMR Features"],
+        backgroundSize: '45%, 100%', // First value for SVG, second for gradient
+        backgroundPosition: 'right center, 0 0',
+        backgroundRepeat: 'no-repeat, no-repeat',
         color: 'white'
       };
     }

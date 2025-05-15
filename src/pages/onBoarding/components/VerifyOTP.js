@@ -25,6 +25,7 @@ const VerifyOTP = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { triggerOnboarding } = useOnboardingTrigger();
+  const [resendReqId, setResendReqId] = useState(null);
 
   useEffect(() => {
     if (timer > 0) {
@@ -37,13 +38,19 @@ const VerifyOTP = ({
     }
   }, [timer]);
 
+  useEffect(() => {
+    if (reqId) {
+      setResendReqId(reqId);
+    }
+  }, [reqId]);
+
   const handleResendOTP = () => {
     if (!canResend) return;
 
     setLoading(true);
     if (window.retryOtp) {
       window.retryOtp(
-        `91${mobileNumber}`,
+        // `91${mobileNumber}`,
         "11",
         (data) => {
           setTimer(15);
@@ -55,7 +62,8 @@ const VerifyOTP = ({
           console.error("Error retrying OTP:", error);
           setError("Failed to resend OTP. Please try again.");
           setLoading(false);
-        }
+        },
+        `${resendReqId}`
       );
     }
   };
@@ -226,11 +234,25 @@ const VerifyOTP = ({
           >
             Submit OTP
           </Button>
-
-          <div className="terms-text">
-            By continuing I accept for the <a href="#">T&C</a> and{" "}
-            <a href="#">Privacy Policy</a>
-          </div>
+          {!isLoginFlow && (
+            <div className="terms-text">
+              By continuing I accept for the{" "}
+              <a 
+                href="https://www.tatvacare.in/terms-conditions/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                T&C
+              </a> and{" "}
+              <a 
+                href="https://www.tatvacare.in/privacy-policy/" 
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy Policy
+              </a>
+            </div>
+          )}
         </Form>
       </div>
       <div className="partners-section">

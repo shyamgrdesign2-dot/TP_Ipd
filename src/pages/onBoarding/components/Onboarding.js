@@ -16,12 +16,14 @@ import "./Onboarding.scss";
 import "./FeatureTabCard/FeatureTabCard.scss";
 import { OnboardingProvider } from "../../../components/userOnboarding/OnboardingContext";
 import OnboardingDrawer from "../../../components/userOnboarding/OnboardingDrawer";
+import { getUtmParams } from "../../../components/userOnboarding/services/userDataService.js";
 
 const Onboarding = () => {
   const [view, setView] = useState("signup");
-  const [mobileNumber, setMobileNumber] = useState("");
+  const [mobileNumber, setMobileNumber] = useState(localStorage.getItem("mobileNumber") || "");
   const [isLoginFlow, setIsLoginFlow] = useState(true);
   const [isUserExists, setIsUserExists] = useState(false);
+  const [utmParams, setUtmParams] = useState(null);
   const [isFromCampaign, setIsFromCampaign] = useState(false);
   const [isPasswordSetFlow, setIsPasswordSetFlow] = useState(false);
   const [tempPassword, setTempPassword] = useState("");
@@ -29,8 +31,9 @@ const Onboarding = () => {
   const [footerImage, setFooterImage] = useState(Hook);
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const campaign = searchParams.get("utm_campaign");
+    const utm = getUtmParams();
+    setUtmParams(utm);
+    const campaign = utm.utm_campaign;
     setIsFromCampaign(!!campaign);
     if (!!campaign) {
       setIsFromCampaign(true);
@@ -135,28 +138,31 @@ const Onboarding = () => {
           </div>
         </div>
         <div className="feature-tab-card-container">
-          <TrustBy />
-          <OurScale />
+          <TrustBy className="m-2" />
+          <OurScale className="m-2" />
           <FeatureTabCard
+            className="m-2"
             feature="EMR Features"
             title="An EMR the meets all"
             subTitle="your needs to streamline"
             tabs={["Clinic Care", "Admin Tasks", "Analytics"]}
           />
           <FeatureTabCard
+            className="m-2"
             feature="Ai Features"
             title="Empower your"
             subTitle="practice with Tatva AI"
             tabs={["DDx", "Smart Sync", "Voice Rx", "Tatva Assist"]}
           />{" "}
           <FeatureTabCard
+            className="m-2"
             feature="Digital Features"
             title="Grow your"
             subTitle="practice with us"
             tabs={["Digital Presence", "Remote Care", "ABDM"]}
           />
-          <Testimonials />
-          <FAQ />
+          <Testimonials className="m-2" />
+          <FAQ className="m-2" />
           <div className="onboarding-footer">
             <div className="onboarding-footer-container">
               <img src={footerImage} alt="footer banner" />
@@ -170,8 +176,20 @@ const Onboarding = () => {
                   insights and updates.
                 </p>
                 <div className="button-group">
-                  <button className="sign-up-btn">Sign Up</button>
-                  <button className="chat-btn">Chat with us</button>
+                  <button 
+                    className="sign-up-btn"
+                    onClick={() => {
+                      const onboardingContainer = document.querySelector('.onboarding-container');
+                      if (onboardingContainer) {
+                        onboardingContainer.scrollIntoView({ behavior: 'smooth' });
+                        setView('signup');
+                        setIsLoginFlow(false);
+                      }
+                    }}
+                  >
+                    Sign Up
+                  </button>
+                  {/* <button className="chat-btn">Chat with us</button> */}
                 </div>
               </div>
             </div>
