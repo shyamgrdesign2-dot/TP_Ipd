@@ -31,6 +31,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
         }
         const action = await dispatch(interest(sendData));
         if (action.meta.requestStatus === "fulfilled") {
+            showHideSubModal()
             errorMessage(action.payload.message)
         }
     }

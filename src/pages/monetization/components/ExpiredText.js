@@ -64,7 +64,7 @@ function ExpiredText({ title }) {
             </div>
             <Row className="mt-2">
                 <Col lg={6}>
-                    <Button type='button' className='w-100 btn ant-btn align-items-center justify-content-center d-flex btn-41 btn-primary1 btn-outline-primary' style={{ height: 52 }} onClick={() => clickRequestCallback(title)}>
+                    <Button type='button' className='w-100 btn ant-btn align-items-center justify-content-center d-flex btn-41 btn-primary1 btn-input' style={{ height: 52 }} onClick={() => clickRequestCallback(title)}>
                         <i className='icon-phone me-2'></i>
                         Request a call back
                     </Button>
