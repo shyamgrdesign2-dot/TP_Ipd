@@ -17,7 +17,12 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import CustomStepper from "./CustomStepper";
 import { useNavigate } from "react-router-dom";
 
-const DoctorOnboarding = ({ visible, onClose, initialStep = 0 }) => {
+const DoctorOnboarding = ({
+  visible,
+  onClose,
+  initialStep = 0,
+  isAccountLocked = false,
+}) => {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -40,10 +45,12 @@ const DoctorOnboarding = ({ visible, onClose, initialStep = 0 }) => {
   });
   const navigate = useNavigate();
 
-  // Update currentStep when initialStep changes
+  // Update currentStep when initialStep changes - make this run after initialization
   useEffect(() => {
-    setCurrentStep(initialStep);
-  }, [initialStep]);
+    if (!isInitializing) {
+      setCurrentStep(initialStep);
+    }
+  }, [initialStep, isInitializing]);
 
   // Listen for window resize to update mobile state
   useEffect(() => {
@@ -134,11 +141,12 @@ const DoctorOnboarding = ({ visible, onClose, initialStep = 0 }) => {
   };
 
   // Init API call to get user details and determine starting step
-  const initializeOnboarding = async (phoneNumber, utm) => {
+  const initializeOnboarding = async () => {
     setIsInitializing(true);
+    const phoneNumber = getUserMobileNumber();
+    const utm = getUtmParams();
     try {
       const response = await initOnboarding(phoneNumber, utm);
-      console.log("Init response:", response);
 
       // Store the onboarding ID for future API calls
       setUserOnboardingId(response.id);
@@ -171,24 +179,28 @@ const DoctorOnboarding = ({ visible, onClose, initialStep = 0 }) => {
 
       setFormData(updatedFormData);
 
-      // Only set current step if initialStep wasn't explicitly provided
-      if (initialStep === 0) {
-        if (
-          response?.hospitalDetails?.clinic_long &&
-          response?.hospitalDetails?.clinic_lat &&
-          response?.basicDetails?.departmentId
-        ) {
-          setCurrentStep(2);
-        } else if (response?.basicDetails?.departmentId) {
-          setCurrentStep(1);
-        } else {
-          setCurrentStep(0);
-        }
+      // Always prioritize isAccountLocked when setting step
+      if (isAccountLocked) {
+        setCurrentStep(2);
+      } else if (
+        response?.hospitalDetails?.clinic_long &&
+        response?.hospitalDetails?.clinic_lat &&
+        response?.basicDetails?.departmentId
+      ) {
+        setCurrentStep(2);
+      } else if (response?.basicDetails?.departmentId) {
+        setCurrentStep(1);
+      } else {
+        setCurrentStep(0);
       }
     } catch (error) {
       console.error("Error initializing onboarding:", error);
-      // If initialization fails and initialStep wasn't explicitly provided, start from the beginning
-      if (initialStep === 0) {
+      // If initialization fails and account is locked, still go to step 2
+      if (isAccountLocked) {
+        setCurrentStep(2);
+      }
+      // Otherwise, if initialization fails and initialStep wasn't explicitly provided, start from the beginning
+      else if (initialStep === 0) {
         setCurrentStep(0);
       }
     } finally {
@@ -209,9 +221,15 @@ const DoctorOnboarding = ({ visible, onClose, initialStep = 0 }) => {
 
     // If the drawer is visible, initialize onboarding
     if (visible) {
-      initializeOnboarding(user, utm);
+      initializeOnboarding();
     }
   }, [visible]);
+
+  useEffect(() => {
+    if (isAccountLocked && !isInitializing) {
+      setCurrentStep(2);
+    }
+  }, [isAccountLocked, isInitializing]);
 
   // Reset step to first step whenever drawer is opened
   useEffect(() => {
@@ -252,7 +270,11 @@ const DoctorOnboarding = ({ visible, onClose, initialStep = 0 }) => {
     {
       title: "Upload ID",
       content: (
-        <UploadProofStep formData={formData} setFormData={setFormData} />
+        <UploadProofStep
+          formData={formData}
+          setFormData={setFormData}
+          isAccountLocked={isAccountLocked}
+        />
       ),
     },
   ];

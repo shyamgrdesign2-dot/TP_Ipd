@@ -11,6 +11,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { isMobile } from "react-device-detect";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 import config from "./config";
 
 import AppointmentList from "./pages/AppointmentList";
@@ -146,6 +147,34 @@ function App() {
       clearInterval(intervalId);
     };
   }, [location.pathname]);
+
+  useEffect(() => {
+    const isUserLocked = async () => {
+      try {
+        const decoded = jwtDecode(authToken);
+        const phoneNumber = decoded?.result?.mobile_no;
+        // Check document status
+        const docResponse = await axios.get(
+          `${config.user_management_api_url}/user/pm/info/status?mblNo=${phoneNumber}`,
+          {
+            headers: {
+              api_key: config.api_key,
+              api_secret_key: config.api_secret_key,
+            },
+          }
+        );
+        if (docResponse.data && docResponse.data.status === false) {
+          if (location.pathname !== "/final-setup") {
+            navigate("/final-setup?step=2&isAccountLocked=true");
+          }
+        }
+      } catch (e) {
+        console.error("Error checking account status:", e);
+      }
+    };
+
+    authToken && isUserLocked();
+  }, [location.pathname, navigate, authToken]);
 
   useEffect(() => {
     // Load features asynchronously when the app renders

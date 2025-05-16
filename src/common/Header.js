@@ -122,7 +122,7 @@ function Header({ locationPath }) {
 
   useEffect(() => {
     if (hasLocation === false && !isReceptionist) {
-      navigate('/final-setup?step=2', { replace: true });
+      navigate('/final-setup?noLocation=true', { replace: true });
     }
   }, [hasLocation, navigate, isReceptionist]);
 
