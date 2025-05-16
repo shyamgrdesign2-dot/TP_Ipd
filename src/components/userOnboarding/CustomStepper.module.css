@@ -51,8 +51,8 @@
   font-size: 24px;
   transition: background 0.2s;
   width: 2.5675rem;
-  height: 2.5675rem;
-  flex-shrink: 0;
+height: 2.5675rem;
+flex-shrink: 0;
   z-index: 1;
 }
 
@@ -74,8 +74,8 @@
   box-shadow: none;
   position: relative;
   width: 2.5675rem;
-  height: 2.5675rem;
-  flex-shrink: 0;
+height: 2.5675rem;
+flex-shrink: 0;
   z-index: 1;
 }
 
@@ -229,7 +229,7 @@
   .labelActive,
   .labelUpcoming {
     font-size: 0.75rem;
-    text-align: center;
+  text-align: center;
   }
   
   .innerDot {

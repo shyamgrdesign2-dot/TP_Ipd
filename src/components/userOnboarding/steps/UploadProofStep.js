@@ -5,13 +5,14 @@ import styles from "../DoctorOnboarding.module.css";
 import { CloudUploadOutlined } from "@ant-design/icons";
 import CommonModal from "../../../common/CommonModal";
 import alertIcon from "../../../assets/images/alertIcon.svg";
-import axios from "axios";
-import config from "../../../config";
 import govId from "../../../assets/images/gov-id.png";
 import mrc from "../../../assets/images/certificate.png";
 
-const UploadProofStep = ({ formData, setFormData }) => {
-  const [isAccountLocked, setIsAccountLocked] = useState(false);
+const UploadProofStep = ({
+  formData,
+  setFormData,
+  isAccountLocked = false,
+}) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [attachDrawerVisible, setAttachDrawerVisible] = useState(false);
   const [activeUploadType, setActiveUploadType] = useState(null); // 'gov' or 'mrc'
@@ -33,43 +34,6 @@ const UploadProofStep = ({ formData, setFormData }) => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  // Add useEffect to check account lock status
-  useEffect(() => {
-    const checkAccountStatus = async () => {
-      try {
-        // Get user mobile number from wherever it's stored
-        const mobileNumber =
-          formData.mobileNumber || localStorage.getItem("mobileNumber");
-
-        if (!mobileNumber) {
-          console.error("Mobile number not found");
-          return;
-        }
-
-        const response = await axios.get(
-          `${config.user_management_api_url}/user/pm/info/status?mblNo=${mobileNumber}`,
-          {
-            headers: {
-              api_key: config.api_key,
-              api_secret_key: config.api_secret_key,
-            },
-          }
-        );
-
-        // If status is true, account is active (not locked)
-        if (response.data && response.data.status === true) {
-          setIsAccountLocked(false);
-        } else {
-          setIsAccountLocked(true);
-        }
-      } catch (error) {
-        console.error("Error checking account status:", error);
-      }
-    };
-
-    checkAccountStatus();
-  }, [formData.mobileNumber]);
 
   // Open attachment drawer for mobile
   const openAttachmentDrawer = (type) => {
