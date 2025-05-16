@@ -110,7 +110,7 @@ const IdProof = ({
 
   // Render content based on whether document exists and verification status
   const renderContent = () => {
-    if (document && verificationStatus !== "REJECTED") {
+    if (document) {
       return (
         <div className={styles.documentPreviewContainer}>
           <div className={styles.documentPreview}>
