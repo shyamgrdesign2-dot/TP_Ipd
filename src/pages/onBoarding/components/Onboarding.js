@@ -12,6 +12,7 @@ import OurScale from "./OurScale/OurScale.js";
 import Footer from "./Footer/Footer.js";
 import Hook from "../../../assets/images/website-images/Hook.png";
 import Hook1 from "../../../assets/images/website-images/Hook1.png";
+import Logo from "../../../assets/images/website-images/logo.png";
 import "./Onboarding.scss";
 import "./FeatureTabCard/FeatureTabCard.scss";
 import { OnboardingProvider } from "../../../components/userOnboarding/OnboardingContext";
@@ -29,6 +30,7 @@ const Onboarding = () => {
   const [tempPassword, setTempPassword] = useState("");
   const [reqId, setReqId] = useState("");
   const [footerImage, setFooterImage] = useState(Hook);
+  const [showFloatingSignup, setShowFloatingSignup] = useState(false);
 
   useEffect(() => {
     const utm = getUtmParams();
@@ -59,6 +61,19 @@ const Onboarding = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const onboardingContainer = document.querySelector('.onboarding-container');
+      if (onboardingContainer) {
+        const containerBottom = onboardingContainer.getBoundingClientRect().bottom;
+        setShowFloatingSignup(containerBottom < 0 && window.innerWidth > 768);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleViewChange = (
     newView,
     number = "",
@@ -83,6 +98,9 @@ const Onboarding = () => {
     if (password) {
       setTempPassword(password);
     }
+    if (isPasswordSetFlow) {
+      setIsPasswordSetFlow(isPasswordSetFlow);
+    }
     if (reqId) {
       setReqId(reqId);
     }
@@ -92,6 +110,33 @@ const Onboarding = () => {
     <OnboardingProvider>
       <>
         <OnboardingDrawer />
+        {showFloatingSignup && (
+          <div className="floating-signup-container">
+            <div className="floating-signup-content">
+              <div className="logo-section">
+                <img src={Logo} alt="Tatva Practice" />
+              </div>
+              <div className="signup-section">
+                <button 
+                  className="sign-up-btn"
+                  onClick={() => {
+                    const onboardingContainer = document.querySelector('.onboarding-container');
+                    if (onboardingContainer) {
+                      onboardingContainer.scrollIntoView({ behavior: 'smooth' });
+                      setView('signup');
+                      setIsLoginFlow(false);
+                    }
+                  }}
+                >
+                  Sign Up for free
+                </button>
+                {/* <button className="chat-btn">
+                  Chat with us
+                </button> */}
+              </div>
+            </div>
+          </div>
+        )}
         <div className="onboarding-container">
           <div className="onboarding-left">
             <Carousel />

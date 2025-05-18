@@ -182,6 +182,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
           </div>
         </Form>
       </div>
+      <div style={{height: "2rem"}}></div>
       <div className="partners-section">
         <img src={abdmLogo} alt="ABDM" className="abdm-logo" />
         <img src={nhaLogo} alt="NHA" className="nha-logo" />

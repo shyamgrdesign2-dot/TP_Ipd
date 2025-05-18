@@ -34,7 +34,7 @@
       height: 3rem;
       position: absolute;
       left: -1.5rem;
-      z-index: 1000;
+      z-index: 10;
       background: white;
       cursor: pointer;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -47,7 +47,7 @@
       height: 3rem;
       position: absolute;
       right: -1.5rem;
-      z-index: 1000;
+      z-index: 10;
       background: white;
       cursor: pointer;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -211,7 +211,8 @@
       scrollbar-width: none;
       scroll-behavior: smooth;
       padding: 0 1rem;
-      margin-left: 0;
+      margin-left: 0rem;
+      margin-right: 0rem;
       width: 100%;
 
       &::-webkit-scrollbar {
@@ -265,11 +266,11 @@
 
     .testimonials-carousel {
       .prev {
-        left: 0.5rem;
+        left: -2rem !important;
       }
 
       .next {
-        right: 0.5rem;
+        right: -2rem !important;
       }
     }
   }
