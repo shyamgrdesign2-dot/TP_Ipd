@@ -86,18 +86,24 @@ const VerifyOTP = ({
 
             if (isPasswordSetFlow) {
               try {
-                const response = await setPassword(mobileNumber, tempPassword);
+                const verifyResponse = await verifyAccessToken(
+                  mobileNumber,
+                  message
+                );
 
-                if (response.success) {
-                  const loginResponse = await loginWithPassword(
-                    mobileNumber,
-                    tempPassword
-                  );
+                await setPassword(
+                  verifyResponse.doctor_unique_id,
+                  tempPassword
+                );
 
-                  if (loginResponse.ssoUrl) {
-                    const deviceType = isMobile ? "mobile" : "desktop";
-                    window.location.href = `${loginResponse.ssoUrl}&device_type=${deviceType}`;
-                  }
+                const loginResponse = await loginWithPassword(
+                  mobileNumber,
+                  tempPassword
+                );
+
+                if (loginResponse.ssoUrl) {
+                  const deviceType = isMobile ? "mobile" : "desktop";
+                  window.location.href = `${loginResponse.ssoUrl}&device_type=${deviceType}`;
                 } else {
                   setError("Failed to set password. Please try again.");
                 }
@@ -225,7 +231,6 @@ const VerifyOTP = ({
           >
             Resend OTP {canResend ? "" : `in ${timer}s`}
           </div>
-
           <Button
             type="primary"
             className="submit-btn"
@@ -234,18 +239,20 @@ const VerifyOTP = ({
           >
             Submit OTP
           </Button>
+
           {!isLoginFlow && (
             <div className="terms-text">
               By continuing I accept for the{" "}
-              <a 
-                href="https://www.tatvacare.in/terms-conditions/" 
-                target="_blank" 
+              <a
+                href="https://www.tatvacare.in/terms-conditions/"
+                target="_blank"
                 rel="noopener noreferrer"
               >
                 T&C
-              </a> and{" "}
-              <a 
-                href="https://www.tatvacare.in/privacy-policy/" 
+              </a>{" "}
+              and{" "}
+              <a
+                href="https://www.tatvacare.in/privacy-policy/"
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -407,6 +407,7 @@
       margin-top: 20px;
       width: 40%;
       margin-left: 30%;
+      margin-bottom: 3rem !important;
 
       .dot-container {
         flex: 1;
@@ -1373,4 +1374,89 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+}
+
+.floating-signup-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000 !important;
+  animation: slideDown 0.3s ease-out;
+  display: none;
+  padding: 1rem 2rem;
+
+  // border-radius: 6.25rem;
+  // border: 0.8px solid #5A22BB;
+  // background: rgba(255, 255, 255, 0.40);
+  // backdrop-filter: blur(25.289840698242188px);
+
+  @media (min-width: 769px) {
+    display: block;
+  }
+}
+
+.floating-signup-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+
+  .logo-section {
+    flex: 1;
+    max-width: 200px;
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  .signup-section {
+    flex: 2;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: flex-end;
+
+    .sign-up-btn {
+      background: #4B4AD5;
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+
+      &:hover {
+        background: darken(#4B4AD5, 10%);
+      }
+    }
+
+    .chat-btn {
+      background: white;
+      color: #4B4AD5;
+      border: 2px solid #4B4AD5;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+
+      &:hover {
+        background: rgba(75, 74, 213, 0.1);
+      }
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
