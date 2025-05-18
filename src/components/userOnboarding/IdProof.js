@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Upload, message } from "antd";
+import { Button, Upload } from "antd";
 import { CloudUploadOutlined } from "@ant-design/icons";
 import styles from "./IdProof.module.css";
 import { FileOutlined } from "@ant-design/icons";
@@ -15,6 +15,8 @@ const IdProof = ({
   verificationStatus = null, // null, "pending", "verified", "failed"
 }) => {
   const [isFileSizeExceeded, setIsFileSizeExceeded] = useState(false);
+  const [isFileFormatNotSupported, setIsFileFormatNotSupported] =
+    useState(false);
 
   const handleUpload = (file) => {
     // Validate file type and size
@@ -24,7 +26,7 @@ const IdProof = ({
       file.type === "application/pdf";
 
     if (!isJpgOrPngOrPdf) {
-      message.error("You can only upload JPG/PNG/PDF files!");
+      setIsFileFormatNotSupported(true);
       return false;
     }
 
@@ -54,6 +56,7 @@ const IdProof = ({
 
   const handleRetry = () => {
     setIsFileSizeExceeded(false);
+    setIsFileFormatNotSupported(false);
   };
 
   // Render verification status badge
@@ -61,9 +64,9 @@ const IdProof = ({
     if (!verificationStatus) return null;
 
     switch (verificationStatus) {
-      case "pending":
+      case "PENDING":
         return <div className={styles.pendingBadge}>Pending Verification</div>;
-      case "verified":
+      case "APPROVED":
         return (
           <div className={styles.verifiedBadge}>
             <svg
@@ -98,7 +101,7 @@ const IdProof = ({
             Verified
           </div>
         );
-      case "failed":
+      case "REJECTED":
         return <div className={styles.failedBadge}>Verification Failed</div>;
       default:
         return null;
@@ -107,7 +110,7 @@ const IdProof = ({
 
   // Render content based on whether document exists and verification status
   const renderContent = () => {
-    if (document && verificationStatus !== "failed") {
+    if (document) {
       return (
         <div className={styles.documentPreviewContainer}>
           <div className={styles.documentPreview}>
@@ -132,7 +135,7 @@ const IdProof = ({
         beforeUpload={handleUpload}
         showUploadList={false}
         accept=".pdf,.jpg,.jpeg,.png"
-        disabled={verificationStatus === "verified"}
+        disabled={verificationStatus === "APPROVED"}
         className={styles.uploadWrapper}
       >
         <div className={styles.uploadContainer}>
@@ -165,7 +168,7 @@ const IdProof = ({
           {renderVerificationBadge()}
         </div>
         {/* Show change document button if document exists */}
-        {document && verificationStatus !== "failed" && (
+        {document && verificationStatus !== "APPROVED" && (
           <button className={styles.changeDocumentBtn} onClick={handleRemove}>
             <i
               className="icon-Edit me-1 fs-5"
@@ -190,6 +193,33 @@ const IdProof = ({
               <div className={styles.warningMessage}>
                 The file size exceeded <strong>8MB</strong>. Please upload a
                 file smaller than 8MB
+              </div>
+            </div>
+            <Button
+              type="primary"
+              block
+              onClick={handleRetry}
+              className={styles.retryButton}
+            >
+              Retry
+            </Button>
+          </div>
+        }
+        modalWidth={465}
+      />
+      <CommonModal
+        isModalOpen={isFileFormatNotSupported}
+        onCancel={() => setIsFileFormatNotSupported(false)}
+        title="File format Not Supported"
+        modalBody={
+          <div>
+            <div className={styles.warningContainer}>
+              <div className={styles.warningIconWrapper}>
+                <img className="me-3" src={alertIcon} alt="Warning" />
+              </div>
+              <div className={styles.warningMessage}>
+                You can't upload <strong>.txt</strong> file. Only PDF, JPG,
+                JPEG, and PNG formats are accepted.
               </div>
             </div>
             <Button

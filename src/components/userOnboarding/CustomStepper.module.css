@@ -51,8 +51,8 @@
   font-size: 24px;
   transition: background 0.2s;
   width: 2.5675rem;
-  height: 2.5675rem;
-  flex-shrink: 0;
+height: 2.5675rem;
+flex-shrink: 0;
   z-index: 1;
 }
 
@@ -74,8 +74,8 @@
   box-shadow: none;
   position: relative;
   width: 2.5675rem;
-  height: 2.5675rem;
-  flex-shrink: 0;
+height: 2.5675rem;
+flex-shrink: 0;
   z-index: 1;
 }
 
@@ -130,4 +130,116 @@
 
 .clickableStep:hover .circleCompleted {
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.mobileStepsContainer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  padding: 0 15px;
+}
+
+.mobileStepWithLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+.mobileCircleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 8px;
+}
+
+.mobileConnectorWrapper {
+  position: absolute;
+  top: 15px; /* Align with circle center */
+  left: calc(50% + 15px); /* Start after the circle */
+  width: calc(100% - 30px); /* Ensure it doesn't overlap next circle */
+  height: 2px;
+  z-index: 0;
+}
+
+.mobileConnector {
+  width: 100%;
+  height: 100%;
+  background-color: #d1d5db;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .stepperOuter {
+    padding: 0;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .stepsContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+  
+  .stepWithLabel {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+  }
+  
+  .stepCircleWrapper {
+    margin-bottom: 8px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* Critical fix for connector position */
+  .connector {
+    height: 2px;
+    width: calc(100% - 15px);
+    left: calc(50% + 15px);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  /* Ensure the last step doesn't have a connector that extends too far */
+  .stepWithLabel:last-child .connector {
+    display: none;
+  }
+  
+  .circleCompleted,
+  .circleActive,
+  .circleUpcoming {
+    width: 30px;
+    height: 30px;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .labelActive,
+  .labelUpcoming {
+    font-size: 0.75rem;
+  text-align: center;
+  }
+  
+  .innerDot {
+    width: 8px;
+    height: 8px;
+  }
+  
+  /* Fix SVG tick size in completed circles */
+  .circleCompleted svg {
+    width: 18px;
+    height: 18px;
+  }
 } 

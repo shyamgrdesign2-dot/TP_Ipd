@@ -46,8 +46,8 @@ function DoctorProfile() {
   // Document states
   const [idProofDoc, setIdProofDoc] = useState(null);
   const [mrcCertificate, setMrcCertificate] = useState(null);
-  const [idProofStatus, setIdProofStatus] = useState(null); // null, "pending", "verified", "failed"
-  const [mrcStatus, setMrcStatus] = useState(null); // null, "pending", "verified", "failed"
+  const [idProofStatus, setIdProofStatus] = useState(null); // null, "PENDING", "verified", "failed"
+  const [mrcStatus, setMrcStatus] = useState(null); // null, "PENDING", "verified", "failed"
 
   const documentSectionRef = useRef(null);
 
@@ -186,7 +186,7 @@ function DoctorProfile() {
               : "image/jpeg",
             url: body?.mrc?.certificatePreviewUrl,
           });
-          setMrcStatus(body?.mrc?.verified ? "verified" : "pending");
+          setMrcStatus(body?.mrc?.status);
         }
 
         // Update ID proof status
@@ -198,7 +198,7 @@ function DoctorProfile() {
               : "image/jpeg",
             url: body?.pi?.doc_url,
           });
-          setIdProofStatus(body?.pi?.verified ? "verified" : "pending");
+          setIdProofStatus(body?.pi?.status);
         }
       }
     } catch (error) {
@@ -208,20 +208,24 @@ function DoctorProfile() {
 
   const handleIdProofChange = async (document) => {
     try {
-      setIdProofDoc(document);
       if (document) {
-        setIdProofStatus("pending");
-
         // Get the file from the document object
         const file = document.originFileObj;
 
         // Call the uploadDocuments API
         await uploadDocuments(file, null);
 
+        // Only update document and status after successful API call
+        setIdProofDoc(document);
+        setIdProofStatus("PENDING");
+
         message.success("ID proof uploaded successfully");
 
         // Refresh document status after upload
         fetchDocumentStatus();
+      }
+      else {
+        setIdProofDoc(null);
       }
     } catch (error) {
       console.error("Error uploading ID proof:", error);
@@ -231,20 +235,24 @@ function DoctorProfile() {
 
   const handleMrcCertificateChange = async (document) => {
     try {
-      setMrcCertificate(document);
       if (document) {
-        setMrcStatus("pending");
-
         // Get the file from the document object
         const file = document.originFileObj;
 
         // Call the uploadDocuments API
         await uploadDocuments(null, file);
 
+        // Only update document and status after successful API call
+        setMrcCertificate(document);
+        setMrcStatus("PENDING");
+
         message.success("MRC certificate uploaded successfully");
 
         // Refresh document status after upload
         fetchDocumentStatus();
+      }
+      else {
+        setMrcCertificate(null);
       }
     } catch (error) {
       console.error("Error uploading MRC certificate:", error);

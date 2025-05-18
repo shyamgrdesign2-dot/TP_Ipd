@@ -28,15 +28,6 @@ body.drawer-open-blur #root > *:not(.ant-drawer-root) {
   user-select: none;
 }
 
-/* Apply background styling only to onboarding-drawer */
-.onboarding-drawer .ant-drawer-mask {
-  backdrop-filter: blur(2px) !important;
-  background-color: rgba(0, 0, 0, 0.2) !important;
-  background-image: url('./assets/images/blur-bg.png') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-}
 
 /* Style the onboarding drawer */
 .onboarding-drawer .ant-drawer-content-wrapper {
@@ -69,4 +60,82 @@ body.drawer-open-blur #root > *:not(.ant-drawer-root) {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+/* Default styling for other drawers */
+.ant-drawer-mask {
+  background-color: rgba(0, 0, 0, 0.45) !important; /* Ant Design default */
+}
+
+/* Mobile styles for the onboarding drawer */
+@media (max-width: 768px) {
+  /* Override Ant Design drawer styles at mobile breakpoint */
+  .onboarding-drawer.ant-drawer-bottom .ant-drawer-content-wrapper {
+    width: 100% !important;
+    height: 93% !important;
+    border-radius: 24px 24px 0 0 !important;
+    overflow: hidden !important;
+  }
+  
+  .onboarding-drawer.ant-drawer-bottom .ant-drawer-content {
+    height: 100% !important;
+    border-radius: 24px 24px 0 0 !important;
+    box-shadow: 0px -4px 25px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Apply to all child containers to ensure border radius propagation */
+  .onboarding-drawer.ant-drawer-bottom *:not(.ant-drawer-mask) {
+    border-top-left-radius: 24px !important;
+    border-top-right-radius: 24px !important;
+  }
+  
+  .onboarding-drawer.ant-drawer-bottom .ant-drawer-wrapper-body {
+    border-radius: 24px 24px 0 0 !important;
+    overflow: hidden !important;
+  }
+  
+  .onboarding-drawer.ant-drawer-bottom .ant-drawer-body {
+    padding: 0 !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Force the rounded corners on the panel element */
+  .onboarding-drawer .ant-drawer-content,
+  .onboarding-drawer .ant-drawer-panel,
+  .onboarding-drawer .ant-drawer-wrap,
+  .onboarding-drawer .ant-drawer-content-wrapper > div,
+  .onboarding-drawer .ant-drawer-content-wrapper > div > div {
+    border-radius: 24px 24px 0 0 !important;
+  }
+}
+
+/* Global button style overrides for document verification popup */
+
+/* Attachment drawer styles */
+.attach-drawer .ant-drawer-content {
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.attach-drawer .ant-drawer-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.attach-drawer .ant-drawer-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: #111827;
+}
+
+.attach-drawer .ant-drawer-body {
+  padding: 0 16px 16px;
+}
+
+.attach-drawer .ant-drawer-close {
+  padding: 16px;
+}
+
+.attach-drawer .ant-drawer-content-wrapper {
+  box-shadow: 0px -4px 25px rgba(0, 0, 0, 0.1) !important;
 }

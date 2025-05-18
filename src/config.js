@@ -55,4 +55,5 @@ export default {
   tatvaPedia_api_url: env.tatvaPedia_api_url,
   tatvaPedia_domain_url: env.tatvaPedia_domain_url,
   symptoms_collector_api_url: env.symptoms_collector_api_url,
+  GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
 };

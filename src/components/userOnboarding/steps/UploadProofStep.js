@@ -1,58 +1,50 @@
 import React, { useState, useEffect } from "react";
-import { Button, Upload, message } from "antd";
+import { Button, Upload, Drawer } from "antd";
 import { FileOutlined } from "@ant-design/icons";
 import styles from "../DoctorOnboarding.module.css";
 import { CloudUploadOutlined } from "@ant-design/icons";
 import CommonModal from "../../../common/CommonModal";
 import alertIcon from "../../../assets/images/alertIcon.svg";
-import axios from "axios";
-import config from "../../../config";
+import govId from "../../../assets/images/gov-id.png";
+import mrc from "../../../assets/images/certificate.png";
 
-const UploadProofStep = ({ formData, setFormData }) => {
-  const [isAccountLocked, setIsAccountLocked] = useState(false);
+const UploadProofStep = ({
+  formData,
+  setFormData,
+  isAccountLocked = false,
+}) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [attachDrawerVisible, setAttachDrawerVisible] = useState(false);
+  const [activeUploadType, setActiveUploadType] = useState(null); // 'gov' or 'mrc'
 
   const [governmentIdFile, setGovernmentIdFile] = useState(
     formData.governmentIdProof
   );
   const [mrcFile, setMRCFile] = useState(formData.mrcCertificate);
   const [isFileSizeExceeded, setIsFileSizeExceeded] = useState(false);
+  const [isFileFormatNotSupported, setIsFileFormatNotSupported] =
+    useState(false);
 
-  // Add useEffect to check account lock status
+  // Listen for window resize to update mobile state
   useEffect(() => {
-    const checkAccountStatus = async () => {
-      try {
-        // Get user mobile number from wherever it's stored
-        const mobileNumber =
-          formData.mobileNumber || localStorage.getItem("mobileNumber");
-
-        if (!mobileNumber) {
-          console.error("Mobile number not found");
-          return;
-        }
-
-        const response = await axios.get(
-          `${config.user_management_api_url}/user/pm/info/status?mblNo=${mobileNumber}`,
-          {
-            headers: {
-              api_key: config.api_key,
-              api_secret_key: config.api_secret_key,
-            },
-          }
-        );
-
-        // If status is true, account is active (not locked)
-        if (response.data && response.data.status === true) {
-          setIsAccountLocked(false);
-        } else {
-          setIsAccountLocked(true);
-        }
-      } catch (error) {
-        console.error("Error checking account status:", error);
-      }
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
     };
 
-    checkAccountStatus();
-  }, [formData.mobileNumber]);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Open attachment drawer for mobile
+  const openAttachmentDrawer = (type) => {
+    setActiveUploadType(type);
+    setAttachDrawerVisible(true);
+  };
+
+  // Close attachment drawer
+  const closeAttachmentDrawer = () => {
+    setAttachDrawerVisible(false);
+  };
 
   const handleGovIdUpload = (file) => {
     // Validate file type and size
@@ -62,7 +54,7 @@ const UploadProofStep = ({ formData, setFormData }) => {
       file.type === "application/pdf";
 
     if (!isJpgOrPngOrPdf) {
-      message.error("You can only upload JPG/PNG/PDF files!");
+      setIsFileFormatNotSupported(true);
       return false;
     }
 
@@ -85,6 +77,7 @@ const UploadProofStep = ({ formData, setFormData }) => {
       governmentIdProof: file,
     });
 
+    closeAttachmentDrawer();
     return false; // Prevent default upload behavior
   };
 
@@ -96,13 +89,13 @@ const UploadProofStep = ({ formData, setFormData }) => {
       file.type === "application/pdf";
 
     if (!isJpgOrPngOrPdf) {
-      message.error("You can only upload JPG/PNG/PDF files!");
+      setIsFileFormatNotSupported(true);
       return false;
     }
 
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
-      message.error("File must be smaller than 5MB!");
+      setIsFileSizeExceeded(true);
       return false;
     }
 
@@ -119,7 +112,27 @@ const UploadProofStep = ({ formData, setFormData }) => {
       mrcCertificate: file,
     });
 
+    closeAttachmentDrawer();
     return false; // Prevent default upload behavior
+  };
+
+  const handleFileSelect = (type) => {
+    // This would trigger the file input in a real implementation
+    // For now, we'll just close the drawer and imagine a file was selected
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = ".pdf,.jpg,.jpeg,.png";
+    fileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        if (type === "gov") {
+          handleGovIdUpload(file);
+        } else {
+          handleMRCUpload(file);
+        }
+      }
+    };
+    fileInput.click();
   };
 
   const handleGovIdRemove = () => {
@@ -146,6 +159,7 @@ const UploadProofStep = ({ formData, setFormData }) => {
 
   const handleRetry = () => {
     setIsFileSizeExceeded(false);
+    setIsFileFormatNotSupported(false);
   };
 
   const deleteSvg = (
@@ -166,7 +180,7 @@ const UploadProofStep = ({ formData, setFormData }) => {
   );
 
   return (
-    <div>
+    <div className={isMobile ? styles.mobileUploadContainer : ""}>
       {isAccountLocked && (
         <div className={styles.warningAlert}>
           <svg
@@ -196,31 +210,68 @@ const UploadProofStep = ({ formData, setFormData }) => {
         </label>
 
         {!governmentIdFile ? (
-          <Upload
-            beforeUpload={handleGovIdUpload}
-            showUploadList={false}
-            accept=".pdf,.jpg,.jpeg,.png"
-          >
-            <div className={styles.uploadContainer}>
-              <CloudUploadOutlined className={styles.uploadIcon} />
-              <div className={styles.uploadText}>Click to Upload</div>
-              <div className={styles.uploadDescription}>
-                Upload Aadhar Card /PAN Card/any available Government ID proofs
-                for verification
+          isMobile ? (
+            <div
+              className={styles.mobileUploadBox}
+              onClick={() => openAttachmentDrawer("gov")}
+            >
+              <div className={styles.mobileUploadInner}>
+                <img
+                  src={govId}
+                  alt="Government ID"
+                  className={styles.uploadIcon}
+                />
+                <div className={styles.uploadDescription}>
+                  Upload Aadhar Card /PAN Card/any available Government ID
+                  proofs for verification
+                </div>
               </div>
+              <button className={styles.mobileUploadButton}>
+                Upload Government ID
+              </button>
             </div>
-          </Upload>
+          ) : (
+            <Upload
+              beforeUpload={handleGovIdUpload}
+              showUploadList={false}
+              accept=".pdf,.jpg,.jpeg,.png"
+            >
+              <div className={styles.uploadContainer}>
+                <CloudUploadOutlined className={styles.uploadIcon} />
+                <div className={styles.uploadText}>Click to Upload</div>
+                <div className={styles.uploadDescription}>
+                  Upload{" "}
+                  <span style={{ fontWeight: 600 }}>
+                    Aadhar Card /PAN Card/any available Government ID proofs
+                  </span>{" "}
+                  for verification
+                </div>
+              </div>
+            </Upload>
+          )
         ) : (
-          <div className={styles.uploadContainerSuccess}>
-            <div className={styles.uploadedFilePreview}>
+          <div
+            className={
+              isMobile
+                ? styles.mobileUploadedContainer
+                : styles.uploadContainerSuccess
+            }
+          >
+            <div
+              className={
+                isMobile
+                  ? styles.mobileUploadedFilePreview
+                  : styles.uploadedFilePreview
+              }
+            >
               <div className={styles.fileThumb}>
                 {governmentIdFile.type.startsWith("image/") ? (
                   <img
                     src={governmentIdFile.url}
                     alt={governmentIdFile.name}
                     style={{
-                      width: 48,
-                      height: 64,
+                      width: isMobile ? 100 : 48,
+                      height: isMobile ? 65 : 64,
                       objectFit: "cover",
                       borderRadius: 6,
                     }}
@@ -231,23 +282,36 @@ const UploadProofStep = ({ formData, setFormData }) => {
                   <FileOutlined style={{ fontSize: 36, color: "#22c55e" }} />
                 )}
               </div>
-              <div className={styles.fileInfoPreview}>
-                <div className={styles.fileNamePreview}>
-                  {governmentIdFile.name}
+              {isMobile ? (
+                <div className={styles.mobileChangeDocument}>
+                  <button
+                    onClick={() => openAttachmentDrawer("gov")}
+                    className={styles.mobileChangeButton}
+                  >
+                    Change Document <span>&#9998;</span>
+                  </button>
                 </div>
-                <div className={styles.fileSizePreview}>
-                  {formatFileSize(governmentIdFile.size)}
-                </div>
-              </div>
-              <button
-                className={styles.replaceBtn}
-                onClick={() => setGovernmentIdFile(null)}
-              >
-                Replace File
-              </button>
-              <div className={styles.deleteBtn} onClick={handleGovIdRemove}>
-                {deleteSvg}
-              </div>
+              ) : (
+                <>
+                  <div className={styles.fileInfoPreview}>
+                    <div className={styles.fileNamePreview}>
+                      {governmentIdFile.name}
+                    </div>
+                    <div className={styles.fileSizePreview}>
+                      {formatFileSize(governmentIdFile.size)}
+                    </div>
+                  </div>
+                  <button
+                    className={styles.replaceBtn}
+                    onClick={() => setGovernmentIdFile(null)}
+                  >
+                    Replace File
+                  </button>
+                  <div className={styles.deleteBtn} onClick={handleGovIdRemove}>
+                    {deleteSvg}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -266,30 +330,67 @@ const UploadProofStep = ({ formData, setFormData }) => {
         </label>
 
         {!mrcFile ? (
-          <Upload
-            beforeUpload={handleMRCUpload}
-            showUploadList={false}
-            accept=".pdf,.jpg,.jpeg,.png"
-          >
-            <div className={styles.uploadContainer}>
-              <CloudUploadOutlined className={styles.uploadIcon} />
-              <div className={styles.uploadText}>Click to Upload</div>
-              <div className={styles.uploadDescription}>
-                Upload Medical Registration Certificate for verification
+          isMobile ? (
+            <div
+              className={styles.mobileUploadBox}
+              onClick={() => openAttachmentDrawer("mrc")}
+            >
+              <div className={styles.mobileUploadInner}>
+                <img
+                  src={mrc}
+                  alt="Medical Certificate"
+                  className={styles.uploadIcon}
+                />
+                <div className={styles.uploadDescription}>
+                  Upload Medical Registration Certificate for verification
+                </div>
               </div>
+              <button className={styles.mobileUploadButton}>
+                Upload Certificate
+              </button>
             </div>
-          </Upload>
+          ) : (
+            <Upload
+              beforeUpload={handleMRCUpload}
+              showUploadList={false}
+              accept=".pdf,.jpg,.jpeg,.png"
+            >
+              <div className={styles.uploadContainer}>
+                <CloudUploadOutlined className={styles.uploadIcon} />
+                <div className={styles.uploadText}>Click to Upload</div>
+                <div className={styles.uploadDescription}>
+                  Upload{" "}
+                  <span style={{ fontWeight: 600 }}>
+                    Medical Registration Certificate
+                  </span>{" "}
+                  for verification
+                </div>
+              </div>
+            </Upload>
+          )
         ) : (
-          <div className={styles.uploadContainerSuccess}>
-            <div className={styles.uploadedFilePreview}>
+          <div
+            className={
+              isMobile
+                ? styles.mobileUploadedContainer
+                : styles.uploadContainerSuccess
+            }
+          >
+            <div
+              className={
+                isMobile
+                  ? styles.mobileUploadedFilePreview
+                  : styles.uploadedFilePreview
+              }
+            >
               <div className={styles.fileThumb}>
                 {mrcFile.type.startsWith("image/") ? (
                   <img
                     src={mrcFile.url}
                     alt={mrcFile.name}
                     style={{
-                      width: 48,
-                      height: 64,
+                      width: isMobile ? 100 : 48,
+                      height: isMobile ? 65 : 64,
                       objectFit: "cover",
                       borderRadius: 6,
                     }}
@@ -300,21 +401,34 @@ const UploadProofStep = ({ formData, setFormData }) => {
                   <FileOutlined style={{ fontSize: 36, color: "#22c55e" }} />
                 )}
               </div>
-              <div className={styles.fileInfoPreview}>
-                <div className={styles.fileNamePreview}>{mrcFile.name}</div>
-                <div className={styles.fileSizePreview}>
-                  {formatFileSize(mrcFile.size)}
+              {isMobile ? (
+                <div className={styles.mobileChangeDocument}>
+                  <button
+                    onClick={() => openAttachmentDrawer("mrc")}
+                    className={styles.mobileChangeButton}
+                  >
+                    Change Document <span>&#9998;</span>
+                  </button>
                 </div>
-              </div>
-              <button
-                className={styles.replaceBtn}
-                onClick={() => setMRCFile(null)}
-              >
-                Replace File
-              </button>
-              <div className={styles.deleteBtn} onClick={handleMRCRemove}>
-                {deleteSvg}
-              </div>
+              ) : (
+                <>
+                  <div className={styles.fileInfoPreview}>
+                    <div className={styles.fileNamePreview}>{mrcFile.name}</div>
+                    <div className={styles.fileSizePreview}>
+                      {formatFileSize(mrcFile.size)}
+                    </div>
+                  </div>
+                  <button
+                    className={styles.replaceBtn}
+                    onClick={() => setMRCFile(null)}
+                  >
+                    Replace File
+                  </button>
+                  <div className={styles.deleteBtn} onClick={handleMRCRemove}>
+                    {deleteSvg}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -355,6 +469,121 @@ const UploadProofStep = ({ formData, setFormData }) => {
           </a>
         </div>
       )}
+
+      {/* Attachment Drawer for Mobile */}
+      <Drawer
+        title="Attach"
+        placement="bottom"
+        onClose={closeAttachmentDrawer}
+        open={attachDrawerVisible}
+        height="auto"
+        className="attach-drawer"
+        closable={true}
+        maskClosable={true}
+        style={{
+          borderTopLeftRadius: "1rem",
+          borderTopRightRadius: "1rem",
+        }}
+      >
+        <div className={styles.attachmentOptions}>
+          <div
+            className={styles.attachOption}
+            onClick={() => handleFileSelect(activeUploadType)}
+          >
+            <div
+              className={styles.attachOptionIcon}
+              style={{ backgroundColor: "#F6EFFB" }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  opacity="0.4"
+                  d="M6.76017 22H17.2402C20.0002 22 21.1002 20.31 21.2302 18.25L21.7502 9.99C21.8902 7.83 20.1702 6 18.0002 6C17.3902 6 16.8302 5.65 16.5502 5.11L15.8302 3.66C15.3702 2.75 14.1702 2 13.1502 2H10.8602C9.83017 2 8.63017 2.75 8.17017 3.66L7.45017 5.11C7.17017 5.65 6.61017 6 6.00017 6C3.83017 6 2.11017 7.83 2.25017 9.99L2.77017 18.25C2.89017 20.31 4.00017 22 6.76017 22Z"
+                  fill="#4B4AD5"
+                />
+                <path
+                  d="M13.5 8.75H10.5C10.09 8.75 9.75 8.41 9.75 8C9.75 7.59 10.09 7.25 10.5 7.25H13.5C13.91 7.25 14.25 7.59 14.25 8C14.25 8.41 13.91 8.75 13.5 8.75Z"
+                  fill="#4B4AD5"
+                />
+                <path
+                  d="M12.0001 18.1301C13.8668 18.1301 15.3801 16.6168 15.3801 14.7501C15.3801 12.8834 13.8668 11.3701 12.0001 11.3701C10.1334 11.3701 8.62012 12.8834 8.62012 14.7501C8.62012 16.6168 10.1334 18.1301 12.0001 18.1301Z"
+                  fill="#4B4AD5"
+                />
+              </svg>
+            </div>
+            <div className={styles.attachOptionText}>Use Camera</div>
+            <div className={styles.attachOptionArrow}>&gt;</div>
+          </div>
+          <div
+            className={styles.attachOption}
+            onClick={() => handleFileSelect(activeUploadType)}
+          >
+            <div
+              className={styles.attachOptionIcon}
+              style={{ backgroundColor: "#EBF1FF" }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  opacity="0.4"
+                  d="M22 7.81V13.9L20.37 12.5C19.59 11.83 18.33 11.83 17.55 12.5L13.39 16.07C12.61 16.74 11.35 16.74 10.57 16.07L10.23 15.79C9.52 15.17 8.39 15.11 7.59 15.65L2.67 18.95L2.56 19.03C2.19 18.23 2 17.28 2 16.19V7.81C2 4.17 4.17 2 7.81 2H16.19C19.83 2 22 4.17 22 7.81Z"
+                  fill="#4B4AD5"
+                />
+                <path
+                  d="M9.00012 10.3801C10.3146 10.3801 11.3801 9.31456 11.3801 8.00012C11.3801 6.68568 10.3146 5.62012 9.00012 5.62012C7.68568 5.62012 6.62012 6.68568 6.62012 8.00012C6.62012 9.31456 7.68568 10.3801 9.00012 10.3801Z"
+                  fill="#4B4AD5"
+                />
+                <path
+                  d="M21.9996 13.8996V16.1896C21.9996 19.8296 19.8296 21.9996 16.1896 21.9996H7.80957C5.25957 21.9996 3.41957 20.9296 2.55957 19.0296L2.66957 18.9496L7.58957 15.6496C8.38957 15.1096 9.51957 15.1696 10.2296 15.7896L10.5696 16.0696C11.3496 16.7396 12.6096 16.7396 13.3896 16.0696L17.5496 12.4996C18.3296 11.8296 19.5896 11.8296 20.3696 12.4996L21.9996 13.8996Z"
+                  fill="#4B4AD5"
+                />
+              </svg>
+            </div>
+            <div className={styles.attachOptionText}>Upload from gallery</div>
+            <div className={styles.attachOptionArrow}>&gt;</div>
+          </div>
+          <div
+            className={styles.attachOption}
+            onClick={() => handleFileSelect(activeUploadType)}
+          >
+            <div
+              className={styles.attachOptionIcon}
+              style={{ backgroundColor: "#E8F2FF" }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="25"
+                viewBox="0 0 24 25"
+                fill="none"
+              >
+                <path
+                  opacity="0.4"
+                  d="M20.5 10.69H17.61C15.24 10.69 13.31 8.76 13.31 6.39V3.5C13.31 2.95 12.86 2.5 12.31 2.5H8.07C4.99 2.5 2.5 4.5 2.5 8.07V16.93C2.5 20.5 4.99 22.5 8.07 22.5H15.93C19.01 22.5 21.5 20.5 21.5 16.93V11.69C21.5 11.14 21.05 10.69 20.5 10.69Z"
+                  fill="#4B4AD5"
+                />
+                <path
+                  d="M15.7997 2.71048C15.3897 2.30048 14.6797 2.58048 14.6797 3.15048V6.64048C14.6797 8.10048 15.9197 9.31048 17.4297 9.31048C18.3797 9.32048 19.6997 9.32048 20.8297 9.32048C21.3997 9.32048 21.6997 8.65048 21.2997 8.25048C19.8597 6.80048 17.2797 4.19048 15.7997 2.71048Z"
+                  fill="#4B4AD5"
+                />
+              </svg>
+            </div>
+            <div className={styles.attachOptionText}>Upload from files</div>
+            <div className={styles.attachOptionArrow}>&gt;</div>
+          </div>
+        </div>
+      </Drawer>
+
       <CommonModal
         isModalOpen={isFileSizeExceeded}
         onCancel={() => setIsFileSizeExceeded(false)}
@@ -368,6 +597,33 @@ const UploadProofStep = ({ formData, setFormData }) => {
               <div className={styles.warningMessage}>
                 The file size exceeded <strong>8MB</strong>. Please upload a
                 file smaller than 8MB
+              </div>
+            </div>
+            <Button
+              type="primary"
+              block
+              onClick={handleRetry}
+              className={styles.retryButton}
+            >
+              Retry
+            </Button>
+          </div>
+        }
+        modalWidth={465}
+      />
+      <CommonModal
+        isModalOpen={isFileFormatNotSupported}
+        onCancel={() => setIsFileFormatNotSupported(false)}
+        title="File format Not Supported"
+        modalBody={
+          <div>
+            <div className={styles.warningContainer}>
+              <div className={styles.warningIconWrapper}>
+                <img className="me-3" src={alertIcon} alt="Warning" />
+              </div>
+              <div className={styles.warningMessage}>
+                You can't upload <strong>.txt</strong> file. Only PDF, JPG,
+                JPEG, and PNG formats are accepted.
               </div>
             </div>
             <Button
