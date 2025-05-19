@@ -20,7 +20,7 @@ const FinalSetup = () => {
     if (stepParam) {
       setInitialStep(parseInt(stepParam));
     } else if (noLocation) {
-      setInitialStep(0);
+      setInitialStep(1);
     }
 
     if (isLocked) {
