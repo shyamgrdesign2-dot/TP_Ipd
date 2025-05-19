@@ -148,7 +148,8 @@ const IdProof = ({
             drag and drop
           </div>
           <div className={styles.uploadDescriptionText}>
-            Upload {description} for verification
+            Upload <span style={{ fontWeight: 600 }}>{description}</span> for
+            verification
           </div>
         </div>
       </Upload>
