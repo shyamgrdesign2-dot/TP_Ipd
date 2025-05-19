@@ -693,10 +693,15 @@
 }
 
 .mobileUploadedContainer {
-  border: 1px dashed #6366F1;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
+  display: flex;
+  padding: 1.25rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  align-self: stretch;
+  border-radius: 1rem;
+  border: 1px dashed #4B4AD5;
 }
 
 .mobileUploadedFilePreview {

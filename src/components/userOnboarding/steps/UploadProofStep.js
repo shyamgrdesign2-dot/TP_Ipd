@@ -182,6 +182,59 @@ const UploadProofStep = ({
     </svg>
   );
 
+  const editSvg = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+    >
+      <path
+        d="M6.41699 1.16699H5.25033C2.33366 1.16699 1.16699 2.33366 1.16699 5.25033V8.75033C1.16699 11.667 2.33366 12.8337 5.25033 12.8337H8.75033C11.667 12.8337 12.8337 11.667 12.8337 8.75033V7.58366"
+        stroke="#4B4AD5"
+        stroke-width="0.875"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M9.35709 1.76206L4.76042 6.35873C4.58542 6.53373 4.41042 6.87789 4.37542 7.12873L4.12458 8.88456C4.03125 9.52039 4.48042 9.96373 5.11625 9.87623L6.87208 9.62539C7.11708 9.59039 7.46125 9.41539 7.64208 9.24039L12.2388 4.64373C13.0321 3.85039 13.4054 2.92873 12.2388 1.76206C11.0721 0.595392 10.1504 0.968725 9.35709 1.76206Z"
+        stroke="#4B4AD5"
+        stroke-width="0.875"
+        stroke-miterlimit="10"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M8.69727 2.4209C9.0881 3.81507 10.1789 4.9059 11.5789 5.30257"
+        stroke="#4B4AD5"
+        stroke-width="0.875"
+        stroke-miterlimit="10"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+
+  const rightArrowSvg = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="25"
+      viewBox="0 0 24 25"
+      fill="none"
+    >
+      <path
+        d="M8.91016 20.4201L15.4302 13.9001C16.2002 13.1301 16.2002 11.8701 15.4302 11.1001L8.91016 4.58008"
+        stroke="#5A6774"
+        stroke-width="1.5"
+        stroke-miterlimit="10"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+
   return (
     <div className={isMobile ? styles.mobileUploadContainer : ""}>
       {isAccountLocked && (
@@ -267,16 +320,18 @@ const UploadProofStep = ({
                   : styles.uploadedFilePreview
               }
             >
-              <div className={styles.fileThumb}>
+              <div className={!isMobile ? styles.fileThumb : ""}>
                 {governmentIdFile.type.startsWith("image/") ? (
                   <img
                     src={governmentIdFile.url}
                     alt={governmentIdFile.name}
                     style={{
-                      width: isMobile ? 300 : 48,
-                      height: isMobile ? 120 : 64,
+                      width: isMobile ? "auto" : 48,
+                      height: isMobile ? "auto" : 64,
                       objectFit: "cover",
                       borderRadius: "0.5rem",
+                      maxWidth: "310px",
+                      maxHeight: "172px",
                     }}
                   />
                 ) : governmentIdFile.type === "application/pdf" ? (
@@ -285,11 +340,12 @@ const UploadProofStep = ({
                       src={governmentIdFile.url}
                       title="Government ID PDF"
                       style={{
-                        width: isMobile ? 300 : "2.03556rem",
-                        height: isMobile ? 120 : "2.86763rem",
+                        width: isMobile ? "auto" : "2.03556rem",
+                        height: isMobile ? "auto" : "2.86763rem",
                         border: "none",
-                        // borderRadius: "0.5rem",
                         marginTop: "1rem",
+                        maxWidth: "310px",
+                        maxHeight: "172px",
                       }}
                     ></iframe>
                   </div>
@@ -303,7 +359,8 @@ const UploadProofStep = ({
                     onClick={() => openAttachmentDrawer("gov")}
                     className={styles.mobileChangeButton}
                   >
-                    Change Document <span>&#9998;</span>
+                    Change Document
+                    <span style={{ marginLeft: "0.2rem" }}>{editSvg}</span>
                   </button>
                 </div>
               ) : (
@@ -398,16 +455,18 @@ const UploadProofStep = ({
                   : styles.uploadedFilePreview
               }
             >
-              <div className={styles.fileThumb}>
+              <div className={!isMobile ? styles.fileThumb : ""}>
                 {mrcFile.type.startsWith("image/") ? (
                   <img
                     src={mrcFile.url}
                     alt={mrcFile.name}
                     style={{
-                      width: isMobile ? 300 : 48,
-                      height: isMobile ? 120 : 64,
+                      width: isMobile ? "auto" : 48,
+                      height: isMobile ? "auto" : 64,
                       objectFit: "cover",
                       borderRadius: 6,
+                      maxWidth: "310px",
+                      maxHeight: "172px",
                     }}
                   />
                 ) : mrcFile.type === "application/pdf" ? (
@@ -416,11 +475,12 @@ const UploadProofStep = ({
                       src={mrcFile.url}
                       title="MRC Certificate PDF"
                       style={{
-                        width: isMobile ? 300 : "2.03556rem",
-                        height: isMobile ? 120 : "2.86763rem",
+                        width: isMobile ? "auto" : "2.03556rem",
+                        height: isMobile ? "auto" : "2.86763rem",
                         border: "none",
-                        // borderRadius: "0.5rem",
                         marginTop: "1rem",
+                        maxWidth: "310px",
+                        maxHeight: "172px",
                       }}
                     ></iframe>
                   </div>
@@ -434,7 +494,8 @@ const UploadProofStep = ({
                     onClick={() => openAttachmentDrawer("mrc")}
                     className={styles.mobileChangeButton}
                   >
-                    Change Document <span>&#9998;</span>
+                    Change Document
+                    <span style={{ marginLeft: "0.2rem" }}>{editSvg}</span>
                   </button>
                 </div>
               ) : (
@@ -499,18 +560,76 @@ const UploadProofStep = ({
 
       {/* Attachment Drawer for Mobile */}
       <Drawer
-        title="Attach"
+        title={
+          <div style={{ flex: 1, marginLeft: "30px", marginRight: "24px" }}>
+            Attach
+            <div
+              style={{
+                position: "absolute",
+                right: "30px",
+                top: "50%",
+                transform: "translateY(-50%)",
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="25"
+                height="24"
+                viewBox="0 0 25 24"
+                fill="none"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M8.47144 2H17.0265C20.7426 2 22.9579 4.17 22.9477 7.81V16.19C22.9477 19.83 20.7324 22 17.0163 22H8.47144C4.75538 22 2.54004 19.83 2.54004 16.18V7.81C2.54004 4.17 4.75538 2 8.47144 2ZM16.5389 16.7729L12.749 13.0606L8.95911 16.7729C8.66314 17.0628 8.17226 17.0628 7.87629 16.7729C7.58032 16.483 7.58032 16.0021 7.87629 15.7122L11.6662 11.9999L7.87629 8.28761C7.58032 7.9977 7.58032 7.51686 7.87629 7.22695C8.17226 6.93704 8.66314 6.93704 8.95911 7.22695L12.749 10.9393L16.5389 7.22695C16.8348 6.93704 17.3257 6.93704 17.6217 7.22695C17.9177 7.51686 17.9177 7.9977 17.6217 8.28761L13.8318 11.9999L17.6217 15.7122C17.9177 16.0021 17.9177 16.483 17.6217 16.7729C17.3257 17.0628 16.8348 17.0628 16.5389 16.7729Z"
+                  fill="#292D32"
+                />
+              </svg>
+            </div>
+          </div>
+        }
         placement="bottom"
         onClose={closeAttachmentDrawer}
         open={attachDrawerVisible}
         height="auto"
         className="attach-drawer"
-        closable={true}
+        closable={false}
         maskClosable={true}
         style={{
           borderTopLeftRadius: "1rem",
           borderTopRightRadius: "1rem",
         }}
+        headerStyle={{
+          display: "flex",
+          alignItems: "center",
+          padding: "16px 0 16px 0",
+          position: "relative",
+        }}
+        // closeIcon={
+        //   <div
+        //     style={{
+        //       position: "absolute",
+        //       right: "30px",
+        //       top: "50%",
+        //       transform: "translateY(-50%)",
+        //     }}
+        //   >
+        //     <svg
+        //       xmlns="http://www.w3.org/2000/svg"
+        //       width="25"
+        //       height="24"
+        //       viewBox="0 0 25 24"
+        //       fill="none"
+        //     >
+        //       <path
+        //         fill-rule="evenodd"
+        //         clip-rule="evenodd"
+        //         d="M8.47144 2H17.0265C20.7426 2 22.9579 4.17 22.9477 7.81V16.19C22.9477 19.83 20.7324 22 17.0163 22H8.47144C4.75538 22 2.54004 19.83 2.54004 16.18V7.81C2.54004 4.17 4.75538 2 8.47144 2ZM16.5389 16.7729L12.749 13.0606L8.95911 16.7729C8.66314 17.0628 8.17226 17.0628 7.87629 16.7729C7.58032 16.483 7.58032 16.0021 7.87629 15.7122L11.6662 11.9999L7.87629 8.28761C7.58032 7.9977 7.58032 7.51686 7.87629 7.22695C8.17226 6.93704 8.66314 6.93704 8.95911 7.22695L12.749 10.9393L16.5389 7.22695C16.8348 6.93704 17.3257 6.93704 17.6217 7.22695C17.9177 7.51686 17.9177 7.9977 17.6217 8.28761L13.8318 11.9999L17.6217 15.7122C17.9177 16.0021 17.9177 16.483 17.6217 16.7729C17.3257 17.0628 16.8348 17.0628 16.5389 16.7729Z"
+        //         fill="#292D32"
+        //       />
+        //     </svg>
+        //   </div>
+        // }
       >
         <div className={styles.attachmentOptions}>
           <div
@@ -544,7 +663,7 @@ const UploadProofStep = ({
               </svg>
             </div>
             <div className={styles.attachOptionText}>Use Camera</div>
-            <div className={styles.attachOptionArrow}>&gt;</div>
+            <div className={styles.attachOptionArrow}>{rightArrowSvg}</div>
           </div>
           <div
             className={styles.attachOption}
@@ -577,7 +696,7 @@ const UploadProofStep = ({
               </svg>
             </div>
             <div className={styles.attachOptionText}>Upload from gallery</div>
-            <div className={styles.attachOptionArrow}>&gt;</div>
+            <div className={styles.attachOptionArrow}>{rightArrowSvg}</div>
           </div>
           <div
             className={styles.attachOption}
@@ -606,7 +725,7 @@ const UploadProofStep = ({
               </svg>
             </div>
             <div className={styles.attachOptionText}>Upload from files</div>
-            <div className={styles.attachOptionArrow}>&gt;</div>
+            <div className={styles.attachOptionArrow}>{rightArrowSvg}</div>
           </div>
         </div>
       </Drawer>
