@@ -24,12 +24,10 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
   });
 
   const isPasswordValid = () => {
-    console.log("Checking password validity:", passwordStrength);
     return Object.values(passwordStrength).every(value => value === true);
   };
 
   const checkPasswordStrength = (password) => {
-    console.log("Checking password strength for:", password);
     if (password) {
       const newPasswordStrength = {
         length: password.length >= 6,
@@ -39,7 +37,6 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
         number: /[0-9]/.test(password),
         space: !/\s/.test(password)
       };
-      console.log("Password strength results:", newPasswordStrength);
       setPasswordStrength(newPasswordStrength);
       setShowTooltip(password.length > 0 && !Object.values(newPasswordStrength).every(value => value === true));
     } else {
@@ -69,12 +66,6 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
   };
 
   const handleContinue = () => {
-    console.log("Continue clicked. Current state:", {
-      password,
-      confirmPassword,
-      passwordStrength,
-      isValid: isPasswordValid()
-    });
 
     // Reset errors
     setErrors({ password: "", confirmPassword: "" });
@@ -111,7 +102,7 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
           console.log("OTP sent successfully:", successData);
           if (successData && successData.message) {
             const reqId = successData.message;
-            onViewChange("verifyOTP", mobileNumber, false, true, password, reqId);
+            onViewChange("verifyOTP", mobileNumber, true, true, password, reqId);
           } else {
             console.error("No requestId in response:", successData);
           }
@@ -198,6 +189,7 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
           </div>
         </div>
       </div>
+      <div style={{height: "2rem"}}></div>
       <div className="partners-section">
         <img src={abdmLogo} alt="ABDM" className="abdm-logo" />
         <img src={nhaLogo} alt="NHA" className="nha-logo" />
