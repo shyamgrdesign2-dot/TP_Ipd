@@ -14,7 +14,7 @@ const UploadProofStep = ({
   isAccountLocked = false,
 }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [attachDrawerVisible, setAttachDrawerVisible] = useState(false);
+  const [attachModalVisible, setAttachModalVisible] = useState(false);
   const [activeUploadType, setActiveUploadType] = useState(null); // 'gov' or 'mrc'
 
   const [governmentIdFile, setGovernmentIdFile] = useState(
@@ -36,15 +36,15 @@ const UploadProofStep = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Open attachment drawer for mobile
-  const openAttachmentDrawer = (type) => {
+  // Replace openAttachmentDrawer function
+  const openAttachmentModal = (type) => {
     setActiveUploadType(type);
-    setAttachDrawerVisible(true);
+    setAttachModalVisible(true);
   };
 
-  // Close attachment drawer
-  const closeAttachmentDrawer = () => {
-    setAttachDrawerVisible(false);
+  // Replace closeAttachmentDrawer function
+  const closeAttachmentModal = () => {
+    setAttachModalVisible(false);
   };
 
   const handleGovIdUpload = (file) => {
@@ -79,7 +79,7 @@ const UploadProofStep = ({
       governmentIdProof: file,
     });
 
-    closeAttachmentDrawer();
+    closeAttachmentModal();
     return false; // Prevent default upload behavior
   };
 
@@ -115,7 +115,7 @@ const UploadProofStep = ({
       mrcCertificate: file,
     });
 
-    closeAttachmentDrawer();
+    closeAttachmentModal();
     return false; // Prevent default upload behavior
   };
 
@@ -182,6 +182,59 @@ const UploadProofStep = ({
     </svg>
   );
 
+  const editSvg = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+    >
+      <path
+        d="M6.41699 1.16699H5.25033C2.33366 1.16699 1.16699 2.33366 1.16699 5.25033V8.75033C1.16699 11.667 2.33366 12.8337 5.25033 12.8337H8.75033C11.667 12.8337 12.8337 11.667 12.8337 8.75033V7.58366"
+        stroke="#4B4AD5"
+        stroke-width="0.875"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M9.35709 1.76206L4.76042 6.35873C4.58542 6.53373 4.41042 6.87789 4.37542 7.12873L4.12458 8.88456C4.03125 9.52039 4.48042 9.96373 5.11625 9.87623L6.87208 9.62539C7.11708 9.59039 7.46125 9.41539 7.64208 9.24039L12.2388 4.64373C13.0321 3.85039 13.4054 2.92873 12.2388 1.76206C11.0721 0.595392 10.1504 0.968725 9.35709 1.76206Z"
+        stroke="#4B4AD5"
+        stroke-width="0.875"
+        stroke-miterlimit="10"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M8.69727 2.4209C9.0881 3.81507 10.1789 4.9059 11.5789 5.30257"
+        stroke="#4B4AD5"
+        stroke-width="0.875"
+        stroke-miterlimit="10"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+
+  const rightArrowSvg = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="25"
+      viewBox="0 0 24 25"
+      fill="none"
+    >
+      <path
+        d="M8.91016 20.4201L15.4302 13.9001C16.2002 13.1301 16.2002 11.8701 15.4302 11.1001L8.91016 4.58008"
+        stroke="#5A6774"
+        stroke-width="1.5"
+        stroke-miterlimit="10"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+
   return (
     <div className={isMobile ? styles.mobileUploadContainer : ""}>
       {isAccountLocked && (
@@ -216,7 +269,7 @@ const UploadProofStep = ({
           isMobile ? (
             <div
               className={styles.mobileUploadBox}
-              onClick={() => openAttachmentDrawer("gov")}
+              onClick={() => openAttachmentModal("gov")}
             >
               <div className={styles.mobileUploadInner}>
                 <img
@@ -267,16 +320,18 @@ const UploadProofStep = ({
                   : styles.uploadedFilePreview
               }
             >
-              <div className={styles.fileThumb}>
+              <div className={!isMobile ? styles.fileThumb : ""}>
                 {governmentIdFile.type.startsWith("image/") ? (
                   <img
                     src={governmentIdFile.url}
                     alt={governmentIdFile.name}
                     style={{
-                      width: isMobile ? 300 : 48,
-                      height: isMobile ? 120 : 64,
+                      width: isMobile ? "auto" : 48,
+                      height: isMobile ? "auto" : 64,
                       objectFit: "cover",
                       borderRadius: "0.5rem",
+                      maxWidth: "310px",
+                      maxHeight: "172px",
                     }}
                   />
                 ) : governmentIdFile.type === "application/pdf" ? (
@@ -285,11 +340,12 @@ const UploadProofStep = ({
                       src={governmentIdFile.url}
                       title="Government ID PDF"
                       style={{
-                        width: isMobile ? 300 : "2.03556rem",
-                        height: isMobile ? 120 : "2.86763rem",
+                        width: isMobile ? "auto" : "2.03556rem",
+                        height: isMobile ? "auto" : "2.86763rem",
                         border: "none",
-                        // borderRadius: "0.5rem",
                         marginTop: "1rem",
+                        maxWidth: "310px",
+                        maxHeight: "172px",
                       }}
                     ></iframe>
                   </div>
@@ -300,10 +356,11 @@ const UploadProofStep = ({
               {isMobile ? (
                 <div className={styles.mobileChangeDocument}>
                   <button
-                    onClick={() => openAttachmentDrawer("gov")}
+                    onClick={() => openAttachmentModal("gov")}
                     className={styles.mobileChangeButton}
                   >
-                    Change Document <span>&#9998;</span>
+                    Change Document
+                    <span style={{ marginLeft: "0.2rem" }}>{editSvg}</span>
                   </button>
                 </div>
               ) : (
@@ -348,7 +405,7 @@ const UploadProofStep = ({
           isMobile ? (
             <div
               className={styles.mobileUploadBox}
-              onClick={() => openAttachmentDrawer("mrc")}
+              onClick={() => openAttachmentModal("mrc")}
             >
               <div className={styles.mobileUploadInner}>
                 <img
@@ -398,16 +455,18 @@ const UploadProofStep = ({
                   : styles.uploadedFilePreview
               }
             >
-              <div className={styles.fileThumb}>
+              <div className={!isMobile ? styles.fileThumb : ""}>
                 {mrcFile.type.startsWith("image/") ? (
                   <img
                     src={mrcFile.url}
                     alt={mrcFile.name}
                     style={{
-                      width: isMobile ? 300 : 48,
-                      height: isMobile ? 120 : 64,
+                      width: isMobile ? "auto" : 48,
+                      height: isMobile ? "auto" : 64,
                       objectFit: "cover",
                       borderRadius: 6,
+                      maxWidth: "310px",
+                      maxHeight: "172px",
                     }}
                   />
                 ) : mrcFile.type === "application/pdf" ? (
@@ -416,11 +475,12 @@ const UploadProofStep = ({
                       src={mrcFile.url}
                       title="MRC Certificate PDF"
                       style={{
-                        width: isMobile ? 300 : "2.03556rem",
-                        height: isMobile ? 120 : "2.86763rem",
+                        width: isMobile ? "auto" : "2.03556rem",
+                        height: isMobile ? "auto" : "2.86763rem",
                         border: "none",
-                        // borderRadius: "0.5rem",
                         marginTop: "1rem",
+                        maxWidth: "310px",
+                        maxHeight: "172px",
                       }}
                     ></iframe>
                   </div>
@@ -431,10 +491,11 @@ const UploadProofStep = ({
               {isMobile ? (
                 <div className={styles.mobileChangeDocument}>
                   <button
-                    onClick={() => openAttachmentDrawer("mrc")}
+                    onClick={() => openAttachmentModal("mrc")}
                     className={styles.mobileChangeButton}
                   >
-                    Change Document <span>&#9998;</span>
+                    Change Document
+                    <span style={{ marginLeft: "0.2rem" }}>{editSvg}</span>
                   </button>
                 </div>
               ) : (
@@ -497,119 +558,141 @@ const UploadProofStep = ({
         </div>
       )}
 
-      {/* Attachment Drawer for Mobile */}
-      <Drawer
-        title="Attach"
-        placement="bottom"
-        onClose={closeAttachmentDrawer}
-        open={attachDrawerVisible}
-        height="auto"
-        className="attach-drawer"
-        closable={true}
-        maskClosable={true}
-        style={{
-          borderTopLeftRadius: "1rem",
-          borderTopRightRadius: "1rem",
-        }}
-      >
-        <div className={styles.attachmentOptions}>
-          <div
-            className={styles.attachOption}
-            onClick={() => handleFileSelect(activeUploadType)}
-          >
-            <div
-              className={styles.attachOptionIcon}
-              style={{ backgroundColor: "#F6EFFB" }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
+      {/* Replace the Drawer with a custom modal component at the bottom of the component */}
+      {attachModalVisible && (
+        <div
+          className={styles.customAttachModal}
+          onClick={(e) => {
+            if (e.target.className === styles.customAttachModal) {
+              closeAttachmentModal();
+            }
+          }}
+        >
+          <div className={styles.customAttachModalContent}>
+            <div className={styles.customAttachModalHeader}>
+              <div className={styles.customAttachModalTitle}>Attach</div>
+              <div
+                className={styles.customAttachModalClose}
+                onClick={closeAttachmentModal}
               >
-                <path
-                  opacity="0.4"
-                  d="M6.76017 22H17.2402C20.0002 22 21.1002 20.31 21.2302 18.25L21.7502 9.99C21.8902 7.83 20.1702 6 18.0002 6C17.3902 6 16.8302 5.65 16.5502 5.11L15.8302 3.66C15.3702 2.75 14.1702 2 13.1502 2H10.8602C9.83017 2 8.63017 2.75 8.17017 3.66L7.45017 5.11C7.17017 5.65 6.61017 6 6.00017 6C3.83017 6 2.11017 7.83 2.25017 9.99L2.77017 18.25C2.89017 20.31 4.00017 22 6.76017 22Z"
-                  fill="#4B4AD5"
-                />
-                <path
-                  d="M13.5 8.75H10.5C10.09 8.75 9.75 8.41 9.75 8C9.75 7.59 10.09 7.25 10.5 7.25H13.5C13.91 7.25 14.25 7.59 14.25 8C14.25 8.41 13.91 8.75 13.5 8.75Z"
-                  fill="#4B4AD5"
-                />
-                <path
-                  d="M12.0001 18.1301C13.8668 18.1301 15.3801 16.6168 15.3801 14.7501C15.3801 12.8834 13.8668 11.3701 12.0001 11.3701C10.1334 11.3701 8.62012 12.8834 8.62012 14.7501C8.62012 16.6168 10.1334 18.1301 12.0001 18.1301Z"
-                  fill="#4B4AD5"
-                />
-              </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="25"
+                  height="24"
+                  viewBox="0 0 25 24"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.47144 2H17.0265C20.7426 2 22.9579 4.17 22.9477 7.81V16.19C22.9477 19.83 20.7324 22 17.0163 22H8.47144C4.75538 22 2.54004 19.83 2.54004 16.18V7.81C2.54004 4.17 4.75538 2 8.47144 2ZM16.5389 16.7729L12.749 13.0606L8.95911 16.7729C8.66314 17.0628 8.17226 17.0628 7.87629 16.7729C7.58032 16.483 7.58032 16.0021 7.87629 15.7122L11.6662 11.9999L7.87629 8.28761C7.58032 7.9977 7.58032 7.51686 7.87629 7.22695C8.17226 6.93704 8.66314 6.93704 8.95911 7.22695L12.749 10.9393L16.5389 7.22695C16.8348 6.93704 17.3257 6.93704 17.6217 7.22695C17.9177 7.51686 17.9177 7.9977 17.6217 8.28761L13.8318 11.9999L17.6217 15.7122C17.9177 16.0021 17.9177 16.483 17.6217 16.7729C17.3257 17.0628 16.8348 17.0628 16.5389 16.7729Z"
+                    fill="#292D32"
+                  />
+                </svg>
+              </div>
             </div>
-            <div className={styles.attachOptionText}>Use Camera</div>
-            <div className={styles.attachOptionArrow}>&gt;</div>
-          </div>
-          <div
-            className={styles.attachOption}
-            onClick={() => handleFileSelect(activeUploadType)}
-          >
-            <div
-              className={styles.attachOptionIcon}
-              style={{ backgroundColor: "#EBF1FF" }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
+            <div className={styles.attachmentOptions}>
+              <div
+                className={styles.attachOption}
+                onClick={() => handleFileSelect(activeUploadType)}
               >
-                <path
-                  opacity="0.4"
-                  d="M22 7.81V13.9L20.37 12.5C19.59 11.83 18.33 11.83 17.55 12.5L13.39 16.07C12.61 16.74 11.35 16.74 10.57 16.07L10.23 15.79C9.52 15.17 8.39 15.11 7.59 15.65L2.67 18.95L2.56 19.03C2.19 18.23 2 17.28 2 16.19V7.81C2 4.17 4.17 2 7.81 2H16.19C19.83 2 22 4.17 22 7.81Z"
-                  fill="#4B4AD5"
-                />
-                <path
-                  d="M9.00012 10.3801C10.3146 10.3801 11.3801 9.31456 11.3801 8.00012C11.3801 6.68568 10.3146 5.62012 9.00012 5.62012C7.68568 5.62012 6.62012 6.68568 6.62012 8.00012C6.62012 9.31456 7.68568 10.3801 9.00012 10.3801Z"
-                  fill="#4B4AD5"
-                />
-                <path
-                  d="M21.9996 13.8996V16.1896C21.9996 19.8296 19.8296 21.9996 16.1896 21.9996H7.80957C5.25957 21.9996 3.41957 20.9296 2.55957 19.0296L2.66957 18.9496L7.58957 15.6496C8.38957 15.1096 9.51957 15.1696 10.2296 15.7896L10.5696 16.0696C11.3496 16.7396 12.6096 16.7396 13.3896 16.0696L17.5496 12.4996C18.3296 11.8296 19.5896 11.8296 20.3696 12.4996L21.9996 13.8996Z"
-                  fill="#4B4AD5"
-                />
-              </svg>
-            </div>
-            <div className={styles.attachOptionText}>Upload from gallery</div>
-            <div className={styles.attachOptionArrow}>&gt;</div>
-          </div>
-          <div
-            className={styles.attachOption}
-            onClick={() => handleFileSelect(activeUploadType)}
-          >
-            <div
-              className={styles.attachOptionIcon}
-              style={{ backgroundColor: "#E8F2FF" }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="25"
-                viewBox="0 0 24 25"
-                fill="none"
+                <div
+                  className={styles.attachOptionIcon}
+                  style={{ backgroundColor: "#F6EFFB" }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      opacity="0.4"
+                      d="M6.76017 22H17.2402C20.0002 22 21.1002 20.31 21.2302 18.25L21.7502 9.99C21.8902 7.83 20.1702 6 18.0002 6C17.3902 6 16.8302 5.65 16.5502 5.11L15.8302 3.66C15.3702 2.75 14.1702 2 13.1502 2H10.8602C9.83017 2 8.63017 2.75 8.17017 3.66L7.45017 5.11C7.17017 5.65 6.61017 6 6.00017 6C3.83017 6 2.11017 7.83 2.25017 9.99L2.77017 18.25C2.89017 20.31 4.00017 22 6.76017 22Z"
+                      fill="#4B4AD5"
+                    />
+                    <path
+                      d="M13.5 8.75H10.5C10.09 8.75 9.75 8.41 9.75 8C9.75 7.59 10.09 7.25 10.5 7.25H13.5C13.91 7.25 14.25 7.59 14.25 8C14.25 8.41 13.91 8.75 13.5 8.75Z"
+                      fill="#4B4AD5"
+                    />
+                    <path
+                      d="M12.0001 18.1301C13.8668 18.1301 15.3801 16.6168 15.3801 14.7501C15.3801 12.8834 13.8668 11.3701 12.0001 11.3701C10.1334 11.3701 8.62012 12.8834 8.62012 14.7501C8.62012 16.6168 10.1334 18.1301 12.0001 18.1301Z"
+                      fill="#4B4AD5"
+                    />
+                  </svg>
+                </div>
+                <div className={styles.attachOptionText}>Use Camera</div>
+                <div className={styles.attachOptionArrow}>{rightArrowSvg}</div>
+              </div>
+              <div
+                className={styles.attachOption}
+                onClick={() => handleFileSelect(activeUploadType)}
               >
-                <path
-                  opacity="0.4"
-                  d="M20.5 10.69H17.61C15.24 10.69 13.31 8.76 13.31 6.39V3.5C13.31 2.95 12.86 2.5 12.31 2.5H8.07C4.99 2.5 2.5 4.5 2.5 8.07V16.93C2.5 20.5 4.99 22.5 8.07 22.5H15.93C19.01 22.5 21.5 20.5 21.5 16.93V11.69C21.5 11.14 21.05 10.69 20.5 10.69Z"
-                  fill="#4B4AD5"
-                />
-                <path
-                  d="M15.7997 2.71048C15.3897 2.30048 14.6797 2.58048 14.6797 3.15048V6.64048C14.6797 8.10048 15.9197 9.31048 17.4297 9.31048C18.3797 9.32048 19.6997 9.32048 20.8297 9.32048C21.3997 9.32048 21.6997 8.65048 21.2997 8.25048C19.8597 6.80048 17.2797 4.19048 15.7997 2.71048Z"
-                  fill="#4B4AD5"
-                />
-              </svg>
+                <div
+                  className={styles.attachOptionIcon}
+                  style={{ backgroundColor: "#EBF1FF" }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      opacity="0.4"
+                      d="M22 7.81V13.9L20.37 12.5C19.59 11.83 18.33 11.83 17.55 12.5L13.39 16.07C12.61 16.74 11.35 16.74 10.57 16.07L10.23 15.79C9.52 15.17 8.39 15.11 7.59 15.65L2.67 18.95L2.56 19.03C2.19 18.23 2 17.28 2 16.19V7.81C2 4.17 4.17 2 7.81 2H16.19C19.83 2 22 4.17 22 7.81Z"
+                      fill="#4B4AD5"
+                    />
+                    <path
+                      d="M9.00012 10.3801C10.3146 10.3801 11.3801 9.31456 11.3801 8.00012C11.3801 6.68568 10.3146 5.62012 9.00012 5.62012C7.68568 5.62012 6.62012 6.68568 6.62012 8.00012C6.62012 9.31456 7.68568 10.3801 9.00012 10.3801Z"
+                      fill="#4B4AD5"
+                    />
+                    <path
+                      d="M21.9996 13.8996V16.1896C21.9996 19.8296 19.8296 21.9996 16.1896 21.9996H7.80957C5.25957 21.9996 3.41957 20.9296 2.55957 19.0296L2.66957 18.9496L7.58957 15.6496C8.38957 15.1096 9.51957 15.1696 10.2296 15.7896L10.5696 16.0696C11.3496 16.7396 12.6096 16.7396 13.3896 16.0696L17.5496 12.4996C18.3296 11.8296 19.5896 11.8296 20.3696 12.4996L21.9996 13.8996Z"
+                      fill="#4B4AD5"
+                    />
+                  </svg>
+                </div>
+                <div className={styles.attachOptionText}>
+                  Upload from gallery
+                </div>
+                <div className={styles.attachOptionArrow}>{rightArrowSvg}</div>
+              </div>
+              <div
+                className={styles.attachOption}
+                onClick={() => handleFileSelect(activeUploadType)}
+              >
+                <div
+                  className={styles.attachOptionIcon}
+                  style={{ backgroundColor: "#E8F2FF" }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="25"
+                    viewBox="0 0 24 25"
+                    fill="none"
+                  >
+                    <path
+                      opacity="0.4"
+                      d="M20.5 10.69H17.61C15.24 10.69 13.31 8.76 13.31 6.39V3.5C13.31 2.95 12.86 2.5 12.31 2.5H8.07C4.99 2.5 2.5 4.5 2.5 8.07V16.93C2.5 20.5 4.99 22.5 8.07 22.5H15.93C19.01 22.5 21.5 20.5 21.5 16.93V11.69C21.5 11.14 21.05 10.69 20.5 10.69Z"
+                      fill="#4B4AD5"
+                    />
+                    <path
+                      d="M15.7997 2.71048C15.3897 2.30048 14.6797 2.58048 14.6797 3.15048V6.64048C14.6797 8.10048 15.9197 9.31048 17.4297 9.31048C18.3797 9.32048 19.6997 9.32048 20.8297 9.32048C21.3997 9.32048 21.6997 8.65048 21.2997 8.25048C19.8597 6.80048 17.2797 4.19048 15.7997 2.71048Z"
+                      fill="#4B4AD5"
+                    />
+                  </svg>
+                </div>
+                <div className={styles.attachOptionText}>Upload from files</div>
+                <div className={styles.attachOptionArrow}>{rightArrowSvg}</div>
+              </div>
             </div>
-            <div className={styles.attachOptionText}>Upload from files</div>
-            <div className={styles.attachOptionArrow}>&gt;</div>
           </div>
         </div>
-      </Drawer>
+      )}
 
       <CommonModal
         isModalOpen={isFileSizeExceeded}

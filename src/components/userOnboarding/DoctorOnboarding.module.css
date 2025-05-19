@@ -693,10 +693,15 @@
 }
 
 .mobileUploadedContainer {
-  border: 1px dashed #6366F1;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
+  display: flex;
+  padding: 1.25rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  align-self: stretch;
+  border-radius: 1rem;
+  border: 1px dashed #4B4AD5;
 }
 
 .mobileUploadedFilePreview {
@@ -837,4 +842,64 @@
 
 .retryButton:hover {
   background-color: #4338CA !important;
+}
+
+/* Custom attachment modal styles */
+.customAttachModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1300;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.customAttachModalContent {
+  background-color: white;
+  width: 100%;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  animation: slideUp 0.3s ease-in-out;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.customAttachModalHeader {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  position: relative;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.customAttachModalTitle {
+  flex: 1;
+  margin-left: 30px;
+  margin-right: 24px;
+  color: #1F2933;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.75rem;
+}
+
+.customAttachModalClose {
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
