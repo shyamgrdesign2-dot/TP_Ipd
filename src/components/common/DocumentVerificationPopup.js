@@ -20,7 +20,7 @@ const DocumentVerificationPopup = () => {
     bothMissing: false,
     idProofMissing: false,
     mrcMissing: false,
-    daysLeft: 3,
+    daysLeft: 0,
   });
   const navigate = useNavigate();
   const { planDetails } = useSelector((state) => state.subscription);
@@ -85,7 +85,7 @@ const DocumentVerificationPopup = () => {
         const idProofExists = !!body?.pi?.doc_url;
         let daysLeft = 0;
         if (planDetails?.onboarding_date) {
-          const deadline = moment(planDetails?.onboarding_date).add(3, "days");
+          const deadline = moment(planDetails?.onboarding_date).add(8, "days");
           daysLeft = Math.ceil(moment(deadline).diff(moment(), "hours") / 24);
         }
 
@@ -142,7 +142,8 @@ const DocumentVerificationPopup = () => {
         <span className={styles.title}>
           {title}
           <span className={styles.daysLeft}>
-            &nbsp;({docStatus.daysLeft} Days left)
+            &nbsp;
+            {docStatus.daysLeft > 0 ? `(${docStatus.daysLeft} Days left)` : ""}
           </span>
         </span>
       </div>
@@ -151,11 +152,17 @@ const DocumentVerificationPopup = () => {
 
   const getPopupContent = () => {
     if (docStatus.bothMissing) {
-      return `Complete your profile by uploading proof or else you access will be blocked in ${docStatus.daysLeft} days`;
+      return `Complete your profile by uploading proof or else you access will be blocked ${
+        docStatus.daysLeft > 0 ? `in ${docStatus.daysLeft} days` : ""
+      }`;
     } else if (docStatus.idProofMissing) {
-      return `Complete your profile by uploading ID proof or else you access will be blocked in ${docStatus.daysLeft} days`;
+      return `Complete your profile by uploading ID proof or else you access will be blocked ${
+        docStatus.daysLeft > 0 ? `in ${docStatus.daysLeft} days` : ""
+      }`;
     } else if (docStatus.mrcMissing) {
-      return `Complete your profile by uploading MRC Certificate or else you access will be blocked in ${docStatus.daysLeft} days`;
+      return `Complete your profile by uploading MRC Certificate or else you access will be blocked ${
+        docStatus.daysLeft > 0 ? `in ${docStatus.daysLeft} days` : ""
+      }`;
     }
     return "";
   };
