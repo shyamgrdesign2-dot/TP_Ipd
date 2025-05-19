@@ -24,6 +24,7 @@ const UploadProofStep = ({
   const [isFileSizeExceeded, setIsFileSizeExceeded] = useState(false);
   const [isFileFormatNotSupported, setIsFileFormatNotSupported] =
     useState(false);
+  const [selectedFileExtension, setSelectedFileExtension] = useState("");
 
   // Listen for window resize to update mobile state
   useEffect(() => {
@@ -54,6 +55,7 @@ const UploadProofStep = ({
       file.type === "application/pdf";
 
     if (!isJpgOrPngOrPdf) {
+      setSelectedFileExtension(file.name.split(".").pop());
       setIsFileFormatNotSupported(true);
       return false;
     }
@@ -89,6 +91,7 @@ const UploadProofStep = ({
       file.type === "application/pdf";
 
     if (!isJpgOrPngOrPdf) {
+      setSelectedFileExtension(file.name.split(".").pop());
       setIsFileFormatNotSupported(true);
       return false;
     }
@@ -270,14 +273,26 @@ const UploadProofStep = ({
                     src={governmentIdFile.url}
                     alt={governmentIdFile.name}
                     style={{
-                      width: isMobile ? 100 : 48,
-                      height: isMobile ? 65 : 64,
+                      width: isMobile ? 300 : 48,
+                      height: isMobile ? 120 : 64,
                       objectFit: "cover",
-                      borderRadius: 6,
+                      borderRadius: "0.5rem",
                     }}
                   />
                 ) : governmentIdFile.type === "application/pdf" ? (
-                  <FileOutlined style={{ fontSize: 36, color: "#22c55e" }} />
+                  <div style={{ position: "relative" }}>
+                    <iframe
+                      src={governmentIdFile.url}
+                      title="Government ID PDF"
+                      style={{
+                        width: isMobile ? 300 : "2.03556rem",
+                        height: isMobile ? 120 : "2.86763rem",
+                        border: "none",
+                        // borderRadius: "0.5rem",
+                        marginTop: "1rem",
+                      }}
+                    ></iframe>
+                  </div>
                 ) : (
                   <FileOutlined style={{ fontSize: 36, color: "#22c55e" }} />
                 )}
@@ -389,14 +404,26 @@ const UploadProofStep = ({
                     src={mrcFile.url}
                     alt={mrcFile.name}
                     style={{
-                      width: isMobile ? 100 : 48,
-                      height: isMobile ? 65 : 64,
+                      width: isMobile ? 300 : 48,
+                      height: isMobile ? 120 : 64,
                       objectFit: "cover",
                       borderRadius: 6,
                     }}
                   />
                 ) : mrcFile.type === "application/pdf" ? (
-                  <FileOutlined style={{ fontSize: 36, color: "#22c55e" }} />
+                  <div style={{ position: "relative" }}>
+                    <iframe
+                      src={mrcFile.url}
+                      title="MRC Certificate PDF"
+                      style={{
+                        width: isMobile ? 300 : "2.03556rem",
+                        height: isMobile ? 120 : "2.86763rem",
+                        border: "none",
+                        // borderRadius: "0.5rem",
+                        marginTop: "1rem",
+                      }}
+                    ></iframe>
+                  </div>
                 ) : (
                   <FileOutlined style={{ fontSize: 36, color: "#22c55e" }} />
                 )}
@@ -622,8 +649,8 @@ const UploadProofStep = ({
                 <img className="me-3" src={alertIcon} alt="Warning" />
               </div>
               <div className={styles.warningMessage}>
-                You can't upload <strong>.txt</strong> file. Only PDF, JPG,
-                JPEG, and PNG formats are accepted.
+                You can't upload <strong>.{selectedFileExtension}</strong> file.
+                Only PDF, JPG, JPEG, and PNG formats are accepted.
               </div>
             </div>
             <Button

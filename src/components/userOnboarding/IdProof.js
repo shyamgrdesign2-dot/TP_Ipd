@@ -17,6 +17,7 @@ const IdProof = ({
   const [isFileSizeExceeded, setIsFileSizeExceeded] = useState(false);
   const [isFileFormatNotSupported, setIsFileFormatNotSupported] =
     useState(false);
+  const [selectedFileExtension, setSelectedFileExtension] = useState("");
 
   const handleUpload = (file) => {
     // Validate file type and size
@@ -27,6 +28,7 @@ const IdProof = ({
 
     if (!isJpgOrPngOrPdf) {
       setIsFileFormatNotSupported(true);
+      setSelectedFileExtension(file.name.split(".").pop());
       return false;
     }
 
@@ -34,6 +36,7 @@ const IdProof = ({
     const isLt8M = file.size / 1024 / 1024 < 8;
     if (!isLt8M) {
       setIsFileSizeExceeded(true);
+      setSelectedFileExtension(file.name.split(".").pop());
       return false;
     }
 
@@ -218,8 +221,8 @@ const IdProof = ({
                 <img className="me-3" src={alertIcon} alt="Warning" />
               </div>
               <div className={styles.warningMessage}>
-                You can't upload <strong>.txt</strong> file. Only PDF, JPG,
-                JPEG, and PNG formats are accepted.
+                You can't upload <strong>.{selectedFileExtension}</strong> file.
+                Only PDF, JPG, JPEG, and PNG formats are accepted.
               </div>
             </div>
             <Button

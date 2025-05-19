@@ -268,7 +268,7 @@ const DoctorOnboarding = ({
       ),
     },
     {
-      title: "Upload ID",
+      title: "Upload Proof",
       content: (
         <UploadProofStep
           formData={formData}
