@@ -46,6 +46,7 @@ const DoctorOnboarding = ({
     governmentIdProof: null,
     mrcCertificate: null,
   });
+  const [doctorData, setDoctorData] = useState({});
   const navigate = useNavigate();
   const { state } = useLocation();
   const clinicDetails = state?.clinicDetails;
@@ -167,7 +168,7 @@ const DoctorOnboarding = ({
 
       // Store the onboarding ID for future API calls
       setUserOnboardingId(response.id);
-
+      setDoctorData(response);
       // Pre-fill form data from response
       let updatedFormData = { ...formData };
 
@@ -337,7 +338,7 @@ const DoctorOnboarding = ({
 
   const handleFinalizeOnboarding = async () => {
     // Only submit when moving from step 1 (Clinic Details) to step 2 (Upload ID)
-    if (currentStep !== 1) {
+    if (currentStep !== 1 || !!localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN)) {
       return true;
     }
 
@@ -386,7 +387,6 @@ const DoctorOnboarding = ({
           PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
           JSON.stringify(response.token)
         );
-        console.log("Token updated in localStorage");
       }
 
       return true;
@@ -606,6 +606,7 @@ const DoctorOnboarding = ({
               ]}
               currentStep={currentStep}
               onStepClick={handleStepClick}
+              doctorData={doctorData}
             />
           </div>
         </div>
