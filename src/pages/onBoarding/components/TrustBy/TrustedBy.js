@@ -6,9 +6,9 @@ const TrustBy = () => {
   const logos = [
     require('../../../../assets/images/website-images/Apollo.png'),
     require('../../../../assets/images/website-images/ApolloCradleLogo.png'),
-    require('../../../../assets/images/website-images/MunshiHospitalLogo.png'),
+    require('../../../../assets/images/onboard-page-icons/MunshiHosLogo.png'),
     require('../../../../assets/images/website-images/ZydusLogo.png'),
-    require('../../../../assets/images/website-images/clincsLogo.png'),
+    require('../../../../assets/images/onboard-page-icons/HospitalsLogo.png'),
   ];
 
   return (

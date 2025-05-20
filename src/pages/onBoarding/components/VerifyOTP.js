@@ -200,8 +200,6 @@ const VerifyOTP = ({
             </svg>
           </div>
 
-          {error && <div className="error-message">{error}</div>}
-
           <Form.Item
             name="otp"
             rules={[{ required: true, message: "Please input the OTP!" }]}
@@ -214,6 +212,8 @@ const VerifyOTP = ({
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
             />
           </Form.Item>
+
+          {error && <div className="error-message">{error}</div>}
 
           <div
             className="resend-otp"
