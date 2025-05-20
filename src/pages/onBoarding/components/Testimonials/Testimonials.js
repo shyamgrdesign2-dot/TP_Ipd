@@ -2,24 +2,28 @@ import React, { useState, useRef, useEffect } from "react";
 import "./Testimonials.scss";
 import testimonialIcon from "../../../../assets/images/onboard-page-icons/LP-Testimonial-icon.svg";
 import profile from "../../../../assets/images/default-profile.svg";
+import doc1 from "../../../../assets/images/onboard-page-icons/testimonialDoc1.png";
+import doc2 from "../../../../assets/images/onboard-page-icons/testimonialDoc2.png";
+import Apexhos from "../../../../assets/images/onboard-page-icons/ApexHosLogo.png";
+import NavjivanHosLogo from "../../../../assets/images/onboard-page-icons/NavjivanHosLogo.png";
 
 const Testimonials = () => {
   const testimonials = [
     {
       name: "Dr Nisheet Dave",
       qualification: "Orthopaedic",
-      image: "",
+      image: doc1,
       rating: 5,
-      hospitalLogo: "/images/hospitals/zydus.png",
+      hospitalLogo: Apexhos,
       review:
         "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
     },
     {
       name: "Dr. Ashish Patel",
       qualification: "Emergency physician & Intensivist",
-      image: "",
+      image: doc2,
       rating: 5,
-      hospitalLogo: "",
+      hospitalLogo: NavjivanHosLogo,
       review:
         "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
     },
@@ -28,7 +32,7 @@ const Testimonials = () => {
       qualification: "Orthopaedic",
       image: "",
       rating: 5,
-      hospitalLogo: "/images/hospitals/zydus.png",
+      hospitalLogo: "",
       review:
         "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
     },
@@ -139,11 +143,13 @@ const Testimonials = () => {
                     </div>
                   </div>
                 </div>
-                {/* <img
-                  src={testimonial.hospitalLogo}
-                  alt="Hospital"
-                  className="hospital-logo"
-                /> */}
+                {testimonial.hospitalLogo && (
+                  <img
+                    src={testimonial.hospitalLogo}
+                    alt="Hospital"
+                    className="hospital-logo"
+                  /> 
+                )}
               </div>
               <p className="testimonial-text">{testimonial.review}</p>
             </div>
