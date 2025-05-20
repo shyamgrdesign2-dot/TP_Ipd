@@ -3,7 +3,7 @@ import { Input, message } from "antd";
 import styles from "../DoctorOnboarding.module.css";
 import currentLocation from "../../../assets/images/current-location.svg";
 import config from "../../../config";
-
+import { useLocation } from "react-router-dom";
 const { TextArea } = Input;
 
 const ClinicDetailsStep = ({ formData, setFormData }) => {
@@ -12,6 +12,8 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
   const [detectedLocation, setDetectedLocation] = useState("");
   const [coordsDetected, setCoordsDetected] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const { state } = useLocation();
+  const clinicDetails = state?.clinicDetails;
 
   // Listen for window resize to update mobile state
   useEffect(() => {
@@ -226,7 +228,7 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
             fontSize: "16px",
           }}
           className={styles.focusedInput}
-          // disabled={formData.clinic_id && formData.hm_business_id}
+          disabled={clinicDetails}
         />
       </div>
 
@@ -279,6 +281,7 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
                 </div>
               )
             }
+            disabled={clinicDetails}
           />
           {detectedLocation && (
             <div
@@ -335,6 +338,7 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
             lineHeight: "1.5",
           }}
           className={styles.focusedInput}
+          disabled={clinicDetails}
         />
       </div>
     </div>
