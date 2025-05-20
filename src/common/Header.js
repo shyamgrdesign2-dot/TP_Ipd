@@ -121,10 +121,11 @@ function Header({ locationPath }) {
   }, [isZydusUserAccessableFromGB]);
 
   useEffect(() => {
-    if (hasLocation === false && !isReceptionist) {
-      navigate('/final-setup?noLocation=true', { replace: true });
+    if (profile && hasLocation === false && !isReceptionist) {
+      const clinicDetails = profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id);
+      navigate('/final-setup?noLocation=true', { replace: true, state: { clinicDetails } });
     }
-  }, [hasLocation, navigate, isReceptionist]);
+  }, [hasLocation, navigate, isReceptionist, profile]);
 
   useEffect(() => {
     if (profile) {
