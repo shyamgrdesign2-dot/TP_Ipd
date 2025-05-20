@@ -59,6 +59,18 @@ export const searchModule = createAsyncThunk(
   }
 );
 
+export const userPreModulesRX = createAsyncThunk(
+  "customModules/userPreModulesRX",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await ApiCustomModule.userPreModulesRX(data);
+      return response; // Assuming the API returns the added module data
+    } catch (error) {
+      return rejectWithValue(error.response.data); // Handle API errors
+    }
+  }
+);
+
 const customModuleSlice = createSlice({
   name: "customModules",
   initialState: {
