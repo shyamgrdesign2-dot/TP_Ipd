@@ -4,6 +4,8 @@ import "./Onboarding.scss";
 import abdmLogo from "../../../assets/images/abdm-logo.svg";
 import nhaLogo from "../../../assets/images/nha-logo.svg";
 import googlePartner from "../../../assets/images/website-images/image.png";
+import leftGroup from "../../../assets/images/onboard-page-icons/Left-Group.svg";
+import rightGroup from "../../../assets/images/onboard-page-icons/Right-Group.svg";
 import { loginWithPassword, verifyAccessToken } from "../../auth/authService";
 import { isMobile } from "react-device-detect";
 
@@ -34,6 +36,11 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
         default:
           // Handle successful login with SSO URL
           if (ssoUrl) {
+            // Clear localStorage on successful login
+            localStorage.removeItem("currentView");
+            localStorage.removeItem("isLoginFlow");
+            localStorage.removeItem("isUserExists");
+
             const updatedSsoUrl = isMobile
               ? `${ssoUrl}&device_type=mobile`
               : `${ssoUrl}&device_type=desktop`;
@@ -53,20 +60,13 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
   };
 
   const handleGoBack = () => {
-    // // Reset the MSG91 provider before navigating
-    // const msg91Provider = document.querySelector('msg91-otp-provider');
-    // if (msg91Provider) {
-    //   try {
-    //     if (msg91Provider.disconnectedCallback) {
-    //       msg91Provider.disconnectedCallback();
-    //     }
-    //     msg91Provider.remove();
-    //   } catch (e) {
-    //     console.error('Error removing MSG91 provider:', e);
-    //   }
-    // }
+    // Store current state in localStorage
+    localStorage.setItem("currentView", "loginOTP");
+    localStorage.setItem("isLoginFlow", "true");
+    localStorage.setItem("mobileNumber", mobileNumber);
     
-    onViewChange("loginOTP", mobileNumber);
+    // Refresh the page
+    window.location.reload();
   };
 
   return (
@@ -170,6 +170,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
 
           <Button
             type="primary"
+            loading={loading}
             onClick={handleLogin}
             className="login-btn"
             disabled={!password}
@@ -184,6 +185,8 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
       </div>
       <div style={{height: "2rem"}}></div>
       <div className="partners-section">
+      <div className="partners-section">
+        <img src={leftGroup} alt="Lines Group" className="left-lines-group" />
         <img src={abdmLogo} alt="ABDM" className="abdm-logo" />
         <img src={nhaLogo} alt="NHA" className="nha-logo" />
         <img
@@ -191,6 +194,8 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
           alt="Google Partner"
           className="google-partner"
         />
+        <img src={rightGroup} alt="Lines Group" className="right-lines-group" />
+      </div>
       </div>
     </div>
   );

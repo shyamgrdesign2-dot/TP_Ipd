@@ -121,7 +121,7 @@
           width: 100%;
 
           img {
-            width: 100%;
+            // width: 100%;
             height: 18rem !important;
             object-fit: contain;
           }
@@ -269,6 +269,7 @@
 
           h1 {
             margin-bottom: 0 !important;
+            font-size: 2.8rem !important;
           }
         }
 
@@ -287,7 +288,7 @@
       button {
         position: absolute !important;
         bottom: 0 !important;
-        left: 35% !important;
+        left: 32.5% !important;
       }
     }
   }
@@ -434,8 +435,7 @@
         h1 {
           font-family: "Playfair Display" !important;
           font-size: 48px;
-          line-height: 1;
-          margin-bottom: 16px;
+          line-height: 1.2 !important;          // margin-bottom: 16px;
           color: #1A1A1A;
         }
       }
@@ -445,8 +445,8 @@
         // margin: 0 auto;
 
         img {
-          width: 100%;
-          height: 30rem;
+          // width: 100%;
+          max-height: 30rem;
           object-fit: fill;
         }
       }
@@ -458,11 +458,11 @@
     text-align: center;
 
     button {
-      background: #F5F3FF;
+      border-radius: 1rem 1rem 0rem 0rem;
+      background: linear-gradient(180deg, #4B4AD5 -46.25%, rgba(75, 74, 213, 0.50) 207.5%);
       border: none;
       padding: 12px 24px;
-      border-radius: 8px;
-      color: #6B46C1;
+      color: #fff !important;
       font-weight: 500;
       display: flex;
       align-items: center;
@@ -471,12 +471,28 @@
       cursor: pointer;
       position: absolute;
       bottom: 0;
-      left: 40%;
+      left: 37.8%;
 
-      &:hover {
-        background: #EDE9FE;
+      // &:hover {
+      //   background: #EDE9FE;
+      // }
+
+      .scroll-arrow {
+        width: 20px;
+        height: 20px;
+        transform: rotate(270deg);
+        animation: bounce 1s infinite;
       }
     }
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: rotate(270deg) translateX(0);
+  }
+  50% {
+    transform: rotate(270deg) translateX(-3px);
   }
 }
 
@@ -508,7 +524,7 @@
       font-weight: 600;
       letter-spacing: 0.01563rem;
       margin-top: 1.5rem;
-      margin-bottom: 3.5rem;
+      margin-bottom: 2rem;
 
       .highlight {
         color: #F5F3FF;
@@ -1399,7 +1415,6 @@
 }
 
 .floating-signup-content {
-  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -1459,4 +1474,12 @@
   to {
     transform: translateY(0);
   }
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh !important;
+  width: 100%;
 }
