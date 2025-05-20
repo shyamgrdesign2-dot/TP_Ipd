@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Upload, Drawer } from "antd";
+import { Button, Upload } from "antd";
 import { FileOutlined } from "@ant-design/icons";
 import styles from "../DoctorOnboarding.module.css";
 import { CloudUploadOutlined } from "@ant-design/icons";

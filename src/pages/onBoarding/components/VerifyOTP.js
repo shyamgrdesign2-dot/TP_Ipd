@@ -8,7 +8,7 @@ import googlePartner from "../../../assets/images/website-images/image.png";
 import { verifyAccessToken } from "../../auth/authService";
 import { setPassword } from "../../auth/authService";
 import { loginWithPassword } from "../../auth/authService";
-import useOnboardingTrigger from "../../../components/userOnboarding/useOnboardingTrigger";
+import { useNavigate } from "react-router-dom";
 
 const VerifyOTP = ({
   onViewChange,
@@ -24,7 +24,7 @@ const VerifyOTP = ({
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { triggerOnboarding } = useOnboardingTrigger();
+  const navigate = useNavigate();
   const [resendReqId, setResendReqId] = useState(null);
 
   useEffect(() => {
@@ -129,7 +129,7 @@ const VerifyOTP = ({
                 setError("Failed to verify access token. Please try again.");
               }
             } else {
-              triggerOnboarding();
+                navigate("/final-setup")
             }
           },
           (error) => {
