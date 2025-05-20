@@ -37,7 +37,7 @@ import CashManagerContext from "../context/CashManagerContext";
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 import ModuleIcon from "../assets/images/custom-module.svg";
 import { MenuOutlined } from "@ant-design/icons";
-import { addModule, clearSearchResults, searchModule } from "../redux/customModuleSlice";
+import { addModule, clearSearchResults, searchModule, userPreModulesRX } from "../redux/customModuleSlice";
 
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import editIcon from "../assets/images/edit-icon-blue.svg";
@@ -46,6 +46,7 @@ import TextArea from "antd/es/input/TextArea";
 import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
+import { getDecodedToken } from "../utils/localStorage";
 
 function CustomModule({ module }) {
   const { customModules, searchModuleResults, loading } = useSelector(
@@ -54,8 +55,9 @@ function CustomModule({ module }) {
   const { userId } = useSelector((state) => state.doctors);
 
   const dispatch = useDispatch();
+  const decodedToken = getDecodedToken();
 
-  const { customModuleContents, setCustomModuleContents } =
+  const { customModuleContents, setCustomModuleContents, patient_data, tcmId } =
     useContext(CashManagerContext);
 
   //PopOver1
@@ -168,23 +170,23 @@ function CustomModule({ module }) {
       );
       return moduleExists
         ? prevContents.map((content) => {
-            if (content.module_id === module.module_id) {
-              return {
-                ...content,
-                module_name: module.name,
-                content: updatedContent,
-              };
-            }
-            return content;
-          })
-        : [
-            ...prevContents,
-            {
-              module_id: module.module_id,
+          if (content.module_id === module.module_id) {
+            return {
+              ...content,
               module_name: module.name,
               content: updatedContent,
-            },
-          ];
+            };
+          }
+          return content;
+        })
+        : [
+          ...prevContents,
+          {
+            module_id: module.module_id,
+            module_name: module.name,
+            content: updatedContent,
+          },
+        ];
     });
   };
 
@@ -262,6 +264,34 @@ function CustomModule({ module }) {
       setMatchedTemplates(filteredTemplates);
     } else {
       setMatchedTemplates(templates);
+    }
+  };
+
+  const loadPreviousClick = async () => {
+    const tokenData = decodedToken?.result;
+    var sendData = {
+      module_id: module?.module_id,
+      hm_business_id: tokenData?.hospital_business_id,
+      um_id: tokenData?.user_id,
+      patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      tcm_id: tcmId,
+    };
+    const action = await dispatch(userPreModulesRX(sendData));
+    if (action.meta.requestStatus === "fulfilled") {
+
+      const updatedData = action.payload?.moduleContents[0]?.content.map((e) => {
+        return { ...e, unique_id: uuidv4(), notes: e.notes || "" };
+      });
+      // Find the module's existing content and update it
+      const updatedModuleData = [
+        ...moduleData?.filter((e) => e.title || e.notes),
+        ...updatedData,
+      ];
+      // Update the parent state with the new module contents
+      updateCustomModuleContents(updatedModuleData);
+
+    } else {
+      errorMessage(action.error)
     }
   };
 
@@ -570,9 +600,8 @@ function CustomModule({ module }) {
                       {...provided.draggableProps}
                       key={index}
                       gutter={[0]}
-                      className={`${
-                        index === 0 && "mt-14 border-top"
-                      } align-items-center border-bottom`}
+                      className={`${index === 0 && "mt-14 border-top"
+                        } align-items-center border-bottom`}
                     >
                       <Col lg={1} md={1} sm={1} xs={1} className="text-center">
                         <MenuOutlined
@@ -681,9 +710,8 @@ function CustomModule({ module }) {
                     <div className="text-truncate">
                       {template?.content?.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.title || item.notes}${
-                            template.content.length - 1 != ii ? ", " : ""
-                          }`}</span>
+                          <span key={ii}>{`${item.title || item.notes}${template.content.length - 1 != ii ? ", " : ""
+                            }`}</span>
                         );
                       })}
                     </div>
@@ -782,11 +810,10 @@ function CustomModule({ module }) {
                     <div className="text-truncate">
                       {JSON.parse(option.data.key).content.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.title}${
-                            JSON.parse(option.data.key).content.length - 1 != ii
+                          <span key={ii}>{`${item.title}${JSON.parse(option.data.key).content.length - 1 != ii
                               ? ", "
                               : ""
-                          }`}</span>
+                            }`}</span>
                         );
                       })}
                     </div>
@@ -1002,7 +1029,15 @@ function CustomModule({ module }) {
               <img className="me-2" src={ModuleIcon} alt={module?.name} />
               <div className="title-common">{module?.name}</div>
             </div>
+
             <div className="d-flex align-items-center">
+              <button
+                className="btn d-flex align-items-center btn-text"
+                onClick={loadPreviousClick}
+              >
+                {" "}
+                <i className="icon-reload me-2"></i> <span>Load Prev. data</span>
+              </button>
               <Popover
                 open={popOver1}
                 onOpenChange={showHideTemplatesListPopover}
