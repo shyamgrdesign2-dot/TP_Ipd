@@ -75,6 +75,7 @@
     margin: 1rem 1rem;
     flex: 0 0 400px;
     min-width: 400px;
+    max-height: 17rem;
     background: white;
     padding: 2rem;
     border-radius: 16px;
@@ -118,11 +119,13 @@
     }
 
     .rating {
+
       .star {
-        color: #D0D5DD;
+        padding: 0 0.1rem 0 0;
+        color: #d0d0d0 !important;
 
         &.filled {
-          color: #FDB022;
+          color: #FF7A00 !important;
         }
       }
     }

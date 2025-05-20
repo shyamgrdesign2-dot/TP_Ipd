@@ -169,7 +169,7 @@ const featureCardConfig = {
         ],
         image: VoiceRx
       },
-      "Tatva Assist": {
+      "Tatva Ai": {
         heading: <>AI-Powered<br/>Platform for Doctors</>,
         points: [
           {
