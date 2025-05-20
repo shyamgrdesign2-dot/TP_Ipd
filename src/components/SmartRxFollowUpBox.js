@@ -10,11 +10,10 @@ import CashManagerContext from '../context/CashManagerContext';
 import { errorMessage, getFormattedDate, onlyNumberFormat, capitalizeAfterSentence, removeBeforeWhiteSpace } from "../utils/utils";
 import dayjs from "dayjs";
 import followUp from "../assets/images/followup.svg";
-import others from "../assets/images/custom-module.svg";
 
 const dateFormat = 'YYYY-MM-DD'
 
-function SmartRxFollowUpBox({isNotes = false}) {
+function SmartRxFollowUpBox() {
     const {
         // selectedAdviceList,
         templates,
@@ -102,17 +101,7 @@ function SmartRxFollowUpBox({isNotes = false}) {
 
     return (
         <>
-            {isNotes ? (
-                <div style={{ padding: "6px" }}>
-                    <div className="d-flex align-items-center mb-14">
-                        <img className="me-3" src={others} alt="others" />
-                        <div className="title-common">Others</div>
-                     </div>
-                    <div className="d-flex calender-merge-input mt-3" style={{fontSize: 14}}>
-                        {selectedSymptomsCollector?.notes}
-                    </div>
-                </div>
-            ) : <div style={{padding: "6px"}}>
+            <div style={{padding: "6px"}}>
                 <div className="d-flex align-items-center mb-14">
                     <img className='me-3' src={followUp} alt="Symptoms" />
                     <div className="title-common">Follow-up</div>
@@ -134,7 +123,7 @@ function SmartRxFollowUpBox({isNotes = false}) {
                             )
                         })}
                 </div>  
-            </div>}
+            </div>
         </>
     );
 }

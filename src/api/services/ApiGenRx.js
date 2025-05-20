@@ -69,7 +69,7 @@ export const checkSymptomsCollectorTour = async function (payload) {
       payload,
       symptomsCollectorBaseUrl
     );
-    res = res?.pam_ids?.length > 0;
+    res = res?.pam_ids?.length === 1;
   } catch (e) {
     console.error("Error while checking symptoms collector tour: ", e);
   }

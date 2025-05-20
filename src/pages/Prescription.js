@@ -137,6 +137,7 @@ function Prescription() {
   );
   const dispatch = useDispatch();
   const decodedToken = getDecodedToken();
+  const tokenData = decodedToken?.result;
 
   const { state } = useLocation();
   const { patient_data, send_path, caseManagerData } = state;
@@ -667,8 +668,17 @@ function Prescription() {
 
   useEffect(() => {
     getLabParams();
-    getSymptomsCollectorData();
   }, []);
+
+  useEffect(() => {
+    if (
+      (tokenData?.hospital_business_id == env.zydus_business_id &&
+      isZydusUserAccessableFromGB) || true
+    ) {
+      getSymptomsCollectorData();
+    }
+  }, []);
+
 
   const getSymptomsCollectorData = async () => {
     const payload = {
@@ -685,8 +695,10 @@ function Prescription() {
     const response = await fetchSymptomsCollectorData(payload);
     if (response && Object.keys(response)?.length > 0) {
       dispatch(setSymptomCollector(response?.summary_json_doctor));
-      dispatch(setShowSCPopup(true));
       setShowSCBanner(true);
+      if (patient_data?.pam_status === "0") {
+        dispatch(setShowSCPopup(true));
+      }
     }
   };
 
@@ -1247,7 +1259,7 @@ function Prescription() {
                   )}
                   </Carousel>
                 } */}
-                {showSCBanner && !isAutofillSelected && <SCBanner handleBanner={() => setShowSCBanner(false)} />}
+                {showSCBanner && <SCBanner handleBanner={() => setShowSCBanner(false)} />}
                 {customizedPadRightList?.map((e, i) => {
                   const customModule = customModules?.find(
                     (m) => m.module_id === e.tmdpm_id

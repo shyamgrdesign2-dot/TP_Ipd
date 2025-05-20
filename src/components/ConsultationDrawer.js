@@ -15,7 +15,6 @@ import micIcon from "../assets/images/mic-gen-rx.svg";
 import pauseIcon from "../assets/images/pause.svg";
 import {
   editGenRxDetails,
-  fetchSymptomsCollectorData,
   generateRx,
   getGenRx,
   updateGenRx,
@@ -129,9 +128,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         medicalHistory: selectedSymptomsCollector.medicalHistory.flatMap(
           (obj) => obj.items
         ),
-      }),
-      ...(selectedSymptomsCollector?.notes && {
-        others: [selectedSymptomsCollector.notes],
       }),
     };
   };
@@ -1367,7 +1363,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
               )}
             </div>
           </div>
-          {showSCBanner && !showPrescription && !isAutofillSelected && (
+          {showSCBanner && !showPrescription && (
             <div style={{ margin: "20px 30px" }}>
               <SCBanner handleBanner={() => setShowSCBanner(false)} />
             </div>

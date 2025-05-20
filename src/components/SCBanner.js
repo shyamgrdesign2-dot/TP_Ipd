@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import speak from "../assets/images/speak.svg";
+import scStrip from "../assets/images/sc-banner-strip.png";
 import { useDispatch } from "react-redux";
 import { setShowSCPopup } from "../redux/ddxSlice";
 
@@ -18,7 +18,13 @@ const SCBanner = ({ handleBanner }) => {
       <div className="d-flex w-100">
         <div style={{ fontSize: 16 }}>
           <div className="d-flex align-items-center">
-            <img src={speak} alt="speak" className="me-2" />
+            <img
+              src={scStrip}
+              alt="scStrip"
+              width={45}
+              height={45}
+              className="me-2"
+            />
             <span>
               Hey! You’ve received <b style={{ fontWeight: 600 }}>symptoms</b>{" "}
               and <b style={{ fontWeight: 600 }}>medical history</b> details

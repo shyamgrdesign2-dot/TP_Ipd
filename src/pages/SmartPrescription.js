@@ -15,6 +15,7 @@ import {
   SMART_RX_UPLOAD,
   WEBSOCKET_ERROR_MESSAGE,
   PAEDIATRICS,
+  GB_ZYDUS_USER,
 } from "../utils/constants";
 
 import ReconnectingWebSocket from "reconnectingwebsocket";
@@ -139,6 +140,7 @@ function SmartPrescription() {
       item?.enablePrint)
   );
   const dispatch = useDispatch();
+  const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
 
   const { state } = useLocation();
   const { patient_data, send_path, caseManagerData, smartRxFilesData, pam_id } = state;
@@ -465,7 +467,11 @@ function SmartPrescription() {
   }, []);
 
   useEffect(() => {
-    if (tokenData) {
+    if (
+      (tokenData &&
+      tokenData?.hospital_business_id == env.zydus_business_id &&
+      isZydusUserAccessableFromGB) || true
+    ) {
       getSymptomsCollectorData();
     }
   }, [tokenData]);
@@ -485,8 +491,10 @@ function SmartPrescription() {
     const response = await fetchSymptomsCollectorData(payload);
     if (response && Object.keys(response)?.length > 0) {
       dispatch(setSymptomCollector(response?.summary_json_doctor));
-      dispatch(setShowSCPopup(true));
       setShowSCBanner(true);
+      if (patient_data?.pam_status === "0") {
+        dispatch(setShowSCPopup(true));
+      }
     }
   };
 
@@ -1642,13 +1650,10 @@ function SmartPrescription() {
                     </div>
                   </div>
                 )}
-              {showSCBanner && !isAutofillSelected && (
+              {showSCBanner && (
                 <SCBanner handleBanner={() => setShowSCBanner(false)} />
               )}
               {CUSTOMIZED_PAD_LEFT_LIST()}
-              {selectedSymptomsCollector?.notes && <div className="prescription-box-sm p-14">
-                <SmartRxFollowUpBox isNotes={true} />
-              </div>}
               <div className="prescription-box-sm p-14">
                 <SmartRxFollowUpBox />
               </div>
