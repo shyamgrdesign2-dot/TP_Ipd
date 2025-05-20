@@ -372,6 +372,9 @@ const doctorsSlice = createSlice({
         state.dragDrop = {}
       }
     },
+    updateHasLocation: (state, action) => {
+      state.hasLocation = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -592,5 +595,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop } = doctorsSlice.actions
+export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop, updateHasLocation } = doctorsSlice.actions
 export default doctorsSlice.reducer;

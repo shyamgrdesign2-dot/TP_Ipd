@@ -15,8 +15,6 @@ import Hook1 from "../../../assets/images/website-images/Hook1.png";
 import Logo from "../../../assets/images/website-images/logo.png";
 import "./Onboarding.scss";
 import "./FeatureTabCard/FeatureTabCard.scss";
-import { OnboardingProvider } from "../../../components/userOnboarding/OnboardingContext";
-import OnboardingDrawer from "../../../components/userOnboarding/OnboardingDrawer";
 import { getUtmParams } from "../../../components/userOnboarding/services/userDataService.js";
 import { Spin } from 'antd';
 
@@ -145,9 +143,7 @@ const Onboarding = () => {
   }
 
   return (
-    <OnboardingProvider>
       <>
-        <OnboardingDrawer />
         {showFloatingSignup && (
           <div className="floating-signup-container">
             <div className="floating-signup-content">
@@ -280,7 +276,6 @@ const Onboarding = () => {
           </div>
         </div>
       </>
-    </OnboardingProvider>
   );
 };
 
