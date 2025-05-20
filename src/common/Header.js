@@ -944,7 +944,7 @@ function Header({ locationPath }) {
         {LOGO_MODAL}
         <Nav className="ms-auto align-items-center d-flex">
           {HOSPITAL_DATA}
-          {profile && profile.SwitchGrowthBook != 0 && (
+          {profile && profile.SwitchGrowthBook != 0 && tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB && (
             <div onClick={checkModalOpenOrClose} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
               <i className='icon-switch me-2'></i>
               <span className="text-decoration-underline">Switch To Old View</span>
