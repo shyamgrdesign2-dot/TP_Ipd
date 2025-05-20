@@ -24,12 +24,13 @@
   }
 
   .faq-item {
-    background: white;
-    border-radius: 16px;
-    padding: 1.5rem;
+    padding: 1.2rem 2rem;
     cursor: pointer;
-    border: 1px solid #F2F4F7;
     transition: all 0.3s ease;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(128, 119, 183, 0.10);
+    background: #FFF;
+    box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.06);
 
     &:hover {
       border-color: #E9D7FE;
@@ -54,8 +55,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      color: #6941C6;
       font-weight: 500;
+
+      span{
+        color: #8077B7 !important;
+      }
 
       .arrow {
         font-size: 0.8rem;
@@ -68,7 +72,7 @@
       opacity: 0;
       overflow: hidden;
       transition: all 0.3s ease;
-      color: #475467;
+      color: #8077B7 !important;
     }
   }
 }

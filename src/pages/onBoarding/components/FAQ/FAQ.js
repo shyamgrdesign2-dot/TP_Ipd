@@ -7,34 +7,56 @@ const FAQ = () => {
 
   const faqData = [
     {
-      question: "How secure is my data?",
-      answer:
-        "Your data is protected with enterprise-grade security measures including encryption and secure servers.",
+      question: "What is the purpose of the government ID proof validation process?",
+      answer: "The government ID proof validation process is essential for ensuring the authenticity and legitimacy of the doctors onboarded onto our platform. It helps maintain compliance with regulatory requirements and ensures the security of our services.",
     },
     {
-      question: "Is there an additional fee for this support program?",
-      answer:
-        "No, all support services are included in your standard subscription.",
+      question: "How long is my account valid after onboarding?",
+      answer: "Your account is valid for 30 days after onboarding. During this period, you'll need to complete certain milestones, such as uploading your MCI certificate, to continue accessing certain features.",
     },
     {
       question: "Who is eligible for this support program?",
-      answer:
-        "All registered healthcare professionals can access our support program.",
+      answer: "All registered healthcare professionals can access our support program.",
     },
     {
-      question: "What kind of support is available?",
-      answer:
-        "We offer 24/7 technical support, training, and dedicated account management.",
+      question: "What happens after the 30-day validity period?",
+      answer: "After the 30-day validity period, your account will undergo changes in access privileges. It's important to complete the required milestones within this period to avoid any disruptions in service.",
     },
     {
-      question: "How can I get started?",
-      answer:
-        "Simply sign up and our team will guide you through the onboarding process.",
+      question: "How do I upload my MCI certificate?",
+      answer: "Missing the deadline may result in restrictions on certain features, such as prescription writing. It's crucial to adhere to the specified timelines to ensure uninterrupted access to all platform functionalities.",
     },
     {
-      question: "What features are included?",
-      answer:
-        "Our platform includes practice management, patient scheduling, and digital presence tools.",
+      question: "What if I miss the deadline for uploading my MCI certificate?",
+      answer: "Our platform includes practice management, patient scheduling, and digital presence tools.",
+    },
+    {
+      question: "Can I switch between different devices?",
+      answer: "The application is supported on IPADs, any tablet that has the OS of Android and IOS. For the desktop and laptop, the web version is there. Use tatvapractice.tatvacare.in and login into your account.",
+    },
+    {
+      question: "What support options are available if I encounter difficulties during the onboarding process?",
+      answer: "If you encounter any difficulties during the onboarding process or require assistance with any platform-related issues, you can reach out to our dedicated support team or your assigned Key Account Manager for assistance. Please call on 99363 or mail to support@tatvacare.in",
+    },
+    {
+      question: "What happens if I become a converted user?",
+      answer: "Becoming a converted user entails gaining access to extended account validity (one year) and unlocking additional features. This status is achieved upon completing specific milestones and agreements, such as payment, data usage agreement, or fulfilment agreement and providing qualitative prescriptions.",
+    },
+    {
+      question: "Do I need internet connection to function on this app?",
+      answer: "Yes, a reliable and continued support of the network is required and having one would help you in provide a real time prescription to the users.",
+    },
+    {
+      question: "I want to provide feedback.",
+      answer: "You can send mail to us at support@tatvacare.in or comment on the update posts that you find as a notification in your homepage.",
+    },
+    {
+      question: "How will I get my payment invoice?",
+      answer: "One can see their invoices in their my profile section when once they logged in. For every purchase that was made, that transaction is documented the invoice shall be generated.",
+    },
+    {
+      question: "Which all payment method are acceptable?",
+      answer: "Payment can be done through UPI, Card, and online banking channels.",
     },
   ];
 

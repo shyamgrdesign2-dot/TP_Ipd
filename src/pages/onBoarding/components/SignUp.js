@@ -11,7 +11,8 @@ import { validateUser, checkPediaExists } from "../../auth/authService";
 const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }) => {
   const [mobileNumber, setMobileNumber] = useState(initialMobileNumber || "");
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [primaryBtnLoading, setPrimaryBtnLoading] = useState(false);
+  const [secondaryBtnLoading, setSecondaryBtnLoading] = useState(false);
   const [isFromCampaign, setIsFromCampaign] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
@@ -135,7 +136,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
 
     try {
       setIsButtonDisabled(true);
-      setLoading(true);
+      setPrimaryBtnLoading(true);
 
       // First check user status
       const response = isLoginFlow ? await validateUser(mobileNumber) : await checkPediaExists({mbl_no: `91${mobileNumber}`});
@@ -205,7 +206,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
       console.error("Error checking user status:", error);
       setError("Something went wrong. Please try again.");
     } finally {
-      setLoading(false);
+      setPrimaryBtnLoading(false);
       setIsButtonDisabled(false);
     }
   };
@@ -218,7 +219,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
 
     try {
       setIsButtonDisabled(true);
-      setLoading(true);
+      setSecondaryBtnLoading(true);
 
       const response = await validateUser(mobileNumber);
       const { message, passwordSet } = response;
@@ -244,7 +245,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
       console.error("Error checking user status:", error);
       setError("Something went wrong. Please try again.");
     } finally {
-      setLoading(false);
+      setSecondaryBtnLoading(false);
       setIsButtonDisabled(false);
     }
   };
@@ -335,7 +336,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
 
           <Button
             type="primary"
-            loading={loading}
+            loading={primaryBtnLoading}
             onClick={handleGetStarted}
             className="get-started-btn"
             disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
@@ -348,6 +349,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           {isLoginFlow && (
             <Button
               type="primary"
+              loading={secondaryBtnLoading}
               onClick={handleLoginPassword}
               className="get-started-btn-secondary"
               disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}

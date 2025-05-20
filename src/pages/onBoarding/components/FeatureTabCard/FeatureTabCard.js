@@ -57,11 +57,11 @@ const featureCardConfig = {
         points: [
           {
             icon: clipboardText,
-            text: "Speciality Specific Modules"
+            text: "Write Rx in 30 seconds"
           },
           {
             icon: examination,
-            text: "Digital prescriptions and notes"
+            text: "Speciality Specific Modules"
           },
           {
             icon: profile2user,
@@ -169,7 +169,7 @@ const featureCardConfig = {
         ],
         image: VoiceRx
       },
-      "Tatva Assist": {
+      "Tatva Ai": {
         heading: <>AI-Powered<br/>Platform for Doctors</>,
         points: [
           {

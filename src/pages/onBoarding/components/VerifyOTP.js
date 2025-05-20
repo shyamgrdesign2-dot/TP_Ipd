@@ -5,6 +5,8 @@ import "./Onboarding.scss";
 import abdmLogo from "../../../assets/images/abdm-logo.svg";
 import nhaLogo from "../../../assets/images/nha-logo.svg";
 import googlePartner from "../../../assets/images/website-images/image.png";
+import leftGroup from "../../../assets/images/onboard-page-icons/Left-Group.svg";
+import rightGroup from "../../../assets/images/onboard-page-icons/Right-Group.svg";
 import { verifyAccessToken } from "../../auth/authService";
 import { setPassword } from "../../auth/authService";
 import { loginWithPassword } from "../../auth/authService";
@@ -86,22 +88,16 @@ const VerifyOTP = ({
 
             if (isPasswordSetFlow) {
               try {
-                const verifyResponse = await verifyAccessToken(
-                  mobileNumber,
-                  message
-                );
-
-                await setPassword(
-                  verifyResponse.doctor_unique_id,
-                  tempPassword
-                );
-
-                const loginResponse = await loginWithPassword(
-                  mobileNumber,
-                  tempPassword
-                );
+                const verifyResponse = await verifyAccessToken(mobileNumber, message);
+                await setPassword(verifyResponse.doctor_unique_id, tempPassword);
+                const loginResponse = await loginWithPassword(mobileNumber, tempPassword);
 
                 if (loginResponse.ssoUrl) {
+                  // Clear localStorage on successful verification
+                  localStorage.removeItem("currentView");
+                  localStorage.removeItem("isLoginFlow");
+                  localStorage.removeItem("isUserExists");
+
                   const deviceType = isMobile ? "mobile" : "desktop";
                   window.location.href = `${loginResponse.ssoUrl}&device_type=${deviceType}`;
                 } else {
@@ -115,13 +111,14 @@ const VerifyOTP = ({
               const response = await verifyAccessToken(mobileNumber, message);
 
               if (response) {
-                const {
-                  message: responseMessage,
-                  ssoUrl,
-                  passwordSet,
-                } = response;
+                const { message: responseMessage, ssoUrl, passwordSet } = response;
 
                 if (ssoUrl) {
+                  // Clear localStorage on successful verification
+                  localStorage.removeItem("currentView");
+                  localStorage.removeItem("isLoginFlow");
+                  localStorage.removeItem("isUserExists");
+
                   const deviceType = isMobile ? "mobile" : "desktop";
                   window.location.href = `${ssoUrl}&device_type=${deviceType}`;
                 }
@@ -129,7 +126,12 @@ const VerifyOTP = ({
                 setError("Failed to verify access token. Please try again.");
               }
             } else {
-                navigate("/final-setup")
+              // Clear localStorage before triggering onboarding
+              localStorage.removeItem("currentView");
+              localStorage.removeItem("isLoginFlow");
+              localStorage.removeItem("isUserExists");
+              
+              navigate("/final-setup")
             }
           },
           (error) => {
@@ -148,20 +150,13 @@ const VerifyOTP = ({
   };
 
   const handleEditNumber = () => {
-    // // Reset the MSG91 provider before navigating
-    // const msg91Provider = document.querySelector('msg91-otp-provider');
-    // if (msg91Provider) {
-    //   try {
-    //     if (msg91Provider.disconnectedCallback) {
-    //       msg91Provider.disconnectedCallback();
-    //     }
-    //     msg91Provider.remove();
-    //   } catch (e) {
-    //     console.error('Error removing MSG91 provider:', e);
-    //   }
-    // }
-
-    onViewChange(isLoginFlow ? "loginOTP" : "signup", mobileNumber);
+    // Store current state in localStorage
+    isLoginFlow ? localStorage.setItem("currentView", "loginOTP") : localStorage.setItem("currentView", "signup");
+    isLoginFlow ? localStorage.setItem("isLoginFlow", "true") : localStorage.setItem("isLoginFlow", "false");
+    localStorage.setItem("mobileNumber", mobileNumber);
+    
+    // Refresh the page
+    window.location.reload();
   };
 
   return (
@@ -205,8 +200,6 @@ const VerifyOTP = ({
             </svg>
           </div>
 
-          {error && <div className="error-message">{error}</div>}
-
           <Form.Item
             name="otp"
             rules={[{ required: true, message: "Please input the OTP!" }]}
@@ -219,6 +212,8 @@ const VerifyOTP = ({
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
             />
           </Form.Item>
+
+          {error && <div className="error-message">{error}</div>}
 
           <div
             className="resend-otp"
@@ -233,11 +228,12 @@ const VerifyOTP = ({
           </div>
           <Button
             type="primary"
+            loading={loading}
             className="submit-btn"
             onClick={handleVerifyOTP}
             disabled={!otp || otp.length !== 6 || loading}
           >
-            Submit OTP
+            {isLoginFlow ? "Login" : "Submit OTP"}
           </Button>
 
           {!isLoginFlow && (
@@ -263,6 +259,8 @@ const VerifyOTP = ({
         </Form>
       </div>
       <div className="partners-section">
+      <div className="partners-section">
+        <img src={leftGroup} alt="Lines Group" className="left-lines-group" />
         <img src={abdmLogo} alt="ABDM" className="abdm-logo" />
         <img src={nhaLogo} alt="NHA" className="nha-logo" />
         <img
@@ -270,6 +268,8 @@ const VerifyOTP = ({
           alt="Google Partner"
           className="google-partner"
         />
+        <img src={rightGroup} alt="Lines Group" className="right-lines-group" />
+      </div>
       </div>
     </div>
   );

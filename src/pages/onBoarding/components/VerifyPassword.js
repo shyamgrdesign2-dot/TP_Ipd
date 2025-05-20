@@ -4,8 +4,12 @@ import "./Onboarding.scss";
 import abdmLogo from "../../../assets/images/abdm-logo.svg";
 import nhaLogo from "../../../assets/images/nha-logo.svg";
 import googlePartner from "../../../assets/images/website-images/image.png";
+import leftGroup from "../../../assets/images/onboard-page-icons/Left-Group.svg";
+import rightGroup from "../../../assets/images/onboard-page-icons/Right-Group.svg";
 import { loginWithPassword, verifyAccessToken } from "../../auth/authService";
 import { isMobile } from "react-device-detect";
+import { EyeInvisibleOutlined } from "@ant-design/icons";
+
 
 const VerifyPassword = ({ onViewChange, mobileNumber }) => {
   const [password, setPassword] = useState("");
@@ -34,6 +38,11 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
         default:
           // Handle successful login with SSO URL
           if (ssoUrl) {
+            // Clear localStorage on successful login
+            localStorage.removeItem("currentView");
+            localStorage.removeItem("isLoginFlow");
+            localStorage.removeItem("isUserExists");
+
             const updatedSsoUrl = isMobile
               ? `${ssoUrl}&device_type=mobile`
               : `${ssoUrl}&device_type=desktop`;
@@ -53,20 +62,13 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
   };
 
   const handleGoBack = () => {
-    // // Reset the MSG91 provider before navigating
-    // const msg91Provider = document.querySelector('msg91-otp-provider');
-    // if (msg91Provider) {
-    //   try {
-    //     if (msg91Provider.disconnectedCallback) {
-    //       msg91Provider.disconnectedCallback();
-    //     }
-    //     msg91Provider.remove();
-    //   } catch (e) {
-    //     console.error('Error removing MSG91 provider:', e);
-    //   }
-    // }
+    // Store current state in localStorage
+    localStorage.setItem("currentView", "loginOTP");
+    localStorage.setItem("isLoginFlow", "true");
+    localStorage.setItem("mobileNumber", mobileNumber);
     
-    onViewChange("loginOTP", mobileNumber);
+    // Refresh the page
+    window.location.reload();
   };
 
   return (
@@ -113,49 +115,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
                     />
                   </svg>
                 ) : (
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    style={{ cursor: "pointer" }}
-                  >
-                    <path
-                      d="M8.20859 11.7916C7.71859 11.3016 7.41693 10.6666 7.41693 9.99998C7.41693 8.65831 8.50026 7.57498 9.84193 7.57498C10.5086 7.57498 11.1336 7.88331 11.6253 8.37331"
-                      stroke="#667085"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M12.8582 10.2667C12.6832 11.3217 11.8332 12.1717 10.7782 12.3467"
-                      stroke="#667085"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M5.19162 14.8083C3.74162 13.6583 2.54162 12.0083 1.66663 10C2.54996 7.99169 3.75829 6.34169 5.21662 5.19169C6.66662 4.04169 8.29162 3.41669 9.99996 3.41669C11.7166 3.41669 13.3416 4.04169 14.7916 5.20002"
-                      stroke="#667085"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M16.8833 7.34167C17.6333 8.51667 18.2833 9.85 18.3333 10C17.4499 12.0083 16.2416 13.6583 14.7833 14.8083C14.1916 15.2667 13.5583 15.6417 12.9083 15.9333"
-                      stroke="#667085"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M16.6667 3.33331L3.33337 16.6666"
-                      stroke="#667085"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <EyeInvisibleOutlined />
                 )
               )}
             />
@@ -170,6 +130,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
 
           <Button
             type="primary"
+            loading={loading}
             onClick={handleLogin}
             className="login-btn"
             disabled={!password}
@@ -184,6 +145,8 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
       </div>
       <div style={{height: "2rem"}}></div>
       <div className="partners-section">
+      <div className="partners-section">
+        <img src={leftGroup} alt="Lines Group" className="left-lines-group" />
         <img src={abdmLogo} alt="ABDM" className="abdm-logo" />
         <img src={nhaLogo} alt="NHA" className="nha-logo" />
         <img
@@ -191,6 +154,8 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
           alt="Google Partner"
           className="google-partner"
         />
+        <img src={rightGroup} alt="Lines Group" className="right-lines-group" />
+      </div>
       </div>
     </div>
   );

@@ -1,60 +1,38 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./Testimonials.scss";
 import testimonialIcon from "../../../../assets/images/onboard-page-icons/LP-Testimonial-icon.svg";
+import profile from "../../../../assets/images/default-profile.svg";
+import doc1 from "../../../../assets/images/onboard-page-icons/testimonialDoc1.png";
+import doc2 from "../../../../assets/images/onboard-page-icons/testimonialDoc2.png";
+import Apexhos from "../../../../assets/images/onboard-page-icons/ApexHosLogo.png";
+import NavjivanHosLogo from "../../../../assets/images/onboard-page-icons/NavjivanHosLogo.png";
 
 const Testimonials = () => {
   const testimonials = [
     {
-      name: "Dr.Shyam",
-      qualification: "MBBS,MD",
-      image: "/images/doctors/dr-shyam.png",
-      rating: 4,
-      hospitalLogo: "/images/hospitals/zydus.png",
+      name: "Dr Nisheet Dave",
+      qualification: "Orthopaedic",
+      image: doc1,
+      rating: 5,
+      hospitalLogo: Apexhos,
       review:
         "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
     },
     {
-      name: "Dr.Stella",
-      qualification: "MBBS,MD",
-      image: "/images/doctors/dr-stella.png",
-      rating: 4,
-      hospitalLogo: "/images/hospitals/max.png",
+      name: "Dr. Ashish Patel",
+      qualification: "Emergency physician & Intensivist",
+      image: doc2,
+      rating: 5,
+      hospitalLogo: NavjivanHosLogo,
       review:
         "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
     },
     {
-      name: "Dr.Leena",
-      qualification: "MBBS,MD",
-      image: "/images/doctors/dr-leena.png",
-      rating: 4,
-      hospitalLogo: "/images/hospitals/fortis.png",
-      review:
-        "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
-    },
-    {
-      name: "Dr.Harish",
-      qualification: "MBBS,MD",
-      image: "/images/doctors/dr-shyam.png",
-      rating: 4,
-      hospitalLogo: "/images/hospitals/zydus.png",
-      review:
-        "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
-    },
-    {
-      name: "Dr.Sharath",
-      qualification: "MBBS,MD",
-      image: "/images/doctors/dr-stella.png",
-      rating: 4,
-      hospitalLogo: "/images/hospitals/max.png",
-      review:
-        "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
-    },
-    {
-      name: "Dr.Sheela",
-      qualification: "MBBS,MD",
-      image: "/images/doctors/dr-leena.png",
-      rating: 4,
-      hospitalLogo: "/images/hospitals/fortis.png",
+      name: "Dr Nisheet Dave",
+      qualification: "Orthopaedic",
+      image: "",
+      rating: 5,
+      hospitalLogo: "",
       review:
         "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
     },
@@ -144,7 +122,7 @@ const Testimonials = () => {
               <div className="testimonial-header">
                 <div className="doctor-info">
                   <img
-                    src={testimonial.image}
+                    src={testimonial.image ? testimonial.image : profile}
                     alt={testimonial.name}
                     className="doctor-image"
                   />
@@ -165,11 +143,13 @@ const Testimonials = () => {
                     </div>
                   </div>
                 </div>
-                <img
-                  src={testimonial.hospitalLogo}
-                  alt="Hospital"
-                  className="hospital-logo"
-                />
+                {testimonial.hospitalLogo && (
+                  <img
+                    src={testimonial.hospitalLogo}
+                    alt="Hospital"
+                    className="hospital-logo"
+                  /> 
+                )}
               </div>
               <p className="testimonial-text">{testimonial.review}</p>
             </div>

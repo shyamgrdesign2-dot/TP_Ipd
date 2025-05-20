@@ -3,6 +3,9 @@ import { Row, Col } from 'antd';
 import { FacebookOutlined, TwitterOutlined, LinkedinOutlined, YoutubeOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons';
 import "./Footer.scss";
 import Logo from '../../../../assets/images/website-images/tatvacare-logo.png';
+import call from '../../../../assets/images/onboard-page-icons/call.svg';
+import emailIcon from '../../../../assets/images/onboard-page-icons/EmailIcon.svg';
+// import locationIcon from '../../../../assets/images/onboard-page-icons/LocationIcon.svg';
 
 const Footer = () => {
   return (
@@ -31,22 +34,22 @@ const Footer = () => {
           <h5>Contact Us</h5>
           <div className="contact-info">
             <div className="contact-item">
-              <PhoneOutlined className="contact-icon" />
+              <img src={call} alt="call" className="contact-icon" />
               +91 99740 42363
             </div>
             <p className="timing">(Monday - Saturday | 9am to 8pm)</p>
             <div className="contact-item">
-              <MailOutlined className="contact-icon" />
+              <img src={emailIcon} alt="email" className="contact-icon" />
               support@tatvacare.in
             </div>
           </div>
           <div className="social-links">
             <h5>Follow Us</h5>
             <div className="social-icons">
-              <a href="#facebook" aria-label="Facebook"><FacebookOutlined /></a>
-              <a href="#twitter" aria-label="Twitter"><TwitterOutlined /></a>
-              <a href="#linkedin" aria-label="LinkedIn"><LinkedinOutlined /></a>
-              <a href="#youtube" aria-label="YouTube"><YoutubeOutlined /></a>
+              <a href="https://www.instagram.com/tatvapractice.in/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FacebookOutlined /></a>
+              {/* <a href="https://www.instagram.com/tatvapractice.in/" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><TwitterOutlined /></a> */}
+              <a href="https://www.linkedin.com/showcase/tatvapractice/about/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><LinkedinOutlined /></a>
+              <a href="https://www.youtube.com/TatvaCare" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><YoutubeOutlined /></a>
             </div>
           </div>
         </div>

@@ -16,10 +16,11 @@ import Logo from "../../../assets/images/website-images/logo.png";
 import "./Onboarding.scss";
 import "./FeatureTabCard/FeatureTabCard.scss";
 import { getUtmParams } from "../../../components/userOnboarding/services/userDataService.js";
+import { Spin } from 'antd';
 
 const Onboarding = () => {
   const [view, setView] = useState("signup");
-  const [mobileNumber, setMobileNumber] = useState(localStorage.getItem("mobileNumber") || "");
+  const [mobileNumber, setMobileNumber] = useState("");
   const [isLoginFlow, setIsLoginFlow] = useState(true);
   const [isUserExists, setIsUserExists] = useState(false);
   const [utmParams, setUtmParams] = useState(null);
@@ -29,19 +30,43 @@ const Onboarding = () => {
   const [reqId, setReqId] = useState("");
   const [footerImage, setFooterImage] = useState(Hook);
   const [showFloatingSignup, setShowFloatingSignup] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const utm = getUtmParams();
-    setUtmParams(utm);
-    const campaign = utm.utm_campaign;
-    setIsFromCampaign(!!campaign);
-    if (!!campaign) {
-      setIsFromCampaign(true);
-      setIsLoginFlow(false);
-    } else {
-      setIsFromCampaign(false);
-      setIsLoginFlow(true);
-    }
+    const initializeData = async () => {
+      try {
+        // Load data from localStorage
+        const storedMobileNumber = localStorage.getItem("mobileNumber");
+        const storedView = localStorage.getItem("currentView");
+        const storedLoginFlow = localStorage.getItem("isLoginFlow");
+        const storedUserExists = localStorage.getItem("isUserExists");
+        
+        if (storedMobileNumber) setMobileNumber(storedMobileNumber);
+        if (storedView) setView(storedView);
+        if (storedLoginFlow) setIsLoginFlow(storedLoginFlow === "true");
+        if (storedUserExists) setIsUserExists(storedUserExists === "true");
+
+        // Get UTM params
+        const utm = getUtmParams();
+        setUtmParams(utm);
+        const campaign = utm.utm_campaign;
+        setIsFromCampaign(!!campaign);
+        if (!!campaign) {
+          setIsFromCampaign(true);
+          setIsLoginFlow(false);
+        } else {
+          setIsFromCampaign(false);
+          setIsLoginFlow(true);
+        }
+      } finally {
+        // Add a small delay to ensure smooth transition
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 500);
+      }
+    };
+
+    initializeData();
   }, []);
 
   useEffect(() => {
@@ -80,6 +105,11 @@ const Onboarding = () => {
     password = "",
     reqId = ""
   ) => {
+    // Store values in localStorage
+    localStorage.setItem("currentView", newView);
+    localStorage.setItem("isLoginFlow", String(newView === "loginOTP"));
+    localStorage.setItem("isUserExists", String(isUserExists));
+
     setView(newView);
     if (newView === "loginOTP") {
       setIsLoginFlow(true);
@@ -103,6 +133,14 @@ const Onboarding = () => {
       setReqId(reqId);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="spinner-container">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
       <>
@@ -193,7 +231,7 @@ const Onboarding = () => {
             feature="Ai Features"
             title="Empower your"
             subTitle="practice with Tatva AI"
-            tabs={["DDx", "Smart Sync", "Voice Rx", "Tatva Assist"]}
+            tabs={["DDx", "Smart Sync", "Voice Rx", "Tatva Ai"]}
           />{" "}
           <FeatureTabCard
             className="m-2"
