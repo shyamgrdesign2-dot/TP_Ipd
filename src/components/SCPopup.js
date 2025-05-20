@@ -165,19 +165,48 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
   const isSmartPrescription =
     window.location.href.includes("smart-prescription");
-  const { symptomCollector } = useSelector((state) => state.ddx);
+  const { symptomCollector, selectedSymptomsCollector } = useSelector(
+    (state) => state.ddx
+  );
+
+  const symptomsCollectorData =
+    selectedSymptomsCollector?.symptoms?.length > 0 ||
+    selectedSymptomsCollector?.medicalHistory?.length > 0
+      ? selectedSymptomsCollector
+      : symptomCollector;
 
   // Initialize with all symptoms selected
   const [selectedSymptoms, setSelectedSymptoms] = useState(
-    symptomCollector?.symptoms?.map((s) => s.name) || []
+    symptomsCollectorData?.symptoms?.map((s) => s.name) || []
   );
 
-  // Initialize with all medical history items selected
-  const [selectedMedicalHistory, setSelectedMedicalHistory] = useState(
-    symptomCollector?.medicalHistory?.map((item) => item.name) || []
-  );
+  // Initialize selected medical history based on the data structure
+  const [selectedMedicalHistory, setSelectedMedicalHistory] = useState(() => {
+    if (!symptomsCollectorData?.medicalHistory) return [];
 
-  const [selectedNotes, setSelectedNotes] = useState(true);
+    // Handle array of objects format (first structure)
+    if (
+      Array.isArray(symptomsCollectorData.medicalHistory) &&
+      !symptomsCollectorData.medicalHistory[0]?.items
+    ) {
+      return symptomsCollectorData.medicalHistory.map((item) => item.name);
+    }
+
+    // Handle nested structure with items array (second structure)
+    if (
+      Array.isArray(symptomsCollectorData.medicalHistory) &&
+      symptomsCollectorData.medicalHistory[0]?.items
+    ) {
+      return symptomsCollectorData.medicalHistory.reduce((acc, section) => {
+        const sectionItems = section.items.map((item) => item.name);
+        return [...acc, ...sectionItems];
+      }, []);
+    }
+
+    return [];
+  });
+
+  // const [selectedNotes, setSelectedNotes] = useState(true);
 
   // Format medical history for display
   const formattedMedicalHistory = formatMedicalHistoryForDisplay(
@@ -226,11 +255,12 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
       onCancel={handlePopup}
       className="sc-popup modalcommon"
       style={{
-        top: "10%",
-        right: "10%",
+        top: "32px",
+        right: "32px",
+        bottom: "32px",
         margin: 0,
         position: "fixed",
-        height: "100vh",
+        height: "calc(100vh - 64px)",
         padding: "0",
         borderRadius: "20px",
         overflow: "hidden",
@@ -286,7 +316,7 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
     >
       <div
         style={{
-          height: 300,
+          height: "calc(100vh - 240px)",
           background: `url(${scBg})`,
           objectFit: "cover",
           backgroundRepeat: "no-repeat",
@@ -560,24 +590,24 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
                 <span style={{ color: "#454551" }}>Notes</span>
               </div>
 
-              <span
+              {/* <span
                 className="hyperling-text-style cursor-pointer"
                 onClick={() => {
                   setSelectedNotes((prev) => !prev);
                 }}
               >
                 {selectedNotes ? "Unselect All" : "Select All"}
-              </span>
+              </span> */}
             </div>
             <Divider style={{ margin: "15px 0px" }} />
             <div className="space-y-6">
               <div className="ml-3 mb-2 relative pl-4 d-flex gap-2">
                 <span className="text-[14px] font-medium text-gray-900 mb-1">
-                  <Checkbox
+                  {/* <Checkbox
                     className="me-2"
                     checked={selectedNotes}
                     onChange={() => setSelectedNotes((prev) => !prev)}
-                  />
+                  /> */}
                   {symptomCollector?.notes}
                 </span>
               </div>
@@ -597,7 +627,7 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
         {!isVoiceRxAccessable || isSmartPrescription ? (
           <Button
             className="btn btn-primary3 btn-41 px-4 d-flex align-items-center justify-content-center"
-            style={{ gap: "8px", width: isVoiceRxAccessable ? "50%" : "100%" }}
+            style={{ gap: "8px", width: isVoiceRxAccessable ? "80%" : "100%" }}
             onClick={handleAutofill}
           >
             <img src={autoFill} alt="auto-fill" />
@@ -607,7 +637,7 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
           <>
             <Button
               type="button"
-              className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-center"
+              className="btn-41 btn ant-btn-text btn-input d-flex align-items-center justify-content-center sc-popup-btn"
               style={{
                 width: "50%",
                 gap: "8px",

@@ -607,7 +607,7 @@ function AppointmentData({ locationPath }) {
           um_id: userId,
           hm_id: clinicId,
         });
-        if (!isSymptomsCollectorTourRes) {
+        if (isSymptomsCollectorTourRes) {
             setIsSymptomsCollectorTour(true);
         }
     };
@@ -1367,7 +1367,7 @@ function AppointmentData({ locationPath }) {
         {
             title: selectedTab != TAB_ZYDUS_APPOINTMENT ? "Action" : "",
             key: "action",
-            width: 170,
+            width: 200,
             render: (_, record, index) => (
                 selectedTab != TAB_ZYDUS_APPOINTMENT ?
                     <div size="middle" style={{ display: "flex", justifyContent: "space-between" }}>
@@ -1378,7 +1378,7 @@ function AppointmentData({ locationPath }) {
                                         {"Digitise Rx"}
                                     </button>
                                 </> :
-                                <>
+                                <div className="d-flex">
                                     {selectedTab !== TAB_CANCELLED && (
                                         <button
                                             // className="btn btn-outline-primary btn-smart-rx" 
@@ -1406,7 +1406,7 @@ function AppointmentData({ locationPath }) {
                                             Consult
                                         </button>
                                     }
-                                </>
+                                </div>
                         ) : (
                             <>
                                 {selectedTab !== TAB_CANCELLED && selectedTab != TAB_ZYDUS_APPOINTMENT && !finishedData.some((x) => x.pam_ref_id == record.encounterId) && (
@@ -1423,7 +1423,7 @@ function AppointmentData({ locationPath }) {
                                 src={symptoms} 
                                 alt="symptoms" 
                                 onClick={() => setIsSymptomsCollectorTour(true)}
-                                style={{ cursor: 'pointer' }}
+                                style={{ cursor: 'pointer', marginLeft: '10px' }}
                             />
                              {index === firstSymptomIndex &&
                              (<Tour 
@@ -1444,7 +1444,7 @@ function AppointmentData({ locationPath }) {
                         )}
                         {!isDigitisationTab && selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT &&
                             <Dropdown
-                                className="btn btn-outline btn-more ms-3"
+                                className="btn btn-outline btn-more ms-3 d-flex align-items-center"
                                 menu={{
                                     items: getMenuItems(record),
                                 }}

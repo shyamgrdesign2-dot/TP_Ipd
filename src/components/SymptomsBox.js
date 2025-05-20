@@ -34,6 +34,7 @@ import {
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DifferentialDiagnosis from "./DifferentialDiagnosis";
 import { setIsDDxReadyToGenerate } from "../redux/ddxSlice";
+import TextArea from "antd/es/input/TextArea";
 
 function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
   const {
@@ -240,14 +241,24 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
       selectedSymptomsCollector &&
       Object.keys(selectedSymptomsCollector)?.length > 0
     ) {
-      selectedSymptomsCollector?.symptoms?.map((symptom) => {
-        symptomsData.push({
-          symptom_name: symptom.name,
-          since: symptom.duration,
-          severity: symptom.severity,
-          note: symptom.notes,
-        });
-        setSymptomsData((prev) => [...prev]);
+      selectedSymptomsCollector?.symptoms?.forEach((symptom) => {
+        // Check if symptom already exists in symptomsData
+        const symptomExists = symptomsData.some(
+          (existingSymptom) =>
+            existingSymptom.symptom_name?.toLowerCase() ===
+            symptom.name?.toLowerCase()
+        );
+
+        // Only add if symptom doesn't exist
+        if (!symptomExists) {
+          symptomsData.push({
+            symptom_name: symptom.name,
+            since: symptom.duration,
+            severity: symptom.severity,
+            note: symptom.notes,
+          });
+          setSymptomsData((prev) => [...prev]);
+        }
       });
     }
   }, [isAutofillSelected, selectedSymptomsCollector]);
@@ -663,37 +674,33 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         key={index}
-                        gutter={[0]}
-                        className={`${index === 0 && 'mt-14 border-top'
-                          } align-items-center border-bottom`}
+                        gutter={0}
+                        className="symptoms-table-row"
                       >
-                        <Col lg={1} md={1} sm={1} xs={1} className="text-center">
+                        <Col lg={1} md={1} sm={1} xs={1} className="symptoms-table-cell center">
                           <MenuOutlined
                             {...provided.dragHandleProps}
                             className="drag-handle"
-                            style={{ cursor: 'grab' }}
-                          >
-                          </MenuOutlined>
+                            style={{ cursor: "grab" }}
+                          />
                         </Col>
-                        <Col lg={6} md={6} sm={6} xs={6} className="border-end">
-                          <div className="fontroboto fw-medium">
-                            <AutoComplete
-                              defaultValue={item.symptom_name}
-                              value={item.symptom_name}
-                              placeholder="Symptom Name"
-                              bordered={false}
-                              defaultOpen={false}
-                              disabled={item?.pms_default ? true : false}
-                              onSearch={(query) => onSearchChild(query, index)}
-                              onFocus={() => onFocusChid(index)}
-                              options={childSearchOptions}
-                              className="autocomplete-custom w-100 inputborder"
-                              defaultActiveFirstOption={true}
-                              onSelect={(data, e) => onSelectChild(data, e, index)}
-                            />
-                          </div>
+                        <Col lg={6} md={6} sm={6} xs={6} className="symptoms-table-cell">
+                          <AutoComplete
+                            defaultValue={item.symptom_name}
+                            value={item.symptom_name}
+                            placeholder="Symptom Name"
+                            bordered={false}
+                            defaultOpen={false}
+                            disabled={item?.pms_default ? true : false}
+                            onSearch={(query) => onSearchChild(query, index)}
+                            onFocus={() => onFocusChid(index)}
+                            options={childSearchOptions}
+                            className="autocomplete-custom w-100"
+                            defaultActiveFirstOption={true}
+                            onSelect={(data, e) => onSelectChild(data, e, index)}
+                          />
                         </Col>
-                        <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+                        <Col lg={4} md={4} sm={4} xs={4} className="symptoms-table-cell">
                           <AutoComplete
                             defaultValue={item.since}
                             value={item.since}
@@ -703,14 +710,14 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
                             onSearch={(query) => onSearchSinceChid(query, index)}
                             onBlur={() => onBlurSinceChid(index)}
                             options={sinceOptions}
-                            className="autocomplete-custom w-100 inputborder"
+                            className="autocomplete-custom w-100"
                             defaultActiveFirstOption={true}
                             onSelect={(data) => onSelectSinceChild(data, index)}
                           />
                         </Col>
-                        <Col lg={4} md={4} sm={4} xs={4} className="border-end">
+                        <Col lg={4} md={4} sm={4} xs={4} className="symptoms-table-cell">
                           <Select
-                            className="autocomplete-custom w-100 inputborder"
+                            className="autocomplete-custom w-100 symptoms-select-box"
                             placeholder="Severity"
                             defaultValue={item.severity !== "" ? item.severity : null}
                             value={item.severity !== "" ? item.severity : null}
@@ -720,16 +727,25 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
                             allowClear
                           />
                         </Col>
-                        <Col lg={8} md={8} sm={7} xs={7} className="border-end">
-                          <Input
-                            className="notesinput border-0"
+                        <Col lg={8} md={8} sm={7} xs={7} className="symptoms-table-cell">
+                          <TextArea
+                            className="notesinput"
                             placeholder="Notes"
                             defaultValue={item.note}
                             value={item.note}
                             onChange={(e) => onChangeNoteChild(e, index)}
+                            autoSize={{
+                              minRows: 1,
+                              maxRows: 3,
+                            }}
+                            style={{
+                              border: "none",
+                              boxShadow: "none",
+                              padding: "11px 12px",
+                            }}
                           />
                         </Col>
-                        <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+                        <Col lg={1} md={1} sm={2} xs={2} className="symptoms-table-cell center">
                           <Button
                             className="btn py-0 btn-delete-prescription px-0"
                             onClick={() => onRemoveRow(index)}

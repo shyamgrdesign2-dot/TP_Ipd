@@ -7,7 +7,7 @@ const initialState = {
   isDiagnosisBox: null,
   isDDxReadyToGenerate: false,
   symptomCollector: {},
-  selectedSymptomsCollector: [],
+  selectedSymptomsCollector: {},
   isAutofillSelected: false,
   showSCPopup: false,
 };

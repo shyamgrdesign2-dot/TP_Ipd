@@ -32,9 +32,6 @@ function TabFollowUpBox() {
         loading,
     } = useSelector((state) => state.followUp);
     const dispatch = useDispatch();
-    const { isAutofillSelected, selectedSymptomsCollector } = useSelector(
-      (state) => state.ddx
-    );
 
     const { followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
     const [followUpInput, setFollowUpInput] = useState('');
@@ -142,17 +139,6 @@ function TabFollowUpBox() {
         setFollowUpInput(e.label)
         setFollowUpDate(getFormattedDate(moment(moment().format(dateFormat)).add(parseInt(e.value), e.unit).format(dateFormat)))
     };
-
-    useEffect(() => {
-        if (
-            isAutofillSelected &&
-            selectedSymptomsCollector &&
-            Object.keys(selectedSymptomsCollector)?.length > 0 &&
-            selectedSymptomsCollector?.notes?.length > 0
-        ) {
-           setAdditionalNote(capitalizeAfterSentence(selectedSymptomsCollector?.notes));
-        }
-    }, [isAutofillSelected, selectedSymptomsCollector]);
 
     const onChangeNote = useCallback(
         (e) => {
