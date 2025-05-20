@@ -226,7 +226,7 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
             fontSize: "16px",
           }}
           className={styles.focusedInput}
-          disabled={formData.clinic_id && formData.hm_business_id}
+          // disabled={formData.clinic_id && formData.hm_business_id}
         />
       </div>
 

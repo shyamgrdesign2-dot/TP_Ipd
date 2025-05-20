@@ -11,11 +11,14 @@ import {
   finalizeOnboarding,
   uploadDocuments,
   initOnboarding,
+  updateLocation,
 } from "./services/onboardingService";
 import { getUserMobileNumber, getUtmParams } from "./services/userDataService";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import CustomStepper from "./CustomStepper";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { updateHasLocation } from "../../redux/doctorsSlice";
+import { useDispatch } from "react-redux";
 
 const DoctorOnboarding = ({
   visible,
@@ -25,7 +28,7 @@ const DoctorOnboarding = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(false);
   const [userMobileNumber, setUserMobileNumber] = useState(null);
   const [utmParams, setUtmParams] = useState(null);
   const [userOnboardingId, setUserOnboardingId] = useState(null);
@@ -44,6 +47,20 @@ const DoctorOnboarding = ({
     mrcCertificate: null,
   });
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const clinicDetails = state?.clinicDetails;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (clinicDetails) {
+      setFormData({
+        ...formData,
+        clinicName: clinicDetails.hm_name,
+        clinicPincode: clinicDetails.hm_pincode,
+        clinicAddress: clinicDetails.hm_address,
+      });
+    }
+  }, [clinicDetails]);
 
   // Update currentStep when initialStep changes - make this run after initialization
   useEffect(() => {
@@ -220,7 +237,7 @@ const DoctorOnboarding = ({
     fetchSpecialities();
 
     // If the drawer is visible, initialize onboarding
-    if (visible) {
+    if (visible && !clinicDetails) {
       initializeOnboarding();
     }
   }, [visible]);
@@ -381,6 +398,28 @@ const DoctorOnboarding = ({
     }
   };
 
+  const handleUpdateLocation = async () => {
+    setIsSubmitting(true);
+    try {
+      const response = await updateLocation({
+        clinic_lat: formData.clinic_lat,
+        clinic_long: formData.clinic_long,
+      });
+      console.log(response);
+      if (response?.statusCode === 200) {
+        await dispatch(updateHasLocation(true));
+        navigate("/");
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error updating location:", error);
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleUploadDocuments = async () => {
     if (!formData.governmentIdProof || !formData.mrcCertificate) {
       message.error("Please upload both Government ID and MRC Certificate");
@@ -423,7 +462,9 @@ const DoctorOnboarding = ({
       const success = await handleUpdateOnboardingDetails();
       if (!success) return;
     } else if (currentStep === 1) {
-      const success = await handleFinalizeOnboarding();
+      const success = clinicDetails
+        ? await handleUpdateLocation()
+        : await handleFinalizeOnboarding();
       if (!success) return;
     } else if (currentStep === 2) {
       // Upload documents and redirect to home on success
@@ -443,7 +484,9 @@ const DoctorOnboarding = ({
   // Handle clicking on a completed step
   const handleStepClick = (stepIndex) => {
     // Navigate to the clicked step
-    setCurrentStep(stepIndex);
+    if(!clinicDetails) {
+      setCurrentStep(stepIndex);
+    }
   };
 
   const drawerContent = (
