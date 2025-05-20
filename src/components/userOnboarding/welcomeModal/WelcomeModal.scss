@@ -112,6 +112,12 @@
     }
 }
 
+.main-modal-content{
+    display: flex !important;
+    flex-direction: row;
+    gap: 10px;
+}
+
 // Ensure proper stacking
 .ant-modal-wrap {
     &.modal-onboarding {

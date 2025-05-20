@@ -34,6 +34,7 @@ const VideoCarousel = () => {
         allowFullScreen
         style={{
           width: "100%",
+          height: "100%",
           marginTop: 10,
         }}
       />
@@ -59,71 +60,91 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
         open={modalOpen}
         centered
         footer={null}
-        width="95%"
+        width={isMobile ? "95%" : "80%"}
         className="modal-onboarding"
         onCancel={() => setModalOpen(false)}
         style={{
-          maxWidth: "500px",
+          maxWidth: isMobile ? "500px" : "900px",
           margin: "0 auto",
           top: "-9%",
         }}
       >
-        <div style={{ flex: 1 }}>
-          <div style={{ flex: 1}}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: '24px'
+        }}>
+          {/* Left Content */}
+          <div style={{ 
+            flex: isMobile ? '1' : '0.4',
+            paddingRight: isMobile ? '0' : '24px'
+          }}>
             <figure>
               <img
                 src={welcomdoc}
                 style={{
-                  width: window.innerWidth / 17,
-                  height: window.innerWidth / 17,
+                  width: window.innerWidth / (isMobile ? 17 : 25),
+                  height: window.innerWidth / (isMobile ? 17 : 25),
                 }}
                 alt="Welcome"
               />
             </figure>
 
             <div className="main-modal-content">
-              <div style={{ flex: 1 }}>
-                <div>
-                  <h2 className="fw-medium mb-2" style={{ fontSize: 16 }}>
-                    Dr.{" "}
-                    {profile?.um_name
-                      .split(/\s+/)
-                      .filter(
-                        (word) =>
-                          word.toLowerCase() !== "Dr".toLowerCase() &&
-                          word.toLowerCase() !== "Dr.".toLowerCase()
-                      )
-                      .join(" ")}
-                    ,
-                  </h2>
-                  <h3 className="fw-semibold" style={{ fontSize: "2rem" }}>
-                    Welcome to TatvaPractice
-                  </h3>
-                </div>
-                <div
-                  style={{
-                    background: "#fef4f5",
-                    padding: 15,
-                    borderRadius: 10,
-                    width: "100%",
-                  }}
-                >
-                  <span>
-                    <img src={suporticon} alt="Support" />
-                  </span>
-                  <h3 className="fs-6 fw-medium" style={{ marginTop: 9 }}>
-                    We will connect with you soon
-                  </h3>
-                  <p className="fs-7 fw-normal">
-                    We will contact you within 24 hours to assist you in setting
-                    up your digital clinic and provide a walkthrough for writing
-                    prescription digitally.
-                  </p>
-                </div>
+              <div>
+                <h2 className="fw-medium mb-2" style={{ fontSize: 16 }}>
+                  Dr.{" "}
+                  {profile?.um_name
+                    .split(/\s+/)
+                    .filter(
+                      (word) =>
+                        word.toLowerCase() !== "Dr".toLowerCase() &&
+                        word.toLowerCase() !== "Dr.".toLowerCase()
+                    )
+                    .join(" ")}
+                  ,
+                </h2>
+                <h3 className="fw-semibold" style={{ fontSize: "2rem" }}>
+                  Welcome to TatvaPractice
+                </h3>
               </div>
-              <VideoCarousel />
+              <div
+                style={{
+                  background: "#fef4f5",
+                  padding: 15,
+                  borderRadius: 10,
+                  width: "100%",
+                  marginTop: '24px'
+                }}
+              >
+                <span>
+                  <img src={suporticon} alt="Support" />
+                </span>
+                <h3 className="fs-6 fw-medium" style={{ marginTop: 9 }}>
+                  We will connect with you soon
+                </h3>
+                <p className="fs-7 fw-normal">
+                  We will contact you within 24 hours to assist you in setting
+                  up your digital clinic and provide a walkthrough for writing
+                  prescription digitally.
+                </p>
+              </div>
             </div>
           </div>
+
+          {/* Right Content - Video Carousel */}
+          {!isMobile && (
+            <div style={{ flex: '0.6' }}>
+              <VideoCarousel />
+            </div>
+          )}
+
+          {/* Mobile Video Carousel */}
+          {isMobile && (
+            <div style={{ width: '100%' }}>
+              <VideoCarousel />
+            </div>
+          )}
         </div>
       </Modal>
 
