@@ -340,7 +340,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      diagnosisData[i].note = capitalizeAfterSentence(e.target.value);
+      diagnosisData[i].note = e.target.value;
       setDiagnosisData((prev) => [...prev]);
     },
     [diagnosisData]
