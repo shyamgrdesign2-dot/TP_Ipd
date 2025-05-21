@@ -174,8 +174,8 @@ function App() {
       }
     };
 
-    authToken && isUserLocked();
-  }, [location.pathname, navigate, authToken]);
+    authToken && !isReceptionist && isUserLocked();
+  }, [location.pathname, navigate, authToken, isReceptionist]);
 
   useEffect(() => {
     // Load features asynchronously when the app renders
