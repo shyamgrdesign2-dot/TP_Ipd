@@ -129,6 +129,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           (obj) => obj.items
         ),
       }),
+      ...(selectedSymptomsCollector?.notes && {
+        others: [selectedSymptomsCollector.notes],
+      }),
     };
   };
 

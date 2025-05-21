@@ -65,6 +65,7 @@ import obstetricImg from "../assets/images/obstetric-dark.svg";
 import uploadDocImg from "../assets/images/upload-doc-dark.svg";
 import symptomsImg from "../assets/images/Symptoms.svg";
 import labResultImg from "../assets/images/Lab.svg";
+import others from "../assets/images/custom-module.svg";
 import Vaccination from "./vaccination/Vaccination";
 import GrowthChart from "./growthChart/GrowthChart";
 import { viewPatient } from "../redux/appointmentsSlice";
@@ -1654,6 +1655,22 @@ function SmartPrescription() {
                 <SCBanner handleBanner={() => setShowSCBanner(false)} />
               )}
               {CUSTOMIZED_PAD_LEFT_LIST()}
+              {selectedSymptomsCollector?.notes && (
+                <div className="prescription-box-sm p-14">
+                  <div style={{ padding: "6px" }}>
+                    <div className="d-flex align-items-center mb-14">
+                      <img className="me-3" src={others} alt="others" />
+                      <div className="title-common">Others</div>
+                    </div>
+                    <div
+                      className="d-flex calender-merge-input mt-3"
+                      style={{ fontSize: 14 }}
+                    >
+                      {selectedSymptomsCollector?.notes}
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="prescription-box-sm p-14">
                 <SmartRxFollowUpBox />
               </div>
