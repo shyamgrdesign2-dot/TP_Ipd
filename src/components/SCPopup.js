@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import symptoms from "../assets/images/Symptoms.svg";
 import custom from "../assets/images/custom-module.svg";
 import medicalHistory from "../assets/images/medical-history-dark.svg";
+import questions from "../assets/images/message-question.svg";
 import { useDispatch } from "react-redux";
 import {
   setSelectAutofill,
@@ -206,7 +207,7 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
     return [];
   });
 
-  // const [selectedNotes, setSelectedNotes] = useState(true);
+  const [selectedNotes, setSelectedNotes] = useState(true);
 
   // Format medical history for display
   const formattedMedicalHistory = formatMedicalHistoryForDisplay(
@@ -238,7 +239,7 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
 
     // Add selected symptoms to the formatted data
     formattedData.symptoms = selectedSymptomData;
-    formattedData.notes = symptomCollector.notes;
+    formattedData.notes = selectedNotes ? symptomCollector.notes : "";
     // Dispatch the selected data
     dispatch(setSelectedSymptomsCollector(formattedData));
     dispatch(setSelectAutofill(true));
@@ -587,29 +588,69 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
             <div className="d-flex align-items-center justify-content-between mb-3">
               <div className="d-flex gap-3 patient-details">
                 <img src={custom} alt="custom" />
-                <span style={{ color: "#454551" }}>Notes</span>
+                <span style={{ color: "#454551" }}>Additional Notes</span>
               </div>
 
-              {/* <span
+              <span
                 className="hyperling-text-style cursor-pointer"
                 onClick={() => {
                   setSelectedNotes((prev) => !prev);
                 }}
               >
                 {selectedNotes ? "Unselect All" : "Select All"}
-              </span> */}
+              </span>
             </div>
             <Divider style={{ margin: "15px 0px" }} />
             <div className="space-y-6">
               <div className="ml-3 mb-2 relative pl-4 d-flex gap-2">
                 <span className="text-[14px] font-medium text-gray-900 mb-1">
-                  {/* <Checkbox
+                  <Checkbox
                     className="me-2"
                     checked={selectedNotes}
                     onChange={() => setSelectedNotes((prev) => !prev)}
-                  /> */}
+                  />
                   {symptomCollector?.notes}
                 </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {symptomCollector?.questions?.length > 0 && (
+          <div
+            style={{
+              overflow: "auto",
+              background: "white",
+              padding: 18,
+              borderRadius: 10,
+              marginTop: 20,
+            }}
+          >
+            <div className="d-flex align-items-center justify-content-between mb-3">
+              <div className="d-flex gap-3 patient-details">
+                <img src={questions} alt="questions" />
+                <span style={{ color: "#454551" }}>
+                  Questions from patients
+                </span>
+              </div>
+              <span className="section-title-color" style={{ fontWeight: 500 }}>
+                Read only
+              </span>
+            </div>
+            <Divider style={{ margin: "15px 0px" }} />
+            <div className="space-y-6">
+              <div className="ml-3 mb-2 relative pl-4">
+                {symptomCollector?.questions?.map((question, index) => (
+                  <div
+                    key={index}
+                    className="d-flex align-items-start gap-2 mb-2"
+                  >
+                    <span className="bullet-point">•</span>
+                    <span className="text-[14px] font-medium text-gray-900">
+                      {question}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
