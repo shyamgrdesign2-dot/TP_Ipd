@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Input, Button, Form } from "antd";
+import { Input, Button, Form, Spin } from "antd";
 import "./Onboarding.scss";
 import abdmLogo from "../../../assets/images/abdm-logo.svg";
 import nhaLogo from "../../../assets/images/nha-logo.svg";
@@ -7,6 +7,8 @@ import googlePartner from "../../../assets/images/website-images/image.png";
 import leftGroup from "../../../assets/images/onboard-page-icons/Left-Group.svg";
 import rightGroup from "../../../assets/images/onboard-page-icons/Right-Group.svg";
 import { validateUser, checkPediaExists } from "../../auth/authService";
+import { getUtmParams } from "../../../components/userOnboarding/services/userDataService";
+import { detectOperatingSystem } from "../../../utils/utils";
 
 const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }) => {
   const [mobileNumber, setMobileNumber] = useState(initialMobileNumber || "");
@@ -17,6 +19,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   const [isLogin, setIsLogin] = useState(true);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     // MSG91 Integration
@@ -117,10 +120,19 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     };
   }, []);
 
+  console.log("redirectTo", localStorage.getItem("redirectTo"));
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const campaign = searchParams.get("utm_campaign");
     setIsFromCampaign(!!campaign);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setInitialLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const handleGetStarted = async () => {
@@ -179,6 +191,19 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           } else {
             // Proceed with signup flow
             if (window.sendOtp) {
+
+              // Get UTM params
+              const utm = getUtmParams();
+
+              window.Moengage.track_event('TP_OTP_Requested', {
+                  mobile: "91" + mobileNumber,
+                  utm_campaign: utm.utm_campaign ?? 'NA',
+                  utm_source: utm.utm_source ?? 'NA',
+                  utm_medium: utm.utm_medium ?? 'NA',
+                  utm_content: utm.utm_content ?? 'NA',
+                  utm_term: utm.utm_term ?? 'NA',
+                  operating_system: detectOperatingSystem()
+                });
               window.sendOtp(
                 `91${mobileNumber}`,
                 (data) => {
@@ -286,6 +311,29 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   const isCaptchaVerified = () => {
     return window.isCaptchaVerified ? window.isCaptchaVerified() : false;
   };
+
+  if (initialLoading) {
+    return (
+      <div className="signup-form-wrapper">
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgb(194 194 194 / 70%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <Spin size="large" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="signup-form-wrapper">
