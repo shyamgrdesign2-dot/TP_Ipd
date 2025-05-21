@@ -243,7 +243,7 @@ function App() {
       return;
     }
 
-    if (redirectTo === "doctorProfile") {
+    if (redirectTo === "profile") {
       localStorage.removeItem("redirectTo");
       navigate("/doctorProfile");
     }
