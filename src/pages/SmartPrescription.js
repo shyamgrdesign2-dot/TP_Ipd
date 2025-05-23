@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import "../pages/smartSync/smartSync.css";
-import { Button, Drawer, message } from "antd";
+import { Button, Drawer, message, Tooltip } from "antd";
 import { useLocation } from "react-router-dom";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -245,7 +245,7 @@ function SmartPrescription() {
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
   const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(GB_SMARTSYNC_CVT);
-
+  const isSCAccessable = useFeatureIsOn("symptoms-collector");
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
   const [privateNotesDrawer, setPrivateNotesDrawer] = useState(false);
@@ -468,11 +468,7 @@ function SmartPrescription() {
   }, []);
 
   useEffect(() => {
-    if (
-      (tokenData &&
-      tokenData?.hospital_business_id == env.zydus_business_id &&
-      isZydusUserAccessableFromGB) || true
-    ) {
+    if (isSCAccessable) {
       getSymptomsCollectorData();
     }
   }, [tokenData]);
@@ -1558,31 +1554,52 @@ function SmartPrescription() {
                     <div className="d-flex align-items-center">
                       <img src={symptomsImg} alt="symptoms" className="me-2" />
                       <div className="title-common">Symptoms</div>
-                      <div
-                        className="d-flex align-items-center justify-content-center gap-1"
-                        style={{
-                          backgroundColor: "rgba(181, 181, 255, 0.4)",
-                          padding: "2px 6px",
-                          borderRadius: "4px",
-                          marginLeft: "4px",
-                        }}
+                      <Tooltip
+                        title={
+                          <div>
+                            The{" "}
+                            <strong style={{ fontWeight: 600 }}>
+                              symptoms
+                            </strong>{" "}
+                            shared by the patient is just for reference. To
+                            include it in the{" "}
+                            <strong style={{ fontWeight: 600 }}>Rx</strong>, you
+                            have to
+                            <strong style={{ fontWeight: 600 }}>
+                              {" "}
+                              write it manually using Smartsync.
+                            </strong>
+                          </div>
+                        }
+                        overlayClassName="sc-tooltip"
+                        placement="topLeft"
                       >
-                        <span
-                          className="text-primary"
+                        <div
+                          className="d-flex align-items-center justify-content-center gap-1"
                           style={{
-                            fontSize: "14px",
+                            backgroundColor: "rgba(181, 181, 255, 0.4)",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
                           }}
                         >
-                          For reference only
-                        </span>
-                        <i
-                          class="icon-info"
-                          style={{
-                            color: "#4B4AD5",
-                            fontSize: 14,
-                          }}
-                        />
-                      </div>
+                          <span
+                            className="text-primary"
+                            style={{
+                              fontSize: "14px",
+                            }}
+                          >
+                            For reference only
+                          </span>
+                          <i
+                            class="icon-info"
+                            style={{
+                              color: "#4B4AD5",
+                              fontSize: 14,
+                            }}
+                          />
+                        </div>
+                      </Tooltip>
                     </div>
 
                     <div className="mt-3">
@@ -1660,7 +1677,53 @@ function SmartPrescription() {
                   <div style={{ padding: "6px" }}>
                     <div className="d-flex align-items-center mb-14">
                       <img className="me-3" src={others} alt="others" />
-                      <div className="title-common">Others</div>
+                      <div className="title-common">Additional Notes</div>
+                      <Tooltip
+                        title={
+                          <div>
+                            The{" "}
+                            <strong style={{ fontWeight: 600 }}>
+                              Additional Notes
+                            </strong>{" "}
+                            shared by the patient is just for reference. To
+                            include it in the{" "}
+                            <strong style={{ fontWeight: 600 }}>Rx</strong>, you
+                            have to
+                            <strong style={{ fontWeight: 600 }}>
+                              {" "}
+                              write it manually using Smartsync.
+                            </strong>
+                          </div>
+                        }
+                        overlayClassName="sc-tooltip"
+                        placement="topLeft"
+                      >
+                        <div
+                          className="d-flex align-items-center justify-content-center gap-1"
+                          style={{
+                            backgroundColor: "rgba(181, 181, 255, 0.4)",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                          }}
+                        >
+                          <span
+                            className="text-primary"
+                            style={{
+                              fontSize: "14px",
+                            }}
+                          >
+                            For reference only
+                          </span>
+                          <i
+                            class="icon-info"
+                            style={{
+                              color: "#4B4AD5",
+                              fontSize: 14,
+                            }}
+                          />
+                        </div>
+                      </Tooltip>
                     </div>
                     <div
                       className="d-flex calender-merge-input mt-3"
