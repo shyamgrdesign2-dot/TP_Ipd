@@ -1,4 +1,4 @@
-import { Button, Checkbox, Divider, Modal } from "antd";
+import { Button, Checkbox, Divider, message, Modal } from "antd";
 import { useState } from "react";
 import autoFill from "../assets/images/autofill-white.svg";
 import scHeaderBg from "../assets/images/sc-header-bg.png";
@@ -12,6 +12,8 @@ import symptoms from "../assets/images/Symptoms.svg";
 import custom from "../assets/images/custom-module.svg";
 import medicalHistory from "../assets/images/medical-history-dark.svg";
 import questions from "../assets/images/message-question.svg";
+import successIcon from "../assets/images/end-visit.svg";
+import closeIcon from "../assets/images/close-visit.svg";
 import { useDispatch } from "react-redux";
 import {
   setSelectAutofill,
@@ -244,6 +246,32 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
     dispatch(setSelectedSymptomsCollector(formattedData));
     dispatch(setSelectAutofill(true));
     handlePopup();
+    toastMessage();
+  };
+
+  const toastMessage = () => {
+    message.open({
+      key: "sc-popup-message",
+      type: "",
+      className: "message-appointment",
+      content: (
+        <div className="d-flex align-items-center">
+          <img src={successIcon} className="me-3" alt="Success" />
+          <div>
+            <div className="title-common text-start fontroboto">
+              Successfully Autofilled Symptoms and Medical History
+            </div>
+          </div>
+          <img
+            src={closeIcon}
+            className="ms-3 cursor-pointer"
+            onClick={() => message.destroy("sc-popup-message")}
+            alt="Close"
+          />
+        </div>
+      ),
+      duration: 5,
+    });
   };
 
   return (

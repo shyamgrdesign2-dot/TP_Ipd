@@ -256,6 +256,7 @@ function Prescription() {
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
+  const isSCAccessable = useFeatureIsOn("symptoms-collector");
   const {
     isVaccinationAccessable,
     isGrowthChartAccessable,
@@ -671,10 +672,7 @@ function Prescription() {
   }, []);
 
   useEffect(() => {
-    if (
-      (tokenData?.hospital_business_id == env.zydus_business_id &&
-      isZydusUserAccessableFromGB) || true
-    ) {
+    if (isSCAccessable) {
       getSymptomsCollectorData();
     }
   }, []);
