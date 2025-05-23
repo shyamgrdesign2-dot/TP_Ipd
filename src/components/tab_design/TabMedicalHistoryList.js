@@ -6,6 +6,8 @@ import { GB_GYNEC_HISTORY } from "../../utils/constants";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import TabGynecHistoryList from "./TabGynecHistoryList";
 import { useAccess } from "../../pages/vaccination/useAccess";
+import { useSelector } from "react-redux";
+import genRxBg from "../../assets/images/gen-rx-bg.gif";
 
 // Read More content
 const ReadMore = ({ children }) => {
@@ -32,8 +34,72 @@ function TabMedicalHistoryList(props) {
 
     const {gynecHistory} = props
     const [accordionItems, setAccordionItems] = useState([]);
+    const [showShimmer, setShowShimmer] = useState(false);
 
     const {isGynaecHistoryAccessable} = useAccess();
+    const {
+    isAutofillSelected,
+    selectedSymptomsCollector,
+    } = useSelector((state) => state.ddx);
+
+    useEffect(() => {
+    if (isAutofillSelected) {
+        setShowShimmer(true);
+        if (selectedSymptomsCollector?.medicalHistory?.length > 0) {
+        }
+        const timer = setTimeout(() => {
+        setShowShimmer(false);
+        }, 1000); // 1 seconds
+
+        return () => clearTimeout(timer); // Cleanup timeout
+    }
+    }, [isAutofillSelected]);
+
+    const MedicalHistoryShimmer = () => {
+        return (
+          <div
+            className="medical-history-shimmer"
+            style={{ background: `url(${genRxBg})`, padding: "2px" }}
+          >
+            <div style={{ background: "white", borderRadius: "17px", padding: "16px" }}>
+              {/* Medical Condition Section */}
+              <div className="section-shimmer">
+                <div className="section-title-shimmer">
+                  <div className="title-bar-shimmer" />
+                  <div className="icon-shimmer" />
+                </div>
+                <div className="content-line-shimmer medium" />
+                <div className="content-line-shimmer long" />
+              </div>
+
+              <div className="divider-shimmer" />
+
+              {/* Allergies Section */}
+              <div className="section-shimmer">
+                <div className="section-title-shimmer">
+                  <div className="title-bar-shimmer" />
+                  <div className="icon-shimmer" />
+                </div>
+                <div className="content-line-shimmer short" />
+                <div className="content-line-shimmer medium" />
+                <div className="content-line-shimmer short" />
+              </div>
+
+              <div className="divider-shimmer" />
+
+              {/* Family History Section */}
+              <div>
+                <div className="section-title-shimmer">
+                  <div className="title-bar-shimmer" />
+                  <div className="icon-shimmer" />
+                </div>
+                <div className="content-line-shimmer short" />
+                <div className="content-line-shimmer medium" />
+              </div>
+            </div>
+          </div>
+        );
+    };
 
     useEffect(() => {
         if (medicalHistoryData.length > 0) {
@@ -144,7 +210,7 @@ function TabMedicalHistoryList(props) {
                         <i className='icon-Add me-2 fs-21'></i>
                         Add or Edit History
                     </Button>
-                    {((hasGynecHistory && isGynaecHistoryAccessable) || hasMedicalHistory) && (
+                    {showShimmer ? <MedicalHistoryShimmer /> : ((hasGynecHistory && isGynaecHistoryAccessable) || hasMedicalHistory) && (
                         <div className="border rounded-3 bg-body mt-3 p-10">
                             {hasGynecHistory && isGynaecHistoryAccessable && (
                                 <TabGynecHistoryList gynecHistory={gynecHistory} />

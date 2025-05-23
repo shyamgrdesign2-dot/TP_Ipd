@@ -45,6 +45,7 @@ import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { useSelector } from "react-redux";
+import SCBanner from "./SCBanner";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -57,6 +58,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [prescriptionData, setPrescriptionData] = useState(null);
+  const [symptomsCollectorData, setSymptomsCollectorData] = useState(null);
   const [localModules, setLocalModules] = useState([]);
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
@@ -82,7 +84,10 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const doctorId = decodedToken?.result?.user_id;
   const [audioBlob, setAudioBlob] = useState(null);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
-  const { profile } = useSelector((state) => state.doctors);
+  const [showSCBanner, setShowSCBanner] = useState(false);
+  const { profile, userId } = useSelector((state) => state.doctors);
+  const { symptomCollector, isAutofillSelected, selectedSymptomsCollector } =
+    useSelector((state) => state.ddx);
   const { TextArea } = Input;
 
   const showHideBackModal = useCallback(() => {
@@ -105,6 +110,49 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   useEffect(() => {
     if (caseManagerData?.smart_prescription_filename) getGenRxDetails();
   }, [caseManagerData?.smart_prescription_filename]);
+
+  useEffect(() => {
+    if (symptomCollector && Object.keys(symptomCollector)?.length > 0) {
+      setShowSCBanner(true);
+    }
+  }, [symptomCollector]);
+
+  const getFormattedSymptomsCollectorData = (selectedSymptomsCollector) => {
+    return {
+      ...(selectedSymptomsCollector?.symptoms?.length && {
+        symptoms: selectedSymptomsCollector.symptoms,
+      }),
+      ...(selectedSymptomsCollector?.medicalHistory?.some(
+        (obj) => obj.items?.length
+      ) && {
+        medicalHistory: selectedSymptomsCollector.medicalHistory.flatMap(
+          (obj) => obj.items
+        ),
+      }),
+      ...(selectedSymptomsCollector?.notes && {
+        others: [selectedSymptomsCollector.notes],
+      }),
+    };
+  };
+
+  useEffect(() => {
+    if (
+      isAutofillSelected &&
+      selectedSymptomsCollector &&
+      Object.keys(selectedSymptomsCollector)?.length > 0
+    ) {
+      const formattedSymptomsCollectorData = getFormattedSymptomsCollectorData(
+        selectedSymptomsCollector
+      );
+      setSymptomsCollectorData(formattedSymptomsCollectorData);
+      setPrescriptionData(formattedSymptomsCollectorData);
+      setShowPrescription(true);
+
+      if (!caseManagerData?.smart_prescription_filename) {
+        handleVoiceDigitize(null, null, true);
+      }
+    }
+  }, [selectedSymptomsCollector, isAutofillSelected]);
 
   // Timer logic
   useEffect(() => {
@@ -134,9 +182,16 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           type: response.data.type,
           _id: response.data._id,
         });
-        setQueries(
-          response.data?.history?.map(({ transcription }) => transcription)
-        );
+        // Check if history exists and has data before mapping
+        if (response.data?.history?.length > 0) {
+          const validTranscriptions = response.data.history
+            .map(({ transcription }) => transcription)
+            .filter((text) => text && text !== "null");
+
+          if (validTranscriptions.length > 0) {
+            setQueries(validTranscriptions);
+          }
+        }
       } else {
         throw new Error(response.error || "Failed to get Rx");
       }
@@ -243,7 +298,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   const preparePayloadForApi = () => {
-    const { dynamicFields = {} } = prescriptionData;
+    const cleanedData = removeScItems(prescriptionData);
+    const { dynamicFields = {} } = cleanedData;
 
     // Exclude local modules based on localModules state
     const filteredDynamicFields = Object.keys(dynamicFields).reduce(
@@ -257,12 +313,25 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
     );
 
     return {
-      ...prescriptionData,
+      ...cleanedData,
       dynamicFields: filteredDynamicFields,
     };
   };
 
-  const handleVoiceDigitize = async (audioBlob, transcribedText) => {
+  const removeScItems = (data) => {
+    // Create a new object with filtered arrays
+    return {
+      ...data,
+      symptoms: data.symptoms.filter((symptom) => !symptom.SC),
+      medicalHistory: data.medicalHistory.filter((history) => !history.SC),
+    };
+  };
+
+  const handleVoiceDigitize = async (
+    audioBlob,
+    transcribedText,
+    isFromSC = false
+  ) => {
     try {
       const formData = new FormData();
       if (audioBlob) {
@@ -291,22 +360,44 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         ? await updateGenRx(formData, genRxDetails?._id)
         : await generateRx(formData);
       if (response.success) {
-        setPrescriptionData(response.data.digitize);
-        setPrescriptionData(() => {
-          // Merge localModules into dynamicFields
-          const mergedDynamicFields = {
-            ...response.data.digitize?.dynamicFields, // Retain API-provided dynamicFields
-            ...localModules.reduce((acc, moduleName) => {
-              acc[moduleName] = []; // Add local modules with default values
-              return acc;
-            }, {}),
-          };
+        if (!isFromSC) {
+          setPrescriptionData(response.data.digitize);
+          setPrescriptionData(() => {
+            // Merge localModules into dynamicFields
+            const mergedDynamicFields = {
+              ...response.data.digitize?.dynamicFields, // Retain API-provided dynamicFields
+              ...localModules.reduce((acc, moduleName) => {
+                acc[moduleName] = []; // Add local modules with default values
+                return acc;
+              }, {}),
+            };
 
-          return {
-            ...response.data.digitize,
-            dynamicFields: mergedDynamicFields, // Updated dynamicFields with localModules
-          };
-        });
+            const formattedSymptomsCollectorData =
+              getFormattedSymptomsCollectorData(selectedSymptomsCollector);
+            const mergedData =
+              formattedSymptomsCollectorData &&
+              Object.keys(formattedSymptomsCollectorData)?.length > 0
+                ? mergeData(
+                    response.data.digitize,
+                    formattedSymptomsCollectorData
+                  )
+                : response.data.digitize;
+
+            return {
+              ...mergedData,
+              dynamicFields: mergedDynamicFields, // Updated dynamicFields with localModules
+            };
+          });
+
+          setQueries(
+            isEditing
+              ? [
+                  ...queries.slice(0, queries.length - 1),
+                  response.data.transcription,
+                ]
+              : [...queries, response.data.transcription]
+          );
+        }
 
         // Clear localModules after merging (optional)
         // setLocalModules([]);
@@ -317,14 +408,6 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           type: response.data.type,
           _id: response.data._id,
         });
-        setQueries(
-          isEditing
-            ? [
-                ...queries.slice(0, queries.length - 1),
-                response.data.transcription,
-              ]
-            : [...queries, response.data.transcription]
-        );
         setInputText("");
         setIsEditing(false);
       } else {
@@ -360,6 +443,59 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       console.error("Error in voice digitization:", error);
       message.error(error.message || "Failed to process prescription");
     }
+  };
+
+  const mergeData = (data1, data2) => {
+    // Helper function to check if two items are duplicates
+    const isDuplicate = (item1, item2) => {
+      return (
+        item1.name === item2.name &&
+        item1.duration === item2.duration &&
+        item1.severity === item2.severity &&
+        item1.notes === item2.notes
+      );
+    };
+
+    // Add SC flag to data2 items
+    const data2WithSC = {
+      ...data2,
+      symptoms: data2?.symptoms?.map((symptom) => ({
+        ...symptom,
+        SC: true,
+      })),
+      medicalHistory: data2?.medicalHistory?.map((history) => ({
+        ...history,
+        SC: true,
+      })),
+    };
+
+    // Merge symptoms arrays while removing duplicates
+    const mergedSymptoms = [...data1?.symptoms];
+    data2WithSC?.symptoms?.forEach((symptom2) => {
+      if (!mergedSymptoms.some((symptom1) => isDuplicate(symptom1, symptom2))) {
+        mergedSymptoms.push(symptom2);
+      }
+    });
+
+    // Merge medicalHistory arrays while removing duplicates
+    const mergedMedicalHistory = [...data1.medicalHistory];
+    data2WithSC.medicalHistory.forEach((history2) => {
+      if (
+        !mergedMedicalHistory.some((history1) =>
+          isDuplicate(history1, history2)
+        )
+      ) {
+        mergedMedicalHistory.push(history2);
+      }
+    });
+
+    // Return merged object
+    return {
+      ...data1,
+      ...data2,
+      symptoms: mergedSymptoms,
+      medicalHistory: mergedMedicalHistory,
+    };
   };
 
   const handleEdit = () => {
@@ -504,7 +640,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           } else if (type === "followUp") {
             updatedData.followUp = "";
           } else {
-            updatedData[type] = updatedData[type].filter((_, i) => i !== index);
+            updatedData[type] = updatedData?.[type]?.filter(
+              (_, i) => i !== index
+            );
           }
           return updatedData;
         }
@@ -584,7 +722,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   async function onEndVisitClick() {
-    if (isRxEdited || localModules?.length) handleUpdateGenRX();
+    if (
+      isRxEdited ||
+      localModules?.length ||
+      (symptomsCollectorData && Object.keys(symptomsCollectorData)?.length > 0)
+    )
+      handleUpdateGenRX();
     const sendData = {
       action: tcmId === 0 ? "add" : "edit",
       tcm_id: tcmId,
@@ -1223,6 +1366,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
               )}
             </div>
           </div>
+          {showSCBanner && !showPrescription && (
+            <div style={{ margin: "20px 30px" }}>
+              <SCBanner handleBanner={() => setShowSCBanner(false)} />
+            </div>
+          )}
           <div
             className={!showPrescription ? styles.gradientBorder : ""}
             style={{ background: !showPrescription ? `url(${genRxBg})` : "" }}
