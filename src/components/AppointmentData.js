@@ -15,7 +15,8 @@ import {
     Button,
     message,
     Modal,
-    Spin
+    Spin,
+    Tour
 } from "antd";
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
@@ -30,11 +31,13 @@ import noData from "../assets/images/nodata-found.svg";
 import visitEnd from '../assets/images/end-visit.svg';
 import ImgcancelEnd from '../assets/images/cancel-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
+import newTag from "../assets/images/new-gif.gif";
 import alertIcon from '../assets/images/alertIcon.svg';
 import { MESSAGE_KEY } from "../utils/constants";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import docimg from "../assets/images/docimg.png";
 import welcomdoc from "../assets/images/welcom-doc.svg";
+import symptoms from "../assets/images/symptoms-green.svg";
 import suporticon from "../assets/images/suport-icon.svg";
 import windoc from "../assets/images/win-doc.png";
 
@@ -77,6 +80,7 @@ import AddAdvance from "../pages/opdBilling/components/advanceDeposit/AddAdvance
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 import { setAdvancedSettings, setBillPrintSettings, setShouldShowOpdBilling } from "../redux/billingSlice";
 import WelcomeModal from "./userOnboarding/welcomeModal/WelcomeModal";
+import { checkSymptomsCollectorTour } from "../api/services/ApiGenRx";
 
 const { TextArea } = Input;
 
@@ -138,7 +142,56 @@ function AppointmentData({ locationPath }) {
     const isReceptionist = urlParams.has("receptionist");
     const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
       useState(null);
+    const [tourRef, setTourRef] = useState(null);
 
+     // Add the tour handler
+    const onTourHandle = () => {
+        setIsSymptomsCollectorTour(false);
+    };
+
+    // Add the steps configuration
+    const steps = [
+      {
+        title: (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "20px",
+              fontWeight: "500",
+              color: "#1A1A1A",
+              width: "305px",
+            }}
+          >
+            Symptoms Collected
+            <img className="img-fluid" width={52} height={20} src={newTag} />
+          </div>
+        ),
+        description: (
+          <div
+            style={{
+              fontSize: "16px",
+              color: "#454551",
+              lineHeight: "24px",
+              width: "305px",
+            }}
+          >
+            This icon means the AI Agent Mira has collected the patient's{" "}
+            <strong style={{ fontWeight: 600 }}>symptoms</strong> &{" "}
+            <strong style={{ fontWeight: 600 }}>medical history</strong>. You
+            can now <strong style={{ fontWeight: 600 }}>preview</strong> and{" "}
+            <strong style={{ fontWeight: 600 }}>autofill</strong> them into the{" "}
+            <strong style={{ fontWeight: 600 }}>Rx</strong>
+          </div>
+        ),
+        target: () => tourRef,
+        nextButtonProps: {
+          children: <div className="sc-tour-button">Got it</div>,
+          onClick: onTourHandle,
+        },
+      },
+    ];
 
     const handleDrawerUploadDoc = () => {
         setUploadDocDrawer(!uploadDocDrawer);
@@ -459,6 +512,26 @@ function AppointmentData({ locationPath }) {
     const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
     const [patientBills, setPatientBills] = useState([]);
     const [patientWalletBalance, setPatientWalletBalance] = useState(0);
+    const [isSymptomsCollectorTour, setIsSymptomsCollectorTour] = useState(false);
+    const [firstSymptomIndex, setFirstSymptomIndex] = useState(null);
+
+    // Add this useEffect to find the first record with symptoms
+    useEffect(() => {
+      if (
+        selectedTab !== TAB_ZYDUS_ENCOUNTER &&
+        selectedTab !== TAB_ZYDUS_APPOINTMENT
+      ) {
+        const firstIndex = appointmentsData?.findIndex(
+          (record) => record.symptomsGathered
+        );
+        setFirstSymptomIndex(firstIndex);
+      } else {
+        const firstIndex = matchedAppointment?.findIndex(
+          (record) => record.symptomsGathered
+        );
+        setFirstSymptomIndex(firstIndex);
+      }
+    }, [appointmentsData, matchedAppointment, selectedTab]);
 
     const showHideBackModal = () => {
         setIsBackModalOpen(!isBackModalOpen);
@@ -478,6 +551,7 @@ function AppointmentData({ locationPath }) {
             dispatch(resetObstetricState());
             dispatch(resetUploadDocState());
             dispatch(resetDDxState());
+            getSymptomCollectorTourCheck();
         }
     }, []);
 
@@ -526,6 +600,18 @@ function AppointmentData({ locationPath }) {
             getShowOpdBilling();
         }
     }, []);
+
+    const getSymptomCollectorTourCheck = async () => {
+        const decodedToken = getDecodedToken();
+        const clinicId = String(decodedToken?.result?.clinic_id);
+        const isSymptomsCollectorTourRes = await checkSymptomsCollectorTour({
+          um_id: userId,
+          hm_id: clinicId,
+        });
+        if (isSymptomsCollectorTourRes) {
+            setIsSymptomsCollectorTour(true);
+        }
+    };
 
     const getShowOpdBilling = async () => {
         const res = await checkToShowOpdBilling();
@@ -1284,10 +1370,10 @@ function AppointmentData({ locationPath }) {
         {
             title: selectedTab != TAB_ZYDUS_APPOINTMENT ? "Action" : "",
             key: "action",
-            width: 170,
+            width: 200,
             render: (_, record, index) => (
                 selectedTab != TAB_ZYDUS_APPOINTMENT ?
-                    <div size="middle" style={{ display: "flex" }}>
+                    <div size="middle" style={{ display: "flex", justifyContent: "space-between" }}>
                         {isSmartSyncAccessableFromGB && !isMobile && selectedTab != TAB_ZYDUS_ENCOUNTER ? (
                             isDigitisationTab ?
                                 <>
@@ -1295,7 +1381,7 @@ function AppointmentData({ locationPath }) {
                                         {"Digitise Rx"}
                                     </button>
                                 </> :
-                                <>
+                                <div className="d-flex">
                                     {selectedTab !== TAB_CANCELLED && (
                                         <button
                                             // className="btn btn-outline-primary btn-smart-rx" 
@@ -1323,7 +1409,7 @@ function AppointmentData({ locationPath }) {
                                             Consult
                                         </button>
                                     }
-                                </>
+                                </div>
                         ) : (
                             <>
                                 {selectedTab !== TAB_CANCELLED && selectedTab != TAB_ZYDUS_APPOINTMENT && !finishedData.some((x) => x.pam_ref_id == record.encounterId) && (
@@ -1333,9 +1419,35 @@ function AppointmentData({ locationPath }) {
                                 )}
                             </>
                         )}
+                        {record?.symptomsGathered && (
+                        <>
+                            <img 
+                                ref={index === firstSymptomIndex ? setTourRef : null}
+                                src={symptoms} 
+                                alt="symptoms" 
+                                onClick={() => setIsSymptomsCollectorTour(true)}
+                                style={{ cursor: 'pointer', marginLeft: '10px' }}
+                            />
+                             {index === firstSymptomIndex &&
+                             (<Tour 
+                                placement="bottomRight"
+                                closeIcon={false} 
+                                open={isSymptomsCollectorTour} 
+                                steps={steps} 
+                                onClose={onTourHandle}
+                                maskClosable={true}
+                                style={{
+                                    width: '305px',
+                                    borderRadius: '16px',
+                                    padding: '24px'
+                                }}
+                                width={305}
+                            />)}
+                        </>
+                        )}
                         {!isDigitisationTab && selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT &&
                             <Dropdown
-                                className="btn btn-outline btn-more ms-3"
+                                className="btn btn-outline btn-more ms-3 d-flex align-items-center"
                                 menu={{
                                     items: getMenuItems(record),
                                 }}

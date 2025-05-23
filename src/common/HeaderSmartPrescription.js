@@ -98,8 +98,9 @@ function HeaderPrescription({
     followUpDate,
     setFollowUpDate,
     additionalNote,
-    pillupSwitch, 
-    setPillupSwitch 
+    pillupSwitch,
+    setPillupSwitch,
+    setMedicalHistoryData,
   } = useContext(CashManagerContext);
 
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
@@ -125,6 +126,9 @@ function HeaderPrescription({
     useFeatureIsOn(GB_SMARTSYNC_CONNECT);
 
   const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
+  const { isAutofillSelected, selectedSymptomsCollector } = useSelector(
+    (state) => state.ddx
+  );
 
   const items = [
     {
@@ -132,6 +136,93 @@ function HeaderPrescription({
       key: "clear",
     },
   ];
+
+  useEffect(() => {
+    if (
+      isAutofillSelected &&
+      selectedSymptomsCollector?.medicalHistory &&
+      selectedSymptomsCollector.medicalHistory.length > 0
+    ) {
+      // Create a new array to store the updated medical history
+      let updatedMedicalHistory = [...medicalHistoryData];
+
+      if (updatedMedicalHistory.length === 0) {
+        updatedMedicalHistory = selectedSymptomsCollector.medicalHistory?.map(
+          (e, i) => {
+            return {
+              title: e?.title,
+              tmmhs_id: e?.tmmhs_id,
+              no_know_history: false,
+              tags: [],
+            };
+          }
+        );
+      }
+
+      // Process each section from selectedSymptomsCollector
+      selectedSymptomsCollector.medicalHistory.forEach((section) => {
+        // Find the matching section in medicalHistoryData
+        const sectionIndex = updatedMedicalHistory.findIndex(
+          (item) => item.title.toLowerCase() === section.title.toLowerCase()
+        );
+
+        if (sectionIndex !== -1) {
+          // Process each item in the section
+          section.items.forEach((newItem) => {
+            // Create tag based on section type
+            const newTag = {
+              tmmhst_id: Math.floor(Math.random() * 10000),
+              title: newItem.name,
+              pms_default: 0,
+              enable: "Y",
+              note: newItem.notes || "",
+            };
+
+            // Add specific fields based on section type
+            switch (section.title) {
+              case "Medical Condition":
+                newTag.since = newItem.duration || "";
+                newTag.status = "Active";
+                newTag.medication = "Yes";
+                newTag.MonthYear = "April 2025"; // Or use dynamic date
+                newTag.oldSince = newItem.duration || "";
+                break;
+
+              case "Allergies":
+                newTag.since = newItem.duration || "";
+                newTag.status = "Active";
+                newTag.MonthYear = "April 2025";
+                newTag.oldSince = newItem.duration || "";
+                break;
+
+              case "Family History":
+                newTag.relationship = newItem.relation || "";
+                newTag.newSince = "";
+                newTag.MonthYear = "";
+                break;
+
+              case "Lifestyle":
+                newTag.since = newItem.duration || "";
+                newTag.status = "Active";
+                newTag.MonthYear = "April 2025";
+                newTag.oldSince = newItem.duration || "";
+                break;
+
+              case "Additional History":
+                // Handle additional history items if needed
+                break;
+            }
+
+            // Add the new tag to the section
+            updatedMedicalHistory[sectionIndex].tags.push(newTag);
+          });
+        }
+      });
+
+      // Update the medical history state
+      setMedicalHistoryData(updatedMedicalHistory);
+    }
+  }, [isAutofillSelected, selectedSymptomsCollector]);
 
   async function onResetClick() {
     setVitalsData([]);

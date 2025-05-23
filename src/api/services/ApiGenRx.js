@@ -60,3 +60,18 @@ export const fetchSymptomsCollectorData = async function (payload) {
   }
   return res;
 };
+
+export const checkSymptomsCollectorTour = async function (payload) {
+  let res = {};
+  try {
+    res = await api.post(
+      `/api/v1/agents/get-appointment-ids`,
+      payload,
+      symptomsCollectorBaseUrl
+    );
+    res = res?.pam_ids?.length === 1;
+  } catch (e) {
+    console.error("Error while checking symptoms collector tour: ", e);
+  }
+  return res;
+};
