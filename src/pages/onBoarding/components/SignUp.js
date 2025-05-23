@@ -13,6 +13,7 @@ import { detectOperatingSystem } from "../../../utils/utils";
 const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }) => {
   const [mobileNumber, setMobileNumber] = useState(initialMobileNumber || "");
   const [error, setError] = useState(null);
+  const [errorType, setErrorType] = useState(null);
   const [primaryBtnLoading, setPrimaryBtnLoading] = useState(false);
   const [secondaryBtnLoading, setSecondaryBtnLoading] = useState(false);
   const [isFromCampaign, setIsFromCampaign] = useState(false);
@@ -20,6 +21,8 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  // Get UTM params
+  const utm = getUtmParams();
 
   useEffect(() => {
     // MSG91 Integration
@@ -120,7 +123,6 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     };
   }, []);
 
-  console.log("redirectTo", localStorage.getItem("redirectTo"));
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const campaign = searchParams.get("utm_campaign");
@@ -138,11 +140,13 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   const handleGetStarted = async () => {
     if (!scriptLoaded) {
       setError("OTP service is initializing. Please try again in a moment.");
+      setErrorType("captcha");
       return;
     }
 
     if(!isCaptchaVerified()){
       setError("Please complete the captcha verification before continuing");
+      setErrorType("captcha");
       return;
     }
 
@@ -162,19 +166,62 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           
           setIsFromCampaign(false);
           if (isFromCampaign || !isLoginFlow) {
-            setError("Looks like this account already exists. Please log in instead");
-            setTimeout(() => {
-              onViewChange("loginOTP", mobileNumber, true);
-            }, 2000);
+            setErrorType("inputFiled");
+            setError(
+              <>
+                Looks like this account already exists. Please{' '}
+                <span 
+                  onClick={() => {
+                    onViewChange("loginOTP", mobileNumber, true);
+                    setError(null);
+                    setErrorType(null);
+                  }}
+                  className="login-link"
+                >
+                 Sign in
+                </span>
+                {' '}instead
+              </>
+            );
           }
           else if (window.sendOtp) {
+            // moengage event for login via OTP
+            window.Moengage.track_event('TP_NewLoginFlow_Login_With_OTP', {
+              mobile: "91" + mobileNumber,
+              utm_campaign: utm.utm_campaign ?? 'NA',
+              utm_source: utm.utm_source ?? 'NA',
+              utm_medium: utm.utm_medium ?? 'NA',
+              utm_content: utm.utm_content ?? 'NA',
+              utm_term: utm.utm_term ?? 'NA',
+              operating_system: detectOperatingSystem()
+            });
+
             window.sendOtp(
               `91${mobileNumber}`,
               (data) => {
-                onViewChange("verifyOTP", mobileNumber, true , "", false,data.message);
+                // console.log(data,"data")
+                if (data.type === "success"){
+                  // moengage event for OTP sent
+                  window.Moengage.track_event('TP_NewLoginFlow_Login_with_OTP_Success', {
+                    mobile: "91" + mobileNumber,
+                    utm_campaign: utm.utm_campaign ?? 'NA',
+                    utm_source: utm.utm_source ?? 'NA',
+                    utm_medium: utm.utm_medium ?? 'NA',
+                    utm_content: utm.utm_content ?? 'NA',
+                    utm_term: utm.utm_term ?? 'NA',
+                    operating_system: detectOperatingSystem()
+                  });
+                  onViewChange("verifyOTP", mobileNumber, true , "", false,data.message);
+                }
+                // else{
+                //   setError("Failed to send OTP. Please try again.");
+                //   setErrorType("captcha");
+                //   setIsButtonDisabled(false);
+                // }
               },
               (error) => {
                 setError("Failed to send OTP. Please try again.");
+                setErrorType("captcha");
                 setIsButtonDisabled(false);
               }
             );
@@ -184,18 +231,28 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
         case "Doctor does not exists!":
         case "User does not exists":
           if (isLoginFlow) {
-            setError("User does not exist. Please sign up first.");
-            setTimeout(() => {
-              onViewChange("signup", mobileNumber, false);
-            }, 2000);
+            setError(
+              <>
+                User does not exist. Please{' '}
+                <span 
+                  onClick={() => {
+                    onViewChange("signup", mobileNumber, false);
+                    setError(null);
+                    setErrorType(null);
+                  }}
+                  className="login-link"
+                >
+                  sign up
+                </span>
+                {' '}
+              </>
+            );
+            setErrorType("inputFiled");
           } else {
             // Proceed with signup flow
             if (window.sendOtp) {
 
-              // Get UTM params
-              const utm = getUtmParams();
-
-              window.Moengage.track_event('TP_OTP_Requested', {
+              window.Moengage.track_event('TP_NewLoginFlow_GetStarted', {
                   mobile: "91" + mobileNumber,
                   utm_campaign: utm.utm_campaign ?? 'NA',
                   utm_source: utm.utm_source ?? 'NA',
@@ -207,10 +264,24 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               window.sendOtp(
                 `91${mobileNumber}`,
                 (data) => {
-                  onViewChange("verifyOTP", mobileNumber, false, "", false, data.message);
+                  // console.log(data,"data")
+                  if (data.type === "success"){
+                    // moengage event for OTP sent for signup
+                    window.Moengage.track_event('TP_NewLoginFlow_SignupOTP_sucess', {
+                      mobile: "91" + mobileNumber,
+                      utm_campaign: utm.utm_campaign ?? 'NA',
+                      utm_source: utm.utm_source ?? 'NA',
+                      utm_medium: utm.utm_medium ?? 'NA',
+                      utm_content: utm.utm_content ?? 'NA',
+                      utm_term: utm.utm_term ?? 'NA',
+                      operating_system: detectOperatingSystem()
+                    });
+                    onViewChange("verifyOTP", mobileNumber, false, "", false, data.message);
+                  }
                 },
                 (error) => {
                   setError("Failed to send OTP. Please try again.");
+                  setErrorType("captcha");
                   setIsButtonDisabled(false);
                 }
               );
@@ -222,14 +293,17 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           setError(
             "Your account has been locked by Admin. Please contact support@tatvacare.in/9974042363"
           );
+          setErrorType("inputFiled");
           break;
 
         default:
           setError("Unexpected response from server.");
+          setErrorType("captcha");
       }
     } catch (error) {
       console.error("Error checking user status:", error);
       setError("Something went wrong. Please try again.");
+      setErrorType("captcha");
     } finally {
       setPrimaryBtnLoading(false);
       setIsButtonDisabled(false);
@@ -250,21 +324,41 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
       const { message, passwordSet } = response;
 
       if (message === "Doctor exists!") {
-        if (passwordSet) {
+
+        if (passwordSet) {   
+          // moengage event for login via password
+          window.Moengage.track_event('TP_NewLoginFlow_Login_With_Password', {
+            mobile: "91" + mobileNumber,
+            operating_system: detectOperatingSystem()
+          });
+
           // If password is set, go to verify password page
           onViewChange("verifyPassword", mobileNumber, true);
         } else {
           // If password is not set, go to set password page
-          setError("Please set up your password first");
+          // setError("Please set up your password first");
           setTimeout(() => {
             onViewChange("setPassword", mobileNumber, true);
           }, 2000);
         }
       } else if (message === "Doctor does not exists!") {
-        setError("User does not exist. Please sign up first.");
-        setTimeout(() => {
-          onViewChange("signup", mobileNumber, false);
-        }, 2000);
+        setError(
+          <>
+            User does not exist. Please{' '}
+            <span 
+              onClick={() => {
+                onViewChange("signup", mobileNumber, false);
+                setError(null);
+                setErrorType(null);
+              }}
+              className="login-link"
+            >
+              signup
+            </span>
+            {' '}
+          </>
+        );
+        setErrorType("inputFiled");
       }
     } catch (error) {
       console.error("Error checking user status:", error);
@@ -338,12 +432,12 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   return (
     <div className="signup-form-wrapper">
       <div className="signup-form-container">
-        <h2>
+        <h2 style={{ margin: "1rem 0 3rem 0" }}>
           {isLoginFlow ? (
             "Welcome Back"
           ) : (
             <>
-              Sign up{" "}
+              Signup{" "}
               {isFromCampaign && (
                 <>
                   for <span className="gradient-text"> free</span>
@@ -373,14 +467,14 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               bordered={false}
               maxLength={10}
             />
-            {error && (error === "Looks like this account already exists. Please log in instead") && <div className="error-message" style={{marginTop: "0.5rem"}}>{error}</div>}
+            {error && errorType === "inputFiled" && <div className="error-message" style={{marginTop: "0.5rem"}}>{error}</div>}
           </Form.Item>
 
           <div className="captcha-wrapper" style={{margin: "1.5rem 0 1rem 0"}}>
             <div id="captch-id" className="captcha-container" />
           </div>
 
-          {error && (error !== "Looks like this account already exists. Please log in instead") && <div className="error-message">{error}</div>}
+          {error && errorType === "captcha" && <div className="error-message">{error}</div>}
 
           <Button
             type="primary"

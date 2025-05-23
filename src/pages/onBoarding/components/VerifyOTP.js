@@ -11,6 +11,8 @@ import { verifyAccessToken } from "../../auth/authService";
 import { setPassword } from "../../auth/authService";
 import { loginWithPassword } from "../../auth/authService";
 import { useNavigate } from "react-router-dom";
+import { detectOperatingSystem } from "../../../utils/utils";
+import { getUtmParams } from "../../../components/userOnboarding/services/userDataService";
 
 const VerifyOTP = ({
   onViewChange,
@@ -25,9 +27,12 @@ const VerifyOTP = ({
   const [canResend, setCanResend] = useState(false);
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [resendReqId, setResendReqId] = useState(null);
+  // Get UTM params
+  const utm = getUtmParams();
 
   useEffect(() => {
     if (timer > 0) {
@@ -51,6 +56,18 @@ const VerifyOTP = ({
 
     setLoading(true);
     if (window.retryOtp) {
+      if(isLoginFlow){
+        window.Moengage.track_event('TP_NewLoginFlow_Login_Resend_OTP', {
+          mobile: "91" + mobileNumber,
+          operating_system: detectOperatingSystem()
+        })}
+      else{
+        window.Moengage.track_event('TP_NewLoginFlow_Signup_Resend_OTP', {
+          mobile: "91" + mobileNumber,
+          operating_system: detectOperatingSystem()
+        })
+      }
+
       window.retryOtp(
         // `91${mobileNumber}`,
         "11",
@@ -76,7 +93,7 @@ const VerifyOTP = ({
       return;
     }
 
-    setLoading(true);
+    setLoginLoading(true); // Set loading state at the start
     setError(null);
 
     try {
@@ -84,59 +101,77 @@ const VerifyOTP = ({
         window.verifyOtp(
           otp,
           async (data) => {
-            const { message, type } = data;
+            try {
+              const { message, type } = data;
 
-            if (isPasswordSetFlow) {
-              try {
+              if (isPasswordSetFlow) {
                 const verifyResponse = await verifyAccessToken(mobileNumber, message);
                 await setPassword(verifyResponse.doctor_unique_id, tempPassword);
                 const loginResponse = await loginWithPassword(mobileNumber, tempPassword);
 
+                window.Moengage.track_event('TP_NewLoginFlow_Set_Password_OTP_Submit', {
+                  mobile: "91" + mobileNumber,
+                  operating_system: detectOperatingSystem()
+                });
+
                 if (loginResponse.ssoUrl) {
-                  // Clear localStorage on successful verification
                   localStorage.removeItem("currentView");
                   localStorage.removeItem("isLoginFlow");
                   localStorage.removeItem("isUserExists");
-
                   const deviceType = isMobile ? "mobile" : "desktop";
                   window.location.href = `${loginResponse.ssoUrl}&device_type=${deviceType}`;
                 } else {
                   setError("Failed to set password. Please try again.");
                 }
-              } catch (error) {
-                console.error("Error setting password:", error);
-                setError("Failed to set password. Please try again.");
-              }
-            } else if (isUserExists) {
-              const response = await verifyAccessToken(mobileNumber, message);
+              } else if (isUserExists) {
+                const response = await verifyAccessToken(mobileNumber, message);
 
-              if (response) {
-                const { message: responseMessage, ssoUrl, passwordSet } = response;
+                if (response) {
+                  const { ssoUrl } = response;
 
-                if (ssoUrl) {
-                  // Clear localStorage on successful verification
-                  localStorage.removeItem("currentView");
-                  localStorage.removeItem("isLoginFlow");
-                  localStorage.removeItem("isUserExists");
+                  window.Moengage.track_event('TP_NewLoginFlow_Login_OTP_Submit', {
+                    mobile: "91" + mobileNumber,
+                    operating_system: detectOperatingSystem()
+                  });
 
-                  const deviceType = isMobile ? "mobile" : "desktop";
-                  window.location.href = `${ssoUrl}&device_type=${deviceType}`;
+                  if (ssoUrl) {
+                    localStorage.removeItem("currentView");
+                    localStorage.removeItem("isLoginFlow");
+                    localStorage.removeItem("isUserExists");
+                    const deviceType = isMobile ? "mobile" : "desktop";
+                    window.location.href = `${ssoUrl}&device_type=${deviceType}`;
+                  }
+                } else {
+                  setError("Failed to verify access token. Please try again.");
+                  setLoginLoading(false);
                 }
               } else {
-                setError("Failed to verify access token. Please try again.");
+                localStorage.removeItem("currentView");
+                localStorage.removeItem("isLoginFlow");
+                localStorage.removeItem("isUserExists");
+                
+                window.Moengage.track_event('TP_NewLoginFlow_Signup_OTP_Submit', {
+                  mobile: "91" + mobileNumber,
+                  utm_campaign: utm.utm_campaign ?? 'NA',
+                  utm_source: utm.utm_source ?? 'NA',
+                  utm_medium: utm.utm_medium ?? 'NA',
+                  utm_content: utm.utm_content ?? 'NA',
+                  utm_term: utm.utm_term ?? 'NA',
+                  operating_system: detectOperatingSystem()
+                });
+
+                navigate("/final-setup");
               }
-            } else {
-              // Clear localStorage before triggering onboarding
-              localStorage.removeItem("currentView");
-              localStorage.removeItem("isLoginFlow");
-              localStorage.removeItem("isUserExists");
-              
-              navigate("/final-setup")
+            } catch (error) {
+              console.error("Error in verification process:", error);
+              setError("Something went wrong. Please try again.");
+              setLoginLoading(false);
             }
           },
           (error) => {
             console.error("OTP Verification Failed:", error);
             setError("Invalid OTP. Please try again.");
+            setLoginLoading(false);
           },
           ...(reqId ? [reqId] : [])
         );
@@ -144,24 +179,27 @@ const VerifyOTP = ({
     } catch (error) {
       console.error("Error during OTP verification:", error);
       setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
+      setLoginLoading(false);
     }
   };
 
   const handleEditNumber = () => {
     // Store current state in localStorage
-    isLoginFlow ? localStorage.setItem("currentView", "loginOTP") : localStorage.setItem("currentView", "signup");
-    isLoginFlow ? localStorage.setItem("isLoginFlow", "true") : localStorage.setItem("isLoginFlow", "false");
+    isLoginFlow
+      ? localStorage.setItem("currentView", "loginOTP")
+      : localStorage.setItem("currentView", "signup");
+    isLoginFlow
+      ? localStorage.setItem("isLoginFlow", "true")
+      : localStorage.setItem("isLoginFlow", "false");
     localStorage.setItem("mobileNumber", mobileNumber);
-    
+
     // Refresh the page
     window.location.reload();
   };
 
   return (
     <div className="signup-form-wrapper">
-      {loading && (
+      {/* {loading && (
         <div
           style={{
             position: "fixed",
@@ -178,9 +216,9 @@ const VerifyOTP = ({
         >
           <Spin size="large" />
         </div>
-      )}
+      )} */}
       <div className="signup-form-container">
-        <h2 className="title">Almost there</h2>
+        <h2 className="title" style={{ margin: "2.5rem 0 3rem 0" }}>Almost there</h2>
 
         <Form name="verifyOTP" className="signup-form">
           <div className="otp-label">
@@ -228,16 +266,17 @@ const VerifyOTP = ({
           </div>
           <Button
             type="primary"
-            loading={loading}
+            loading={loginLoading}
             className="submit-btn"
             onClick={handleVerifyOTP}
-            disabled={!otp || otp.length !== 6 || loading}
+            disabled={!otp || otp.length !== 6}
+            style={{ margin: "1rem 0" }}
           >
             {isLoginFlow ? "Login" : "Submit OTP"}
           </Button>
 
           {!isLoginFlow && (
-            <div className="terms-text">
+            <div className="terms-text" style={{ paddingTop: "1rem" }}>
               By continuing I accept for the{" "}
               <a
                 href="https://www.tatvacare.in/terms-conditions/"
@@ -257,8 +296,10 @@ const VerifyOTP = ({
             </div>
           )}
         </Form>
+        <div className="go-back" style={{ marginTop: "2rem" }} onClick={handleEditNumber}>
+          Go back
+        </div>
       </div>
-      <div className="partners-section">
       <div className="partners-section">
         <img src={leftGroup} alt="Lines Group" className="left-lines-group" />
         <img src={abdmLogo} alt="ABDM" className="abdm-logo" />
@@ -269,7 +310,6 @@ const VerifyOTP = ({
           className="google-partner"
         />
         <img src={rightGroup} alt="Lines Group" className="right-lines-group" />
-      </div>
       </div>
     </div>
   );

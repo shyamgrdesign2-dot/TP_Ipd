@@ -298,11 +298,13 @@
     flex-direction: column;
     justify-content: center;
     width: 100% !important;
+    min-height: 60% !important;
     max-height: 80% !important;
     margin-top: 4rem;
     padding: 0 !important;
 
     .signup-form-container {
+      min-height: 35rem !important;
 
       h2 {
 
@@ -501,8 +503,9 @@
   flex-direction: column;
   justify-content: center;
   width: 82%;
-  max-height: 80% !important;
-  margin-top: 4rem;
+  // // min-height: 70% !important;
+  min-height: 60% !important;
+  // margin-top: 2rem;
   padding: 1rem;
 
   .signup-form-container {
@@ -511,6 +514,8 @@
     background: white;
     border-radius: 2.625rem;
     padding: 0.4rem 2rem 2rem 2rem;
+    min-height: 30rem !important;
+    // max-height: 100% !important;
     // width: 75%;
 
     h2 {
@@ -524,7 +529,7 @@
       font-weight: 600;
       letter-spacing: 0.01563rem;
       margin-top: 1.5rem;
-      margin-bottom: 2rem;
+      // margin-bottom: 3rem;
 
       .highlight {
         color: #F5F3FF;
@@ -640,7 +645,7 @@
   .title {
     font-size: 24px;
     color: #101828;
-    margin-bottom: 24px;
+    margin-bottom: 3rem;
   }
 
   .phone-form-item,
@@ -826,6 +831,7 @@
       color: #6B46C1;
       margin-left: 8px;
       cursor: pointer;
+      
     }
   }
 }
@@ -833,8 +839,14 @@
 .error-message {
   color: #FC5A5A !important;
   margin-top: 0.5rem;
-  margin-bottom: 16px;
+  // margin-bottom: 16px;
   font-size: 0.9rem;
+
+  span {
+    color: #6B46C1 !important;
+    text-decoration: underline;
+    cursor: pointer !important;
+  }
 }
 
 .gradient-text {
