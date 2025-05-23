@@ -1071,7 +1071,7 @@ function AppointmentData({ locationPath }) {
         const action = await dispatch(syncZydusPatientAndAppointment(sendData))
         if (action.meta.requestStatus === "fulfilled") {
             if (flag === 1) {
-                goToConsut(record, action);
+                goToConsut(record, action, sendData.business_id);
             } else {
                 let cashManagerSendData = {
                     patient_unique_id: action?.payload?.patient_unique_id !== undefined ? action?.payload?.patient_unique_id : 0,
@@ -1091,7 +1091,8 @@ function AppointmentData({ locationPath }) {
                                     departmentId: record.departmentId,
                                     visitId: record.visitId,
                                     encounterId: record.encounterId,
-                                    employeeId: empNo[empNo.length - 1]
+                                    employeeId: empNo[empNo.length - 1],
+                                    hospital_business_id: tokenData?.hospital_business_id
                                 }
                             }
                         })
@@ -1099,7 +1100,7 @@ function AppointmentData({ locationPath }) {
                         errorMessage('Something went wrong! Please try again later')
                     }
                 } else {
-                    goToConsut(record, action);
+                    goToConsut(record, action, sendData.business_id);
                 }
             }
         } else {
@@ -1107,7 +1108,7 @@ function AppointmentData({ locationPath }) {
         }
     }
 
-    const goToConsut = async (record, action) => {
+    const goToConsut = async (record, action, business_id) => {
         const actionViewPatient = await dispatch(viewPatient({ patient_unique_id: action?.payload?.patient_unique_id, source: 'zydus' }));
         if (actionViewPatient.meta.requestStatus === "fulfilled") {
             navigate("/prescription", {
@@ -1120,6 +1121,7 @@ function AppointmentData({ locationPath }) {
                         visitId: record.visitId,
                         encounterId: record.encounterId,
                         employeeId: empNo[empNo.length - 1],
+                        hospital_business_id: business_id
                     }
                 }
             })

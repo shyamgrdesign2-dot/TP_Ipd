@@ -650,7 +650,7 @@ function TabSymptomsBox({ handleDDxDrawer, generatedDDx }) {
     );
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            setChildDrawerData({ ...childDrawerData, note: capitalizeAfterSentence(e.target.value) })
+            setChildDrawerData({ ...childDrawerData, note: e.target.value })
             // ?.replace(/,/g, '')
         },
         [childDrawerData]

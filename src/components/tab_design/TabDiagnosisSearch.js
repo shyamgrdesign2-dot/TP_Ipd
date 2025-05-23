@@ -353,7 +353,7 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
     );
     const onChangeInputNoteChild = useCallback(
         (e) => {
-            diagnosisData[selectedIndex].note = capitalizeAfterSentence(e.target.value);
+            diagnosisData[selectedIndex].note = e.target.value;
             setDiagnosisData((prev) => [...prev]);
         },
         [selectedIndex, diagnosisData]
