@@ -7,6 +7,7 @@ import nhaLogo from "../../../assets/images/nha-logo.svg";
 import googlePartner from "../../../assets/images/website-images/image.png";
 import leftGroup from "../../../assets/images/onboard-page-icons/Left-Group.svg";
 import rightGroup from "../../../assets/images/onboard-page-icons/Right-Group.svg";
+import { detectOperatingSystem } from "../../../utils/utils";
 
 const SetPassword = ({ onViewChange, mobileNumber }) => {
   const [password, setPassword] = useState("");
@@ -97,6 +98,12 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
 
     // If all validations pass, proceed with OTP
     if (window.sendOtp) {
+      // moengage event for set password
+      window.Moengage.track_event('TP_NewLoginFlow_Password_Setup', {
+        mobile: "91" + mobileNumber,
+        operating_system: detectOperatingSystem()
+      })
+
       const formattedNumber = `91${mobileNumber}`.replace('+', '');
       window.sendOtp(
         formattedNumber,
@@ -104,6 +111,10 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
           console.log("OTP sent successfully:", successData);
           if (successData && successData.message) {
             const reqId = successData.message;
+            window.Moengage.track_event('TP_NewLoginFlow_Password_Setup_Otp_Success', {
+              mobile: "91" + mobileNumber,
+              operating_system: detectOperatingSystem()
+            })
             onViewChange("verifyOTP", mobileNumber, true, true, password, reqId);
           } else {
             console.error("No requestId in response:", successData);

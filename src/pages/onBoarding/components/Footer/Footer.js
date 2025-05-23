@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row, Col } from 'antd';
-import { FacebookOutlined, TwitterOutlined, LinkedinOutlined, YoutubeOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons';
+import { FacebookOutlined, TwitterOutlined, LinkedinOutlined, YoutubeOutlined, PhoneOutlined, MailOutlined, InstagramOutlined } from '@ant-design/icons';
 import "./Footer.scss";
 import Logo from '../../../../assets/images/website-images/tatvacare-logo.png';
 import call from '../../../../assets/images/onboard-page-icons/call.svg';
@@ -46,10 +46,9 @@ const Footer = () => {
           <div className="social-links">
             <h5>Follow Us</h5>
             <div className="social-icons">
-              <a href="https://www.instagram.com/tatvapractice.in/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FacebookOutlined /></a>
-              {/* <a href="https://www.instagram.com/tatvapractice.in/" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><TwitterOutlined /></a> */}
+              <a href="https://www.instagram.com/tatvapractice.in/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><InstagramOutlined /></a>
               <a href="https://www.linkedin.com/showcase/tatvapractice/about/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><LinkedinOutlined /></a>
-              <a href="https://www.youtube.com/TatvaCare" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><YoutubeOutlined /></a>
+              {/* <a href="https://www.youtube.com/TatvaCare" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><YoutubeOutlined /></a> */}
             </div>
           </div>
         </div>

@@ -26,6 +26,13 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
       // });
       const { message, ssoUrl } = response;
 
+      // moengage event for login success
+      window.Moengage.track_event('TP_NewLoginFlow_Login_Password_Success', {
+        mobile: "91" + mobileNumber,
+        doc_status: message === "Doctor is inactive" ? "inactive" : "active",
+      })
+
+
       switch (message) {
         case "Doctor is inactive":
           setError("Your account has been locked by Admin. Please contact support@tatvacare.in/9974042363");
@@ -38,6 +45,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
         default:
           // Handle successful login with SSO URL
           if (ssoUrl) {
+
             // Clear localStorage on successful login
             localStorage.removeItem("currentView");
             localStorage.removeItem("isLoginFlow");
@@ -74,7 +82,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
   return (
     <div className="signup-form-wrapper">
       <div className="signup-form-container">
-        <h2 className="title">Welcome Back</h2>
+        <h2 className="title" style={{ margin: "2.5rem 0 3rem 0" }}>Welcome Back</h2>
 
         <Form name="loginPassword" className="signup-form">
           <Form.Item
@@ -134,11 +142,12 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
             onClick={handleLogin}
             className="login-btn"
             disabled={!password}
+            style={{ margin: "1rem 0" }}
           >
             Login
           </Button>
 
-          <div className="go-back" onClick={handleGoBack}>
+          <div className="go-back" onClick={handleGoBack} style={{ marginTop: "2rem" }}>
             Go back
           </div>
         </Form>
