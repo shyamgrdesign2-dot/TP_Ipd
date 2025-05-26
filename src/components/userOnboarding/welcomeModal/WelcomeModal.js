@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, useMediaQuery } from "antd";
 import welcomdoc from "../../../assets/images/welcom-doc.svg";
 import suporticon from "../../../assets/images/suport-icon.svg";
+import { isMobile, isTablet } from "react-device-detect";
 import "./WelcomeModal.scss";
 
 const VideoCarousel = () => {
@@ -33,7 +34,7 @@ const VideoCarousel = () => {
     <div className="video-section">
       <iframe
         width="500"
-        height="350"
+        height={isMobile ? "200" : isTablet ? "300" : "350"}
         src={videos[currentVideo].url}
         title="YouTube video player"
         frameBorder="0"
@@ -87,16 +88,18 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
           </div>
         </div>
 
-        <div className="trial-period-footer">
-          <div className="trial-text">
-            <span>🎉</span>
+        {!isMobile && (
+          <div className="trial-period-footer">
+            <div className="trial-text">
+              <span>🎉</span>
             <span>Enjoy your <b>7 days</b> trial period</span>
           </div>
           <div className="upgrade-link-container">
             <span>This version is free for only 7 days. If you want to use advance features, Please</span>
             <a href="#" className="upgrade-link">upgrade your plan →</a>
+            </div>
           </div>
-        </div>
+        )}
       </Modal>
     </div>
   );
