@@ -238,12 +238,13 @@ function App() {
     if (!isRootPath) return;
 
     const hasAuth = token || authToken;
+    const localRedirectTo = localStorage.getItem("redirectTo");
     if (!hasAuth) {
       navigate("/login");
       return;
     }
 
-    if (redirectTo === "profile") {
+    if (localRedirectTo === "profile") {
       localStorage.removeItem("redirectTo");
       navigate("/doctorProfile");
     }
