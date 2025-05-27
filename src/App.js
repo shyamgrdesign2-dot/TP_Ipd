@@ -246,7 +246,7 @@ function App() {
 
     if (localRedirectTo === "profile") {
       localStorage.removeItem("redirectTo");
-      navigate("/doctorProfile");
+      navigate("/doctor_profile");
     }
 }, [isRootPath, token, authToken, navigate, redirectTo]);
 
