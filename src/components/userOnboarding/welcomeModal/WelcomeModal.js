@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, useMediaQuery } from "antd";
 import welcomdoc from "../../../assets/images/welcom-doc.svg";
 import suporticon from "../../../assets/images/suport-icon.svg";
+import { isMobile, isTablet } from "react-device-detect";
 import "./WelcomeModal.scss";
 
 const VideoCarousel = () => {
@@ -11,122 +12,95 @@ const VideoCarousel = () => {
     {
       id: 1,
       url: "https://www.youtube.com/embed/ENARZJhE0iI?si=1TPlavqb5nvR0vx3",
-      title: "Video 1",
+      title: "Starting Walk-in Consultation with a New Patient",
+      tag: "Voice Rx"
     },
     {
       id: 2,
-      url: "https://www.youtube.com/embed/YOUR_SECOND_VIDEO_ID",
-      title: "Video 2",
+      url: "https://www.youtube.com/embed/ENARZJhE0iI?si=1TPlavqb5nvR0vx3",
+      title: "Starting Walk-in Consultation with a New Patient",
+      tag: "Voice Rx"
     },
+    {
+      id: 3,
+      url: "https://www.youtube.com/embed/ENARZJhE0iI?si=1TPlavqb5nvR0vx3",
+      title: "Starting Walk-in Consultation with a New Patient",
+      tag: "Voice Rx"
+    },
+    // ... other videos
   ];
 
   return (
-    <figure className="video-carousel">
+    <div className="video-section">
       <iframe
-        // width="498"
-        // height="392"
-        className="rounded-4"
+        width="500"
+        height={isMobile ? "200" : isTablet ? "300" : "350"}
         src={videos[currentVideo].url}
         title="YouTube video player"
         frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerPolicy="strict-origin-when-cross-origin"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
-        style={{
-          width: "100%",
-          marginTop: 10,
-        }}
       />
       <div className="video-dots">
-        {videos.map((video, index) => (
+        {videos.map((_, index) => (
           <span
-            key={video.id}
+            key={index}
             className={`dot ${currentVideo === index ? "active" : ""}`}
             onClick={() => setCurrentVideo(index)}
           />
         ))}
       </div>
-    </figure>
+    </div>
   );
 };
 
 const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
-  const isMobile = window.innerWidth <= 768;
-
   return (
     <div className="welcome-modals-wrapper">
       <Modal
         open={modalOpen}
-        centered
-        footer={null}
-        width="95%"
-        className="modal-onboarding"
         onCancel={() => setModalOpen(false)}
-        style={{
-          maxWidth: "500px",
-          margin: "0 auto",
-          top: "-9%",
-        }}
+        footer={null}
+        centered
+        className="modal-onboarding"
       >
-        <div style={{ flex: 1 }}>
-          <div style={{ flex: 1}}>
-            <figure>
-              <img
-                src={welcomdoc}
-                style={{
-                  width: window.innerWidth / 17,
-                  height: window.innerWidth / 17,
-                }}
-                alt="Welcome"
-              />
-            </figure>
+        <img src={welcomdoc} alt="Welcome" className="welcome-icon" />
+        <div className="modal-content-container">
+          <div className="left-section">
+            <h2 className="doctor-name">
+              Dr. {profile?.um_name?.split(/\s+/)
+                .filter(word => !["Dr", "Dr."].includes(word.toLowerCase()))
+                .join(" ")},
+            </h2>
+            <h1 className="welcome-title">Welcome to TatvaPractice</h1>
 
-            <div className="main-modal-content">
-              <div style={{ flex: 1 }}>
-                <div>
-                  <h2 className="fw-medium mb-2" style={{ fontSize: 16 }}>
-                    Dr.{" "}
-                    {profile?.um_name
-                      .split(/\s+/)
-                      .filter(
-                        (word) =>
-                          word.toLowerCase() !== "Dr".toLowerCase() &&
-                          word.toLowerCase() !== "Dr.".toLowerCase()
-                      )
-                      .join(" ")}
-                    ,
-                  </h2>
-                  <h3 className="fw-semibold" style={{ fontSize: "2rem" }}>
-                    Welcome to TatvaPractice
-                  </h3>
-                </div>
-                <div
-                  style={{
-                    background: "#fef4f5",
-                    padding: 15,
-                    borderRadius: 10,
-                    width: "100%",
-                  }}
-                >
-                  <span>
-                    <img src={suporticon} alt="Support" />
-                  </span>
-                  <h3 className="fs-6 fw-medium" style={{ marginTop: 9 }}>
-                    We will connect with you soon
-                  </h3>
-                  <p className="fs-7 fw-normal">
-                    We will contact you within 24 hours to assist you in setting
-                    up your digital clinic and provide a walkthrough for writing
-                    prescription digitally.
-                  </p>
-                </div>
-              </div>
-              <VideoCarousel />
+            <div className="support-box">
+              <img src={suporticon} alt="Support" className="support-icon" />
+              <h3>We will connect with you soon</h3>
+              <p>
+                We will contact you within 24 hours to assist you in setting up your digital clinic and provide a walkthrough for writing prescription digitally.
+              </p>
             </div>
           </div>
-        </div>
-      </Modal>
 
+          <div className="right-section">
+            <VideoCarousel />
+          </div>
+        </div>
+
+        {!isMobile && (
+          <div className="trial-period-footer">
+            <div className="trial-text">
+              <span>🎉</span>
+            <span>Enjoy your <b>7 days</b> trial period</span>
+          </div>
+          <div className="upgrade-link-container">
+            <span>This version is free for only 7 days. If you want to use advance features, Please</span>
+            <a href="#" className="upgrade-link">upgrade your plan →</a>
+            </div>
+          </div>
+        )}
+      </Modal>
       {isMobile && (
         <div
           className="device-warning-content"

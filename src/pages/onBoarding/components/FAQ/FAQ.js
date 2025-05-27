@@ -15,20 +15,16 @@ const FAQ = () => {
       answer: "Your account is valid for 30 days after onboarding. During this period, you'll need to complete certain milestones, such as uploading your MCI certificate, to continue accessing certain features.",
     },
     {
-      question: "Who is eligible for this support program?",
-      answer: "All registered healthcare professionals can access our support program.",
-    },
-    {
       question: "What happens after the 30-day validity period?",
       answer: "After the 30-day validity period, your account will undergo changes in access privileges. It's important to complete the required milestones within this period to avoid any disruptions in service.",
     },
     {
       question: "How do I upload my MCI certificate?",
-      answer: "Missing the deadline may result in restrictions on certain features, such as prescription writing. It's crucial to adhere to the specified timelines to ensure uninterrupted access to all platform functionalities.",
+      answer: "You can upload your MCI certificate within 7 days of account creation. Simply navigate to the designated section on the platform's landing page by going to my profile and upload from there.",
     },
     {
       question: "What if I miss the deadline for uploading my MCI certificate?",
-      answer: "Our platform includes practice management, patient scheduling, and digital presence tools.",
+      answer: "Missing the deadline may result in restrictions on certain features, such as prescription writing. It's crucial to adhere to the specified timelines to ensure uninterrupted access to all platform functionalities.",
     },
     {
       question: "Can I switch between different devices?",
@@ -36,7 +32,7 @@ const FAQ = () => {
     },
     {
       question: "What support options are available if I encounter difficulties during the onboarding process?",
-      answer: "If you encounter any difficulties during the onboarding process or require assistance with any platform-related issues, you can reach out to our dedicated support team or your assigned Key Account Manager for assistance. Please call on 99363 or mail to support@tatvacare.in",
+      answer: "If you encounter any difficulties during the onboarding process or require assistance with any platform-related issues, you can reach out to our dedicated support team or your assigned Key Account Manager for assistance. Please call on 9974042363 or mail to support@tatvacare.in",
     },
     {
       question: "What happens if I become a converted user?",

@@ -61,6 +61,7 @@ const growthbook = new GrowthBook({
 function App() {
   const [searchParams] = useSearchParams();
   const authToken = searchParams.get("authToken");
+  const redirectTo = searchParams.get("redirectTo");
   const location = useLocation();
   const navigate = useNavigate();
   const [getToken, setToken] = useLocalStorage(
@@ -215,15 +216,38 @@ function App() {
     }
   }, [authToken, setToken, navigate]);
 
+  // Add effect to handle redirectTo parameter
+  useEffect(() => {
+    if (redirectTo) {
+      localStorage.setItem('redirectTo', redirectTo);
+      
+      // Clean up URL but preserve other params
+      const params = new URLSearchParams(location.search);
+      params.delete("redirectTo");
+      
+      // Update URL without the redirectTo parameter
+      navigate({
+        pathname: location.pathname,
+        search: params.toString()
+      }, { replace: true });
+    }
+  }, []);
+
   // Determine where to redirect on root path
   useEffect(() => {
-    if (isRootPath) {
-      const hasAuth = token || authToken;
-      if (!hasAuth) {
-        navigate("/login");
-      }
+    if (!isRootPath) return;
+
+    const hasAuth = token || authToken;
+    if (!hasAuth) {
+      navigate("/login");
+      return;
     }
-  }, [isRootPath, token, authToken, navigate]);
+
+    if (redirectTo === "profile") {
+      localStorage.removeItem("redirectTo");
+      navigate("/doctorProfile");
+    }
+}, [isRootPath, token, authToken, navigate, redirectTo]);
 
   return (
     <GrowthBookProvider growthbook={growthbook}>
@@ -253,7 +277,7 @@ function App() {
                   zIndex: 1000,
                 }}
               >
-                {/* <DemoExpirationBanner /> */}
+                <DemoExpirationBanner />
                 <PlanExpirationBanner />
                 <ExpiredPlanCard />
                 <DoctorModal />

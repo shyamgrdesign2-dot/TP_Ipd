@@ -8,6 +8,7 @@ import emrBanner from "../../../assets/images/website-images/EMRBanner.jpeg";
 import tatvaAiBanner from "../../../assets/images/website-images/TatvaAiBanner.jpeg";
 import fastBackward from "../../../assets/images/onboard-page-icons/fast-backward.gif";
 import { getUtmParams } from "../../../components/userOnboarding/services/userDataService";
+import { detectOperatingSystem } from "../../../utils/utils";
 
 const OnboardingCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -103,6 +104,10 @@ const OnboardingCarousel = () => {
   };
 
   const handleExploreMore = () => {
+    window.Moengage.track_event('TP_NewLoginFlow_Explore_more', {
+      clicked: true,
+      operating_system: detectOperatingSystem()
+    }); 
     const trustedBySection = document.getElementById('trusted-by-section');
     if (trustedBySection) {
       trustedBySection.scrollIntoView({ behavior: 'smooth' });
