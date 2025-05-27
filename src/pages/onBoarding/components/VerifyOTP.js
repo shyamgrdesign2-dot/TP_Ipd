@@ -170,7 +170,7 @@ const VerifyOTP = ({
           },
           (error) => {
             console.error("OTP Verification Failed:", error);
-            setError("Invalid OTP. Please try again.");
+            setError("Invalid or expired OTP. Please try again or request a new OTP");
             setLoginLoading(false);
           },
           ...(reqId ? [reqId] : [])
@@ -222,7 +222,7 @@ const VerifyOTP = ({
 
         <Form name="verifyOTP" className="signup-form">
           <div className="otp-label">
-            Enter OTP sent to {mobileNumber}
+            Enter OTP sent to <span className="mobile-number">{mobileNumber}</span>
             <svg
               width="20"
               height="20"

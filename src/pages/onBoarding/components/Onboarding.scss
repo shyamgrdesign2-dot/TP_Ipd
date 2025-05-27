@@ -20,7 +20,7 @@
     width: 50%;
     margin: 1rem 1.2rem 1rem 1rem;
     background: url('../../../assets/images/webStructure.svg') center center/90% no-repeat,
-                radial-gradient(128% 141.42% at 0% 0%, #5857DC 0%, #5950D7 22.62%, rgba(89, 72, 209, 0.95) 52.37%, #240EB5 95.67%);
+      radial-gradient(128% 141.42% at 0% 0%, #5857DC 0%, #5950D7 22.62%, rgba(89, 72, 209, 0.95) 52.37%, #240EB5 95.67%);
     border-radius: 0 4rem 0 4rem;
     padding: 0;
     flex-direction: column;
@@ -364,6 +364,39 @@
   }
 }
 
+@media screen and (max-height: 690px) {
+  .signup-form-wrapper .signup-form-container {
+    flex: 1 1;
+    margin: 0.5rem 2rem 0 2rem;
+    background: white;
+    border-radius: 2.625rem;
+    padding: 0.4rem 2rem 0rem 2rem;
+    min-height: auto !important;
+
+    h2 {
+      margin: 1rem 0px 1rem !important;
+    }
+  }
+
+  .onboarding-carousel-wrapper {
+    .carousel-container {
+      .carousel-item {
+        .text-content {
+          margin: 0 1rem !important;
+        }
+
+        .banner-container {
+          img {
+            max-height: 20rem !important;
+          }
+        }
+      }
+    }
+  }
+
+
+}
+
 .onboarding-carousel-wrapper {
   display: flex;
   flex-direction: column;
@@ -421,7 +454,7 @@
         h1 {
           font-family: "Playfair Display" !important;
           font-size: 48px;
-          line-height: 1.2 !important;          // margin-bottom: 16px;
+          line-height: 1.2 !important; // margin-bottom: 16px;
           color: #1A1A1A;
         }
       }
@@ -474,9 +507,12 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: rotate(270deg) translateX(0);
   }
+
   50% {
     transform: rotate(270deg) translateX(-3px);
   }
@@ -815,7 +851,7 @@
       color: #6B46C1;
       margin-left: 8px;
       cursor: pointer;
-      
+
     }
   }
 }
@@ -961,6 +997,11 @@
   color: #344054;
   font-size: 14px;
 
+  .mobile-number {
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
   .edit-icon {
     cursor: pointer;
 
@@ -1096,7 +1137,7 @@
   background-color: #FFFFFF;
   border-radius: 2.6rem;
 
-  .m-2{
+  .m-2 {
     margin: 2rem 0 !important;
   }
 }
@@ -1231,8 +1272,8 @@
   position: relative;
   // width: 100% !important;
   z-index: 1;
-  
-  img{
+
+  img {
     width: 100% !important;
   }
 }
@@ -1420,6 +1461,7 @@
   .logo-section {
     flex: 1;
     max-width: 200px;
+
     img {
       width: 100%;
       height: auto;
@@ -1467,6 +1509,7 @@
   from {
     transform: translateY(-100%);
   }
+
   to {
     transform: translateY(0);
   }

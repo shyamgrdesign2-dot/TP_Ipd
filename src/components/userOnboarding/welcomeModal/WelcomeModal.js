@@ -27,7 +27,6 @@ const VideoCarousel = () => {
       title: "Starting Walk-in Consultation with a New Patient",
       tag: "Voice Rx"
     },
-    // ... other videos
   ];
 
   return (
