@@ -1,14 +1,20 @@
 import React, { useState, useCallback } from 'react';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { Button } from 'antd';
+import { useSelector, useDispatch } from "react-redux";
+
 import CommonModal from './CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import { useNavigate } from 'react-router-dom';
+import { S_TATVA_PRACTICE } from '../utils/constants';
+import { interest } from '../redux/monetizationSlice';
+import { errorMessage } from '../utils/utils';
 
 function HeaderUnlimitedAccess() {
-    
-    const navigate = useNavigate();
 
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { profile } = useSelector((state) => state.doctors);
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
     const showHideBackModal = useCallback(() => {
@@ -17,6 +23,18 @@ function HeaderUnlimitedAccess() {
 
     const checkDataFillOrNot = () => {
         showHideBackModal()
+    }
+
+    const clickRequestCallback = async () => {
+        let sendData = {
+            mbl_no: profile?.um_contact,
+            is_pm_renew_requested: true,
+            service_name: S_TATVA_PRACTICE
+        }
+        const action = await dispatch(interest(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            errorMessage(action.payload.message)
+        }
     }
 
     return (
@@ -63,7 +81,7 @@ function HeaderUnlimitedAccess() {
                         </div>
                     </Col>
                     <Col sm="auto">
-                        <Button type='button' className='btn align-items-center d-flex btn-41 btn-clear btn-input'>
+                        <Button type='button' className='btn align-items-center d-flex btn-41 btn-clear btn-input' onClick={clickRequestCallback}>
                             <i className='icon-phone me-2'></i>
                             Request a call  back
                         </Button>

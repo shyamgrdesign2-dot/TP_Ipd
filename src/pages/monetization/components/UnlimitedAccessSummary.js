@@ -12,6 +12,7 @@ import logoSm from '../../../assets/images/logo-sm.svg';
 import iconEdit from "../../../assets/images/edit.svg";
 import { errorMessage, formatAmount, onlyDecimalFormat, onlyNumberFormat, removeBeforeWhiteSpace } from "../../../utils/utils";
 import { kamList, otpSend, otpVerify, paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/monetizationSlice";
+import { fetchSubscriptionDetails } from "../../../redux/subscriptionSlice";
 import { services } from "../../../redux/doctorsSlice";
 import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../../utils/constants";
 import config from "../../../config";
@@ -177,7 +178,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 }));
                 let sendData = {
                     b2c_id: profile?.b2c,
-                    purchase_city: "Ahmedabad",
+                    // purchase_city: "Ahmedabad",
                     purchase_state: "Gujarat",
                     purchase_date: moment().toISOString(),
                     purchase_amount: totalAmount,
@@ -196,10 +197,21 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                         }
                     ]
                 }
-                await dispatch(purchaseDetails(sendData))
-                dispatch(services(profile?.b2c));
-                setLoading(false)
-                navigate('/?upgrade_services=true', { replace: true })
+                const actionPurchaseDetails = await dispatch(purchaseDetails(sendData));
+                if (actionPurchaseDetails.meta.requestStatus === "fulfilled") {
+                    if (actionPurchaseDetails?.payload?.hasOwnProperty("b2c_id")) {
+                        dispatch(fetchSubscriptionDetails())
+                        dispatch(services(profile?.b2c));
+                        setLoading(false)
+                        navigate('/?upgrade_services=true', { replace: true })
+                    } else {
+                        setLoading(false)
+                        errorMessage('Something went wrong! please try again later')
+                    }
+                } else {
+                    setLoading(false)
+                    errorMessage(actionPurchaseDetails.payload.message)
+                }
             } else {
                 setLoading(false)
                 typeof action?.payload?.data?.error === 'object' ?

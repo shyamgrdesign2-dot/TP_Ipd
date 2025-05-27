@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "antd";
+import { Button, Checkbox, Popover } from "antd";
 import { useSelector } from "react-redux";
 
 import RxVoice from "../../../assets/images/microphone-voice-rx.png";
@@ -10,8 +10,9 @@ import PharmacyIcon from "../../../assets/images/pharmacy-icon.png";
 import IPDIcon from "../../../assets/images/IPD-icon.png";
 import DDXIcon from "../../../assets/images/DDX-icon.png";
 import aiPowered from "../../../assets/images/ai-powered.svg";
+import deviderIncludes from "../../../assets/images/includes-devider.svg";
 import { formatAmount } from "../../../utils/utils";
-import { S_ASK_TATVA, S_BILLING, S_DDX, S_IPD, S_PHARMACY, S_VOICE_RX } from "../../../utils/constants";
+import { S_ASK_TATVA, S_BILLING, S_DDX, S_IPD, S_PHARMACY, S_RECEPTIONIST_AGENT, S_VOICE_RX } from "../../../utils/constants";
 
 function AddonServices({ item, addOrNot, handleAddRemove, clickKnowMore }) {
 
@@ -31,10 +32,30 @@ function AddonServices({ item, addOrNot, handleAddRemove, clickKnowMore }) {
                 return IPDIcon;
             case S_DDX:
                 return DDXIcon;
+            case S_RECEPTIONIST_AGENT:
+                return DDXIcon;
             default:
                 return "";
         }
     }
+
+    const contentSmartSync = (
+        <div><span className="fw-semibold">Smart Sync device</span> comes with a digital pad <br />
+            and smart pen, enabling you to write naturally<br />
+            —just like on paper. This is a <span className="fw-semibold"> one-time purchase</span> <br />
+            and the device is free for lifetime <br />
+            use with no renewals or hidden charges.</div>
+    );
+
+    const contentRxDigitization = (
+        <div>Get <span className="fw-semibold">AI Rx Digitisation</span> to unlock full <br />
+            automation. Our AI engine converts your <br />
+            handwritten prescriptions into structured <br />
+            digital formats within 30 seconds. It improves <br />
+            accuracy, speeds up documentation, and <br />
+            streamlines your clinical workflow for better <br />
+            patient care.</div>
+    );
 
     return (
         <>
@@ -80,6 +101,33 @@ function AddonServices({ item, addOrNot, handleAddRemove, clickKnowMore }) {
                         </Button>
                     </div>
                 </div>
+                {item.service_name === S_RECEPTIONIST_AGENT && (
+                    <div className="includes-box after-receptionist mt-3">
+                        <div className="d-flex align-items-center justify-content-between my-2">
+                            <div className="d-flex align-items-center">
+                                <div className="include-div me-2">AI Appointment Booking</div>
+                                <Popover trigger="hover" content={contentSmartSync}>
+                                    <i className="icon-info fs-5 text-black-50"></i>
+                                </Popover>
+                            </div>
+                            <div className="text-black-50 fs-14 include-text">
+                                Included by default
+                            </div>
+                        </div>
+                        <img className="d-block img-fluid mx-auto my-2 my-xl-4" src={deviderIncludes} alt="Includes" />
+                        <div className="d-flex align-items-center justify-content-between my-2">
+                            <div className="d-flex align-items-center">
+                                <div className="include-div me-2">AI Symptom Collector</div>
+                                <Popover trigger="hover" content={contentRxDigitization}>
+                                    <i className="icon-info fs-5 text-black-50"></i>
+                                </Popover>
+                            </div>
+                            <div className="text-black-50 fs-14 include-text">
+                                Included by default
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </>
     );

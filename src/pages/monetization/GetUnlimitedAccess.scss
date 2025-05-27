@@ -102,15 +102,29 @@
                 border-radius: 10px;
                 padding: 24px;
                 position: relative;
-                &:after {
-                    position: absolute;
-                    content: '';
-                    width: 179px;
-                    height: 14px;
-                    left: 50%;
-                    top: -8px;
-                    transform: translate(-50%, 0px);
-                    background-image: url(../../assets/images/pro-incudes.svg);
+                &.after-smart-sync {
+                    &:after {
+                        position: absolute;
+                        content: '';
+                        width: 179px;
+                        height: 14px;
+                        left: 50%;
+                        top: -8px;
+                        transform: translate(-50%, 0px);
+                        background-image: url(../../assets/images/pro-incudes.svg);
+                    }
+                }
+                &.after-receptionist {
+                    &:after {
+                        position: absolute;
+                        content: '';
+                        width: 179px;
+                        height: 14px;
+                        left: 50%;
+                        top: -8px;
+                        transform: translate(-50%, 0px);
+                        background-image: url(../../assets/images/pro-incudes.svg);
+                    }
                 }
                 .include-checkbox {
                     .ant-checkbox {
@@ -145,6 +159,13 @@
                             font-size: 18px;
                         }
                     }
+                }
+                .include-div {
+                    background: linear-gradient(90deg, #A461D8 0%, #6941C6 100%);
+                    background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    font-weight: 500;
+                    font-size: 18px;
                 }
                 .include-text {
                     min-width: 138px;

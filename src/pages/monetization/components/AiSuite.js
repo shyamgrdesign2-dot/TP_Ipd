@@ -14,7 +14,7 @@ import AskTatvaIcon from "../../../assets/images/icon-ask-tatva.png";
 import DDXIcon from "../../../assets/images/DDX-icon.png";
 import smartSyncIcon from "../../../assets/images/smart-sync-icon.png";
 
-import { FREE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_ASK_TATVA, S_RX_DIGITIZATION } from "../../../utils/constants";
+import { FREE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_ASK_TATVA, S_RX_DIGITIZATION, S_RECEPTIONIST_AGENT } from "../../../utils/constants";
 import GenRxKnowMore from "../../../components/GenRxKnowMore";
 import DDxKnowMore from "../../../components/DDxKnowMore";
 import SmartSyncKnowMore from "../components/SmartSyncKnowMore";
@@ -89,6 +89,8 @@ function AiSuite({ aiModal, handleAiSuite }) {
             case S_SMARTSYNC:
                 return smartSyncIcon;
             case S_RX_DIGITIZATION:
+                return DDXIcon;
+            case S_RECEPTIONIST_AGENT:
                 return DDXIcon;
             default:
                 return "";

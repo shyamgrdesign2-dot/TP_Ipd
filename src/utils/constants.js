@@ -66,6 +66,7 @@ export const S_BILLING = "billing";
 export const S_PHARMACY = "pharmacy";
 export const S_IPD = "ipd";
 export const S_OPD_BILLING = "opd_billing";
+export const S_RECEPTIONIST_AGENT = "receptionist_agent";
 
 export const EXTRA_OPTIONS = [
     {

@@ -10,7 +10,7 @@ import SmartSyncPro from "./components/SmartSyncPro";
 import AddonServices from "./components/AddonServices";
 import CampaignDiscount from "./components/CampaignDiscount";
 import UnlimitedAccessSummary from "./components/UnlimitedAccessSummary";
-import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION, S_IPD, S_ASK_TATVA, S_PHARMACY, S_BILLING } from "../../utils/constants";
+import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION, S_IPD, S_ASK_TATVA, S_PHARMACY, S_BILLING, S_RECEPTIONIST_AGENT } from "../../utils/constants";
 import { services } from "../../redux/doctorsSlice";
 
 import GenRxKnowMore from "../../components/GenRxKnowMore";
@@ -176,6 +176,8 @@ function GetUnlimitedAccess() {
         } else if (service_name === S_BILLING) {
             handleBillingKnowMore()
         } else if (service_name === S_TATVA_PRACTICE) {
+            handleMedEcoKnowMore()
+        } else if (service_name === S_RECEPTIONIST_AGENT) {
             handleMedEcoKnowMore()
         }
     }

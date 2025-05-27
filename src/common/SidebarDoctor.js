@@ -361,12 +361,19 @@ function SidebarDoctor() {
                 Tatva AI
               </div>
             </div>
-            <img
+            {/* <img
               src={newGif}
               className="mx-auto d-block text-center mb-2 position-absolute sidebar-message"
               style={{ right: -4, top: 6, zIndex: -1 }}
               alt="New"
-            />
+            /> */}
+            <div className="trial-sidebar">
+              {(ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance > 0) ? (
+                <span>Trial</span>
+              ) : (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) && (
+                <img src={LockIcon} alt="Trial" />
+              )}
+            </div>
           </NavLink>
 
           {profile &&
@@ -477,12 +484,12 @@ function SidebarDoctor() {
                   <div className="text-truncate">Messages</div>
                 )}
               </div>
-              <img
+              {/* <img
                 src={newGif}
                 className="mx-auto d-block text-center mb-2 position-absolute sidebar-message"
                 style={{ right: -4, top: 6, zIndex: -1 }}
                 alt="New"
-              />
+              /> */}
             </div>
           </NavLink>
         )}
@@ -496,12 +503,12 @@ function SidebarDoctor() {
           >
             <i className="icon-announcement fs-3"></i> <br />
           </Button>
-          <img
+          {/* <img
             src={newGif}
             width={42}
             className="mx-auto d-block text-center mb-2"
             alt="New"
-          />
+          /> */}
         </div>
       </div>
 

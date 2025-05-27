@@ -100,7 +100,7 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setCh
                 </div>
 
                 {data[1] !== undefined && (
-                    <div className="includes-box mt-3">
+                    <div className="includes-box after-smart-sync mt-3">
                         <div className="d-flex align-items-center justify-content-between my-2">
                             <div className="d-flex align-items-center">
                                 <Checkbox defaultChecked disabled className="include-checkbox">{data[0].service_display_name}</Checkbox>

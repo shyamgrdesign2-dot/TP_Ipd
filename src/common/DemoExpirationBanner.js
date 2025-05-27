@@ -5,13 +5,13 @@ import crownIcon from "../assets/images/crown.svg";
 import { openModal } from "../redux/doctorModalSlice";
 import { fetchSubscriptionDetails } from "../redux/subscriptionSlice";
 import { getClinicName } from "../utils/utils";
-import moment from "moment";
-import { FREE, S_TATVA_PRACTICE } from "../utils/constants";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const DemoExpirationBanner = () => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { planDetails } = useSelector((state) => state.subscription);
-  const { profile, servicesList } = useSelector((state) => state.doctors);
-  const remaingDays = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === FREE ? moment(servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_end_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
+  const { profile } = useSelector((state) => state.doctors);
 
   const {
     currentPlanStatus,
@@ -35,11 +35,16 @@ const DemoExpirationBanner = () => {
       doctor_id: profile?.doctor_unique_id,
       clinic_name,
     });
-    dispatch(openModal());
+    // dispatch(openModal());
+    clickBuyNow()
   };
 
+  const clickBuyNow = () => {
+    navigate('/get-unlimited-access')
+  }
+
   return (
-    remaingDays > 0 &&
+    pathname !== '/get-unlimited-access' &&
     ["TRIAL", "EXPIRED"].includes(currentPlanStatus) && (
       <header className="banner">
         <div className="demoModeWrapper">
