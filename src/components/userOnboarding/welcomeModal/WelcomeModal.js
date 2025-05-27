@@ -13,17 +13,17 @@ const VideoCarousel = () => {
       id: 1,
       url: "https://www.youtube.com/embed/ENARZJhE0iI?si=1TPlavqb5nvR0vx3",
       title: "Starting Walk-in Consultation with a New Patient",
-      tag: "Voice Rx"
+      tag: "start consultation"
     },
     {
       id: 2,
-      url: "https://www.youtube.com/embed/ENARZJhE0iI?si=1TPlavqb5nvR0vx3",
+      url: "https://youtu.be/G9Ai6DtlhSk",
       title: "Starting Walk-in Consultation with a New Patient",
-      tag: "Voice Rx"
+      tag: "Smart Sync"
     },
     {
       id: 3,
-      url: "https://www.youtube.com/embed/ENARZJhE0iI?si=1TPlavqb5nvR0vx3",
+      url: "https://youtu.be/OJQMLAidx9o",
       title: "Starting Walk-in Consultation with a New Patient",
       tag: "Voice Rx"
     },
