@@ -32,8 +32,8 @@ const BillingHistoryNew = ({ show, setShow, generateInvoice, billingHistoryList 
     },
     {
       title: 'Invoice',
-      dataIndex: 'invoice_generated',
-      key: 'invoice_generated',
+      dataIndex: 'invoice_id',
+      key: 'invoice_id',
       render: (text) => <button className="btn btn-link text-primary p-0" onClick={() => generateInvoice(text)}>{text}</button> || "N/A",
       onCell: (record) => ({
         rowSpan: record.rowSpan,
