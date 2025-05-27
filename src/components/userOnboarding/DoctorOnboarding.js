@@ -460,11 +460,37 @@ const DoctorOnboarding = ({
   const nextStep = async () => {
     if (currentStep === 0) {
       const success = await handleUpdateOnboardingDetails();
+      // moengage event for basic info step
+      if (success) {
+        window.Moengage.track_event('TP_NewLoginFlow_Basic_info_Next', {
+          mobile: userMobileNumber,
+          doctor_name: formData.fullName,
+          speciality: formData.speciality,
+          clinic_name: formData.clinicName,
+          clinic_address: formData.clinicAddress,
+          clinic_pincode: formData.clinicPincode,
+          clinic_lat: formData.clinic_lat,
+          clinic_long: formData.clinic_long,
+        });
+      }
       if (!success) return;
     } else if (currentStep === 1) {
       const success = clinicDetails
         ? await handleUpdateLocation()
         : await handleFinalizeOnboarding();
+      // moengage event for clinic details step
+      if (success) {
+        window.Moengage.track_event('TP_NewLoginFlow_Clinical_info_Next', {
+          mobile: userMobileNumber,
+          doctor_name: formData.fullName,
+          speciality: formData.speciality,
+          clinic_name: formData.clinicName,
+          clinic_address: formData.clinicAddress,
+          clinic_pincode: formData.clinicPincode,
+          clinic_lat: formData.clinic_lat,
+          clinic_long: formData.clinic_long,
+        });
+      }
       if (!success) return;
     } else if (currentStep === 2) {
       // Upload documents and redirect to home on success
@@ -472,6 +498,18 @@ const DoctorOnboarding = ({
       if (success) {
         // Close the drawer
         onClose();
+        // moengage event for upload documents step
+        window.Moengage.track_event('TP_NewLoginFlow_Submit_setup', {
+          mobile: userMobileNumber,
+          doctor_name: formData.fullName,
+          speciality: formData.speciality,
+          clinic_name: formData.clinicName,
+          clinic_address: formData.clinicAddress,
+          clinic_pincode: formData.clinicPincode,
+          clinic_lat: formData.clinic_lat,
+          clinic_long: formData.clinic_long,
+        });
+
         // Don't navigate or reload - stay on current page
         return;
       } else {
@@ -534,6 +572,18 @@ const DoctorOnboarding = ({
             <div style={{ display: "flex", gap: "12px" }}>
               <Button
                 onClick={() => {
+                  // moengage event for skip and upload later
+                  window.Moengage.track_event('TP_NewLoginFlow_Skip_And_Submit_later', {
+                    mobile: userMobileNumber,
+                    doctor_name: formData.fullName,
+                    speciality: formData.speciality,
+                    clinic_name: formData.clinicName,
+                    clinic_address: formData.clinicAddress,
+                    clinic_pincode: formData.clinicPincode,
+                    clinic_lat: formData.clinic_lat,
+                    clinic_long: formData.clinic_long,
+                  });
+                  
                   onClose();
                   navigate("/?from=finalSetup");
                 }}

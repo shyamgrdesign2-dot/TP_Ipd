@@ -116,7 +116,7 @@ const featureCardConfig = {
     },
     tabConfig: {
       "DDx": {
-        heading: <>AI Powered<br/>Differential Diagnosis</>,
+        heading: <><div className="ai-feature-heading">AI Powered</div>Differential Diagnosis</>,
         points: [
           {
             icon: vitals,
@@ -134,43 +134,43 @@ const featureCardConfig = {
         image: TatvaAssist
       },
       "Smart Sync": {
-        heading: <>Intelligent<br/>Data Integration</>,
-        points: [
-          {
-            icon: documentText,
-            text: "Automated data synchronization"
-          },
-          {
-            icon: ddx,
-            text: "Smart record management"
-          },
-          {
-            icon: repeatCircle,
-            text: "Real-time updates"
-          }
-        ],
-        image: SmartSync
-      },
-      "Voice Rx": {
-        heading: <>Simplify<br/>Prescription Writing</>,
+        heading: <><div className="ai-feature-heading">Simplify</div>Prescription Writing</>,
         points: [
           {
             icon: documentText,
             text: "Write naturally with digital ink technology"
           },
           {
-            icon: voiceSquare,
+            icon: ddx,
             text: "Instantly capture and digitise prescriptions"
           },
           {
-            icon: lampCharge,
+            icon: repeatCircle,
             text: "Sync effortlessly across all your devices"
+          }
+        ],
+        image: SmartSync
+      },
+      "Voice Rx": {
+        heading: <><div className="ai-feature-heading">AI-Powered</div>Prescription Writing</>,
+        points: [
+          {
+            icon: documentText,
+            text: "Generate Structured Prescriptions Quickly"
+          },
+          {
+            icon: voiceSquare,
+            text: "Combine Voice and Typing for Ease Input"
+          },
+          {
+            icon: lampCharge,
+            text: "Save Time and Enhance Efficiency"
           }
         ],
         image: VoiceRx
       },
       "Tatva Ai": {
-        heading: <>AI-Powered<br/>Platform for Doctors</>,
+        heading: <><div className="ai-feature-heading">AI-Powered</div>Platform for Doctors</>,
         points: [
           {
             icon: documentCloud,

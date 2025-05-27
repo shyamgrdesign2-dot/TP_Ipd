@@ -357,4 +357,29 @@
             padding: 16px;
         }
     }
+
+    .modal-content-container {
+        flex-direction: column !important;
+    }
+
+    .modal-content-container .left-section .welcome-title {
+        color: #454551 !important;
+        font-size: 2rem;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 2rem;
+    }
+
+    :where(.css-dev-only-do-not-override-1okl62o).ant-modal-root .ant-modal-wrap .ant-modal {
+        width: 90vw !important;
+        max-width: 95vw !important;
+    }
+
+    :where(.css-dev-only-do-not-override-1okl62o).ant-modal-root .ant-modal .ant-modal-content {
+        padding: 1rem !important;
+    }
+
+    .modal-content-container .right-section .video-section {
+        min-height: auto !important;
+    }
 }

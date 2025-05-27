@@ -102,6 +102,13 @@
     color: #fff;
     line-height: 1.2;
     margin-bottom: 3rem;
+    .ai-feature-heading {
+      font-family: "Playfair Display" !important;
+      background: linear-gradient(90deg, #4443C5 4.86%, #A41AF0 29.74%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
   }
 
   &__points {
@@ -251,7 +258,7 @@
   }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (min-width: 769px) and (max-width: 1180px) {
   .feature-card-container {
     padding: 2rem;
     width: 100%;
@@ -273,7 +280,7 @@
     padding: 3rem 1rem;
     margin-top: 2rem;
     // opacity: 1;
-    height: auto !important;
+    height: 37rem !important;
 
     .feature-tab-card__tab {
 

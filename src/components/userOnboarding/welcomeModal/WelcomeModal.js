@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, useMediaQuery } from "antd";
 import welcomdoc from "../../../assets/images/welcom-doc.svg";
 import suporticon from "../../../assets/images/suport-icon.svg";
+import { isMobile, isTablet } from "react-device-detect";
 import "./WelcomeModal.scss";
 
 const VideoCarousel = () => {
@@ -26,14 +27,13 @@ const VideoCarousel = () => {
       title: "Starting Walk-in Consultation with a New Patient",
       tag: "Voice Rx"
     },
-    // ... other videos
   ];
 
   return (
     <div className="video-section">
       <iframe
         width="500"
-        height="350"
+        height={isMobile ? "200" : isTablet ? "300" : "350"}
         src={videos[currentVideo].url}
         title="YouTube video player"
         frameBorder="0"
@@ -87,17 +87,124 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
           </div>
         </div>
 
-        <div className="trial-period-footer">
-          <div className="trial-text">
-            <span>🎉</span>
+        {!isMobile && (
+          <div className="trial-period-footer">
+            <div className="trial-text">
+              <span>🎉</span>
             <span>Enjoy your <b>7 days</b> trial period</span>
           </div>
           <div className="upgrade-link-container">
             <span>This version is free for only 7 days. If you want to use advance features, Please</span>
             <a href="#" className="upgrade-link">upgrade your plan →</a>
+            </div>
+          </div>
+        )}
+      </Modal>
+      {isMobile && (
+        <div
+          className="device-warning-content"
+          style={{
+            margin: 0,
+            padding: "24px",
+            width: "95%",
+            zIndex: 1001,
+            backgroundColor: "#19BB7A",
+            borderRadius: "16px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "20px",
+            alignItems: "flex-start",
+            color: "white",
+          }}
+        >
+          <div style={{ display: "flex", gap: "12px" }}>
+            <img 
+              src="/desktop-icon.svg" 
+              alt="Desktop" 
+              className="desktop-icon"
+              style={{
+                width: "40px",
+                height: "40px",
+              }} 
+            />
+
+            <h2 
+              className="warning-title"
+              style={{
+                fontSize: "16px",
+                fontWeight: "500",
+                margin: 0,
+                lineHeight: "1.2",
+                color: "white",
+                textAlign: "left",
+              }}
+            >
+              For the best experience, open the platform on a desktop or tablet browser
+            </h2>
+          </div>
+
+          <div 
+            className="link-wrapper"
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              // backgroundColor: "rgba(255, 255, 255, 0.2)",
+              padding: "12px",
+              borderRadius: "8px",
+            }}
+          >
+            <a
+              href="https://tatvapractice.tatvacare.in/"
+              className="platform-link"
+              style={{
+                color: "white",
+                textDecoration: "none",
+                flex: 1,
+                padding: "10px 16px",
+                borderRadius: "8px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              https://tatvapractice.tatvacare.in/
+            </a>
+
+            <div 
+              className="action-buttons"
+              style={{
+                display: "flex",
+                gap: "8px",
+              }}
+            >
+              <button 
+                className="action-btn"
+                style={{
+                  // backgroundColor: "transparent",
+                  border: "none",
+                  padding: "8px",
+                  cursor: "pointer",
+                }}
+              >
+                <img src="/copy-icon.svg" alt="Copy" style={{ width: "20px", height: "20px" }} />
+              </button>
+              <button 
+                className="action-btn"
+                style={{
+                  // backgroundColor: "transparent",
+                  border: "none",
+                  padding: "8px",
+                  cursor: "pointer",
+                }}
+              >
+                <img src="/share-icon.svg" alt="Share" style={{ width: "20px", height: "20px" }} />
+              </button>
+            </div>
           </div>
         </div>
-      </Modal>
+      )}
     </div>
   );
 };
