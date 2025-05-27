@@ -148,6 +148,7 @@ const DoctorOnboarding = ({
       return (
         formData.clinicName &&
         formData.clinicPincode &&
+        formData.clinicPincode.length === 6 &&
         formData.clinic_long &&
         formData.clinic_lat
       );
@@ -338,7 +339,11 @@ const DoctorOnboarding = ({
 
   const handleFinalizeOnboarding = async () => {
     // Only submit when moving from step 1 (Clinic Details) to step 2 (Upload ID)
-    if (currentStep !== 1 || !!localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN)) {
+    if (
+      currentStep !== 1 ||
+      (doctorData?.hospitalDetails?.clinicName &&
+        doctorData?.hospitalDetails?.clinicPincode)
+    ) {
       return true;
     }
 
@@ -484,7 +489,7 @@ const DoctorOnboarding = ({
   // Handle clicking on a completed step
   const handleStepClick = (stepIndex) => {
     // Navigate to the clicked step
-    if(!clinicDetails) {
+    if (!clinicDetails) {
       setCurrentStep(stepIndex);
     }
   };

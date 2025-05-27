@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./CustomStepper.module.css";
 
-const CustomStepper = ({ steps, currentStep, onStepClick }) => {
+const CustomStepper = ({ steps, currentStep, onStepClick, doctorData }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // Add window resize listener
@@ -24,13 +24,30 @@ const CustomStepper = ({ steps, currentStep, onStepClick }) => {
     }
   };
 
+  const isStepCompleted = (stepIndex) => {
+    return (
+      stepIndex < currentStep ||
+      (stepIndex === 0
+        ? doctorData?.basicDetails?.doctorName &&
+          doctorData?.basicDetails?.departmentId
+        : stepIndex === 1
+        ? doctorData?.hospitalDetails?.clinicName &&
+          doctorData?.hospitalDetails?.clinicPincode &&
+          doctorData?.hospitalDetails?.clinic_long &&
+          doctorData?.hospitalDetails?.clinic_lat
+        : stepIndex === 2
+        ? doctorData?.governmentIdProof && doctorData?.mrcCertificate
+        : false)
+    );
+  };
+
   // Different rendering for mobile vs desktop
   if (isMobile) {
     return (
       <div className={styles.stepperOuter}>
         <div className={styles.mobileStepsContainer}>
           {steps.map((step, idx) => {
-            const isCompleted = idx < currentStep;
+            const isCompleted = isStepCompleted(idx);
             const isActive = idx === currentStep;
             const isClickable = isCompleted && onStepClick;
             const isLastStep = idx === steps.length - 1;
@@ -48,14 +65,14 @@ const CustomStepper = ({ steps, currentStep, onStepClick }) => {
                   {/* Circle */}
                   <div
                     className={
-                      isCompleted
+                      isCompleted && !isActive
                         ? styles.circleCompleted
                         : isActive
                         ? styles.circleActive
                         : styles.circleUpcoming
                     }
                   >
-                    {isCompleted ? (
+                    {isCompleted && !isActive ? (
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="20"
@@ -80,7 +97,7 @@ const CustomStepper = ({ steps, currentStep, onStepClick }) => {
                     <div
                       className={styles.mobileConnector}
                       style={{
-                        background: idx < currentStep ? "#4f46e5" : "#d1d5db",
+                        background: idx < currentStep || isCompleted ? "#4f46e5" : "#d1d5db",
                       }}
                     />
                   </div>
@@ -111,7 +128,7 @@ const CustomStepper = ({ steps, currentStep, onStepClick }) => {
     <div className={styles.stepperOuter}>
       <div className={styles.stepsContainer}>
         {steps.map((step, idx) => {
-          const isCompleted = idx < currentStep;
+          const isCompleted = isStepCompleted(idx);
           const isActive = idx === currentStep;
           const isClickable = isCompleted && onStepClick;
 
@@ -128,14 +145,14 @@ const CustomStepper = ({ steps, currentStep, onStepClick }) => {
               <div className={styles.stepCircleWrapper}>
                 <div
                   className={
-                    isCompleted
+                    isCompleted && !isActive
                       ? styles.circleCompleted
                       : isActive
                       ? styles.circleActive
                       : styles.circleUpcoming
                   }
                 >
-                  {isCompleted ? (
+                  {isCompleted && !isActive ? (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="31"
@@ -158,7 +175,7 @@ const CustomStepper = ({ steps, currentStep, onStepClick }) => {
                   <div
                     className={styles.connector}
                     style={{
-                      background: idx < currentStep ? "#4f46e5" : "#d1d5db",
+                      background: idx < currentStep || isCompleted ? "#4f46e5" : "#d1d5db",
                     }}
                   />
                 )}
