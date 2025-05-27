@@ -178,7 +178,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 }));
                 let sendData = {
                     b2c_id: profile?.b2c,
-                    // purchase_city: "Ahmedabad",
+                    purchase_city: "Ahmedabad",
                     purchase_state: "Gujarat",
                     purchase_date: moment().toISOString(),
                     purchase_amount: totalAmount,
