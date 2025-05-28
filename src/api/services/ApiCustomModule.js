@@ -26,4 +26,8 @@ ApiCustomModule.searchModule = function (moduleId, keyword) {
   );
 };
 
+ApiCustomModule.userPreModulesRX = function (data) {
+  return api.post(`/dynamicmodules/user_pre_modules_rx`, data, baseUrl);
+};
+
 export default ApiCustomModule;

@@ -54,4 +54,5 @@ export default {
   gen_rx_api_url: env.gen_rx_api_url,
   tatvaPedia_api_url: env.tatvaPedia_api_url,
   tatvaPedia_domain_url: env.tatvaPedia_domain_url,
+  symptoms_collector_api_url: env.symptoms_collector_api_url,
 };

@@ -56,7 +56,7 @@ import medicalRecordsWhite from "../../assets/images/upload-doc-white.svg";
 import medicalRecordsDark from "../../assets/images/upload-doc-dark.svg";
 import labParamsWhite from "../../assets/images/lab-parameters-white.svg";
 import labParamsDark from "../../assets/images/Lab-Parameters.svg";
-
+import genRxBg from "../../assets/images/gen-rx-bg.gif";
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
 // import docsWhite from '../../assets/images/docs-white.svg';
@@ -83,14 +83,14 @@ import { isAndroid, isBrowser } from "react-device-detect";
 import { generateUniqueFileName, getCorrectedFileName, mergeDocuments } from "../medicalRecords/utils/helper";
 import ApexAIPopup from "../../components/ApexAIPopup";
 import TabDDxList from "../../components/tab_design/TabDDxList";
-import { setIsApexAISelected, setIsDDxReadyToGenerate } from "../../redux/ddxSlice";
+import { setIsApexAISelected, setIsDDxReadyToGenerate, setShowSCPopup, setSymptomCollector } from "../../redux/ddxSlice";
 import DifferentialDiagnosisDrawer from "../../components/DifferentialDiagnosisDrawer";
 import CommonModal from "../../common/CommonModal";
 import DDxKnowMore from "../../components/DDxKnowMore";
 import { getDDxDetails } from "../../api/services/ApiDDx";
 import { getDecodedToken } from "../../utils/localStorage";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { getClinicName } from "../../utils/utils";
+import { getClinicName, trackEvent } from "../../utils/utils";
 import TabSurgicalBox from "../../components/tab_design/TabSurgicalBox";
 import TabAddCustomModule from "../../components/tab_design/TabAddCustomModule";
 import TabCustomModule from "../../components/tab_design/TabCustomModule";
@@ -101,6 +101,9 @@ import Carousel from "react-multi-carousel";
 import GenRxBanner from "../../components/GenRxBanner";
 import TatvaAiBanner from "../../components/TatvaAiBanner";
 import TatvaAiKnowMore from "../../components/TatvaAiKnowMore";
+import SCPopup from "../../components/SCPopup";
+import { fetchSymptomsCollectorData } from "../../api/services/ApiGenRx";
+import SCBanner from "../../components/SCBanner";
 
 function TabPrescription() {
   const {
@@ -113,6 +116,7 @@ function TabPrescription() {
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const isSCAccessable = useFeatureIsOn("symptoms-collector");
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -140,7 +144,7 @@ function TabPrescription() {
   const { allUploadedDocs, uploadDocCategories } = useSelector(
     (state) => state.uploadDoc
   );
-  const { isApexAISelected, isDDxReadyToGenerate } = useSelector(
+  const { isApexAISelected, showSCPopup, isDDxReadyToGenerate, isAutofillSelected, selectedSymptomsCollector } = useSelector(
     (state) => state.ddx
   );
   const { profile } = useSelector((state) => state.doctors);
@@ -149,6 +153,7 @@ function TabPrescription() {
     (state) => state.customModules
   );
   const decodedToken = getDecodedToken();
+  const tokenData = decodedToken?.result;
   const dispatch = useDispatch();
 
   const { state } = useLocation();
@@ -191,6 +196,7 @@ function TabPrescription() {
   const [isDDxLoading, setIsDDxLoading] = useState(false);
   const [customModuleContents, setCustomModuleContents] = useState([]);
   const [pillupSwitch, setPillupSwitch] = useState(true);
+  const [showSCBanner, setShowSCBanner] = useState(false);
 
   const contextApi = {
     patient_data,
@@ -253,6 +259,7 @@ function TabPrescription() {
   const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
   const [isGenRxDrawerVisible, setIsGenRxDrawerVisible] = useState(caseManagerData?.smart_prescription_filename || false);
   const [tatvaAiKnowMoreDrawer, setTatvaAiKnowMoreDrawer] = useState(false);
+  const [showShimmer, setShowShimmer] = useState(false);
 
   const getAllObstetricDetails = async () => {
     const obstetricResponse = await fetchObstetricDetails(patient_data.patient_unique_id);
@@ -287,6 +294,20 @@ function TabPrescription() {
   };
 
   useEffect(() => {
+    if (isAutofillSelected) {
+      setShowShimmer(true);
+      if (selectedSymptomsCollector?.medicalHistory?.length > 0) {
+        openCollapsed(2);
+      }
+      const timer = setTimeout(() => {
+        setShowShimmer(false);
+      }, 1000); // 1 seconds
+
+      return () => clearTimeout(timer); // Cleanup timeout
+    }
+  }, [isAutofillSelected]);
+
+  useEffect(() => {
     if (uploadDocCategories.length === 0) {
       getAllDocumentCategories();
     }
@@ -300,6 +321,12 @@ function TabPrescription() {
       patient_unique_id: patient_data?.patient_unique_id,
     };
     dispatch(viewPatient(sendData));
+  }, []);
+
+  useEffect(() => {
+    if (isSCAccessable) {
+      getSymptomsCollectorData();
+    }
   }, []);
 
   useEffect(() => {
@@ -450,6 +477,28 @@ function TabPrescription() {
       setPillupSwitch(caseManagerData?.pillup_fulfilment == 1 ? true : false)
     }
   }, []);
+
+  const getSymptomsCollectorData = async () => {
+    const payload = {
+      um_id: String(userId),
+      patient_unique_id: String(patient_data?.patient_unique_id),
+      hm_id: String(decodedToken?.result?.clinic_id),
+      pam_id:
+        patient_data !== undefined && patient_data.pam_id !== undefined
+          ? String(patient_data.pam_id)
+          : caseManagerData !== undefined
+          ? String(caseManagerData.pam_id)
+          : 0,
+    };
+    const response = await fetchSymptomsCollectorData(payload);
+    if (response && Object.keys(response)?.length > 0) {
+      dispatch(setSymptomCollector(response?.summary_json_doctor));
+      setShowSCBanner(true);
+      if (patient_data?.pam_status === "0") {
+        dispatch(setShowSCPopup(true));
+      }
+    }
+  };
 
   // Drawer Vitals
   const handleDrawerVital = useCallback(() => {
@@ -844,6 +893,18 @@ function TabPrescription() {
     });
   }
 
+  const handleGenRx = () => {
+    setIsGenRxDrawerVisible(true);
+    const clinic_name = getClinicName(profile?.hospital_data);
+    trackEvent("TP_VoiceRx_Start", {
+      patient_contact: patient_data?.pm_contact_no || "",
+      patient_id: patient_data?.patient_unique_id || "",
+      doctor_speciality: profile?.dp_name,
+      doctor_unique_id: profile?.doctor_unique_id,
+      clinic_name,
+    });
+  };
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -879,38 +940,38 @@ function TabPrescription() {
                     </div>
                   </button>
                   {isVoiceRxAccessable && <button
-                    type="button"
-                    className="mb-3 text-center btn btn-action"
-                    onClick={() => openCollapsed(10)}
-                  >
-                    <div
-                      className={`prescription-tab-button rounded-10px`}
-                      style={{backgroundColor: "inherit"}}
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={() => openCollapsed(10)}
                     >
-                      <img
-                        src={collapsedFlag == 10 ? genRxImg : voiceRxDefault}
-                        alt="VoiceRx"
-                        width={42}
-                        height={42}
-                      />
-                    </div>
-                    <label className="text-white mt-1">Voice Rx</label>
+                      <div
+                        className={`prescription-tab-button rounded-10px`}
+                      style={{backgroundColor: "inherit"}}
+                      >
+                        <img
+                          src={collapsedFlag == 10 ? genRxImg : voiceRxDefault}
+                          alt="VoiceRx"
+                          width={42}
+                          height={42}
+                        />
+                      </div>
+                      <label className="text-white mt-1">Voice Rx</label>
                   </button>}
                   {isApexAIAccessable && <button
-                    type="button"
-                    className="mb-3 text-center btn btn-action"
-                    onClick={() => openCollapsed(9)}
-                  >
-                    <div
-                      className={`prescription-tab-button rounded-10px`}
-                      style={{backgroundColor: "inherit"}}
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={() => openCollapsed(9)}
                     >
-                      <img
-                        src={collapsedFlag == 9 ? ddxImg : ddxInactiveImg}
-                        alt="Vitals"
-                      />
-                    </div>
-                    <label className="text-white mt-1">DDx</label>
+                      <div
+                        className={`prescription-tab-button rounded-10px`}
+                      style={{backgroundColor: "inherit"}}
+                      >
+                        <img
+                          src={collapsedFlag == 9 ? ddxImg : ddxInactiveImg}
+                          alt="Vitals"
+                        />
+                      </div>
+                      <label className="text-white mt-1">DDx</label>
                   </button>}
                 </>
               ) : (
@@ -1282,14 +1343,14 @@ function TabPrescription() {
                 />
               ) : 
                 collapsedFlag === 9 && isApexAIAccessable ? (
-                  <TabDDxList
-                    generatedDDx={generatedDDx?.results}
-                    handleDDxDrawer={handleDDxDrawer}
-                    isDDxLoading={isDDxLoading}
-                    handleDDxKnowMore={handleDDxKnowMore}
-                    getGenerateDDx={getGenerateDDx}
-                    isDDxGenerated={isDDxGenerated}
-                  />
+                <TabDDxList
+                  generatedDDx={generatedDDx?.results}
+                  handleDDxDrawer={handleDDxDrawer}
+                  isDDxLoading={isDDxLoading}
+                  handleDDxKnowMore={handleDDxKnowMore}
+                  getGenerateDDx={getGenerateDDx}
+                  isDDxGenerated={isDDxGenerated}
+                />
                 ) :
                 collapsedFlag === 10 && isVoiceRxAccessable && (
                   <TabVoiceRx
@@ -1304,7 +1365,7 @@ function TabPrescription() {
               style={{ height: "calc(100vh - 60px)" }}
             >
               <Content>
-              {/* {(shouldShowGenRxPopup || shouldShowApexPopup || shouldShowTatvaAiPopup) && 
+                {/* {(shouldShowGenRxPopup || shouldShowApexPopup || shouldShowTatvaAiPopup) && 
                   <Carousel
                   responsive={{
                     desktop: {
@@ -1342,16 +1403,19 @@ function TabPrescription() {
                     )}
                   </Carousel>
                 } */}
+                {showSCBanner && <SCBanner handleBanner={() => setShowSCBanner(false)} />}
                 {customizedPadRightList?.map((e, i) => {
                   const customModule = customModules?.find(
                     (m) => m.module_id === e.tmdpm_id
                   )
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
-                    <div key={i} className="prescription-box-sm">
+                    <div key={i} className="prescription-box-sm" style={showShimmer ? { background: `url(${genRxBg})`, padding: "2px" } : {}}>
+                     <div style={showShimmer ? {background: "white", borderRadius: "17px"} : {}}>
                       <TabSymptomsBox
-                        handleDDxDrawer={handleDDxDrawer}
-                        generatedDDx={generatedDDx?.results}
-                      />
+                          handleDDxDrawer={handleDDxDrawer}
+                          generatedDDx={generatedDDx?.results}
+                        />
+                      </div>
                     </div>
                   ) : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1391,16 +1455,16 @@ function TabPrescription() {
                   ) : 
                     e.tmdpm_id === 15 &&
                     e.tmdpm_status === 0 ? (
-                      <div key={i} className="prescription-box-sm">
-                        <TabFollowUpBox />
-                      </div>
+                    <div key={i} className="prescription-box-sm">
+                      <TabFollowUpBox />
+                    </div>
                     ): e.is_custom_module && e.tmdpm_status === 0 && customModule && (
                       <div className="prescription-box-sm">
                         <TabCustomModule module={customModule} />
                       </div>
                     )
                 })}
-                  <TabAddCustomModule />
+                <TabAddCustomModule />
               </Content>
             </div>
           </Layout>
@@ -1622,11 +1686,11 @@ function TabPrescription() {
         )}
 
         {isGenRxDrawerVisible && (
-            <ConsultationDrawer
-              visible={isGenRxDrawerVisible} 
-              onClose={() => setIsGenRxDrawerVisible(false)} 
-              handleGenRxKnowMore={handleGenRxKnowMore}
-            />
+          <ConsultationDrawer
+            visible={isGenRxDrawerVisible}
+            onClose={() => setIsGenRxDrawerVisible(false)}
+            handleGenRxKnowMore={handleGenRxKnowMore}
+          />
         )}
 
         {genRxKnowMoreDrawer && (
@@ -1644,13 +1708,13 @@ function TabPrescription() {
 
         {tatvaAiKnowMoreDrawer && 
           <Drawer
-              closeIcon={false}
-              placement="right"
-              open={tatvaAiKnowMoreDrawer}
-              onClose={handleTatvaAiKnowMore}
-              className=".modalWidth-800"
-              width={825}
-            >
+            closeIcon={false}
+            placement="right"
+            open={tatvaAiKnowMoreDrawer}
+            onClose={handleTatvaAiKnowMore}
+            className=".modalWidth-800"
+            width={825}
+          >
             <TatvaAiKnowMore handleTatvaAiKnowMore={handleTatvaAiKnowMore} handleDDxKnowMore={handleDDxKnowMore} handleGenRxKnowMore={handleGenRxKnowMore} />
           </Drawer>
         }
@@ -1728,6 +1792,9 @@ function TabPrescription() {
           }
         />
       ) : null}
+      {showSCPopup && !caseManagerData?.smart_prescription_filename && (
+        <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} handleGenRx={handleGenRx} />
+      )}
     </CashManagerContext.Provider>
   );
 }
