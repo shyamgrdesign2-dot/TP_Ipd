@@ -349,7 +349,7 @@ function TabPrescription() {
     if (isSCAccessable) {
       getSymptomsCollectorData();
     }
-  }, []);
+  }, [isSCAccessable]);
 
   useEffect(() => {
     if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {

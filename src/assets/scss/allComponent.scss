@@ -2921,6 +2921,20 @@ body {
   }
 }
 
+.sc-icon-tooltip {
+  &.ant-tooltip .ant-tooltip-inner {
+    background-color: #ffffff;
+    width: 320px;
+    height: 115px;
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  &.ant-tooltip .ant-tooltip-arrow {
+    --antd-arrow-background-color: #ffffff;
+  }
+}
+
 .sc-tooltip {
   &.ant-tooltip .ant-tooltip-inner {
     background-color: #ffffff;

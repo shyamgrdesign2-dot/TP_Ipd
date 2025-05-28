@@ -471,7 +471,7 @@ function SmartPrescription() {
     if (isSCAccessable) {
       getSymptomsCollectorData();
     }
-  }, [tokenData]);
+  }, [isSCAccessable]);
 
   const getSymptomsCollectorData = async () => {
     const payload = {
