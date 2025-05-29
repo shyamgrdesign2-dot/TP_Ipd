@@ -152,15 +152,15 @@ const DocumentVerificationPopup = () => {
 
   const getPopupContent = () => {
     if (docStatus.bothMissing) {
-      return `Complete your profile by uploading proof or else you access will be blocked ${
+      return `Complete your profile by uploading proof or else your access will be blocked ${
         docStatus.daysLeft > 0 ? `in ${docStatus.daysLeft} days` : ""
       }`;
     } else if (docStatus.idProofMissing) {
-      return `Complete your profile by uploading ID proof or else you access will be blocked ${
+      return `Complete your profile by uploading ID proof or else your access will be blocked ${
         docStatus.daysLeft > 0 ? `in ${docStatus.daysLeft} days` : ""
       }`;
     } else if (docStatus.mrcMissing) {
-      return `Complete your profile by uploading MRC Certificate or else you access will be blocked ${
+      return `Complete your profile by uploading MRC Certificate or else your access will be blocked ${
         docStatus.daysLeft > 0 ? `in ${docStatus.daysLeft} days` : ""
       }`;
     }

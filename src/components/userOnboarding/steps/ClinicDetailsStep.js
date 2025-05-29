@@ -30,6 +30,10 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
     if (formData.clinic_lat && formData.clinic_long) {
       setCoordsDetected(true);
     }
+    // Restore detected location if it exists in formData
+    if (formData.detectedLocation) {
+      setDetectedLocation(formData.detectedLocation);
+    }
   }, []);
 
   const geocodePincode = async (pincode) => {
@@ -98,12 +102,27 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
         if (city && state) {
           setDetectedLocation(`${city}, ${state}`);
           setLocationError("");
+          // Store detected location in formData for persistence
+          setFormData((prev) => ({
+            ...prev,
+            detectedLocation: `${city}, ${state}`,
+          }));
         } else if (city) {
           setDetectedLocation(city);
           setLocationError("");
+          // Store detected location in formData for persistence
+          setFormData((prev) => ({
+            ...prev,
+            detectedLocation: city,
+          }));
         } else if (state) {
           setDetectedLocation(state);
           setLocationError("");
+          // Store detected location in formData for persistence
+          setFormData((prev) => ({
+            ...prev,
+            detectedLocation: state,
+          }));
         } else {
           let fallbackLocation = "";
           const formattedAddress = result.formatted_address;
@@ -121,11 +140,21 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
           }
           if (fallbackLocation) {
             setDetectedLocation(fallbackLocation);
+            // Store detected location in formData for persistence
+            setFormData((prev) => ({
+              ...prev,
+              detectedLocation: fallbackLocation,
+            }));
           } else {
             setDetectedLocation("Location found, details unclear.");
             setLocationError(
               "Could not extract city/state from geocoding result."
             );
+            // Store detected location in formData for persistence
+            setFormData((prev) => ({
+              ...prev,
+              detectedLocation: "Location found, details unclear.",
+            }));
           }
         }
       } else if (data.status === "ZERO_RESULTS") {
@@ -133,7 +162,13 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
         setLocationError(
           `No location found for pincode ${pincode}. Please check the pincode.`
         );
-
+        // Clear detected location from formData
+        setFormData((prev) => ({
+          ...prev,
+          clinic_lat: "",
+          clinic_long: "",
+          detectedLocation: "",
+        }));
         setCoordsDetected(false);
       } else {
         console.warn(
@@ -147,6 +182,8 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
             data.error_message || data.status
           }. Please try again.`
         );
+        // Clear detected location from formData
+        setFormData((prev) => ({ ...prev, detectedLocation: "" }));
         setCoordsDetected(false);
       }
     } catch (error) {
@@ -155,6 +192,8 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
       setLocationError(
         "Failed to fetch location data. Please check your network."
       );
+      // Clear detected location from formData
+      setFormData((prev) => ({ ...prev, detectedLocation: "" }));
       setCoordsDetected(false);
     } finally {
       setIsDetectingLocation(false);
@@ -173,6 +212,8 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
       } else if (sanitizedValue.length < 6) {
         setDetectedLocation("");
         setLocationError("");
+        // Clear detected location from formData when pincode is incomplete
+        setFormData((prev) => ({ ...prev, detectedLocation: "" }));
       }
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -311,6 +352,11 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
         // Set the detected location for display
         if (city && state) {
           setDetectedLocation(`${city}, ${state}`);
+          // Store detected location in formData for persistence
+          setFormData((prev) => ({
+            ...prev,
+            detectedLocation: `${city}, ${state}`,
+          }));
         }
 
         return true;
