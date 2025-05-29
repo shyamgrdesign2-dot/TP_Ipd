@@ -30,13 +30,194 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
     if (formData.clinic_lat && formData.clinic_long) {
       setCoordsDetected(true);
     }
+    // Restore detected location if it exists in formData
+    if (formData.detectedLocation) {
+      setDetectedLocation(formData.detectedLocation);
+    }
   }, []);
+
+  const geocodePincode = async (pincode) => {
+    setLocationError(""); // Clear previous errors
+
+    const apiKey = config.GOOGLE_MAPS_API_KEY || "";
+    if (!apiKey) {
+      console.warn("Google Maps API key not found for pincode geocoding.");
+      setLocationError("Geocoding service is not configured.");
+      setFormData((prev) => ({ ...prev, clinic_lat: "", clinic_long: "" }));
+      setCoordsDetected(false);
+      return;
+    }
+    setIsDetectingLocation(true);
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?components=postal_code:${pincode}|country:IN&key=${apiKey}`
+      );
+      const data = await response.json();
+
+      if (data.status === "OK" && data.results && data.results.length > 0) {
+        const result = data.results[0];
+        const components = result.address_components;
+        const { lat, lng } = result.geometry.location;
+
+        setFormData((prev) => ({
+          ...prev,
+          clinic_lat: lat.toString(),
+          clinic_long: lng.toString(),
+        }));
+        setCoordsDetected(true);
+
+        let city = "";
+        let state = "";
+
+        components.forEach((component) => {
+          const types = component.types;
+          if (types.includes("locality")) {
+            city = component.long_name;
+          } else if (types.includes("administrative_area_level_1")) {
+            state = component.long_name;
+          }
+        });
+
+        if (!city) {
+          const sublocalityComponent = components.find(
+            (c) =>
+              c.types.includes("sublocality") ||
+              c.types.includes("sublocality_level_1")
+          );
+          if (sublocalityComponent) city = sublocalityComponent.long_name;
+          else {
+            const adminArea2Component = components.find((c) =>
+              c.types.includes("administrative_area_level_2")
+            );
+            if (adminArea2Component) city = adminArea2Component.long_name;
+          }
+        }
+        if (!city) {
+          const postalTownComponent = components.find((c) =>
+            c.types.includes("postal_town")
+          );
+          if (postalTownComponent) city = postalTownComponent.long_name;
+        }
+
+        if (city && state) {
+          setDetectedLocation(`${city}, ${state}`);
+          setLocationError("");
+          // Store detected location in formData for persistence
+          setFormData((prev) => ({
+            ...prev,
+            detectedLocation: `${city}, ${state}`,
+          }));
+        } else if (city) {
+          setDetectedLocation(city);
+          setLocationError("");
+          // Store detected location in formData for persistence
+          setFormData((prev) => ({
+            ...prev,
+            detectedLocation: city,
+          }));
+        } else if (state) {
+          setDetectedLocation(state);
+          setLocationError("");
+          // Store detected location in formData for persistence
+          setFormData((prev) => ({
+            ...prev,
+            detectedLocation: state,
+          }));
+        } else {
+          let fallbackLocation = "";
+          const formattedAddress = result.formatted_address;
+          if (formattedAddress) {
+            const parts = formattedAddress.split(", ");
+            const displayableParts = parts.filter(
+              (part) =>
+                part.trim() !== pincode && part.trim().toLowerCase() !== "india"
+            );
+            if (displayableParts.length > 0) {
+              fallbackLocation = displayableParts.join(", ");
+            } else {
+              fallbackLocation = formattedAddress;
+            }
+          }
+          if (fallbackLocation) {
+            setDetectedLocation(fallbackLocation);
+            // Store detected location in formData for persistence
+            setFormData((prev) => ({
+              ...prev,
+              detectedLocation: fallbackLocation,
+            }));
+          } else {
+            setDetectedLocation("Location found, details unclear.");
+            setLocationError(
+              "Could not extract city/state from geocoding result."
+            );
+            // Store detected location in formData for persistence
+            setFormData((prev) => ({
+              ...prev,
+              detectedLocation: "Location found, details unclear.",
+            }));
+          }
+        }
+      } else if (data.status === "ZERO_RESULTS") {
+        setDetectedLocation("");
+        setLocationError(
+          `No location found for pincode ${pincode}. Please check the pincode.`
+        );
+        // Clear detected location from formData
+        setFormData((prev) => ({
+          ...prev,
+          clinic_lat: "",
+          clinic_long: "",
+          detectedLocation: "",
+        }));
+        setCoordsDetected(false);
+      } else {
+        console.warn(
+          "Google Geocoding API error (Pincode):",
+          data.status,
+          data.error_message
+        );
+        setDetectedLocation("");
+        setLocationError(
+          `Geocoding error: ${
+            data.error_message || data.status
+          }. Please try again.`
+        );
+        // Clear detected location from formData
+        setFormData((prev) => ({ ...prev, detectedLocation: "" }));
+        setCoordsDetected(false);
+      }
+    } catch (error) {
+      console.error("Error in geocoding pincode:", error);
+      setDetectedLocation("");
+      setLocationError(
+        "Failed to fetch location data. Please check your network."
+      );
+      // Clear detected location from formData
+      setFormData((prev) => ({ ...prev, detectedLocation: "" }));
+      setCoordsDetected(false);
+    } finally {
+      setIsDetectingLocation(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
 
-    // Pincode is handled by the useEffect
+    if (name === "clinicPincode") {
+      const sanitizedValue = value.replace(/[^0-9]/g, "").slice(0, 6);
+      setFormData((prev) => ({ ...prev, [name]: sanitizedValue })); // Update pincode first
+
+      if (sanitizedValue.length === 6) {
+        geocodePincode(sanitizedValue);
+      } else if (sanitizedValue.length < 6) {
+        setDetectedLocation("");
+        setLocationError("");
+        // Clear detected location from formData when pincode is incomplete
+        setFormData((prev) => ({ ...prev, detectedLocation: "" }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleDetectLocation = () => {
@@ -137,11 +318,6 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
           } else if (types.includes("administrative_area_level_1")) {
             state = component.long_name;
           }
-          // else if (types.includes("route")) {
-          //   streetAddress += component.long_name + " ";
-          // } else if (types.includes("street_number")) {
-          //   streetAddress = component.long_name + " " + streetAddress;
-          // }
         });
 
         // If city wasn't found in locality, check for sublocality or administrative_area_level_2
@@ -176,15 +352,12 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
         // Set the detected location for display
         if (city && state) {
           setDetectedLocation(`${city}, ${state}`);
+          // Store detected location in formData for persistence
+          setFormData((prev) => ({
+            ...prev,
+            detectedLocation: `${city}, ${state}`,
+          }));
         }
-
-        // Optionally update the address field if it's empty
-        // if (streetAddress.trim() && !formData.clinicAddress) {
-        //   setFormData((prev) => ({
-        //     ...prev,
-        //     clinicAddress: streetAddress.trim(),
-        //   }));
-        // }
 
         return true;
       } else {
