@@ -82,9 +82,9 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
           }
         });
 
-        if (closestSection) {
+        // if (closestSection) {
           setActiveKey(closestSection); // Update the active key
-        }
+        // }
       },
       {
         root: null, // Default is the viewport
@@ -264,7 +264,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
             better the accuracy of the differential diagnosis results.
           </div>
 
-          <ContactSupport />
+          <ContactSupport ref={sectionsRef}/>
 
           <div
             style={{ padding: "40px 0 80px 0", textAlign: "center" }}

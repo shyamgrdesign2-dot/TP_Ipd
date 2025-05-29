@@ -94,6 +94,7 @@ import ConsultationDrawer from "../components/ConsultationDrawer";
 import ExpiredSubModal from "./monetization/components/ExpiredSubModal";
 import { checkCredits } from "../redux/monetizationSlice";
 import { services } from "../redux/doctorsSlice";
+import config from "../config";
 
 
 function Prescription() {
@@ -267,6 +268,7 @@ function Prescription() {
   const [isDDxGenerated, setIsDDxGenerated] = useState(false);
   const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
   const [tatvaAiKnowMoreDrawer, setTatvaAiKnowMoreDrawer] = useState(false);
+  const tp_monetization_enable = config.tp_monetization_enable
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
@@ -1140,7 +1142,7 @@ function Prescription() {
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
             <div className="col-lg-4 col-md-12 col-12">
-              {(isApexAIAccessable || isVoiceRxAccessable) ? (
+              {((isApexAIAccessable || isVoiceRxAccessable) || tp_monetization_enable) ? (
                 <Tabs
                   className="obstetricTab"
                   activeKey={activeTab}
@@ -1184,10 +1186,10 @@ function Prescription() {
                     }
                     key="apexAI"
                   >
-                    {isVoiceRxAccessable && <div className="prescription-box-sm">
+                    {(isVoiceRxAccessable || tp_monetization_enable) && <div className="prescription-box-sm">
                       <GenRxBox setIsGenRxDrawerVisible={setIsGenRxDrawerVisible} handleGenRxKnowMore={handleGenRxKnowMore} />
                     </div>}
-                    {isApexAIAccessable && <div className="prescription-box-sm">
+                    {(isApexAIAccessable || tp_monetization_enable) && <div className="prescription-box-sm">
                       <DDxList
                         generatedDDx={generatedDDx?.results}
                         handleDDxDrawer={handleDDxDrawer}

@@ -51,9 +51,9 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
           }
         });
 
-        if (closestSection) {
+        // if (closestSection) {
           setActiveKey(closestSection); // Update the active key
-        }
+        // }
       },
       {
         root: null, // Default is the viewport
@@ -182,7 +182,7 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
               Tips to dictate/write an Rx for better Rx Digitisation
             </div>
             <GenRxTips isKnowMore />
-            <ContactSupport />
+            <ContactSupport ref={sectionsRef}/>
             <div
               style={{
                 padding: "40px 0 80px 0",

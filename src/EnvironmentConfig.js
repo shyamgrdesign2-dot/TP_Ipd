@@ -60,6 +60,7 @@ const dev = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
+  tp_monetization_enable: true,
 };
 
 const qa_tp = {
@@ -128,6 +129,7 @@ const qa_tp = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
+  tp_monetization_enable: true,
 };
 
 const qa = {
@@ -192,6 +194,7 @@ const qa = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
+  tp_monetization_enable: true,
 };
 
 const uat = {
@@ -261,6 +264,7 @@ const uat = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-uat.tatvacare.in",
+  tp_monetization_enable: true,
 };
 
 const prod = {
@@ -324,6 +328,7 @@ const prod = {
   tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in", 
   symptoms_collector_api_url: "https://pm-tatva-agents-prod.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-prod.tatvacare.in",
+  tp_monetization_enable: true,
 };
 
 const getEnv = () => {

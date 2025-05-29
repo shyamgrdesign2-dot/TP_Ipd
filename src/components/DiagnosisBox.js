@@ -41,6 +41,7 @@ import {
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import DifferentialDiagnosis from "./DifferentialDiagnosis";
+import config from "../config";
 
 function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoading, handleDDxKnowMore, isDDxGenerated}) {
   const {
@@ -55,6 +56,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
   const { patient_data, diagnosisData, setDiagnosisData, tcmId } = useContext(CashManagerContext);
   // const [diagnosisData, setDiagnosisData] = useState([]);
 
+  const tp_monetization_enable = config.tp_monetization_enable
   const isApexAIAccessable = useFeatureIsOn("cdss");
 
   const ddxOptionsList = generatedDDx?.map((item) => {
@@ -969,7 +971,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
         {REMOVE_ALL_ROWS}
         {TABLE_DIAGNOSIS}
 
-        {isApexAIAccessable && (
+        {(isApexAIAccessable || tp_monetization_enable) && (
           <div style={{ padding: "0 14px" }}>
             <DifferentialDiagnosis
               handleDDxDrawer={handleDDxDrawer}
