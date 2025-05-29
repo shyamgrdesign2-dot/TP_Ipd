@@ -8,7 +8,7 @@ import axios from "axios";
 
 import config from "../config";
 import { useLocalStorage } from "../utils/localStorage";
-import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_ASK_TATVA, S_IPD, S_PHARMACY, S_TATVA_PRACTICE, S_OPD_BILLING, S_BILLING } from "../utils/constants";
+import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_ASK_TATVA, S_IPD, S_PHARMACY, S_OPD_BILLING, S_BILLING, TRIAL, S_TATVA_PRACTICE } from "../utils/constants";
 import newGif from "../assets/images/new-gif.gif";
 import ipdIcon from "../assets/images/ipd.svg";
 import patientsIcon from "../assets/images/all-patients.svg";
@@ -40,17 +40,20 @@ import AskTatvaKnowMore from "../pages/monetization/components/AskTatvaKnowMore"
 function SidebarDoctor() {
   const dispatch = useDispatch();
   const { servicesList } = useSelector((state) => state.doctors);
-  const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
-  const PHARMACY_planDetails = servicesList?.find(e => e.service_name === S_PHARMACY)
-  const IPD_planDetails = servicesList?.find(e => e.service_name === S_IPD)
-  const BILLING_planDetails = servicesList?.find(e => e.service_name === S_BILLING)
   const ASK_TATVA_planDetails = servicesList?.find(e => e.service_name === S_ASK_TATVA)
+
+  const { planDetails } = useSelector((state) => state.subscription);
+  const { service_mappings } = planDetails || {};
+  const EMR_planDetails =  service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
+  const PHARMACY_planDetails = service_mappings?.find(e => e.service_name === S_PHARMACY)
+  const IPD_planDetails = service_mappings?.find(e => e.service_name === S_IPD)
+  const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
+  
 
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
   const { profile } = useSelector((state) => state.doctors);
-  const { planDetails } = useSelector((state) => state.subscription);
   const [tokenData, setTokenData] = useState(null);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [tatvaHovered, SetTatvaHovered] = useState(null);
@@ -116,10 +119,10 @@ function SidebarDoctor() {
   const clickOldModule = async (moduleName) => {
     if (moduleName === S_PHARMACY || moduleName === S_IPD) {
       setSubModalData({ service_name: moduleName })
-      if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== FREE && PHARMACY_planDetails?.plan_tier === FREE) {
+      if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
         handlePharmacyKnowMore()
         showHideSubModal()
-      } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier !== FREE && IPD_planDetails?.plan_tier === FREE) {
+      } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier === TRIAL) {
         handleIPDKnowMore()
         showHideSubModal()
       } else {
@@ -413,25 +416,25 @@ function SidebarDoctor() {
                     </NavLink>
                     {item.type === S_PHARMACY ? (
                       <div className="trial-sidebar">
-                        {(EMR_planDetails?.plan_tier === FREE && PHARMACY_planDetails?.plan_tier === FREE) ? (
+                        {(EMR_planDetails?.plan_tier === TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) ? (
                           <span>Trial</span>
-                        ) : (EMR_planDetails?.plan_tier !== FREE && PHARMACY_planDetails?.plan_tier === FREE) && (
+                        ) : (EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) && (
                           <img src={LockIcon} alt="Trial" />
                         )}
                       </div>
                     ) : item.type === S_IPD ? (
                       <div className="trial-sidebar">
-                        {(EMR_planDetails?.plan_tier === FREE && IPD_planDetails?.plan_tier === FREE) ? (
+                        {(EMR_planDetails?.plan_tier === TRIAL && IPD_planDetails?.plan_tier === TRIAL) ? (
                           <span>Trial</span>
-                        ) : (EMR_planDetails?.plan_tier !== FREE && IPD_planDetails?.plan_tier === FREE) && (
+                        ) : (EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier === TRIAL) && (
                           <img src={LockIcon} alt="Trial" />
                         )}
                       </div>
                     ) : item.type === S_OPD_BILLING && (
                       <div className="trial-sidebar">
-                        {(EMR_planDetails?.plan_tier === FREE && BILLING_planDetails?.plan_tier === FREE) ? (
+                        {(EMR_planDetails?.plan_tier === TRIAL && BILLING_planDetails?.plan_tier === TRIAL) ? (
                           <span>Trial</span>
-                        ) : (EMR_planDetails?.plan_tier !== FREE && BILLING_planDetails?.plan_tier === FREE) && (
+                        ) : (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) && (
                           <img src={LockIcon} alt="Trial" />
                         )}
                       </div>

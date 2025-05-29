@@ -8,7 +8,7 @@ import Welcome from "../../../../common/Welcome";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
-  FREE,
+  TRIAL,
   MESSAGE_KEY,
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
   S_BILLING,
@@ -40,9 +40,10 @@ import { fetchAdvanceSetting, fetchPatientWalletBalance } from "../../service";
 import { setAdvancedSettings } from "../../../../redux/billingSlice";
 
 function BillingDashboard({ patientData, fromPath }) {
-  const { servicesList } = useSelector((state) => state.doctors);
-  const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
-  const BILLING_planDetails = servicesList?.find(e => e.service_name === S_BILLING)
+  const { planDetails } = useSelector((state) => state.subscription);
+  const { service_mappings } = planDetails || {};
+  const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
+  const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -59,7 +60,6 @@ function BillingDashboard({ patientData, fromPath }) {
   const [createBillDrawer, setCreateBillDrawer] = useState(false);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [billingDrawer, setBillingDrawer] = useState(false);
-  const { planDetails } = useSelector((state) => state.subscription);
   const { advancedSettings } = useSelector(
     (state) => state.billing
   );
@@ -88,7 +88,7 @@ function BillingDashboard({ patientData, fromPath }) {
   }, []);
 
   const checkBillingPurchased = async () => {
-    if (EMR_planDetails?.plan_tier !== FREE && BILLING_planDetails?.plan_tier === FREE) {
+    if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
       showHideSubModal()
     } else {
       return true;

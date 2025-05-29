@@ -10,7 +10,7 @@ import SmartSyncPro from "./components/SmartSyncPro";
 import AddonServices from "./components/AddonServices";
 import CampaignDiscount from "./components/CampaignDiscount";
 import UnlimitedAccessSummary from "./components/UnlimitedAccessSummary";
-import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION, S_IPD, S_ASK_TATVA, S_PHARMACY, S_BILLING, S_RECEPTIONIST_AGENT } from "../../utils/constants";
+import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION, S_IPD, S_ASK_TATVA, S_PHARMACY, S_BILLING, S_RECEPTIONIST_AGENT, PAID, FREE } from "../../utils/constants";
 import { services } from "../../redux/doctorsSlice";
 
 import GenRxKnowMore from "../../components/GenRxKnowMore";
@@ -28,6 +28,8 @@ import "./GetUnlimitedAccess.scss";
 function GetUnlimitedAccess() {
 
     const { profile, campaignsData, servicesLoading, servicesList } = useSelector((state) => state.doctors);
+    const { planDetails } = useSelector((state) => state.subscription);
+    const { service_mappings } = planDetails || {};
     const dispatch = useDispatch();
 
     const { state } = useLocation();
@@ -52,8 +54,25 @@ function GetUnlimitedAccess() {
     }, []);
 
     useEffect(() => {
-        if (servicesList?.length) {
-            const jsonArray = servicesList?.filter(({ purchased }) => purchased == 'false')
+        if (servicesList?.length && planDetails) {
+            const updateArray = servicesList.map(service => {
+                if (service.service_type !== "ai") {
+                    const matchedPlan = service_mappings.find(plan => plan.service_name === service.service_name);
+                    if (matchedPlan) {
+                        return {
+                            ...service,
+                            purchased: matchedPlan.plan_tier === PAID ? 'true' : 'false',
+                            plan_tier: matchedPlan.plan_tier === PAID ? PAID : FREE,
+                            plan_start_date: matchedPlan.plan_active_date,
+                            plan_end_date: matchedPlan.plan_expiry_date
+                        };
+                    }
+                }
+                return service;
+            });
+
+            // const jsonArray = servicesList?.filter(({ purchased }) => purchased == 'false')
+            const jsonArray = updateArray?.filter(({ purchased }) => purchased == 'false')
             const result = [];
             const groupedServices = [];
 
@@ -119,7 +138,7 @@ function GetUnlimitedAccess() {
                 ?.map(service => ({ ...service, validity: 12 })))
             setSelectedServices(defaultService)
         }
-    }, [servicesList]);
+    }, [servicesList, planDetails]);
 
     const handleAddRemove = useCallback((item) => {
         setSelectedServices(prev => {

@@ -4,6 +4,7 @@ import ApiMonetization from "../api/services/ApiMonetization";
 import { services } from "./doctorsSlice";
 import moment from "moment";
 import { formatAmount } from "../utils/utils";
+import { fetchSubscriptionDetails } from "./subscriptionSlice";
 
 const initialState = {
     billingHistoryList: [],
@@ -113,7 +114,7 @@ export const extendFreeTrial = createAsyncThunk(
     async (b2c_id, { dispatch, rejectWithValue }) => {
         try {
             const result = await ApiMonetization.extendFreeTrial(b2c_id);
-            dispatch(services(b2c_id))
+            dispatch(fetchSubscriptionDetails())
             return result;
         } catch (error) {
             return rejectWithValue({ visible: false, message: error.response.data.message });

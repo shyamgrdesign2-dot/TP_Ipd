@@ -5,8 +5,7 @@ import moment from "moment";
 import { useNavigate } from "react-router-dom";
 
 import { useSelector, useDispatch } from "react-redux";
-import { FREE, S_TATVA_PRACTICE } from "../../../utils/constants";
-import { services } from "../../../redux/doctorsSlice";
+import { TRIAL, S_TATVA_PRACTICE } from "../../../utils/constants";
 import { errorMessage } from "../../../utils/utils";
 
 import listIcon from '../../../assets/images/list-icon.svg'
@@ -14,55 +13,28 @@ import expiredInfographic from '../../../assets/images/expired-infographic.svg'
 import contactSupport from '../../../assets/images/messages-2.svg'
 import crown from '../../../assets/images/crown.svg'
 import planExpiredSandClock from '../../../assets/images/plan-expired-sand-clock.png'
-import { checkCredits, extendFreeTrial, interest } from "../../../redux/monetizationSlice";
+import { extendFreeTrial, interest } from "../../../redux/monetizationSlice";
 
 function ExtendTrialModal() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { profile, servicesList, campaignsData } = useSelector((state) => state.doctors);
-    const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
+    const { profile, campaignsData } = useSelector((state) => state.doctors);
+
+    const { planDetails } = useSelector((state) => state.subscription);
+    const { plan_expiry_date, service_mappings } = planDetails || {};
+    const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
 
     const [isExpiredModalOpen, setIsExpiredModalOpen] = useState(false);
 
     useEffect(() => {
-        profile?.b2c !== null && profile?.b2c !== undefined && dispatch(services(profile?.b2c));
-    }, [profile?.b2c]);
-
-    useEffect(() => {
-        servicesList?.length > 0 && checkBillingPurchased()
-    }, [servicesList]);
+        service_mappings?.length > 0 && checkBillingPurchased()
+    }, [service_mappings]);
 
     const checkBillingPurchased = async () => {
-        const emrEndDate = moment(EMR_planDetails?.plan_end_date);
+        const emrEndDate = moment(plan_expiry_date);
         const currentDate = moment();
-        if (EMR_planDetails?.plan_tier === FREE && emrEndDate.isBefore(currentDate, 'day')) {
+        if (EMR_planDetails?.plan_tier === TRIAL && emrEndDate.isBefore(currentDate, 'day')) {
             setIsExpiredModalOpen(true);
-        } else {
-            let sendData = {
-                b2c_id: profile?.b2c,
-                service_name: S_TATVA_PRACTICE
-            }
-            const action = await dispatch(checkCredits(sendData));
-            if (action.meta.requestStatus === "fulfilled") {
-                if (action?.payload?.hasOwnProperty("service_name")) {
-                    const plan_end_date = moment(action?.payload?.plan_end_date);
-                    if (action?.payload?.plan_tier === FREE && plan_end_date.isBefore(currentDate, 'day')) {
-                        if (!plan_end_date.isSame(emrEndDate, 'day')) {
-                            await dispatch(services(sendData?.b2c_id))
-                        }
-                        setIsExpiredModalOpen(true);
-                    } else {
-                        setIsExpiredModalOpen(false);
-                    }
-                } else {
-                    typeof action?.payload?.data?.error === 'object' ?
-                        errorMessage(action?.payload?.data?.error?.description)
-                        :
-                        errorMessage(action?.payload?.data?.message)
-                }
-            } else {
-                errorMessage(action.payload.message)
-            }
         }
     }
 

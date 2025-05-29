@@ -56,6 +56,8 @@ export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
 
 export const FREE = "FREE";
+export const TRIAL = "TRIAL";
+export const PAID = "PAID";
 export const S_TATVA_PRACTICE = "tatva_practice";
 export const S_VOICE_RX = "voice_rx";
 export const S_SMARTSYNC = "smartsync";

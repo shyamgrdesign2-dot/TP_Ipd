@@ -43,7 +43,7 @@ import { throttle } from "lodash";
 import { setLoadingStatus } from "../../../../../redux/uploadDocSlice.js";
 import { useDispatch } from "react-redux";
 import html2pdf from "html2pdf.js";
-import { FREE, S_BILLING, S_TATVA_PRACTICE } from "../../../../../utils/constants.js";
+import { TRIAL, S_BILLING, S_TATVA_PRACTICE } from "../../../../../utils/constants.js";
 const { RangePicker } = DatePicker;
 
 const cardsStaticData = [
@@ -77,9 +77,10 @@ const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
 const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateRange, totalAdvanceBalance, dateStatus, setDateStatus, showHideSubModal }, ref) => {
-  const { servicesList } = useSelector((state) => state.doctors);
-  const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
-  const BILLING_planDetails = servicesList?.find(e => e.service_name === S_BILLING)
+  const { planDetails } = useSelector((state) => state.subscription);
+  const { service_mappings } = planDetails || {};
+  const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
+  const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
   const dispatch = useDispatch();
 
   const { billPrintSettings, advancedSettings } = useSelector(
@@ -224,7 +225,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
   };
 
   const checkBillingPurchased = async () => {
-    if (EMR_planDetails?.plan_tier !== FREE && BILLING_planDetails?.plan_tier === FREE) {
+    if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
       showHideSubModal()
     } else {
       return true;

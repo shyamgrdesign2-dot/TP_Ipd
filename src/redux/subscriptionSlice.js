@@ -62,6 +62,7 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         expiresIn: moment(plan_expiry_date)
           .startOf("day")
           .diff(moment().startOf("day"), "days"),
+        service_mappings: response?.body?.clinic?.service_mappings || []
       };
     }
   }

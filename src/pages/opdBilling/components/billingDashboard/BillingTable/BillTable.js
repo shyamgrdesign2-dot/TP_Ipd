@@ -5,7 +5,7 @@ import RefundBill from "../RefundBill/RefundBill";
 import { addBillsToForm3C, fetchPatientWalletBalance } from "../../../service";
 import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
 import visitEnd from "../../../../../assets/images/end-visit.svg";
-import { FREE, MESSAGE_KEY, S_BILLING, S_TATVA_PRACTICE } from "../../../../../utils/constants";
+import { TRIAL, MESSAGE_KEY, S_BILLING, S_TATVA_PRACTICE } from "../../../../../utils/constants";
 import { formatDateWithOrdinal } from "../../../utils/helper";
 import InfoTooltip from "./InfoToolTip/InfoTooltip";
 import { isMobile } from "react-device-detect";
@@ -27,8 +27,10 @@ const BillTable = ({
   showHideSubModal
 }) => {
   const { profile, servicesList } = useSelector((state) => state.doctors);
-  const EMR_planDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
-  const BILLING_planDetails = servicesList?.find(e => e.service_name === S_BILLING)
+  const { planDetails } = useSelector((state) => state.subscription);
+  const { service_mappings } = planDetails || {};
+  const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
+  const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
 
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
@@ -45,7 +47,7 @@ const BillTable = ({
   };
 
   const checkBillingPurchased = async () => {
-    if (EMR_planDetails?.plan_tier !== FREE && BILLING_planDetails?.plan_tier === FREE) {
+    if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
       showHideSubModal()
     } else {
       return true;
