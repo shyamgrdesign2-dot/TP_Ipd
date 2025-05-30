@@ -71,14 +71,14 @@ function ExtendTrialModal() {
             <Card>
                 {/* className="expired-red-card" Add this class using red color background in above Card tag*/}
                 <>
-                    <img className="expiredInfographic" src={expiredInfographic} alt="Your free trail has Expired" />
+                    <img className="expiredInfographic" src={expiredInfographic} alt="Your free trial has Expired" />
                     <Row className="position-relative">
                         <Col lg={5}>
                             <div className="expired-modal-title">
-                                Your free trail has Expired!
+                                Your free trial has Expired!
                             </div>
                             <div className="fontroboto fs-18 text-white mt-4">
-                                Your <b>free trail</b> has expired. Upgrade now to continue a hassle free access!
+                                Your <b>free trial</b> has expired. Upgrade now to continue a hassle free access!
                             </div>
                             {/* Hide Below code when red color background required */}
                             <div className="extend-free-trial px-5 py-2 mt-4">

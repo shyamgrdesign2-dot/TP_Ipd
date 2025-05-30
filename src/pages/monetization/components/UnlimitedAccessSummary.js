@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { Dropdown, Drawer, Input, Button, Popover } from "antd";
+import { Dropdown, Drawer, Input, Button, Popover, Checkbox, Form } from "antd";
 import { DownOutlined } from '@ant-design/icons'
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -33,6 +33,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     const [otp, setOTP] = useState('');
     const [salesDiscount, setSalesDiscount] = useState('');
     const [loading, setLoading] = useState(false);
+    const [taxInvoice, setTaxInvoice] = useState(false);
 
     const handleValidity = useCallback((item, newValidity) => {
         if (item.service_name === S_TATVA_PRACTICE) {
@@ -318,6 +319,10 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         setDrawerOpen(false);
     }
 
+    const handleInvoiceChange = (event) => {
+        setTaxInvoice(event.target.checked);
+    };
+
     return (
         <>
             <div className="unlimited-access-summary position-sticky top-0">
@@ -367,6 +372,21 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     <div className="fs-4 text-welcome fw-semibold">Total Amount <span className="fs-14 fw-normal text-welcome">(Inc GST)</span>:</div>
                     <div className="fs-4 text-welcome fw-semibold">{`₹${totalAmount}`}</div>
                 </div>
+
+                <div className="d-flex justify-content-between mt-4">
+                    <Checkbox className="switch-name-check"
+                        checked={taxInvoice}
+                        onChange={handleInvoiceChange}>
+                        Need a GST tax invoice ?
+                    </Checkbox>
+                </div>
+
+                {taxInvoice && (
+                    <div className="mt-4">
+                        <div className="fontroboto mb-2">Organisation Name<sup className="text-danger-custom fs-14">*</sup></div>
+                        <Input className="inputheight45 rounded-10px" placeholder="Enter organisation name" />
+                    </div>
+                )}
 
                 <Button className="btn btn-proceed btn-primary3 my-4" onClick={clickBuyNow} loading={loading}>
                     {`Proceed to Pay ₹${totalAmount}`}

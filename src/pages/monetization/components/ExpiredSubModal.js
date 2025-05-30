@@ -55,8 +55,8 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                         <button className="position-relative z-1 btn p-1 lh-1 btnclose closeButton" onClick={showHideSubModal}>
                             <i className="icon-Cross"></i>
                         </button>
-                        <img className="expiredInfographic" src={expiredInfographic2} alt="Your free trail has Expired" />
-                        <img className="expiredInfographic" style={{ opacity: 0.5 }} src={expiredInfographic2} alt="Your free trail has Expired" />
+                        <img className="expiredInfographic" src={expiredInfographic2} alt="Your free trial has Expired" />
+                        <img className="expiredInfographic" style={{ opacity: 0.5 }} src={expiredInfographic2} alt="Your free trial has Expired" />
                     </>
                 }>
 
@@ -70,7 +70,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                     <>
                         <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
                         <div className="text-white">
-                            Your<span className="text-white fw-semibold"> {planDetails?.service_display_name} free trail  </span>  has expired. <br />
+                            Your<span className="text-white fw-semibold"> {planDetails?.service_display_name} free trial  </span>  has expired. <br />
                             Upgrade now to continue a hassle free experience!
                         </div>
                     </>

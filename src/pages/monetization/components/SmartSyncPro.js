@@ -75,7 +75,7 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setCh
                                         formatAmount(parseFloat(data[0].service_cost))
                                     }`}
                             </div>
-                            {/* <div className="text-price fs-18">/year</div> */}
+                            {data[1] === undefined && (<div className="text-price fs-18">/year</div>)}
                         </div>
                         <div className="d-flex align-items-center justify-content-center mt-1">
                             {campaignsData?.campaign_active && (
