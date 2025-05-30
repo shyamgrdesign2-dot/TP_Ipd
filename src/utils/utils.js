@@ -9,6 +9,7 @@ import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
 import { getDecodedToken } from "./localStorage.js";
 import imageCompression from 'browser-image-compression';
+import numeral from 'numeral'
 
 // export const validateEmail = (email) => {
 //   return String(email)
@@ -192,6 +193,10 @@ export const calculateDose = (dosage, weight, concentration) => {
 
 export const formatAmount = (amount) => {
   return amount.toFixed(2).replace(/\.00$/, '');
+}
+
+export const currencyFormat = (amount) => {
+  return numeral(amount).format('0,0.00').replace(/\.00$/, '');
 }
 
 export const dataUrlToFile = (url, fileName) => {

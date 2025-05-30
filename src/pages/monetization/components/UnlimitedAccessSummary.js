@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Dropdown, Drawer, Input, Button, Popover, Checkbox, Form } from "antd";
 import { DownOutlined } from '@ant-design/icons'
 import { Link } from "react-router-dom";
@@ -10,9 +10,10 @@ import yearlyPlan from '../../../assets/images/year-plan-corner.svg'
 
 import logoSm from '../../../assets/images/logo-sm.svg';
 import iconEdit from "../../../assets/images/edit.svg";
-import { errorMessage, formatAmount, onlyDecimalFormat, onlyNumberFormat, removeBeforeWhiteSpace } from "../../../utils/utils";
+import { currencyFormat, errorMessage, formatAmount, getClinic, isNumeric, onlyDecimalFormat, onlyNumberFormat, removeBeforeWhiteSpace } from "../../../utils/utils";
 import { kamList, otpSend, otpVerify, paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/monetizationSlice";
 import { fetchSubscriptionDetails } from "../../../redux/subscriptionSlice";
+import { searchPincode } from "../../../redux/appointmentsSlice";
 import { services } from "../../../redux/doctorsSlice";
 import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../../utils/constants";
 import config from "../../../config";
@@ -22,19 +23,54 @@ import "../GetUnlimitedAccess.scss";
 function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const { profile, campaignsData, servicesList } = useSelector((state) => state.doctors);
+    const { pincodeInfo } = useSelector((state) => state.records);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [flag, setFlag] = useState(1);
     const [kamDetails, setKamDetails] = useState(null);
     const [mobileNo, setMobileNo] = useState('');
     const [otp, setOTP] = useState('');
     const [salesDiscount, setSalesDiscount] = useState('');
-    const [loading, setLoading] = useState(false);
+
     const [taxInvoice, setTaxInvoice] = useState(false);
-    const [gstModal, setGstModal] = useState(false);
+    const [doctorName, setDoctorName] = useState('');
+    const [clinicName, setClinicName] = useState('');
+    const [clinicPincode, setClinicPincode] = useState('');
+    const [clinicCity, setClinicCity] = useState('');
+    const [clinicState, setClinicState] = useState('');
+    const [clinicAddress, setClinicAddress] = useState('');
+    const [gstNo, setGstNo] = useState('');
+
+    const [c_doctorName, setC_DoctorName] = useState('');
+    const [c_clinicPincode, setC_ClinicPincode] = useState('');
+    const [c_clinicCity, setC_ClinicCity] = useState('');
+    const [c_clinicState, setC_ClinicState] = useState('');
+    const [c_clinicAddress, setC_ClinicAddress] = useState('');
+    const [billingModal, setBillingModal] = useState(false);
+
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (profile?.hospital_data !== null && profile?.hospital_data !== undefined) {
+            setDoctorName(profile?.um_name)
+
+            setC_DoctorName(profile?.um_name)
+
+            const clinic_name = getClinic(profile?.hospital_data);
+            setClinicName(clinic_name?.hm_name);
+            setClinicPincode(isNumeric(clinic_name?.hm_pincode) ? clinic_name?.hm_pincode : '');
+            setClinicCity(isNumeric(clinic_name?.hm_pincode) ? clinic_name?.hm_city : '');
+            setClinicState(isNumeric(clinic_name?.hm_pincode) ? clinic_name?.hm_state : '');
+            setClinicAddress(clinic_name?.hm_address1);
+
+            setC_ClinicPincode(isNumeric(clinic_name?.hm_pincode) ? clinic_name?.hm_pincode : '');
+            setC_ClinicCity(isNumeric(clinic_name?.hm_pincode) ? clinic_name?.hm_city : '');
+            setC_ClinicState(isNumeric(clinic_name?.hm_pincode) ? clinic_name?.hm_state : '');
+            setC_ClinicAddress(clinic_name?.hm_address1);
+        }
+    }, [profile?.hospital_data]);
 
     const handleValidity = useCallback((item, newValidity) => {
         if (item.service_name === S_TATVA_PRACTICE) {
@@ -106,24 +142,38 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     }, [selectedServices, salesDiscount]);
 
     const clickBuyNow = async () => {
-        setLoading(true)
-        let sendData = {
-            amount: totalAmount,
-        }
-        const action = await dispatch(paymentOrder(sendData));
-        if (action.meta.requestStatus === "fulfilled") {
-            if (action?.payload?.hasOwnProperty("id")) {
-                initRazorPayPayment(action?.payload);
+        if (taxInvoice && !clinicName) {
+            errorMessage('Enter clinic name')
+        } else if (taxInvoice && !gstNo) {
+            errorMessage('Enter gst no.')
+        } else if (taxInvoice && !doctorName) {
+            errorMessage('Enter doctor name')
+        } else if (taxInvoice && !clinicPincode) {
+            errorMessage('Enter clinic pincode')
+        } else if (taxInvoice && !clinicCity) {
+            errorMessage('Valid clinic pincode')
+        } else if (taxInvoice && !clinicState) {
+            errorMessage('Valid clinic pincode')
+        } else {
+            setLoading(true)
+            let sendData = {
+                amount: totalAmount,
+            }
+            const action = await dispatch(paymentOrder(sendData));
+            if (action.meta.requestStatus === "fulfilled") {
+                if (action?.payload?.hasOwnProperty("id")) {
+                    initRazorPayPayment(action?.payload);
+                } else {
+                    setLoading(false)
+                    typeof action?.payload?.data?.error === 'object' ?
+                        errorMessage(action?.payload?.data?.error?.description)
+                        :
+                        errorMessage(action?.payload?.data?.message)
+                }
             } else {
                 setLoading(false)
-                typeof action?.payload?.data?.error === 'object' ?
-                    errorMessage(action?.payload?.data?.error?.description)
-                    :
-                    errorMessage(action?.payload?.data?.message)
+                errorMessage(action.payload.message)
             }
-        } else {
-            setLoading(false)
-            errorMessage(action.payload.message)
         }
     }
 
@@ -190,6 +240,10 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     payment_id: action?.payload?.id,
                     campaign_applied: campaignsData?.campaign_active ? true : false,
                     campaign_id: campaignsData?.campaign_active ? campaignsData?.campaign_id : '',
+                    gst_applied: taxInvoice,
+                    organization_name: taxInvoice ? clinicName : '',
+                    gst_no: taxInvoice ? gstNo : '',
+                    billing_address: taxInvoice ? `${clinicAddress}, ${clinicCity}, ${clinicState}, ${clinicPincode}` : '',
                     summary: summaryData,
                     discount_details: [
                         {
@@ -224,6 +278,80 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         } else {
             setLoading(false)
             errorMessage(action.payload.message)
+        }
+    }
+
+    const handleInvoiceChange = useCallback((event) => {
+        setTaxInvoice(event.target.checked);
+    }, [taxInvoice]);
+
+    const handleBillingModal = useCallback(() => {
+        setBillingModal(!billingModal);
+    }, [billingModal]);
+
+    const onClinicNameChange = useCallback((e) => {
+        const updateQuery = removeBeforeWhiteSpace(e.target.value)
+        setClinicName(updateQuery);
+    }, [clinicName]);
+
+    const onGstNoChange = useCallback((e) => {
+        const updateQuery = removeBeforeWhiteSpace(e.target.value)
+        setGstNo(updateQuery);
+    }, [gstNo]);
+
+    const onDoctorNameChange = useCallback((e) => {
+        const updateQuery = removeBeforeWhiteSpace(e.target.value)
+        setC_DoctorName(updateQuery);
+    }, [c_doctorName]);
+
+    const onClinicPincodeChange = useCallback((e) => {
+        const updateQuery = removeBeforeWhiteSpace(onlyNumberFormat(e.target.value))
+        setC_ClinicPincode(updateQuery);
+    }, [c_clinicPincode]);
+
+    const onClinicAddressChange = useCallback((e) => {
+        const updateQuery = removeBeforeWhiteSpace(e.target.value)
+        setC_ClinicAddress(updateQuery);
+    }, [c_clinicAddress]);
+
+    useEffect(() => {
+        if (c_clinicPincode) {
+            const timeOutId = setTimeout(() => {
+                // pincode.length === 6 && dispatch(searchPincode(pincode));
+                dispatch(searchPincode(c_clinicPincode));
+            }, 500);
+            return () => {
+                clearTimeout(timeOutId);
+            };
+        }
+    }, [c_clinicPincode]);
+
+    useEffect(() => {
+        if (pincodeInfo && Object.keys(pincodeInfo).length > 0) {
+            setC_ClinicCity(pincodeInfo?.city)
+            setC_ClinicState(pincodeInfo?.state)
+        } else {
+            setC_ClinicCity('')
+            setC_ClinicState('')
+        }
+    }, [pincodeInfo]);
+
+    const clickBillingData = () => {
+        if (!c_doctorName) {
+            errorMessage('Enter doctor name')
+        } else if (!c_clinicPincode) {
+            errorMessage('Enter clinic pincode')
+        } else if (!c_clinicCity) {
+            errorMessage('Valid clinic pincode')
+        } else if (!c_clinicState) {
+            errorMessage('Valid clinic pincode')
+        } else {
+            setDoctorName(c_doctorName)
+            setClinicPincode(c_clinicPincode);
+            setClinicCity(c_clinicCity);
+            setClinicState(c_clinicState);
+            setClinicAddress(c_clinicAddress);
+            setBillingModal(false);
         }
     }
 
@@ -320,14 +448,6 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         setDrawerOpen(false);
     }
 
-    const handleInvoiceChange = (event) => {
-        setTaxInvoice(event.target.checked);
-    };
-
-    const handleGSTModal = useCallback(() => {
-        setGstModal(!gstModal);
-    }, [gstModal]);
-
     return (
         <>
             <div className="unlimited-access-summary position-sticky top-0">
@@ -346,7 +466,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                                     <DownOutlined className="ps-2 fs-14 fw -medium text-primary" />
                                                 </a>
                                             </Dropdown>
-                                            <Popover trigger="hover" content={<div className="py-2">{`₹${formatAmount(parseFloat(item.service_cost))} X ${formatAmount(item.validity / 12)} = ₹${formatAmount(parseFloat(item.service_cost) * (item.validity / 12))}`}</div>}>
+                                            <Popover trigger="hover" content={<div className="py-2">{`₹${currencyFormat(formatAmount(parseFloat(item.service_cost)))} X ${currencyFormat(formatAmount(item.validity / 12))} = ₹${currencyFormat(formatAmount(parseFloat(item.service_cost) * (item.validity / 12)))}`}</div>}>
                                                 <i className="icon-info fs-5 text-black-50 ms-2"></i>
                                             </Popover>
                                         </div>
@@ -354,7 +474,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                 )}
                             </div>
                             <div className="fs-18 fw-medium">
-                                {`₹${formatAmount(parseFloat(item.service_cost) * (item.validity / 12))}`}
+                                {`₹${currencyFormat(formatAmount(parseFloat(item.service_cost) * (item.validity / 12)))}`}
                             </div>
                         </div>
                     )
@@ -362,20 +482,24 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 <hr />
                 <div className="d-flex justify-content-between my-3">
                     <div className="fs-18">Subtotal:</div>
-                    <div className="fs-18 fw-medium">{`₹${formatAmount(subTotal)}`}</div>
+                    <div className="fs-18 fw-medium">{`₹${currencyFormat(formatAmount(subTotal))}`}</div>
                 </div>
-                <div className="d-flex justify-content-between my-3">
-                    <div className="fs-18">Flat Discount{campaignsData?.campaign_active && ` (${campaignsData?.campaign_value}%)`}:</div>
-                    <div className="fs-18 fw-medium text-discount">{`-₹${campaignsData?.campaign_active ? formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100) : 0}`}</div>
-                </div>
-                <div className="d-flex justify-content-between my-3">
-                    <div className="fs-18">Sales Discount{salesDiscount && ` (${formatAmount(salesDiscount * 100 / subTotal)}%)`}:</div>
-                    <div className="fs-18 fw-medium text-discount">{`-₹${salesDiscount ? formatAmount(parseFloat(salesDiscount)) : 0}`}</div>
-                </div>
+                {campaignsData?.campaign_active && formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100) > 0 && (
+                    <div className="d-flex justify-content-between my-3">
+                        <div className="fs-18">Flat Discount{campaignsData?.campaign_active && ` (${campaignsData?.campaign_value}%)`}:</div>
+                        <div className="fs-18 fw-medium text-discount">{`-₹${campaignsData?.campaign_active ? currencyFormat(formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100)) : 0}`}</div>
+                    </div>
+                )}
+                {salesDiscount && formatAmount(parseFloat(salesDiscount)) > 0 && (
+                    <div className="d-flex justify-content-between my-3">
+                        <div className="fs-18">Sales Discount{salesDiscount && ` (${formatAmount(salesDiscount * 100 / subTotal)}%)`}:</div>
+                        <div className="fs-18 fw-medium text-discount">{`-₹${salesDiscount ? currencyFormat(formatAmount(parseFloat(salesDiscount))) : 0}`}</div>
+                    </div>
+                )}
                 <hr />
                 <div className="d-flex justify-content-between my-3">
                     <div className="fs-4 text-welcome fw-semibold">Total Amount <span className="fs-14 fw-normal text-welcome">(Inc GST)</span>:</div>
-                    <div className="fs-4 text-welcome fw-semibold">{`₹${totalAmount}`}</div>
+                    <div className="fs-4 text-welcome fw-semibold">{`₹${currencyFormat(totalAmount)}`}</div>
                 </div>
 
                 <div className="d-flex justify-content-between mt-4">
@@ -390,18 +514,18 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     <div className="mt-4">
                         <div className="mb-3">
                             <div className="fontroboto mb-1">Organisation Name<sup className="text-danger-custom fs-14">*</sup></div>
-                            <Input className="inputheight45 rounded-10px" placeholder="Enter organisation name" />
+                            <Input className="inputheight45 rounded-10px" placeholder="Enter organisation name" value={clinicName} onChange={onClinicNameChange} />
                         </div>
                         <div className="mb-3">
                             <div className="fontroboto mb-1">GSTIN No<sup className="text-danger-custom fs-14">*</sup></div>
-                            <Input className="inputheight45 rounded-10px" placeholder="Enter GSTIN no" />
+                            <Input className="inputheight45 rounded-10px" placeholder="Enter GSTIN no" value={gstNo} onChange={onGstNoChange} />
                         </div>
                         <div className="p-3 border rounded-10px d-flex align-items-center justify-content-center">
                             <div>
-                                <h6 className="fw-semibold">Dr. Mihir</h6>
-                                <div className="fs-14">206, Prestige Lakeview Terrace, Bengaluru, Karnataka, 560047</div>
+                                <h6 className="fw-semibold">{doctorName}</h6>
+                                <div className="fs-14">{`${clinicAddress && clinicAddress + ', '}${clinicCity}, ${clinicState}, ${clinicPincode}`}</div>
                             </div>
-                            <Button className="ms-3 btn btn-icon btn-delete-prescription" onClick={handleGSTModal}>
+                            <Button className="ms-3 btn btn-icon btn-delete-prescription" onClick={handleBillingModal}>
                                 <i className="icon-Edit"></i>
                             </Button>
                         </div>
@@ -409,7 +533,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 )}
 
                 <Button className="btn btn-proceed btn-primary3 my-4" onClick={clickBuyNow} loading={loading}>
-                    {`Proceed to Pay ₹${totalAmount}`}
+                    {`Proceed to Pay ₹${currencyFormat(totalAmount)}`}
                 </Button>
                 <div className="text-center">
                     <Link className="text-decoration-underline fw-medium text-primary" onClick={clickReferralCode}>Have a sales referral code?</Link>
@@ -464,22 +588,26 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                         return (
                                             <div key={index} className="d-flex align-items-center justify-content-between py-2">
                                                 <div>{`${item?.service_display_name} ${item?.service_name !== S_SMARTSYNC ? `(${item.validity / 12} year)` : '(Device)'}:`}</div>
-                                                <div className="fw-medium text-green">{`₹${formatAmount(parseFloat(item.service_cost) * (item.validity / 12))}`}</div>
+                                                <div className="fw-medium text-green">{`₹${currencyFormat(formatAmount(parseFloat(item.service_cost) * (item.validity / 12)))}`}</div>
                                             </div>
                                         )
                                     })}
-                                    <div className="d-flex align-items-center justify-content-between py-2">
-                                        <div>Flat Discount{campaignsData?.campaign_active && ` (${campaignsData?.campaign_value}%)`}:</div>
-                                        <div className="fw-medium text-green">{`-₹${campaignsData?.campaign_active ? formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100) : 0}`}</div>
-                                    </div>
-                                    <div className="d-flex align-items-center justify-content-between py-2">
-                                        <div>Sales Discount{salesDiscount && ` (${formatAmount(salesDiscount * 100 / subTotal)}%)`}:</div>
-                                        <div className="fw-medium text-green">{`-₹${salesDiscount ? formatAmount(parseFloat(salesDiscount)) : 0}`}</div>
-                                    </div>
+                                    {campaignsData?.campaign_active && formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100) > 0 && (
+                                        <div className="d-flex align-items-center justify-content-between py-2">
+                                            <div>Flat Discount{campaignsData?.campaign_active && ` (${campaignsData?.campaign_value}%)`}:</div>
+                                            <div className="fw-medium text-green">{`-₹${campaignsData?.campaign_active ? currencyFormat(formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100)) : 0}`}</div>
+                                        </div>
+                                    )}
+                                    {salesDiscount && formatAmount(parseFloat(salesDiscount)) > 0 && (
+                                        <div className="d-flex align-items-center justify-content-between py-2">
+                                            <div>Sales Discount{salesDiscount && ` (${formatAmount(salesDiscount * 100 / subTotal)}%)`}:</div>
+                                            <div className="fw-medium text-green">{`-₹${salesDiscount ? currencyFormat(formatAmount(parseFloat(salesDiscount))) : 0}`}</div>
+                                        </div>
+                                    )}
                                     <hr />
                                     <div className="d-flex align-items-center justify-content-between py-2">
                                         <div className="text-welcome fw-semibold fs-18">Total Amount <span className="fs-14 fw-normal text-welcome">(Inc GST)</span>:</div>
-                                        <div className="text-welcome fw-semibold fs-18">{`₹${totalAmount}`}</div>
+                                        <div className="text-welcome fw-semibold fs-18">{`₹${currencyFormat(totalAmount)}`}</div>
                                     </div>
                                 </div>
 
@@ -494,37 +622,38 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
             <Drawer
                 placement="right"
-                open={gstModal}
+                open={billingModal}
                 className='bg-body'
                 closeIcon={false}
-                onClose={handleGSTModal}
+                onClose={handleBillingModal}
                 width={600}
             >
                 <div className="modalCard-header h-60 position-sticky top-0 z-2">
                     <div className="align-items-center d-flex h-100">
                         <div className="border-end h-100 text-center me-3">
-                            <div onClick={handleGSTModal}
+                            <div onClick={handleBillingModal}
                                 className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer">
                                 <i className="icon-right"></i>
                             </div>
                         </div>
                         <div className="title-common">Billing Address</div>
-                        <Button className="ant-btn btn btn-41 btn-primary3 me-4 ms-auto" loading={loading}>
+                        <Button className="ant-btn btn btn-41 btn-primary3 me-4 ms-auto" onClick={clickBillingData}>
                             Save
                         </Button>
                     </div>
                     <div className="p-4">
                         <div className="mb-3">
                             <div className="fontroboto mb-1">Full Name<sup className="text-danger-custom fs-14">*</sup></div>
-                            <Input className="inputheight45 rounded-10px" />
+                            <Input className="inputheight45 rounded-10px" value={c_doctorName} onChange={onDoctorNameChange} />
                         </div>
                         <div className="mb-3">
                             <div className="fontroboto mb-1">Pincode<sup className="text-danger-custom fs-14">*</sup></div>
-                            <Input className="inputheight45 suffix-end rounded-10px" suffix="Bengaluru, KA" />
+                            <Input className="inputheight45 suffix-end rounded-10px"
+                                suffix={c_clinicCity && c_clinicState ? `${c_clinicCity}, ${c_clinicState}` : ''} value={c_clinicPincode} onChange={onClinicPincodeChange} />
                         </div>
                         <div className="mb-3">
                             <div className="fontroboto mb-1">Address</div>
-                            <Input className="inputheight45 rounded-10px" />
+                            <Input className="inputheight45 rounded-10px" value={c_clinicAddress} onChange={onClinicAddressChange} />
                         </div>
                     </div>
                 </div>

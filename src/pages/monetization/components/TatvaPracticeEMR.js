@@ -8,7 +8,7 @@ import tatvaEMR from '../../../assets/images/logo-tatva-emr.svg'
 import growingClinic from '../../../assets/images/growing-clinic.svg'
 import listIcon from '../../../assets/images/list-icon.svg'
 import medcoIcon from '../../../assets/images/medco-icon.svg'
-import { formatAmount } from "../../../utils/utils";
+import { currencyFormat, formatAmount } from "../../../utils/utils";
 
 function TatvaPracticeEMR({ item,clickKnowMore }) {
 
@@ -25,13 +25,13 @@ function TatvaPracticeEMR({ item,clickKnowMore }) {
             <div className="text-price fs-2 fw-semibold mt-4">{item.service_display_name}</div>
             <div className="d-flex align-items-end justify-content-center mt-4">
                 {campaignsData?.campaign_active && (
-                    <div className="fs-18 text-black-50 text-decoration-line-through me-2">{`₹${item.service_cost}`}</div>
+                    <div className="fs-18 text-black-50 text-decoration-line-through me-2">{`₹${currencyFormat(item.service_cost)}`}</div>
                 )}
                 <div className="fw-semibold text-price lh-1" style={{ fontSize: 36 }}>
                     {`₹${campaignsData?.campaign_active ?
-                        formatAmount(parseFloat(item.service_cost) - (parseFloat(item.service_cost) * parseFloat(campaignsData?.campaign_value) / 100))
+                        currencyFormat(formatAmount(parseFloat(item.service_cost) - (parseFloat(item.service_cost) * parseFloat(campaignsData?.campaign_value) / 100)))
                         :
-                        formatAmount(parseFloat(item.service_cost))}`}
+                        currencyFormat(formatAmount(parseFloat(item.service_cost)))}`}
                 </div>
                 <div className="text-price fs-4">/year</div>
                 {campaignsData?.campaign_active && (

@@ -14,6 +14,7 @@ import contactSupport from '../../../assets/images/messages-2.svg'
 import crown from '../../../assets/images/crown.svg'
 import planExpiredSandClock from '../../../assets/images/plan-expired-sand-clock.png'
 import { extendFreeTrial, interest } from "../../../redux/monetizationSlice";
+import { services } from "../../../redux/doctorsSlice";
 
 function ExtendTrialModal() {
     const navigate = useNavigate();
@@ -25,6 +26,10 @@ function ExtendTrialModal() {
     const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
 
     const [isExpiredModalOpen, setIsExpiredModalOpen] = useState(false);
+
+    useEffect(() => {
+        profile?.b2c !== null && profile?.b2c !== undefined && dispatch(services(profile?.b2c));
+    }, [profile?.b2c]);
 
     useEffect(() => {
         service_mappings?.length > 0 && checkBillingPurchased()
