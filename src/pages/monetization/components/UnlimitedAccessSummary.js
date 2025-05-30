@@ -34,6 +34,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     const [salesDiscount, setSalesDiscount] = useState('');
     const [loading, setLoading] = useState(false);
     const [taxInvoice, setTaxInvoice] = useState(false);
+    const [gstModal, setGstModal] = useState(false);
 
     const handleValidity = useCallback((item, newValidity) => {
         if (item.service_name === S_TATVA_PRACTICE) {
@@ -323,6 +324,10 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         setTaxInvoice(event.target.checked);
     };
 
+    const handleGSTModal = useCallback(() => {
+        setGstModal(!gstModal);
+    }, [gstModal]);
+
     return (
         <>
             <div className="unlimited-access-summary position-sticky top-0">
@@ -383,8 +388,23 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
                 {taxInvoice && (
                     <div className="mt-4">
-                        <div className="fontroboto mb-2">Organisation Name<sup className="text-danger-custom fs-14">*</sup></div>
-                        <Input className="inputheight45 rounded-10px" placeholder="Enter organisation name" />
+                        <div className="mb-3">
+                            <div className="fontroboto mb-1">Organisation Name<sup className="text-danger-custom fs-14">*</sup></div>
+                            <Input className="inputheight45 rounded-10px" placeholder="Enter organisation name" />
+                        </div>
+                        <div className="mb-3">
+                            <div className="fontroboto mb-1">GSTIN No<sup className="text-danger-custom fs-14">*</sup></div>
+                            <Input className="inputheight45 rounded-10px" placeholder="Enter GSTIN no" />
+                        </div>
+                        <div className="p-3 border rounded-10px d-flex align-items-center justify-content-center">
+                            <div>
+                                <h6 className="fw-semibold">Dr. Mihir</h6>
+                                <div className="fs-14">206, Prestige Lakeview Terrace, Bengaluru, Karnataka, 560047</div>
+                            </div>
+                            <Button className="ms-3 btn btn-icon btn-delete-prescription" onClick={handleGSTModal}>
+                                <i className="icon-Edit"></i>
+                            </Button>
+                        </div>
                     </div>
                 )}
 
@@ -468,6 +488,44 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                 </Button>
                             </>
                         )}
+                    </div>
+                </div>
+            </Drawer>
+
+            <Drawer
+                placement="right"
+                open={gstModal}
+                className='bg-body'
+                closeIcon={false}
+                onClose={handleGSTModal}
+                width={600}
+            >
+                <div className="modalCard-header h-60 position-sticky top-0 z-2">
+                    <div className="align-items-center d-flex h-100">
+                        <div className="border-end h-100 text-center me-3">
+                            <div onClick={handleGSTModal}
+                                className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer">
+                                <i className="icon-right"></i>
+                            </div>
+                        </div>
+                        <div className="title-common">Billing Address</div>
+                        <Button className="ant-btn btn btn-41 btn-primary3 me-4 ms-auto" loading={loading}>
+                            Save
+                        </Button>
+                    </div>
+                    <div className="p-4">
+                        <div className="mb-3">
+                            <div className="fontroboto mb-1">Full Name<sup className="text-danger-custom fs-14">*</sup></div>
+                            <Input className="inputheight45 rounded-10px" />
+                        </div>
+                        <div className="mb-3">
+                            <div className="fontroboto mb-1">Pincode<sup className="text-danger-custom fs-14">*</sup></div>
+                            <Input className="inputheight45 suffix-end rounded-10px" suffix="Bengaluru, KA" />
+                        </div>
+                        <div className="mb-3">
+                            <div className="fontroboto mb-1">Address</div>
+                            <Input className="inputheight45 rounded-10px" />
+                        </div>
                     </div>
                 </div>
             </Drawer>
