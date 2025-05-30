@@ -437,7 +437,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                         {flag === 1 ? (
                             <>
                                 <div className="fontroboto mb-2">Enter Sales Mobile Number <sup className="text-danger-custom fs-14">*</sup></div>
-                                <Input className="inputheight45 rounded-10px" value={mobileNo} onChange={onMobileNoChange} />
+                                <Input className="inputheight45 rounded-10px" value={mobileNo} maxLength={10} onChange={onMobileNoChange} />
                                 <Button className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={kamValidation}>
                                     Continue
                                 </Button>
