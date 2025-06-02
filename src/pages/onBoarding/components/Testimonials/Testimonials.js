@@ -2,8 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import "./Testimonials.scss";
 import testimonialIcon from "../../../../assets/images/onboard-page-icons/LP-Testimonial-icon.svg";
 import profile from "../../../../assets/images/default-profile.svg";
-import doc1 from "../../../../assets/images/onboard-page-icons/testimonialDoc1.png";
-import doc2 from "../../../../assets/images/onboard-page-icons/testimonialDoc2.png";
+import Dr_Nisheet from "../../../../assets/images/onboard-page-icons/Doc_Nisheet_Dave.png";
+import Dr_Kautuk from "../../../../assets/images/onboard-page-icons/Doc_Kautuk_Patel.png";
+import Dr_Amit from "../../../../assets/images/onboard-page-icons/Doc_Amit_Madan.png";
+import Dr_Pratibha from "../../../../assets/images/onboard-page-icons/Doc_Pratibha_Singh.png";
+import Dr_Sneha from "../../../../assets/images/onboard-page-icons/Doc_Sneha_Jhadhav.png";
+import Dr_Deep from "../../../../assets/images/onboard-page-icons/Doc_Deep_Fultera.png";
 import Apexhos from "../../../../assets/images/onboard-page-icons/ApexHosLogo.png";
 import NavjivanHosLogo from "../../../../assets/images/onboard-page-icons/NavjivanHosLogo.png";
 
@@ -12,29 +16,72 @@ const Testimonials = () => {
     {
       name: "Dr Nisheet Dave",
       qualification: "Orthopaedic",
-      image: doc1,
+      image: Dr_Nisheet,
       rating: 5,
       hospitalLogo: Apexhos,
+      location: "Ahmedabad",
       review:
         "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
     },
     {
-      name: "Dr. Ashish Patel",
+      name: "Dr. Kautuk Patel",
       qualification: "Emergency physician & Intensivist",
-      image: doc2,
+      image: Dr_Kautuk,
       rating: 5,
       hospitalLogo: NavjivanHosLogo,
+      location: "Mehsana",
       review:
-        "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
+        "Tatvacare is feature loaded yet simple to use HMIS. Very useful in Outpatient as well as Inpatient management. Regular  updates & support team is added benefit. Quite happy after using their service.",
     },
     {
-      name: "Dr Nisheet Dave",
-      qualification: "Orthopaedic",
+      name: "Dr. Deep Fultera",
+      qualification: "M.D, Paediatrics",
+      image: Dr_Deep,
+      rating: 5,
+      hospitalLogo: "",
+      location: "Rajkot",
+      review:
+        "Tatvacare offers a seamless and intuitive interface, making patient management and billing incredibly efficient. Its feature and customizable templates streamline clinical workflows, saving time and enhancing accuracy. Highly recommended for modern healthcare practices.",
+    },
+    {
+      name: "Dr. Sneha Jhadhav",
+      qualification: "M.D, Medicine",
+      image: Dr_Sneha,
+      rating: 5,
+      hospitalLogo: "",
+      location: "Mumbai",
+      review:
+        "I am using Tatvacare app since 4 months, it's very easy to operate. It covers all the parameters required considering the patient case history. Even the patient are able to read & understand prescription very easily.I am happy with this app. Still they are working on few more parameters to upgrade it, which will make us more feasible to use. Even the helping team of the app are very helpful. They guide us every time when we have an issue.",
+    },
+    {
+      name: "Dr. Garima Jain",
+      qualification: "Obs and Gynae",
       image: "",
       rating: 5,
       hospitalLogo: "",
+      location: "Bangalore",
       review:
-        "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
+        "I have been using the Tatva Practice EMR at Apollo Cradle and Childrens hospital at Bangalore.Very user friendly and gives the user the choice to modify the pattern of case sheets by their convenience. Features like being to save templates for everything on the case sheets had made it very convenient to use. The back end support and modifying the platform as per the requirements of each of us is also amazing.",
+    },
+    {
+      name: "Dr. Amit Madan",
+      qualification: "Dermatologist",
+      image: Dr_Amit,
+      rating: 5,
+      hospitalLogo: "",
+      location: "Lucknow",
+      review:
+        "I have been using Tatvacare EMR for more than a year now and I am  extremely satisfied with the platform’s performance. The timely support physical and online, regular feature upgrades, and seamless AI integration have significantly enhanced my workflow. The data back up with follow up photos of patients add to treatment satisfaction and keeping record more organized.. With smart clinical tools, it offers a truly intelligent and efficient practice management experience.",
+    },
+    {
+      name: "Dr. Pratibha Singh",
+      qualification: "Obs and Gynae",
+      image: Dr_Pratibha,
+      rating: 5,
+      hospitalLogo: "",
+      location: "Lucknow",
+      review:
+        "As a Gynecologist and Head of the IVF Department at a Superspecialty Hospital, I have been using Tatvacare EMR and am extremely pleased with its performance. The platform is reliable, easy to navigate, and the timely support and consistent upgrades have made it an essential part of our daily clinical workflow",
     },
   ];
 
@@ -54,8 +101,8 @@ const Testimonials = () => {
   useEffect(() => {
     const wrapper = wrapperRef.current;
     if (wrapper) {
-      wrapper.addEventListener('scroll', handleScroll);
-      return () => wrapper.removeEventListener('scroll', handleScroll);
+      wrapper.addEventListener("scroll", handleScroll);
+      return () => wrapper.removeEventListener("scroll", handleScroll);
     }
   }, []);
 
@@ -65,9 +112,9 @@ const Testimonials = () => {
       const cardWidth = wrapperRef.current.offsetWidth;
       wrapperRef.current.scrollTo({
         left: index * cardWidth,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
-      
+
       // Reset scrolling flag after animation
       setTimeout(() => {
         isScrolling.current = false;
@@ -81,7 +128,7 @@ const Testimonials = () => {
       const scrollAmount = wrapperRef.current.offsetWidth;
       wrapperRef.current.scrollBy({
         left: -scrollAmount,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
@@ -91,34 +138,31 @@ const Testimonials = () => {
       const scrollAmount = wrapperRef.current.offsetWidth;
       wrapperRef.current.scrollBy({
         left: scrollAmount,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
 
-  const visibleTestimonials = testimonials.slice(currentIndex, currentIndex + 3);
+  const visibleTestimonials = testimonials.slice(
+    currentIndex,
+    currentIndex + 3
+  );
 
   return (
     <div className="testimonials-container">
       <h2 className="testimonials-title">
-        Hear from<br />
-        Healthcare Professionals 
-        <img
-          src={testimonialIcon}
-          alt="feature-icon"
-        />
+        Hear from
+        <br />
+        Healthcare Professionals
+        <img src={testimonialIcon} alt="feature-icon" />
       </h2>
       <div className="testimonials-carousel">
-        <button className="prev" onClick={handlePrev}>←</button>
-        <div 
-          className="testimonials-wrapper"
-          ref={wrapperRef}
-        >
+        <button className="prev" onClick={handlePrev}>
+          ←
+        </button>
+        <div className="testimonials-wrapper" ref={wrapperRef}>
           {testimonials.map((testimonial, index) => (
-            <div 
-              key={index} 
-              className="testimonial-card"
-            >
+            <div key={index} className="testimonial-card">
               <div className="testimonial-header">
                 <div className="doctor-info">
                   <img
@@ -148,23 +192,25 @@ const Testimonials = () => {
                     src={testimonial.hospitalLogo}
                     alt="Hospital"
                     className="hospital-logo"
-                  /> 
+                  />
                 )}
               </div>
               <p className="testimonial-text">{testimonial.review}</p>
             </div>
           ))}
         </div>
-        <button className="next" onClick={handleNext}>→</button>
+        <button className="next" onClick={handleNext}>
+          →
+        </button>
       </div>
       <div className="mobile-dots">
         <button
-          className={`dot ${currentIndex === 0 ? 'active' : ''}`}
+          className={`dot ${currentIndex === 0 ? "active" : ""}`}
           onClick={() => scrollToIndex(0)}
         />
         <div className="slider-dash" />
         <button
-          className={`dot ${currentIndex === 1 ? 'active' : ''}`}
+          className={`dot ${currentIndex === 1 ? "active" : ""}`}
           onClick={() => scrollToIndex(1)}
         />
       </div>
