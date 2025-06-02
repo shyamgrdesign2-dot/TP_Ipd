@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Drawer, Table } from "antd";
 import { Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
-import BillingHistory from "./BillingHistory";
 import crownIcon from "../../assets/images/crown-purple.svg";
 import billingsIcon from "../../assets/images/billings.svg";
 import crown from '../../assets/images/crown.svg'
@@ -11,7 +11,6 @@ import BillingHistoryNew from "./BillingHistoryNew";
 import BillingPrint from "./BillingPrint";
 import { billingHistory, invoiceGenerate } from "../../redux/monetizationSlice";
 import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../utils/constants";
-import { useNavigate } from "react-router-dom";
 import { errorMessage } from "../../utils/utils";
 
 function SubscriptionNew() {
@@ -120,7 +119,6 @@ function SubscriptionNew() {
             <BillingHistoryNew
               show={showBillingHistory}
               setShow={setShowBillingHistory}
-              generateInvoice={generateInvoice}
               billingHistoryList={billingHistoryList} />
           </>
         ) : (
@@ -138,13 +136,9 @@ function SubscriptionNew() {
         width={800}
         open={open}
         footer={null}
-        onClose={() => setOpen(false)}
-        styles={{
-          mask: { zIndex: 999 },
-          wrapper: { zIndex: 999 },
-        }}
+        onClose={handlePdfDrawer}
         closeIcon={false}>
-        <BillingPrint handlePdfDrawer={handlePdfDrawer} PDF_URL={pdfUrl && pdfUrl} />
+        <BillingPrint open={open} handlePdfDrawer={handlePdfDrawer} PDF_URL={pdfUrl && pdfUrl} />
       </Drawer>
     </>
   );

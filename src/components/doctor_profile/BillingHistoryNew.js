@@ -1,10 +1,37 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Drawer, Table } from "antd";
 import { Navbar } from "react-bootstrap";
+import { useDispatch } from "react-redux";
 
 import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../utils/constants";
+import { invoiceGenerate } from "../../redux/monetizationSlice";
+import { errorMessage } from "../../utils/utils";
+import BillingPrint from "./BillingPrint";
 
-const BillingHistoryNew = ({ show, setShow, generateInvoice, billingHistoryList }) => {
+const BillingHistoryNew = ({ show, setShow, billingHistoryList }) => {
+
+  const dispatch = useDispatch();
+
+  const [open, setOpen] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
+
+  const handlePdfDrawer = useCallback(() => {
+    setOpen(!open);
+  }, [open])
+
+  const generateInvoice = async (invoice_id) => {
+    const action = await dispatch(invoiceGenerate(invoice_id));
+    if (action.meta.requestStatus === "fulfilled") {
+      if (action?.payload?.status === 200) {
+        setPdfUrl(action?.payload?.body?.url)
+        handlePdfDrawer()
+      } else {
+        errorMessage(action.payload.message)
+      }
+    } else {
+      errorMessage(action.payload.message)
+    }
+  }
 
   const columns = [
     {
@@ -75,6 +102,14 @@ const BillingHistoryNew = ({ show, setShow, generateInvoice, billingHistoryList 
             bordered
             pagination={false} />
         </>
+      </Drawer>
+      <Drawer
+        width={800}
+        open={open}
+        footer={null}
+        onClose={handlePdfDrawer}
+        closeIcon={false}>
+        <BillingPrint open={open} handlePdfDrawer={handlePdfDrawer} PDF_URL={pdfUrl && pdfUrl} />
       </Drawer>
     </>
   );
