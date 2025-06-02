@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import moment from "moment";
+import { FREE } from "../../../utils/constants";
 
 function CampaignDiscount({ flag, title = undefined }) {
 
@@ -42,7 +43,7 @@ function CampaignDiscount({ flag, title = undefined }) {
 
     return (
         <>
-            {planDetails?.discount && (
+            {planDetails?.discount && planDetails?.plan_tier === FREE && (
                 flag === 1 ? (
                     <div className="flat-20 py-3">
                         🎉<span>&nbsp;Flat {planDetails?.discount}% off</span>&nbsp;on {planDetails?.service_display_name}—limited time offer!&nbsp;&nbsp;

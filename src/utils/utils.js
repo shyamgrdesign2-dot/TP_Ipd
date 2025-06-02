@@ -766,3 +766,20 @@ export const getIndianLanguageFont = (text, defaultFont = 'Roboto') => {
   // Default to the regular font if no Indian script is detected
   return defaultFont;
 };
+
+export const isValidGST = (gstNumber) => {
+  // GST Regex Pattern
+  const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
+  if (!gstRegex.test(gstNumber)) {
+    return false; // Invalid format
+  }
+
+  // Validate State Code (first two digits: 01-35)
+  const stateCode = parseInt(gstNumber.substring(0, 2), 10);
+  if (stateCode < 1 || stateCode > 35) {
+    return false; // Invalid state code
+  }
+
+  return true; // GST is valid
+}

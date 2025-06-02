@@ -10,7 +10,7 @@ import yearlyPlan from '../../../assets/images/year-plan-corner.svg'
 
 import logoSm from '../../../assets/images/logo-sm.svg';
 import iconEdit from "../../../assets/images/edit.svg";
-import { currencyFormat, errorMessage, formatAmount, getClinic, isNumeric, onlyDecimalFormat, onlyNumberFormat, removeBeforeWhiteSpace } from "../../../utils/utils";
+import { currencyFormat, errorMessage, formatAmount, getClinic, isNumeric, isValidGST, onlyDecimalFormat, onlyNumberFormat, removeBeforeWhiteSpace } from "../../../utils/utils";
 import { kamList, otpSend, otpVerify, paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/monetizationSlice";
 import { fetchSubscriptionDetails } from "../../../redux/subscriptionSlice";
 import { searchPincode } from "../../../redux/appointmentsSlice";
@@ -150,14 +150,16 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             errorMessage('Enter clinic name')
         } else if (taxInvoice && !gstNo) {
             errorMessage('Enter gst no.')
+        } else if ((taxInvoice && !gstNo) || !isValidGST(gstNo)) {
+            errorMessage('Enter Valid gst no.')
         } else if (taxInvoice && !doctorName) {
             errorMessage('Enter doctor name')
         } else if (taxInvoice && !clinicPincode) {
             errorMessage('Enter clinic pincode')
         } else if (taxInvoice && !clinicCity) {
-            errorMessage('Valid clinic pincode')
+            errorMessage('Enter Valid clinic pincode')
         } else if (taxInvoice && !clinicState) {
-            errorMessage('Valid clinic pincode')
+            errorMessage('Enter Valid clinic pincode')
         } else {
             setLoading(true)
             let sendData = {
@@ -346,9 +348,9 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         } else if (!c_clinicPincode) {
             errorMessage('Enter clinic pincode')
         } else if (!c_clinicCity) {
-            errorMessage('Valid clinic pincode')
+            errorMessage('Enter Valid clinic pincode')
         } else if (!c_clinicState) {
-            errorMessage('Valid clinic pincode')
+            errorMessage('Enter Valid clinic pincode')
         } else {
             setDoctorName(c_doctorName)
             setClinicPincode(c_clinicPincode);
@@ -380,7 +382,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const kamValidation = async () => {
         if (mobileNo?.length < 10) {
-            errorMessage('Please enter valid mobile number')
+            errorMessage('Enter valid mobile number')
         } else {
             let sendData = {
                 page: 0,
@@ -393,7 +395,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     setKamDetails(action?.payload?.body?.content[0]?.id)
                     sendOTP()
                 } else {
-                    errorMessage('Something went wrong! please try again later')
+                    errorMessage('Please provide valid BDM mobile number')
                 }
             } else {
                 errorMessage(action.payload.message)
@@ -424,7 +426,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const verifyOTP = async () => {
         if (otp?.length != 6) {
-            errorMessage('Please enter valid otp')
+            errorMessage('Enter valid otp')
         } else {
             let sendData = {
                 mobileNumber: `91${mobileNo}`,
@@ -435,7 +437,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 if (action?.payload?.type === 'success') {
                     setFlag(3)
                 } else {
-                    errorMessage('Something went wrong! please try again later')
+                    errorMessage(action.payload.message)
                 }
             } else {
                 errorMessage(action.payload.message)
@@ -524,7 +526,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                             <div className="fontroboto mb-1">GSTIN No<sup className="text-danger-custom fs-14">*</sup></div>
                             <Input className="inputheight45 rounded-10px" placeholder="Enter GSTIN no" value={gstNo} onChange={onGstNoChange} />
                         </div>
-                        <div className="p-3 border rounded-10px d-flex align-items-center justify-content-center">
+                        <div className="p-3 border rounded-10px d-flex align-items-center justify-content-between">
                             <div>
                                 <h6 className="fw-semibold">{doctorName}</h6>
                                 <div className="fs-14">{`${clinicAddress && clinicAddress + ', '}${clinicCity}, ${clinicState}, ${clinicPincode}`}</div>
@@ -592,7 +594,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                         return (
                                             <div key={index} className="d-flex align-items-center justify-content-between py-2">
                                                 <div>{`${item?.service_display_name} ${item?.service_name !== S_SMARTSYNC ? `(${item.validity / 12} year)` : '(Device)'}:`}</div>
-                                                <div className="fw-medium text-green">{`₹${currencyFormat(formatAmount(parseFloat(item.service_cost) * (item.validity / 12)))}`}</div>
+                                                <div className="fw-medium text-green">{`₹${currencyFormat(formatAmount(parseFloat(item.strike_off_cost) * (item.validity / 12)))}`}</div>
                                             </div>
                                         )
                                     })}
