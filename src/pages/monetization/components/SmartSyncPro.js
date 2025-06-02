@@ -80,7 +80,7 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setCh
                                             }`}
                                     </div>
                                     <div className="access-off px-2 py-1 rounded-pill fw-semibold fs-12-1 text-white">
-                                        {`${data[1] !== undefined ? (data[0].discount + data[1].discount) / 2 : (data[0].discount) / 2}% off`}
+                                        {`${data[1] !== undefined && checked ? (data[0].discount + data[1].discount) / 2 : data[0].discount}% off`}
                                     </div>
                                 </>
                             )}

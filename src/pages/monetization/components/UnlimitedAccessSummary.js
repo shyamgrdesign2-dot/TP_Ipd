@@ -617,7 +617,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                     </div>
                                 </div>
 
-                                <Button disabled={parseFloat(salesDiscount) > parseFloat(salesDiscountAmount) ? true : false} className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={clickSalesDiscount}>
+                                <Button disabled={(parseFloat(salesDiscount) > parseFloat(salesDiscountAmount)) || !salesDiscount ? true : false} className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={clickSalesDiscount}>
                                     Continue
                                 </Button>
                             </>
