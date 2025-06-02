@@ -47,7 +47,7 @@ const OnboardingCarousel = () => {
     {
       id: 5,
       title: "India's Best EMR",
-      subtitle: "Trusted by 10,000+ Doctor",
+      subtitle: "Trusted by 10,000+ Doctors",
       image: tatvaAiBanner,
       utmKey: "emr"
     },

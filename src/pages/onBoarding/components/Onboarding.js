@@ -159,6 +159,12 @@ const Onboarding = () => {
                       onboardingContainer.scrollIntoView({ behavior: 'smooth' });
                       setView('signup');
                       setIsLoginFlow(false);
+                      setTimeout(() => {
+                        const mobileInput = document.querySelector('input[placeholder="Enter your mobile number"]');
+                        if (mobileInput) {
+                          mobileInput.focus();
+                        }
+                      }, 500);
                     }
                   }}
                 >
@@ -218,29 +224,31 @@ const Onboarding = () => {
         </div>
         <div className="feature-tab-card-container">
           <TrustBy className="m-2" />
-          <OurScale className="m-2" />
-          <FeatureTabCard
-            className="m-2"
-            feature="EMR Features"
-            title="An EMR the meets all"
-            subTitle="your needs to streamline"
-            tabs={["Clinic Care", "Admin Tasks", "Analytics"]}
-          />
-          <FeatureTabCard
-            className="m-2"
-            feature="Ai Features"
-            title="Empower your"
-            subTitle="practice with Tatva AI"
-            tabs={["DDx", "Smart Sync", "Voice Rx", "Tatva Ai"]}
-          />{" "}
-          <FeatureTabCard
-            className="m-2"
-            feature="Digital Features"
-            title="Grow your"
-            subTitle="practice with us"
-            tabs={["Digital Presence", "Remote Care", "ABDM"]}
-          />
-          <Testimonials className="m-2" />
+          <div className="feature-tab-card-container-inner">
+            <OurScale className="m-2" />
+            <FeatureTabCard
+              className="m-2"
+              feature="EMR Features"
+              title="An EMR the meets all"
+              subTitle="your needs to streamline"
+              tabs={["Clinic Care", "Admin Tasks", "Analytics"]}
+            />
+            <FeatureTabCard
+              className="m-2"
+              feature="Ai Features"
+              title="Empower your"
+              subTitle="practice with Tatva AI"
+              tabs={["DDx", "Smart Sync", "Voice Rx", "Tatva Ai"]}
+            />{" "}
+            <FeatureTabCard
+              className="m-2"
+              feature="Digital Features"
+              title="Grow your"
+              subTitle="practice with us"
+              tabs={["Digital Presence", "Remote Care", "ABDM"]}
+            />
+            <Testimonials className="m-2" />
+          </div>
           <FAQ className="m-2" />
           <div className="onboarding-footer">
             <div className="onboarding-footer-container">
@@ -263,6 +271,12 @@ const Onboarding = () => {
                         onboardingContainer.scrollIntoView({ behavior: 'smooth' });
                         setView('signup');
                         setIsLoginFlow(false);
+                        setTimeout(() => {
+                          const mobileInput = document.querySelector('input[placeholder="Enter your mobile number"]');
+                          if (mobileInput) {
+                            mobileInput.focus();
+                          }
+                        }, 500);
                       }
                     }}
                   >

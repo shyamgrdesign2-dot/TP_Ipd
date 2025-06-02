@@ -44,6 +44,7 @@ import voiceSquare from "../../../../assets/images/onboard-page-icons/voice-squa
 import wallet from "../../../../assets/images/onboard-page-icons/wallet.svg";
 import repeatCircle from "../../../../assets/images/onboard-page-icons/repeat-circle.svg";
 import webStructure from "../../../../assets/images/webStructure.svg";
+import { isMobile } from "react-device-detect";
 
 const featureCardConfig = {
   "EMR Features": {
@@ -331,9 +332,15 @@ const FeatureTabCard = ({ feature, title, subTitle, tabs }) => {
         "Digital Features": `url(${webStructure}) right center/45% no-repeat, linear-gradient(114deg, #FEEDC0 -2.49%, #FDEAB8 16.82%, #FAD882 39.96%, #D59700 71.6%)`
       };
 
+      const backgroundGradientsMobile = {
+        "EMR Features": `url(${webStructure}) right bottom / 85% no-repeat, linear-gradient(119deg, #46286C -8.1%, #481C7F 14.33%, #181346 45.83%, #1A1A2F 94.62%)`,
+        "Ai Features": `url(${webStructure}) right bottom / 85% no-repeat, linear-gradient(112deg, #F8E1FB 1.39%, #D7A5EB 30.56%, #7946CB 89.33%)`,
+        "Digital Features": `url(${webStructure}) right bottom / 85% no-repeat, linear-gradient(114deg, #FEEDC0 -2.49%, #FDEAB8 16.82%, #FAD882 39.96%, #D59700 71.6%)`
+      };
+
       // Option 2: Add additional background properties
       return {
-        background: backgroundGradients[feature] || backgroundGradients["EMR Features"],
+        background: isMobile ? backgroundGradientsMobile[feature] || backgroundGradientsMobile["EMR Features"] : backgroundGradients[feature] || backgroundGradients["EMR Features"],
         backgroundSize: '45%, 100%', // First value for SVG, second for gradient
         backgroundPosition: 'right center, 0 0',
         backgroundRepeat: 'no-repeat, no-repeat',
