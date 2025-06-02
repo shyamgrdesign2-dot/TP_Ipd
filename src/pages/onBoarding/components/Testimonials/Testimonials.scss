@@ -75,7 +75,7 @@
     margin: 1rem 1rem;
     flex: 0 0 400px;
     min-width: 400px;
-    max-height: 17rem;
+    height: 25rem;
     background: white;
     padding: 2rem;
     border-radius: 16px;
@@ -132,8 +132,8 @@
 
     .testimonial-text {
       color: #475467;
-      font-size: 1rem;
-      line-height: 1.6;
+      font-size: 15px;
+      line-height: 1.4;
     }
   }
 
@@ -226,6 +226,7 @@
     .testimonial-card {
       flex: 0 0 300px !important;
       min-width: 300px !important;
+      height: 27rem !important;
       scroll-snap-align: start;
       padding: 1rem;
       border-radius: 20px;
