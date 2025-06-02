@@ -15,18 +15,18 @@ const VideoCarousel = () => {
       title: "Starting Walk-in Consultation with a New Patient",
       tag: "start consultation"
     },
-    {
-      id: 2,
-      url: "https://youtu.be/G9Ai6DtlhSk",
-      title: "Starting Walk-in Consultation with a New Patient",
-      tag: "Smart Sync"
-    },
-    {
-      id: 3,
-      url: "https://youtu.be/OJQMLAidx9o",
-      title: "Starting Walk-in Consultation with a New Patient",
-      tag: "Voice Rx"
-    },
+    // {
+    //   id: 2,
+    //   url: "https://youtu.be/G9Ai6DtlhSk",
+    //   title: "Starting Walk-in Consultation with a New Patient",
+    //   tag: "Smart Sync"
+    // },
+    // {
+    //   id: 3,
+    //   url: "https://youtu.be/OJQMLAidx9o",
+    //   title: "Starting Walk-in Consultation with a New Patient",
+    //   tag: "Voice Rx"
+    // },
   ];
 
   return (
@@ -86,8 +86,8 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
             <VideoCarousel />
           </div>
         </div>
-
-        {!isMobile && (
+        {/* this Will be added later along with the monetization feature */}
+        {/* {!isMobile && (
           <div className="trial-period-footer">
             <div className="trial-text">
               <span>🎉</span>
@@ -98,7 +98,7 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
             <a href="#" className="upgrade-link">upgrade your plan →</a>
             </div>
           </div>
-        )}
+        )} */}
       </Modal>
       {isMobile && (
         <div
