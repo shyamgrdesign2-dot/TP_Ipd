@@ -22,7 +22,7 @@ import "../GetUnlimitedAccess.scss";
 
 function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
-    const { profile, campaignsData, servicesList } = useSelector((state) => state.doctors);
+    const { profile } = useSelector((state) => state.doctors);
     const { pincodeInfo } = useSelector((state) => state.records);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -120,9 +120,16 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         ]
     };
 
+    const subDiscount = useMemo(() => {
+        return selectedServices.reduce(
+            (sum, item) => sum + ((parseFloat(item.strike_off_cost) - parseFloat(item.service_cost)) * (item.validity / 12)),
+            0
+        );
+    }, [selectedServices]);
+
     const subTotal = useMemo(() => {
         return selectedServices.reduce(
-            (sum, item) => sum + (parseFloat(item.service_cost) * (item.validity / 12)),
+            (sum, item) => sum + (parseFloat(item.strike_off_cost) * (item.validity / 12)),
             0
         );
     }, [selectedServices]);
@@ -135,10 +142,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     }, [selectedServices]);
 
     const totalAmount = useMemo(() => {
-        return campaignsData?.campaign_active ?
-            Math.ceil(formatAmount(subTotal - (subTotal * parseFloat(campaignsData?.campaign_value) / 100) - parseFloat(salesDiscount ? salesDiscount : 0)))
-            :
-            Math.ceil(formatAmount(subTotal - parseFloat(salesDiscount ? salesDiscount : 0)));
+        return Math.ceil(formatAmount(subTotal - subDiscount - parseFloat(salesDiscount ? salesDiscount : 0)));
     }, [selectedServices, salesDiscount]);
 
     const clickBuyNow = async () => {
@@ -226,7 +230,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     service_name,
                     service_type,
                     plan_validity_months: validity,
-                    plan_amount: campaignsData?.campaign_active ? formatAmount(parseFloat(service_cost) - (parseFloat(service_cost) * parseFloat(campaignsData?.campaign_value) / 100)) : formatAmount(parseFloat(service_cost))
+                    plan_amount: formatAmount(parseFloat(service_cost))
                 }));
                 let sendData = {
                     b2c_id: profile?.b2c,
@@ -238,8 +242,8 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     purchase_status: "completed",
                     discount_applied: true,
                     payment_id: action?.payload?.id,
-                    campaign_applied: campaignsData?.campaign_active ? true : false,
-                    campaign_id: campaignsData?.campaign_active ? campaignsData?.campaign_id : '',
+                    campaign_applied: null,
+                    campaign_id: null,
                     gst_applied: taxInvoice,
                     organization_name: taxInvoice ? clinicName : '',
                     gst_no: taxInvoice ? gstNo : '',
@@ -466,7 +470,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                                     <DownOutlined className="ps-2 fs-14 fw -medium text-primary" />
                                                 </a>
                                             </Dropdown>
-                                            <Popover trigger="hover" content={<div className="py-2">{`₹${currencyFormat(formatAmount(parseFloat(item.service_cost)))} X ${currencyFormat(formatAmount(item.validity / 12))} = ₹${currencyFormat(formatAmount(parseFloat(item.service_cost) * (item.validity / 12)))}`}</div>}>
+                                            <Popover trigger="hover" content={<div className="py-2">{`₹${currencyFormat(formatAmount(parseFloat(item.strike_off_cost)))} X ${currencyFormat(formatAmount(item.validity / 12))} = ₹${currencyFormat(formatAmount(parseFloat(item.strike_off_cost) * (item.validity / 12)))}`}</div>}>
                                                 <i className="icon-info fs-5 text-black-50 ms-2"></i>
                                             </Popover>
                                         </div>
@@ -474,7 +478,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                 )}
                             </div>
                             <div className="fs-18 fw-medium">
-                                {`₹${currencyFormat(formatAmount(parseFloat(item.service_cost) * (item.validity / 12)))}`}
+                                {`₹${currencyFormat(formatAmount(parseFloat(item.strike_off_cost) * (item.validity / 12)))}`}
                             </div>
                         </div>
                     )
@@ -484,10 +488,10 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     <div className="fs-18">Subtotal:</div>
                     <div className="fs-18 fw-medium">{`₹${currencyFormat(formatAmount(subTotal))}`}</div>
                 </div>
-                {campaignsData?.campaign_active && formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100) > 0 && (
+                {formatAmount(subDiscount) > 0 && (
                     <div className="d-flex justify-content-between my-3">
-                        <div className="fs-18">Flat Discount{campaignsData?.campaign_active && ` (${campaignsData?.campaign_value}%)`}:</div>
-                        <div className="fs-18 fw-medium text-discount">{`-₹${campaignsData?.campaign_active ? currencyFormat(formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100)) : 0}`}</div>
+                        <div className="fs-18">Flat Discount:</div>
+                        <div className="fs-18 fw-medium text-discount">{`-₹${currencyFormat(formatAmount(subDiscount))}`}</div>
                     </div>
                 )}
                 {salesDiscount && formatAmount(parseFloat(salesDiscount)) > 0 && (
@@ -592,10 +596,10 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                             </div>
                                         )
                                     })}
-                                    {campaignsData?.campaign_active && formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100) > 0 && (
+                                    {formatAmount(subDiscount) > 0 && (
                                         <div className="d-flex align-items-center justify-content-between py-2">
-                                            <div>Flat Discount{campaignsData?.campaign_active && ` (${campaignsData?.campaign_value}%)`}:</div>
-                                            <div className="fw-medium text-green">{`-₹${campaignsData?.campaign_active ? currencyFormat(formatAmount(subTotal * parseFloat(campaignsData?.campaign_value) / 100)) : 0}`}</div>
+                                            <div>Flat Discount:</div>
+                                            <div className="fw-medium text-green">{`-₹${currencyFormat(formatAmount(subDiscount))}`}</div>
                                         </div>
                                     )}
                                     {salesDiscount && formatAmount(parseFloat(salesDiscount)) > 0 && (

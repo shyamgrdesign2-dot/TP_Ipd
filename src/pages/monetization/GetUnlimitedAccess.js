@@ -27,7 +27,7 @@ import "./GetUnlimitedAccess.scss";
 
 function GetUnlimitedAccess() {
 
-    const { profile, campaignsData, servicesLoading, servicesList } = useSelector((state) => state.doctors);
+    const { profile, servicesLoading, servicesList } = useSelector((state) => state.doctors);
     const { planDetails } = useSelector((state) => state.subscription);
     const { service_mappings } = planDetails || {};
     const dispatch = useDispatch();
@@ -247,9 +247,7 @@ function GetUnlimitedAccess() {
             <div className="unlimited-access-wrapper overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                 {!servicesLoading ? (
                     <>
-                        {campaignsData?.campaign_active && (
-                            <CampaignDiscount flag={1} title={servicesList.find(e => e.service_name === buyServiceName)?.service_display_name} />
-                        )}
+                        <CampaignDiscount flag={1} title={buyServiceName} />
                         <div className="bg-unlimited-access h-100">
                             {servicesData?.length > 0 && (
                                 <Row className="g-4">

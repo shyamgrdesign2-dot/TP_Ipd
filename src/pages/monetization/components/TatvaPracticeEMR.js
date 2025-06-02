@@ -12,7 +12,6 @@ import { currencyFormat, formatAmount } from "../../../utils/utils";
 
 function TatvaPracticeEMR({ item,clickKnowMore }) {
 
-    const { campaignsData } = useSelector((state) => state.doctors);
     const [showAll, setShowAll] = useState(false);
 
     const handleShowAll = useCallback(() => {
@@ -24,18 +23,15 @@ function TatvaPracticeEMR({ item,clickKnowMore }) {
             <img src={tatvaEMR} alt='EMR Icon' />
             <div className="text-price fs-2 fw-semibold mt-4">{item.service_display_name}</div>
             <div className="d-flex align-items-end justify-content-center mt-4">
-                {campaignsData?.campaign_active && (
-                    <div className="fs-18 text-black-50 text-decoration-line-through me-2">{`₹${currencyFormat(item.service_cost)}`}</div>
+                {item?.discount && (
+                    <div className="fs-18 text-black-50 text-decoration-line-through me-2">{`₹${currencyFormat(item.strike_off_cost)}`}</div>
                 )}
                 <div className="fw-semibold text-price lh-1" style={{ fontSize: 36 }}>
-                    {`₹${campaignsData?.campaign_active ?
-                        currencyFormat(formatAmount(parseFloat(item.service_cost) - (parseFloat(item.service_cost) * parseFloat(campaignsData?.campaign_value) / 100)))
-                        :
-                        currencyFormat(formatAmount(parseFloat(item.service_cost)))}`}
+                    {`₹${currencyFormat(formatAmount(parseFloat(item.service_cost)))}`}
                 </div>
                 <div className="text-price fs-4">/year</div>
-                {campaignsData?.campaign_active && (
-                    <div className="access-off px-3 py-1 ms-3 rounded-pill fw-semibold fs-18 text-white">{`${campaignsData?.campaign_value}% off`}</div>
+                {item?.discount && (
+                    <div className="access-off px-3 py-1 ms-3 rounded-pill fw-semibold fs-18 text-white">{`${item?.discount}% off`}</div>
                 )}
             </div>
             <div className="d-flex align-items-end justify-content-center mt-4">

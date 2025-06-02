@@ -16,8 +16,6 @@ import { S_ASK_TATVA, S_BILLING, S_DDX, S_IPD, S_PHARMACY, S_RECEPTIONIST_AGENT,
 
 function AddonServices({ item, addOrNot, handleAddRemove, clickKnowMore }) {
 
-    const { campaignsData } = useSelector((state) => state.doctors);
-
     const getIcon = (service_name) => {
         switch (service_name) {
             case S_VOICE_RX:
@@ -79,18 +77,15 @@ function AddonServices({ item, addOrNot, handleAddRemove, clickKnowMore }) {
                     <div className="addon-box-price mx-4">
                         <div className="d-flex align-items-end">
                             <div className="fw-semibold text-price lh-1 fs-4">
-                                {`₹${campaignsData?.campaign_active ?
-                                    currencyFormat(formatAmount(parseFloat(item.service_cost) - (parseFloat(item.service_cost) * parseFloat(campaignsData?.campaign_value) / 100)))
-                                    :
-                                    currencyFormat(formatAmount(parseFloat(item.service_cost)))}`}
+                                {`₹${currencyFormat(formatAmount(parseFloat(item.service_cost)))}`}
                             </div>
                             <div className="text-price fs-18">/year</div>
                         </div>
                         <div className="d-flex align-items-center justify-content-center mt-1">
-                            {campaignsData?.campaign_active && (
+                            {item?.discount && (
                                 <>
-                                    <div className="text-black-50 text-decoration-line-through me-2">{`₹${currencyFormat(item.service_cost)}`}</div>
-                                    <div className="access-off px-2 py-1 rounded-pill fw-semibold fs-12-1 text-white">{`${campaignsData?.campaign_value}% off`}</div>
+                                    <div className="text-black-50 text-decoration-line-through me-2">{`₹${currencyFormat(item.strike_off_cost)}`}</div>
+                                    <div className="access-off px-2 py-1 rounded-pill fw-semibold fs-12-1 text-white">{`${item?.discount}% off`}</div>
                                 </>
                             )}
                         </div>

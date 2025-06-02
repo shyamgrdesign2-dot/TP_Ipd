@@ -19,7 +19,7 @@ import { services } from "../../../redux/doctorsSlice";
 function ExtendTrialModal() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { profile, campaignsData } = useSelector((state) => state.doctors);
+    const { profile } = useSelector((state) => state.doctors);
 
     const { planDetails } = useSelector((state) => state.subscription);
     const { plan_expiry_date, service_mappings } = planDetails || {};
@@ -117,8 +117,8 @@ function ExtendTrialModal() {
                                     <img className="me-2" src={listIcon} alt="icon" />
                                     <div className="fs-14 text-start">Generate AI-powered prescriptions in seconds & more</div>
                                 </div>
-                                {campaignsData?.campaign_active && (
-                                    <div class="my-4 flat-20 py-2 fs-16">🔥Unlock Unlimited Access&nbsp;<span>- Flat {campaignsData?.campaign_value}% OFF!</span></div>
+                                {EMR_planDetails?.discount && (
+                                    <div class="my-4 flat-20 py-2 fs-16">🔥Unlock Unlimited Access&nbsp;<span>- Flat {EMR_planDetails?.discount}% OFF!</span></div>
                                 )}
                                 <Row>
                                     <Col lg={6}>

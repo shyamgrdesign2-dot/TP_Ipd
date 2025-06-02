@@ -8,8 +8,6 @@ import { formatAmount, currencyFormat } from "../../../utils/utils";
 
 function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setChecked, selectedServices, setSelectedServices, clickKnowMore }) {
 
-    const { campaignsData } = useSelector((state) => state.doctors);
-
     const onChange = (e) => {
         setChecked(e.target.checked)
         if (addOrNot) {
@@ -64,30 +62,26 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setCh
                         <div className="d-flex align-items-end">
                             <div className="fw-semibold text-price lh-1 fs-4">
                                 {`₹${data[1] !== undefined && checked ?
-                                    campaignsData?.campaign_active ?
-                                        currencyFormat(formatAmount((parseFloat(data[0].service_cost) - (parseFloat(data[0].service_cost) * parseFloat(campaignsData?.campaign_value) / 100)) + (parseFloat(data[1].service_cost) - (parseFloat(data[1].service_cost) * parseFloat(campaignsData?.campaign_value) / 100))))
-                                        :
-                                        currencyFormat(formatAmount((parseFloat(data[0].service_cost)) + (parseFloat(data[1].service_cost))))
+                                    currencyFormat(formatAmount((parseFloat(data[0].service_cost)) + (parseFloat(data[1].service_cost))))
                                     :
-                                    campaignsData?.campaign_active ?
-                                        currencyFormat(formatAmount(parseFloat(data[0].service_cost) - (parseFloat(data[0].service_cost) * parseFloat(campaignsData?.campaign_value) / 100)))
-                                        :
-                                        currencyFormat(formatAmount(parseFloat(data[0].service_cost)))
+                                    currencyFormat(formatAmount(parseFloat(data[0].service_cost)))
                                     }`}
                             </div>
                             {data[1] === undefined && (<div className="text-price fs-18">/year</div>)}
                         </div>
                         <div className="d-flex align-items-center justify-content-center mt-1">
-                            {campaignsData?.campaign_active && (
+                            {(data[0]?.discount || data[1]?.discount) && (
                                 <>
                                     <div className="text-black-50 text-decoration-line-through me-2">
                                         {`₹${data[1] !== undefined && checked ?
-                                            currencyFormat(formatAmount(parseFloat(data[0].service_cost) + parseFloat(data[1].service_cost)))
+                                            currencyFormat(formatAmount(parseFloat(data[0].strike_off_cost) + parseFloat(data[1].strike_off_cost)))
                                             :
-                                            currencyFormat(formatAmount(parseFloat(data[0].service_cost)))
+                                            currencyFormat(formatAmount(parseFloat(data[0].strike_off_cost)))
                                             }`}
                                     </div>
-                                    <div className="access-off px-2 py-1 rounded-pill fw-semibold fs-12-1 text-white">{`${campaignsData?.campaign_value}% off`}</div>
+                                    <div className="access-off px-2 py-1 rounded-pill fw-semibold fs-12-1 text-white">
+                                        {`${data[1] !== undefined ? (data[0].discount + data[1].discount) / 2 : (data[0].discount) / 2}% off`}
+                                    </div>
                                 </>
                             )}
                         </div>
@@ -111,13 +105,10 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setCh
                             <div className="d-flex align-items-center">
                                 <div>
                                     <div className="fw-medium fs-18 fontroboto text-price">
-                                        {`₹${campaignsData?.campaign_active ?
-                                            currencyFormat(formatAmount(parseFloat(data[0].service_cost) - (parseFloat(data[0].service_cost) * parseFloat(campaignsData?.campaign_value) / 100)))
-                                            :
-                                            currencyFormat(formatAmount(parseFloat(data[0].service_cost)))}`}
+                                        {`₹${currencyFormat(formatAmount(parseFloat(data[0].service_cost)))}`}
                                     </div>
-                                    {campaignsData?.campaign_active && (
-                                        <div className="text-black-50 text-decoration-line-through">{`₹${currencyFormat(data[0].service_cost)}`}</div>
+                                    {data[0].discount && (
+                                        <div className="text-black-50 text-decoration-line-through">{`₹${currencyFormat(data[0].strike_off_cost)}`}</div>
                                     )}
                                 </div>
                                 <div className="fs-14 text-price">/Lifetime</div>
@@ -137,13 +128,10 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setCh
                             <div className="d-flex align-items-center">
                                 <div>
                                     <div className="fw-medium fs-18 fontroboto text-price">
-                                        {`₹${campaignsData?.campaign_active ?
-                                            currencyFormat(formatAmount(parseFloat(data[1].service_cost) - (parseFloat(data[1].service_cost) * parseFloat(campaignsData?.campaign_value) / 100)))
-                                            :
-                                            currencyFormat(formatAmount(parseFloat(data[1].service_cost)))}`}
+                                        {`₹${currencyFormat(formatAmount(parseFloat(data[1].service_cost)))}`}
                                     </div>
-                                    {campaignsData?.campaign_active && (
-                                        <div className="text-black-50 text-decoration-line-through">{`₹${currencyFormat(data[1].service_cost)}`}</div>
+                                    {data[1].discount && (
+                                        <div className="text-black-50 text-decoration-line-through">{`₹${currencyFormat(data[1].strike_off_cost)}`}</div>
                                     )}
                                 </div>
                                 <div className="fs-14 text-price">/year</div>

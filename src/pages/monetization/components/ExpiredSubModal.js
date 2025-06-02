@@ -16,7 +16,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const { profile, campaignsData, servicesList } = useSelector((state) => state.doctors);
+    const { profile, servicesList } = useSelector((state) => state.doctors);
     const planDetails = servicesList?.find(e => e.service_name === title)
 
     const clickBuyNow = (service_name) => {
@@ -80,8 +80,8 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                     <div className="fs-4 fw-bold text-price">Upgrade Now 🚀</div>
                     <div className="mt-3 text-price">Unlock unlimited AI {planDetails?.service_display_name}, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
 
-                    {campaignsData?.campaign_active && (
-                        <CampaignDiscount flag={2} />
+                    {planDetails?.discount && (
+                        <CampaignDiscount flag={2} title={planDetails?.service_name}/>
                     )}
 
                     <div>

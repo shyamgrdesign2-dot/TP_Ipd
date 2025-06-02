@@ -32,8 +32,8 @@ const DDxList = ({
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { campaignsData, servicesList } = useSelector((state) => state.doctors);
-  const planDetails = servicesList?.find(e => e.service_name === S_DDX)
+  const { servicesList } = useSelector((state) => state.doctors);
+  const DDX_planDetails = servicesList?.find(e => e.service_name === S_DDX)
 
   const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
@@ -133,7 +133,7 @@ const DDxList = ({
       ),
       children: (
         <div>
-          {(planDetails?.plan_tier === FREE && planDetails?.credit_balance <= 0) ? (
+          {(DDX_planDetails?.plan_tier === FREE && DDX_planDetails?.credit_balance <= 0) ? (
             <div className="voicerx-modal ddx-side text-center m-2">
               <Card
                 extra={
@@ -144,26 +144,26 @@ const DDxList = ({
                 }>
 
                 <div className="text-white">
-                  Your<span className="text-white fw-semibold"> {planDetails?.service_display_name} free trial  </span>  has expired. <br />
+                  Your<span className="text-white fw-semibold"> {DDX_planDetails?.service_display_name} free trial  </span>  has expired. <br />
                   Upgrade now to continue a hassle free experience!
                 </div>
 
                 <div className="bg-white p-4 rounded-5 mt-4">
                   <div className="fs-4 fw-bold text-price">Upgrade Now 🚀</div>
-                  <div className="mt-3 text-price">Unlock unlimited AI {planDetails?.service_display_name}, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
+                  <div className="mt-3 text-price">Unlock unlimited AI {DDX_planDetails?.service_display_name}, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
 
-                  {campaignsData?.campaign_active && (
-                    <CampaignDiscount flag={2} />
+                  {DDX_planDetails?.discount && (
+                    <CampaignDiscount flag={2} title={DDX_planDetails?.service_name}/>
                   )}
 
                   <div>
-                    <Button type='button' className='mt-3 btn align-items-center mx-auto d-flex btn-41 btn-text btn-save' style={{ height: 52 }} onClick={() => clickRequestCallback(planDetails?.service_name)}>
+                    <Button type='button' className='mt-3 btn align-items-center mx-auto d-flex btn-41 btn-text btn-save' style={{ height: 52 }} onClick={() => clickRequestCallback(DDX_planDetails?.service_name)}>
                       <i className='icon-phone text-primary me-2'></i>
                       Request a call back
                     </Button>
                   </div>
                   <div>
-                    <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(planDetails?.service_name)}>
+                    <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(DDX_planDetails?.service_name)}>
                       <img className="me-2" src={crown} alt="Crown" />
                       Get Unlimited Access
                     </Button>
