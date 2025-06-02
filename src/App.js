@@ -198,12 +198,16 @@ function App() {
 
   //Upgraded Services Modal
   const upgrade_services = searchParams.get("upgrade_services");
+  const service_list = searchParams.get("service_list");
   const [isUpgradeModal, setIsUpgradeModal] = useState(false);
+  const [upgradeList, setUpgradeList] = useState(null);
 
   useEffect(() => {
     if (upgrade_services) {
       setIsUpgradeModal(true)
+      setUpgradeList(service_list.split(",").map(s => s.trim()))
       searchParams.delete('upgrade_services');
+      searchParams.delete("service_list");
       navigate('/', { replace: true })
     }
   }, [upgrade_services]);
@@ -246,7 +250,7 @@ function App() {
                 </div>
               )}
               {isUpgradeModal && (
-                <UpgradeServicesModal isUpgradeModal={isUpgradeModal} handleUpgradeModal={handleUpgradeModal} />
+                <UpgradeServicesModal isUpgradeModal={isUpgradeModal} upgradeList={upgradeList} handleUpgradeModal={handleUpgradeModal} />
               )}
               <Routes>
                 {/* Public route */}

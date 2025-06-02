@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { Card, Drawer, Modal } from "antd";
 import { Button, Col, Row } from "react-bootstrap";
 import Slider from "react-slick";
@@ -23,11 +23,12 @@ import PharmacyKnowMore from "./../components/PharmacyKnowMore";
 import BillingKnowMore from "./../components/BillingKnowMore";
 import MedEcoAppKnowMore from "./../components/MedEcoAppKnowMore";
 
-function UpgradeServicesModal({ isUpgradeModal, handleUpgradeModal }) {
+function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal }) {
 
     const { servicesList } = useSelector((state) => state.doctors);
-    const EMR_PlanDetails = servicesList?.find(e => e.service_name === S_TATVA_PRACTICE)
-    const purchasedData = servicesList?.filter(e => e.service_name !== S_TATVA_PRACTICE && e.purchased === 'true')
+    const EMR_PlanDetails = upgradeList.includes(S_TATVA_PRACTICE) ? servicesList?.find(e => e.service_name === S_TATVA_PRACTICE) : null
+    const withoutEMR = upgradeList.filter(item => item !== S_TATVA_PRACTICE)
+    const purchasedData = servicesList?.filter(e => withoutEMR.includes(e.service_name))
 
     const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
     const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
@@ -121,35 +122,43 @@ function UpgradeServicesModal({ isUpgradeModal, handleUpgradeModal }) {
                 <Card
                     extra={
                         <button className="btn p-1 lh-1 btnclose closeButton" onClick={handleUpgradeModal}>
-                            <i className="icon-Cross"></i>
+                            <i className="icon-Cross text-white"></i>
                         </button>
                     }>
                     <>
                         <img src={upgradedLogo} alt="upgraded to premium" />
                         <div className="fs-2 fw-bold mt-3">
-                            You have upgraded to premium
+                            {purchasedData?.length === 0 ?
+                                `You have upgraded to premium`
+                                : purchasedData?.length === 1 ?
+                                    `${purchasedData[0]?.service_display_name} Activated`
+                                    : purchasedData?.length === 2 ?
+                                        `${purchasedData[0]?.service_display_name}, ${purchasedData[1]?.service_display_name} Activated`
+                                        : `${purchasedData?.length} Add-on Service Activated!`}
                         </div>
                         <div className="mt-3"> Here’s what’s now available to you.</div>
                         <Slider
                             {...settings}
                             slidesToShow={1}>
-                            <div className='upgraded-premium-box w-92'>
-                                <Row>
-                                    {EMR_PlanDetails?.service_points?.map((item, index) => {
-                                        return (
-                                            <Col key={index} lg={6} className="py-2">
-                                                <div className="d-flex align-items-center">
-                                                    <img className="mx-2" src={listIcon} alt="icon" />
-                                                    <div className="fs-14 fw-medium text-price text-start">{item}</div>
-                                                </div>
-                                            </Col>
-                                        )
-                                    })}
-                                </Row>
-                                <Button className="btn btn-proceed btn-primary3 w-100 mt-4">
-                                    Start Exploring
-                                </Button>
-                            </div>
+                            {EMR_PlanDetails && (
+                                <div className='upgraded-premium-box w-92'>
+                                    <Row>
+                                        {EMR_PlanDetails?.service_points?.map((item, index) => {
+                                            return (
+                                                <Col key={index} lg={6} className="py-2">
+                                                    <div className="d-flex align-items-center">
+                                                        <img className="mx-2" src={listIcon} alt="icon" />
+                                                        <div className="fs-14 fw-medium text-price text-start">{item}</div>
+                                                    </div>
+                                                </Col>
+                                            )
+                                        })}
+                                    </Row>
+                                    <Button className="btn btn-proceed btn-primary3 w-100 mt-4" onClick={handleUpgradeModal}>
+                                        Start Exploring
+                                    </Button>
+                                </div>
+                            )}
                             {[...Array(Math.ceil(purchasedData.length / 2))]?.map((_, i) => {
                                 return (
                                     <div key={i} className='upgraded-premium-box w-92'>
@@ -162,7 +171,7 @@ function UpgradeServicesModal({ isUpgradeModal, handleUpgradeModal }) {
                                                                 <img style={{ background: '#EDD6FF' }} className="p-1 rounded-10px me-2" src={vaccinationImg} alt="Icon" />
                                                                 <div className="d-flex align-items-center" style={{ flexWrap: 'wrap' }}>
                                                                     <div className="me-3">{item?.service_display_name}</div>
-                                                                    <img src={aiPowered} className="aipowered" alt="AI Powered" />
+                                                                    {item.service_type === 'ai' && (<img src={aiPowered} alt="AI Powered" className="aipowered" />)}
                                                                 </div>
                                                             </div>
                                                             <div className="text-start">

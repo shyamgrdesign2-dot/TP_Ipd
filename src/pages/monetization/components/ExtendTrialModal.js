@@ -100,7 +100,7 @@ function ExtendTrialModal() {
                         <Col lg={7}>
                             <div className="bg-white p-30 rounded-20px">
                                 <div className="mb-4 text-1F2933 fw-semibold fs-4"> Don't Lose Your Digital Advantage!</div>
-                                <div className="mb-3"> Upgrade you plan to continue</div>
+                                <div className="mb-3"> Upgrade your plan to continue</div>
                                 <div className="d-flex align-items-center py-2">
                                     <img className="me-2" src={listIcon} alt="icon" />
                                     <div className="fs-14 text-start">Seamless clinic management all in one place</div>

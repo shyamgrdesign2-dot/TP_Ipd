@@ -64,7 +64,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                     <div className="text-white fs-16">
                         <span className="fw-bold fs-2 text-white">{planDetails?.credit_balance}</span>
                         <span className="text-white fw-semibold">/05</span> free Trial Left! <br />
-                        You can generate up to <span className="fw-bold text-white">{planDetails?.credit_balance} RX</span> using AI {planDetails?.service_display_name} for absolutely free!
+                        You can generate up to <span className="fw-bold text-white">{planDetails?.credit_balance} RX</span> using {planDetails?.service_type == 'ai' && 'AI'} {planDetails?.service_display_name} for absolutely free!
                     </div>
                 ) : (
                     <>
@@ -78,7 +78,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
 
                 <div className="bg-white p-4 rounded-5 mt-4">
                     <div className="fs-4 fw-bold text-price">Upgrade Now 🚀</div>
-                    <div className="mt-3 text-price">Unlock unlimited AI {planDetails?.service_display_name}, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
+                    <div className="mt-3 text-price">Unlock unlimited {planDetails?.service_type == 'ai' && 'AI'} {planDetails?.service_display_name}, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
 
                     {planDetails?.discount && (
                         <CampaignDiscount flag={2} title={planDetails?.service_name}/>

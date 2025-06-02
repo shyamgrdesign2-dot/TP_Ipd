@@ -31,7 +31,7 @@ function FreeTrialButton({ title, showHideSubModal }) {
                 {AI_planDetails?.credit_balance} free trial
                 {AI_planDetails?.credit_balance > 0 && <i className="ms-2 icon-right iconrotate180"></i>}
             </Button>
-        ) : isPurchased() && (
+        ) : (isPurchased() && AI_planDetails?.service_type === 'non_ai') && (
             <Button className={`btn rounded-pill btn-free-trials me-3 btn-free-0-trials`} onClick={showHideSubModal}>
                 Free trial Expired
             </Button>

@@ -146,39 +146,40 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     }, [selectedServices, salesDiscount]);
 
     const clickBuyNow = async () => {
-        if (taxInvoice && !clinicName) {
-            errorMessage('Enter clinic name')
-        } else if (taxInvoice && !gstNo) {
-            errorMessage('Enter gst no.')
-        } else if (taxInvoice && !doctorName) {
-            errorMessage('Enter doctor name')
-        } else if (taxInvoice && !clinicPincode) {
-            errorMessage('Enter clinic pincode')
-        } else if (taxInvoice && !clinicCity) {
-            errorMessage('Valid clinic pincode')
-        } else if (taxInvoice && !clinicState) {
-            errorMessage('Valid clinic pincode')
-        } else {
-            setLoading(true)
-            let sendData = {
-                amount: totalAmount,
-            }
-            const action = await dispatch(paymentOrder(sendData));
-            if (action.meta.requestStatus === "fulfilled") {
-                if (action?.payload?.hasOwnProperty("id")) {
-                    initRazorPayPayment(action?.payload);
-                } else {
-                    setLoading(false)
-                    typeof action?.payload?.data?.error === 'object' ?
-                        errorMessage(action?.payload?.data?.error?.description)
-                        :
-                        errorMessage(action?.payload?.data?.message)
-                }
-            } else {
-                setLoading(false)
-                errorMessage(action.payload.message)
-            }
-        }
+        navigate(`/?upgrade_services=true&service_list=${selectedServices.map(item => item.service_name)}`, { replace: true })
+        // if (taxInvoice && !clinicName) {
+        //     errorMessage('Enter clinic name')
+        // } else if (taxInvoice && !gstNo) {
+        //     errorMessage('Enter gst no.')
+        // } else if (taxInvoice && !doctorName) {
+        //     errorMessage('Enter doctor name')
+        // } else if (taxInvoice && !clinicPincode) {
+        //     errorMessage('Enter clinic pincode')
+        // } else if (taxInvoice && !clinicCity) {
+        //     errorMessage('Valid clinic pincode')
+        // } else if (taxInvoice && !clinicState) {
+        //     errorMessage('Valid clinic pincode')
+        // } else {
+        //     setLoading(true)
+        //     let sendData = {
+        //         amount: totalAmount,
+        //     }
+        //     const action = await dispatch(paymentOrder(sendData));
+        //     if (action.meta.requestStatus === "fulfilled") {
+        //         if (action?.payload?.hasOwnProperty("id")) {
+        //             initRazorPayPayment(action?.payload);
+        //         } else {
+        //             setLoading(false)
+        //             typeof action?.payload?.data?.error === 'object' ?
+        //                 errorMessage(action?.payload?.data?.error?.description)
+        //                 :
+        //                 errorMessage(action?.payload?.data?.message)
+        //         }
+        //     } else {
+        //         setLoading(false)
+        //         errorMessage(action.payload.message)
+        //     }
+        // }
     }
 
     const initRazorPayPayment = (data) => {
@@ -262,8 +263,8 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     if (actionPurchaseDetails?.payload?.hasOwnProperty("b2c_id")) {
                         dispatch(fetchSubscriptionDetails())
                         dispatch(services(profile?.b2c));
-                        setLoading(false)
                         navigate('/?upgrade_services=true', { replace: true })
+                        setLoading(false)
                     } else {
                         setLoading(false)
                         errorMessage('Something went wrong! please try again later')
