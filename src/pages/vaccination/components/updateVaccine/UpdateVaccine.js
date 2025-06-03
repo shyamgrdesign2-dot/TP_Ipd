@@ -32,6 +32,7 @@ import alertIcon from "../../../../assets/images/alertIcon.svg";
 import successIcon from "../../../../assets/images/end-visit.svg";
 import closeIcon from "../../../../assets/images/close-visit.svg";
 import { MESSAGE_KEY } from "../../../../utils/constants.js";
+import { getDecodedToken } from "../../../../utils/localStorage.js";
 
 const vaccineSites = [
   { label: "Left Arm", value: "Left Arm" },
@@ -98,6 +99,8 @@ const UpdateVaccine = ({
     selectedVaccines?.[0]?.tvp_modify_date ||
       selectedVaccines?.[0]?.tvp_create_date
   );
+  const decodedToken = getDecodedToken();
+  const hospital_bid = decodedToken?.result?.hospital_business_id;
 
   const handleDropdownVisibleChange = (index, isFocused = false) => {
     setIsOpen((prev) => {
@@ -189,7 +192,9 @@ const UpdateVaccine = ({
         patient_pid: patientDetails?.vac_pid || patient_data?.pm_pid,
         patient_uid: patientDetails?.patient_unique_id || patient_data?.pm_id,
         hospital_bid:
-          patientDetails?.hm_business_id || patient_data?.hm_business_id,
+          patientDetails?.hm_business_id ||
+          patient_data?.hm_business_id ||
+          hospital_bid,
         hospital_id: patientDetails?.hm_id || patient_data?.hm_id,
         vaccine_template_id: vaccine?.tvt_id,
         vaccine_name: vaccine?.tvac_name,
@@ -365,7 +370,9 @@ const UpdateVaccine = ({
       patient_pid: patientDetails?.vac_pid || patient_data?.pm_pid,
       patient_uid: patientDetails?.patient_unique_id || patient_data?.pm_id,
       hospital_bid:
-        patientDetails?.hm_business_id || patient_data?.hm_business_id,
+        patientDetails?.hm_business_id ||
+        patient_data?.hm_business_id ||
+        hospital_bid,
       hospital_id: patientDetails?.hm_id || patient_data?.hm_id,
       vaccine_template_id: vaccine?.tvt_id,
       vaccine_name: vaccine?.tvac_name,

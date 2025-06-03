@@ -700,7 +700,7 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
                             onSelect={(data, e) => onSelectChild(data, e, index)}
                           />
                         </Col>
-                        <Col lg={3} md={3} sm={3} xs={3} className="symptoms-table-cell">
+                        <Col lg={3} md={3} sm={3} xs={3} className="border-end">
                           <AutoComplete
                             defaultValue={item.since}
                             value={item.since}
@@ -715,7 +715,7 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
                             onSelect={(data) => onSelectSinceChild(data, index)}
                           />
                         </Col>
-                        <Col lg={3} md={3} sm={3} xs={3} className="symptoms-table-cell">
+                        <Col lg={3} md={3} sm={3} xs={3} className="border-end">
                           <Select
                             className="autocomplete-custom w-100 symptoms-select-box"
                             placeholder="Severity"
@@ -727,9 +727,9 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
                             allowClear
                           />
                         </Col>
-                        <Col lg={10} md={10} sm={9} xs={9} className="symptoms-table-cell">
-                          <TextArea
-                            className="notesinput"
+                        <Col lg={10} md={10} sm={9} xs={9} className="border-end">
+                          <Input
+                            className="notesinput border-0"
                             placeholder="Notes"
                             defaultValue={item.note}
                             value={item.note}
