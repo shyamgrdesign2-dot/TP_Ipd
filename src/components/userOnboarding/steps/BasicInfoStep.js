@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Input, Select, Form } from "antd";
+import { Input, Select } from "antd";
 import styles from "../DoctorOnboarding.module.css";
 
 const { Option } = Select;

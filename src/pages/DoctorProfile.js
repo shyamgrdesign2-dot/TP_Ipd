@@ -22,6 +22,7 @@ import { TAB_ADDRESS } from "../utils/constants";
 import Subscription from "../components/doctor_profile/Subscription";
 import PremiumUser from "../common/PremiumUser";
 import IdProof from "../components/userOnboarding/IdProof";
+import config from "../config";
 
 function DoctorProfile() {
   const navigate = useNavigate();
@@ -163,7 +164,7 @@ function DoctorProfile() {
       if (!phoneNumber) return;
 
       const response = await axios.get(
-        `https://user-management77913uat.azurewebsites.net/user/tatva/documents?mbl_no=${phoneNumber}`,
+        `${config.user_management_api_url}/user/tatva/documents?mbl_no=${phoneNumber}`,
         {
           headers: {
             api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",

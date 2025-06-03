@@ -1,5 +1,6 @@
 import axios from "axios";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
+import config from "../../../config";
 
 /**
  * Initializes the onboarding process and gets any pre-existing user data
@@ -10,7 +11,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
 export const initOnboarding = async (phone_number, utmParams) => {
   try {
     const response = await axios.post(
-      "https://pm-central-auth-uat.tatvacare.in/api/v1/onBoarding/InIt",
+      `${config.central_auth_api_url}/api/v1/onBoarding/InIt`,
       {
         phone_number,
         ...utmParams,
@@ -45,7 +46,7 @@ export const initOnboarding = async (phone_number, utmParams) => {
 export const updateOnboardingDetails = async (doctorData) => {
   try {
     const response = await axios.post(
-      "https://pm-central-auth-uat.tatvacare.in/api/v1/onBoarding/updateDetails",
+      `${config.central_auth_api_url}/api/v1/onBoarding/updateDetails`,
       doctorData,
       {
         headers: {
@@ -82,7 +83,7 @@ export const updateLocation = async (locationData, authToken) => {
     }
 
     const response = await axios.post(
-      "https://pm-central-auth-uat.tatvacare.in/api/v1/onBoarding/updateLocation",
+      `${config.central_auth_api_url}/api/v1/onBoarding/updateLocation`,
       locationData,
       {
         headers: {
@@ -120,7 +121,7 @@ export const updateLocation = async (locationData, authToken) => {
 export const finalizeOnboarding = async (doctorData) => {
   try {
     const response = await axios.post(
-      "https://pm-central-auth-uat.tatvacare.in/api/v1/onBoarding/finalize",
+      `${config.central_auth_api_url}/api/v1/onBoarding/finalize`,
       doctorData,
       {
         headers: {
@@ -169,7 +170,7 @@ export const uploadDocuments = async (
     }
 
     const response = await axios.post(
-      "https://pm-central-auth-uat.tatvacare.in/api/v1/onBoarding/uploadDocument",
+      `${config.central_auth_api_url}/api/v1/onBoarding/uploadDocument`,
       formData,
       {
         headers: {
