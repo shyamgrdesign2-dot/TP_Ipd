@@ -185,6 +185,7 @@
           border-radius: 4px;
           background: #6B46C1;
           opacity: 1;
+          transform: scale(1.5);
         }
       }
     }
@@ -214,8 +215,8 @@
       scrollbar-width: none;
       scroll-behavior: smooth;
       padding: 0 1rem;
-      margin-left: 0rem;
-      margin-right: 0rem;
+      margin-left: 1rem;
+      margin-right: 1rem;
       width: 100%;
 
       &::-webkit-scrollbar {
