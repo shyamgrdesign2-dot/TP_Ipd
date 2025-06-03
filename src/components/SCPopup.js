@@ -320,7 +320,7 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
                   className="text-white"
                   style={{ fontSize: 18, fontWeight: 500 }}
                 >
-                  Agent Mira
+                  Agent Ravi
                 </div>
                 <span
                   className="text-white"

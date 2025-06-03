@@ -404,6 +404,13 @@
         max-width: 95vw !important;
     }
 
+    :where(.css-dev-only-do-not-override-1okl62o).ant-modal .ant-modal-body {
+        .welcome-icon{
+            width: 40px;
+            height: 40px;
+        }
+    }
+
     :where(.css-dev-only-do-not-override-1okl62o).ant-modal-root .ant-modal .ant-modal-content {
         padding: 1rem !important;
         margin-top: -12rem !important;

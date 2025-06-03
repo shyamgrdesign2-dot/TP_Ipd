@@ -121,7 +121,6 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
             borderRadius: "1rem",
             display: "flex",
             flexDirection: "column",
-            gap: "20px",
             alignItems: "flex-start",
             color: "white",
           }}

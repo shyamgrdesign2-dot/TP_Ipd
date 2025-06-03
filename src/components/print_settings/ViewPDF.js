@@ -226,7 +226,16 @@ const styles = StyleSheet.create({
     },
     minHeight38: {
         minHeight: 38
-    }
+    },
+    pageNumber: {
+        position: 'absolute',
+        fontSize: 10,
+        fontWeight: 400,
+        bottom: 10,
+        right: 10,
+        textAlign: 'center',
+        color: '#454551',
+    },
 });
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
@@ -570,6 +579,14 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     };
 
     const paddingStyles = calculatePadding();
+
+    const PageNumberFooter = () => (
+        <Text 
+          fixed
+          style={styles.pageNumber} 
+          render={({ pageNumber, totalPages }) => `Page ${pageNumber}/${totalPages}`} 
+        />
+    );
 
     return (
         <Document>
@@ -1228,17 +1245,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             fontWeight: 700, 
                                                             fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>S.NO</Text>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICINE</Text>
-                                                        <View style={{ flex: 
-                                                            option?.medicine_option?.length === 0 ?
-                                                                0.25
-                                                                : option?.medicine_option?.length === 1 ?
-                                                                    0.8
-                                                                    : option?.medicine_option?.length === 2 ?
-                                                                        1.2
-                                                                        : option?.medicine_option?.length === 3 ?
-                                                                            1.4
-                                                                            : 2.4
-                                                         }}>
+                                                        <View style={{ flex: 2.4 }}>
                                                             <View style={{ flexGrow: 1, flexDirection: 'row' }}>
                                                                 {option?.medicine_option?.includes('dose') && (
                                                                     <Text style={[styles.headerCell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DOSE</Text>
@@ -1270,24 +1277,14 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: (PX_TO_PT * printSettings?.page_format?.font_size) - 2, fontWeight: 400 }]}>{pItem.tmm_generic}</Text>
                                                                 )}
                                                             </View>
-                                                            <View style={{ flex: 
-                                                                option?.medicine_option?.length === 0 ?
-                                                                    0.25
-                                                                    : option?.medicine_option?.length === 1 ?
-                                                                        0.8
-                                                                        : option?.medicine_option?.length === 2 ?
-                                                                            1.2
-                                                                            : option?.medicine_option?.length === 3 ?
-                                                                                1.4
-                                                                                : 2.4
-                                                            }}>
+                                                            <View style={{ flex: 2.4 }}>
                                                                 {innerMedication(pItem.index).map((item, ii) => {
                                                                     return (
                                                                         <View style={{ flexGrow: 1, flexDirection: 'row', borderBottom: ii != innerMedication(pItem.index)?.length - 1 ? '1px solid #171725' : '0px' }} key={ii}>
                                                                             {option?.medicine_option?.includes('dose') && (
                                                                                 <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage && item.tmm_unit ? `${formatUnitPerDose(item.tmm_dosage)} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : `${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit).tmu_title : ""}`}`}</Text>
                                                                             )}
-                                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                            <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                                 {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? (option?.numeric_frequency) ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${item.tcm_tmm_freq_evening ? ' - ' + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ''} - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}` : formatFrequency(item.tcm_tmm_freq_morning, item.tcm_tmm_freq_afternoon,item.tcm_tmm_freq_evening,item.tcm_tmm_freq_night) : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}
                                                                             </Text>
                                                                             {option?.medicine_option?.includes('duration') && (
@@ -5095,6 +5092,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         )
                     )}
                 </View>
+
+                {printSettings?.page_format?.pagination === true && <PageNumberFooter />}
 
             </Page>
         </Document>
