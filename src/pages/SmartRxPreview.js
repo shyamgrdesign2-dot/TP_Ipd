@@ -259,14 +259,16 @@ function SmartRxPreview() {
         const digitisedData = await fetchRxDigitisedData();
         const appointmentId = digitisedData?.data?.appointmentId;
 
-        // Append other fields to FormData
-        formData.append('doctorId', data.result.user_id);
-        formData.append('patientId', patient_data.patient_unique_id);
-        formData.append('appointmentId', (digitisedData.data) ? appointmentId : state?.pam_id);
-        formData.append('caseId', state.tcm_id);
-    
-        try {
-            const cleanedToken = token.replace(/['"]+/g, '');
+        // Only proceed if digitisedData is null
+        if (!digitisedData) {
+            // Append other fields to FormData
+            formData.append('doctorId', data.result.user_id);
+            formData.append('patientId', patient_data.patient_unique_id);
+            formData.append('appointmentId', state?.pam_id);
+            formData.append('caseId', state.tcm_id);
+        
+            try {
+                const cleanedToken = token.replace(/['"]+/g, '');
 
                 // API call for Rx Digitisation
                 const response = await axios.post(`${baseUrlRxDigitise}/api/v1/rxdigitize/temp-rx`, formData, {
@@ -275,9 +277,9 @@ function SmartRxPreview() {
                         'Authorization': `Bearer ${cleanedToken}`,
                     },
                 });
-                // console.log(response,"response")
-        }catch (error) {
-            console.error('Error uploading files:', error);
+            } catch (error) {
+                console.error('Error uploading files:', error);
+            }
         }
     }; 
 
