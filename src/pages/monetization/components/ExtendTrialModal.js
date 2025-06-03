@@ -55,6 +55,7 @@ function ExtendTrialModal() {
     }
 
     const clickBuyNow = () => {
+        setIsExpiredModalOpen(false)
         navigate('/get-unlimited-access')
     }
 
