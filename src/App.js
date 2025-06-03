@@ -204,16 +204,51 @@ function App() {
       if (!isReceptionist) {
         params.delete("authToken");
 
+        // Navigate to appointment list
         navigate(
           {
-            pathname: location.pathname,
+            pathname: "/",
             search: params.toString(),
           },
           { replace: true }
-        ); // Ensure the URL is cleaned up, removing authToken
+        );
       }
     }
-  }, [authToken, setToken, navigate, location]);
+  }, [authToken, setToken, navigate]);
+
+  // Add effect to handle redirectTo parameter
+  useEffect(() => {
+    if (redirectTo) {
+      localStorage.setItem('redirectTo', redirectTo);
+      
+      // Clean up URL but preserve other params
+      const params = new URLSearchParams(location.search);
+      params.delete("redirectTo");
+      
+      // Update URL without the redirectTo parameter
+      navigate({
+        pathname: location.pathname,
+        search: params.toString()
+      }, { replace: true });
+    }
+  }, []);
+
+  // Determine where to redirect on root path
+  useEffect(() => {
+    if (!isRootPath) return;
+
+    const hasAuth = token || authToken;
+    const localRedirectTo = localStorage.getItem("redirectTo");
+    if (!hasAuth) {
+      navigate("/login");
+      return;
+    }
+
+    if (localRedirectTo === "profile") {
+      localStorage.removeItem("redirectTo");
+      navigate("/doctor_profile");
+    }
+}, [isRootPath, token, authToken, navigate, redirectTo]);
 
   return (
     <GrowthBookProvider growthbook={growthbook}>
