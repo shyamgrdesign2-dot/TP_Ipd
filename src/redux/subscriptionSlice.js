@@ -44,6 +44,7 @@ export const fetchSubscriptionDetails = createAsyncThunk(
       } = response?.body?.profile;
 
       return {
+        b2c: response?.body?.clinic?.b2c,
         plan_active_date:
           plan_active_date || response?.body?.profile?.plan_active_date,
         plan_expiry_date:
