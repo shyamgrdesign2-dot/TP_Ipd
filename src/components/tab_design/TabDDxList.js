@@ -22,6 +22,7 @@ import CampaignDiscount from "../../pages/monetization/components/CampaignDiscou
 import crown from '../../assets/images/crown.svg'
 import expiredInfographic2 from '../../assets/images/expired-infographic-2.svg'
 import { interest } from "../../redux/monetizationSlice";
+import { openModal } from "../../redux/doctorModalSlice";
 
 const TabDDxList = ({
   generatedDDx,
@@ -47,15 +48,16 @@ const TabDDxList = ({
   }
 
   const clickRequestCallback = async (service_name) => {
-    let sendData = {
-      mbl_no: profile?.um_contact,
-      is_pm_renew_requested: true,
-      service_name: service_name
-    }
-    const action = await dispatch(interest(sendData));
-    if (action.meta.requestStatus === "fulfilled") {
-      errorMessage(action.payload.message)
-    }
+    dispatch(openModal(service_name))
+    // let sendData = {
+    //   mbl_no: profile?.um_contact,
+    //   is_pm_renew_requested: true,
+    //   service_name: service_name
+    // }
+    // const action = await dispatch(interest(sendData));
+    // if (action.meta.requestStatus === "fulfilled") {
+    //   errorMessage(action.payload.message)
+    // }
   }
 
   return (

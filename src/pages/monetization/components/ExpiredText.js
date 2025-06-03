@@ -8,6 +8,7 @@ import crown from '../../../assets/images/crown.svg'
 import { FREE, S_TATVA_PRACTICE, TRIAL } from "../../../utils/constants";
 import { interest } from "../../../redux/monetizationSlice";
 import { errorMessage } from "../../../utils/utils";
+import { openModal } from "../../../redux/doctorModalSlice";
 
 function ExpiredText({ title }) {
 
@@ -28,15 +29,16 @@ function ExpiredText({ title }) {
     }
 
     const clickRequestCallback = async (service_name) => {
-        let sendData = {
-            mbl_no: profile?.um_contact,
-            is_pm_renew_requested: true,
-            service_name: service_name
-        }
-        const action = await dispatch(interest(sendData));
-        if (action.meta.requestStatus === "fulfilled") {
-            errorMessage(action.payload.message)
-        }
+        dispatch(openModal(service_name))
+        // let sendData = {
+        //     mbl_no: profile?.um_contact,
+        //     is_pm_renew_requested: true,
+        //     service_name: service_name
+        // }
+        // const action = await dispatch(interest(sendData));
+        // if (action.meta.requestStatus === "fulfilled") {
+        //     errorMessage(action.payload.message)
+        // }
     }
 
     const isPurchased = () => {

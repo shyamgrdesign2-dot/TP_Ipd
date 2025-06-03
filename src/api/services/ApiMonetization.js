@@ -11,6 +11,14 @@ const baseUserManagementUrl = {
     }
 };
 
+const cloneBaseUserManagementUrl = {
+    customBaseUrl: config.user_management_api_url,
+    headers: {
+        api_key: config.api_key,
+        api_secret_key: config.api_secret_key,
+    },
+};
+
 const ApiMonetization = {};
 
 ApiMonetization.campaigns = function () {
@@ -58,7 +66,7 @@ ApiMonetization.updateCredits = function (data) {
 };
 
 ApiMonetization.extendFreeTrial = function (b2c_id) {
-    return api.get(`/user/pm/info/extend?b2c_id=${b2c_id}`, baseUserManagementUrl);
+    return api.get(`/user/pm/info/extend?b2c_id=${b2c_id}`, cloneBaseUserManagementUrl);
 };
 
 ApiMonetization.billingHistory = function (b2c_id) {

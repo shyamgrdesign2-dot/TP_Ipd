@@ -10,6 +10,7 @@ import crown from '../../../assets/images/crown.svg'
 import planExpiredSandClock from '../../../assets/images/plan-expired-sand-clock.png'
 import { interest } from "../../../redux/monetizationSlice";
 import { errorMessage } from "../../../utils/utils";
+import { openModal } from "../../../redux/doctorModalSlice";
 
 function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
 
@@ -24,16 +25,17 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
     }
 
     const clickRequestCallback = async (service_name) => {
-        let sendData = {
-            mbl_no: profile?.um_contact,
-            is_pm_renew_requested: true,
-            service_name: service_name
-        }
-        const action = await dispatch(interest(sendData));
-        if (action.meta.requestStatus === "fulfilled") {
-            showHideSubModal()
-            errorMessage(action.payload.message)
-        }
+        dispatch(openModal(service_name))
+        // let sendData = {
+        //     mbl_no: profile?.um_contact,
+        //     is_pm_renew_requested: true,
+        //     service_name: service_name
+        // }
+        // const action = await dispatch(interest(sendData));
+        // if (action.meta.requestStatus === "fulfilled") {
+        //     showHideSubModal()
+        //     errorMessage(action.payload.message)
+        // }
     }
 
     return (

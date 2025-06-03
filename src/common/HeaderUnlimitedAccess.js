@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { S_TATVA_PRACTICE } from '../utils/constants';
 import { interest } from '../redux/monetizationSlice';
 import { errorMessage } from '../utils/utils';
+import { openModal } from '../redux/doctorModalSlice';
 
 function HeaderUnlimitedAccess() {
 
@@ -26,15 +27,16 @@ function HeaderUnlimitedAccess() {
     }
 
     const clickRequestCallback = async () => {
-        let sendData = {
-            mbl_no: profile?.um_contact,
-            is_pm_renew_requested: true,
-            service_name: S_TATVA_PRACTICE
-        }
-        const action = await dispatch(interest(sendData));
-        if (action.meta.requestStatus === "fulfilled") {
-            errorMessage(action.payload.message)
-        }
+        dispatch(openModal(S_TATVA_PRACTICE))
+        // let sendData = {
+        //     mbl_no: profile?.um_contact,
+        //     is_pm_renew_requested: true,
+        //     service_name: S_TATVA_PRACTICE
+        // }
+        // const action = await dispatch(interest(sendData));
+        // if (action.meta.requestStatus === "fulfilled") {
+        //     errorMessage(action.payload.message)
+        // }
     }
 
     return (

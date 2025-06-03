@@ -36,7 +36,9 @@ function AiSuite({ aiModal, handleAiSuite }) {
     useEffect(() => {
         if (servicesList?.length) {
             const jsonArray = servicesList?.filter(({ service_type }) => service_type == 'ai')
-            setAiServicesData(jsonArray)
+            setAiServicesData(jsonArray.sort((a, b) => {
+                return (a.purchased === b.purchased) ? 0 : a.purchased === "true" ? -1 : 1;
+            }))
         }
     }, [servicesList]);
 

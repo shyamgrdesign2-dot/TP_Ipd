@@ -15,6 +15,8 @@ import crown from '../../../assets/images/crown.svg'
 import planExpiredSandClock from '../../../assets/images/plan-expired-sand-clock.png'
 import { extendFreeTrial, interest } from "../../../redux/monetizationSlice";
 import { services } from "../../../redux/doctorsSlice";
+import { openModal } from "../../../redux/doctorModalSlice";
+import { fetchSubscriptionDetails } from "../../../redux/subscriptionSlice";
 
 function ExtendTrialModal() {
     const navigate = useNavigate();
@@ -43,8 +45,13 @@ function ExtendTrialModal() {
         }
     }
 
-    const onExtendFreeTrialClick = () => {
-        dispatch(extendFreeTrial(profile?.b2c))
+    const onExtendFreeTrialClick = async () => {
+        const action = await dispatch(extendFreeTrial(profile?.b2c));
+        if (action.meta.requestStatus === "fulfilled") {
+            setIsExpiredModalOpen(false)
+            errorMessage('Free trial extend successfully')
+            dispatch(fetchSubscriptionDetails())
+        }
     }
 
     const clickBuyNow = () => {
@@ -52,15 +59,16 @@ function ExtendTrialModal() {
     }
 
     const clickRequestCallback = async () => {
-        let sendData = {
-            mbl_no: profile?.um_contact,
-            is_pm_renew_requested: true,
-            service_name: EMR_planDetails?.service_name
-        }
-        const action = await dispatch(interest(sendData));
-        if (action.meta.requestStatus === "fulfilled") {
-            errorMessage(action.payload.message)
-        }
+        dispatch(openModal(EMR_planDetails?.service_name))
+        // let sendData = {
+        //     mbl_no: profile?.um_contact,
+        //     is_pm_renew_requested: true,
+        //     service_name: EMR_planDetails?.service_name
+        // }
+        // const action = await dispatch(interest(sendData));
+        // if (action.meta.requestStatus === "fulfilled") {
+        //     errorMessage(action.payload.message)
+        // }
     }
 
     return (
