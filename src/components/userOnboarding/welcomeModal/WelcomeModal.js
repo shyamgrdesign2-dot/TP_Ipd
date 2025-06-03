@@ -4,6 +4,10 @@ import welcomdoc from "../../../assets/images/welcom-doc.svg";
 import suporticon from "../../../assets/images/suport-icon.svg";
 import { isMobile, isTablet } from "react-device-detect";
 import "./WelcomeModal.scss";
+import copyIcon from "../../../assets/images/onboard-page-icons/copy.svg";
+import shareIcon from "../../../assets/images/onboard-page-icons/Share.svg";
+import desktopIcon from "../../../assets/images/onboard-page-icons/monitor-mobile.svg";
+import { CloseOutlined } from "@ant-design/icons";
 
 const VideoCarousel = () => {
   const [currentVideo, setCurrentVideo] = useState(0);
@@ -40,15 +44,17 @@ const VideoCarousel = () => {
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
       />
-      <div className="video-dots">
-        {videos.map((_, index) => (
-          <span
-            key={index}
-            className={`dot ${currentVideo === index ? "active" : ""}`}
-            onClick={() => setCurrentVideo(index)}
-          />
-        ))}
-      </div>
+      {videos.length > 1 && (
+        <div className="video-dots">
+          {videos.map((_, index) => (
+            <span
+              key={index}
+              className={`dot ${currentVideo === index ? "active" : ""}`}
+              onClick={() => setCurrentVideo(index)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -62,6 +68,8 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
         footer={null}
         centered
         className="modal-onboarding"
+        closeIcon={!isMobile && <CloseOutlined />}
+        maskClosable={!isMobile}
       >
         <img src={welcomdoc} alt="Welcome" className="welcome-icon" />
         <div className="modal-content-container">
@@ -105,11 +113,12 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
           className="device-warning-content"
           style={{
             margin: 0,
-            padding: "24px",
-            width: "95%",
+            padding: "10px",
+            width: "90vw",
+            maxWidth: "95vw",
             zIndex: 1001,
             backgroundColor: "#19BB7A",
-            borderRadius: "16px",
+            borderRadius: "1rem",
             display: "flex",
             flexDirection: "column",
             gap: "20px",
@@ -119,7 +128,7 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
         >
           <div style={{ display: "flex", gap: "12px" }}>
             <img 
-              src="/desktop-icon.svg" 
+              src={desktopIcon} 
               alt="Desktop" 
               className="desktop-icon"
               style={{
@@ -131,15 +140,15 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
             <h2 
               className="warning-title"
               style={{
-                fontSize: "16px",
-                fontWeight: "500",
+                fontSize: "17px",
+                fontWeight: "450",
                 margin: 0,
-                lineHeight: "1.2",
+                lineHeight: "1.5",
                 color: "white",
                 textAlign: "left",
               }}
             >
-              For the best experience, open the platform on a desktop or tablet browser
+              For the best experience, open the platform on a <b>desktop</b> or <b>tablet</b> browser
             </h2>
           </div>
 
@@ -149,7 +158,6 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
               width: "100%",
               display: "flex",
               alignItems: "center",
-              gap: "12px",
               // backgroundColor: "rgba(255, 255, 255, 0.2)",
               padding: "12px",
               borderRadius: "8px",
@@ -176,30 +184,57 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
               className="action-buttons"
               style={{
                 display: "flex",
-                gap: "8px",
               }}
             >
               <button 
                 className="action-btn"
                 style={{
-                  // backgroundColor: "transparent",
                   border: "none",
-                  padding: "8px",
                   cursor: "pointer",
                 }}
+                onClick={() => {
+                  navigator.clipboard.writeText("https://tatvapractice.tatvacare.in/")
+                    .then(() => {
+                      // Optional: Add a toast or notification here
+                      alert("Link copied to clipboard!");
+                    })
+                    .catch(err => {
+                      console.error('Failed to copy text: ', err);
+                    });
+                }}
               >
-                <img src="/copy-icon.svg" alt="Copy" style={{ width: "20px", height: "20px" }} />
+                <img src={copyIcon} alt="Copy" style={{ width: "30px", height: "30px" }} />
               </button>
               <button 
                 className="action-btn"
                 style={{
-                  // backgroundColor: "transparent",
                   border: "none",
-                  padding: "8px",
                   cursor: "pointer",
+                  marginRight: "2rem",
+                }}
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: 'TatvaPractice',
+                      text: 'Check out TatvaPractice',
+                      url: 'https://tatvapractice.tatvacare.in/',
+                    })
+                    .catch(err => {
+                      console.error('Share failed:', err);
+                    });
+                  } else {
+                    // Fallback for browsers that don't support Web Share API
+                    navigator.clipboard.writeText("https://tatvapractice.tatvacare.in/")
+                      .then(() => {
+                        alert("Link copied to clipboard! You can now share it manually.");
+                      })
+                      .catch(err => {
+                        console.error('Failed to copy text: ', err);
+                      });
+                  }
                 }}
               >
-                <img src="/share-icon.svg" alt="Share" style={{ width: "20px", height: "20px" }} />
+                <img src={shareIcon} alt="Share" style={{ width: "30px", height: "30px" }} />
               </button>
             </div>
           </div>

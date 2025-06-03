@@ -204,15 +204,15 @@ const Testimonials = () => {
         </button>
       </div>
       <div className="mobile-dots">
-        <button
-          className={`dot ${currentIndex === 0 ? "active" : ""}`}
-          onClick={() => scrollToIndex(0)}
-        />
-        <div className="slider-dash" />
-        <button
-          className={`dot ${currentIndex === 1 ? "active" : ""}`}
-          onClick={() => scrollToIndex(1)}
-        />
+        {testimonials.map((_, index) => (
+          <React.Fragment key={index}>
+            <button
+              className={`dot ${currentIndex === index ? "active" : ""}`}
+              onClick={() => scrollToIndex(index)}
+            />
+            {index < testimonials.length - 1 && <div className="slider-dash" />}
+          </React.Fragment>
+        ))}
       </div>
     </div>
   );
