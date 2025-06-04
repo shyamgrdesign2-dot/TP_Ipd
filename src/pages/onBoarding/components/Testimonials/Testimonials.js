@@ -8,8 +8,6 @@ import Dr_Amit from "../../../../assets/images/onboard-page-icons/Doc_Amit_Madan
 import Dr_Pratibha from "../../../../assets/images/onboard-page-icons/Doc_Pratibha_Singh.png";
 import Dr_Sneha from "../../../../assets/images/onboard-page-icons/Doc_Sneha_Jhadhav.png";
 import Dr_Deep from "../../../../assets/images/onboard-page-icons/Doc_Deep_Fultera.png";
-import Apexhos from "../../../../assets/images/onboard-page-icons/ApexHosLogo.png";
-import NavjivanHosLogo from "../../../../assets/images/onboard-page-icons/NavjivanHosLogo.png";
 
 const Testimonials = () => {
   const testimonials = [
@@ -18,7 +16,7 @@ const Testimonials = () => {
       qualification: "Orthopaedic",
       image: Dr_Nisheet,
       rating: 5,
-      hospitalLogo: Apexhos,
+      hospitalLogo: "",
       location: "Ahmedabad",
       review:
         "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
@@ -28,7 +26,7 @@ const Testimonials = () => {
       qualification: "Emergency physician & Intensivist",
       image: Dr_Kautuk,
       rating: 5,
-      hospitalLogo: NavjivanHosLogo,
+      hospitalLogo: "",
       location: "Mehsana",
       review:
         "Tatvacare is feature loaded yet simple to use HMIS. Very useful in Outpatient as well as Inpatient management. Regular  updates & support team is added benefit. Quite happy after using their service.",
@@ -51,7 +49,7 @@ const Testimonials = () => {
       hospitalLogo: "",
       location: "Mumbai",
       review:
-        "I am using Tatvacare app since 4 months, it's very easy to operate. It covers all the parameters required considering the patient case history. Even the patient are able to read & understand prescription very easily.I am happy with this app. Still they are working on few more parameters to upgrade it, which will make us more feasible to use. Even the helping team of the app are very helpful. They guide us every time when we have an issue.",
+        "TatvaPractice is very easy to operate. It covers all the parameters required considering the patient case history. Even the patient are able to read & understand prescription very easily. I am happy with this app. Still they are working on few more parameters to upgrade it, which will make us more feasible to use.",
     },
     {
       name: "Dr. Garima Jain",
@@ -61,7 +59,7 @@ const Testimonials = () => {
       hospitalLogo: "",
       location: "Bangalore",
       review:
-        "I have been using the Tatva Practice EMR at Apollo Cradle and Childrens hospital at Bangalore.Very user friendly and gives the user the choice to modify the pattern of case sheets by their convenience. Features like being to save templates for everything on the case sheets had made it very convenient to use. The back end support and modifying the platform as per the requirements of each of us is also amazing.",
+        "I have been using the Tatva Practice EMR at Apollo Cradle and Childrens hospital at Bangalore. Very user friendly and gives the user the choice to modify the pattern of case sheets by their convenience. Features like save templates for everything on the case sheets had made it very convenient to use. The back end support is also amazing.",
     },
     {
       name: "Dr. Amit Madan",
@@ -71,7 +69,7 @@ const Testimonials = () => {
       hospitalLogo: "",
       location: "Lucknow",
       review:
-        "I have been using Tatvacare EMR for more than a year now and I am  extremely satisfied with the platform’s performance. The timely support physical and online, regular feature upgrades, and seamless AI integration have significantly enhanced my workflow. The data back up with follow up photos of patients add to treatment satisfaction and keeping record more organized.. With smart clinical tools, it offers a truly intelligent and efficient practice management experience.",
+        "I am  extremely satisfied with the platform’s performance. The timely support physical and online, regular feature upgrades, and seamless AI integration have significantly enhanced my workflow. The data back up with follow up photos of patients add to treatment satisfaction and keeping record more organized With smart clinical tools.",
     },
     {
       name: "Dr. Pratibha Singh",
