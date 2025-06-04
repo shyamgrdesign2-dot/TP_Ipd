@@ -285,7 +285,6 @@ function SmartRxPreview() {
 
     useEffect(() => {
         if(smartRxFile?.length > 0 && token && state?.tcm_id){
-            console.log("inside the api call.")
             tempRxDigitise();
         }
     }, [smartRxFile, token, state?.tcm_id]);
@@ -417,6 +416,7 @@ function SmartRxPreview() {
                                 tcm_id: state.tcm_id,
                                 print_url: state.print_url,
                                 digitisedData: response?.data,
+                                pam_id: state?.pam_id,
                                 type:"edit"
                             },
                         })
