@@ -523,7 +523,7 @@ function SmartRxPreview() {
                                             </p>
                                         </div>
                                     )}
-                                    {!rxDigitiseApiResponse && !showProgressbar && smartRxFile?.length > 0 && (
+                                    {!rxDigitiseApiResponse && !showProgressbar && smartRxFile?.length > 0 && state?.page !== "digitise" && (
                                         <div className="digitise-container p-3 rounded-10px">
                                             <div className="digitise-box-top">
                                                 <img src={successIcon} alt="success" width="40px" height="40px" />

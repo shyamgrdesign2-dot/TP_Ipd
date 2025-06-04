@@ -8,6 +8,7 @@ import Dr_Amit from "../../../../assets/images/onboard-page-icons/Doc_Amit_Madan
 import Dr_Pratibha from "../../../../assets/images/onboard-page-icons/Doc_Pratibha_Singh.png";
 import Dr_Sneha from "../../../../assets/images/onboard-page-icons/Doc_Sneha_Jhadhav.png";
 import Dr_Deep from "../../../../assets/images/onboard-page-icons/Doc_Deep_Fultera.png";
+import Dr_Garima from "../../../../assets/images/onboard-page-icons/Doc_Garima.png";
 
 const Testimonials = () => {
   const testimonials = [
@@ -20,6 +21,16 @@ const Testimonials = () => {
       location: "Ahmedabad",
       review:
         "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
+    },
+    {
+      name: "Dr. Garima Jain",
+      qualification: "Obs and Gynae",
+      image: Dr_Garima,
+      rating: 5,
+      hospitalLogo: "",
+      location: "Bangalore",
+      review:
+        "I have been using the Tatva Practice EMR at Apollo Cradle and Childrens hospital at Bangalore. Very user friendly and gives the user the choice to modify the pattern of case sheets by their convenience. Features like save templates for everything on the case sheets had made it very convenient to use. The back end support is also amazing.",
     },
     {
       name: "Dr. Kautuk Patel",
@@ -50,16 +61,6 @@ const Testimonials = () => {
       location: "Mumbai",
       review:
         "TatvaPractice is very easy to operate. It covers all the parameters required considering the patient case history. Even the patient are able to read & understand prescription very easily. I am happy with this app. Still they are working on few more parameters to upgrade it, which will make us more feasible to use.",
-    },
-    {
-      name: "Dr. Garima Jain",
-      qualification: "Obs and Gynae",
-      image: "",
-      rating: 5,
-      hospitalLogo: "",
-      location: "Bangalore",
-      review:
-        "I have been using the Tatva Practice EMR at Apollo Cradle and Childrens hospital at Bangalore. Very user friendly and gives the user the choice to modify the pattern of case sheets by their convenience. Features like save templates for everything on the case sheets had made it very convenient to use. The back end support is also amazing.",
     },
     {
       name: "Dr. Amit Madan",
