@@ -260,7 +260,7 @@ function SmartRxPreview() {
         const appointmentId = digitisedData?.data?.appointmentId;
 
         // Only proceed if digitisedData is null
-        if (!digitisedData) {
+        if (!digitisedData?.data) {
             // Append other fields to FormData
             formData.append('doctorId', data.result.user_id);
             formData.append('patientId', patient_data.patient_unique_id);
@@ -285,6 +285,7 @@ function SmartRxPreview() {
 
     useEffect(() => {
         if(smartRxFile?.length > 0 && token && state?.tcm_id){
+            console.log("inside the api call.")
             tempRxDigitise();
         }
     }, [smartRxFile, token, state?.tcm_id]);
