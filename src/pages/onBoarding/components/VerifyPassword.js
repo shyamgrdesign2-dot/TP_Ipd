@@ -21,9 +21,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
     try {
       setLoading(true);
       const response = await loginWithPassword(mobileNumber, password);
-      // window.Moengage.track_event('TP_Login_Success', {
-      //   utm_campaign, utm_source, utm_medium, utm_content
-      // });
+
       const { message, ssoUrl } = response;
 
       // moengage event for login success
@@ -32,20 +30,20 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
         doc_status: message === "Doctor is inactive" ? "inactive" : "active",
       })
 
-
       switch (message) {
         case "Doctor is inactive":
           setError("Your account has been locked by Admin. Please contact support@tatvacare.in/9974042363");
+          setLoading(false);
           return;
 
         case "Invalid username and password":
           setError("Incorrect password. Please try again.");
+          setLoading(false);
           return;
 
         default:
           // Handle successful login with SSO URL
           if (ssoUrl) {
-
             // Clear localStorage on successful login
             localStorage.removeItem("currentView");
             localStorage.removeItem("isLoginFlow");
@@ -58,13 +56,13 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
             window.location.href = updatedSsoUrl;
             return;
           }
+          setLoading(false);
           // If no ssoUrl and no known error message, throw error
           throw new Error("Unexpected response from server.");
       }
     } catch (error) {
       console.error("Login error:", error);
       setError("Something went wrong. Please try again.");
-    } finally {
       setLoading(false);
     }
   };

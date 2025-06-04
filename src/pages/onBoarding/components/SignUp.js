@@ -311,10 +311,6 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   };
 
   const handleLoginPassword = async () => {
-    if (!isCaptchaVerified()) {
-      setError("Please complete the captcha verification before continuing");
-      return;
-    }
 
     try {
       setIsButtonDisabled(true);
@@ -359,6 +355,13 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           </>
         );
         setErrorType("inputFiled");
+      } else{
+        // case "Doctor is inactive":
+        setError(
+          "Your account has been locked by Admin. Please contact support@tatvacare.in/9974042363"
+        );
+        setErrorType("inputFiled");
+          // break;
       }
     } catch (error) {
       console.error("Error checking user status:", error);
