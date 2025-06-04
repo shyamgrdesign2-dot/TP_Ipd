@@ -30,7 +30,7 @@ import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import FullPageLoader from "./components/Loader.js";
-import { handlePrintClick } from "../../utils/utils.js";
+import { getTokenData, handlePrintClick } from "../../utils/utils.js";
 import { getDecodedToken } from "../../utils/localStorage.js";
 
 function Vaccination({ handleDrawerVaccination }) {

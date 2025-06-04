@@ -30,7 +30,8 @@ const initialState = {
   dragDrop: {},
   siteId: null,
   empNo: [],
-  storeCode: null
+  storeCode: null,
+  hasLocation: null,
 };
 
 export const getProfile = createAsyncThunk(
@@ -371,6 +372,9 @@ const doctorsSlice = createSlice({
         state.dragDrop = {}
       }
     },
+    updateHasLocation: (state, action) => {
+      state.hasLocation = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -380,6 +384,7 @@ const doctorsSlice = createSlice({
       .addCase(getProfile.fulfilled, (state, action) => {
         state.loading = false;
         state.profile = state.profile && state.profile.old_b2c == action.payload.b2c ? { ...state.profile, ...action.payload } : action.payload;
+        state.hasLocation = action.payload.hasLocation;
       })
       .addCase(getProfile.rejected, (state) => {
         state.loading = false;
@@ -590,5 +595,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop } = doctorsSlice.actions
+export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop, updateHasLocation } = doctorsSlice.actions
 export default doctorsSlice.reducer;

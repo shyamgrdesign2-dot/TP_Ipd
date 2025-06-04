@@ -2,7 +2,7 @@
 import { Modal, DatePicker, Button } from "antd";
 import { useEffect, useState } from "react";
 import { createPatient, updateDob } from "../../service";
-import { errorMessage } from "../../../../utils/utils";
+import { errorMessage, getTokenData } from "../../../../utils/utils";
 import moment from "moment";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";

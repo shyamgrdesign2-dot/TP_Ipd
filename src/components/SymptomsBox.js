@@ -674,34 +674,31 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         key={index}
-                        gutter={[0]}
-                        className={`${index === 0 && 'mt-14 border-top'
-                          } align-items-center border-bottom`}
+                        gutter={0}
+                        className="symptoms-table-row"
                       >
-                        <Col lg={1} md={1} sm={1} xs={1} className="text-center">
+                        <Col lg={1} md={1} sm={1} xs={1} className="symptoms-table-cell center">
                           <MenuOutlined
                             {...provided.dragHandleProps}
                             className="drag-handle"
                             style={{ cursor: "grab" }}
                           />
                         </Col>
-                        <Col lg={6} md={6} sm={6} xs={6} className="border-end">
-                          <div className="fontroboto fw-medium">
-                            <AutoComplete
-                              defaultValue={item.symptom_name}
-                              value={item.symptom_name}
-                              placeholder="Symptom Name"
-                              bordered={false}
-                              defaultOpen={false}
-                              disabled={item?.pms_default ? true : false}
-                              onSearch={(query) => onSearchChild(query, index)}
-                              onFocus={() => onFocusChid(index)}
-                              options={childSearchOptions}
-                              className="autocomplete-custom w-100 inputborder"
-                              defaultActiveFirstOption={true}
-                              onSelect={(data, e) => onSelectChild(data, e, index)}
-                            />
-                          </div>
+                        <Col lg={6} md={6} sm={6} xs={6} className="symptoms-table-cell">
+                          <AutoComplete
+                            defaultValue={item.symptom_name}
+                            value={item.symptom_name}
+                            placeholder="Symptom Name"
+                            bordered={false}
+                            defaultOpen={false}
+                            disabled={item?.pms_default ? true : false}
+                            onSearch={(query) => onSearchChild(query, index)}
+                            onFocus={() => onFocusChid(index)}
+                            options={childSearchOptions}
+                            className="autocomplete-custom w-100"
+                            defaultActiveFirstOption={true}
+                            onSelect={(data, e) => onSelectChild(data, e, index)}
+                          />
                         </Col>
                         <Col lg={3} md={3} sm={3} xs={3} className="border-end">
                           <AutoComplete
@@ -713,14 +710,14 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
                             onSearch={(query) => onSearchSinceChid(query, index)}
                             onBlur={() => onBlurSinceChid(index)}
                             options={sinceOptions}
-                            className="autocomplete-custom w-100 inputborder"
+                            className="autocomplete-custom w-100"
                             defaultActiveFirstOption={true}
                             onSelect={(data) => onSelectSinceChild(data, index)}
                           />
                         </Col>
                         <Col lg={3} md={3} sm={3} xs={3} className="border-end">
                           <Select
-                            className="autocomplete-custom w-100 inputborder"
+                            className="autocomplete-custom w-100 symptoms-select-box"
                             placeholder="Severity"
                             defaultValue={item.severity !== "" ? item.severity : null}
                             value={item.severity !== "" ? item.severity : null}
@@ -737,9 +734,18 @@ function SymptomsBox({ handleDDxDrawer, generatedDDx }) {
                             defaultValue={item.note}
                             value={item.note}
                             onChange={(e) => onChangeNoteChild(e, index)}
+                            autoSize={{
+                              minRows: 1,
+                              maxRows: 3,
+                            }}
+                            style={{
+                              border: "none",
+                              boxShadow: "none",
+                              padding: "11px 12px",
+                            }}
                           />
                         </Col>
-                        <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+                        <Col lg={1} md={1} sm={2} xs={2} className="symptoms-table-cell center">
                           <Button
                             className="btn py-0 btn-delete-prescription px-0"
                             onClick={() => onRemoveRow(index)}

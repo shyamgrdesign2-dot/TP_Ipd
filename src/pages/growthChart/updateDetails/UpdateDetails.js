@@ -6,7 +6,7 @@ import { createParentalDetails, updateParentalDetails } from "../service";
 import { useLocation } from "react-router-dom";
 import SuccessPopup from "../components/SuccessPopup";
 import moment from "moment";
-import { errorMessage } from "../../../utils/utils";
+import { errorMessage, getTokenData } from "../../../utils/utils";
 import { useSelector } from "react-redux";
 import { disableFutureDates, getMidParentalHeight } from "../growthChartHelper";
 import { useDispatch } from "react-redux";
@@ -152,6 +152,7 @@ export default function UpdateDetails({
     if (updateDobRes.meta.requestStatus !== "fulfilled") {
       errorMessage({ name: "TypeError" });
     } else {
+      const {hospital_business_id} = getTokenData();
       const payload = {
         patient_uid: patient_data?.patient_unique_id,
         patient_pid: patient_data?.pm_pid,

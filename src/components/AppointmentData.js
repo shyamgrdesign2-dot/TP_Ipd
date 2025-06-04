@@ -79,6 +79,7 @@ import RecentBills from "../pages/opdBilling/components/recentBills/RecentBills"
 import AddAdvance from "../pages/opdBilling/components/advanceDeposit/AddAdvance";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 import { setAdvancedSettings, setBillPrintSettings, setShouldShowOpdBilling } from "../redux/billingSlice";
+import WelcomeModal from "./userOnboarding/welcomeModal/WelcomeModal";
 import { checkSymptomsCollectorTour } from "../api/services/ApiGenRx";
 
 const { TextArea } = Input;
@@ -537,7 +538,7 @@ function AppointmentData({ locationPath }) {
     };
 
     useEffect(() => {
-        if (locationPath == '/' && from == 'onboarding') {
+        if (locationPath == '/' && ['onboarding', 'finalSetup'].includes(from)) {
             setModalOpen(true)
         }
     }, [locationPath, from]);
@@ -1214,16 +1215,18 @@ function AppointmentData({ locationPath }) {
             });
             const tcm_id = response.data[0]?.tcm_id
             const smartRxData = await fetchData(tcm_id);
-            const ocrData = await fetchRxDigitisedData(tcm_id);
+            // const ocrData = await fetchRxDigitisedData(tcm_id);
 
             navigate("/smart-rx-digitise", {
                 state: {
                     patient_data: record,
                     smartRxFilesData: smartRxData,
                     tcm_id: tcm_id,
+                    pam_id: record.pam_id,
                     print_url: record.print_rx_url,
-                    digitisedData: ocrData.data,
-                    page: "pending-digitization"
+                    // digitisedData: ocrData.data,
+                    page: "pending-digitization",
+                    type: "new"
                 },
             })
         } catch (error) {
@@ -1583,6 +1586,7 @@ function AppointmentData({ locationPath }) {
             limit: 25,
             patientId: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id,
             appointmentId: isReceptionist ? undefined : record?.pam_id || appointmentSelectedFromMenu?.pam_id,
+            type: "new"
         };
 
         if (!isReceptionist) {
@@ -2044,64 +2048,69 @@ function AppointmentData({ locationPath }) {
             </div>)}
 
             {modalOpen && (
-                <Modal
-                    open={modalOpen}
-                    centered
-                    footer={null}
-                    width={window.innerWidth / 1.2}
-                    className="modal-onbording"
-                    onCancel={() => setModalOpen(false)}>
-                    <div style={{ flex: 1 }}>
+                <WelcomeModal 
+                    modalOpen={modalOpen}
+                    setModalOpen={setModalOpen}
+                    profile={profile}
+                />
+                // <Modal
+                //     open={modalOpen}
+                //     centered
+                //     footer={null}
+                //     width={window.innerWidth / 1.2}
+                //     className="modal-onbording"
+                //     onCancel={() => setModalOpen(false)}>
+                //     <div style={{ flex: 1 }}>
 
-                        <div style={{ flex: 1, margin: 20 }}>
+                //         <div style={{ flex: 1, margin: 20 }}>
 
-                            <figure>
-                                <img src={welcomdoc} style={{ width: window.innerWidth / 17, height: window.innerWidth / 17 }} />
-                            </figure>
+                //             <figure>
+                //                 <img src={welcomdoc} style={{ width: window.innerWidth / 17, height: window.innerWidth / 17 }} />
+                //             </figure>
 
-                            <div className='d-flex'>
-                                <div style={{ flex: 1, marginRight: 35 }}>
-                                    <div>
-                                        <h2 className="fw-medium mb-2" style={{ fontSize: 16 }}>Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
-                                        <h3 className="fw-semibold mb-5" style={{ fontSize: 48 }}>Welcome to TatvaPractice</h3>
-                                    </div>
-                                    <div style={{ background: '#fef4f5', padding: 15, borderRadius: 10 }}>
-                                        <span>
-                                            <img src={suporticon} alt={""} />
-                                        </span>
-                                        <h3 className="fs-6 fw-medium" style={{ marginTop: 9 }}>We will connect with you soon</h3>
-                                        <p className="fs-7 fw-normal">
-                                            We will contact you within 24 hours to assist you in setting
-                                            up your digital clinic and provide a walkthrough for writing
-                                            prescription digitally.
-                                        </p>
-                                    </div>
-                                </div>
-                                <figure>
-                                    {/* <img src={docimg} style={{ width: '100%', height: window.innerHeight / 1.9, objectFit: 'contain' }} /> */}
-                                    <iframe width="498" height="392" className="rounded-4" src="https://www.youtube.com/embed/ENARZJhE0iI?si=1TPlavqb5nvR0vx3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                                </figure>
-                            </div>
+                //             <div className='d-flex'>
+                //                 <div style={{ flex: 1, marginRight: 35 }}>
+                //                     <div>
+                //                         <h2 className="fw-medium mb-2" style={{ fontSize: 16 }}>Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
+                //                         <h3 className="fw-semibold mb-5" style={{ fontSize: 48 }}>Welcome to TatvaPractice</h3>
+                //                     </div>
+                //                     <div style={{ background: '#fef4f5', padding: 15, borderRadius: 10 }}>
+                //                         <span>
+                //                             <img src={suporticon} alt={""} />
+                //                         </span>
+                //                         <h3 className="fs-6 fw-medium" style={{ marginTop: 9 }}>We will connect with you soon</h3>
+                //                         <p className="fs-7 fw-normal">
+                //                             We will contact you within 24 hours to assist you in setting
+                //                             up your digital clinic and provide a walkthrough for writing
+                //                             prescription digitally.
+                //                         </p>
+                //                     </div>
+                //                 </div>
+                //                 <figure>
+                //                     {/* <img src={docimg} style={{ width: '100%', height: window.innerHeight / 1.9, objectFit: 'contain' }} /> */}
+                //                     <iframe width="498" height="392" className="rounded-4" src="https://www.youtube.com/embed/ENARZJhE0iI?si=1TPlavqb5nvR0vx3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                //                 </figure>
+                //             </div>
 
-                        </div>
+                //         </div>
 
-                        {/* <div class="doc-enjoy-secton d-flex align-items-center flex-column">
-                            <h3 className="fs-5 fw-semibold">
-                                <span>
-                                    <img src={windoc} />
-                                </span>
-                                Enjoy your 30 days trial period
-                            </h3>
-                            <p className="fs-7 fw-normal">
-                                This version is free for only 30 days. If you want to use
-                                the version for further, Please take a subscription
-                            </p>
-                        </div> */}
+                //         {/* <div class="doc-enjoy-secton d-flex align-items-center flex-column">
+                //             <h3 className="fs-5 fw-semibold">
+                //                 <span>
+                //                     <img src={windoc} />
+                //                 </span>
+                //                 Enjoy your 30 days trial period
+                //             </h3>
+                //             <p className="fs-7 fw-normal">
+                //                 This version is free for only 30 days. If you want to use
+                //                 the version for further, Please take a subscription
+                //             </p>
+                //         </div> */}
 
 
 
-                    </div>
-                </Modal>
+                //     </div>
+                // </Modal>
             )}
             {uploadDocDrawer && (
                 <Drawer
