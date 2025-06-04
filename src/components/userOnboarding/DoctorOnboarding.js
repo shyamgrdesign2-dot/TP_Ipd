@@ -65,7 +65,7 @@ const DoctorOnboarding = ({
 
   // Update currentStep when initialStep changes - make this run after initialization
   useEffect(() => {
-    if (!isInitializing) {
+    if (!isInitializing && initialStep) {
       setCurrentStep(initialStep);
     }
   }, [initialStep, isInitializing]);
@@ -197,13 +197,11 @@ const DoctorOnboarding = ({
       }
 
       setFormData(updatedFormData);
-
       // Always prioritize isAccountLocked when setting step
       if (isAccountLocked) {
         setCurrentStep(2);
       } else if (
-        response?.hospitalDetails?.clinic_long &&
-        response?.hospitalDetails?.clinic_lat &&
+        response?.hospitalDetails?.clinicName &&
         response?.basicDetails?.departmentId
       ) {
         setCurrentStep(2);
@@ -467,7 +465,7 @@ const DoctorOnboarding = ({
       const success = await handleUpdateOnboardingDetails();
       // moengage event for basic info step
       if (success) {
-        window.Moengage.track_event('TP_NewLoginFlow_Basic_info_Next', {
+        window.Moengage.track_event("TP_NewLoginFlow_Basic_info_Next", {
           mobile: userMobileNumber,
           doctor_name: formData.fullName,
           speciality: formData.speciality,
@@ -485,7 +483,7 @@ const DoctorOnboarding = ({
         : await handleFinalizeOnboarding();
       // moengage event for clinic details step
       if (success) {
-        window.Moengage.track_event('TP_NewLoginFlow_Clinical_info_Next', {
+        window.Moengage.track_event("TP_NewLoginFlow_Clinical_info_Next", {
           mobile: userMobileNumber,
           doctor_name: formData.fullName,
           speciality: formData.speciality,
@@ -504,7 +502,7 @@ const DoctorOnboarding = ({
         // Close the drawer
         onClose();
         // moengage event for upload documents step
-        window.Moengage.track_event('TP_NewLoginFlow_Submit_setup', {
+        window.Moengage.track_event("TP_NewLoginFlow_Submit_setup", {
           mobile: userMobileNumber,
           doctor_name: formData.fullName,
           speciality: formData.speciality,
@@ -578,17 +576,20 @@ const DoctorOnboarding = ({
               <Button
                 onClick={() => {
                   // moengage event for skip and upload later
-                  window.Moengage.track_event('TP_NewLoginFlow_Skip_And_Submit_later', {
-                    mobile: userMobileNumber,
-                    doctor_name: formData.fullName,
-                    speciality: formData.speciality,
-                    clinic_name: formData.clinicName,
-                    clinic_address: formData.clinicAddress,
-                    clinic_pincode: formData.clinicPincode,
-                    clinic_lat: formData.clinic_lat,
-                    clinic_long: formData.clinic_long,
-                  });
-                  
+                  window.Moengage.track_event(
+                    "TP_NewLoginFlow_Skip_And_Submit_later",
+                    {
+                      mobile: userMobileNumber,
+                      doctor_name: formData.fullName,
+                      speciality: formData.speciality,
+                      clinic_name: formData.clinicName,
+                      clinic_address: formData.clinicAddress,
+                      clinic_pincode: formData.clinicPincode,
+                      clinic_lat: formData.clinic_lat,
+                      clinic_long: formData.clinic_long,
+                    }
+                  );
+
                   onClose();
                   navigate("/?from=finalSetup");
                 }}
@@ -660,8 +661,7 @@ const DoctorOnboarding = ({
                 { label: "Upload ID" },
               ]}
               currentStep={currentStep}
-              onStepClick={handleStepClick}
-              doctorData={doctorData}
+              // onStepClick={handleStepClick}
             />
           </div>
         </div>
