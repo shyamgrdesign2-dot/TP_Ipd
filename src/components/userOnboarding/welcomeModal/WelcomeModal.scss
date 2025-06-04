@@ -399,6 +399,23 @@
         line-height: 2rem;
     }
 
+    .modal-onboarding .ant-modal-content {
+        padding: 1rem !important;
+        margin-top: -12rem !important;
+        max-height: 70vh !important;
+        overflow-y: scroll;
+        border-radius: 1rem !important;
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        &::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Hide scrollbar for IE, Edge and Firefox */
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+
     :where(.css-dev-only-do-not-override-1okl62o).ant-modal-root .ant-modal-wrap .ant-modal {
         width: 90vw !important;
         max-width: 95vw !important;
@@ -411,22 +428,22 @@
         }
     }
 
-    :where(.css-dev-only-do-not-override-1okl62o).ant-modal-root .ant-modal .ant-modal-content {
-        padding: 1rem !important;
-        margin-top: -12rem !important;
-        max-height: 70vh !important;
-        overflow-y: scroll;
-        border-radius: 1rem;
+    // :where(.css-dev-only-do-not-override-1okl62o).ant-modal-root .ant-modal .ant-modal-content {
+    //     padding: 1rem !important;
+    //     margin-top: -12rem !important;
+    //     max-height: 70vh !important;
+    //     overflow-y: scroll;
+    //     border-radius: 1rem;
         
-        /* Hide scrollbar for Chrome, Safari and Opera */
-        &::-webkit-scrollbar {
-            display: none;
-        }
+    //     /* Hide scrollbar for Chrome, Safari and Opera */
+    //     &::-webkit-scrollbar {
+    //         display: none;
+    //     }
         
-        /* Hide scrollbar for IE, Edge and Firefox */
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-    }
+    //     /* Hide scrollbar for IE, Edge and Firefox */
+    //     -ms-overflow-style: none;  /* IE and Edge */
+    //     scrollbar-width: none;  /* Firefox */
+    // }
 
     .modal-content-container .right-section .video-section {
         min-height: auto !important;
