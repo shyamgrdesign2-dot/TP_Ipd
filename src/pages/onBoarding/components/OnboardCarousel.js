@@ -127,7 +127,13 @@ const OnboardingCarousel = () => {
       </div>
 
       <div className="carousel-container">
-        <Carousel ref={carouselRef} {...settings}>
+      <Carousel ref={carouselRef} 
+          slidesToShow={1}
+          slidesToScroll={1}
+          rtl={true}  // This makes items slide from right to left
+          speed={1000} // Controls the animation speed (in milliseconds)
+          cssEase="ease-in-out" // Makes the animation smooth
+        >
           {carouselItems.map((item, index) => (
             <div key={index} className="carousel-item">
               <div className="text-content">
