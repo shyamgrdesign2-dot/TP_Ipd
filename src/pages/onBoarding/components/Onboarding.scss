@@ -237,26 +237,10 @@
 
 // tablet responsive styles 
 @media (min-width: 769px) and (max-width: 1180px) {
-  .onboarding-container {
-
-    .onboarding-right {}
-  }
 
   .onboarding-carousel-wrapper {
 
-    .logo-container {
-
-      .logo {}
-    }
-
     .carousel-container {
-
-      .custom-dots {
-
-        .dot-container {
-          .progress-bar {}
-        }
-      }
 
       .carousel-item {
 
@@ -302,14 +286,7 @@
     .signup-form-container {
       min-height: 35rem !important;
 
-      h2 {
-
-        .highlight {}
-      }
-
       .form-container {
-
-        label {}
 
         .mobile-input {
 
@@ -363,8 +340,6 @@
       margin: 1rem 0 !important;
     }
 
-    p {}
-
     .button-group {
 
 
@@ -376,14 +351,14 @@
   }
 }
 
-@media screen and (max-height: 690px) {
+@media screen and (max-height: 790px) {
   .signup-form-wrapper .signup-form-container {
     flex: 1 1;
     margin: 0.5rem 2rem 0 2rem;
     background: white;
     border-radius: 2.625rem;
     padding: 0.4rem 2rem 0rem 2rem;
-    min-height: auto !important;
+    min-height: 32rem !important;
 
     h2 {
       margin: 1rem 0px 1rem !important;
@@ -405,7 +380,6 @@
       }
     }
   }
-
 
 }
 
