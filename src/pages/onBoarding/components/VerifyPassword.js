@@ -86,7 +86,6 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
           <Form.Item
             name="password"
             className="password-form-item"
-            rules={[{ required: true, message: "Please enter your password!" }]}
           >
             <label htmlFor="password" className="onboard-fields-label">
               Enter Password
