@@ -1238,39 +1238,29 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Medication (Rx):&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed>
-                                                        <Text style={[{ 
-                                                            width: printSettings?.page_format?.font_size === 16 ? 36 : 31,
-                                                            padding: 6,
-                                                            borderRight: '1px solid #171725',
-                                                            fontWeight: 700, 
-                                                            fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>S.NO</Text>
+                                                        <Text style={[styles.headerCell, { flex: 0.18, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>S.NO</Text>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICINE</Text>
                                                         <View style={{ flex: 2.4 }}>
                                                             <View style={{ flexGrow: 1, flexDirection: 'row' }}>
                                                                 {option?.medicine_option?.includes('dose') && (
                                                                     <Text style={[styles.headerCell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DOSE</Text>
                                                                 )}
-                                                                <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FREQUENCY</Text>
+                                                                <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FREQUENCY</Text>
                                                                 {option?.medicine_option?.includes('duration') && (
-                                                                    <Text style={[styles.headerCell, { flex: 0.9, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.53, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
                                                                 )}
                                                                 {option?.medicine_option?.includes('quantity') && (
                                                                     <Text style={[styles.headerCell, { flex: 0.18, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY</Text>
                                                                 )}
                                                                 {option?.medicine_option?.includes('note') && (
-                                                                    <Text style={[styles.headerCell, { flex: 1.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTES</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.7, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTES</Text>
                                                                 )}
                                                             </View>
                                                         </View>
                                                     </View>
                                                     {medicationData?.map((pItem, i) => (
                                                         <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[{
-                                                                width: printSettings?.page_format?.font_size === 16 ? 36 : 31,
-                                                                padding: 6,
-                                                                borderRight: '1px solid #171725',
-                                                                fontWeight: 700, 
-                                                            color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{i + 1}</Text>
+                                                            <Text style={[styles.cell, { flex: 0.18, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{i + 1}</Text>
                                                             <View style={styles.cell}>
                                                                 <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{pItem.tmm_medicine_name}</Text>
                                                                 {option?.medicine_with_generic && (
@@ -1288,7 +1278,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? (option?.numeric_frequency) ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${item.tcm_tmm_freq_evening ? ' - ' + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ''} - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}` : formatFrequency(item.tcm_tmm_freq_morning, item.tcm_tmm_freq_afternoon,item.tcm_tmm_freq_evening,item.tcm_tmm_freq_night) : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}
                                                                             </Text>
                                                                             {option?.medicine_option?.includes('duration') && (
-                                                                                <Text style={[styles.cell, { flex: 0.9, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                                <Text style={[styles.cell, { flex: 0.53, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                                     {EXTRA_OPTIONS.some((x) => x.value == item.tmm_duration_type) ? capitalize(item.tmm_duration_type, true) :
                                                                                         isNumeric(item.tmm_days) ?
                                                                                             `${item.tmm_days} ${item.tmm_duration_type}`
@@ -1301,7 +1291,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 </Text>
                                                                             )}
                                                                             {option?.medicine_option?.includes('note') && (
-                                                                                <Text style={[styles.cell, { flex: 1.2, color: '#171725', fontFamily: getIndianLanguageFont(item.tmm_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                                <Text style={[styles.cell, { flex: 0.7, color: '#171725', fontFamily: getIndianLanguageFont(item.tmm_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                                     {item.tmm_remarks ? item.tmm_remarks : '-'}&nbsp;
                                                                                 </Text>
                                                                             )}
