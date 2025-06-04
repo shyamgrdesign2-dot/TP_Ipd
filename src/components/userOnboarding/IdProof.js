@@ -18,6 +18,7 @@ const IdProof = ({
   onDocumentChange,
   verificationStatus = null, // null, "pending", "verified", "failed"
 }) => {
+
   const [isFileSizeExceeded, setIsFileSizeExceeded] = useState(false);
   const [isFileFormatNotSupported, setIsFileFormatNotSupported] =
     useState(false);
@@ -126,13 +127,16 @@ const IdProof = ({
       return (
         <div className={styles.documentPreviewContainer}>
           <div className={styles.documentPreview}>
-            {document.type.startsWith("image/") ? (
+            {document?.url?.includes(".jpg") ||
+            document?.url?.includes(".jpeg") ||
+            document?.url?.includes(".png") ? (
               <img
                 src={document.url}
                 alt={document.name}
                 className={styles.documentPreviewImage}
               />
-            ) : document.type === "application/pdf" ? (
+            ) : document.type === "application/pdf" ||
+              document?.url?.includes(".pdf") ? (
               <Document
                 file={document.url}
                 loading={
