@@ -96,7 +96,8 @@ const OnboardingCarousel = () => {
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    effect: "fade",
+    effect: "rtl",
+    cssEase: "ease-in-out",
     beforeChange: (_, next) => {
       setCurrentSlide(next);
       setProgress(0);
@@ -127,13 +128,7 @@ const OnboardingCarousel = () => {
       </div>
 
       <div className="carousel-container">
-      <Carousel ref={carouselRef} 
-          slidesToShow={1}
-          slidesToScroll={1}
-          rtl={true}  // This makes items slide from right to left
-          speed={1000} // Controls the animation speed (in milliseconds)
-          cssEase="ease-in-out" // Makes the animation smooth
-        >
+        <Carousel ref={carouselRef} {...settings}>
           {carouselItems.map((item, index) => (
             <div key={index} className="carousel-item">
               <div className="text-content">
