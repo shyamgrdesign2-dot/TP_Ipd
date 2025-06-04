@@ -9,8 +9,8 @@ const TrustBy = () => {
     require('../../../../assets/images/onboard-page-icons/MunshiHosLogo.png'),
     require('../../../../assets/images/website-images/ZydusLogo.png'),
     require('../../../../assets/images/onboard-page-icons/HospitalsLogo.png'),
-    require('../../../../assets/images/onboard-page-icons/ApexOrthoHosLogo.png'),
-    require('../../../../assets/images/onboard-page-icons/NavijivanHosLogo.png'),
+    require('../../../../assets/images/onboard-page-icons/ApexOrthoHosLogo1.png'),
+    require('../../../../assets/images/onboard-page-icons/NavijivanHosLogo1.png'),
   ];
 
   return (
