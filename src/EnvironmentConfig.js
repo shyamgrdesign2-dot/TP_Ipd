@@ -60,6 +60,8 @@ const dev = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  ZYDUS_BUSINESS_ID: 754811713438773,
+  APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
 };
 
 const qa_tp = {
@@ -128,6 +130,8 @@ const qa_tp = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  ZYDUS_BUSINESS_ID: 754811713438773,
+  APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
 };
 
 const qa = {
@@ -192,6 +196,8 @@ const qa = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  ZYDUS_BUSINESS_ID: 754811713438773,
+  APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
 };
 
 const uat = {
@@ -261,6 +267,8 @@ const uat = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  ZYDUS_BUSINESS_ID: 754811713438773,
+  APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
 };
 
 const prod = {
@@ -325,6 +333,13 @@ const prod = {
   tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in",
   symptoms_collector_api_url: "https://pm-tatva-agents-prod.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  ZYDUS_BUSINESS_ID: 368451724046474,
+  APOLLO_BUSINESS_IDS: [
+    345711722419722, 189641711087501, 635211726058248, 817391726308284,
+    389721726761413, 625141727277272, 137621731053002, 268741731506046,
+    549821734513388, 628451726551928, 684191731931706, 879361730721433,
+    538421739782028, 136841742984591,
+  ],
 };
 
 const getEnv = () => {

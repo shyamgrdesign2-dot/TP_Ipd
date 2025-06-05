@@ -16,8 +16,9 @@ import WalkInConsultationZydus from "./WalkInConsultationZydus";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { setUserId } from "../redux/doctorsSlice";
-import { getClinicName } from "../utils/utils";
+import { getClinicName, getTokenData } from "../utils/utils";
 import DocumentVerificationPopup from "../components/common/DocumentVerificationPopup";
+import config from "../config";
 
 
 function AppointmentList() {
@@ -27,6 +28,10 @@ function AppointmentList() {
   const { profile } = useSelector((state) => state.doctors);
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
+  const {hospital_business_id} = getTokenData();
+  const isZydus = hospital_business_id === config.ZYDUS_BUSINESS_ID;
+  const isApollo = config.APOLLO_BUSINESS_IDS.includes(hospital_business_id);
+  
 
   useEffect(() => {
     setLocationPath(location.pathname);
@@ -68,7 +73,7 @@ function AppointmentList() {
             <Route path="edit_patient" element={<EditNewPatient />} />
             <Route path="bulk_messages" element={<MessagesData />} />
           </Routes>
-          <DocumentVerificationPopup />
+          {(!isZydus && !isApollo) && <DocumentVerificationPopup />}
         </div>
       </div>
     </>
