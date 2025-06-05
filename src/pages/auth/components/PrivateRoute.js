@@ -9,7 +9,6 @@ const PrivateRoute = () => {
   const localStorageToken = getToken();
   const urlToken = searchParams.get('authToken');
   const isAuthenticated = localStorageToken || urlToken;
-  console.log(isAuthenticated,"isAuthenticated")
 
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 };
