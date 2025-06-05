@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useSelector, useDispatch } from "react-redux";
 import { TRIAL, S_TATVA_PRACTICE } from "../../../utils/constants";
-import { errorMessage } from "../../../utils/utils";
+import { errorMessage, shouldMonetizationDisabled } from "../../../utils/utils";
 
 import listIcon from '../../../assets/images/list-icon.svg'
 import expiredInfographic from '../../../assets/images/expired-infographic.svg'
@@ -29,12 +29,14 @@ function ExtendTrialModal() {
 
     const [isExpiredModalOpen, setIsExpiredModalOpen] = useState(false);
 
+    const tp_monetization_enable = !shouldMonetizationDisabled();
+
     useEffect(() => {
-        profile?.b2c !== null && profile?.b2c !== undefined && dispatch(services(profile?.b2c));
+        profile?.b2c !== null && profile?.b2c !== undefined && tp_monetization_enable && dispatch(services(profile?.b2c));
     }, [profile?.b2c]);
 
     useEffect(() => {
-        service_mappings?.length > 0 && checkBillingPurchased()
+        service_mappings?.length > 0 && tp_monetization_enable && checkBillingPurchased()
     }, [service_mappings]);
 
     const checkBillingPurchased = async () => {

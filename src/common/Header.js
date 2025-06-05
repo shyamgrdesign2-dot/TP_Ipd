@@ -37,7 +37,7 @@ import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage, getDecodedToken } from "../utils/localStorage";
 import { TRIAL, GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_TATVA_PRACTICE } from "../utils/constants";
-import { errorMessage, getClinicName, makeDefaultLogo } from "../utils/utils";
+import { errorMessage, getClinicName, makeDefaultLogo, shouldMonetizationDisabled } from "../utils/utils";
 import { Modal, Card } from "antd";
 import alertIcon from '../assets/images/alertIcon.svg';
 import PremiumUser from "./PremiumUser";
@@ -65,6 +65,7 @@ function Header({ locationPath }) {
     "opd-plans"
   );
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const tp_monetization_enable = !shouldMonetizationDisabled();
 
   const decodedToken = getDecodedToken();
   const apiUrl = env.opd_encryption_url;
@@ -725,17 +726,17 @@ function Header({ locationPath }) {
         ),
         key: "1",
       },
-      {
-        label: (
-          <a onClick={handleAiSuite}>
-            <div className="title-common me-4 d-flex align-items-center">
-              <img src={AISuite} className="me-3" style={{ filter: 'grayscale(100%)' }} alt="AI Suite" />AI Suite
-            </div>
-            <i className="icon-right iconrotate180"></i>
-          </a>
-        ),
-        key: "2",
-      },
+      // {
+      //   label: (
+      //     <a onClick={handleAiSuite}>
+      //       <div className="title-common me-4 d-flex align-items-center">
+      //         <img src={AISuite} className="me-3" style={{ filter: 'grayscale(100%)' }} alt="AI Suite" />AI Suite
+      //       </div>
+      //       <i className="icon-right iconrotate180"></i>
+      //     </a>
+      //   ),
+      //   key: "2",
+      // },
       {
         label: (
           <a onClick={handleMedEcoKnowMore}>
@@ -825,8 +826,25 @@ function Header({ locationPath }) {
       // },
     ];
 
+    
+
+    if (tp_monetization_enable) {
+      const aiSuite = {
+        label: (
+          <a onClick={handleAiSuite}>
+            <div className="title-common me-4 d-flex align-items-center">
+              <img src={AISuite} className="me-3" style={{ filter: 'grayscale(100%)' }} alt="AI Suite" />AI Suite
+            </div>
+            <i className="icon-right iconrotate180"></i>
+          </a>
+        ),
+        key: "2",
+      }
+      commonItems.splice(3, 0, aiSuite);
+    }
+
     const remaingDays = planDetails?.service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === TRIAL ? moment(planDetails?.plan_expiry_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
-    if (remaingDays > 0) {
+    if (tp_monetization_enable && remaingDays > 0) {
       const freeTrialMenu = [
         {
           label:
@@ -1113,9 +1131,11 @@ function Header({ locationPath }) {
               </Popover>
             )}
 
-            <div className="mx-3 cursor-pointer" onClick={handleAiSuite}>
-              <img src={AISuite} alt="AI Suite" />
-            </div>
+            {tp_monetization_enable && (
+              <div className="mx-3 cursor-pointer" onClick={handleAiSuite}>
+                <img src={AISuite} alt="AI Suite" />
+              </div>
+            )}
 
             <Drawer title="Video Tutorial" placement="right" onClose={handleDrawervideo} open={videoDrawer} className="modalWidth-400 tab345 playdrawer" width="auto">
               <div className="mt-20">

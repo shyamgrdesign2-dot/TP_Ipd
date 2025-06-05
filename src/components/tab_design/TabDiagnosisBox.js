@@ -5,7 +5,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
-import { errorMessage, onlyNumberFormat } from "../../utils/utils";
+import { errorMessage, onlyNumberFormat, shouldMonetizationDisabled } from "../../utils/utils";
 
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
@@ -28,7 +28,6 @@ import DifferentialDiagnosis from "../DifferentialDiagnosis";
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { setIsDiagnosisBox } from "../../redux/ddxSlice";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import config from "../../config";
 
 function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoading, handleDDxKnowMore, isDDxGenerated}) {
     const {
@@ -38,7 +37,7 @@ function TabDiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLo
         loading,
     } = useSelector((state) => state.diagnosis);
     const { isDiagnosisBox } = useSelector((state) => state.ddx);
-    const tp_monetization_enable = config.tp_monetization_enable
+    const tp_monetization_enable = !shouldMonetizationDisabled();
     const isApexAIAccessable = useFeatureIsOn("cdss");
     const dispatch = useDispatch();
 

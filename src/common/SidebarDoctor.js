@@ -26,7 +26,7 @@ import followUpActiveIcon from "../assets/images/follow-up-active.svg";
 import LockIcon from "../assets/images/lock-icon.svg";
 import tatvaAiActiveIcon from "../assets/images/website-images/tatvaAiActiveIcon.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { errorMessage, getClinicName, trackEvent } from "../utils/utils";
+import { errorMessage, getClinicName, shouldMonetizationDisabled, trackEvent } from "../utils/utils";
 import FullPageLoader from "../pages/vaccination/components/Loader";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 import moment from "moment";
@@ -48,7 +48,8 @@ function SidebarDoctor() {
   const PHARMACY_planDetails = service_mappings?.find(e => e.service_name === S_PHARMACY)
   const IPD_planDetails = service_mappings?.find(e => e.service_name === S_IPD)
   const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
-  
+
+  const tp_monetization_enable = !shouldMonetizationDisabled();
 
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
@@ -117,7 +118,7 @@ function SidebarDoctor() {
   }
 
   const clickOldModule = async (moduleName) => {
-    if (moduleName === S_PHARMACY || moduleName === S_IPD) {
+    if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
       setSubModalData({ service_name: moduleName })
       if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
         handlePharmacyKnowMore()
@@ -414,30 +415,32 @@ function SidebarDoctor() {
                       />
                       <div className="mt-1 px-2">{item.title}</div>
                     </NavLink>
-                    {item.type === S_PHARMACY ? (
-                      <div className="trial-sidebar">
-                        {(EMR_planDetails?.plan_tier === TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) ? (
-                          <span>Trial</span>
-                        ) : (EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) && (
-                          <img src={LockIcon} alt="Trial" />
-                        )}
-                      </div>
-                    ) : item.type === S_IPD ? (
-                      <div className="trial-sidebar">
-                        {(EMR_planDetails?.plan_tier === TRIAL && IPD_planDetails?.plan_tier === TRIAL) ? (
-                          <span>Trial</span>
-                        ) : (EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier === TRIAL) && (
-                          <img src={LockIcon} alt="Trial" />
-                        )}
-                      </div>
-                    ) : item.type === S_OPD_BILLING && (
-                      <div className="trial-sidebar">
-                        {(EMR_planDetails?.plan_tier === TRIAL && BILLING_planDetails?.plan_tier === TRIAL) ? (
-                          <span>Trial</span>
-                        ) : (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) && (
-                          <img src={LockIcon} alt="Trial" />
-                        )}
-                      </div>
+                    {tp_monetization_enable && (
+                      item.type === S_PHARMACY ? (
+                        <div className="trial-sidebar">
+                          {(EMR_planDetails?.plan_tier === TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) ? (
+                            <span>Trial</span>
+                          ) : (EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) && (
+                            <img src={LockIcon} alt="Trial" />
+                          )}
+                        </div>
+                      ) : item.type === S_IPD ? (
+                        <div className="trial-sidebar">
+                          {(EMR_planDetails?.plan_tier === TRIAL && IPD_planDetails?.plan_tier === TRIAL) ? (
+                            <span>Trial</span>
+                          ) : (EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier === TRIAL) && (
+                            <img src={LockIcon} alt="Trial" />
+                          )}
+                        </div>
+                      ) : item.type === S_OPD_BILLING && (
+                        <div className="trial-sidebar">
+                          {(EMR_planDetails?.plan_tier === TRIAL && BILLING_planDetails?.plan_tier === TRIAL) ? (
+                            <span>Trial</span>
+                          ) : (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) && (
+                            <img src={LockIcon} alt="Trial" />
+                          )}
+                        </div>
+                      )
                     )}
                   </div>
                 );

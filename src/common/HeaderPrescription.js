@@ -20,7 +20,7 @@ import playIcons from '../assets/images/tube-icon.svg';
 import fullicon from '../assets/images/full-icon.svg';
 import VideoModal from './VideoModal';
 
-import { errorMessage, getClinicName, removeBeforeWhiteSpace } from "../utils/utils";
+import { errorMessage, getClinicName, removeBeforeWhiteSpace, shouldMonetizationDisabled } from "../utils/utils";
 
 import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, GB_ZYDUS_USER, MESSAGE_KEY, S_DDX, S_VOICE_RX } from "../utils/constants";
 
@@ -46,7 +46,6 @@ import { placeIctOrder } from '../redux/appointmentsSlice';
 import { getDecodedToken } from '../utils/localStorage';
 import { env } from '../EnvironmentConfig';
 import { updateCredits } from '../redux/monetizationSlice';
-import config from '../config';
 
 var oneClickCosultationTemplateId = 0
 
@@ -101,7 +100,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
     //PopOverVideo function
     const [popOverVideo, setPopOverVideo] = useState(false);
     const [videoLink, setVideoLink] = useState(null);
-    const tp_monetization_enable = config.tp_monetization_enable
+    const tp_monetization_enable = !shouldMonetizationDisabled();
     const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
 
     const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);

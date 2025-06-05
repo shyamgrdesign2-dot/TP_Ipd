@@ -60,7 +60,7 @@ const dev = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
-  tp_monetization_enable: true,
+  tp_monetization_disabled_hospital: [754811713438773, 912841712741834]
 };
 
 const qa_tp = {
@@ -129,7 +129,8 @@ const qa_tp = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
-  tp_monetization_enable: true,
+  tp_monetization_disabled_hospital: [754811713438773, 912841712741834]
+  // tp_monetization_disabled_hospital: [754811713438773, 912841712741834,427631747743070]
 };
 
 const qa = {
@@ -194,7 +195,7 @@ const qa = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
-  tp_monetization_enable: true,
+  tp_monetization_disabled_hospital: [754811713438773, 912841712741834]
 };
 
 const uat = {
@@ -264,7 +265,7 @@ const uat = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-uat.tatvacare.in",
-  tp_monetization_enable: true,
+  tp_monetization_disabled_hospital: [754811713438773, 912841712741834]
 };
 
 const prod = {
@@ -328,7 +329,7 @@ const prod = {
   tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in", 
   symptoms_collector_api_url: "https://pm-tatva-agents-prod.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-prod.tatvacare.in",
-  tp_monetization_enable: true,
+  tp_monetization_disabled_hospital: [368451724046474, 345711722419722, 189641711087501, 635211726058248, 817391726308284, 389721726761413, 625141727277272, 137621731053002, 268741731506046, 549821734513388, 628451726551928, 684191731931706, 879361730721433, 538421739782028, 136841742984591]
 };
 
 const getEnv = () => {
