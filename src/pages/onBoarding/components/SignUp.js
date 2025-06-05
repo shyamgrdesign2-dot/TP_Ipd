@@ -234,6 +234,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           break;
 
         case "Doctor does not exists!":
+        case "Doctor not onboarded":
         case "User does not exists":
           if (isLoginFlow) {
             setError(
@@ -343,7 +344,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             onViewChange("setPassword", mobileNumber, true);
           }, 2000);
         }
-      } else if (message === "Doctor does not exists!") {
+      } else if (message === "Doctor does not exists!" || message === "Doctor not onboarded") {
         setError(
           <>
             User does not exist. Please{' '}
@@ -444,7 +445,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
       <div className="signup-form-container">
         <h2 style={{ margin: "1rem 0 3rem 0" }}>
           {isLoginFlow ? (
-            "Welcome Back!"
+            "Welcome Doctor!"
           ) : (
             <>
               Sign up{!isFromCampaign ? "!" : ` for `}<span className={isFromCampaign ? "gradient-text" : ""}>{isFromCampaign && "free"}</span>

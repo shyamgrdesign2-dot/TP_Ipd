@@ -80,7 +80,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
   return (
     <div className="signup-form-wrapper">
       <div className="signup-form-container">
-        <h2 style={{ margin: "2.5rem 0 3rem 0" }}>Welcome Back!</h2>
+        <h2 style={{ margin: "2.5rem 0 3rem 0" }}>Welcome Doctor!</h2>
 
         <Form name="loginPassword" className="signup-form">
           <Form.Item

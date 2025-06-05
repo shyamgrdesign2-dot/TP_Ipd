@@ -235,20 +235,26 @@ function App() {
 
   // Determine where to redirect on root path
   useEffect(() => {
-    if (!isRootPath) return;
+
+    if (!isRootPath && !isLoginPage) return;
 
     const hasAuth = token || authToken;
     const localRedirectTo = localStorage.getItem("redirectTo");
     if (!hasAuth) {
-      navigate("/login");
-      return;
+      return navigate("/login");
     }
+
+    const redirectPath = localRedirectTo === "profile" 
+      ? "/doctor_profile" 
+      : "/";
 
     if (localRedirectTo === "profile") {
       localStorage.removeItem("redirectTo");
-      navigate("/doctor_profile");
     }
-}, [isRootPath, token, authToken, navigate, redirectTo]);
+    
+    return navigate(redirectPath);
+  }, [isRootPath, token, authToken, navigate, redirectTo]);
+
 
   return (
     <GrowthBookProvider growthbook={growthbook}>
