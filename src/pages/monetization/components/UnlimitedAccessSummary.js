@@ -150,7 +150,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             errorMessage('Enter clinic name')
         } else if (taxInvoice && !gstNo) {
             errorMessage('Enter gst no.')
-        } else if ((taxInvoice && !gstNo) || !isValidGST(gstNo)) {
+        } else if (taxInvoice && !isValidGST(gstNo)) {
             errorMessage('Enter Valid gst no.')
         } else if (taxInvoice && !doctorName) {
             errorMessage('Enter doctor name')
