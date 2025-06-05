@@ -283,7 +283,11 @@ const DoctorOnboarding = ({
     {
       title: "Clinic Details",
       content: (
-        <ClinicDetailsStep formData={formData} setFormData={setFormData} />
+        <ClinicDetailsStep
+          formData={formData}
+          setFormData={setFormData}
+          clinicId={doctorData?.hospitalDetails?.clinic_id}
+        />
       ),
     },
     {
