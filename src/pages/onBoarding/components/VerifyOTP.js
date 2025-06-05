@@ -118,6 +118,7 @@ const VerifyOTP = ({
                   localStorage.removeItem("currentView");
                   localStorage.removeItem("isLoginFlow");
                   localStorage.removeItem("isUserExists");
+                  localStorage.removeItem("mobileNumber");
                   const deviceType = isMobile ? "mobile" : "desktop";
                   window.location.href = `${loginResponse.ssoUrl}&device_type=${deviceType}`;
                 } else {
@@ -138,6 +139,7 @@ const VerifyOTP = ({
                     localStorage.removeItem("currentView");
                     localStorage.removeItem("isLoginFlow");
                     localStorage.removeItem("isUserExists");
+                    localStorage.removeItem("mobileNumber");
                     const deviceType = isMobile ? "mobile" : "desktop";
                     window.location.href = `${ssoUrl}&device_type=${deviceType}`;
                   }
