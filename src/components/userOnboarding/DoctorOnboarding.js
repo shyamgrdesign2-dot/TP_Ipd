@@ -448,7 +448,7 @@ const DoctorOnboarding = ({
         formData.mrcCertificate,
         authToken
       );
-
+      localStorage.removeItem("mobileNumber");
       navigate("/?from=finalSetup");
 
       return true;
@@ -591,6 +591,7 @@ const DoctorOnboarding = ({
                   );
 
                   onClose();
+                  localStorage.removeItem("mobileNumber");
                   navigate("/?from=finalSetup");
                 }}
                 className={styles.skipButton}
