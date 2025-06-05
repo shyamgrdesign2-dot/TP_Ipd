@@ -235,24 +235,30 @@ function App() {
 
   // Determine where to redirect on root path
   useEffect(() => {
-
-    if (!isRootPath && !isLoginPage) return;
-
-    const hasAuth = token || authToken;
-    const localRedirectTo = localStorage.getItem("redirectTo");
-    if (!hasAuth) {
-      return navigate("/login");
+    // Skip redirection for receptionist or non-relevant paths
+    if (isReceptionist || (!isRootPath && !isLoginPage)) {
+      return;
     }
 
-    const redirectPath = localRedirectTo === "profile" 
-      ? "/doctor_profile" 
-      : "/";
+    // Check authentication and get stored redirect path
+    const hasAuth = token || authToken;
+    const localRedirectTo = localStorage.getItem("redirectTo");
+    
+    // Handle unauthenticated users
+    if (!hasAuth) {
+      navigate("/login");
+      return;
+    }
 
+    // Determine and execute redirection
+    const redirectPath = localRedirectTo === "profile" ? "/doctor_profile" : "/";
+    
+    // Clean up localStorage if redirecting to profile
     if (localRedirectTo === "profile") {
       localStorage.removeItem("redirectTo");
     }
-    
-    return navigate(redirectPath);
+
+    navigate(redirectPath);
   }, [isRootPath, token, authToken, navigate, redirectTo]);
 
 
