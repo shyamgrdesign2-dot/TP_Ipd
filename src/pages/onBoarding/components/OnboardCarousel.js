@@ -119,7 +119,7 @@ const OnboardingCarousel = () => {
       <div className="logo-container">
         <img
           src={require("../../../assets/images/logo.png")}
-          className="d-inline-block align-top cursor-pointer"
+          className="d-inline-block align-top"
           width="150px"
           height="35px"
           alt="Logo"

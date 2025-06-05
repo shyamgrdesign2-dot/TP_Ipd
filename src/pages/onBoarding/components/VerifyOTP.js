@@ -242,6 +242,7 @@ const VerifyOTP = ({
             name="otp"
           >
             <Input
+              autoFocus
               placeholder="Enter 6-Digit OTP"
               className="otp-input"
               maxLength={6}

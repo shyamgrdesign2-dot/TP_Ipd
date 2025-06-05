@@ -236,9 +236,9 @@ const Onboarding = () => {
           <FeatureTabCard
             className="m-2"
             feature="EMR Features"
-            title="An EMR that streamline"
+            title="An EMR that streamlines"
             subTitle="all your needs"
-            tabs={["Clinic Care", "Admin Tasks", "Analytics"]}
+            tabs={["Clinical Care", "Admin Tasks", "Analytics"]}
           />
           <FeatureTabCard
             className="m-2"
