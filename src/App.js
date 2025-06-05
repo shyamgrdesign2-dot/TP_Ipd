@@ -235,10 +235,10 @@ function App() {
 
   // Determine where to redirect on root path
   useEffect(() => {
-    if (!isRootPath) return;
+
+    if (!isRootPath && !isLoginPage) return;
 
     const hasAuth = token || authToken;
-    console.log(hasAuth,"hasAuth")
     const localRedirectTo = localStorage.getItem("redirectTo");
     if (!hasAuth) {
       return navigate("/login");
