@@ -3,7 +3,7 @@ import { Input, Button, Form } from "antd";
 import "./Onboarding.scss";
 import abdmLogo from "../../../assets/images/abdm-logo.svg";
 import nhaLogo from "../../../assets/images/nha-logo.svg";
-import googlePartner from "../../../assets/images/website-images/image.png";
+import MicrosoftPartner from "../../../assets/images/onboard-page-icons/microsoft.png";
 import leftGroup from "../../../assets/images/onboard-page-icons/Left-Group.svg";
 import rightGroup from "../../../assets/images/onboard-page-icons/Right-Group.svg";
 import { loginWithPassword, verifyAccessToken } from "../../auth/authService";
@@ -80,7 +80,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
   return (
     <div className="signup-form-wrapper">
       <div className="signup-form-container">
-        <h2 className="title" style={{ margin: "2.5rem 0 3rem 0" }}>Welcome Back</h2>
+        <h2 style={{ margin: "2.5rem 0 3rem 0" }}>Welcome Back!</h2>
 
         <Form name="loginPassword" className="signup-form">
           <Form.Item
@@ -156,8 +156,8 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
         <img src={abdmLogo} alt="ABDM" className="abdm-logo" />
         <img src={nhaLogo} alt="NHA" className="nha-logo" />
         <img
-          src={googlePartner}
-          alt="Google Partner"
+          src={MicrosoftPartner}
+          alt="Microsoft Partner"
           className="google-partner"
         />
         <img src={rightGroup} alt="Lines Group" className="right-lines-group" />

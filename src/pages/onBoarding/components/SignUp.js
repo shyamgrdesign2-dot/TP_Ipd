@@ -3,8 +3,8 @@ import { Input, Button, Form, Spin } from "antd";
 import "./Onboarding.scss";
 import abdmLogo from "../../../assets/images/abdm-logo.svg";
 import nhaLogo from "../../../assets/images/nha-logo.svg";
-import googlePartner from "../../../assets/images/website-images/image.png";
 import leftGroup from "../../../assets/images/onboard-page-icons/Left-Group.svg";
+import MicrosoftPartner from "../../../assets/images/onboard-page-icons/microsoft.png";
 import rightGroup from "../../../assets/images/onboard-page-icons/Right-Group.svg";
 import { validateUser, checkPediaExists } from "../../auth/authService";
 import { getUtmParams } from "../../../components/userOnboarding/services/userDataService";
@@ -180,7 +180,6 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
                 >
                  Sign in
                 </span>
-                {' '}instead
               </>
             );
           }
@@ -349,7 +348,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               }}
               className="login-link"
             >
-              signup
+              sign up
             </span>
             {' '}
           </>
@@ -437,15 +436,10 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
       <div className="signup-form-container">
         <h2 style={{ margin: "1rem 0 3rem 0" }}>
           {isLoginFlow ? (
-            "Welcome Back"
+            "Welcome Back!"
           ) : (
             <>
-              Signup{" "}
-              {isFromCampaign && (
-                <>
-                  for <span className="gradient-text"> free</span>
-                </>
-              )}
+              Sign up{!isFromCampaign ? "!" : ` for `}<span className={isFromCampaign ? "gradient-text" : ""}>{isFromCampaign && "free"}</span>
             </>
           )}
         </h2>
@@ -454,9 +448,6 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           <Form.Item
             name="phone"
             className="phone-form-item"
-            rules={[
-              { required: true, message: "Please input your mobile number!" },
-            ]}
           >
             <label htmlFor="phone" className="onboard-fields-label">
               Mobile Number
@@ -525,8 +516,8 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
         <img src={abdmLogo} alt="ABDM" className="abdm-logo" />
         <img src={nhaLogo} alt="NHA" className="nha-logo" />
         <img
-          src={googlePartner}
-          alt="Google Partner"
+          src={MicrosoftPartner}
+          alt="Microsoft Partner"
           className="google-partner"
         />
         <img src={rightGroup} alt="Lines Group" className="right-lines-group" />
