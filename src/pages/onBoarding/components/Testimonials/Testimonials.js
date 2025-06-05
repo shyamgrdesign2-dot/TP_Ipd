@@ -13,24 +13,24 @@ import Dr_Garima from "../../../../assets/images/onboard-page-icons/Doc_Garima.p
 const Testimonials = () => {
   const testimonials = [
     {
-      name: "Dr Nisheet Dave",
-      qualification: "Orthopaedic",
-      image: Dr_Nisheet,
+      name: "Dr. Amit Madan",
+      qualification: "Dermatologist",
+      image: Dr_Amit,
       rating: 5,
       hospitalLogo: "",
-      location: "Ahmedabad",
+      location: "Lucknow",
       review:
-        "TatvaPractice with Apex AI has transformed how I diagnose and manage patients. I now spend less time on admin work and more time on patient care.",
+        '"I am  extremely satisfied with the platform’s performance. The timely support physical and online, regular features upgrades, and seamless AI integration have significantly enhanced my workflow. The data back up with follow up photos of patients add to treatment satisfaction and keeping record more organized with smart clinical tools."',
     },
     {
       name: "Dr. Garima Jain",
-      qualification: "Obs and Gynae",
+      qualification: "Obs and Gynaec",
       image: Dr_Garima,
       rating: 5,
       hospitalLogo: "",
       location: "Bangalore",
       review:
-        "I have been using the Tatva Practice EMR at Apollo Cradle and Childrens hospital at Bangalore. Very user friendly and gives the user the choice to modify the pattern of case sheets by their convenience. Features like save templates for everything on the case sheets had made it very convenient to use. The back end support is also amazing.",
+        '"I have been using the Tatva Practice EMR at Apollo Cradle and Childrens hospital at Bangalore. Very user friendly and gives the user the choice to modify the pattern of case sheets by their convenience. Features like save templates for everything on the case sheets had made it very convenient to use. The back office support is also amazing."',
     },
     {
       name: "Dr. Kautuk Patel",
@@ -40,7 +40,7 @@ const Testimonials = () => {
       hospitalLogo: "",
       location: "Mehsana",
       review:
-        "Tatvacare is feature loaded yet simple to use HMIS. Very useful in Outpatient as well as Inpatient management. Regular  updates & support team is added benefit. Quite happy after using their service.",
+        '"Tatvacare is feature loaded yet simple to use HMIS. Very useful in Outpatient as well as Inpatient management. Regular  updates & support team is added benefit. Quite happy after using their service."',
     },
     {
       name: "Dr. Deep Fultera",
@@ -50,37 +50,37 @@ const Testimonials = () => {
       hospitalLogo: "",
       location: "Rajkot",
       review:
-        "Tatvacare offers a seamless and intuitive interface, making patient management and billing incredibly efficient. Its feature and customizable templates streamline clinical workflows, saving time and enhancing accuracy. Highly recommended for modern healthcare practices.",
+        '"Tatvacare offers a seamless and intuitive interface, making patient management and billing incredibly efficient. Its feature and customizable templates streamline clinical workflows, saving time and enhancing accuracy. Highly recommended for modern healthcare practitioner."',
     },
     {
       name: "Dr. Sneha Jhadhav",
-      qualification: "M.D, Medicine",
+      qualification: "M.D, General Practice",
       image: Dr_Sneha,
       rating: 5,
       hospitalLogo: "",
       location: "Mumbai",
       review:
-        "TatvaPractice is very easy to operate. It covers all the parameters required considering the patient case history. Even the patient are able to read & understand prescription very easily. I am happy with this app. Still they are working on few more parameters to upgrade it, which will make us more feasible to use.",
+        '"TatvaPractice is very easy to operate. It covers all the parameters required considering the patient case history. Even the patient are able to read & understand prescription very easily. I am happy with this app. Still they are working on few more parameters to upgrade it, which will make us more feasible to use."',
     },
     {
-      name: "Dr. Amit Madan",
-      qualification: "Dermatologist",
-      image: Dr_Amit,
+      name: "Dr Nisheet Dave",
+      qualification: "Orthopaedic",
+      image: Dr_Nisheet,
       rating: 5,
       hospitalLogo: "",
-      location: "Lucknow",
+      location: "Ahmedabad",
       review:
-        "I am  extremely satisfied with the platform’s performance. The timely support physical and online, regular feature upgrades, and seamless AI integration have significantly enhanced my workflow. The data back up with follow up photos of patients add to treatment satisfaction and keeping record more organized With smart clinical tools.",
+        '"TatvaPractice with AI feature has transformed how I diagnose and manage patients. Now I spend less time on admin work and more time on patient care.",'
     },
     {
       name: "Dr. Pratibha Singh",
-      qualification: "Obs and Gynae",
+      qualification: "Obs and Gynaec",
       image: Dr_Pratibha,
       rating: 5,
       hospitalLogo: "",
       location: "Lucknow",
       review:
-        "As a Gynecologist and Head of the IVF Department at a Superspecialty Hospital, I have been using Tatvacare EMR and am extremely pleased with its performance. The platform is reliable, easy to navigate, and the timely support and consistent upgrades have made it an essential part of our daily clinical workflow",
+        '"As a Gynecologist and Head of the IVF Department at a Superspecialty Hospital, I have been using Tatvacare EMR and am extremely pleased with its performance. The platform is reliable, easy to navigate, and the timely support and consistent upgrades have made it an essential part of our daily clinical workflow"',
     },
   ];
 

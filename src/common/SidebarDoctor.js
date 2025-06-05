@@ -176,7 +176,6 @@ function SidebarDoctor() {
   };
 
   const handleTatvaAi = async () => {
-
     try {
       setLoading(true);
       window.Moengage.track_event("TP_TatvaAI_Open", {
@@ -271,7 +270,7 @@ function SidebarDoctor() {
                 className={`mt-1 px-2 ${tatvaHovered ? "hoveredColor" : ""}`}
                 style={{ fontSize: "12px", fontWeight: "500" }}
               >
-                Tatva AI
+                TatvaAI
               </div>
             </div>
             <img

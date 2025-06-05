@@ -90,7 +90,7 @@ const featureCardConfig = {
         image: AdminTasks
       },
       "Analytics": {
-        heading: <>Practice<br/>Analytics Simplified</>,
+        heading: <>Clinical<br/>Analytics Simplified</>,
         points: [
           {
             icon: graph,
@@ -117,15 +117,15 @@ const featureCardConfig = {
     },
     tabConfig: {
       "DDx": {
-        heading: <><div className="ai-feature-heading">AI Powered</div>Differential Diagnosis</>,
+        heading: <><div className="ai-feature-heading">AI-Powered</div>Differential Diagnosis</>,
         points: [
           {
             icon: vitals,
-            text: "Get DDx within Second"
+            text: "Get DDx within Seconds"
           },
           {
             icon: ddx,
-            text: "Identify Potential Condition"
+            text: "Identify Potential Diagnosis"
           },
           {
             icon: medication,
@@ -161,7 +161,7 @@ const featureCardConfig = {
           },
           {
             icon: voiceSquare,
-            text: "Combine Voice and Typing for Ease Input"
+            text: "Combine Voice and Typing for Easier Input"
           },
           {
             icon: lampCharge,
@@ -170,7 +170,7 @@ const featureCardConfig = {
         ],
         image: VoiceRx
       },
-      "Tatva Ai": {
+      "TatvaAI": {
         heading: <><div className="ai-feature-heading">AI-Powered</div>Platform for Doctors</>,
         points: [
           {
@@ -228,7 +228,7 @@ const featureCardConfig = {
           },
           {
             icon: messages2,
-            text: "Stay connected with patients through chats"
+            text: "Available on mobile app for easy access"
           }
         ],
         image: RemoteCare
