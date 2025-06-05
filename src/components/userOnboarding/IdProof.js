@@ -5,6 +5,10 @@ import styles from "./IdProof.module.css";
 import { FileOutlined } from "@ant-design/icons";
 import CommonModal from "../../common/CommonModal";
 import alertIcon from "../../assets/images/alertIcon.svg";
+import { pdfjs, Document, Page } from "react-pdf";
+
+const worker = require("pdfjs-dist/build/pdf.worker.min.js");
+pdfjs.GlobalWorkerOptions.workerSrc = worker;
 
 const IdProof = ({
   title,
@@ -14,10 +18,12 @@ const IdProof = ({
   onDocumentChange,
   verificationStatus = null, // null, "pending", "verified", "failed"
 }) => {
+
   const [isFileSizeExceeded, setIsFileSizeExceeded] = useState(false);
   const [isFileFormatNotSupported, setIsFileFormatNotSupported] =
     useState(false);
   const [selectedFileExtension, setSelectedFileExtension] = useState("");
+  const [numPages, setNumPages] = useState(null);
 
   const handleUpload = (file) => {
     // Validate file type and size
@@ -60,6 +66,10 @@ const IdProof = ({
   const handleRetry = () => {
     setIsFileSizeExceeded(false);
     setIsFileFormatNotSupported(false);
+  };
+
+  const onDocumentLoadSuccess = ({ numPages }) => {
+    setNumPages(numPages);
   };
 
   // Render verification status badge
@@ -117,12 +127,53 @@ const IdProof = ({
       return (
         <div className={styles.documentPreviewContainer}>
           <div className={styles.documentPreview}>
-            {document.type.startsWith("image/") ? (
+            {document?.url?.includes(".jpg") ||
+            document?.url?.includes(".jpeg") ||
+            document?.url?.includes(".png") ? (
               <img
                 src={document.url}
                 alt={document.name}
                 className={styles.documentPreviewImage}
               />
+            ) : document.type === "application/pdf" ||
+              document?.url?.includes(".pdf") ? (
+              <Document
+                file={document.url}
+                loading={
+                  <div className={styles.pdfLoading}>
+                    <div>Loading PDF...</div>
+                  </div>
+                }
+                error={
+                  <div className={styles.pdfError}>
+                    <FileOutlined className={styles.pdfIcon} />
+                    <div>Failed to load PDF</div>
+                    <Button
+                      type="link"
+                      onClick={() => window.open(document.url, "_blank")}
+                    >
+                      Open in new tab
+                    </Button>
+                  </div>
+                }
+                className={styles.pdfDocument}
+                onLoadSuccess={onDocumentLoadSuccess}
+              >
+                {numPages &&
+                  Array.apply(null, Array(numPages))
+                    .map((x, i) => i + 1)
+                    .map((page) => (
+                      <Page
+                        key={page}
+                        pageNumber={page}
+                        width={318}
+                        renderTextLayer={false}
+                        renderAnnotationLayer={false}
+                        className={styles.pdfPage}
+                        height={"100%"}
+                      />
+                    ))}
+              </Document>
             ) : (
               <div className={styles.pdfPreview}>
                 <FileOutlined className={styles.pdfIcon} />

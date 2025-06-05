@@ -1532,7 +1532,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                                   >
                                     <img
                                       src={tatvaAiStrip}
-                                      alt="Tatva AI"
+                                      alt="TatvaAI"
                                       style={{
                                         backgroundColor: "#22003C",
                                         borderRadius: "10px 10px 0px",
