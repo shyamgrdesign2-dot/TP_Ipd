@@ -53,8 +53,8 @@ const featureCardConfig = {
       secondary: "#E8F5E9"
     },
     tabConfig: {
-      "Clinic Care": {
-        heading: <>Improve Clinic Care</>,
+      "Clinical Care": {
+        heading: <>Improve Clinical Care</>,
         points: [
           {
             icon: clipboardText,

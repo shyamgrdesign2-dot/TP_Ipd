@@ -150,7 +150,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     }
 
     if(!isCaptchaVerified()){
-      setError("Please complete the captcha verification before continuing");
+      setError("Please complete the captcha verification to proceed.");
       setErrorType("captcha");
       return;
     }
