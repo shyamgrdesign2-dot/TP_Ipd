@@ -21,11 +21,11 @@ const Footer = () => {
           <h3>Offices</h3>
           <div className="office-locations">
             <div className="office">
-              <h4>Bangalore</h4>
+              <h4 style={{ textDecoration: 'underline' }}>Bangalore</h4>
               <p>Digicare Health Solutions Pvt. Ltd., 2nd Floor, 14th Main Rd, Sector 5, Agara Village, 1st Sector, HSR Layout, Bangalore, Karnataka - 560102</p>
             </div>
             <div className="office">
-              <h4>Ahmedabad</h4>
+              <h4 style={{ textDecoration: 'underline' }}>Ahmedabad</h4>
               <p>Digicare Health Solutions Pvt. Ltd., 4th Floor, Plot No 115/5, TP Scheme No. 51, off Ambli-Bopal Road, Ahmedabad, Gujarat - 380058</p>
             </div>
           </div>

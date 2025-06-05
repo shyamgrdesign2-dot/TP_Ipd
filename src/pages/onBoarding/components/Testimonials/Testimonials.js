@@ -60,7 +60,7 @@ const Testimonials = () => {
       hospitalLogo: "",
       location: "Mumbai",
       review:
-        '"TatvaPractice is very easy to operate. It covers all the parameters required considering the patient case history. Even the patient are able to read & understand prescription very easily. I am happy with this app. Still they are working on few more parameters to upgrade it, which will make us more feasible to use."',
+        '"TatvaPractice is very easy to operate. It covers all the parameters required considering the patient case history. Even the patient are able to read & understand prescription very easily. I am happy with this app. Even the helping team of the app are very helpful. They guide us every time when we have an issue."',
     },
     {
       name: "Dr Nisheet Dave",

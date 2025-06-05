@@ -91,6 +91,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
               Enter Password
             </label>
             <Input.Password
+              autoFocus
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

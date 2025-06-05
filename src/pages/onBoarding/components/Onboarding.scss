@@ -189,6 +189,11 @@
           font-size: 16px;
           font-weight: 500;
 
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+          }
+
           &:hover {
             background: #553C9A;
           }
@@ -306,6 +311,11 @@
           border-radius: 8px;
           font-size: 16px;
           font-weight: 500;
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+          }
 
           &:hover {
             background: #553C9A;
@@ -578,6 +588,11 @@
         font-size: 16px;
         font-weight: 500;
 
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed !important;
+        }
+
         &:hover {
           background: #553C9A;
         }
@@ -622,13 +637,13 @@
     }
 
     .nha-logo {
-      height: 40px;
+      height: 34px;
       // filter: brightness(0) invert(1);
       // opacity: 0.8;
     }
 
     .google-partner {
-      height: 40px;
+      height: 30px;
       // filter: brightness(0) invert(1);
       // opacity: 0.8;
     }
@@ -761,7 +776,7 @@
 
     &:disabled {
       opacity: 0.5;
-      cursor: not-allowed;
+      cursor: not-allowed !important;
     }
 
     &:hover {
@@ -786,7 +801,7 @@
 
     &:disabled {
       opacity: 0.5;
-      cursor: not-allowed;
+      cursor: not-allowed !important;
     }
 
     &:hover {
