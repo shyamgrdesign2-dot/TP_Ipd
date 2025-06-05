@@ -236,7 +236,7 @@ const Onboarding = () => {
           <FeatureTabCard
             className="m-2"
             feature="EMR Features"
-            title="An EMR to streamline"
+            title="An EMR that streamline"
             subTitle="all your needs"
             tabs={["Clinic Care", "Admin Tasks", "Analytics"]}
           />
@@ -245,7 +245,7 @@ const Onboarding = () => {
             feature="Ai Features"
             title="Empower your"
             subTitle="practice with AI features"
-            tabs={["DDx", "Smart Sync", "Voice Rx", "Tatva Assist"]}
+            tabs={["DDx", "Smart Sync", "Voice Rx", "TatvaAI"]}
           />{" "}
           <FeatureTabCard
             className="m-2"
