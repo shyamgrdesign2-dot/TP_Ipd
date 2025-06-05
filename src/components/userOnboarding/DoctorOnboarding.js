@@ -202,6 +202,8 @@ const DoctorOnboarding = ({
         setCurrentStep(2);
       } else if (
         response?.hospitalDetails?.clinicName &&
+        response?.hospitalDetails?.clinicPincode &&
+        !response?.hospitalDetails?.clinic_id &&
         response?.basicDetails?.departmentId
       ) {
         setCurrentStep(2);
@@ -340,7 +342,8 @@ const DoctorOnboarding = ({
     if (
       currentStep !== 1 ||
       (doctorData?.hospitalDetails?.clinicName &&
-        doctorData?.hospitalDetails?.clinicPincode)
+        doctorData?.hospitalDetails?.clinicPincode &&
+        !doctorData?.hospitalDetails?.clinic_id)
     ) {
       return true;
     }
