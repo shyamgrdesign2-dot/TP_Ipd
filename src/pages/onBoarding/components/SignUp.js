@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Input, Button, Form, Spin } from "antd";
 import "./Onboarding.scss";
 import abdmLogo from "../../../assets/images/abdm-logo.svg";
@@ -23,6 +23,11 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   const [initialLoading, setInitialLoading] = useState(true);
   // Get UTM params
   const utm = getUtmParams();
+  const inputRef = useRef(null);
+
+  const focusInput = () => {
+    inputRef.current?.focus();
+  };
 
   useEffect(() => {
     // MSG91 Integration
@@ -173,6 +178,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
                 <span 
                   onClick={() => {
                     onViewChange("loginOTP", mobileNumber, true);
+                    focusInput();
                     setError(null);
                     setErrorType(null);
                   }}
@@ -236,6 +242,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
                 <span 
                   onClick={() => {
                     onViewChange("signup", mobileNumber, false);
+                    focusInput();
                     setError(null);
                     setErrorType(null);
                   }}
@@ -343,6 +350,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             <span 
               onClick={() => {
                 onViewChange("signup", mobileNumber, false);
+                focusInput();
                 setError(null);
                 setErrorType(null);
               }}
@@ -453,6 +461,8 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               Mobile Number
             </label>
             <Input
+              autoFocus
+              ref={inputRef}
               addonBefore={prefixSelector}
               placeholder="Enter your mobile number"
               value={mobileNumber}
@@ -498,14 +508,20 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             {isLoginFlow ? (
               <>
                 Not an existing user?{" "}
-                <span onClick={() => onViewChange("signup")}>
+                <span onClick={() => {
+                  onViewChange("signup");
+                  focusInput();
+                }}>
                   <>Signup {isFromCampaign && <>for free</>}</>
                 </span>
               </>
             ) : (
               <>
                 Already have an Account?{" "}
-                <span onClick={() => onViewChange("loginOTP")}>Sign In</span>
+                <span onClick={() => {
+                  onViewChange("loginOTP");
+                  focusInput();
+                }}>Sign In</span>
               </>
             )}
           </div>
