@@ -14,7 +14,7 @@ const Footer = () => {
         <div className="company-info">
           <img src={Logo} alt="logo" className="footer-logo" />
           <p className="company-description">
-            We are a full-spectrum technology solution that solves across various aspects of both patients' and doctors' needs and their interactions to significantly improve health positives.
+            We are a full-spectrum technology solution that solves across various aspects of both patients' and doctors' needs and their interactions to significantly improve health outcomes.
           </p>
         </div>
         <div className="footer-section">
