@@ -408,7 +408,6 @@ const DoctorOnboarding = ({
         clinic_lat: formData.clinic_lat,
         clinic_long: formData.clinic_long,
       });
-      console.log(response);
       if (response?.statusCode === 200) {
         await dispatch(updateHasLocation(true));
         navigate("/");
