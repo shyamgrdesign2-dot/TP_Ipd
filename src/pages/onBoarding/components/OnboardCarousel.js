@@ -5,7 +5,7 @@ import smartSync from "../../../assets/images/website-images/SmartSyncBanner.jpg
 import practiceManagement from "../../../assets/images/website-images/PracticeManagementBanner.jpg";
 import ddxBanner from "../../../assets/images/website-images/DdxBanner.jpg";
 import emrBanner from "../../../assets/images/website-images/EMRBanner.jpg";
-import tatvaAiBanner from "../../../assets/images/website-images/TatvaAiBanner.jpg";
+import tatvaAiBanner from "../../../assets/images/website-images/TatvaAiBanner.png";
 import fastBackward from "../../../assets/images/onboard-page-icons/fast-backward.gif";
 import { getUtmParams } from "../../../components/userOnboarding/services/userDataService";
 import { detectOperatingSystem } from "../../../utils/utils";
