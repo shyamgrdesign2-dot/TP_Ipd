@@ -11,7 +11,7 @@ import FAQ from "./FAQ/FAQ.js";
 import OurScale from "./OurScale/OurScale.js";
 import Footer from "./Footer/Footer.js";
 import Hook from "../../../assets/images/website-images/Hook.png";
-import Hook1 from "../../../assets/images/website-images/Hook1.png";
+import Hook2 from "../../../assets/images/website-images/Hook2.png";
 import Logo from "../../../assets/images/website-images/logo.png";
 import "./Onboarding.scss";
 import "./FeatureTabCard/FeatureTabCard.scss";
@@ -71,7 +71,7 @@ const Onboarding = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      setFooterImage(window.innerWidth <= 768 ? Hook1 : Hook);
+      setFooterImage(window.innerWidth <= 768 ? Hook2 : Hook);
     };
 
     // Set initial image
