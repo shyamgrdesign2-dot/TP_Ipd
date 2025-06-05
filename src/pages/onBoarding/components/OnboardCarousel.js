@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Carousel } from "antd";
 import "./Onboarding.scss";
-import smartSync from "../../../assets/images/website-images/SmartSyncBanner.jpeg";
-import practiceManagement from "../../../assets/images/website-images/PracticeManagementBanner.jpeg";
-import ddxBanner from "../../../assets/images/website-images/DdxBanner.jpeg";
-import emrBanner from "../../../assets/images/website-images/EMRBanner.jpeg";
-import tatvaAiBanner from "../../../assets/images/website-images/TatvaAiBanner.jpeg";
+import smartSync from "../../../assets/images/website-images/SmartSyncBanner.jpg";
+import practiceManagement from "../../../assets/images/website-images/PracticeManagementBanner.jpg";
+import ddxBanner from "../../../assets/images/website-images/DdxBanner.jpg";
+import emrBanner from "../../../assets/images/website-images/EMRBanner.jpg";
+import tatvaAiBanner from "../../../assets/images/website-images/TatvaAiBanner.jpg";
 import fastBackward from "../../../assets/images/onboard-page-icons/fast-backward.gif";
 import { getUtmParams } from "../../../components/userOnboarding/services/userDataService";
 import { detectOperatingSystem } from "../../../utils/utils";
@@ -21,40 +21,39 @@ const OnboardingCarousel = () => {
       title: "Boost Your Practice with",
       subtitle: "Our AI-Powered Smart Sync",
       image: smartSync,
-      utmKey: "smartsync"
+      utmKey: "smartsync",
     },
     {
       id: 2,
       title: "AI-Powered",
       subtitle: "Clinical Decision Support",
       image: practiceManagement,
-      utmKey: "practice"
+      utmKey: "practice",
     },
     {
       id: 3,
       title: "Build and Scale Your",
       subtitle: "Online Presence with Us",
       image: ddxBanner,
-      utmKey: "ddx"
+      utmKey: "ddx",
     },
     {
       id: 4,
       title: "Supercharge Your",
-      subtitle: "Research with Tatva AI",
+      subtitle: "Research with TatvaAI",
       image: emrBanner,
-      utmKey: "tatvaai"
+      utmKey: "tatvaai",
     },
     {
       id: 5,
       title: "India's Best EMR",
       subtitle: "Trusted by 10,000+ Doctors",
       image: tatvaAiBanner,
-      utmKey: "emr"
+      utmKey: "emr",
     },
   ];
 
   const sortCarouselItems = () => {
-
     const utm = getUtmParams();
     const utmTerm = utm.utm_term;
     // If no UTM term, return original order
@@ -62,9 +61,9 @@ const OnboardingCarousel = () => {
 
     return [
       // First, find the item that matches the UTM term
-      ...baseCarouselItems.filter(item => item.utmKey === utmTerm),
+      ...baseCarouselItems.filter((item) => item.utmKey === utmTerm),
       // Then add all other items
-      ...baseCarouselItems.filter(item => item.utmKey !== utmTerm)
+      ...baseCarouselItems.filter((item) => item.utmKey !== utmTerm),
     ];
   };
 
@@ -101,17 +100,17 @@ const OnboardingCarousel = () => {
     beforeChange: (_, next) => {
       setCurrentSlide(next);
       setProgress(0);
-    }
+    },
   };
 
   const handleExploreMore = () => {
-    window.Moengage.track_event('TP_NewLoginFlow_Explore_more', {
+    window.Moengage.track_event("TP_NewLoginFlow_Explore_more", {
       clicked: true,
-      operating_system: detectOperatingSystem()
-    }); 
-    const trustedBySection = document.getElementById('trusted-by-section');
+      operating_system: detectOperatingSystem(),
+    });
+    const trustedBySection = document.getElementById("trusted-by-section");
     if (trustedBySection) {
-      trustedBySection.scrollIntoView({ behavior: 'smooth' });
+      trustedBySection.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -144,8 +143,8 @@ const OnboardingCarousel = () => {
 
         <div className="custom-dots">
           {carouselItems.map((_, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="dot-container"
               onClick={() => {
                 if (carouselRef.current) {
@@ -153,11 +152,18 @@ const OnboardingCarousel = () => {
                 }
               }}
             >
-              <div 
+              <div
                 className="progress-bar"
                 style={{
-                  width: `${index === currentSlide ? progress : index < currentSlide ? 100 : 0}%`,
-                  backgroundColor: index <= currentSlide ? '#5857DC' : '#E4E4E7'
+                  width: `${
+                    index === currentSlide
+                      ? progress
+                      : index < currentSlide
+                      ? 100
+                      : 0
+                  }%`,
+                  backgroundColor:
+                    index <= currentSlide ? "#5857DC" : "#E4E4E7",
                 }}
               />
             </div>
@@ -168,11 +174,7 @@ const OnboardingCarousel = () => {
       <div className="explore-more">
         <button onClick={handleExploreMore}>
           Explore more
-          <img 
-            src={fastBackward} 
-            alt="scroll down" 
-            className="scroll-arrow"
-          />
+          <img src={fastBackward} alt="scroll down" className="scroll-arrow" />
         </button>
       </div>
     </div>

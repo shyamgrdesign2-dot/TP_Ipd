@@ -1188,7 +1188,7 @@ function Prescription() {
                           height={20}
                           style={{ marginRight: 8 }}
                         />
-                        Tatva AI
+                        TatvaAI
                         {isDDxReadyToGenerate && generatedDDx?.results?.length > 0 && (
                           <img
                             src={blinkingDot}
