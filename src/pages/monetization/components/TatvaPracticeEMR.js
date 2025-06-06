@@ -49,7 +49,7 @@ function TatvaPracticeEMR({ item,clickKnowMore }) {
                         </Col>
                     ))}
                 </Row>
-                {showAll &&
+                {/* {showAll &&
                     <div className="medco-app my-4">
                         <img className="me-3" src={medcoIcon} alt="Medco Icon" />
                         <div className="text-start">
@@ -60,7 +60,7 @@ function TatvaPracticeEMR({ item,clickKnowMore }) {
                                 </span></div>
                         </div>
                     </div>
-                }
+                } */}
             </div>
             <div className="text-primary fw-medium cursor-pointer d-inline text-decoration-underline" onClick={handleShowAll}>{showAll ? 'View less' : `View ${item?.service_points?.length - 4} More Features`}</div>
         </div>

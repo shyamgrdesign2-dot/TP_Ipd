@@ -189,7 +189,7 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
                                 )
                             })}
 
-                            <div className='upgraded-premium-box w-92'>
+                            {/* <div className='upgraded-premium-box w-92'>
                                 <div className="w-100 mx-auto px-3">
                                     <div className="fs-18 fw-semibold"> Scan the Below QR to Download MedEco App</div>
                                     <QRCodeSVG className="rounded-3 my-4" value={"https://pm-doctor-tatva-pwa-prod.tatvacare.in/"} size={150}
@@ -204,7 +204,7 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
                                     />
                                     <div>Enhance your clinical practice and stay updated with the latest medical insights. <Link className="text-decoration-underline fw-medium text-primary" onClick={() => clickKnowMore(S_TATVA_PRACTICE)}>Know More</Link></div>
                                 </div>
-                            </div>
+                            </div> */}
                         </Slider>
                     </>
                 </Card>

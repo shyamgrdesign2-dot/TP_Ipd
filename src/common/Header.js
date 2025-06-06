@@ -737,17 +737,17 @@ function Header({ locationPath }) {
       //   ),
       //   key: "2",
       // },
-      {
-        label: (
-          <a onClick={handleMedEcoKnowMore}>
-            <div className="title-common me-4 d-flex align-items-center">
-              <img src={iconMobile} className="me-3" style={{ filter: 'grayscale(100%)' }} alt="MedEco Mobile App" /> MedEco Mobile App
-            </div>
-            <i className="icon-right iconrotate180"></i>
-          </a>
-        ),
-        key: "3",
-      },
+      // {
+      //   label: (
+      //     <a onClick={handleMedEcoKnowMore}>
+      //       <div className="title-common me-4 d-flex align-items-center">
+      //         <img src={iconMobile} className="me-3" style={{ filter: 'grayscale(100%)' }} alt="MedEco Mobile App" /> MedEco Mobile App
+      //       </div>
+      //       <i className="icon-right iconrotate180"></i>
+      //     </a>
+      //   ),
+      //   key: "3",
+      // },
       {
         label: (
           <a onClick={() => setUpWebsiteUrl(2)}>
