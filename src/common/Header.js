@@ -37,7 +37,7 @@ import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage, getDecodedToken } from "../utils/localStorage";
 import { TRIAL, GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_TATVA_PRACTICE } from "../utils/constants";
-import { errorMessage, getClinicName, makeDefaultLogo, shouldMonetizationDisabled } from "../utils/utils";
+import { errorMessage, getClinicName, makeDefaultLogo, shouldMonetizationDisabled, getTokenData, getDeviceSdkData } from "../utils/utils";
 import { Modal, Card } from "antd";
 import alertIcon from '../assets/images/alertIcon.svg';
 import PremiumUser from "./PremiumUser";
@@ -1007,11 +1007,39 @@ function Header({ locationPath }) {
 
   const handleAiSuite = useCallback(() => {
     setAiModal(!aiModal);
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData(); 
+    const deviceSdkData = getDeviceSdkData();
+    window.Moengage.track_event("TP_Monetization_AISuite", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      clinic_Name: clinic_name,
+      um_id: tokenData?.user_id,
+      clinic_id: tokenData?.clinic_id,
+      ...deviceSdkData
+    });
   }, [aiModal]);
 
   const handleMedEcoKnowMore = () => {
     setMedEcoKnowMoreDrawer((prev) => !prev);
   };
+
+  const handeProfileDD = (e) => {
+    e.preventDefault();
+    const tokenData = getTokenData();
+    const deviceSdkData = getDeviceSdkData();
+      window.Moengage.track_event("TP_Profile_Section", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+         doctor_specialty: profile?.dp_name,
+        clinic_id: tokenData?.clinic_id,
+        um_id: tokenData?.user_id,
+        ...deviceSdkData
+      });
+  }
 
   return (
     <>
@@ -1220,7 +1248,7 @@ function Header({ locationPath }) {
               className="py-0 nav-link cursor-pointer"
               overlayClassName="prfile-dropdown"
             >
-              <a onClick={(e) => e.preventDefault()}>
+              <a onClick={handeProfileDD}>
                 {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
                   <img
                     src={profile?.um_image ?? defaultprofile}

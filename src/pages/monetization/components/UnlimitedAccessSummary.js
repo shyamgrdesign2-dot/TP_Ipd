@@ -10,7 +10,7 @@ import yearlyPlan from '../../../assets/images/year-plan-corner.svg'
 
 import logoSm from '../../../assets/images/logo-sm.svg';
 import iconEdit from "../../../assets/images/edit.svg";
-import { currencyFormat, errorMessage, formatAmount, getClinic, isNumeric, isValidGST, onlyDecimalFormat, onlyNumberFormat, removeBeforeWhiteSpace } from "../../../utils/utils";
+import { currencyFormat, errorMessage, formatAmount, getClinic, getClinicName, getDeviceSdkData, getTokenData, isNumeric, isValidGST, onlyDecimalFormat, onlyNumberFormat, removeBeforeWhiteSpace } from "../../../utils/utils";
 import { kamList, otpSend, otpVerify, paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/monetizationSlice";
 import { fetchSubscriptionDetails } from "../../../redux/subscriptionSlice";
 import { searchPincode } from "../../../redux/appointmentsSlice";
@@ -19,6 +19,7 @@ import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../../utils/constants";
 import config from "../../../config";
 
 import "../GetUnlimitedAccess.scss";
+import { deviceType, osName } from "react-device-detect";
 
 function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
@@ -181,6 +182,19 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 errorMessage(action.payload.message)
             }
         }
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_ProceedtoPay", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...deviceSdkData
+        });
     }
 
     const initRazorPayPayment = (data) => {
@@ -289,6 +303,23 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const handleInvoiceChange = useCallback((event) => {
         setTaxInvoice(event.target.checked);
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_GST_Tax_invoice", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        clinic_id: tokenData?.clinic_id,
+        um_id: tokenData?.user_id,
+        clinic_Name: clinic_name,
+        ...deviceSdkData,
+        Subscription_Plan: '',
+        Payment_Status: '',
+        count_of_items: '',
+        Name_of_items: ''
+        });
     }, [taxInvoice]);
 
     const handleBillingModal = useCallback(() => {
@@ -373,6 +404,19 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         } else {
             errorMessage('Please add any service')
         }
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_RefferalCode", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...deviceSdkData
+        });
     }
 
     const onMobileNoChange = useCallback((e) => {
@@ -401,6 +445,20 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 errorMessage(action.payload.message)
             }
         }
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_ContinueSalesRefferalStep1", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            KAM_Mobile_Number: mobileNo,
+            ...deviceSdkData
+        });
     }
 
     const sendOTP = async () => {
@@ -411,6 +469,20 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         if (action.meta.requestStatus === "fulfilled") {
             if (action?.payload?.type === 'success') {
                 setFlag(2)
+                const clinic_name = getClinicName(profile?.hospital_data);
+                const tokenData = getTokenData(); 
+                const deviceSdkData = getDeviceSdkData();
+                window.Moengage.track_event("TP_Monetization_SaleRefOTPtrigger", {
+                    doctor_name: profile?.um_name,
+                    doctor_number: profile?.um_contact,
+                    doctor_unique_id: profile?.doctor_unique_id,
+                    doctor_specialty: profile?.dp_name,
+                    clinic_id: tokenData?.clinic_id,
+                    um_id: tokenData?.user_id,
+                    clinic_Name: clinic_name,
+                    KAM_Mobile_Number: mobileNo,
+                    ...deviceSdkData
+                });
             } else {
                 errorMessage('Something went wrong! please try again later')
             }
@@ -442,6 +514,20 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             } else {
                 errorMessage(action.payload.message)
             }
+            const clinic_name = getClinicName(profile?.hospital_data);
+            const tokenData = getTokenData(); 
+            const deviceSdkData = getDeviceSdkData();
+            window.Moengage.track_event("TP_Monetization_OTPVerification", {
+                doctor_name: profile?.um_name,
+                doctor_number: profile?.um_contact,
+                doctor_unique_id: profile?.doctor_unique_id,
+                doctor_specialty: profile?.dp_name,
+                clinic_id: tokenData?.clinic_id,
+                um_id: tokenData?.user_id,
+                clinic_Name: clinic_name,
+                KAM_Mobile_Number: mobileNo,
+                ...deviceSdkData
+            });
         }
     }
 
@@ -452,6 +538,23 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const clickSalesDiscount = () => {
         setDrawerOpen(false);
+    }
+
+    const handeYearDD = (e) => {
+        e.preventDefault();
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_yearsofPruchaseValue", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...deviceSdkData
+        });
     }
 
     return (
@@ -467,7 +570,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                         <img className="ms-1" src={yearlyPlan} alt="icon" />
                                         <div className="d-flex align-items-center">
                                             <Dropdown menu={{ items: getMenuItems(item) }} className="fs-14 fw-medium text-primary py-1 px-2 dd-yearly" trigger={['click']}>
-                                                <a onClick={e => e.preventDefault()}>
+                                                <a onClick={handeYearDD}>
                                                     {`${item?.validity / 12} Year`}
                                                     <DownOutlined className="ps-2 fs-14 fw -medium text-primary" />
                                                 </a>

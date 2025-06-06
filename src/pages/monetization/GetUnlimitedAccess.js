@@ -22,8 +22,10 @@ import AskTatvaKnowMore from "./components/AskTatvaKnowMore";
 import PharmacyKnowMore from "./components/PharmacyKnowMore";
 import BillingKnowMore from "./components/BillingKnowMore";
 import MedEcoAppKnowMore from "./components/MedEcoAppKnowMore";
+import { deviceType, osName } from "react-device-detect";
 
 import "./GetUnlimitedAccess.scss";
+import { getClinicName, getDeviceSdkData, getTokenData } from "../../utils/utils";
 
 function GetUnlimitedAccess() {
 
@@ -149,6 +151,19 @@ function GetUnlimitedAccess() {
                 return [...prev, { ...item, validity: 12 }];
             }
         });
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData(); 
+        window.Moengage.track_event("TP_Monetization_AddService", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...deviceSdkData
+        });
     }, [selectedServices]);
 
     const handleSmartSyncAddRemove = useCallback((item) => {
@@ -175,6 +190,19 @@ function GetUnlimitedAccess() {
                 }
             });
         }
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData(); 
+        window.Moengage.track_event("TP_Monetization_AddService", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...deviceSdkData
+        });
     }, [selectedServices, checked]);
 
     const clickKnowMore = (service_name) => {

@@ -4,8 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import crownIcon from "../assets/images/crown.svg";
 import { openModal } from "../redux/doctorModalSlice";
 import { fetchSubscriptionDetails } from "../redux/subscriptionSlice";
-import { getClinicName } from "../utils/utils";
+import { getClinicName, getDeviceSdkData, getTokenData } from "../utils/utils";
 import { useNavigate, useLocation } from "react-router-dom";
+import { deviceType, osName } from "react-device-detect";
 
 const DemoExpirationBanner = () => {
   const navigate = useNavigate();
@@ -34,6 +35,18 @@ const DemoExpirationBanner = () => {
     window.Moengage.track_event("BuyPlanNow_Click", {
       doctor_id: profile?.doctor_unique_id,
       clinic_name,
+    });
+
+    const tokenData = getTokenData();
+    const deviceSdkData = getDeviceSdkData();
+    window.Moengage.track_event("TP_GetUnlimited_Access", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      um_id: tokenData?.user_id,
+      ...deviceSdkData
     });
     // dispatch(openModal());
     clickBuyNow()

@@ -51,7 +51,8 @@ import Obstetric from "./obstetric/Obstetric";
 import ObstetricList from "./obstetric/components/obstetricList/ObstetricList";
 import { fetchObstetricDetails } from "./obstetric/service";
 import { addObstetricDetails } from "../redux/obstetricSlice";
-import { errorMessage, getClinicName, shouldMonetizationDisabled, trackEvent } from "../utils/utils";
+import { errorMessage, getClinicName, shouldMonetizationDisabled, trackEvent, getTokenData, getDeviceSdkData } from "../utils/utils";
+import { deviceType, osName } from "react-device-detect";
 import UploadDocument from "./medicalRecords/UploadDocument";
 import MedicalRecords from "./medicalRecords/MedicalRecords";
 import {
@@ -1129,6 +1130,19 @@ function Prescription() {
       doctor_speciality: profile?.dp_name,
       doctor_unique_id: profile?.doctor_unique_id,
       clinic_name
+    });
+    
+    const tokenData = getTokenData();
+    const deviceSdkData = getDeviceSdkData(); 
+    window.Moengage.track_event("TP_VoiceRx", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        clinic_id: tokenData?.clinic_id,
+        um_id: tokenData?.user_id,
+        clinic_Name: clinic_name,
+        ...deviceSdkData,
     });
   }
 

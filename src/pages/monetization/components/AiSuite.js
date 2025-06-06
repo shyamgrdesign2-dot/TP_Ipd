@@ -20,12 +20,14 @@ import DDxKnowMore from "../../../components/DDxKnowMore";
 import SmartSyncKnowMore from "../components/SmartSyncKnowMore";
 import CvtKnowMore from "../../smartSync/components/CvtKnowMore";
 import AskTatvaKnowMore from "./AskTatvaKnowMore";
+import { getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
+import { deviceType, osName } from "react-device-detect";
 
 function AiSuite({ aiModal, handleAiSuite }) {
 
     const navigate = useNavigate();
-
-    const { servicesList } = useSelector((state) => state.doctors);
+    
+    const { servicesList, profile } = useSelector((state) => state.doctors);
     const [aiServicesData, setAiServicesData] = useState([]);
     const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
     const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
@@ -54,6 +56,20 @@ function AiSuite({ aiModal, handleAiSuite }) {
         } else if (service_name === S_ASK_TATVA) {
             handleAskTatvaKnowMore()
         }
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData(); 
+        window.Moengage.track_event("TP_monetization_AISuite_Knowmore", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            count_of_know_more: '',
+            ...deviceSdkData,
+        });
     }
 
     const handleGenRxKnowMore = () => {

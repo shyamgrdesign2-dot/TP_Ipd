@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useSelector, useDispatch } from "react-redux";
 import { TRIAL, S_TATVA_PRACTICE } from "../../../utils/constants";
-import { errorMessage, shouldMonetizationDisabled } from "../../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../../../utils/utils";
 
 import listIcon from '../../../assets/images/list-icon.svg'
 import expiredInfographic from '../../../assets/images/expired-infographic.svg'
@@ -17,6 +17,7 @@ import { extendFreeTrial, interest } from "../../../redux/monetizationSlice";
 import { services } from "../../../redux/doctorsSlice";
 import { openModal } from "../../../redux/doctorModalSlice";
 import { fetchSubscriptionDetails } from "../../../redux/subscriptionSlice";
+import { deviceType, osName } from "react-device-detect";
 
 function ExtendTrialModal() {
     const navigate = useNavigate();
@@ -54,6 +55,19 @@ function ExtendTrialModal() {
             errorMessage('Free trial extend successfully')
             dispatch(fetchSubscriptionDetails())
         }
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_FreeTrailExtension", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...deviceSdkData
+        });
     }
 
     const clickBuyNow = () => {

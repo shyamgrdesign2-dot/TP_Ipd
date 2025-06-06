@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Spin } from "antd";
 import { Navbar } from "react-bootstrap";
-import { isMobile, osName } from "react-device-detect";
+import { deviceType, isMobile, osName } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { pdfjs, Document, Page } from "react-pdf";
+import { getClinicName, getDeviceSdkData, getTokenData } from "../../utils/utils";
+import { useSelector } from "react-redux";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
 function BillingPrint({ handlePdfDrawer, PDF_URL }) {
+
+const { profile } = useSelector((state) => state.doctors);
 
   const divRef = useRef(null);
 
@@ -59,6 +63,19 @@ function BillingPrint({ handlePdfDrawer, PDF_URL }) {
         }, 1);
       };
     }
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData(); 
+    const deviceSdkData = getDeviceSdkData(); 
+    window.Moengage.track_event("TP_Monetization_InvoicePrint", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      um_id: tokenData?.user_id,
+      clinic_Name: clinic_name,
+      ...deviceSdkData,
+    });
   };
 
   const handleDownload = async () => {
@@ -74,6 +91,19 @@ function BillingPrint({ handlePdfDrawer, PDF_URL }) {
     } catch (error) {
       console.error('Error downloading file:', error);
     }
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData(); 
+    const deviceSdkData = getDeviceSdkData();
+    window.Moengage.track_event("TP_monetization_invoicedownload", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      um_id: tokenData?.user_id,
+      clinic_Name: clinic_name,
+      ...deviceSdkData,
+    });
   };
 
   async function onDocumentLoadSuccess(successEvent) {

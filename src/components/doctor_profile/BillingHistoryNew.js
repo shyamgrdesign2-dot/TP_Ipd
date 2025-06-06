@@ -5,12 +5,15 @@ import { useDispatch } from "react-redux";
 
 import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../utils/constants";
 import { invoiceGenerate } from "../../redux/monetizationSlice";
-import { errorMessage } from "../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../utils/utils";
 import BillingPrint from "./BillingPrint";
+import { deviceType, osName } from "react-device-detect";
+import { useSelector } from "react-redux";
 
 const BillingHistoryNew = ({ show, setShow, billingHistoryList }) => {
 
   const dispatch = useDispatch();
+  const { profile } = useSelector((state) => state.doctors);
 
   const [open, setOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -31,6 +34,19 @@ const BillingHistoryNew = ({ show, setShow, billingHistoryList }) => {
     } else {
       errorMessage(action.payload.message)
     }
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData(); 
+    const deviceSdkData = getDeviceSdkData(); 
+    window.Moengage.track_event("TP_Monetization_InvoiceExplore", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        clinic_id: tokenData?.clinic_id,
+        um_id: tokenData?.user_id,
+        clinic_Name: clinic_name,
+        ...deviceSdkData,
+    });
   }
 
   const columns = [
