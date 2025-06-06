@@ -368,6 +368,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const clickReferralCode = () => {
         if (selectedServices?.length > 0) {
+            setMobileNo('');
             setFlag(1)
             setDrawerOpen(true);
         } else {
@@ -524,9 +525,10 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                         </div>
                         <div className="mb-3">
                             <div className="fontroboto mb-1">GSTIN No<sup className="text-danger-custom fs-14">*</sup></div>
-                            <Input className="inputheight45 rounded-10px" placeholder="Enter GSTIN no" value={gstNo} onChange={onGstNoChange} />
+                            <Input className="inputheight45 rounded-10px" placeholder="Enter GSTIN no" value={gstNo} onChange={onGstNoChange} maxLength={15} />
                         </div>
-                        <div className="p-3 border rounded-10px d-flex align-items-center justify-content-between">
+                        <div className="fontroboto mb-1">Billing Address<sup className="text-danger-custom fs-14">*</sup></div>
+                        <div className={"p-3 border rounded-10px d-flex align-items-center justify-content-between"}>
                             <div>
                                 <h6 className="fw-semibold">{doctorName}</h6>
                                 <div className="fs-14">{`${clinicAddress && clinicAddress + ', '}${clinicCity}, ${clinicState}, ${clinicPincode}`}</div>
@@ -606,7 +608,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                     )}
                                     {salesDiscount && formatAmount(parseFloat(salesDiscount)) > 0 && (
                                         <div className="d-flex align-items-center justify-content-between py-2">
-                                            <div>Sales Discount{salesDiscount && ` (${formatAmount(salesDiscount * 100 / subTotal)}%)`}:</div>
+                                            <div>Sales Discount{salesDiscount && ` (${Math.round(formatAmount(salesDiscount * 100 / subTotal))}%)`}:</div>
                                             <div className="fw-medium text-green">{`-₹${salesDiscount ? currencyFormat(formatAmount(parseFloat(salesDiscount))) : 0}`}</div>
                                         </div>
                                     )}

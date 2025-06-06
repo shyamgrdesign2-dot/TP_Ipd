@@ -154,9 +154,9 @@ const DDxList = ({
                   <div className="fs-4 fw-bold text-price">Upgrade Now 🚀</div>
                   <div className="mt-3 text-price">Unlock unlimited AI {DDX_planDetails?.service_display_name}, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
 
-                  {DDX_planDetails?.discount && (
+                  {/* {DDX_planDetails?.discount && (
                     <CampaignDiscount flag={2} title={DDX_planDetails?.service_name}/>
-                  )}
+                  )} */}
 
                   <div>
                     <Button type='button' className='mt-3 btn align-items-center mx-auto d-flex btn-41 btn-text btn-save' style={{ height: 52 }} onClick={() => clickRequestCallback(DDX_planDetails?.service_name)}>

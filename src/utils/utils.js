@@ -788,7 +788,7 @@ export const shouldMonetizationDisabled = () => {
   const monetizationDisabled = config?.tp_monetization_disabled_hospital;
   const monetizationDisabledArray = monetizationDisabled.map(Number);
   const { hospital_business_id } = getTokenData();
-  console.log(monetizationDisabled,hospital_business_id)
+  // console.log(monetizationDisabled,hospital_business_id)
   const currentHospital = Number(hospital_business_id);
 
   if (currentHospital && monetizationDisabledArray.includes(currentHospital)) {

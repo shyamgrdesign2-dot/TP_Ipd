@@ -247,7 +247,7 @@ function GetUnlimitedAccess() {
             <div className="unlimited-access-wrapper overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                 {!servicesLoading ? (
                     <>
-                        <CampaignDiscount flag={1} title={buyServiceName} />
+                        {/* <CampaignDiscount flag={1} title={buyServiceName} /> */}
                         <div className="bg-unlimited-access h-100">
                             {servicesData?.length > 0 && (
                                 <Row className="g-4">

@@ -362,7 +362,7 @@ function SidebarDoctor() {
                 className={`mt-1 px-2 ${tatvaHovered ? "hoveredColor" : ""}`}
                 style={{ fontSize: "12px", fontWeight: "500" }}
               >
-                Tatva AI
+                Ask Tatva
               </div>
             </div>
             {/* <img
@@ -371,13 +371,13 @@ function SidebarDoctor() {
               style={{ right: -4, top: 6, zIndex: -1 }}
               alt="New"
             /> */}
-            <div className="trial-sidebar">
+            {/* <div className="trial-sidebar">
               {(ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance > 0) ? (
                 <span>Trial</span>
               ) : (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) && (
                 <img src={LockIcon} alt="Trial" />
               )}
-            </div>
+            </div> */}
           </NavLink>
 
           {profile &&

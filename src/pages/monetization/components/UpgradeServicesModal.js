@@ -128,7 +128,7 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
                     <>
                         <img src={upgradedLogo} alt="upgraded to premium" />
                         <div className="fs-2 fw-bold mt-3">
-                            {purchasedData?.length === 0 ?
+                            {upgradeList.filter(item => item === S_TATVA_PRACTICE)?.length > 0 ?
                                 `You have upgraded to premium`
                                 : purchasedData?.length === 1 ?
                                     `${purchasedData[0]?.service_display_name} Activated`
@@ -202,7 +202,7 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
                                     //     excavate: true
                                     // }}
                                     />
-                                    <div>Enhance your clinical practice and stay updated with the latest medical insights. <Link className="text-decoration-underline fw-medium text-primary">Know More</Link></div>
+                                    <div>Enhance your clinical practice and stay updated with the latest medical insights. <Link className="text-decoration-underline fw-medium text-primary" onClick={() => clickKnowMore(S_TATVA_PRACTICE)}>Know More</Link></div>
                                 </div>
                             </div>
                         </Slider>

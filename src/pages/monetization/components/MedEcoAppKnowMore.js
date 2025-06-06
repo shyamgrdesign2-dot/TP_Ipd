@@ -74,7 +74,7 @@ const MedEcoAppKnowMore = ({ handleMedEcoKnowMore }) => {
 
         <div id="howItWorks" className="my-5">
           <span className="fs-12-1 fw-medium text-primary">How it works</span>
-          <div className="fw-semibold fs-20 text-black mb-2">How Does OPD Billing Work?</div>
+          <div className="fw-semibold fs-20 text-black mb-2">How Does MedEco App Work?</div>
           <div className="fs-12-1 mb-2">Please watch this video to know how MedEco works👇</div>
           <div
             className="d-flex align-items-center justify-content-center"
