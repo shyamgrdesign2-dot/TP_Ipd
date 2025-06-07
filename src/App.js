@@ -287,7 +287,7 @@ function App() {
                 style={{
                   position: "sticky",
                   top: 0,
-                  zIndex: 1000,
+                  zIndex: 199,
                 }}
               >
                 <DemoExpirationBanner />
