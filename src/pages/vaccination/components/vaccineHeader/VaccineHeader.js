@@ -177,7 +177,7 @@ function VaccineHeader({
       style={{
         position: "sticky",
         top: 0,
-        zIndex: 1000,
+        zIndex: 199,
         backgroundColor: "white",
       }}
     >
