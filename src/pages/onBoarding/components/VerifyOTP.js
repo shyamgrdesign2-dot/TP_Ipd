@@ -247,6 +247,7 @@ const VerifyOTP = ({
               autoFocus
               placeholder="Enter 6-Digit OTP"
               className="otp-input"
+              onPressEnter={handleVerifyOTP}
               maxLength={6}
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}

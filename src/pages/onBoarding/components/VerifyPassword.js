@@ -86,7 +86,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
           <Form.Item
             name="password"
             className="password-form-item"
-            onFinish={handleLogin}
+            // onFinish={handleLogin}
           >
             <label htmlFor="password" className="onboard-fields-label">
               Enter Password
@@ -97,6 +97,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="password-input"
+              onPressEnter={handleLogin}
               iconRender={(visible) => (
                 visible ? (
                   <svg
