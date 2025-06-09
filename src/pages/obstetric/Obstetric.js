@@ -624,6 +624,7 @@ const Obstetric = ({
             open={examinationDrawer}
             className="modalWidth-563"
             width="auto"
+            zIndex={200}
           >
             <AddExamination
               editIndex={examinationEditIndex}
@@ -657,6 +658,7 @@ const Obstetric = ({
             open={pastPregnancyDrawer}
             className="modalWidth-563"
             width="auto"
+            zIndex={200}
           >
             <PastPregnancy
               editIndex={pastPregnancyEditIndex}

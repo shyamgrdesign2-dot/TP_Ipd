@@ -1547,6 +1547,7 @@ function TabPrescription() {
             open={obstetricDrawer}
             width="100%"
             push={false}
+            zIndex={100}
           >
             <Obstetric
               obstetricDetails={obstetricDetails}

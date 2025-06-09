@@ -1929,6 +1929,7 @@ function SmartPrescription() {
             open={obstetricDrawer}
             width="100%"
             push={false}
+            zIndex={100}
           >
             <Obstetric obstetricDetails={obstetricDetails} obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} handleDrawerMedicalReport={handleDrawerMedicalReport} />
           </Drawer>

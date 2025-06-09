@@ -6,7 +6,7 @@ import config from "../../../config";
 import { useLocation } from "react-router-dom";
 const { TextArea } = Input;
 
-const ClinicDetailsStep = ({ formData, setFormData }) => {
+const ClinicDetailsStep = ({ formData, setFormData, clinicId }) => {
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [locationError, setLocationError] = useState("");
   const [detectedLocation, setDetectedLocation] = useState("");
@@ -401,7 +401,7 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
             fontSize: "16px",
           }}
           className={styles.focusedInput}
-          disabled={clinicDetails}
+          disabled={clinicDetails || clinicId}
         />
       </div>
 
@@ -445,6 +445,7 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
                   style={{
                     cursor: "pointer",
                     marginRight: "-7px",
+                    pointerEvents: "auto",
                   }}
                 >
                   <img src={currentLocation} alt="Current Location" />
@@ -454,7 +455,7 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
                 </div>
               )
             }
-            disabled={clinicDetails}
+            disabled={clinicDetails || clinicId}
           />
           {detectedLocation && (
             <div
@@ -511,7 +512,7 @@ const ClinicDetailsStep = ({ formData, setFormData }) => {
             lineHeight: "1.5",
           }}
           className={styles.focusedInput}
-          disabled={clinicDetails}
+          disabled={clinicDetails || clinicId}
         />
       </div>
     </div>
