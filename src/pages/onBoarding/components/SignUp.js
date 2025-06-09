@@ -471,6 +471,9 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               className="phone-input"
               bordered={false}
               maxLength={10}
+              type="tel"
+              autoComplete="tel-national"
+              id="phone"
             />
             {error && errorType === "inputFiled" && <div className="error-message" style={{marginTop: "0.5rem"}}>{error}</div>}
           </Form.Item>
