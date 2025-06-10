@@ -228,11 +228,12 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         const action = await dispatch(verifyPayment(r_response));
         if (action.meta.requestStatus === "fulfilled") {
             if (action?.payload?.hasOwnProperty("id") && action?.payload?.status === 'captured') {
-                const summaryData = selectedServices.map(({ service_name, service_type, service_cost, validity }) => ({
+                const summaryData = selectedServices.map(({ service_name, service_type, service_cost, max_applicable_discount, validity }) => ({
                     service_name,
                     service_type,
                     plan_validity_months: validity,
-                    plan_amount: formatAmount(parseFloat(service_cost))
+                    plan_amount: formatAmount(parseFloat(service_cost)),
+                    plan_amount: formatAmount(parseFloat(max_applicable_discount))
                 }));
                 let sendData = {
                     b2c_id: profile?.b2c,
