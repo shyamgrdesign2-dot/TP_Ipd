@@ -1015,9 +1015,10 @@ function Header({ locationPath }) {
       doctor_number: profile?.um_contact,
       doctor_unique_id: profile?.doctor_unique_id,
       doctor_specialty: profile?.dp_name,
-      clinic_Name: clinic_name,
       um_id: tokenData?.user_id,
       clinic_id: tokenData?.clinic_id,
+      clinic_Name: clinic_name,
+      payment_Status: planDetails?.currentPlanStatus,
       ...deviceSdkData
     });
   }, [aiModal]);

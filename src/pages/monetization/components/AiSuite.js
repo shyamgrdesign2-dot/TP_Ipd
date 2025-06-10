@@ -26,6 +26,7 @@ import { deviceType, osName } from "react-device-detect";
 function AiSuite({ aiModal, handleAiSuite }) {
 
     const navigate = useNavigate();
+    const { planDetails } = useSelector((state) => state.subscription);
     
     const { servicesList, profile } = useSelector((state) => state.doctors);
     const [aiServicesData, setAiServicesData] = useState([]);
@@ -67,6 +68,7 @@ function AiSuite({ aiModal, handleAiSuite }) {
             clinic_id: tokenData?.clinic_id,
             um_id: tokenData?.user_id,
             clinic_Name: clinic_name,
+            payment_Status: planDetails?.currentPlanStatus,
             count_of_know_more: '',
             ...deviceSdkData,
         });

@@ -25,6 +25,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const { profile } = useSelector((state) => state.doctors);
     const { pincodeInfo } = useSelector((state) => state.records);
+    const { planDetails } = useSelector((state) => state.subscription);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -307,18 +308,17 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         const tokenData = getTokenData(); 
         const deviceSdkData = getDeviceSdkData();
         window.Moengage.track_event("TP_Monetization_GST_Tax_invoice", {
-        doctor_name: profile?.um_name,
-        doctor_number: profile?.um_contact,
-        doctor_unique_id: profile?.doctor_unique_id,
-        doctor_specialty: profile?.dp_name,
-        clinic_id: tokenData?.clinic_id,
-        um_id: tokenData?.user_id,
-        clinic_Name: clinic_name,
-        ...deviceSdkData,
-        Subscription_Plan: '',
-        Payment_Status: '',
-        count_of_items: '',
-        Name_of_items: ''
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            payment_Status: planDetails?.currentPlanStatus,
+            ...deviceSdkData,
+            count_of_items: selectedServices?.length,
+            Name_of_items: selectedServices?.map(s => s.service_name)
         });
     }, [taxInvoice]);
 
@@ -461,6 +461,24 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         });
     }
 
+    const handleResendOTP = async () => {
+        await sendOTP();
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_OTPResent", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            KAM_Mobile_Number: mobileNo,
+            ...deviceSdkData
+        });
+    };
+
     const sendOTP = async () => {
         let sendData = {
             mobileNumber: `91${mobileNo}`,
@@ -538,6 +556,20 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const clickSalesDiscount = () => {
         setDrawerOpen(false);
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_SalesDiscountGiven", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            KAM_Mobile_Number: mobileNo,
+            ...deviceSdkData
+        });
     }
 
     const handeYearDD = (e) => {
@@ -679,7 +711,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                             <>
                                 <div className="fontroboto mb-2 text-1F2933">Enter OTP sent to <span className="fw-bold text-decoration-underline text-1F2933">{mobileNo}</span> <img className="ms-2 cursor-pointer" height={16} src={iconEdit} onClick={() => setFlag(1)} /></div>
                                 <Input.OTP className="input-otp-size45" length={6} value={String(otp)} formatter={str => onlyNumberFormat(str)} onChange={onOTPChange} />
-                                <div className="fontroboto mt-3">Didn’t receive OTP? <Link className="text-decoration-underline fw-semibold text-primary" onClick={sendOTP}>Resend OTP</Link></div>
+                                <div className="fontroboto mt-3">Didn’t receive OTP? <Link className="text-decoration-underline fw-semibold text-primary" onClick={handleResendOTP}>Resend OTP</Link></div>
                                 <Button className="btn btn-proceed btn-primary3 my-4 fs-18" onClick={verifyOTP}>
                                     Continue
                                 </Button>

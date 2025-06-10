@@ -22,10 +22,11 @@ import AskTatvaKnowMore from "./../components/AskTatvaKnowMore";
 import PharmacyKnowMore from "./../components/PharmacyKnowMore";
 import BillingKnowMore from "./../components/BillingKnowMore";
 import MedEcoAppKnowMore from "./../components/MedEcoAppKnowMore";
+import { getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
 
 function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal }) {
 
-    const { servicesList } = useSelector((state) => state.doctors);
+    const { servicesList, profile } = useSelector((state) => state.doctors);
     const EMR_PlanDetails = upgradeList.includes(S_TATVA_PRACTICE) ? servicesList?.find(e => e.service_name === S_TATVA_PRACTICE) : null
     const withoutEMR = upgradeList.filter(item => item !== S_TATVA_PRACTICE)
     const purchasedData = servicesList?.filter(e => withoutEMR.includes(e.service_name))
@@ -49,6 +50,22 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
         autoplay: false,
     };
 
+    const handleUpgradeModalClick = () => {
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_StartExploring", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...deviceSdkData,
+        });
+        handleUpgradeModal();   
+    }
     const clickKnowMore = (service_name) => {
         if (service_name === S_VOICE_RX) {
             handleGenRxKnowMore()
@@ -154,7 +171,7 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
                                             )
                                         })}
                                     </Row>
-                                    <Button className="btn btn-proceed btn-primary3 w-100 mt-4" onClick={handleUpgradeModal}>
+                                    <Button className="btn btn-proceed btn-primary3 w-100 mt-4" onClick={handleUpgradeModalClick}>
                                         Start Exploring
                                     </Button>
                                 </div>

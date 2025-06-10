@@ -15,7 +15,7 @@ import CashManagerContext from "../../context/CashManagerContext";
 import { setIsDiagnosisBox } from "../../redux/ddxSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { errorMessage, getClinicName } from "../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../utils/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FREE, S_DDX } from "../../utils/constants";
 import CampaignDiscount from "../../pages/monetization/components/CampaignDiscount";
@@ -45,6 +45,19 @@ const TabDDxList = ({
 
   const clickBuyNow = (service_name) => {
     navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData(); 
+    const deviceSdkData = getDeviceSdkData();
+    window.Moengage.track_event("TP_Monetization_VoiceRx_GetUnlimitedRx", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        clinic_id: tokenData?.clinic_id,
+        um_id: tokenData?.user_id,
+        clinic_Name: clinic_name,
+        ...deviceSdkData,
+    });
   }
 
   const clickRequestCallback = async (service_name) => {
@@ -58,6 +71,19 @@ const TabDDxList = ({
     // if (action.meta.requestStatus === "fulfilled") {
     //   errorMessage(action.payload.message)
     // }
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData(); 
+    const deviceSdkData = getDeviceSdkData();
+    window.Moengage.track_event("TP_Monetization_RequestACallback", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        clinic_id: tokenData?.clinic_id,
+        um_id: tokenData?.user_id,
+        clinic_Name: clinic_name,
+        ...deviceSdkData,
+    });
   }
 
   return (

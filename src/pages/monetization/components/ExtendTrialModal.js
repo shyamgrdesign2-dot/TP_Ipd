@@ -73,6 +73,19 @@ function ExtendTrialModal() {
     const clickBuyNow = () => {
         setIsExpiredModalOpen(false)
         navigate('/get-unlimited-access')
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_VoiceRx_GetUnlimitedRx", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...deviceSdkData,
+        });
     }
 
     const clickRequestCallback = async () => {
@@ -86,6 +99,36 @@ function ExtendTrialModal() {
         // if (action.meta.requestStatus === "fulfilled") {
         //     errorMessage(action.payload.message)
         // }
+        
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_RequestACallback", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...deviceSdkData,
+        });
+    }
+
+    const contactNumberandEmail = () => {
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_VoiceRx_Contact_Support", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...deviceSdkData,
+        });
     }
 
     return (
@@ -163,8 +206,8 @@ function ExtendTrialModal() {
                             <div className="d-flex align-items-center pt-3">
                                 <img className="me-2" src={contactSupport} alt="Contact Support" />
                                 <div className="fs-16 text-white opacity-08">Contact Support:</div>
-                                <a href="tel:+91-9974042363" className="fs-16 fw-medium text-white">&nbsp;+91-9974042363&nbsp;|</a>
-                                <a href="mailto:Support@tatvacare.in" className="fs-16 fw-medium text-white">&nbsp;Support@tatvacare.in</a>
+                                <a href="tel:+91-9974042363" className="fs-16 fw-medium text-white" onClick={contactNumberandEmail}>&nbsp;+91-9974042363&nbsp;|</a>
+                                <a href="mailto:Support@tatvacare.in" className="fs-16 fw-medium text-white" onClick={contactNumberandEmail}>&nbsp;Support@tatvacare.in</a>
                             </div>
                         </Col>
                     </Row>
