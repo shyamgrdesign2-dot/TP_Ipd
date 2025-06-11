@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button, Tabs } from "antd";
 import playIcons from "../../../assets/images/tube-icon.svg";
 
@@ -7,11 +7,17 @@ import ContactSupport from "./ContactSupport";
 import ExpiredText from "./ExpiredText";
 import { S_PHARMACY } from "../../../utils/constants";
 import FreeTrialButton from "./FreeTrialButton";
+import ExpiredSubModal from "./ExpiredSubModal";
 
 const { TabPane } = Tabs;
 
-const PharmacyKnowMore = ({ handlePharmacyKnowMore }) => {
+const PharmacyKnowMore = ({ handlePharmacyKnowMore, onRedirect }) => {
   const [videoLink, setVideoLink] = useState(false);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+
+  const showHideSubModal = useCallback(() => {
+    setIsSubModalOpen(!isSubModalOpen);
+  }, [isSubModalOpen]);
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -37,7 +43,7 @@ const PharmacyKnowMore = ({ handlePharmacyKnowMore }) => {
             </Button>
             <div className="drawer-title">Pharmacy Management</div>
           </div>
-          <FreeTrialButton title={S_PHARMACY} />
+          <FreeTrialButton title={S_PHARMACY} showHideSubModal={showHideSubModal} />
         </div>
 
         <div className="drawer-tabs">
@@ -88,7 +94,12 @@ const PharmacyKnowMore = ({ handlePharmacyKnowMore }) => {
         <ContactSupport />
       </div>
 
-      <ExpiredText title={S_PHARMACY} />
+      <ExpiredText title={S_PHARMACY} onRedirect={onRedirect} />
+
+      <ExpiredSubModal
+        title={S_PHARMACY}
+        isSubModalOpen={isSubModalOpen}
+        showHideSubModal={showHideSubModal} />
 
       {videoLink && (
         <VideoModal

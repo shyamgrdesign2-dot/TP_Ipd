@@ -251,7 +251,7 @@ function GetUnlimitedAccess() {
                         <div className="bg-unlimited-access h-100">
                             {servicesData?.length > 0 && (
                                 <Row className="g-4">
-                                    <Col xl={8} lg={8} sm={7} xs={12}>
+                                    <Col xl={8} lg={8} md={12} sm={12} xs={12}>
                                         {servicesData?.find(item => item.service_name === S_TATVA_PRACTICE) !== undefined && (
                                             <TatvaPracticeEMR
                                                 item={servicesData?.find(item => item.service_name === S_TATVA_PRACTICE)}
@@ -289,7 +289,7 @@ function GetUnlimitedAccess() {
                                             </div>
                                         </div>
                                     </Col>
-                                    <Col xl={4} lg={4} sm={5} xs={12}>
+                                    <Col xl={4} lg={4} md={12} sm={12} xs={12}>
                                         <UnlimitedAccessSummary
                                             selectedServices={selectedServices}
                                             setSelectedServices={setSelectedServices}

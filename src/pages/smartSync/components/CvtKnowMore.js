@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useSelector } from "react-redux";
 import "../smartSync.css";
 import { Card, Button, Tabs } from "antd";
@@ -16,12 +16,18 @@ import ContactSupport from "../../monetization/components/ContactSupport";
 import ExpiredText from "../../monetization/components/ExpiredText";
 import { S_RX_DIGITIZATION } from "../../../utils/constants";
 import FreeTrialButton from "../../monetization/components/FreeTrialButton";
+import ExpiredSubModal from "../../monetization/components/ExpiredSubModal";
 
 const { TabPane } = Tabs;
 
 const CvtKnowMore = ({ handleCollapsed }) => {
   const [videoLink, setVideoLink] = useState(false);
   const { loading, videoList } = useSelector((state) => state.doctors);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+
+  const showHideSubModal = useCallback(() => {
+    setIsSubModalOpen(!isSubModalOpen);
+  }, [isSubModalOpen]);
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -48,7 +54,7 @@ const CvtKnowMore = ({ handleCollapsed }) => {
             </Button>
             <div className="drawer-title">AI-Powered Smart Rx Digitisation</div>
           </div>
-          <FreeTrialButton title={S_RX_DIGITIZATION} />
+          <FreeTrialButton title={S_RX_DIGITIZATION} showHideSubModal={showHideSubModal} />
         </div>
 
         {/* Tabs */}
@@ -204,6 +210,11 @@ const CvtKnowMore = ({ handleCollapsed }) => {
       </div>
 
       <ExpiredText title={S_RX_DIGITIZATION} />
+      
+      <ExpiredSubModal
+        title={S_RX_DIGITIZATION}
+        isSubModalOpen={isSubModalOpen}
+        showHideSubModal={showHideSubModal} />
 
       {videoLink && (
         <VideoModal

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button, Tabs } from "antd";
 import playIcons from "../../../assets/images/tube-icon.svg";
 import coinSmRed from "../../../assets/images/coin-sm-red.png";
@@ -8,11 +8,17 @@ import ContactSupport from "./ContactSupport";
 import ExpiredText from "./ExpiredText";
 import { S_ASK_TATVA } from "../../../utils/constants";
 import FreeTrialButton from "./FreeTrialButton";
+import ExpiredSubModal from "./ExpiredSubModal";
 
 const { TabPane } = Tabs;
 
 const AskTatvaKnowMore = ({ handleAskTatvaKnowMore }) => {
   const [videoLink, setVideoLink] = useState(false);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+
+  const showHideSubModal = useCallback(() => {
+    setIsSubModalOpen(!isSubModalOpen);
+  }, [isSubModalOpen]);
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -38,7 +44,7 @@ const AskTatvaKnowMore = ({ handleAskTatvaKnowMore }) => {
             </Button>
             <div className="drawer-title">Ask Tatva</div>
           </div>
-          <FreeTrialButton title={S_ASK_TATVA} />
+          <FreeTrialButton title={S_ASK_TATVA} showHideSubModal={showHideSubModal} />
         </div>
 
         <div className="drawer-tabs">
@@ -90,6 +96,11 @@ const AskTatvaKnowMore = ({ handleAskTatvaKnowMore }) => {
       </div>
 
       <ExpiredText title={S_ASK_TATVA} />
+
+      <ExpiredSubModal
+        title={S_ASK_TATVA}
+        isSubModalOpen={isSubModalOpen}
+        showHideSubModal={showHideSubModal} />
 
       {videoLink && (
         <VideoModal

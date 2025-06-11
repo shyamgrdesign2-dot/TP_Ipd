@@ -805,6 +805,9 @@ body {
 .text-danger-custom {
     color: $alerText !important;
 }
+.border.border-danger-custom {
+    border-color: $alerText !important;
+}
 .prescription-pad {
     .videodrawer {
         margin: 0 0 -8px 0;

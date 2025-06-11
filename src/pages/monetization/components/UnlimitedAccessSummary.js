@@ -27,6 +27,8 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const [seconds, setSeconds] = useState(15);
+    const [canResend, setCanResend] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [flag, setFlag] = useState(1);
     const [kamDetails, setKamDetails] = useState(null);
@@ -51,6 +53,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     const [billingModal, setBillingModal] = useState(false);
 
     const [loading, setLoading] = useState(false);
+    const [isSubmit, setIsSubmit] = useState(false);
 
     useEffect(() => {
         if (profile?.hospital_data !== null && profile?.hospital_data !== undefined) {
@@ -74,12 +77,15 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const handleValidity = useCallback((item, newValidity) => {
         if (item.service_name === S_TATVA_PRACTICE) {
+            // setSelectedServices(prev =>
+            //     prev.map(e =>
+            //         (e.service_name === item.service_name || e.validity > newValidity)
+            //             ? { ...e, validity: newValidity }
+            //             : e
+            //     )
+            // );
             setSelectedServices(prev =>
-                prev.map(e =>
-                    (e.service_name === item.service_name || e.validity > newValidity)
-                        ? { ...e, validity: newValidity }
-                        : e
-                )
+                prev.map(e => ({ ...e, validity: newValidity }))
             );
         } else {
             const EMR_validity = selectedServices.find(e => e.service_name === S_TATVA_PRACTICE)?.validity
@@ -146,21 +152,35 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     }, [selectedServices, salesDiscount]);
 
     const clickBuyNow = async () => {
-        if (taxInvoice && !clinicName) {
-            errorMessage('Enter clinic name')
-        } else if (taxInvoice && !gstNo) {
-            errorMessage('Enter gst no.')
-        } else if (taxInvoice && !isValidGST(gstNo)) {
-            errorMessage('Enter Valid gst no.')
-        } else if (taxInvoice && !doctorName) {
-            errorMessage('Enter doctor name')
-        } else if (taxInvoice && !clinicPincode) {
-            errorMessage('Enter clinic pincode')
-        } else if (taxInvoice && !clinicCity) {
-            errorMessage('Enter Valid clinic pincode')
-        } else if (taxInvoice && !clinicState) {
-            errorMessage('Enter Valid clinic pincode')
-        } else {
+        taxInvoice && setIsSubmit(true)
+        // if (taxInvoice && !clinicName) {
+        //     errorMessage('Enter clinic name')
+        // } else if (taxInvoice && !gstNo) {
+        //     errorMessage('Enter gst no.')
+        // } else if (taxInvoice && !isValidGST(gstNo)) {
+        //     errorMessage('Enter Valid gst no.')
+        // } else if (taxInvoice && !doctorName) {
+        //     errorMessage('Enter doctor name')
+        // } else if (taxInvoice && !clinicPincode) {
+        //     errorMessage('Enter clinic pincode')
+        // } else if (taxInvoice && !clinicCity) {
+        //     errorMessage('Enter Valid clinic pincode')
+        // } else if (taxInvoice && !clinicState) {
+        //     errorMessage('Enter Valid clinic pincode')
+        // }
+        if (
+            (!taxInvoice) ||
+            (
+                taxInvoice &&
+                clinicName &&
+                gstNo &&
+                isValidGST(gstNo) &&
+                doctorName &&
+                clinicPincode &&
+                clinicCity &&
+                clinicState
+            )
+        ) {
             setLoading(true)
             let sendData = {
                 amount: totalAmount,
@@ -395,6 +415,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             if (action.meta.requestStatus === "fulfilled") {
                 if (action?.payload?.body?.content?.length > 0 && action?.payload?.body?.content[0]?.active) {
                     setKamDetails(action?.payload?.body?.content[0]?.id)
+                    startTimer();
                     sendOTP()
                 } else {
                     errorMessage('Please provide valid BDM mobile number')
@@ -404,6 +425,29 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             }
         }
     }
+
+    const handleResendOtp = () => {
+        if (canResend) {
+            startTimer();
+            sendOTP()
+        }
+    };
+
+    const startTimer = () => {
+        setSeconds(15);
+        setCanResend(false);
+
+        const timerId = setInterval(() => {
+            setSeconds(prevSeconds => {
+                if (prevSeconds === 1) {
+                    clearInterval(timerId);
+                    setCanResend(true);
+                    return 0;
+                }
+                return prevSeconds - 1;
+            });
+        }, 1000);
+    };
 
     const sendOTP = async () => {
         let sendData = {
@@ -506,7 +550,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 )}
                 <hr />
                 <div className="d-flex justify-content-between my-3">
-                    <div className="fs-4 text-welcome fw-semibold">Total Amount <span className="fs-14 fw-normal text-welcome">(Inc GST)</span>:</div>
+                    <div className="fs-4 text-welcome fw-semibold">Total Amount <span className="fs-14 fw-normal text-welcome text-nowrap">(Inc GST)</span>:</div>
                     <div className="fs-4 text-welcome fw-semibold">{`₹${currencyFormat(totalAmount)}`}</div>
                 </div>
 
@@ -522,14 +566,22 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     <div className="mt-4">
                         <div className="mb-3">
                             <div className="fontroboto mb-1">Organisation Name<sup className="text-danger-custom fs-14">*</sup></div>
-                            <Input className="inputheight45 rounded-10px" placeholder="Enter organisation name" value={clinicName} onChange={onClinicNameChange} />
+                            <Input className="inputheight45 rounded-10px" placeholder="Enter organisation name" value={clinicName} onChange={onClinicNameChange} status={!clinicName && "error"} />
+                            {isSubmit && !clinicName && (
+                                <div className="fontroboto fs-14 pt-1 text-danger-custom">Enter clinic name</div>
+                            )}
                         </div>
                         <div className="mb-3">
                             <div className="fontroboto mb-1">GSTIN No<sup className="text-danger-custom fs-14">*</sup></div>
-                            <Input className="inputheight45 rounded-10px" placeholder="Enter GSTIN no" value={gstNo} onChange={onGstNoChange} maxLength={15} />
+                            <Input className="inputheight45 rounded-10px" placeholder="Enter GSTIN no" value={gstNo} onChange={onGstNoChange} maxLength={15} status={gstNo && !isValidGST(gstNo) && "error"} />
+                            {isSubmit && !gstNo ? (
+                                <div className="fontroboto fs-14 pt-1 text-danger-custom">Enter gst no.</div>
+                            ) : isSubmit && !isValidGST(gstNo) && (
+                                <div className="fontroboto fs-14 pt-1 text-danger-custom">Enter Valid gst no.</div>
+                            )}
                         </div>
                         <div className="fontroboto mb-1">Billing Address<sup className="text-danger-custom fs-14">*</sup></div>
-                        <div className={"p-3 border rounded-10px d-flex align-items-center justify-content-between"}>
+                        <div className={`p-3 border rounded-10px d-flex align-items-center justify-content-between ${(isSubmit && (!doctorName || !clinicPincode || !clinicCity || !clinicState)) && 'border-danger-custom'}`}>
                             <div>
                                 <h6 className="fw-semibold">{doctorName}</h6>
                                 <div className="fs-14">{`${clinicAddress && clinicAddress + ', '}${clinicCity}, ${clinicState}, ${clinicPincode}`}</div>
@@ -538,6 +590,9 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                 <i className="icon-Edit"></i>
                             </Button>
                         </div>
+                        {(isSubmit && (!doctorName || !clinicPincode || !clinicCity || !clinicState)) && (
+                            <div className="fontroboto fs-14 pt-1 text-danger-custom">Enter Valid billing address</div>
+                        )}
                     </div>
                 )}
 
@@ -579,7 +634,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                             <>
                                 <div className="fontroboto mb-2 text-1F2933">Enter OTP sent to <span className="fw-bold text-decoration-underline text-1F2933">{mobileNo}</span> <img className="ms-2 cursor-pointer" height={16} src={iconEdit} onClick={() => setFlag(1)} /></div>
                                 <Input.OTP className="input-otp-size45" length={6} value={String(otp)} formatter={str => onlyNumberFormat(str)} onChange={onOTPChange} />
-                                <div className="fontroboto mt-3">Didn’t receive OTP? <Link className="text-decoration-underline fw-semibold text-primary" onClick={sendOTP}>Resend OTP</Link></div>
+                                <div className="fontroboto mt-3">Didn’t receive OTP? <Link className="text-decoration-underline fw-semibold text-primary" disabled={!canResend} onClick={handleResendOtp}>{canResend ? 'Resend OTP' : `Resend OTP in ${seconds}s`}</Link></div>
                                 <Button className="btn btn-proceed btn-primary3 my-4 fs-18" onClick={verifyOTP}>
                                     Continue
                                 </Button>

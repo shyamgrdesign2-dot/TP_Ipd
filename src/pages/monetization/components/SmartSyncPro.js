@@ -102,7 +102,7 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setCh
                                     <i className="icon-info fs-5 text-black-50"></i>
                                 </Popover>
                             </div>
-                            <div className="d-flex align-items-center">
+                            <div className="d-flex align-items-baseline">
                                 <div>
                                     <div className="fw-medium fs-18 fontroboto text-price">
                                         {`₹${currencyFormat(formatAmount(parseFloat(data[0].service_cost)))}`}
@@ -125,7 +125,7 @@ function SmartSyncPro({ data, addOrNot, handleSmartSyncAddRemove, checked, setCh
                                     <i className="icon-info fs-5 text-black-50"></i>
                                 </Popover>
                             </div>
-                            <div className="d-flex align-items-center">
+                            <div className="d-flex align-items-baseline">
                                 <div>
                                     <div className="fw-medium fs-18 fontroboto text-price">
                                         {`₹${currencyFormat(formatAmount(parseFloat(data[1].service_cost)))}`}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button, Tabs } from "antd";
 import playIcons from "../../../assets/images/tube-icon.svg";
 import VideoModal from "../../../common/VideoModal";
@@ -6,11 +6,17 @@ import ContactSupport from "./ContactSupport";
 import ExpiredText from "./ExpiredText";
 import { S_IPD } from "../../../utils/constants";
 import FreeTrialButton from "./FreeTrialButton";
+import ExpiredSubModal from "./ExpiredSubModal";
 
 const { TabPane } = Tabs;
 
-const IPDKnowMore = ({ handleIPDKnowMore }) => {
+const IPDKnowMore = ({ handleIPDKnowMore, onRedirect }) => {
   const [videoLink, setVideoLink] = useState(false);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+
+  const showHideSubModal = useCallback(() => {
+    setIsSubModalOpen(!isSubModalOpen);
+  }, [isSubModalOpen]);
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -36,7 +42,7 @@ const IPDKnowMore = ({ handleIPDKnowMore }) => {
             </Button>
             <div className="drawer-title">IPD Module</div>
           </div>
-          <FreeTrialButton title={S_IPD} />
+          <FreeTrialButton title={S_IPD} showHideSubModal={showHideSubModal} />
         </div>
 
         <div className="drawer-tabs">
@@ -87,7 +93,12 @@ const IPDKnowMore = ({ handleIPDKnowMore }) => {
         <ContactSupport />
       </div>
 
-      <ExpiredText title={S_IPD} />
+      <ExpiredText title={S_IPD} onRedirect={onRedirect} />
+      
+      <ExpiredSubModal
+        title={S_IPD}
+        isSubModalOpen={isSubModalOpen}
+        showHideSubModal={showHideSubModal} />
 
       {videoLink && (
         <VideoModal

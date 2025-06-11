@@ -12,6 +12,7 @@ import expired from "../../../assets/images/expired.png";
 import RxVoice from "../../../assets/images/microphone-voice-rx.png";
 import AskTatvaIcon from "../../../assets/images/icon-ask-tatva.png";
 import DDXIcon from "../../../assets/images/DDX-icon.png";
+import RECEPTIONISTIcon from "../../../assets/images/RECEPTIONIST-icon.png";
 import smartSyncIcon from "../../../assets/images/smart-sync-icon.png";
 
 import { FREE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_ASK_TATVA, S_RX_DIGITIZATION, S_RECEPTIONIST_AGENT } from "../../../utils/constants";
@@ -93,7 +94,7 @@ function AiSuite({ aiModal, handleAiSuite }) {
             case S_RX_DIGITIZATION:
                 return DDXIcon;
             case S_RECEPTIONIST_AGENT:
-                return DDXIcon;
+                return RECEPTIONISTIcon;
             default:
                 return "";
         }
@@ -150,7 +151,7 @@ function AiSuite({ aiModal, handleAiSuite }) {
                                         <Row className="align-items-center">
                                             <Col lg={8}>
                                                 <div className="d-flex align-items-center mb-2">
-                                                    <img src={Vitals} style={{ background: '#E6C3FF80' }} className="p-1 rounded-10px me-2" />
+                                                    <img style={{ background: '#E6C3FF80' }} className="p-1 rounded-10px me-2" src={getIcon(item?.service_name)} alt="item.type" />
                                                     <div className="fs-18 fw-semibold text-1F2933">{item?.service_display_name}</div>
                                                     <img src={purchased} className="ms-2" />
                                                 </div>

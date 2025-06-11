@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button, Tabs } from "antd";
 import playIcons from "../../../assets/images/tube-icon.svg";
 import coinSmRed from "../../../assets/images/coin-sm-red.png";
@@ -7,11 +7,17 @@ import ExpiredText from "./ExpiredText";
 import { S_BILLING } from "../../../utils/constants";
 import ContactSupport from "./ContactSupport";
 import FreeTrialButton from "./FreeTrialButton";
+import ExpiredSubModal from "./ExpiredSubModal";
 
 const { TabPane } = Tabs;
 
 const BillingKnowMore = ({ handleBillingKnowMore }) => {
   const [videoLink, setVideoLink] = useState(false);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+
+  const showHideSubModal = useCallback(() => {
+    setIsSubModalOpen(!isSubModalOpen);
+  }, [isSubModalOpen]);
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -37,7 +43,7 @@ const BillingKnowMore = ({ handleBillingKnowMore }) => {
             </Button>
             <div className="drawer-title">OPD Billing</div>
           </div>
-          <FreeTrialButton title={S_BILLING} />
+          <FreeTrialButton title={S_BILLING} showHideSubModal={showHideSubModal} />
         </div>
 
         <div className="drawer-tabs">
@@ -89,6 +95,11 @@ const BillingKnowMore = ({ handleBillingKnowMore }) => {
       </div>
 
       <ExpiredText title={S_BILLING} />
+      
+      <ExpiredSubModal
+        title={S_BILLING}
+        isSubModalOpen={isSubModalOpen}
+        showHideSubModal={showHideSubModal} />
 
       {videoLink && (
         <VideoModal

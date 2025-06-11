@@ -9,6 +9,7 @@ import OPDBillingIcon from "../../../assets/images/OPD-billing-icon.png";
 import PharmacyIcon from "../../../assets/images/pharmacy-icon.png";
 import IPDIcon from "../../../assets/images/IPD-icon.png";
 import DDXIcon from "../../../assets/images/DDX-icon.png";
+import RECEPTIONISTIcon from "../../../assets/images/RECEPTIONIST-icon.png";
 import aiPowered from "../../../assets/images/ai-powered.svg";
 import deviderIncludes from "../../../assets/images/includes-devider.svg";
 import { currencyFormat, formatAmount } from "../../../utils/utils";
@@ -31,28 +32,28 @@ function AddonServices({ item, addOrNot, handleAddRemove, clickKnowMore }) {
             case S_DDX:
                 return DDXIcon;
             case S_RECEPTIONIST_AGENT:
-                return DDXIcon;
+                return RECEPTIONISTIcon;
             default:
                 return "";
         }
     }
 
-    const contentSmartSync = (
-        <div><span className="fw-semibold">Smart Sync device</span> comes with a digital pad <br />
-            and smart pen, enabling you to write naturally<br />
-            —just like on paper. This is a <span className="fw-semibold"> one-time purchase</span> <br />
-            and the device is free for lifetime <br />
-            use with no renewals or hidden charges.</div>
+    const contentAIAppointment = (
+        <div><span className="fw-semibold">AI Appointment Booking</span> lets patients   <br />
+            schedule appointments online<br />
+            anytime, with bookings automatically<br />
+            synced to your clinic’s calendar— <br />
+            reducing calls and making<br />
+            scheduling effortless for both patients<br />
+            and staff. </div>
     );
 
-    const contentRxDigitization = (
-        <div>Get <span className="fw-semibold">AI Rx Digitisation</span> to unlock full <br />
-            automation. Our AI engine converts your <br />
-            handwritten prescriptions into structured <br />
-            digital formats within 30 seconds. It improves <br />
-            accuracy, speeds up documentation, and <br />
-            streamlines your clinical workflow for better <br />
-            patient care.</div>
+    const contentSymptomCollector = (
+        <div><span className="fw-semibold">AI Symptom Collector</span> allows patients <br />
+            to share symptoms while booking <br />
+            their appointment, sending details <br />
+            directly to your EMR so doctors are <br />
+            prepared before the consultation. </div>
     );
 
     return (
@@ -101,7 +102,7 @@ function AddonServices({ item, addOrNot, handleAddRemove, clickKnowMore }) {
                         <div className="d-flex align-items-center justify-content-between my-2">
                             <div className="d-flex align-items-center">
                                 <div className="include-div me-2">AI Appointment Booking</div>
-                                <Popover trigger="hover" content={contentSmartSync}>
+                                <Popover trigger="hover" content={contentAIAppointment}>
                                     <i className="icon-info fs-5 text-black-50"></i>
                                 </Popover>
                             </div>
@@ -113,7 +114,7 @@ function AddonServices({ item, addOrNot, handleAddRemove, clickKnowMore }) {
                         <div className="d-flex align-items-center justify-content-between my-2">
                             <div className="d-flex align-items-center">
                                 <div className="include-div me-2">AI Symptom Collector</div>
-                                <Popover trigger="hover" content={contentRxDigitization}>
+                                <Popover trigger="hover" content={contentSymptomCollector}>
                                     <i className="icon-info fs-5 text-black-50"></i>
                                 </Popover>
                             </div>

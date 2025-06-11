@@ -41,7 +41,7 @@ function TatvaPracticeEMR({ item,clickKnowMore }) {
             <div className={`${!isMobile ? 'px-75px' : 'px-0'}`}>
                 <Row className="my-4">
                     {item?.service_points?.slice(0, showAll ? item?.service_points?.length : 4)?.map((feature, i) => (
-                        <Col key={i} lg={6} className="py-3">
+                        <Col key={i} lg={6} md={6} sm={12} className="py-3">
                             <div className="d-flex align-items-center">
                                 <img className="mx-2" src={listIcon} alt="icon" />
                                 <div className="fs-14 fw-medium text-price text-start">{feature}</div>

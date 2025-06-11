@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Button, Spin, Tabs } from "antd";
 import genRxIcon from "../assets/images/gen-rx-icon.svg";
 import playIcons from "../assets/images/tube-icon.svg";
@@ -7,6 +7,7 @@ import ExpiredText from "../pages/monetization/components/ExpiredText";
 import ContactSupport from "../pages/monetization/components/ContactSupport";
 import { S_VOICE_RX } from "../utils/constants";
 import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
+import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -17,6 +18,11 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
   const [activeKey, setActiveKey] = useState("basicGenRxInfo");
   const scrollContainerRef = useRef(null);
   const isScrollingProgrammatically = useRef(false);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+  
+  const showHideSubModal = useCallback(() => {
+    setIsSubModalOpen(!isSubModalOpen);
+  }, [isSubModalOpen]);
 
   const sectionsRef = useRef({
     basicGenRxInfo: null,
@@ -147,7 +153,7 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
               </Button>
               <div className="drawer-title">AI-Powered Voice Rx</div>
             </div>
-            <FreeTrialButton title={S_VOICE_RX} />
+            <FreeTrialButton title={S_VOICE_RX} showHideSubModal={showHideSubModal} />
           </div>
 
           {/* Tabs */}
@@ -253,6 +259,11 @@ const GenRxKnowMore = ({ handleGenRxKnowMore }) => {
         </div>
 
         <ExpiredText title={S_VOICE_RX} />
+
+        <ExpiredSubModal
+          title={S_VOICE_RX}
+          isSubModalOpen={isSubModalOpen}
+          showHideSubModal={showHideSubModal} />
 
         {shouldShowVideo && (
           <VideoModal

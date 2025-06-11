@@ -118,14 +118,26 @@ function SidebarDoctor() {
   }
 
   const clickOldModule = async (moduleName) => {
+    // if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
+    //   setSubModalData({ service_name: moduleName })
+    //   if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
+    //     handlePharmacyKnowMore()
+    //     showHideSubModal()
+    //   } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier === TRIAL) {
+    //     handleIPDKnowMore()
+    //     showHideSubModal()
+    //   } else {
+    //     check_SSO(moduleName);
+    //   }
+    // } else {
+    //   check_SSO(moduleName);
+    // }
     if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
       setSubModalData({ service_name: moduleName })
-      if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
+      if (moduleName === S_PHARMACY) {
         handlePharmacyKnowMore()
-        showHideSubModal()
-      } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier === TRIAL) {
+      } else if (moduleName === S_IPD) {
         handleIPDKnowMore()
-        showHideSubModal()
       } else {
         check_SSO(moduleName);
       }
@@ -283,7 +295,6 @@ function SidebarDoctor() {
   const checkTatvaAiPurchased = async () => {
     setSubModalData({ service_name: S_ASK_TATVA })
     if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
-      handleAskTatvaKnowMore()
       showHideSubModal()
     } else {
       let sendData = {
@@ -297,7 +308,6 @@ function SidebarDoctor() {
             if (action?.payload?.credit_balance != ASK_TATVA_planDetails?.credit_balance) {
               await dispatch(services(sendData?.b2c_id))
             }
-            handleAskTatvaKnowMore()
             showHideSubModal()
           } else {
             handleTatvaAi();
@@ -355,7 +365,7 @@ function SidebarDoctor() {
                 }`}
               onMouseEnter={() => handleHover(true)} // Set the hovered item
               onMouseLeave={() => handleHover(false)} // Clear the hovered item
-              onClick={checkTatvaAiPurchased}
+              onClick={handleAskTatvaKnowMore}
             >
               <img src={getIcon("tatva_ai", tatvaHovered)} alt="tatva_ai" />
               <div
@@ -526,7 +536,7 @@ function SidebarDoctor() {
         className=".modalWidth-800"
         width={600}
       >
-        <AskTatvaKnowMore handleAskTatvaKnowMore={handleAskTatvaKnowMore} />
+        <AskTatvaKnowMore handleAskTatvaKnowMore={handleAskTatvaKnowMore} onRedirect={checkTatvaAiPurchased} />
       </Drawer>
 
       <Drawer
@@ -537,7 +547,7 @@ function SidebarDoctor() {
         className=".modalWidth-800"
         width={600}
       >
-        <IPDKnowMore handleIPDKnowMore={handleIPDKnowMore} />
+        <IPDKnowMore handleIPDKnowMore={handleIPDKnowMore} onRedirect={() => check_SSO(subModalData?.service_name)} />
       </Drawer>
 
       <Drawer
@@ -548,15 +558,11 @@ function SidebarDoctor() {
         className=".modalWidth-800"
         width={600}
       >
-        <PharmacyKnowMore handlePharmacyKnowMore={handlePharmacyKnowMore} />
+        <PharmacyKnowMore handlePharmacyKnowMore={handlePharmacyKnowMore} onRedirect={() => check_SSO(subModalData?.service_name)} />
       </Drawer>
 
       <ExpiredSubModal
         title={subModalData && subModalData?.hasOwnProperty('service_name') && subModalData?.service_name}
-        styles={{
-          mask: { zIndex: 9999 },
-          wrapper: { zIndex: 9999 },
-        }}
         isSubModalOpen={isSubModalOpen}
         showHideSubModal={showHideSubModal} />
     </>

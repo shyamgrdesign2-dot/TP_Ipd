@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Button, Tabs } from "antd";
 import apexAI from "../assets/images/apexAI.svg";
 import codeIcon from "../assets/images/code.svg";
@@ -12,6 +12,7 @@ import ContactSupport from "../pages/monetization/components/ContactSupport";
 import ExpiredText from "../pages/monetization/components/ExpiredText";
 import { S_DDX } from "../utils/constants";
 import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
+import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 
 const { TabPane } = Tabs;
 
@@ -45,6 +46,11 @@ const trustDetails = [
 const DDxKnowMore = ({ handleDDxKnowMore }) => {
   const [shouldShowVideo, setShowVideo] = useState(false);
   const [activeKey, setActiveKey] = useState("basicInfo");
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+
+  const showHideSubModal = useCallback(() => {
+    setIsSubModalOpen(!isSubModalOpen);
+  }, [isSubModalOpen]);
 
   const sectionsRef = useRef({
     basicInfo: null,
@@ -124,7 +130,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
             </Button>
             <div className="drawer-title">AI-Powered Differential Diagnosis</div>
           </div>
-          <FreeTrialButton title={S_DDX} />
+          <FreeTrialButton title={S_DDX} showHideSubModal={showHideSubModal} />
         </div>
 
         {/* Tabs */}
@@ -279,6 +285,11 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
       </div>
 
       <ExpiredText title={S_DDX} />
+
+      <ExpiredSubModal
+        title={S_DDX}
+        isSubModalOpen={isSubModalOpen}
+        showHideSubModal={showHideSubModal} />
 
       {shouldShowVideo && (
         <VideoModal

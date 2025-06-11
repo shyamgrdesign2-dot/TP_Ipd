@@ -45,7 +45,7 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
         speed: 500,
         dots: true,
         arrows: true,
-        adaptiveHeight: false,
+        adaptiveHeight: true,
         autoplay: false,
     };
 
