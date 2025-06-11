@@ -162,7 +162,10 @@ const VerifyOTP = ({
                   operating_system: detectOperatingSystem()
                 });
 
-                navigate("/final-setup");
+                const queryParams = new URLSearchParams(window.location.search.toString());
+
+                navigate(`/final-setup?${queryParams.toString()}`);
+ 
               }
             } catch (error) {
               console.error("Error in verification process:", error);
