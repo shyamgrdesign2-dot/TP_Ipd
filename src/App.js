@@ -246,7 +246,21 @@ function App() {
     
     // Handle unauthenticated users
     if (!hasAuth) {
-      navigate("/login");
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      // Only collect UTM params that have values
+      const utmParams = new URLSearchParams();
+      ['utm_source', 'utm_campaign', 'utm_medium', 'utm_content', 'utm_term'].forEach(param => {
+        const value = urlParams.get(param);
+        if (value) {
+          utmParams.append(param, value);
+        }
+      });
+
+      // Construct login URL with UTM parameters
+      const loginUrl = "/login" + (utmParams.toString() ? "?" + utmParams.toString() : "");
+      
+      navigate(loginUrl);
       return;
     }
 
