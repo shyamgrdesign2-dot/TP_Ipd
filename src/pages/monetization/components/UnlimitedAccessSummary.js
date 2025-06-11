@@ -461,8 +461,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         });
     }
 
-    const handleResendOTP = async () => {
-        await sendOTP();
+    const handleResendOTP = () => {
         const clinic_name = getClinicName(profile?.hospital_data);
         const tokenData = getTokenData(); 
         const deviceSdkData = getDeviceSdkData();
@@ -477,6 +476,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             KAM_Mobile_Number: mobileNo,
             ...deviceSdkData
         });
+        sendOTP();
     };
 
     const sendOTP = async () => {
