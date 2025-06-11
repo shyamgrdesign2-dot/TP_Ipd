@@ -172,6 +172,15 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           setIsFromCampaign(false);
           if (isFromCampaign || !isLoginFlow) {
             setErrorType("inputFiled");
+            // Clear UTM params from URL before redirecting
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.delete("utm_source");
+            currentUrl.searchParams.delete("utm_campaign");
+            currentUrl.searchParams.delete("utm_medium");
+            currentUrl.searchParams.delete("utm_content");
+            currentUrl.searchParams.delete("utm_term");
+            window.history.replaceState({}, '', currentUrl.toString());
+            
             setError(
               <>
                 Looks like this account already exists. Please{' '}
