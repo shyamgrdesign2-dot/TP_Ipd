@@ -264,7 +264,7 @@ function App() {
       return;
     }
 
-    if (isChrome && isSafari) {
+    if (isChrome || isSafari) {
       // Determine and execute redirection
     const redirectPath = localRedirectTo === "profile" ? "/doctor_profile" : "/";
 
