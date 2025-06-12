@@ -11,7 +11,8 @@ import BillingHistoryNew from "./BillingHistoryNew";
 import BillingPrint from "./BillingPrint";
 import { billingHistory, invoiceGenerate } from "../../redux/monetizationSlice";
 import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../utils/constants";
-import { errorMessage } from "../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../utils/utils";
+import { deviceType, osName } from "react-device-detect";
 
 function SubscriptionNew() {
 
@@ -45,6 +46,19 @@ function SubscriptionNew() {
     } else {
       errorMessage(action.payload.message)
     }
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData(); 
+    const deviceSdkData = getDeviceSdkData(); 
+    window.Moengage.track_event("TP_Monetization_InvoiceExplore", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        clinic_id: tokenData?.clinic_id,
+        um_id: tokenData?.user_id,
+        clinic_Name: clinic_name,
+        ...deviceSdkData,
+    });
   }
 
 
@@ -100,6 +114,19 @@ function SubscriptionNew() {
             <button className="btn d-flex align-items-center btn-text"
               onClick={() => {
                 setShowBillingHistory(true);
+                const clinic_name = getClinicName(profile?.hospital_data);
+                const tokenData = getTokenData(); 
+                const deviceSdkData = getDeviceSdkData(); 
+                window.Moengage.track_event("TP_Monetization_BillingHistory", {
+                    doctor_name: profile?.um_name,
+                    doctor_number: profile?.um_contact,
+                    doctor_unique_id: profile?.doctor_unique_id,
+                    doctor_specialty: profile?.dp_name,
+                    clinic_id: tokenData?.clinic_id,
+                    um_id: tokenData?.user_id,
+                    clinic_Name: clinic_name,
+                    ...deviceSdkData
+                });
               }}>
               <img loading="lazy" src={billingsIcon}
                 style={{ color: "#EE7200", marginRight: "5px" }} alt="" />

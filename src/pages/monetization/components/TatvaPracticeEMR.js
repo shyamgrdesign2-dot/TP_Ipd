@@ -1,21 +1,35 @@
 import React, { useState, useCallback } from "react";
 import { Col, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { isMobile } from "react-device-detect";
+import { deviceType, isMobile, osName } from "react-device-detect";
 import { useSelector } from "react-redux";
 
 import tatvaEMR from '../../../assets/images/logo-tatva-emr.svg'
 import growingClinic from '../../../assets/images/growing-clinic.svg'
 import listIcon from '../../../assets/images/list-icon.svg'
 import medcoIcon from '../../../assets/images/medco-icon.svg'
-import { currencyFormat, formatAmount } from "../../../utils/utils";
+import { currencyFormat, formatAmount, getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
 
 function TatvaPracticeEMR({ item,clickKnowMore }) {
 
     const [showAll, setShowAll] = useState(false);
+    const { profile } = useSelector((state) => state.doctors);
 
     const handleShowAll = useCallback(() => {
         setShowAll(!showAll)
+        const tokenData = getTokenData();
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const deviceSdkData = getDeviceSdkData(); 
+        window.Moengage.track_event("TP_ViewMoreFeatures", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...deviceSdkData
+        });
     }, [showAll]);
 
     return (

@@ -3,13 +3,14 @@ import moment from "moment";
 import config from "../config";
 import { message } from "antd";
 import { MESSAGE_KEY } from "../utils/constants";
-import { browserName, isBrowser } from "react-device-detect";
+import { browserName, deviceDetect } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
 import { getDecodedToken } from "./localStorage.js";
 import imageCompression from 'browser-image-compression';
 import numeral from 'numeral'
+import packageJson from '../../package.json';
 
 // export const validateEmail = (email) => {
 //   return String(email)
@@ -649,6 +650,10 @@ export const getTokenData = () => {
   const decodedToken = getDecodedToken();
   const result = decodedToken?.result;
   return result;
+}
+
+export const getDeviceSdkData = () => {
+  return { device_info: deviceDetect(), sdk_version: packageJson?.version };
 }
 
 export const compressedFile = async (file) => {

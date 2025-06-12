@@ -32,7 +32,7 @@ import { v4 as uuidv4 } from "uuid";
 import CashManagerContext from "../context/CashManagerContext";
 import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { errorMessage, getClinicName, trackEvent } from "../utils/utils";
+import { errorMessage, getClinicName, trackEvent, getTokenData, getDeviceSdkData } from "../utils/utils";
 import { CheckOutlined, CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import deleteModuleIcon from "../assets/images/delete-icon-blue.svg";
 import alertIcon from "../assets/images/alertIcon.svg";
@@ -50,6 +50,7 @@ import { checkCredits, updateCredits } from "../redux/monetizationSlice";
 import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
 import { services } from "../redux/doctorsSlice";
+import { deviceType, osName } from "react-device-detect";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -109,6 +110,21 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
 
   const showHideSubModal = useCallback(() => {
     setIsSubModalOpen(!isSubModalOpen);
+    
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData();
+    const deviceSdkData = getDeviceSdkData(); 
+    window.Moengage.track_event("TP_voiceRx_FreeTrailInfo", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        clinic_id: tokenData?.clinic_id,
+        um_id: tokenData?.user_id,
+        clinic_Name: clinic_name,
+        ...deviceSdkData,
+        
+    });
   }, [isSubModalOpen]);
 
   const showHideBackModal = useCallback(() => {

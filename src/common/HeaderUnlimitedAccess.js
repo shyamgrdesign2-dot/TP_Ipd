@@ -8,7 +8,7 @@ import alertIcon from '../assets/images/alertIcon.svg';
 import { useNavigate } from 'react-router-dom';
 import { S_TATVA_PRACTICE } from '../utils/constants';
 import { interest } from '../redux/monetizationSlice';
-import { errorMessage } from '../utils/utils';
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from '../utils/utils';
 import { openModal } from '../redux/doctorModalSlice';
 
 function HeaderUnlimitedAccess() {
@@ -37,6 +37,20 @@ function HeaderUnlimitedAccess() {
         // if (action.meta.requestStatus === "fulfilled") {
         //     errorMessage(action.payload.message)
         // }
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData(); 
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_RequestACallback", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            former_page: S_TATVA_PRACTICE,
+            ...deviceSdkData,
+        });
     }
 
     return (
