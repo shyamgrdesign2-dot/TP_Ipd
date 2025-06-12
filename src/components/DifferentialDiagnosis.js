@@ -14,7 +14,7 @@ import { useState, useCallback, useContext } from "react";
 import { useAccess } from "../pages/vaccination/useAccess";
 import { useLocation } from "react-router-dom";
 import { WarningColor, WarningRank } from "./DifferentialDiagnosisDrawer";
-import { getClinicName } from "../utils/utils";
+import { getClinicName, getDeviceSdkData, getTokenData } from "../utils/utils";
 import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
 import CashManagerContext from "../context/CashManagerContext";
 
@@ -31,7 +31,7 @@ const DifferentialDiagnosis = ({
 }) => {
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
   const { profile } = useSelector((state) => state.doctors);
-
+  const { planDetails } = useSelector((state) => state.subscription);
   const { showHideSubModal } = useContext(CashManagerContext);
 
   const { state } = useLocation();
@@ -199,7 +199,23 @@ const DifferentialDiagnosis = ({
                 </div>
               )}
               <div className="ms-auto">
-                <FreeTrialButton title={S_DDX} showHideSubModal={() => showHideSubModal({ service_name: S_DDX })} />
+                <FreeTrialButton title={S_DDX} showHideSubModal={() => {
+                showHideSubModal({ service_name: S_DDX })
+                  const clinic_name = getClinicName(profile?.hospital_data);
+                  const tokenData = getTokenData(); 
+                  const deviceSdkData = getDeviceSdkData();
+                  window.Moengage.track_event("TP_Monetization_FreeTrailButton", {
+                    doctor_name: profile?.um_name,
+                    doctor_number: profile?.um_contact,
+                    doctor_unique_id: profile?.doctor_unique_id,
+                    doctor_specialty: profile?.dp_name,
+                    um_id: tokenData?.user_id,
+                    clinic_id: tokenData?.clinic_id,
+                    clinic_Name: clinic_name,
+                    payment_Status: planDetails?.currentPlanStatus,
+                    ...deviceSdkData
+                  });
+                }} />
               </div>
             </div>
           </>
@@ -271,7 +287,23 @@ const DifferentialDiagnosis = ({
                 <img src={arrow} alt="arrow" />
               </div>
               <div className="ms-auto">
-                <FreeTrialButton title={S_DDX} showHideSubModal={() => showHideSubModal({ service_name: S_DDX })} />
+                <FreeTrialButton title={S_DDX} showHideSubModal={() => {
+                  showHideSubModal({ service_name: S_DDX })
+                  const clinic_name = getClinicName(profile?.hospital_data);
+                  const tokenData = getTokenData(); 
+                  const deviceSdkData = getDeviceSdkData();
+                  window.Moengage.track_event("TP_Monetization_FreeTrailButton", {
+                    doctor_name: profile?.um_name,
+                    doctor_number: profile?.um_contact,
+                    doctor_unique_id: profile?.doctor_unique_id,
+                    doctor_specialty: profile?.dp_name,
+                    um_id: tokenData?.user_id,
+                    clinic_id: tokenData?.clinic_id,
+                    clinic_Name: clinic_name,
+                    payment_Status: planDetails?.currentPlanStatus,
+                    ...deviceSdkData
+                  });
+                  }} />
               </div>
             </div>
           </>

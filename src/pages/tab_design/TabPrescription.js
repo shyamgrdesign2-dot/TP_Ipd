@@ -90,7 +90,7 @@ import DDxKnowMore from "../../components/DDxKnowMore";
 import { getDDxDetails } from "../../api/services/ApiDDx";
 import { getDecodedToken } from "../../utils/localStorage";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { errorMessage, getClinicName, shouldMonetizationDisabled } from "../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../../utils/utils";
 import TabSurgicalBox from "../../components/tab_design/TabSurgicalBox";
 import TabAddCustomModule from "../../components/tab_design/TabAddCustomModule";
 import TabCustomModule from "../../components/tab_design/TabCustomModule";
@@ -113,6 +113,7 @@ function TabPrescription() {
     timingList,
     userId,
   } = useSelector((state) => state.doctors);
+  const { planDetails } = useSelector((state) => state.subscription);
   const tp_monetization_enable = !shouldMonetizationDisabled();
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
@@ -875,6 +876,21 @@ function TabPrescription() {
         errorMessage(action.payload.message)
       }
     }
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData(); 
+    const deviceSdkData = getDeviceSdkData();
+    window.Moengage.track_event("TP_Monetization_GenerateDDX", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      um_id: tokenData?.user_id,
+      clinic_id: tokenData?.clinic_id,
+      clinic_Name: clinic_name,
+      payment_Status: planDetails?.currentPlanStatus,
+      token_count: DDX_planDetails?.credit_balance,
+      ...deviceSdkData
+    });
   }
 
   const handleApexAIClose = () => {

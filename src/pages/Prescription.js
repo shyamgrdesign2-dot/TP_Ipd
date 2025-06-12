@@ -104,7 +104,7 @@ function Prescription() {
     frequencyList,
     timingList,
   } = useSelector((state) => state.doctors);
-
+  const { planDetails } = useSelector((state) => state.subscription);
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -860,6 +860,21 @@ function Prescription() {
         errorMessage(action.payload.message)
       }
     }
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData(); 
+    const deviceSdkData = getDeviceSdkData();
+    window.Moengage.track_event("TP_Monetization_GenerateDDX", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      um_id: tokenData?.user_id,
+      clinic_id: tokenData?.clinic_id,
+      clinic_Name: clinic_name,
+      payment_Status: planDetails?.currentPlanStatus,
+      token_count: DDX_planDetails?.credit_balance,
+      ...deviceSdkData
+    });
   }
 
   const handleGenRxKnowMore = () => {
