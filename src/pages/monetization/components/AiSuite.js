@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { Button, Drawer } from "antd";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { isChrome, isSafari } from "react-device-detect";
 
 import Vitals from "../../../assets/images/Vitals.svg";
 import purchased from "../../../assets/images/purchased.png";
@@ -15,27 +17,46 @@ import DDXIcon from "../../../assets/images/DDX-icon.png";
 import RECEPTIONISTIcon from "../../../assets/images/RECEPTIONIST-icon.png";
 import smartSyncIcon from "../../../assets/images/smart-sync-icon.png";
 
-import { FREE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_ASK_TATVA, S_RX_DIGITIZATION, S_RECEPTIONIST_AGENT } from "../../../utils/constants";
+import { FREE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_ASK_TATVA, S_RX_DIGITIZATION, S_RECEPTIONIST_AGENT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
 import GenRxKnowMore from "../../../components/GenRxKnowMore";
 import DDxKnowMore from "../../../components/DDxKnowMore";
 import SmartSyncKnowMore from "../components/SmartSyncKnowMore";
 import CvtKnowMore from "../../smartSync/components/CvtKnowMore";
 import AskTatvaKnowMore from "./AskTatvaKnowMore";
-import { getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
 import { deviceType, osName } from "react-device-detect";
+
+import { services } from "../../../redux/doctorsSlice";
+import { checkCredits } from "../../../redux/monetizationSlice";
+import FullPageLoader from "../../vaccination/components/Loader";
+import config from "../../../config";
+import { useLocalStorage } from "../../../utils/localStorage";
+import ExpiredSubModal from "./ExpiredSubModal";
 
 function AiSuite({ aiModal, handleAiSuite }) {
 
+    const [getToken, setToken] = useLocalStorage(
+        PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+    );
+    const tokenData = getTokenData();
+    const baseUrl = config.tatvaAi_api_url;
+    const tatvaAiURL = config.tatvaAi_url;
+    const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const { planDetails } = useSelector((state) => state.subscription);
-    
+
     const { servicesList, profile } = useSelector((state) => state.doctors);
+    const ASK_TATVA_planDetails = servicesList?.find(e => e.service_name === S_ASK_TATVA)
+
     const [aiServicesData, setAiServicesData] = useState([]);
     const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
     const [ddxKnowMoreDrawer, setDDxKnowMoreDrawer] = useState(false);
     const [smartSyncKnowMoreDrawer, setSmartSyncKnowMoreDrawer] = useState(false);
     const [cvtDrawer, setCvtDrawer] = useState(false);
     const [askTatvaKnowMoreDrawer, setAskTatvaKnowMoreDrawer] = useState(false);
+    const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
     useEffect(() => {
         if (servicesList?.length) {
@@ -59,8 +80,7 @@ function AiSuite({ aiModal, handleAiSuite }) {
             handleAskTatvaKnowMore()
         }
         const clinic_name = getClinicName(profile?.hospital_data);
-        const tokenData = getTokenData(); 
-        const deviceSdkData = getDeviceSdkData(); 
+        const deviceSdkData = getDeviceSdkData();
         window.Moengage.track_event("TP_monetization_AISuite_Knowmore", {
             doctor_name: profile?.um_name,
             doctor_number: profile?.um_contact,
@@ -94,6 +114,87 @@ function AiSuite({ aiModal, handleAiSuite }) {
     const handleAskTatvaKnowMore = () => {
         setAskTatvaKnowMoreDrawer((prev) => !prev);
     };
+
+    const showHideSubModal = useCallback(() => {
+        setIsSubModalOpen(!isSubModalOpen);
+    }, [isSubModalOpen]);
+
+    const handleTatvaAi = async () => {
+        try {
+            setLoading(true);
+            window.Moengage.track_event("TP_TatvaAI_Open", {
+                Doctor_Name: profile?.um_name,
+                Doctor_Number: profile?.um_contact,
+                Doctor_Unique_Id: profile?.doctor_unique_id,
+                Doctor_Um_Id: tokenData?.user_id,
+                Payment_Status: planDetails?.currentPlanStatus,
+            });
+            const token = await getToken();
+
+            const response = await axios.post(
+                `${baseUrl}/api/v1/practice/tatva-ai-token`,
+                {
+                    mobileNumber: `91${profile?.um_contact}`,
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            // Extract the token from the response
+            const tatvaAitoken = response.data.data.token;
+
+            // Construct the new URL with the token
+            const newUrl = `${tatvaAiURL}/login?authToken=${tatvaAitoken}&app=ask_tatva`;
+
+            setLoading(false);
+
+            if (!isChrome && !isSafari) {
+                navigate(`/?url=${newUrl}&key=phpRedirect`, { replace: true });
+                navigate(0, { replace: true });
+            } else {
+                await window.open(newUrl, "_blank");
+            }
+        } catch (error) {
+            setLoading(false);
+            console.error("API Error:", error);
+            errorMessage(error.message);
+        }
+    };
+
+    const checkTatvaAiPurchased = async () => {
+        if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
+            showHideSubModal()
+        } else {
+            let sendData = {
+                b2c_id: profile?.b2c,
+                service_name: S_ASK_TATVA
+            }
+            const action = await dispatch(checkCredits(sendData));
+            if (action.meta.requestStatus === "fulfilled") {
+                if (action?.payload?.hasOwnProperty("service_name")) {
+                    if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
+                        if (action?.payload?.credit_balance != ASK_TATVA_planDetails?.credit_balance) {
+                            await dispatch(services(sendData?.b2c_id))
+                        }
+                        showHideSubModal()
+                    } else {
+                        handleTatvaAi();
+                    }
+                } else {
+                    typeof action?.payload?.data?.error === 'object' ?
+                        errorMessage(action?.payload?.data?.error?.description)
+                        :
+                        errorMessage(action?.payload?.data?.message)
+                }
+            } else {
+                errorMessage(action.payload.message)
+            }
+        }
+    }
 
     const clickBuyNow = (service_name) => {
         navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
@@ -253,9 +354,16 @@ function AiSuite({ aiModal, handleAiSuite }) {
                     className=".modalWidth-800"
                     width={600}
                 >
-                    <AskTatvaKnowMore handleAskTatvaKnowMore={handleAskTatvaKnowMore} />
+                    <AskTatvaKnowMore handleAskTatvaKnowMore={handleAskTatvaKnowMore} onRedirect={checkTatvaAiPurchased} />
                 </Drawer>
             )}
+
+            {loading && <FullPageLoader />}
+
+            <ExpiredSubModal
+                title={S_ASK_TATVA}
+                isSubModalOpen={isSubModalOpen}
+                showHideSubModal={showHideSubModal} />
         </>
 
     );

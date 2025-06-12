@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Card, Drawer, Modal } from "antd";
 import { Button, Col, Row } from "react-bootstrap";
 import Slider from "react-slick";
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import moment from "moment";
+import axios from "axios";
+import { isChrome, isSafari } from "react-device-detect";
 
 import upgradedLogo from '../../../assets/images/upgraded-logo.svg'
 import medcoIcon from "../../../assets/images/medco-icon.svg";
@@ -11,7 +14,7 @@ import listIcon from '../../../assets/images/list-icon.svg'
 import aiPowered from '../../../assets/images/ai-powered.svg'
 import vaccinationImg from "../../../assets/images/Vaccination.svg";
 import iconEdit from "../../../assets/images/edit.svg";
-import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION, S_IPD, S_ASK_TATVA, S_PHARMACY, S_BILLING, S_RECEPTIONIST_AGENT } from "../../../utils/constants";
+import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION, S_IPD, S_ASK_TATVA, S_PHARMACY, S_BILLING, S_RECEPTIONIST_AGENT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FREE } from "../../../utils/constants";
 import { QRCodeSVG } from "qrcode.react";
 import GenRxKnowMore from "../../../components/GenRxKnowMore";
 import SmartSyncKnowMore from "./../components/SmartSyncKnowMore";
@@ -22,11 +25,32 @@ import AskTatvaKnowMore from "./../components/AskTatvaKnowMore";
 import PharmacyKnowMore from "./../components/PharmacyKnowMore";
 import BillingKnowMore from "./../components/BillingKnowMore";
 import MedEcoAppKnowMore from "./../components/MedEcoAppKnowMore";
-import { getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
+
+import { services } from "../../../redux/doctorsSlice";
+import { checkCredits } from "../../../redux/monetizationSlice";
+import FullPageLoader from "../../vaccination/components/Loader";
+import config from "../../../config";
+import { useLocalStorage } from "../../../utils/localStorage";
+import ExpiredSubModal from "./ExpiredSubModal";
 
 function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal }) {
 
+    const [getToken, setToken] = useLocalStorage(
+        PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+    );
+    const tokenData = getTokenData();
+    const baseUrl = config.tatvaAi_api_url;
+    const tatvaAiURL = config.tatvaAi_url;
+    const [loading, setLoading] = useState(false);
+
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { planDetails } = useSelector((state) => state.subscription);
+
     const { servicesList, profile } = useSelector((state) => state.doctors);
+    const ASK_TATVA_planDetails = servicesList?.find(e => e.service_name === S_ASK_TATVA)
+
     const EMR_PlanDetails = upgradeList.includes(S_TATVA_PRACTICE) ? servicesList?.find(e => e.service_name === S_TATVA_PRACTICE) : null
     const withoutEMR = upgradeList.filter(item => item !== S_TATVA_PRACTICE)
     const purchasedData = servicesList?.filter(e => withoutEMR.includes(e.service_name))
@@ -40,6 +64,7 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
     const [pharmacyKnowMoreDrawer, setPharmacyKnowMoreDrawer] = useState(false);
     const [billingDrawer, setBillingDrawer] = useState(false);
     const [medEcoKnowMoreDrawer, setMedEcoKnowMoreDrawer] = useState(false);
+    const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
     const settings = {
         infinite: true,
@@ -52,7 +77,7 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
 
     const handleUpgradeModalClick = () => {
         const clinic_name = getClinicName(profile?.hospital_data);
-        const tokenData = getTokenData(); 
+        const tokenData = getTokenData();
         const deviceSdkData = getDeviceSdkData();
         window.Moengage.track_event("TP_Monetization_StartExploring", {
             doctor_name: profile?.um_name,
@@ -64,7 +89,7 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
             clinic_Name: clinic_name,
             ...deviceSdkData,
         });
-        handleUpgradeModal();   
+        handleUpgradeModal();
     }
     const clickKnowMore = (service_name) => {
         if (service_name === S_VOICE_RX) {
@@ -125,6 +150,87 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
     const handleMedEcoKnowMore = () => {
         setMedEcoKnowMoreDrawer((prev) => !prev);
     };
+
+    const showHideSubModal = useCallback(() => {
+        setIsSubModalOpen(!isSubModalOpen);
+    }, [isSubModalOpen]);
+
+    const handleTatvaAi = async () => {
+        try {
+            setLoading(true);
+            window.Moengage.track_event("TP_TatvaAI_Open", {
+                Doctor_Name: profile?.um_name,
+                Doctor_Number: profile?.um_contact,
+                Doctor_Unique_Id: profile?.doctor_unique_id,
+                Doctor_Um_Id: tokenData?.user_id,
+                Payment_Status: planDetails?.currentPlanStatus,
+            });
+            const token = await getToken();
+
+            const response = await axios.post(
+                `${baseUrl}/api/v1/practice/tatva-ai-token`,
+                {
+                    mobileNumber: `91${profile?.um_contact}`,
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            // Extract the token from the response
+            const tatvaAitoken = response.data.data.token;
+
+            // Construct the new URL with the token
+            const newUrl = `${tatvaAiURL}/login?authToken=${tatvaAitoken}&app=ask_tatva`;
+
+            setLoading(false);
+
+            if (!isChrome && !isSafari) {
+                navigate(`/?url=${newUrl}&key=phpRedirect`, { replace: true });
+                navigate(0, { replace: true });
+            } else {
+                await window.open(newUrl, "_blank");
+            }
+        } catch (error) {
+            setLoading(false);
+            console.error("API Error:", error);
+            errorMessage(error.message);
+        }
+    };
+
+    const checkTatvaAiPurchased = async () => {
+        if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
+            showHideSubModal()
+        } else {
+            let sendData = {
+                b2c_id: profile?.b2c,
+                service_name: S_ASK_TATVA
+            }
+            const action = await dispatch(checkCredits(sendData));
+            if (action.meta.requestStatus === "fulfilled") {
+                if (action?.payload?.hasOwnProperty("service_name")) {
+                    if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
+                        if (action?.payload?.credit_balance != ASK_TATVA_planDetails?.credit_balance) {
+                            await dispatch(services(sendData?.b2c_id))
+                        }
+                        showHideSubModal()
+                    } else {
+                        handleTatvaAi();
+                    }
+                } else {
+                    typeof action?.payload?.data?.error === 'object' ?
+                        errorMessage(action?.payload?.data?.error?.description)
+                        :
+                        errorMessage(action?.payload?.data?.message)
+                }
+            } else {
+                errorMessage(action.payload.message)
+            }
+        }
+    }
 
     return (
         <>
@@ -342,6 +448,13 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
                     <MedEcoAppKnowMore handleMedEcoKnowMore={handleMedEcoKnowMore} />
                 </Drawer>
             )}
+
+            {loading && <FullPageLoader />}
+
+            <ExpiredSubModal
+                title={S_ASK_TATVA}
+                isSubModalOpen={isSubModalOpen}
+                showHideSubModal={showHideSubModal} />
         </>
     )
 }

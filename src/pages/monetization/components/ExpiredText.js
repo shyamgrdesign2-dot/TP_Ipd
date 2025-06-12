@@ -28,7 +28,7 @@ function ExpiredText({ title, onRedirect }) {
     const clickBuyNow = (service_name) => {
         navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
         const clinic_name = getClinicName(profile?.hospital_data);
-        const tokenData = getTokenData(); 
+        const tokenData = getTokenData();
         const deviceSdkData = getDeviceSdkData();
         window.Moengage.track_event("TP_Monetization_VoiceRx_GetUnlimitedRx", {
             doctor_name: profile?.um_name,
@@ -55,7 +55,7 @@ function ExpiredText({ title, onRedirect }) {
         //     errorMessage(action.payload.message)
         // }
         const clinic_name = getClinicName(profile?.hospital_data);
-        const tokenData = getTokenData(); 
+        const tokenData = getTokenData();
         const deviceSdkData = getDeviceSdkData();
         window.Moengage.track_event("TP_Monetization_RequestACallback", {
             doctor_name: profile?.um_name,
@@ -93,6 +93,7 @@ function ExpiredText({ title, onRedirect }) {
 
     return (
         pathname !== '/get-unlimited-access' &&
+        (
             (
                 (
                     AI_planDetails?.service_type === 'ai' &&
@@ -105,33 +106,34 @@ function ExpiredText({ title, onRedirect }) {
                     isPurchased()
                 )
             ) ?
-            <div className="position-sticky bottom-0 bg-white w-100 px-4 py-3">
-                <div className="fontroboto fs-16 text-center text-danger-custom">
-                    Your <span className="fw-bold text-danger-custom">{AI_planDetails?.service_display_name} free trial</span> has expired. <br />
-                    Upgrade now to continue a hassle free experience!
+                <div className="position-sticky bottom-0 bg-white w-100 px-4 py-3">
+                    <div className="fontroboto fs-16 text-center text-danger-custom">
+                        Your <span className="fw-bold text-danger-custom">{AI_planDetails?.service_display_name} free trial</span> has expired. <br />
+                        Upgrade now to continue a hassle free experience!
+                    </div>
+                    <Row className="mt-2">
+                        <Col lg={6}>
+                            <Button type='button' className='w-100 btn ant-btn align-items-center justify-content-center d-flex btn-41 btn-primary1 btn-input' style={{ height: 52 }} onClick={() => clickRequestCallback(title)}>
+                                <i className='icon-phone me-2'></i>
+                                Request a call back
+                            </Button>
+                        </Col>
+                        <Col lg={6}>
+                            <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(title)}>
+                                <img className="me-2" src={crown} alt="Crown" />
+                                Get Unlimited Access
+                            </Button>
+                        </Col>
+                    </Row>
                 </div>
-                <Row className="mt-2">
-                    <Col lg={6}>
-                        <Button type='button' className='w-100 btn ant-btn align-items-center justify-content-center d-flex btn-41 btn-primary1 btn-input' style={{ height: 52 }} onClick={() => clickRequestCallback(title)}>
-                            <i className='icon-phone me-2'></i>
-                            Request a call back
-                        </Button>
-                    </Col>
-                    <Col lg={6}>
-                        <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(title)}>
-                            <img className="me-2" src={crown} alt="Crown" />
-                            Get Unlimited Access
-                        </Button>
-                    </Col>
-                </Row>
-            </div>
-            :
-            [S_PHARMACY, S_IPD, S_ASK_TATVA].includes(title) && <div className="position-sticky bottom-0 bg-white w-100 px-4 py-3">
-                <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={onRedirect}>
-                    {getName(title)}
-                    <img className="ms-2" src={arrowRight} alt="Crown" />
-                </Button>
-            </div>
+                :
+                [S_PHARMACY, S_IPD, S_ASK_TATVA].includes(title) && <div className="position-sticky bottom-0 bg-white w-100 px-4 py-3">
+                    <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={onRedirect}>
+                        {getName(title)}
+                        <img className="ms-2" src={arrowRight} alt="Crown" />
+                    </Button>
+                </div>
+        )
     )
 }
 

@@ -153,6 +153,10 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         return Math.ceil(formatAmount(subTotal - subDiscount - parseFloat(salesDiscount ? salesDiscount : 0)));
     }, [selectedServices, salesDiscount]);
 
+    const totalAmountClone = useMemo(() => {
+        return Math.ceil(formatAmount(subTotal - subDiscount));
+    }, [selectedServices]);
+
     const clickBuyNow = async () => {
         taxInvoice && setIsSubmit(true)
         // if (taxInvoice && !clinicName) {
@@ -421,7 +425,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     const clickReferralCode = () => {
         if (selectedServices?.length > 0) {
             setMobileNo('');
-            setFlag(1)
+            setFlag(3)
             setDrawerOpen(true);
         } else {
             errorMessage('Please add any service')
@@ -675,7 +679,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 )}
                 {salesDiscount && formatAmount(parseFloat(salesDiscount)) > 0 && (
                     <div className="d-flex justify-content-between my-3">
-                        <div className="fs-18">Sales Discount{salesDiscount && ` (${formatAmount(salesDiscount * 100 / subTotal)}%)`}:</div>
+                        <div className="fs-18">Sales Discount{salesDiscount && ` (${Math.round(formatAmount(salesDiscount * 100 / totalAmountClone))}%)`}:</div>
                         <div className="fs-18 fw-medium text-discount">{`-₹${salesDiscount ? currencyFormat(formatAmount(parseFloat(salesDiscount))) : 0}`}</div>
                     </div>
                 )}
@@ -795,7 +799,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                     )}
                                     {salesDiscount && formatAmount(parseFloat(salesDiscount)) > 0 && (
                                         <div className="d-flex align-items-center justify-content-between py-2">
-                                            <div>Sales Discount{salesDiscount && ` (${Math.round(formatAmount(salesDiscount * 100 / subTotal))}%)`}:</div>
+                                            <div>Sales Discount{salesDiscount && ` (${Math.round(formatAmount(salesDiscount * 100 / totalAmountClone))}%)`}:</div>
                                             <div className="fw-medium text-green">{`-₹${salesDiscount ? currencyFormat(formatAmount(parseFloat(salesDiscount))) : 0}`}</div>
                                         </div>
                                     )}

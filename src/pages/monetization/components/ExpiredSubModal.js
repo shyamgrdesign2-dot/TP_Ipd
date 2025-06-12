@@ -19,7 +19,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const { servicesList } = useSelector((state) => state.doctors);
+    const { profile, servicesList } = useSelector((state) => state.doctors);
     const AI_planDetails = servicesList?.find(e => e.service_name === title)
 
     const { planDetails } = useSelector((state) => state.subscription);
