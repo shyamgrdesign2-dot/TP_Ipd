@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { isMobile } from "react-device-detect";
+import { isMobile, isChrome, isSafari } from "react-device-detect";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
@@ -220,14 +220,14 @@ function App() {
   useEffect(() => {
     if (redirectTo) {
       localStorage.setItem('redirectTo', redirectTo);
-      
+
       // Clean up URL but preserve other params
       const params = new URLSearchParams(location.search);
       params.delete("redirectTo");
-      
+
       // Update URL without the redirectTo parameter
       navigate({
-        pathname: location.pathname,
+          pathname: location.pathname,
         search: params.toString()
       }, { replace: true });
     }
@@ -243,11 +243,11 @@ function App() {
     // Check authentication and get stored redirect path
     const hasAuth = token || authToken;
     const localRedirectTo = localStorage.getItem("redirectTo");
-    
+
     // Handle unauthenticated users
     if (!hasAuth) {
       const urlParams = new URLSearchParams(window.location.search);
-      
+
       // Only collect UTM params that have values
       const utmParams = new URLSearchParams();
       ['utm_source', 'utm_campaign', 'utm_medium', 'utm_content', 'utm_term'].forEach(param => {
@@ -259,20 +259,22 @@ function App() {
 
       // Construct login URL with UTM parameters
       const loginUrl = "/login" + (utmParams.toString() ? "?" + utmParams.toString() : "");
-      
+
       navigate(loginUrl);
       return;
     }
 
-    // Determine and execute redirection
+    if (isChrome && isSafari) {
+      // Determine and execute redirection
     const redirectPath = localRedirectTo === "profile" ? "/doctor_profile" : "/";
-    
-    // Clean up localStorage if redirecting to profile
-    if (localRedirectTo === "profile") {
-      localStorage.removeItem("redirectTo");
-    }
 
-    navigate(redirectPath);
+      // Clean up localStorage if redirecting to profile
+      if (localRedirectTo === "profile") {
+        localStorage.removeItem("redirectTo");
+      }
+
+      navigate(redirectPath);
+    }
   }, [isRootPath, token, authToken, navigate, redirectTo]);
 
 
