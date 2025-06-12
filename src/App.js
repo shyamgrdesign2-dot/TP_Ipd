@@ -51,6 +51,7 @@ import { checkAccountStatus } from "./pages/auth/authService";
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
+import OurOffering from "./pages/ourOffering/OurOffering";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -220,11 +221,11 @@ function App() {
   useEffect(() => {
     if (redirectTo) {
       localStorage.setItem('redirectTo', redirectTo);
-      
+
       // Clean up URL but preserve other params
       const params = new URLSearchParams(location.search);
       params.delete("redirectTo");
-      
+
       // Update URL without the redirectTo parameter
       navigate({
         pathname: location.pathname,
@@ -243,7 +244,7 @@ function App() {
     // Check authentication and get stored redirect path
     const hasAuth = token || authToken;
     const localRedirectTo = localStorage.getItem("redirectTo");
-    
+
     // Handle unauthenticated users
     if (!hasAuth) {
       navigate("/login");
@@ -252,7 +253,7 @@ function App() {
 
     // Determine and execute redirection
     const redirectPath = localRedirectTo === "profile" ? "/doctor_profile" : "/";
-    
+
     // Clean up localStorage if redirecting to profile
     if (localRedirectTo === "profile") {
       localStorage.removeItem("redirectTo");
@@ -300,6 +301,7 @@ function App() {
               {/* Public route */}
               {/* <Route path="/login" element={<AuthContainer />} /> */}
               <Route path="/login" element={<Onboarding />} />
+              <Route path="/our-offerings" element={<OurOffering />} />
               <Route path="/final-setup" element={<FinalSetup />} />
 
               {/* Protected routes */}
