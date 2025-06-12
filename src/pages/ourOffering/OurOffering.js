@@ -79,7 +79,7 @@ const OurOffering = () => {
                 </div>
                 <div className='data_container'>
                     <div>
-                        <p className='doctor_name'>Welcome Dr. Mihir!</p>
+                        <p className='doctor_name'>Welcome Dr. {formattedName}!</p>
                         <p className='sub_text'>Seamlessly access your practice tools all in one place.</p>
                     </div>
                     <div className='offering_container'>
