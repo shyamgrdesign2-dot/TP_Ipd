@@ -275,7 +275,7 @@ function SidebarDoctor() {
       const tatvaAitoken = response.data.data.token;
 
       // Construct the new URL with the token
-      const newUrl = `${tatvaAiURL}/login?authToken=${tatvaAitoken}`;
+      const newUrl = `${tatvaAiURL}/login?authToken=${tatvaAitoken}&app=ask_tatva`;
 
       setLoading(false);
 

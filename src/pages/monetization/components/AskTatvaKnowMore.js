@@ -12,7 +12,7 @@ import ExpiredSubModal from "./ExpiredSubModal";
 
 const { TabPane } = Tabs;
 
-const AskTatvaKnowMore = ({ handleAskTatvaKnowMore }) => {
+const AskTatvaKnowMore = ({ handleAskTatvaKnowMore, onRedirect }) => {
   const [videoLink, setVideoLink] = useState(false);
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
@@ -95,7 +95,7 @@ const AskTatvaKnowMore = ({ handleAskTatvaKnowMore }) => {
         <ContactSupport />
       </div>
 
-      <ExpiredText title={S_ASK_TATVA} />
+      <ExpiredText title={S_ASK_TATVA} onRedirect={onRedirect} />
 
       <ExpiredSubModal
         title={S_ASK_TATVA}
