@@ -91,7 +91,7 @@ function SidebarDoctor() {
         });
       } else {
         if (data.success == 200) {
-          if (isMobile) {
+          if (!isChrome && !isSafari) {
             navigate(`/?url=${data.url}&module=${moduleName}&key=phpRedirect`, {
               replace: true,
             });
@@ -208,7 +208,7 @@ function SidebarDoctor() {
 
       setLoading(false);
 
-      if (isMobile) {
+      if (!isChrome && !isSafari) {
         navigate(`/?url=${newUrl}&key=phpRedirect`, { replace: true });
         navigate(0, { replace: true });
       } else {
