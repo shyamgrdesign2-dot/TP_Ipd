@@ -1035,7 +1035,7 @@ function Header({ locationPath }) {
         doctor_name: profile?.um_name,
         doctor_number: profile?.um_contact,
         doctor_unique_id: profile?.doctor_unique_id,
-         doctor_specialty: profile?.dp_name,
+        doctor_specialty: profile?.dp_name,
         clinic_id: tokenData?.clinic_id,
         um_id: tokenData?.user_id,
         ...deviceSdkData

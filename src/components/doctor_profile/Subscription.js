@@ -9,8 +9,7 @@ import moment from "moment";
 import BillingHistory from "./BillingHistory";
 import { openModal } from "../../redux/doctorModalSlice";
 import { Divider } from "antd";
-import { getClinicName, getDeviceSdkData, getTokenData } from "../../utils/utils";
-import { deviceType, osName } from "react-device-detect";
+import { getClinicName } from "../../utils/utils";
 
 function Subscription() {
   const { planDetails } = useSelector((state) => state.subscription);
@@ -34,18 +33,6 @@ function Subscription() {
       window.Moengage.track_event("BuyPlanNow_Click", {
         doctor_id: profile?.doctor_unique_id,
         clinic_name,
-      });
-      const tokenData = getTokenData(); 
-      const deviceSdkData = getDeviceSdkData(); 
-      window.Moengage.track_event("TP_Monetization_BuyScubscriptionPlan", {
-        doctor_name: profile?.um_name,
-        doctor_number: profile?.um_contact,
-        doctor_unique_id: profile?.doctor_unique_id,
-        doctor_specialty: profile?.dp_name,
-        clinic_id: tokenData?.clinic_id,
-        um_id: tokenData?.user_id,
-        clinic_Name: clinic_name,
-        ...deviceSdkData,
       });
     }
     dispatch(openModal());

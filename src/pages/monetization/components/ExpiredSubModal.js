@@ -33,6 +33,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
             clinic_id: tokenData?.clinic_id,
             um_id: tokenData?.user_id,
             clinic_Name: clinic_name,
+            former_page: service_name,
             ...deviceSdkData,
         });
     }
@@ -60,6 +61,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
             clinic_id: tokenData?.clinic_id,
             um_id: tokenData?.user_id,
             clinic_Name: clinic_name,
+            former_page: service_name,
             ...deviceSdkData,
         });
     }

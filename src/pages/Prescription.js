@@ -1147,9 +1147,10 @@ function Prescription() {
       clinic_name
     });
     
-    const tokenData = getTokenData();
-    const deviceSdkData = getDeviceSdkData(); 
-    window.Moengage.track_event("TP_VoiceRx", {
+    if (tcmId == 0) {
+      const tokenData = getTokenData();
+      const deviceSdkData = getDeviceSdkData();
+      window.Moengage.track_event("TP_VoiceRx", {
         doctor_name: profile?.um_name,
         doctor_number: profile?.um_contact,
         doctor_unique_id: profile?.doctor_unique_id,
@@ -1158,7 +1159,8 @@ function Prescription() {
         um_id: tokenData?.user_id,
         clinic_Name: clinic_name,
         ...deviceSdkData,
-    });
+      });
+    }
   }
 
   return (

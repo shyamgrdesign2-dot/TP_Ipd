@@ -84,6 +84,7 @@ function ExtendTrialModal() {
             clinic_id: tokenData?.clinic_id,
             um_id: tokenData?.user_id,
             clinic_Name: clinic_name,
+            former_page: S_TATVA_PRACTICE,
             ...deviceSdkData,
         });
     }
@@ -111,6 +112,7 @@ function ExtendTrialModal() {
             clinic_id: tokenData?.clinic_id,
             um_id: tokenData?.user_id,
             clinic_Name: clinic_name,
+            former_page: EMR_planDetails?.service_name,
             ...deviceSdkData,
         });
     }
