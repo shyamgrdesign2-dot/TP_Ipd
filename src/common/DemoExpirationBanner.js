@@ -9,7 +9,7 @@ import { fetchSubscriptionDetails } from "../redux/subscriptionSlice";
 import { getClinicName, getDeviceSdkData, getTokenData } from "../utils/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 import { deviceType, osName } from "react-device-detect";
-import { PAID, PENDING, REJECTED, S_TATVA_PRACTICE, TRIAL } from "../utils/constants";
+import { APPROVED, PAID, PENDING, REJECTED, S_TATVA_PRACTICE, TRIAL } from "../utils/constants";
 
 const DemoExpirationBanner = () => {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ const DemoExpirationBanner = () => {
     planStatus,
     service_mappings
   } = planDetails || {};
-  const EMR_planDetails =  service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
+  const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
   const dispatch = useDispatch();
@@ -68,6 +68,7 @@ const DemoExpirationBanner = () => {
 
   return (
     pathname !== '/get-unlimited-access' &&
+    EMR_planDetails !== undefined && EMR_planDetails?.status != APPROVED &&
     <header className={`banner ${planStatus == PAID && EMR_planDetails?.status == PAID && 'banner-yellow'}`}>
       <div className="demoModeWrapper">
         <div className="demoModeIndicator" />
@@ -97,15 +98,14 @@ const DemoExpirationBanner = () => {
             "Get Unlimited Access"
           ) : (
             'Contact Support'
-          )
-          }
+          )}
         </span>
       </button>
     </header>
     //  planStatus == PAID && EMR_planDetails?.status == PAID ? (
-        /* Payment Verification Pending - Your payment is being verified. This may take up to 3–6 working days. (Yellow) */
+    /* Payment Verification Pending - Your payment is being verified. This may take up to 3–6 working days. (Yellow) */
     // ) : planStatus == TRIAL && EMR_planDetails?.status == REJECTED && (
-        /* Payment Verification Failed - Payment could not be verified. Please contact support. (Orange) */
+    /* Payment Verification Failed - Payment could not be verified. Please contact support. (Orange) */
   );
 
   // return (
