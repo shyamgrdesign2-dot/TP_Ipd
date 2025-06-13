@@ -14,6 +14,7 @@ const DownloadBill = ({
   paymentSummary,
 }) => {
   const { profile } = useSelector((state) => state.doctors);
+  const { doctorList } = useSelector((state) => state.bulkMessages);
   const { state } = useLocation();
   const { patient_data } = state || {};
 
@@ -38,6 +39,11 @@ const DownloadBill = ({
       ]
     : [];
 
+  function getDoctorNameById(um_id) {
+    const doctor = doctorList.find((doc) => doc.um_id === um_id);
+    return doctor ? doctor.um_name : "";
+  }
+
   // Define the columns
   const columns = [
     {
@@ -45,6 +51,7 @@ const DownloadBill = ({
       dataIndex: "key",
       key: "key",
       align: "center",
+      width: 20,
       render: (text, record, index, { currentPageIndex }) => (
         <div style={{ fontSize: 12 }}>
           {currentPageIndex * ITEMS_PER_PAGE + index + 1}
@@ -80,6 +87,19 @@ const DownloadBill = ({
           align: "left",
           render: (text, record) => (
             <div style={{ fontSize: 12 }}>{record?.patient?.name}</div>
+          ),
+        }
+      : undefined,
+    isDoctorDashboard
+      ? {
+          title: "Doctor Name",
+          dataIndex: "doctorName",
+          key: "doctorId",
+          align: "left",
+          render: (text, record) => (
+            <div style={{ fontSize: 12 }}>
+              {getDoctorNameById(record?.doctorId)}
+            </div>
           ),
         }
       : undefined,
@@ -336,8 +356,8 @@ const DownloadBill = ({
       {tablePages.map((pageData, pageIndex) => (
         <div
           key={pageIndex}
-          className="table-wrapper"
           style={{
+            margin: "0 18px 0 18px",
             pageBreakBefore: pageIndex > 0 ? "always" : "auto",
             marginTop: pageIndex > 0 ? "20px" : "0",
           }}
