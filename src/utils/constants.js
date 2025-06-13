@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const PERSISTANT_STORAGE_KEY_AUTH_TOKEN = 'persistant.storage.key.auth-token';
 export const PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN = 'persistant.storage.key.zydus-token';
+export const PERSISTANT_STORAGE_KEY_EXTRA = 'persistant.storage.key.extra';
 export const MESSAGE_KEY = 'message_key';
 export const IS_DEV = true;
 export const PAGE_SIZE = 10;

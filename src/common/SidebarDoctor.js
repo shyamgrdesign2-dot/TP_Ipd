@@ -8,7 +8,7 @@ import axios from "axios";
 
 import config from "../config";
 import { useLocalStorage } from "../utils/localStorage";
-import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_ASK_TATVA, S_IPD, S_PHARMACY, S_OPD_BILLING, S_BILLING, TRIAL, S_TATVA_PRACTICE } from "../utils/constants";
+import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_ASK_TATVA, S_IPD, S_PHARMACY, S_OPD_BILLING, S_BILLING, TRIAL, S_TATVA_PRACTICE, PERSISTANT_STORAGE_KEY_EXTRA } from "../utils/constants";
 import newGif from "../assets/images/new-gif.gif";
 import ipdIcon from "../assets/images/ipd.svg";
 import patientsIcon from "../assets/images/all-patients.svg";
@@ -44,7 +44,7 @@ function SidebarDoctor() {
 
   const { planDetails } = useSelector((state) => state.subscription);
   const { service_mappings } = planDetails || {};
-  const EMR_planDetails =  service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
+  const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
   const PHARMACY_planDetails = service_mappings?.find(e => e.service_name === S_PHARMACY)
   const IPD_planDetails = service_mappings?.find(e => e.service_name === S_IPD)
   const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
@@ -117,7 +117,49 @@ function SidebarDoctor() {
     setIsSubModalOpen(!isSubModalOpen);
   }
 
+  const isFirstClickOfDay = (key) => {
+    const localStorageExtraData = localStorage.getItem(PERSISTANT_STORAGE_KEY_EXTRA);
+    const jsonData = localStorageExtraData ? JSON.parse(localStorageExtraData) : {};
+    const today = moment().format('YYYY-MM-DD');
+    if (jsonData[`${key}_date`] !== today) {
+      jsonData[`${key}_date`] = today;
+      localStorage.setItem(PERSISTANT_STORAGE_KEY_EXTRA, JSON.stringify(jsonData));
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   const clickOldModule = async (moduleName) => {
+    if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
+      setSubModalData({ service_name: moduleName })
+      if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier === TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
+        if (isFirstClickOfDay(moduleName)) {
+          handlePharmacyKnowMore();
+        } else {
+          check_SSO(moduleName);
+        }
+      } else if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier !== TRIAL) {
+        check_SSO(moduleName);
+      } else if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
+        handlePharmacyKnowMore();
+      } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier === TRIAL && IPD_planDetails?.plan_tier === TRIAL) {
+        if (isFirstClickOfDay(moduleName)) {
+          handleIPDKnowMore();
+        } else {
+          check_SSO(moduleName);
+        }
+      } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier !== TRIAL) {
+        check_SSO(moduleName);
+      } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier === TRIAL) {
+        handleIPDKnowMore();
+      } else {
+        check_SSO(moduleName);
+      }
+    } else {
+      check_SSO(moduleName);
+    }
+
     // if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
     //   setSubModalData({ service_name: moduleName })
     //   if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
@@ -132,18 +174,19 @@ function SidebarDoctor() {
     // } else {
     //   check_SSO(moduleName);
     // }
-    if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
-      setSubModalData({ service_name: moduleName })
-      if (moduleName === S_PHARMACY) {
-        handlePharmacyKnowMore()
-      } else if (moduleName === S_IPD) {
-        handleIPDKnowMore()
-      } else {
-        check_SSO(moduleName);
-      }
-    } else {
-      check_SSO(moduleName);
-    }
+
+    // if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
+    //   setSubModalData({ service_name: moduleName })
+    //   if (moduleName === S_PHARMACY) {
+    //     handlePharmacyKnowMore()
+    //   } else if (moduleName === S_IPD) {
+    //     handleIPDKnowMore()
+    //   } else {
+    //     check_SSO(moduleName);
+    //   }
+    // } else {
+    //   check_SSO(moduleName);
+    // }
   };
 
   async function check_SSO(moduleName) {
@@ -292,6 +335,7 @@ function SidebarDoctor() {
     }
   };
 
+
   const checkTatvaAiPurchased = async () => {
     setSubModalData({ service_name: S_ASK_TATVA })
     if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
@@ -321,6 +365,20 @@ function SidebarDoctor() {
       } else {
         errorMessage(action.payload.message)
       }
+    }
+  }
+
+  const tatvaAiRedirectOrDrawer = () => {
+    if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance > 0) {
+      if (isFirstClickOfDay(S_ASK_TATVA)) {
+        handleAskTatvaKnowMore();
+      } else {
+        checkTatvaAiPurchased();
+      }
+    } else if (ASK_TATVA_planDetails?.plan_tier !== FREE) {
+      checkTatvaAiPurchased();
+    } else if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
+      handleAskTatvaKnowMore();
     }
   }
 
@@ -365,7 +423,7 @@ function SidebarDoctor() {
                 }`}
               onMouseEnter={() => handleHover(true)} // Set the hovered item
               onMouseLeave={() => handleHover(false)} // Clear the hovered item
-              onClick={handleAskTatvaKnowMore}
+              onClick={tatvaAiRedirectOrDrawer}
             >
               <img src={getIcon("tatva_ai", tatvaHovered)} alt="tatva_ai" />
               <div
