@@ -480,7 +480,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     const getCustomModuleName = (id) => {
         const customModule = customModules.find((module) => module.module_id === id);
-        return customModule ? customModule.name : '';
+        return customModule ? customModule?.printConfig?.nameOverride : '';
     }
 
     const getMarginByFormat = (letterheadFormat, headerFooter, position, defaultValue) => {
