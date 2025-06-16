@@ -567,70 +567,15 @@
       }
 
       .mobile-input {
-        &.ant-input-group-wrapper {
-          border: 1px solid #D0D5DD;
-          border-radius: 12px;
-  
-          &:hover,
-          &:focus-within {
-            border-color: #3419cc;
-          }
-  
-          .ant-input-wrapper {
-            display: flex;
-            padding: 0 0.5rem;
-            align-items: center;
-            height: 3.2rem;
-          }
-  
-          .ant-input-group-addon {
-            background: transparent;
-            border: none;
-            padding: 0 0 0 16px;
-            min-width: 55px; // Ensure addon has enough width
-  
-            .country-code {
-              display: flex;
-              align-items: center;
-              padding-right: 8px;
-  
-              .phone-icon {
-                display: flex;
-                align-items: center;
-  
-                svg {
-                  color: #667085;
-                }
-              }
-  
-              .prefix {
-                color: #454551 !important;
-                font-size: 16px;
-                font-weight: 500;
-              }
-  
-              .separator {
-                color: #D0D5DD;
-                font-size: 20px;
-                margin-left: 4px;
-              }
-            }
-          }
-  
-          .ant-input {
-            border: none;
-            box-shadow: none !important;
-            height: 48px;
-            font-size: 16px;
-  
-            &:focus {
-              box-shadow: none;
-            }
-  
-            &::placeholder {
-              color: #667085;
-              font-size: 16px;
-            }
+        margin-bottom: 24px;
+
+        .ant-input-affix-wrapper {
+          height: 48px;
+          border-radius: 8px;
+
+          .country-code {
+            color: #1A1A1A;
+            font-weight: 500;
           }
         }
       }
