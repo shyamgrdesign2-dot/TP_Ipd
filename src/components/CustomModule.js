@@ -130,12 +130,7 @@ function CustomModule({ module }) {
       return data.push({
         key: JSON.stringify({ title, notes, i, unique_id: uuidv4() }),
         value: title,
-        label: (
-          <div>
-            <div className="fw-medium">{title}</div>
-            {notes && <div className="text-muted small">{notes}</div>}
-          </div>
-        ),
+        label: <div className="fw-medium">{title}</div>,
       });
     });
     if (searchChildQuery.query?.length === 0) {
@@ -237,6 +232,10 @@ function CustomModule({ module }) {
           const selectedData = JSON.parse(option.key);
           title = selectedData.title || data;
           notes = selectedData.notes || "";
+
+          // Only add a new empty entry when an item is selected from dropdown
+          // (when option.key exists and is not -1)
+          updatedModuleData.push({ title: "", notes: "" });
         } catch (error) {
           // If parsing fails, try approach 2
         }
@@ -257,9 +256,6 @@ function CustomModule({ module }) {
         title: title,
         notes: notes,
       };
-
-      // Add a new empty entry after selection
-      updatedModuleData.push({ title: "", notes: "" });
 
       updateCustomModuleContents(updatedModuleData);
     },
@@ -670,6 +666,12 @@ function CustomModule({ module }) {
                             onSelect={(data, option) =>
                               onSelectChild(data, option, index)
                             }
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                onSearchChild(e.target.value, index);
+                              }
+                            }}
                           />
                         </div>
                       </Col>
