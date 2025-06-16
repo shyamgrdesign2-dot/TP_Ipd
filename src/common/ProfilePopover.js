@@ -125,7 +125,7 @@ function ProfilePopover(props) {
                 <div className={'align-items-center d-flex h-100'}>
                     <div className='align-items-center d-flex'>
                         <div className='patientName'>{`${getPatientName()},`}</div>
-                        <div className='text-2 fontpoppins fontpoppins1 ms-1'>{patient_data !== undefined ? genderAge(patient_data, profile) : `M, 30y`}</div>
+                        <div className='text-2 fontpoppins fontpoppins1 ms-1'>{patient_data !== undefined ? genderAge(patient_data, profile) : `M, 30y`} {patientDOB ? `(${patientDOB})` : ''}</div>
                         <i className='icon-right iconrotate270 ms-1'></i>
                     </div>
                 </div>
@@ -134,7 +134,7 @@ function ProfilePopover(props) {
                     <div className={'align-items-center d-flex h-100 ps-3'}>
                         <div className='rounded-pill patientProfile border me-3'>{makeDefaultLogo(patient_data?.pm_fullname)}</div>
                         <div>
-                            <div className='patientName'>{getPatientName()}<div className='text-2'>{patient_data !== undefined ? genderAge(patients_details || patient_data, profile) : `M, 30y`} {locationPath === '/vaccine' && patientDOB ? `(${patientDOB})` : ''}</div></div>
+                            <div className='patientName'>{getPatientName()}<div className='text-2'>{patient_data !== undefined ? genderAge(patients_details || patient_data, profile) : `M, 30y`} {patientDOB ? `(${patientDOB})` : ''}</div></div>
                         </div>
                         <div className='iconrotate270 align-self-start ms-2 mt-1'>
                             <i className='icon-right'></i>
