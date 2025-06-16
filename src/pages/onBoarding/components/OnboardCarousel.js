@@ -28,14 +28,14 @@ const OnboardingCarousel = () => {
       title: "AI-Powered",
       subtitle: "Clinical Decision Support",
       image: ddxBanner,
-      utmKey: "practice",
+      utmKey: "ddx",
     },
     {
       id: 3,
       title: "Build and Scale Your",
       subtitle: "Online Presence with Us",
       image: practiceManagement,
-      utmKey: "ddx",
+      utmKey: "practice",
     },
     {
       id: 4,
