@@ -19,6 +19,7 @@ import {
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import CommonModal from "../common/CommonModal";
 import alertIcon from "../assets/images/alertIcon.svg";
@@ -42,6 +43,7 @@ import {
 
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useLocation } from "react-router-dom";
+import { GB_APOLLO_DISABLE_FEATURE } from "../utils/constants";
 
 const { TextArea } = Input;
 
@@ -60,6 +62,8 @@ function SurgicalBox() {
   const { patient_data } = state;
 
   const { surgeriesData, setSurgeriesData } = useContext(CashManagerContext);
+
+  const isApolloHosBusinessIdAccessableFromGB = useFeatureIsOn(GB_APOLLO_DISABLE_FEATURE);
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -129,7 +133,7 @@ function SurgicalBox() {
         label: <div>{e.name}</div>,
       });
     });
-    searchParentQuery &&
+    searchParentQuery && !isApolloHosBusinessIdAccessableFromGB &&
       data.push({
         key: JSON.stringify({
           change: 1,

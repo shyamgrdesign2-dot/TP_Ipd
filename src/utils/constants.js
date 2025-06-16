@@ -51,6 +51,7 @@ export const GB_TALKATIVE = "Talkative"
 export const GB_GYNEC_HISTORY = "obs-gynec-history"
 export const GB_ZYDUS_USER = "zydus-hospital-user"
 export const GB_PILLUP_MEDICINE = "pillup-medicine-switch"
+export const GB_APOLLO_DISABLE_FEATURE = "apollo-disable-feature"
 
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
