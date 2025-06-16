@@ -272,7 +272,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     service_type,
                     plan_validity_months: validity,
                     plan_amount: formatAmount(parseFloat(service_cost)),
-                    plan_amount: formatAmount(parseFloat(max_applicable_discount))
+                    max_applicable_discount: formatAmount(parseFloat(max_applicable_discount))
                 }));
                 let sendData = {
                     b2c_id: profile?.b2c,
