@@ -159,7 +159,8 @@ const VerifyOTP = ({
                   utm_medium: utm.utm_medium ?? 'NA',
                   utm_content: utm.utm_content ?? 'NA',
                   utm_term: utm.utm_term ?? 'NA',
-                  operating_system: detectOperatingSystem()
+                  operating_system: detectOperatingSystem(),
+                  is_marketing: Object.values(utm).some(value => value && value.length > 0),
                 });
 
                 const queryParams = new URLSearchParams(window.location.search.toString());
