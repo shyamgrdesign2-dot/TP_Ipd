@@ -8,6 +8,7 @@ import MicrosoftPartner from "../../../assets/images/onboard-page-icons/microsof
 import leftGroup from "../../../assets/images/onboard-page-icons/Left-Group.svg";
 import rightGroup from "../../../assets/images/onboard-page-icons/Right-Group.svg";
 import { detectOperatingSystem } from "../../../utils/utils";
+import { getUtmParams } from "../../../components/userOnboarding/services/userDataService";
 
 const SetPassword = ({ onViewChange, mobileNumber }) => {
   const [password, setPassword] = useState("");
@@ -25,6 +26,9 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
     number: false,
     space: true
   });
+
+  // Get UTM params
+  const utm = getUtmParams();
 
   const isPasswordValid = () => {
     return Object.values(passwordStrength).every(value => value === true);
@@ -101,7 +105,13 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
       // moengage event for set password
       window.Moengage.track_event('TP_NewLoginFlow_Password_Setup', {
         mobile: "91" + mobileNumber,
-        operating_system: detectOperatingSystem()
+        operating_system: detectOperatingSystem(),
+        utm_campaign: utm.utm_campaign ?? 'NA',
+        utm_source: utm.utm_source ?? 'NA',
+        utm_medium: utm.utm_medium ?? 'NA',
+        utm_content: utm.utm_content ?? 'NA',
+        utm_term: utm.utm_term ?? 'NA',
+        is_marketing: Object.values(utm).some(value => value && value.length > 0),
       })
 
       const formattedNumber = `91${mobileNumber}`.replace('+', '');
@@ -113,7 +123,13 @@ const SetPassword = ({ onViewChange, mobileNumber }) => {
             const reqId = successData.message;
             window.Moengage.track_event('TP_NewLoginFlow_Password_Setup_Otp_Success', {
               mobile: "91" + mobileNumber,
-              operating_system: detectOperatingSystem()
+              operating_system: detectOperatingSystem(),
+              utm_campaign: utm.utm_campaign ?? 'NA',
+              utm_source: utm.utm_source ?? 'NA',
+              utm_medium: utm.utm_medium ?? 'NA',
+              utm_content: utm.utm_content ?? 'NA',
+              utm_term: utm.utm_term ?? 'NA',
+              is_marketing: Object.values(utm).some(value => value && value.length > 0),
             })
             onViewChange("verifyOTP", mobileNumber, true, true, password, reqId);
           } else {

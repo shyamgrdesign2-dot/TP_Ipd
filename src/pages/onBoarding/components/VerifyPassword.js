@@ -9,6 +9,8 @@ import rightGroup from "../../../assets/images/onboard-page-icons/Right-Group.sv
 import { loginWithPassword, verifyAccessToken } from "../../auth/authService";
 import { isMobile } from "react-device-detect";
 import { EyeInvisibleOutlined } from "@ant-design/icons";
+import { getUtmParams } from "../../../components/userOnboarding/services/userDataService";
+import { detectOperatingSystem } from "../../../utils/utils";
 
 
 const VerifyPassword = ({ onViewChange, mobileNumber }) => {
@@ -16,6 +18,8 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Get UTM params
+  const utm = getUtmParams();
 
   const handleLogin = async () => {
     try {
@@ -28,6 +32,13 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
       window.Moengage.track_event('TP_NewLoginFlow_Login_Password_Success', {
         mobile: "91" + mobileNumber,
         doc_status: message === "Doctor is inactive" ? "inactive" : "active",
+        operating_system: detectOperatingSystem(),
+        utm_campaign: utm.utm_campaign ?? 'NA',
+        utm_source: utm.utm_source ?? 'NA',
+        utm_medium: utm.utm_medium ?? 'NA',
+        utm_content: utm.utm_content ?? 'NA',
+        utm_term: utm.utm_term ?? 'NA',
+        is_marketing: Object.values(utm).some(value => value && value.length > 0),
       })
 
       switch (message) {
