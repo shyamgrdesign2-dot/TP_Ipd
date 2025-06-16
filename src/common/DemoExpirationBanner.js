@@ -99,13 +99,15 @@ const DemoExpirationBanner = () => {
     pathname !== '/get-unlimited-access' &&
     EMR_planDetails !== undefined && EMR_planDetails?.status != APPROVED &&
     <>
-      <header className={`banner ${planStatus == PAID && EMR_planDetails?.status == PAID && 'banner-yellow'}`}>
+      <header className={`banner ${(planStatus == PAID && EMR_planDetails?.status == PAID) || (planStatus == TRIAL && EMR_planDetails?.status == PAID) && 'banner-yellow'}`}>
         <div className="demoModeWrapper">
           <div className="demoModeIndicator" />
           <strong className="text-white">
             {planStatus == TRIAL && EMR_planDetails?.status == PENDING ? (
               'DEMO MODE'
             ) : planStatus == PAID && EMR_planDetails?.status == PAID ? (
+              'Payment Verification Pending'
+            ) : planStatus == TRIAL && EMR_planDetails?.status == PAID ? (
               'Payment Verification Pending'
             ) : planStatus == TRIAL && EMR_planDetails?.status == REJECTED && (
               'Payment Verification Failed'
@@ -116,6 +118,8 @@ const DemoExpirationBanner = () => {
           {planStatus == TRIAL && EMR_planDetails?.status == PENDING ? (
             `Your free trial ends in ${remaingDays} days. Purchase a plan to continue hassle-free access!`
           ) : planStatus == PAID && EMR_planDetails?.status == PAID ? (
+            'Your payment is being verified. This may take up to 3-6 working days.'
+          ) : planStatus == TRIAL && EMR_planDetails?.status == PAID ? (
             'Your payment is being verified. This may take up to 3-6 working days.'
           ) : planStatus == TRIAL && EMR_planDetails?.status == REJECTED && (
             'Payment could not be verified. Please contact support.'
