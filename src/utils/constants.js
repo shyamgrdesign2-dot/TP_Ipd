@@ -123,3 +123,5 @@ export const FONTS_SIZE_LIST = [
     label: "16",
   },
 ];
+
+export const PAEDIATRIC_DP_ID = 9;

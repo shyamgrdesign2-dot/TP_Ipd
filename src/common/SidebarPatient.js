@@ -14,6 +14,7 @@ import { setShouldShowOpdBilling } from '../redux/billingSlice';
 import { checkToShowOpdBilling } from '../pages/opdBilling/service';
 import { useDispatch } from 'react-redux';
 import moment from 'moment';
+import { PAEDIATRIC_DP_ID } from '../utils/constants';
 
 function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHandle }) {
     const dispatch = useDispatch();
@@ -24,6 +25,8 @@ function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHan
      );
     const { isOpdBillChecked } = useSelector((state) => state.billing);
     const { isOpdBillingAccessable } = useOpdBilling();
+
+    const isPaediatric = profile?.dp_id === PAEDIATRIC_DP_ID;
 
     const menu = [
         { key: 1, icon_name: 'icon-Visit-Summary-Fill', short_title: 'Visit', long_title: 'Visit Summary' },
@@ -142,7 +145,7 @@ function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHan
                             <div className='patientName d-flex align-items-center'> <div className='text-truncate pt-2px'>{`${patient_data !== undefined ? patient_data.pm_fullname : "Hello Guest"}`}</div>
                                 <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right'></i></button>
                             </div>
-                            <p className='mb-0'>{patient_data !== undefined ? genderAge(patient_data) : `M, 30y`} {patientDOB ? `(${patientDOB})` : ''}</p>
+                            <p className='mb-0'>{patient_data !== undefined ? genderAge(patient_data) : `M, 30y`} {isPaediatric && patientDOB ? `(${patientDOB})` : ''}</p>
                         </div>
                     )}
                 </div>
