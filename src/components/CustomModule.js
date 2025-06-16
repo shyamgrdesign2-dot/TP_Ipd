@@ -37,7 +37,12 @@ import CashManagerContext from "../context/CashManagerContext";
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 import ModuleIcon from "../assets/images/custom-module.svg";
 import { MenuOutlined } from "@ant-design/icons";
-import { addModule, clearSearchResults, searchModule, userPreModulesRX } from "../redux/customModuleSlice";
+import {
+  addModule,
+  clearSearchResults,
+  searchModule,
+  userPreModulesRX,
+} from "../redux/customModuleSlice";
 
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import editIcon from "../assets/images/edit-icon-blue.svg";
@@ -121,11 +126,16 @@ function CustomModule({ module }) {
 
   useEffect(() => {
     const data = [];
-    searchModuleResults.map(({ title }, i) => {
+    searchModuleResults.map(({ title, notes }, i) => {
       return data.push({
-        key: JSON.stringify({ title, i, unique_id: uuidv4() }),
+        key: JSON.stringify({ title, notes, i, unique_id: uuidv4() }),
         value: title,
-        label: <div>{title}</div>,
+        label: (
+          <div>
+            <div className="fw-medium">{title}</div>
+            {notes && <div className="text-muted small">{notes}</div>}
+          </div>
+        ),
       });
     });
     if (searchChildQuery.query?.length === 0) {
@@ -144,6 +154,7 @@ function CustomModule({ module }) {
             unique_id: uuidv4(),
             change: 1,
             title: searchChildQuery?.query,
+            notes: "",
           }),
           value: searchChildQuery?.query,
           label: (
@@ -170,23 +181,23 @@ function CustomModule({ module }) {
       );
       return moduleExists
         ? prevContents.map((content) => {
-          if (content.module_id === module.module_id) {
-            return {
-              ...content,
+            if (content.module_id === module.module_id) {
+              return {
+                ...content,
+                module_name: module.name,
+                content: updatedContent,
+              };
+            }
+            return content;
+          })
+        : [
+            ...prevContents,
+            {
+              module_id: module.module_id,
               module_name: module.name,
               content: updatedContent,
-            };
-          }
-          return content;
-        })
-        : [
-          ...prevContents,
-          {
-            module_id: module.module_id,
-            module_name: module.name,
-            content: updatedContent,
-          },
-        ];
+            },
+          ];
     });
   };
 
@@ -213,15 +224,46 @@ function CustomModule({ module }) {
   );
 
   const onSelectChild = useCallback(
-    (data, i) => {
+    (data, option, i) => {
       const updatedModuleData = [...moduleData];
+
+      // Try multiple approaches to get the notes
+      let title = data;
+      let notes = "";
+
+      // Approach 1: Parse the key if it exists
+      if (option && option.key && option.key !== -1) {
+        try {
+          const selectedData = JSON.parse(option.key);
+          title = selectedData.title || data;
+          notes = selectedData.notes || "";
+        } catch (error) {
+          // If parsing fails, try approach 2
+        }
+      }
+
+      // Approach 2: Find the corresponding search result
+      if (!notes && searchModuleResults.length > 0) {
+        const matchingResult = searchModuleResults.find(
+          (result) => result.title === data
+        );
+        if (matchingResult) {
+          notes = matchingResult.notes || "";
+        }
+      }
+
       updatedModuleData[i] = {
         ...updatedModuleData[i],
-        title: data,
+        title: title,
+        notes: notes,
       };
+
+      // Add a new empty entry after selection
+      updatedModuleData.push({ title: "", notes: "" });
+
       updateCustomModuleContents(updatedModuleData);
     },
-    [moduleData]
+    [moduleData, searchModuleResults]
   );
 
   const onChangeNoteChild = useCallback(
@@ -273,15 +315,17 @@ function CustomModule({ module }) {
       module_id: module?.module_id,
       hm_business_id: tokenData?.hospital_business_id,
       um_id: tokenData?.user_id,
-      patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      patient_unique_id:
+        patient_data !== undefined ? patient_data.patient_unique_id : 0,
       tcm_id: tcmId,
     };
     const action = await dispatch(userPreModulesRX(sendData));
     if (action.meta.requestStatus === "fulfilled") {
-
-      const updatedData = action.payload?.moduleContents[0]?.content.map((e) => {
-        return { ...e, unique_id: uuidv4(), notes: e.notes || "" };
-      });
+      const updatedData = action.payload?.moduleContents[0]?.content.map(
+        (e) => {
+          return { ...e, unique_id: uuidv4(), notes: e.notes || "" };
+        }
+      );
       // Find the module's existing content and update it
       const updatedModuleData = [
         ...moduleData?.filter((e) => e.title || e.notes),
@@ -289,9 +333,8 @@ function CustomModule({ module }) {
       ];
       // Update the parent state with the new module contents
       updateCustomModuleContents(updatedModuleData);
-
     } else {
-      errorMessage(action.error)
+      errorMessage(action.error);
     }
   };
 
@@ -600,8 +643,9 @@ function CustomModule({ module }) {
                       {...provided.draggableProps}
                       key={index}
                       gutter={[0]}
-                      className={`${index === 0 && "mt-14 border-top"
-                        } align-items-center border-bottom`}
+                      className={`${
+                        index === 0 && "mt-14 border-top"
+                      } align-items-center border-bottom`}
                     >
                       <Col lg={1} md={1} sm={1} xs={1} className="text-center">
                         <MenuOutlined
@@ -623,7 +667,9 @@ function CustomModule({ module }) {
                             options={childSearchOptions}
                             className="autocomplete-custom w-100 inputborder"
                             defaultActiveFirstOption={true}
-                            onSelect={(data) => onSelectChild(data, index)}
+                            onSelect={(data, option) =>
+                              onSelectChild(data, option, index)
+                            }
                           />
                         </div>
                       </Col>
@@ -710,8 +756,9 @@ function CustomModule({ module }) {
                     <div className="text-truncate">
                       {template?.content?.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.title || item.notes}${template.content.length - 1 != ii ? ", " : ""
-                            }`}</span>
+                          <span key={ii}>{`${item.title || item.notes}${
+                            template.content.length - 1 != ii ? ", " : ""
+                          }`}</span>
                         );
                       })}
                     </div>
@@ -810,10 +857,11 @@ function CustomModule({ module }) {
                     <div className="text-truncate">
                       {JSON.parse(option.data.key).content.map((item, ii) => {
                         return (
-                          <span key={ii}>{`${item.title}${JSON.parse(option.data.key).content.length - 1 != ii
+                          <span key={ii}>{`${item.title}${
+                            JSON.parse(option.data.key).content.length - 1 != ii
                               ? ", "
                               : ""
-                            }`}</span>
+                          }`}</span>
                         );
                       })}
                     </div>
@@ -1036,7 +1084,8 @@ function CustomModule({ module }) {
                 onClick={loadPreviousClick}
               >
                 {" "}
-                <i className="icon-reload me-2"></i> <span>Load Prev. data</span>
+                <i className="icon-reload me-2"></i>{" "}
+                <span>Load Prev. data</span>
               </button>
               <Popover
                 open={popOver1}
