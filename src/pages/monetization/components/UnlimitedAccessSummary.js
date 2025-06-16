@@ -425,7 +425,8 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     const clickReferralCode = () => {
         if (selectedServices?.length > 0) {
             setMobileNo('');
-            setFlag(1)
+            setOTP('');
+            setFlag(1);
             setDrawerOpen(true);
         } else {
             errorMessage('Please add any service')

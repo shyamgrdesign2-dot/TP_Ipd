@@ -148,14 +148,18 @@ const DemoExpirationBanner = () => {
             </button>
           }
         >
-          <div className="d-inline-flex align-items-center rounded-4 p-4 w-100" style={{ background: "#4B4AD514" }}>
-            <i className="icon-phone fs-18"></i>
-            <a className="text-main fw-medium fs-16" href="tel:+91-9974042363" onClick={contactNumberandEmail}> +91-9974042363</a>
-            <div className="mx-3">|</div>
-            <img width={19} height={19} src={SMS} />
-            <a className="text-main fw-medium fs-16" href="mailto:support@tatvacare.in" onClick={contactNumberandEmail}>
-              Support@tatvacare.in
-            </a>
+          <div className="rounded-4 p-4 w-100" style={{ background: "#4B4AD514" }}>
+            <div className="align-items-center">
+              <i className="icon-phone fs-18"></i>
+              <a className="text-main fw-medium fs-16" href="tel:+91-9974042363" onClick={contactNumberandEmail}> +91-9974042363</a>
+            </div>
+            <div className="my-2">(Monday - Saturday | 9am to 8pm)</div>
+            <div className="align-items-center">
+              <img className="me-1" width={19} height={19} src={SMS} />
+              <a className="text-main fw-medium fs-16" href="mailto:support@tatvacare.in" onClick={contactNumberandEmail}>
+                Support@tatvacare.in
+              </a>
+            </div>
           </div>
         </Card>
       </Modal>
